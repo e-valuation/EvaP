@@ -32,8 +32,8 @@ class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=3)
-        mommy.make(UserProfile, username='contributor', groups=[Group.objects.get(name='Staff')], email="contributor@institution.example.com")
-        contributor = UserProfile.objects.get(username="contributor")
+        staff = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        contributor = mommy.make(UserProfile)
 
         # Set up a course with one question but no answers
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
@@ -44,16 +44,16 @@ class TestResultsViewContributionWarning(WebTest):
 
     def test_many_answers_course_no_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
-        page = self.get_assert_200(self.url, 'contributor')
+        page = self.get_assert_200(self.url, 'staff')
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_course_no_warning(self):
-        page = self.get_assert_200(self.url, 'contributor')
+        page = self.get_assert_200(self.url, 'staff')
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_course_show_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
-        page = self.get_assert_200(self.url, 'contributor')
+        page = self.get_assert_200(self.url, 'staff')
         self.assertIn("Only a few participants answered these questions.", page)
 
 
