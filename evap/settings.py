@@ -78,6 +78,9 @@ EVALUATION_END_OFFSET_HOURS = 3
 # Amount of hours in which participant will be warned
 EVALUATION_END_WARNING_PERIOD = 5
 
+DROPOUT_QUESTIONNAIRE_NAME_EN = 'Dropout questionnaire'
+DROPOUT_QUESTIONNAIRE_NAME_DE = 'Abbruch-Fragebogen'
+
 
 ### Installation specific settings
 
@@ -401,6 +404,3 @@ if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
         'JQUERY_URL': '',
     }
-
-DROPOUT_QUESTIONNAIRE_NAME_EN = 'Dropout questionnaire'
-DROPOUT_QUESTIONNAIRE_NAME_DE = 'Abbruch-Fragebogen'
