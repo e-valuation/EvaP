@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import ViewTest, WebTest
 
 import random
 
@@ -25,6 +25,36 @@ class TestResultsSemesterDetailView(ViewTest):
         mommy.make(UserProfile, username='evap', email="evap@institution.example.com")
 
         cls.semester = mommy.make(Semester, id=1)
+
+
+class TestResultsViewContributionWarning(WebTest):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester, id=3)
+        staff = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        contributor = mommy.make(UserProfile)
+
+        # Set up a course with one question but no answers
+        cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
+        questionnaire = mommy.make(Questionnaire)
+        cls.contribution = mommy.make(Contribution, course=cls.course, questionnaires=[questionnaire], contributor=contributor)
+        cls.likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+        cls.url = '/results/semester/%s/course/%s' % (cls.semester.id, cls.course.id)
+
+    def test_many_answers_course_no_warning(self):
+        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
+        page = self.get_assert_200(self.url, 'staff')
+        self.assertNotIn("Only a few participants answered these questions.", page)
+
+    def test_zero_answers_course_no_warning(self):
+        page = self.get_assert_200(self.url, 'staff')
+        self.assertNotIn("Only a few participants answered these questions.", page)
+
+    def test_few_answers_course_show_warning(self):
+        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
+        page = self.get_assert_200(self.url, 'staff')
+        self.assertIn("Only a few participants answered these questions.", page)
 
 
 class TestResultsSemesterCourseDetailView(ViewTest):

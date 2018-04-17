@@ -1,13 +1,13 @@
 {% load evaluation_filters %}
 
-<div class="inline-headers">
-    {% if section.questionnaire_warning and not contributor_data.total_votes == 0 %}
-        <p class="pull-right participants-warning questionnaire-warning">
+<div class="d-flex">
+    <h4>{{ section.questionnaire.public_name }}</h4>
+    {% if section.warning and not contributor_data.total_votes == 0 %}
+        <p class="ml-auto mt-auto participants-warning questionnaire-warning">
             <span class="fas fa-exclamation-triangle"></span>
             {% trans 'Only a few participants answered these questions.' %}
         </p>
     {% endif %}
-    <h4>{{ section.questionnaire.public_name }}</h4>
 </div>
 <table class="table table-striped{% if not last %} mb-3{% endif %}">
     <tbody>
