@@ -48,6 +48,8 @@
     function {{ modal_id }}Show() {
         $('#{{ modal_id }}ActionButton').unbind().click(function(){ {{ modal_id }}Action(); });
         $('#{{ modal_id }}').modal();
+        // remove wrongly added padding by Bootstrap (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
+        $('body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top').css('padding-right', '');
     }
     function {{ modal_id }}Action() {
         var actionButton = $('#{{ modal_id }}ActionButton');

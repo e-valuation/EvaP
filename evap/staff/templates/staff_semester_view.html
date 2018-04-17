@@ -111,70 +111,72 @@
         </div>
         <div class="card-body">
             <div class="btn-switch mb-2" id="course-filter-buttons">
-                <div class="btn-switch-label my-auto">{% trans 'Filter' %}</div>
-                <div class="btn-group icon-buttons">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
-                        <span class="fas fa-circle icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
-                        <span class="far fa-square icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}">
-                        <span class="far fa-check-square icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}">
-                        <span class="far fa-check-square icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
-                        <span class="fas fa-pause icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
-                        <span class="fas fa-play icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
-                        <span class="fas fa-stop icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
-                        <span class="fas fa-comment icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
-                        <span class="fas fa-comment icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
-                        <span class="fas fa-comment icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
-                        <span class="fas fa-chart-bar icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
-                        <span class="fas fa-chart-bar icon-red"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
-                        <span class="fas fa-chart-bar icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
-                        <span class="fas fa-chart-bar icon-green"></span>
-                    </a>
+                <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
+                <div class="btn-toolbar">
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
+                            <span class="fas fa-circle icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
+                            <span class="far fa-square icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}">
+                            <span class="far fa-check-square icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}">
+                            <span class="far fa-check-square icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
+                            <span class="fas fa-pause icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
+                            <span class="fas fa-play icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
+                            <span class="fas fa-stop icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
+                            <span class="fas fa-comment icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
+                            <span class="fas fa-comment icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
+                            <span class="fas fa-comment icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
+                            <span class="fas fa-chart-bar icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
+                            <span class="fas fa-chart-bar icon-red"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
+                            <span class="fas fa-chart-bar icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
+                            <span class="fas fa-chart-bar icon-green"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
