@@ -183,19 +183,21 @@
             </div>
             <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
                 <table id="course-table" class="table table-striped table-narrow vertically-aligned">
-                    <thead>
-                        <tr>
-                            <th data-orderable="false"></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>{% trans 'Course' %}</th>
-                            <th>{% trans 'Evaluation period' %}</th>
-                            <th data-orderable="false"></th>
-                            <th data-orderable="false"></th>
-                        </tr>
-                    </thead>
+                    {% if num_courses > 0 %}
+                        <thead>
+                            <tr>
+                                <th data-orderable="false"></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>{% trans 'Course' %}</th>
+                                <th>{% trans 'Evaluation period' %}</th>
+                                <th data-orderable="false"></th>
+                                <th data-orderable="false"></th>
+                            </tr>
+                        </thead>
+                    {% endif %}
                     <tbody>
                     {% for course in courses %}
                         <tr id="course-row-{{ course.id }}">
