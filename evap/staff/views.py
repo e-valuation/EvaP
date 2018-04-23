@@ -119,9 +119,10 @@ def semester_view(request, semester_id):
                 stats.num_comments_reviewed += course.num_reviewed_textanswers
             if course.state in ['evaluated', 'reviewed', 'published']:
                 stats.num_courses_evaluated += 1
-            stats.num_courses += 1
-            stats.first_start = min(stats.first_start, course.vote_start_datetime)
-            stats.last_end = max(stats.last_end, course.vote_end_date)
+            if course.state != 'new':
+                stats.num_courses += 1
+                stats.first_start = min(stats.first_start, course.vote_start_datetime)
+                stats.last_end = max(stats.last_end, course.vote_end_date)
     degree_stats = OrderedDict(sorted(degree_stats.items(), key=lambda x: x[0].order))
     degree_stats['total'] = total_stats
 
