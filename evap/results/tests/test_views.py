@@ -32,7 +32,7 @@ class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=3)
-        staff = mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         contributor = mommy.make(UserProfile)
 
         # Set up a course with one question but no answers
@@ -78,7 +78,37 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
+
+    def test_questionnaire_ordering(self):
+        top_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        bottom_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
+
+        top_heading_question = mommy.make(Question, type="H", questionnaire=top_questionnaire, order=0)
+        top_likert_question = mommy.make(Question, type="L", questionnaire=top_questionnaire, order=1)
+
+        contributor_likert_question = mommy.make(Question, type="L", questionnaire=contributor_questionnaire)
+
+        bottom_heading_question = mommy.make(Question, type="H", questionnaire=bottom_questionnaire, order=0)
+        bottom_likert_question = mommy.make(Question, type="L", questionnaire=bottom_questionnaire, order=1)
+
+        self.course.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
+        self.contribution.questionnaires.set([contributor_questionnaire])
+
+        mommy.make(RatingAnswerCounter, question=top_likert_question, contribution=self.course.general_contribution, answer=2, count=100)
+        mommy.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
+        mommy.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.course.general_contribution, answer=3, count=100)
+
+        content = self.app.get("/results/semester/2/course/21", user='evap').body.decode()
+
+        top_heading_index = content.index(top_heading_question.text)
+        top_likert_index = content.index(top_likert_question.text)
+        contributor_likert_index = content.index(contributor_likert_question.text)
+        bottom_heading_index = content.index(bottom_heading_question.text)
+        bottom_likert_index = content.index(bottom_likert_question.text)
+
+        self.assertTrue(top_heading_index < top_likert_index < contributor_likert_index < bottom_heading_index < bottom_likert_index)
 
     def test_heading_question_filtering(self):
         contributor = mommy.make(UserProfile)
