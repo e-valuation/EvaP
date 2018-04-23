@@ -489,6 +489,23 @@ def semester_todo(request, semester_id):
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
 
+@staff_required
+def semester_grade_reminder(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    courses = semester.course_set.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all().prefetch_related("degrees")
+    courses = [course for course in courses if not course.final_grade_documents.exists()]
+
+    responsibles = (contributor for course in courses for contributor in course.responsible_contributors)
+    responsibles = list(set(responsibles))
+    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+
+    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors],
+                         responsible.delegates.all()) for responsible in responsibles]
+
+    template_data = dict(semester=semester, responsible_list=responsible_list)
+    return render(request, "staff_semester_grade_reminder.html", template_data)
+
 
 @staff_required
 def send_reminder(request, semester_id, responsible_id):
