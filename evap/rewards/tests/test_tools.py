@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from model_mommy import mommy
@@ -58,16 +58,15 @@ class TestGrantRewardPoints(WebTest):
         self.form.submit()
         self.assertEqual(target_points(1.0), reward_points_of_user(self.student))
 
+    @override_settings(REWARD_POINTS=[
+        (0.5, 2),
+        (1.0, 5),
+    ])
     def test_target_points(self):
-        thresholds = [
-            (0.5, 2),
-            (1.0, 5),
-        ]
-        self.assertEqual(target_points(0.0, thresholds=thresholds), 0)
-        self.assertEqual(target_points(0.6, thresholds=thresholds), 2)
-        self.assertEqual(target_points(0.9, thresholds=thresholds), 2)
-        self.assertEqual(target_points(1.0, thresholds=thresholds), 5)
-        self.assertEqual(target_points(1.0, thresholds=[]), 0)
+        self.assertEqual(target_points(0.0), 0)
+        self.assertEqual(target_points(0.6), 2)
+        self.assertEqual(target_points(0.9), 2)
+        self.assertEqual(target_points(1.0), 5)
 
 
 class TestGrantRewardPointsParticipationChange(TestCase):

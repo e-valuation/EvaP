@@ -61,16 +61,13 @@ def is_semester_activated(semester):
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
 
-def target_points(progress, thresholds=None):
+def target_points(progress):
     """
     How many points should a user have based on their evaluation progress?
     Progress should be 0.0 when none and 1.0 when all courses are evaluated.
-    thresholds is a list of tuples of form (<progress threshold>, <target reward value>).
-    If thresholds is None the REWARD_POINTS setting is used.
     """
-    thresholds = thresholds if thresholds is not None else settings.REWARD_POINTS
     # Filter reward point targets we have enough progress for
-    threshold_passed_reward_amount = map(lambda a: a[1], filter(lambda v: v[0] <= progress, thresholds))
+    threshold_passed_reward_amount = [points for threshold, points in settings.REWARD_POINTS if threshold <= progress]
     # Return the highest reward point target, or 0 if no thresholds were passed
     return max(threshold_passed_reward_amount, default=0)
 
@@ -96,6 +93,7 @@ def grant_reward_points(user, semester):
     granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
     points_missing = target_points(progress) - granted_points
 
+    # is the user actually missing points?
     if points_missing < 1:
         return False
 
