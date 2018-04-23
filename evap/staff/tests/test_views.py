@@ -1371,9 +1371,17 @@ class TestQuestionnaireIndexView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
+        cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.top_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.bottom_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
+
+    def test_ordering(self):
+        content = self.app.get(self.url, user="staff").body.decode()
+        top_index = content.index(self.top_questionnaire.name)
+        contributor_index = content.index(self.contributor_questionnaire.name)
+        bottom_index = content.index(self.bottom_questionnaire.name)
+
+        self.assertTrue(top_index < contributor_index < bottom_index)
 
 
 class TestQuestionnaireEditView(ViewTest):

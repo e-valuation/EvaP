@@ -24,6 +24,43 @@ class TestExporters(TestCase):
         self.assertEqual(exporter.normalize_number(2.150000000001), 2.2)
         self.assertEqual(exporter.normalize_number(2.8), 2.8)
 
+    def test_questionnaire_ordering(self):
+        course = mommy.make(Course, state='published')
+
+        questionnaire_1 = mommy.make(Questionnaire, order=1, type=Questionnaire.TOP)
+        questionnaire_2 = mommy.make(Questionnaire, order=4, type=Questionnaire.TOP)
+        questionnaire_3 = mommy.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
+        questionnaire_4 = mommy.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
+
+        question_1 = mommy.make(Question, type="L", questionnaire=questionnaire_1)
+        question_2 = mommy.make(Question, type="L", questionnaire=questionnaire_2)
+        question_3 = mommy.make(Question, type="L", questionnaire=questionnaire_3)
+        question_4 = mommy.make(Question, type="L", questionnaire=questionnaire_4)
+
+        course.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4])
+
+        mommy.make(RatingAnswerCounter, question=question_1, contribution=course.general_contribution, answer=3, count=100)
+        mommy.make(RatingAnswerCounter, question=question_2, contribution=course.general_contribution, answer=3, count=100)
+        mommy.make(RatingAnswerCounter, question=question_3, contribution=course.general_contribution, answer=3, count=100)
+        mommy.make(RatingAnswerCounter, question=question_4, contribution=course.general_contribution, answer=3, count=100)
+
+        binary_content = BytesIO()
+        ExcelExporter(course.semester).export(binary_content, [[course.type.id]], True, True)
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+
+        self.assertEqual(workbook.sheets()[0].row_values(2)[0], questionnaire_1.name)
+        self.assertEqual(workbook.sheets()[0].row_values(3)[0], question_1.text)
+
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], questionnaire_2.name)
+        self.assertEqual(workbook.sheets()[0].row_values(6)[0], question_2.text)
+
+        self.assertEqual(workbook.sheets()[0].row_values(8)[0], questionnaire_3.name)
+        self.assertEqual(workbook.sheets()[0].row_values(9)[0], question_3.text)
+
+        self.assertEqual(workbook.sheets()[0].row_values(11)[0], questionnaire_4.name)
+        self.assertEqual(workbook.sheets()[0].row_values(12)[0], question_4.text)
+
     def test_heading_question_filtering(self):
         course = mommy.make(Course, state='published')
         contributor = mommy.make(UserProfile)

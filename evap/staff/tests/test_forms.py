@@ -3,11 +3,58 @@ from django.test import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
-    Contribution, Semester, Degree, EmailTemplate
+    Contribution, Semester, Degree, EmailTemplate, Question
 from evap.evaluation.tests.tools import get_form_data_from_instance, create_course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
-    CourseEmailForm
+    CourseEmailForm, QuestionnaireForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
+
+
+class QuestionnaireFormTest(TestCase):
+    def test_force_highest_order(self):
+        mommy.make(Questionnaire, order=45, type=Questionnaire.TOP)
+
+        question = mommy.make(Question)
+
+        data = {
+            'description_de': 'English description',
+            'description_en': 'German description',
+            'name_de': 'A name',
+            'name_en': 'A german name',
+            'public_name_en': 'A display name',
+            'public_name_de': 'A german display name',
+            'question_set-0-id': question.id,
+            'order': 0,
+            'type': Questionnaire.TOP,
+        }
+
+        form = QuestionnaireForm(data=data)
+        self.assertTrue(form.is_valid())
+        questionnaire = form.save(force_highest_order=True)
+        self.assertEqual(questionnaire.order, 46)
+
+    def test_automatic_order_correction_on_type_change(self):
+        mommy.make(Questionnaire, order=72, type=Questionnaire.BOTTOM)
+
+        questionnaire = mommy.make(Questionnaire, order=7, type=Questionnaire.TOP)
+        question = mommy.make(Question)
+
+        data = {
+            'description_de': questionnaire.description_de,
+            'description_en': questionnaire.description_en,
+            'name_de': questionnaire.name_de,
+            'name_en': questionnaire.name_en,
+            'public_name_en': questionnaire.public_name_en,
+            'public_name_de': questionnaire.public_name_de,
+            'question_set-0-id': question.id,
+            'order': questionnaire.order,
+            'type': Questionnaire.BOTTOM,
+        }
+
+        form = QuestionnaireForm(instance=questionnaire, data=data)
+        self.assertTrue(form.is_valid())
+        questionnaire = form.save()
+        self.assertEqual(questionnaire.order, 73)
 
 
 class CourseEmailFormTests(TestCase):
