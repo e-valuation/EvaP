@@ -8,7 +8,7 @@ from evap.evaluation.models import Course, Questionnaire, Question
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import SemesterActivation, RewardPointGranting
-from evap.rewards.tools import reward_points_of_user
+from evap.rewards.tools import reward_points_of_user, target_points
 
 
 class TestGrantRewardPoints(WebTest):
@@ -38,19 +38,31 @@ class TestGrantRewardPoints(WebTest):
     def test_everything_works(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
         self.form.submit()
-        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
+        self.assertEqual(reward_points_of_user(self.student), target_points(1.0))
 
     def test_semester_activated_not_all_courses(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
         mommy.make(Course, semester=self.course.semester, participants=[self.student])
         self.form.submit()
-        self.assertEqual(0, reward_points_of_user(self.student))
+        self.assertEqual(target_points(0.5), reward_points_of_user(self.student))
 
     def test_already_got_points(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
         mommy.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.course.semester)
         self.form.submit()
-        self.assertEqual(0, reward_points_of_user(self.student))
+        self.assertEqual(target_points(1.0), reward_points_of_user(self.student))
+
+    def test_target_points(self):
+        thresholds = [
+            (0.5, 2),
+            (1.0, 5),
+        ]
+        self.assertEqual(target_points(0.0, thresholds=thresholds), 0)
+        self.assertEqual(target_points(0.6, thresholds=thresholds), 2)
+        self.assertEqual(target_points(0.9, thresholds=thresholds), 2)
+        self.assertEqual(target_points(1.0, thresholds=thresholds), 5)
+        self.assertEqual(target_points(1.0, thresholds=[]), 0)
+
 
 class TestGrantRewardPointsParticipationChange(TestCase):
     @classmethod
@@ -70,3 +82,4 @@ class TestGrantRewardPointsParticipationChange(TestCase):
         self.student.courses_participating_in.remove(self.course)
 
         self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
+

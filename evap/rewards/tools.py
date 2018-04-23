@@ -3,6 +3,7 @@ from datetime import date
 from django.conf import settings
 from django.contrib import messages
 from django.db import models, transaction
+from django.db.models import Sum
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
@@ -59,6 +60,21 @@ def reward_points_of_user(user):
 def is_semester_activated(semester):
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
+
+def target_points(progress, thresholds=None):
+    """
+    How many points should a user have based on their evaluation progress?
+    Progress should be 0.0 when none and 1.0 when all courses are evaluated.
+    thresholds is a list of tuples of form (<progress threshold>, <target reward value>).
+    If thresholds is None the REWARD_POINTS setting is used.
+    """
+    thresholds = thresholds if thresholds is not None else settings.REWARD_POINTS
+    # Filter reward point targets we have enough progress for
+    threshold_passed_reward_amount = map(lambda a: a[1], filter(lambda v: v[0] <= progress, thresholds))
+    # Return the highest reward point target, or 0 if no thresholds were passed
+    return max(threshold_passed_reward_amount, default=0)
+
+
 def grant_reward_points(user, semester):
     # grant reward points if all conditions are fulfilled
 
@@ -71,14 +87,20 @@ def grant_reward_points(user, semester):
     required_courses = Course.objects.filter(participants=user, semester=semester, is_required_for_reward=True)
     if not required_courses.exists():
         return False
-    # does the user not participate in any more required courses in this semester?
-    if required_courses.exclude(voters=user).exists():
+
+    voted_courses_count = required_courses.filter(voters=user).count()
+    # full evaluation progress from 0.0 to 1.0
+    progress = float(voted_courses_count) / float(required_courses.count())
+
+    # How many points have been granted to this user this semester?
+    granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
+    points_missing = target_points(progress) - granted_points
+
+    if points_missing < 1:
         return False
-    # did the user not already get reward points for this semester?
-    if RewardPointGranting.objects.filter(user_profile=user, semester=semester).exists():
-        return False
-    # grant reward points
-    RewardPointGranting.objects.create(user_profile=user, semester=semester, value=settings.REWARD_POINTS_PER_SEMESTER)
+
+    # grant missing reward points
+    RewardPointGranting.objects.create(user_profile=user, semester=semester, value=points_missing)
     return True
 
 # Signal handlers
