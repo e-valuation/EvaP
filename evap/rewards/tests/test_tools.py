@@ -46,9 +46,15 @@ class TestGrantRewardPoints(WebTest):
         self.form.submit()
         self.assertEqual(target_points(0.5), reward_points_of_user(self.student))
 
-    def test_already_got_points(self):
+    def test_already_got_grant_objects(self):
         SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
         mommy.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.course.semester)
+        self.form.submit()
+        self.assertEqual(target_points(1.0), reward_points_of_user(self.student))
+
+    def test_already_got_points(self):
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        mommy.make(RewardPointGranting, user_profile=self.student, value=target_points(1.0), semester=self.course.semester)
         self.form.submit()
         self.assertEqual(target_points(1.0), reward_points_of_user(self.student))
 
