@@ -76,10 +76,10 @@ class TestGrantRewardPointsParticipationChange(TestCase):
     def test_participant_removed_from_course(self):
         self.course.participants.remove(self.student)
 
-        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
+        self.assertEqual(reward_points_of_user(self.student), target_points(1.0))
 
     def test_course_removed_from_participant(self):
         self.student.courses_participating_in.remove(self.course)
 
-        self.assertEqual(reward_points_of_user(self.student), settings.REWARD_POINTS_PER_SEMESTER)
+        self.assertEqual(reward_points_of_user(self.student), target_points(1.0))
 
