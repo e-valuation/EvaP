@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db import models, transaction
 from django.db.models import Sum
 from django.utils.translation import ugettext as _
+from django.utils.translation import ngettext
 from django.dispatch import receiver
 from django.contrib.auth.decorators import login_required
 
@@ -62,6 +63,10 @@ def is_semester_activated(semester):
 
 
 def grant_reward_points(user, semester):
+    """
+    Grant reward points if eligible.
+    When points are granted, return tuple of amount of points granted and points remaining this semester, False otherwise.
+    """
     # grant reward points if all conditions are fulfilled
 
     if not can_user_use_reward_points(user):
@@ -81,7 +86,8 @@ def grant_reward_points(user, semester):
 
     if target_points > granted_points:
         RewardPointGranting.objects.create(user_profile=user, semester=semester, value=target_points-granted_points)
-        return True
+        max_points = max([points for threshold, points in settings.REWARD_POINTS], default=0)
+        return (target_points - granted_points, max_points - target_points)
     return False
 
 # Signal handlers
@@ -91,8 +97,14 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
     request = kwargs['request']
     semester = kwargs['semester']
 
-    if grant_reward_points(request.user, semester):
-        messages.success(request, _("You just have earned reward points for this semester because you evaluated all your courses. Thank you very much!"))
+    result = grant_reward_points(request.user, semester)
+    if result:
+        granted, remaining = result
+        reward = ngettext("{count} reward point", "{count} reward points", granted).format(count=granted)
+        if remaining:
+            messages.success(request, _("You just earned {reward} for this semester. More points can be earned by evaluating more courses.").format(reward=reward))
+        else:
+            messages.success(request, _("You just earned {reward} for this semester. Thank you very much for evaluating all of your courses!").format(reward=reward))
 
 @receiver(models.signals.m2m_changed, sender=Course.participants.through)
 def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
@@ -117,3 +129,4 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs
 
         if affected:
             RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, users=affected)
+
