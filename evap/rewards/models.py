@@ -20,6 +20,12 @@ class RedemptionEventExpired(Exception):
     pass
 
 
+"""
+All of the following objects handle reward points. As reward points might be connected to monetary transactions,
+these objects may not be altered or deleted after creation.
+"""
+
+
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
@@ -60,3 +66,4 @@ class RewardPointRedemption(models.Model):
 class SemesterActivation(models.Model):
     semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='rewards_active')
     is_active = models.BooleanField(default=False)
+

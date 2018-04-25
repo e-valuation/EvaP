@@ -61,17 +61,6 @@ def is_semester_activated(semester):
     return SemesterActivation.objects.filter(semester=semester, is_active=True).exists()
 
 
-def target_points(progress):
-    """
-    How many points should a user have based on their evaluation progress?
-    Progress should be 0.0 when none and 1.0 when all courses are evaluated.
-    """
-    # Filter reward point targets we have enough progress for
-    threshold_passed_reward_amount = [points for threshold, points in settings.REWARD_POINTS if threshold <= progress]
-    # Return the highest reward point target, or 0 if no thresholds were passed
-    return max(threshold_passed_reward_amount, default=0)
-
-
 def grant_reward_points(user, semester):
     # grant reward points if all conditions are fulfilled
 
@@ -85,21 +74,15 @@ def grant_reward_points(user, semester):
     if not required_courses.exists():
         return False
 
-    voted_courses_count = required_courses.filter(voters=user).count()
-    # full evaluation progress from 0.0 to 1.0
-    progress = float(voted_courses_count) / float(required_courses.count())
-
-    # How many points have been granted to this user this semester?
+    # How many points have been granted to this user vs how many should they have (this semester)
     granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
-    points_missing = target_points(progress) - granted_points
+    progress = float(required_courses.filter(voters=user).count()) / float(required_courses.count())
+    target_points = max([points for threshold, points in settings.REWARD_POINTS if threshold <= progress], default=0)
 
-    # is the user actually missing points?
-    if points_missing < 1:
-        return False
-
-    # grant missing reward points
-    RewardPointGranting.objects.create(user_profile=user, semester=semester, value=points_missing)
-    return True
+    if target_points > granted_points:
+        RewardPointGranting.objects.create(user_profile=user, semester=semester, value=target_points-granted_points)
+        return True
+    return False
 
 # Signal handlers
 
