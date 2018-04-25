@@ -20,12 +20,6 @@ class RedemptionEventExpired(Exception):
     pass
 
 
-"""
-All of the following objects handle reward points. As reward points might be connected to monetary transactions,
-these objects may not be altered or deleted after creation.
-"""
-
-
 class RewardPointRedemptionEvent(models.Model):
     name = models.CharField(max_length=1024, verbose_name=_("event name"))
     date = models.DateField(verbose_name=_("event date"))
@@ -46,6 +40,12 @@ class RewardPointRedemptionEvent(models.Model):
             redemptions_dict[redemption.user_profile] += redemption.value
         return redemptions_dict
 
+
+
+"""
+The two following objects handle reward point amounts. As reward points might be connected to monetary transactions,
+these objects may not be altered or deleted after creation.
+"""
 
 class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', models.CASCADE, related_name="reward_point_grantings")
