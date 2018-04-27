@@ -10,6 +10,11 @@ def zip_lists(a, b):
     return zip(a, b)
 
 
+@register.filter(name='or')
+def _or(a, b):
+    return a or b
+
+
 @register.filter(name='ordering_index')
 def ordering_index(course):
     if course.state in ['new', 'prepared', 'editor_approved', 'approved']:

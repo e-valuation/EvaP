@@ -23,7 +23,9 @@
                 <tr class="no-break d-flex">
                     <td class="result-rating-question my-auto">{{ result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
-                        {% include 'result_bar.html' with result=result show_grades=show_grades questionnaire_warning=section.questionnaire_warning %}
+                        {% with participants_warning=section.warning|or:result.warning %}
+                            {% include 'result_bar.html' with result=result show_grades=show_grades participants_warning=participants_warning %}
+                        {% endwith %}
                     </td>
                 </tr>
             {% elif result.question.is_text_question %}

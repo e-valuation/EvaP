@@ -103,7 +103,7 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result show_grades=True questionnaire_warning=False %}</td>
+                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result show_grades=True participants_warning=False %}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
