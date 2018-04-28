@@ -45,6 +45,12 @@ div.container {
     flex: 1 0 auto;
 }
 
+// remove wrongly added padding by Bootstrap, caused by the always visible scrollbar
+// (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
+body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
+    padding-right: 0 !important;
+}
+
 .btn.fas {
     font-weight: 900;
 }
