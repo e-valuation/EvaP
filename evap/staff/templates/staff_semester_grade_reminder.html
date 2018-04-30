@@ -1,0 +1,26 @@
+{% extends 'staff_semester_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Grade publish reminder' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>
+        Grade publish reminder ({{ semester.name }})
+    </h3>
+    <div class="card">
+        <div class="card-body">
+            {% for responsible, courses in responsible_list %}
+                <b>{{ responsible.full_name }}</b><br />
+                {% for course in courses %}
+                    - {{ course.name }} (<i>{{ course.type }}</i>)<br />
+                {% endfor %}
+                {% if not forloop.last %}
+                    <br />
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
