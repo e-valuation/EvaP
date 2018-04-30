@@ -11,7 +11,7 @@ from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType
+from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
     TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
@@ -108,21 +108,26 @@ def course_detail(request, semester_id, course_id):
     course_result = collect_results(course)
 
     if request.user.is_reviewer:
-        public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.
+        view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
     else:
-        public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
+        view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
 
+    view_as_user = request.user
+    if view == 'export' and request.user.is_staff:
+        view_as_user = UserProfile.objects.get(id=int(request.GET.get('contributor_id', request.user.id)))
+
+    represented_users = [view_as_user]
+    if view != 'export':
+        represented_users += list(view_as_user.represented_users.all())
     # redirect to non-public view if there is none because the results have not been published
-    if not course.can_publish_rating_results:
-        public_view = False
-
-    represented_users = list(request.user.represented_users.all()) + [request.user]
+    if not course.can_publish_rating_results and view == 'public':
+        view = 'full'
 
     # remove text answers if the user may not see them
     for questionnaire_result in course_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
+                question_result.answers = [answer for answer in question_result.answers if user_can_see_text_answer(view_as_user, represented_users, answer, view)]
         # remove empty TextResults
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
@@ -155,7 +160,7 @@ def course_detail(request, semester_id, course_id):
                     course_questionnaire_results_bottom.append(questionnaire_result)
                 else:
                     course_questionnaire_results_top.append(questionnaire_result)
-        else:
+        elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
             contributor_contribution_results.append(contribution_result)
 
     if not contributor_contribution_results:
@@ -165,15 +170,23 @@ def course_detail(request, semester_id, course_id):
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
 
+    other_contributors = []
+    if view == 'export':
+        other_contributors = [contribution_result.contributor for contribution_result in course_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
+
     template_data = dict(
-            course=course,
-            course_questionnaire_results_top=course_questionnaire_results_top,
-            course_questionnaire_results_bottom=course_questionnaire_results_bottom,
-            contributor_contribution_results=contributor_contribution_results,
-            reviewer=request.user.is_reviewer,
-            contributor=course.is_user_contributor_or_delegate(request.user),
-            can_download_grades=request.user.can_download_grades,
-            public_view=public_view)
+        course=course,
+        course_questionnaire_results_top=course_questionnaire_results_top,
+        course_questionnaire_results_bottom=course_questionnaire_results_bottom,
+        contributor_contribution_results=contributor_contribution_results,
+        is_reviewer=view_as_user.is_reviewer,
+        is_contributor=course.is_user_contributor(view_as_user),
+        is_contributor_or_delegate=course.is_user_contributor_or_delegate(view_as_user),
+        can_download_grades=view_as_user.can_download_grades,
+        view=view,
+        view_as_user=view_as_user,
+        other_contributors=other_contributors,
+    )
     return render(request, "results_course_detail.html", template_data)
 
 
@@ -200,10 +213,12 @@ def add_warnings(course, course_result):
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
-def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
+def user_can_see_text_answer(user, represented_users, text_answer, view):
     assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
 
-    if public_view:
+    if view == 'public':
+        return False
+    if view == 'export' and text_answer.is_private:
         return False
     if user.is_reviewer:
         return True
@@ -212,6 +227,9 @@ def user_can_see_text_answer(user, represented_users, text_answer, public_view=F
 
     if text_answer.is_private:
         return contributor == user
+
+    if view == 'export' and not text_answer.contribution.is_general and contributor != user:
+        return False
 
     if text_answer.is_published:
         if text_answer.contribution.responsible:

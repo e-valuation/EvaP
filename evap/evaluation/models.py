@@ -519,6 +519,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
 
+    def is_user_contributor(self, user):
+        # early out that saves database hits since is_contributor_or_delegate is a cached_property
+        if not user.is_contributor_or_delegate:
+            return False
+        return self.contributions.filter(Q(contributor=user)).exists()
+
     @property
     def textanswer_set(self):
         return TextAnswer.objects.filter(contribution__course=self)
