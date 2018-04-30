@@ -500,7 +500,8 @@ def semester_grade_reminder(request, semester_id):
     responsibles = list(set(responsibles))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
-    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors]
+    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors]) 
+                        for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_grade_reminder.html", template_data)
