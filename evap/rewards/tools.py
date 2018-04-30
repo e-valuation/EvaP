@@ -87,7 +87,7 @@ def grant_reward_points(user, semester):
     if target_points > granted_points:
         RewardPointGranting.objects.create(user_profile=user, semester=semester, value=target_points-granted_points)
         max_points = max([points for threshold, points in settings.REWARD_POINTS], default=0)
-        return (target_points - granted_points, max_points - target_points)
+        return (target_points - granted_points, progress)
     return False
 
 # Signal handlers
@@ -99,12 +99,16 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
 
     result = grant_reward_points(request.user, semester)
     if result:
-        granted, remaining = result
-        reward = ngettext("{count} reward point", "{count} reward points", granted).format(count=granted)
-        if remaining:
-            messages.success(request, _("You just earned {reward} for this semester. More points can be earned by evaluating more courses.").format(reward=reward))
-        else:
-            messages.success(request, _("You just earned {reward} for this semester. Thank you very much for evaluating all of your courses!").format(reward=reward))
+        granted, progress = result
+        message = ngettext("You just earned {count} reward point for this semester.",
+                           "You just earned {count} reward points for this semester.", granted).format(count=granted)
+
+        if progress >= 1.0:
+            message += " " + _("Thank you very much for evaluating all your courses.")
+        elif Course.objects.filter(participants=request.user, semester=semester, is_required_for_reward=True, state="in_evaluation").exclude(voters=request.user).exists():
+            message += " " + _("Please continue evaluating your courses.")
+
+        messages.success(request, message)
 
 @receiver(models.signals.m2m_changed, sender=Course.participants.through)
 def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
