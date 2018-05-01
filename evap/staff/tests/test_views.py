@@ -1390,9 +1390,37 @@ class TestQuestionnaireEditView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        questionnaire = mommy.make(Questionnaire, id=2)
-        mommy.make(Question, questionnaire=questionnaire)
+        course = mommy.make(Course, state='in_evaluation')
+        cls.questionnaire = mommy.make(Questionnaire, id=2)
+        mommy.make(Contribution, questionnaires=[cls.questionnaire], course=course)
+
+        mommy.make(Question, questionnaire=cls.questionnaire)
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
+
+    def test_allowed_type_changes_on_used_questionnaire(self):
+        # top to bottom
+        self.questionnaire.type = Questionnaire.TOP
+        self.questionnaire.save()
+
+        page = self.app.get(self.url, user='staff')
+        form = page.forms['questionnaire-form']
+        self.assertEqual(form['type'].options, [('10', True, 'Top questionnaire'), ('30', False, 'Bottom questionnaire')])
+
+        # bottom to top
+        self.questionnaire.type = Questionnaire.BOTTOM
+        self.questionnaire.save()
+
+        page = self.app.get(self.url, user='staff')
+        form = page.forms['questionnaire-form']
+        self.assertEqual(form['type'].options, [('10', False, 'Top questionnaire'), ('30', True, 'Bottom questionnaire')])
+
+        # contributor has no other possible type
+        self.questionnaire.type = Questionnaire.CONTRIBUTOR
+        self.questionnaire.save()
+
+        page = self.app.get(self.url, user='staff')
+        form = page.forms['questionnaire-form']
+        self.assertEqual(form['type'].options, [('20', True, 'Contributor questionnaire')])
 
 
 class TestQuestionnaireViewView(ViewTest):

@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.dispatch import receiver
 from django.db import IntegrityError, transaction
-from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Max, Prefetch, Q, Sum, When
+from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -893,7 +893,8 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en']
+        editable_fields = ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+
         for name, field in form.fields.items():
             if name not in editable_fields:
                 field.disabled = True
@@ -901,6 +902,12 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
             for name, field in question_form.fields.items():
                 if name is not 'id':
                     field.disabled = True
+
+        # disallow type changed from and to contributor
+        if questionnaire.type == Questionnaire.CONTRIBUTOR:
+            form.fields['type'].choices = [choice for choice in Questionnaire.TYPE_CHOICES if choice[0] == Questionnaire.CONTRIBUTOR]
+        else:
+            form.fields['type'].choices = [choice for choice in Questionnaire.TYPE_CHOICES if choice[0] != Questionnaire.CONTRIBUTOR]
 
     return form, formset
 
