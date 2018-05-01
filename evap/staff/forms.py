@@ -387,6 +387,11 @@ class RemindResponsibleForm(forms.Form):
 
 
 class QuestionnaireForm(forms.ModelForm):
+    class Meta:
+        model = Questionnaire
+        exclude = ()
+        widgets = {'order': forms.HiddenInput()}
+
     def save(self, commit=True, force_highest_order=False, *args, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
@@ -399,11 +404,6 @@ class QuestionnaireForm(forms.ModelForm):
             questionnaire_instance.save(*args, **kwargs)
 
         return questionnaire_instance
-
-    class Meta:
-        model = Questionnaire
-        exclude = ()
-        widgets = {'order': forms.HiddenInput()}
 
 
 class AtLeastOneFormSet(BaseInlineFormSet):
