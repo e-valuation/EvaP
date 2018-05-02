@@ -61,17 +61,13 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     url = '/results/semester/2/course/21'
     test_users = ['evap', 'contributor', 'responsible']
 
-    fixtures = ['minimal_test_data_results']
-
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
 
         mommy.make(UserProfile, username='evap', groups=[Group.objects.get(name='Staff')], email="evap@institution.example.com")
-        contributor = UserProfile.objects.get(username="contributor")
-        responsible = UserProfile.objects.get(username="responsible")
-        # contributor = mommy.make(UserProfile, username='contributor')  # Add again when fixtures are removed
-        # responsible = mommy.make(UserProfile, username='responsible')
+        contributor = mommy.make(UserProfile, username='contributor')
+        responsible = mommy.make(UserProfile, username='responsible')
 
         # Normal course with responsible and contributor.
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
@@ -126,37 +122,34 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         url = '/results/semester/%s/course/%s' % (self.semester.id, course.id)
         self.get_assert_403(url, 'student')
 
+class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
     def test_private_course(self):
-        student = UserProfile.objects.get(username="student")
-        student_external = UserProfile.objects.get(username="student_external")
-        contributor = UserProfile.objects.get(username="contributor")
-        responsible = UserProfile.objects.get(username="responsible")
-        other_responsible = UserProfile.objects.get(username="other_responsible")
+        semester = mommy.make(Semester)
+        mommy.make(UserProfile, username='evap', groups=[Group.objects.get(name='Staff')], email="evap@institution.example.com")
+        student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
+        student_external = mommy.make(UserProfile, username="student_external")
+        contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
+        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+        other_responsible = mommy.make(UserProfile, username="other_responsible", email="other_responsible@institution.example.com")
         test1 = mommy.make(UserProfile, username="test1")
         test2 = mommy.make(UserProfile, username="test2")
         mommy.make(UserProfile, username="random", email="random@institution.example.com")
         degree = mommy.make(Degree)
-        private_course = mommy.make(Course, state='published', is_private=True, semester=self.semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
+        private_course = mommy.make(Course, state='published', is_private=True, semester=semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
         mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
-        url = '/results/semester/%s' % (self.semester.id)
-        page = self.app.get(url, user='random')
-        self.assertNotIn(private_course.name, page)
-        page = self.app.get(url, user='student')
-        self.assertIn(private_course.name, page)
-        page = self.app.get(url, user='responsible')
-        self.assertIn(private_course.name, page)
-        page = self.app.get(url, user='other_responsible')
-        self.assertIn(private_course.name, page)
-        page = self.app.get(url, user='contributor')
-        self.assertIn(private_course.name, page)
-        page = self.app.get(url, user='evap')
-        self.assertIn(private_course.name, page)
+        url = '/results/semester/%s' % (semester.id)
+        self.assertNotIn(private_course.name, self.app.get(url, user='random'))
+        self.assertIn(private_course.name, self.app.get(url, user='student'))
+        self.assertIn(private_course.name, self.app.get(url, user='responsible'))
+        self.assertIn(private_course.name, self.app.get(url, user='other_responsible'))
+        self.assertIn(private_course.name, self.app.get(url, user='contributor'))
+        self.assertIn(private_course.name, self.app.get(url, user='evap'))
         self.get_assert_403(url, 'student_external')  # external users can't see results semester view
 
-        url = '/results/semester/%s/course/%s' % (self.semester.id, private_course.id)
+        url = '/results/semester/%s/course/%s' % (semester.id, private_course.id)
         self.get_assert_403(url, "random")
         self.get_assert_200(url, "student")
         self.get_assert_200(url, "responsible")
@@ -164,6 +157,11 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.get_assert_200(url, "contributor")
         self.get_assert_200(url, "evap")
         self.get_assert_200(url, "student_external")  # this external user participates in the course and can see the results
+
+
+class TestResultsTextanswerVisibility(WebTest):
+
+    fixtures = ['minimal_test_data_results']
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1", user='responsible')
