@@ -36,7 +36,7 @@ from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporte
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
                               get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
                               raise_permission_denied_if_archived, get_parameter_from_url_or_session)
-from evap.student.forms import QuestionsForm
+from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import vote_preview
 
 
@@ -858,7 +858,7 @@ def questionnaire_view(request, questionnaire_id):
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
     return render(request, "staff_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire))
 

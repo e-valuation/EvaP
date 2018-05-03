@@ -12,7 +12,7 @@ from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
-from evap.student.forms import QuestionsForm
+from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
@@ -144,7 +144,7 @@ def helper_create_voting_form_groups(request, contributions):
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
+        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
     return form_groups
 
 
