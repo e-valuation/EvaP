@@ -21,7 +21,6 @@ from django_fsm.signals import post_transition
 # see evaluation.meta for the use of Translate in this file
 from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
-from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 logger = logging.getLogger(__name__)
 
@@ -272,7 +271,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @property
     def vote_end_datetime(self):
         # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
-        return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS)
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
     @property
     def is_in_evaluation_period(self):
@@ -436,7 +435,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.vote_end_datetime - datetime.now()
 
     def evaluation_ends_soon(self):
-        return self.time_left_for_evaluation.total_seconds() < EVALUATION_END_WARNING_PERIOD * 3600
+        return self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
     def days_until_evaluation(self):
