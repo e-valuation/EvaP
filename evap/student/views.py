@@ -65,6 +65,35 @@ def vote_preview(request, course, for_rendering_in_modal=False):
     return render(request, "student_vote.html", template_data)
 
 
+def get_valid_form_groups_or_render_vote_page(request, course):
+    contributions_to_vote_on = course.contributions.all()
+    # prevent a user from voting on themselves
+    contributions_to_vote_on = contributions_to_vote_on.exclude(contributor=request.user)
+
+    form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
+
+    if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
+        return form_groups, None
+
+    course_form_group = form_groups.pop(course.general_contribution)
+
+    template_data = dict(
+        errors_exist=any(any(form.errors for form in form_group) for form_group in form_groups.values()),
+        course_form_group_top=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors],
+        course_form_group_bottom=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors],
+        contributor_form_groups=[(contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items()],
+        course=course,
+        participants_warning=course.num_participants <= 5,
+        preview=False,
+        vote_end_datetime=course.vote_end_datetime,
+        hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
+        minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
+        success_magic_string=SUCCESS_MAGIC_STRING,
+        success_redirect_url=reverse('student:index'),
+        evaluation_ends_soon=course.evaluation_ends_soon())
+    return None, render(request, "student_vote.html", template_data)
+
+
 @participant_required
 def vote(request, course_id):
 
@@ -72,35 +101,9 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
-    # prevent a user from voting on themselves.
-    contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
-    form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
-
-    if not all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
-        errors_exist = any(helper_has_errors(form_group) for form_group in form_groups.values())
-
-        course_form_group = form_groups.pop(course.general_contribution)
-
-        course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
-        course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
-
-        contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
-
-        template_data = dict(
-            errors_exist=errors_exist,
-            course_form_group_top=course_form_group_top,
-            course_form_group_bottom=course_form_group_bottom,
-            contributor_form_groups=contributor_form_groups,
-            course=course,
-            participants_warning=course.num_participants <= 5,
-            preview=False,
-            vote_end_datetime=course.vote_end_datetime,
-            hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
-            minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
-            success_magic_string=SUCCESS_MAGIC_STRING,
-            success_redirect_url=reverse('student:index'),
-            evaluation_ends_soon=course.evaluation_ends_soon())
-        return render(request, "student_vote.html", template_data)
+    form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, course)
+    if rendered_page is not None:
+        return rendered_page
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
