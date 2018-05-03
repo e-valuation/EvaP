@@ -70,11 +70,7 @@
                                 </a>
                                 <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">{% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}</a>
                             </div>
-                            {% if not errors_exist or contributor_has_errors %}
-                                <div class="card-body collapse show" id="vote-area-{{ contributor.id }}">
-                            {% else %}
-                                <div class="card-body collapse" id="vote-area-{{ contributor.id }}">
-                            {% endif %}
+                            <div class="card-body collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
                                 {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview %}
                             </div>
                         </div>
