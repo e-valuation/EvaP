@@ -11,7 +11,6 @@ from model_mommy import mommy
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
 from evap.results.tools import calculate_average_grades_and_deviation
-from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
