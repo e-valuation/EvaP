@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, \
-    HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
+from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
+    TextResult, RatingResult, HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
 
 
 @internal_required
@@ -30,8 +30,8 @@ def semester_detail(request, semester_id):
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
     for course in courses:
-        if course.can_user_see_grades(request.user):
-            course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(request.user) else None
+        course.avg_grade = distribution_to_grade(course.distribution)
 
     CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
 
@@ -130,8 +130,8 @@ def course_detail(request, semester_id, course_id):
                     if show_grades:
                         contributor_sections[section.contributor]['total_votes'] += result.total_count
 
-    if show_grades:
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+    course.distribution = calculate_average_distribution(course) if show_grades else None
+    course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(
             course=course,

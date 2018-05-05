@@ -713,6 +713,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
 
     @property
+    def is_non_grade_rating_question(self):
+        return self.is_rating_question and not self.is_grade_question
+
+    @property
     def is_heading_question(self):
         return self.type == "H"
 

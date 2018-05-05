@@ -25,7 +25,7 @@ from evap.evaluation.tools import questionnaires_and_contributions, send_publish
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import CommentSection, TextResult, calculate_average_grades_and_deviation, get_textanswers
+from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, get_textanswers, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
@@ -414,9 +414,9 @@ def semester_raw_export(request, semester_id):
         _('#Participants'), _('#Comments'), _('Average grade')])
     for course in semester.course_set.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
-        if course.state in ['evaluated', 'reviewed', 'published'] and course.avg_grade is not None:
-            avg_grade = "{:.1f}".format(course.avg_grade)
+        distribution = calculate_average_distribution(course)
+        if course.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
+            avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         else:
             avg_grade = ""
         writer.writerow([course.name, degrees, course.type.name, course.is_single_result, course.state,

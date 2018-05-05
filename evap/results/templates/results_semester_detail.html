@@ -22,8 +22,7 @@
                                     <th style="width: 36%">{% trans 'Course' %}</th>
                                     <th style="width: 8%">{% trans 'Type' %}</th>
                                     <th style="width: 25%">{% trans 'Responsible' %}</th>
-                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Average grade' %}">{% trans 'Avg.' %}</th>
-                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Standard deviation' %}">{% trans 'Std. dev.' %}</th>
+                                    <th style="width: 16%">{% trans 'Result' %}</th>
                                     <th style="width: 15%">{% trans 'Voters' %}</th>
                                 </tr>
                             </thead>
@@ -60,15 +59,18 @@
                                         {% endfor %}
                                     </td>
                                     {% if course.avg_grade %}
-                                        <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                                        <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
+                                        <td class="text-center">
+                                            <div data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade and overall distribution' %}">
+                                                <div class="grade-bg grade-bg-with-distribution" style="background-color: {{ course.avg_grade|gradecolor }};">
+                                                    {{ course.avg_grade|floatformat:1 }}
+                                                </div>
+                                                {% include 'distribution_bar.html' with distribution=course.distribution participants_warning=False %}
+                                            </div>
+                                        </td>
                                     {% else %}
-                                        <td class="text-center"><div class="grade-bg grade-bg-disabled">
-                                            &mdash;
-                                        </div></td>
-                                        <td class="text-center"><div class="deviation-bg deviation-bg-disabled">
-                                            &mdash;
-                                        </div></td>
+                                        <td class="text-center">
+                                            <div class="grade-bg grade-bg-disabled">&mdash;</div>
+                                        </td>
                                     {% endif %}
                                     {% with num_participants=course.num_participants num_voters=course.num_voters %}
                                         <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>

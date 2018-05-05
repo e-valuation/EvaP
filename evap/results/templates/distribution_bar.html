@@ -1,0 +1,11 @@
+{% load results_templatetags %}
+
+{% spaceless %}
+<div class="distribution-bar">
+    {% for value in distribution %}
+        {% if value != 0 %}
+            <div class="vote-bg-{{ forloop.counter }}{% if participants_warning %} participants-warning{% endif %}" style="width: {% widthratio value 1 100 %}%;">&nbsp;</div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endspaceless %}

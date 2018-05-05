@@ -36,18 +36,18 @@ VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING = 0.2
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
-# final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
-# final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
-# final = GP * final_grade + (1-GP) * final_likert
-GRADE_PERCENTAGE = 0.8
-CONTRIBUTION_PERCENTAGE = 0.5
+# percentages for calculating a course's total average grade
+CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
+CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the course's average grade
+COURSE_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all grade questions about the course is weighted this much for the course's average grade
+COURSE_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all non-grade questions about the course is weighted this much for the course's average grade
 
 # number of reward points a student should have for a semester after evaluating the given fraction of courses.
 REWARD_POINTS = [
-    (1.0/3.0, 1), 
-    (2.0/3.0, 2), 
-    (3.0/3.0, 3), 
+    (1.0/3.0, 1),
+    (2.0/3.0, 2),
+    (3.0/3.0, 3),
 ]
 
 # days before end date to send reminder

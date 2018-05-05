@@ -92,7 +92,7 @@
                         <th style="width: 15%">{% trans 'Type' %}</th>
                         <th style="width: 24%">{% trans 'Responsible' %}</th>
                         <th style="width: 18%" class="text-center">{% trans 'Average Grade' %}</th>
-                        <th style="width: 18%" class="text-center">{% trans 'Standard Deviation' %}</th>
+                        <th style="width: 18%" class="text-center">{% trans 'Overall Distribution' %}</th>
                         <th style="width: 15%">{% if not course.is_single_result %}{% trans 'Voters' %}{% endif %}</th>
                     </tr>
                 </thead>
@@ -111,7 +111,9 @@
                         </td>
                         {% if course.avg_grade is not None %}
                             <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                            <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
+                            <td class="text-center">
+                                {% include 'distribution_bar.html' with distribution=course.distribution warning=False %}
+                            </td>
                         {% else %}
                             <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">&mdash;</div></td>
                             <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">&mdash;</div></td>

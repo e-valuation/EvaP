@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, get_grade_color, has_no_rating_answers
+from evap.results.tools import calculate_results, calculate_average_distribution, get_grade_color, has_no_rating_answers, distribution_to_grade
 
 
 class ExcelExporter(object):
@@ -141,8 +141,8 @@ class ExcelExporter(object):
                                 if grade_result.average is not None:
                                     values.append(grade_result.average * grade_result.total_count)
                                     total_count += grade_result.total_count
-                                if grade_result.question.is_yes_no_question:
-                                    approval_count += grade_result.approval_count
+                                    if grade_result.question.is_yes_no_question:
+                                        approval_count += grade_result.approval_count
                         if values and course.has_enough_voters_to_publish_grades:
                             avg = sum(values) / total_count
 
@@ -159,7 +159,7 @@ class ExcelExporter(object):
 
             writen(self, _("Overall Average Grade"), "bold")
             for course, results in courses_with_results:
-                avg, __ = calculate_average_grades_and_deviation(course)
+                avg = distribution_to_grade(calculate_average_distribution(course))
                 if avg:
                     writec(self, avg, self.grade_to_style(avg))
                 else:

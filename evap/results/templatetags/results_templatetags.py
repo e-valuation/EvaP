@@ -1,5 +1,5 @@
 from django.template import Library
-from evap.results.tools import get_grade_color, get_deviation_color
+from evap.results.tools import get_grade_color, normalized_distribution
 
 register = Library()
 
@@ -9,6 +9,6 @@ def gradecolor(grade):
     return 'rgb({}, {}, {})'.format(*get_grade_color(grade))
 
 
-@register.filter(name='deviationcolor')
-def deviationcolor(deviation):
-    return 'rgb({}, {}, {})'.format(*get_deviation_color(deviation))
+@register.filter(name='normalized_distribution')
+def norm_distribution(distribution):
+    return normalized_distribution(distribution)
