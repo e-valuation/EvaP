@@ -45,8 +45,12 @@ RESULTS_WARNING_PERCENTAGE = 0.5
 GRADE_PERCENTAGE = 0.8
 CONTRIBUTION_PERCENTAGE = 0.5
 
-# number of reward points to be given to a student once all courses of a semester have been voted for
-REWARD_POINTS_PER_SEMESTER = 3
+# number of reward points a student should have for a semester after evaluating the given fraction of courses.
+REWARD_POINTS = [
+    (1.0/3.0, 1), 
+    (2.0/3.0, 2), 
+    (3.0/3.0, 3), 
+]
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
