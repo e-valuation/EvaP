@@ -6,14 +6,12 @@
         <div class="vote-bg-4" style="width: 6%;"></div>
         <div class="vote-bg-5" style="width: 3%;"></div>
     </div>
-    <nav class="navbar navbar-dark bg-dark navbar-expand pb-1">
+    <nav class="navbar navbar-dark bg-dark navbar-expand">
         <div class="collapse navbar-collapse justify-content-between">
             <ul class="navbar-nav justify-content-start">
-                {% if LEGAL_NOTICE_ACTIVE %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'evaluation:legal_notice' %}">{% trans 'Legal Notice' %}</a>
-                    </li>
-                {% endif %}
+                <li class="nav-item my-auto">
+                    <a class="nav-link nav-link-multiline" href="{% url 'evaluation:legal_notice' %}">{% trans 'Legal Notice' %}<br />{% trans 'Data Privacy' %}</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="https://github.com/fsr-itse/EvaP" target="_blank"><span class="fas fa-external-link-alt"></span> {% trans 'GitHub project' %}</a>
                 </li>

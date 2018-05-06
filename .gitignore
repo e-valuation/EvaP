@@ -26,6 +26,8 @@ evap/media
 evap/database.sqlite3
 evap/upload
 
+evap/evaluation/templates/legal_notice_text.html
+
 docs/_build
 
 coverage.xml
