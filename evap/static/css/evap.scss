@@ -499,12 +499,15 @@ body {
     a {
         white-space: nowrap;
     }
+    .navbar-nav .nav-link.nav-link-multiline {
+        line-height: 1.2;
+    }
 }
 
 .feedback-button{
     position: fixed;
     right: 10px;
-    bottom: 11px;
+    bottom: 8px;
     a.btn:not([href]):not(.disabled).btn-dark {
         padding: 0 0.2rem;
         color: $light-gray;
