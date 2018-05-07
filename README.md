@@ -2,8 +2,9 @@
 
 [![build status](https://travis-ci.org/fsr-itse/EvaP.svg)](https://travis-ci.org/fsr-itse/EvaP)
 [![Dependency Status](https://gemnasium.com/fsr-itse/EvaP.svg)](https://gemnasium.com/fsr-itse/EvaP)
-[![Code Health](https://landscape.io/github/fsr-itse/EvaP/master/landscape.png)](https://landscape.io/github/fsr-itse/EvaP/master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/051f28ef8b0e43f3ad210cfdb11a9807)](https://www.codacy.com/app/evap/EvaP?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fsr-itse/EvaP&amp;utm_campaign=Badge_Grade)
 [![Code Coverage](https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-itse/EvaP?branch=master)
+
 
 ## What is EvaP?
 
