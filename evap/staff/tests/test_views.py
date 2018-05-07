@@ -698,9 +698,9 @@ class TestSemesterParticipationDataExportView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType, name_en="Type")
         cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
-            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_required_for_reward=True)
+            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_rewarded=True)
         cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
-            name_de="Veranstaltung 2", name_en="Course 2", is_required_for_reward=False)
+            name_de="Veranstaltung 2", name_en="Course 2", is_rewarded=False)
         mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 

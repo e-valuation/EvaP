@@ -434,10 +434,10 @@ def semester_participation_export(request, semester_id):
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required courses voted for'),
         _('#Required courses'), _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
     for participant in participants:
-        number_of_required_courses = semester.course_set.filter(participants=participant, is_required_for_reward=True).count()
-        number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_required_for_reward=True).count()
-        number_of_optional_courses = semester.course_set.filter(participants=participant, is_required_for_reward=False).count()
-        number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_required_for_reward=False).count()
+        number_of_required_courses = semester.course_set.filter(participants=participant, is_rewarded=True).count()
+        number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=True).count()
+        number_of_optional_courses = semester.course_set.filter(participants=participant, is_rewarded=False).count()
+        number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
         writer.writerow([
             participant.username, can_user_use_reward_points(participant), number_of_required_courses_voted_for,
