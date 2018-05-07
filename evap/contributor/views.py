@@ -11,7 +11,7 @@ from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionFormSet
-from evap.student.views import vote_preview
+from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
 @contributor_or_delegate_required
@@ -97,7 +97,7 @@ def render_preview(request, formset, course_form, course):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = vote_preview(request, course, for_rendering_in_modal=True).content.decode()
+            preview_response = get_valid_form_groups_or_render_vote_page(request, course, preview=True, for_rendering_in_modal=True)[1].content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -164,4 +164,4 @@ def course_preview(request, course_id):
     if not (course.is_user_contributor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    return vote_preview(request, course)
+    return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]

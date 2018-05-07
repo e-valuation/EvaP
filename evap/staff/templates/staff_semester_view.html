@@ -32,14 +32,14 @@
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if rewards_active == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if grades_downloadable %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if grades_downloadable == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not grades_downloadable %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>

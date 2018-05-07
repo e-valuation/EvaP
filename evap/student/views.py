@@ -12,7 +12,7 @@ from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Course, Semester
 from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
-from evap.student.forms import QuestionsForm
+from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
@@ -41,28 +41,41 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def vote_preview(request, course, for_rendering_in_modal=False):
-    """
-        Renders a preview of the voting page for the given course.
-        Not used by the student app itself, but by staff and contributor.
-    """
-    form_groups = helper_create_voting_form_groups(request, course.contributions.all())
+def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rendering_in_modal=False):
+    contributions_to_vote_on = course.contributions.all()
+    # prevent a user from voting on themselves
+    if not preview:
+        contributions_to_vote_on = contributions_to_vote_on.exclude(contributor=request.user)
+
+    form_groups = OrderedDict()
+    for contribution in contributions_to_vote_on:
+        questionnaires = contribution.questionnaires.all()
+        if not questionnaires.exists():
+            continue
+        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
+
+    if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
+        assert not preview
+        return form_groups, None
+
     course_form_group = form_groups.pop(course.general_contribution)
 
-    course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
-    course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
-
-    contributor_form_groups = list((contribution.contributor, contribution.label, form_group, False) for contribution, form_group in form_groups.items())
-
     template_data = dict(
-        errors_exist=False,
-        course_form_group_top=course_form_group_top,
-        course_form_group_bottom=course_form_group_bottom,
-        contributor_form_groups=contributor_form_groups,
+        errors_exist=any(any(form.errors for form in form_group) for form_group in form_groups.values()),
+        course_form_group_top=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors],
+        course_form_group_bottom=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors],
+        contributor_form_groups=[(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()],
         course=course,
-        preview=True,
+        participants_warning=course.num_participants <= 5,
+        preview=preview,
+        vote_end_datetime=course.vote_end_datetime,
+        hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
+        minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
+        success_magic_string=SUCCESS_MAGIC_STRING,
+        success_redirect_url=reverse('student:index'),
+        evaluation_ends_soon=course.evaluation_ends_soon(),
         for_rendering_in_modal=for_rendering_in_modal)
-    return render(request, "student_vote.html", template_data)
+    return None, render(request, "student_vote.html", template_data)
 
 
 @participant_required
@@ -72,35 +85,9 @@ def vote(request, course_id):
     if not course.can_user_vote(request.user):
         raise PermissionDenied
 
-    # prevent a user from voting on themselves.
-    contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
-    form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
-
-    if not all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
-        errors_exist = any(helper_has_errors(form_group) for form_group in form_groups.values())
-
-        course_form_group = form_groups.pop(course.general_contribution)
-
-        course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
-        course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
-
-        contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
-
-        template_data = dict(
-            errors_exist=errors_exist,
-            course_form_group_top=course_form_group_top,
-            course_form_group_bottom=course_form_group_bottom,
-            contributor_form_groups=contributor_form_groups,
-            course=course,
-            participants_warning=course.num_participants <= 5,
-            preview=False,
-            vote_end_datetime=course.vote_end_datetime,
-            hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
-            minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
-            success_magic_string=SUCCESS_MAGIC_STRING,
-            success_redirect_url=reverse('student:index'),
-            evaluation_ends_soon=course.evaluation_ends_soon())
-        return render(request, "student_vote.html", template_data)
+    form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, course, preview=False)
+    if rendered_page is not None:
+        return rendered_page
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
@@ -136,17 +123,3 @@ def vote(request, course_id):
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
-
-
-def helper_create_voting_form_groups(request, contributions):
-    form_groups = OrderedDict()
-    for contribution in contributions:
-        questionnaires = contribution.questionnaires.all()
-        if not questionnaires.exists():
-            continue
-        form_groups[contribution] = [QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
-    return form_groups
-
-
-def helper_has_errors(form_group):
-    return any(form.errors for form in form_group)

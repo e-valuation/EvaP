@@ -36,8 +36,8 @@ from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporte
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
                               get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
                               raise_permission_denied_if_archived, get_parameter_from_url_or_session)
-from evap.student.forms import QuestionsForm
-from evap.student.views import vote_preview
+from evap.student.forms import QuestionnaireVotingForm
+from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
 @staff_required
@@ -499,7 +499,7 @@ def semester_grade_reminder(request, semester_id):
     responsibles = list(set(responsibles))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
-    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors]) 
+    responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors])
                         for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
@@ -826,7 +826,7 @@ def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    return vote_preview(request, course)
+    return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]
 
 
 @staff_required
@@ -858,7 +858,7 @@ def questionnaire_view(request, questionnaire_id):
 
     # build forms
     contribution = Contribution(contributor=request.user)
-    form = QuestionsForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+    form = QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
 
     return render(request, "staff_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire))
 
