@@ -340,7 +340,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.state == 'published':
             if self.is_user_contributor_or_delegate(user):
                 return True
-            if not self.can_publish_grades:
+            if not self.has_enough_voters_to_publish_grades:
                 return False
             return self.can_user_see_course(user)
         return False
@@ -362,12 +362,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
-    def can_publish_grades(self):
+    def has_enough_voters_to_publish_grades(self):
         from evap.results.tools import get_sum_of_answer_counters
         if self.is_single_result:
             return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
 
-        return self.num_voters >= settings.MIN_ANSWER_COUNT and float(self.num_voters) / self.num_participants >= settings.MIN_ANSWER_PERCENTAGE
+        return (self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING
+                and float(self.num_voters) / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING)
 
     @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
