@@ -68,7 +68,7 @@ def grant_reward_points_if_eligible(user, semester):
     if not is_semester_activated(semester):
         return 0, False
     # does the user have at least one required course in this semester?
-    required_courses = Course.objects.filter(participants=user, semester=semester, is_required_for_reward=True)
+    required_courses = Course.objects.filter(participants=user, semester=semester, is_rewarded=True)
     if not required_courses.exists():
         return 0, False
 
