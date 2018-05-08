@@ -2,7 +2,7 @@
 
 [![build status](https://travis-ci.org/fsr-itse/EvaP.svg)](https://travis-ci.org/fsr-itse/EvaP)
 [![Dependency Status](https://gemnasium.com/fsr-itse/EvaP.svg)](https://gemnasium.com/fsr-itse/EvaP)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/051f28ef8b0e43f3ad210cfdb11a9807)](https://www.codacy.com/app/evap/EvaP?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fsr-itse/EvaP&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fsr-itse/EvaP&amp;utm_campaign=Badge_Grade)
 [![Code Coverage](https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-itse/EvaP?branch=master)
 
 
