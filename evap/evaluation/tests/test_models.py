@@ -66,16 +66,29 @@ class TestCourses(TestCase):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_ends_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
+        course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today() + timedelta(hours=24))
 
-        Course.update_courses()
+        self.assertFalse(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today()
         self.assertTrue(course.evaluation_ends_soon())
 
-    @override_settings(EVALUATION_END_WARNING_PERIOD=24)
-    def test_evaluation_doesnt_end_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=5),
-                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
+        course.vote_end_date = date.today() - timedelta(hours=48)
+        self.assertFalse(course.evaluation_ends_soon())
+
+    @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
+    def test_evaluation_ends_soon(self):
+        course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today())
+
+        self.assertFalse(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today() - timedelta(hours=24)
+        self.assertTrue(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today() - timedelta(hours=72)
+        self.assertFalse(course.evaluation_ends_soon())
 
     def test_evaluation_ended(self):
         # Course is out of evaluation period.

@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 import logging
 
 from django import forms
+from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField
 from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import date_to_datetime
-from evap.settings import EVALUATION_END_OFFSET_HOURS
 from evap.staff.forms import ContributionForm
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ class CourseForm(forms.ModelForm):
 
         # The actual deadline is EVALUATION_END_OFFSET_HOURS:00 AM of the day after vote_end_date.
         # Therefore an evaluation date 24h + EVALUATION_END_OFFSET_HOURS in the past would technically still be in the future.
-        if vote_end_date and date_to_datetime(vote_end_date) + timedelta(hours=24 + EVALUATION_END_OFFSET_HOURS) < datetime.now():
+        if vote_end_date and date_to_datetime(vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS) < datetime.now():
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
 

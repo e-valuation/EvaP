@@ -462,7 +462,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.vote_end_datetime - datetime.now()
 
     def evaluation_ends_soon(self):
-        return self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
+        return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
     def days_until_evaluation(self):
