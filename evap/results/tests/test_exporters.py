@@ -110,9 +110,9 @@ class TestExporters(TestCase):
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=content_de.read())
         self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course1")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Course2")
 
         workbook = xlrd.open_workbook(file_contents=content_en.read())
         self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course2")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[3], "B - Course1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Course1")
 
