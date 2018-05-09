@@ -68,7 +68,7 @@ def grant_reward_points_if_eligible(user, semester):
     if not is_semester_activated(semester):
         return 0, False
     # does the user have at least one required course in this semester?
-    required_courses = Course.objects.filter(participants=user, semester=semester, is_required_for_reward=True)
+    required_courses = Course.objects.filter(participants=user, semester=semester, is_rewarded=True)
     if not required_courses.exists():
         return 0, False
 
@@ -97,7 +97,7 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
 
         if completed_evaluation:
             message += " " + _("Thank you very much for evaluating all your courses.")
-        elif Course.objects.filter(participants=request.user, semester=semester, is_required_for_reward=True).exclude(state__in=['evaluated', 'reviewed', 'published'], voters=request.user).exists():
+        elif Course.objects.filter(participants=request.user, semester=semester, is_rewarded=True).exclude(state__in=['evaluated', 'reviewed', 'published'], voters=request.user).exists():
             # at least one course exists that the user hasn't evaluated and is not past its evaluation period
             message += " " + _("We're looking forward to receiving feedback for your other courses as well.")
 
@@ -126,4 +126,3 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs
 
         if affected:
             RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, users=affected)
-
