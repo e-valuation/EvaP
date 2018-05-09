@@ -249,7 +249,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     # whether participants must vote to qualify for reward points
-    is_required_for_reward = models.BooleanField(verbose_name=_("is required for reward"), default=True)
+    is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
 
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
