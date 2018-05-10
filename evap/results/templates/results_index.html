@@ -60,15 +60,19 @@
                                     {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                 {% endfor %}
                             </td>
-                            {% with num_participants=course.num_participants num_voters=course.num_voters %}
-                                {% if course.is_single_result %}
-                                    <td class="text-center" data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}"><span class="fas fa-user"></span>&nbsp;{{ num_participants }}</td>
-                                {% else %}
+                            {% if course.is_single_result %}
+                                <td class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ course.single_result_rating_result.count_sum }}</td>
+                            {% else %}
+                                {% with num_participants=course.num_participants num_voters=course.num_voters %}
                                     <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
+                                {% endwith %}
+                            {% endif %}
+                            <td data-order="{% if course.is_single_result %}{{ course.single_result_rating_result.average }}{% else %}{{ course.avg_grade }}{% endif %}"></td>
+                                {% if course.is_single_result %}
+                                    {% include 'result_bar.html' with question_result=course.single_result_rating_result single_result=True %}
+                                {% else %}
+                                    {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
                                 {% endif %}
-                            {% endwith %}
-                            <td data-order="{{ course.avg_grade }}">
-                                {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
                             </td>
                         </tr>
                     {% endfor %}

@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Semester, Degree, Contribution, Course
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
-    TextAnswer, TextResult, HeadingResult
+    TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
 
 
 @internal_required
@@ -25,8 +25,11 @@ def index(request):
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
     for course in courses:
-        course.distribution = calculate_average_distribution(course)
-        course.avg_grade = distribution_to_grade(course.distribution)
+        if course.is_single_result:
+            course.single_result_rating_result = get_single_result_rating_result(course)
+        else:
+            course.distribution = calculate_average_distribution(course)
+            course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(courses=courses)
     return render(request, "results_index.html", template_data)

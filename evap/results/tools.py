@@ -6,7 +6,7 @@ import itertools
 from django.conf import settings
 from django.core.cache import caches
 
-from evap.evaluation.models import TextAnswer, RatingAnswerCounter
+from evap.evaluation.models import TextAnswer, RatingAnswerCounter, Questionnaire, Question
 
 
 GRADE_COLORS = {
@@ -98,6 +98,17 @@ def get_counts(answer_counters):
     for answer_counter in answer_counters:
         counts[answer_counter.answer - 1] = answer_counter.count
     return tuple(counts)
+
+
+def get_single_result_rating_result(course):
+    assert course.is_single_result
+
+    answer_counters = RatingAnswerCounter.objects.filter(contribution__course__pk=course.pk)
+    assert 1 <= len(answer_counters) <= 5
+
+    counts = get_counts(answer_counters)
+    question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
+    return RatingResult(question, counts)
 
 
 def get_collect_results_cache_key(course):
