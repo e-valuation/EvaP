@@ -68,13 +68,13 @@ def course_detail(request, semester_id, course_id):
         public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
 
     # If grades are not published, there is no public view
-    if not course.can_publish_grades:
+    if not course.has_enough_voters_to_publish_grades:
         public_view = False
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
 
-    show_grades = request.user.is_reviewer or course.can_publish_grades
+    show_grades = request.user.is_reviewer or course.has_enough_voters_to_publish_grades
 
     # filter text answers
     for section in sections:
@@ -125,14 +125,6 @@ def course_detail(request, semester_id, course_id):
                     if show_grades:
                         contributor_sections[section.contributor]['total_votes'] += result.total_count
 
-    # Show a warning if course is still in evaluation (for reviewer preview).
-    evaluation_warning = course.state != 'published'
-
-    # Results for a course might not be visible because there are not enough answers
-    # but it can still be "published" e.g. to show the comment results to contributors.
-    # Users who can open the results page see a warning message in this case.
-    sufficient_votes_warning = not course.can_publish_grades
-
     course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     template_data = dict(
@@ -140,8 +132,6 @@ def course_detail(request, semester_id, course_id):
             course_sections_top=course_sections_top,
             course_sections_bottom=course_sections_bottom,
             contributor_sections=contributor_sections,
-            evaluation_warning=evaluation_warning,
-            sufficient_votes_warning=sufficient_votes_warning,
             show_grades=show_grades,
             reviewer=request.user.is_reviewer,
             contributor=course.is_user_contributor_or_delegate(request.user),

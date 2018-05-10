@@ -26,12 +26,10 @@ ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
 
-# key authentication settings
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
-# minimum answers needed for publishing
-MIN_ANSWER_COUNT = 2
-MIN_ANSWER_PERCENTAGE = 0.2
+VOTER_COUNT_NEEDED_FOR_PUBLISHING = 2
+VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING = 0.2
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this course)
@@ -59,7 +57,6 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 # figure out who can login with username and password and who needs a login key
 INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 
-# maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20
 
 # the importer accepts only these two strings in the 'graded' column
