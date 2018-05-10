@@ -1,11 +1,28 @@
 {% load results_templatetags %}
+{% load evaluation_filters %}
 
 {% spaceless %}
-<div class="distribution-bar">
-    {% for value in distribution %}
-        {% if value != 0 %}
-            <div class="vote-bg-{{ forloop.counter }}{% if participants_warning %} participants-warning{% endif %}" style="width: {% widthratio value 1 100 %}%;">&nbsp;</div>
-        {% endif %}
-    {% endfor %}
-</div>
+{% if average is not None %}
+    <div class="d-flex">
+        <div class="distribution-bar">
+            {% for value in distribution %}
+                {% if value != 0 %}
+                    <div class="vote-bg-{{ forloop.counter }}" style="width: {% widthratio value 1 100 %}%;">&nbsp;</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="grade-bg-result-bar text-center" style="background-color: {{ average|gradecolor }}">
+            {% if result.question.is_yes_no_question %}
+                {{ result.approval_count|percentage:result.total_count }}
+            {% else %}
+                {{ average|floatformat:1 }}
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    <div class="d-flex"{% if not result %} data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"{% endif %}>
+        <div class="distribution-bar distribution-bar-disabled text-center"><span class="far fa-eye-slash"></span></div>
+        <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="far fa-eye-slash"></span></div>
+    </div>
+{% endif %}
 {% endspaceless %}

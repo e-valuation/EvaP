@@ -634,6 +634,7 @@ div.preview > textarea {
     overflow: hidden;
     white-space: nowrap;
     border-radius: 3px;
+    flex-grow: 1;
 }
 
 .distribution-bar div {
@@ -641,6 +642,11 @@ div.preview > textarea {
 }
 
 .distribution-bar div:last-child { width: 100% !important; }
+
+.distribution-bar-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}
 
 .grade-bg {
     display: inline-block;
@@ -670,6 +676,7 @@ div.preview > textarea {
 
 .grade-bg-disabled {
     background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
 }
 
 .grade-bg.vertically-aligned {
