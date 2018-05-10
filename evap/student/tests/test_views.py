@@ -193,3 +193,14 @@ class TestVoteView(ViewTest):
         response = form.submit()
         self.assertEqual(response.status_code, 302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
+
+    def test_midterm_evaluation_warning(self):
+        evaluation_warning = "The results of this evaluation will be published while the course is still running."
+        page = self.get_assert_200(self.url, user=self.voting_user1.username)
+        self.assertNotIn(evaluation_warning, page)
+
+        self.course.is_midterm_evaluation = True
+        self.course.save()
+
+        page = self.get_assert_200(self.url, user=self.voting_user1.username)
+        self.assertIn(evaluation_warning, page)
