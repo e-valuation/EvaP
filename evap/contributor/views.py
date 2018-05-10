@@ -68,11 +68,8 @@ def course_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
+    if not course.is_user_editor_or_delegate(user) or course.state not in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']:
         raise PermissionDenied
-
-    if course.is_user_editor_or_delegate(user):
-        messages.info(request, _('You cannot edit this course because it has already been approved.'))
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
@@ -85,7 +82,7 @@ def course_view(request, course_id):
             field.disabled = True
 
     template_data = dict(form=form, formset=formset, course=course, editable=False,
-                        responsibles=[contributor.username for contributor in course.responsible_contributors])
+                         responsibles=[contributor.username for contributor in course.responsible_contributors])
     return render(request, "contributor_course_form.html", template_data)
 
 

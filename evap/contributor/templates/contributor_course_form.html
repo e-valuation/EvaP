@@ -18,7 +18,11 @@
     {{ block.super }}
 
     <div class="bs-callout bs-callout-info small">
-        {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
+        {% if editable %}
+            {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
+        {% else %}
+            {% blocktrans %}You cannot edit this course because it has already been approved.{% endblocktrans %}
+        {% endif %}
     </div>
 
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
