@@ -68,7 +68,7 @@ def course_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
+    if not course.is_user_editor_or_delegate(user) or course.state not in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']:
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
@@ -81,8 +81,8 @@ def course_view(request, course_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(form=form, formset=formset, course=course, editable=False, show_edit_message=False,
-                        responsibles=[contributor.username for contributor in course.responsible_contributors])
+    template_data = dict(form=form, formset=formset, course=course, editable=False,
+                         responsibles=[contributor.username for contributor in course.responsible_contributors])
     return render(request, "contributor_course_form.html", template_data)
 
 
@@ -148,8 +148,7 @@ def course_edit(request, course_id):
 
         sort_formset(request, formset)
         template_data = dict(form=course_form, formset=formset, course=course, editable=True, preview_html=preview_html,
-                             responsibles=[contributor.username for contributor in course.responsible_contributors],
-                             show_edit_message=True)
+                             responsibles=[contributor.username for contributor in course.responsible_contributors])
         return render(request, "contributor_course_form.html", template_data)
 
 
