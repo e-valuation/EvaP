@@ -33,9 +33,9 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, RemindResponsibleForm,
                               SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
-from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache, forward_messages,
-                              get_import_file_content_or_raise, import_file_exists, merge_users, save_import_file,
-                              raise_permission_denied_if_archived, get_parameter_from_url_or_session)
+from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
+                              forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
+                              save_import_file, raise_permission_denied_if_archived, get_parameter_from_url_or_session)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -293,7 +293,7 @@ def semester_create(request):
 
     if form.is_valid():
         semester = form.save()
-        delete_navbar_cache()
+        delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
 
         messages.success(request, _("Successfully created semester."))
         return redirect('staff:semester_view', semester.id)
@@ -324,7 +324,7 @@ def semester_delete(request):
     if not semester.can_staff_delete:
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
-    delete_navbar_cache()
+    delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
     return HttpResponse()  # 200 OK
 
 
@@ -364,6 +364,7 @@ def semester_import(request, semester_id):
                 success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_datetime, vote_end_date, test_run=False)
                 forward_messages(request, success_messages, warnings)
                 delete_import_file(request.user.id, import_type)
+                delete_navbar_cache_for_users(UserProfile.objects.all())
                 return redirect('staff:semester_view', semester_id)
 
     test_passed = import_file_exists(request.user.id, import_type)
@@ -623,6 +624,9 @@ def helper_course_edit(request, semester, course):
             messages.success(request, _("Successfully updated and approved course."))
         else:
             messages.success(request, _("Successfully updated course."))
+
+        delete_navbar_cache_for_users(course.participants.all())
+        delete_navbar_cache_for_users(UserProfile.objects.filter(contributions__course=course))
 
         return custom_redirect('staff:semester_view', semester.id)
     else:
@@ -1182,6 +1186,7 @@ def user_edit(request, user_id):
 
     if form.is_valid():
         form.save()
+        delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
         return redirect('staff:user_index')
     else:
