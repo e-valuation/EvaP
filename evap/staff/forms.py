@@ -139,8 +139,9 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded', 'vote_start_datetime',
-                  'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
+                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questions',
+                  'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,

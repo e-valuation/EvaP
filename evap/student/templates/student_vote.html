@@ -22,6 +22,9 @@
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
+    {% if course.is_midterm_evaluation %}
+        <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
+    {% endif %}
     {% if participants_warning %}
         <div class="bs-callout bs-callout-warning">{% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who wrote a comment and who voted for a specific answer. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
     {% endif %}

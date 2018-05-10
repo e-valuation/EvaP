@@ -251,6 +251,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # whether participants must vote to qualify for reward points
     is_rewarded = models.BooleanField(verbose_name=_("is rewarded"), default=True)
 
+    # whether the evaluation does take place during the semester, stating that evaluation results will be published while the course is still running
+    is_midterm_evaluation = models.BooleanField(verbose_name=_("is midterm evaluation"), default=False)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
