@@ -169,7 +169,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[4], 0.38)
 
     def test_get_single_result_rating_result(self):
-        single_result_course = mommy.make(Course, state='published')
+        single_result_course = mommy.make(Course, state='published', is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
         contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(RatingAnswerCounter, question=questionnaire.question_set.first(), contribution=contribution, answer=1, count=1)

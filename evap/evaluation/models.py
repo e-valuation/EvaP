@@ -256,6 +256,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     # type of course: lecture, seminar, project
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
+ 
+    is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # e.g. Bachelor, Master
     degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
@@ -310,6 +312,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def save(self, *args, **kw):
+        first_save = self.pk is None
         super().save(*args, **kw)
 
         # make sure there is a general contribution
@@ -317,7 +320,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
-        assert self.vote_end_date >= self.vote_start_datetime.date()
+        if self.is_single_result:
+            # adding m2ms such as contributions/questionnaires requires saving the course first,
+            # therefore we must allow the single result questionnaire to not exist on first save
+            assert first_save or Questionnaire.objects.get(contributions__course=self).name_en == Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
+            assert self.vote_end_date == self.vote_start_datetime.date()
+        else:
+            assert self.vote_end_date >= self.vote_start_datetime.date()
 
     @property
     def is_fully_reviewed(self):
@@ -366,14 +375,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if not self.can_publish_rating_results or self.semester.results_are_archived or not self.can_user_see_course(user):
             return self.is_user_contributor_or_delegate(user)
         return True
-
-    @property
-    def is_single_result(self):
-        # early return to save some queries
-        if self.vote_start_datetime.date() != self.vote_end_date:
-            return False
-
-        return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
 
     @property
     def can_staff_edit(self):

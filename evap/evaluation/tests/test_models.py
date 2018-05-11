@@ -166,7 +166,7 @@ class TestCourses(WebTest):
 
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = mommy.make(UserProfile)
-        course = mommy.make(Course, semester=mommy.make(Semester))
+        course = mommy.make(Course, semester=mommy.make(Semester), is_single_result=True)
         mommy.make(Contribution,
             course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
@@ -395,10 +395,9 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
-        course = mommy.make(Course, state="published")
+        course = mommy.make(Course, state="published", is_single_result=True)
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
-        self.assertTrue(course.is_single_result)
 
         course._participant_count = 5
         course._voter_count = 5
