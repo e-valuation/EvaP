@@ -147,7 +147,7 @@ def _calculate_results_impl(course):
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
 
-        section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
+        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
 
         sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
 
