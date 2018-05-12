@@ -99,6 +99,10 @@
                                 {% else %}
                                     {% if course.avg_grade is not None %}
                                         <div class="grade-bg text-center vertically-aligned" style="background-color: {{ course.avg_grade|gradecolor }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade' %}">{{ course.avg_grade|floatformat:1 }}</div>
+                                    {% else %}
+                                        <div class="grade-bg text-center vertically-aligned grade-bg-disabled" data-toggle="tooltip" data-placement="top" title="{% trans 'Not enough votes to publish results' %}">
+                                            <span class="far fa-eye-slash"></span>
+                                        </div>
                                     {% endif %}
                                     <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fas fa-chart-bar"></span></a>
                                 {% endif %}
