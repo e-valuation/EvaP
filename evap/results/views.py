@@ -29,9 +29,9 @@ def semester_detail(request, semester_id):
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
-    # Annotate each course object with its grades.
     for course in courses:
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        if course.can_user_see_grades(request.user):
+            course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
 

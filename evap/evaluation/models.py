@@ -348,6 +348,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return self.can_user_see_course(user)
         return False
 
+    def can_user_see_grades(self, user):
+        if user.is_reviewer:
+            return True
+        if self.state != 'published':
+            return False
+        if not self.has_enough_voters_to_publish_grades:
+            return False
+        return self.can_user_see_course(user)
+
     @property
     def is_single_result(self):
         # early return to save some queries

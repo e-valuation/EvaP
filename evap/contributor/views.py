@@ -28,7 +28,7 @@ def index(request):
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     for course in all_courses:
-        if course.state == 'published':
+        if course.can_user_see_grades(user):
             course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
 
     semesters = Semester.objects.all()
