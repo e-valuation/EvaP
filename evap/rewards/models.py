@@ -1,6 +1,7 @@
 from collections import OrderedDict
 
 from django.utils.translation import ugettext_lazy as _
+from django.dispatch import Signal
 from django.db import models
 
 
@@ -40,11 +41,19 @@ class RewardPointRedemptionEvent(models.Model):
         return redemptions_dict
 
 
+
+"""
+The two following objects handle reward point amounts. As reward points might be connected to monetary transactions,
+these objects may not be altered or deleted after creation.
+"""
+
 class RewardPointGranting(models.Model):
     user_profile = models.ForeignKey('evaluation.UserProfile', models.CASCADE, related_name="reward_point_grantings")
     semester = models.ForeignKey('evaluation.Semester', models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
+
+    granted_by_removal = Signal(providing_args=['users'])
 
 
 class RewardPointRedemption(models.Model):
@@ -57,3 +66,4 @@ class RewardPointRedemption(models.Model):
 class SemesterActivation(models.Model):
     semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='rewards_active')
     is_active = models.BooleanField(default=False)
+

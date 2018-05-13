@@ -1,5 +1,10 @@
 {% extends 'grades_course_base.html' %}
 
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans "Upload document" %}</li>
+{% endblock %}
+
 {% block content %}
     {{ block.super }}
 

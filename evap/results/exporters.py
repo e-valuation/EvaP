@@ -94,7 +94,7 @@ class ExcelExporter(object):
 
         return filtered_questions
 
-    def export(self, response, course_types_list, include_not_enough_answers=False, include_unpublished=False):
+    def export(self, response, course_types_list, include_not_enough_voters=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -114,7 +114,7 @@ class ExcelExporter(object):
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result:
                     continue
-                if not course.can_publish_grades and not include_not_enough_answers:
+                if not course.has_enough_voters_to_publish_grades and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, __, data, __ in calculate_results(course):
@@ -169,8 +169,7 @@ class ExcelExporter(object):
                                     total_count += grade_result.total_count
                                 if grade_result.question.is_yes_no_question:
                                     approval_count += grade_result.approval_count
-                        enough_answers = course.can_publish_grades
-                        if values and enough_answers:
+                        if values and course.has_enough_voters_to_publish_grades:
                             avg = sum(values) / total_count
                             dev = sum(deviations) / total_count
 

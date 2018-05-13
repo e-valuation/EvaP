@@ -4,11 +4,6 @@
 
 {% block title %}{% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Evaluation' %}</li>
-{% endblock %}
-
 {% block content %}
     {{ block.super }}
 
@@ -53,7 +48,7 @@
                             {% for course in semester.courses %}
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
-                                    {% elif course.state == 'published' and course.can_publish_grades %}
+                                    {% elif course.state == 'published' and course.has_enough_voters_to_publish_grades %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"
@@ -107,7 +102,7 @@
                                             <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
                                         {% endif %}
                                         {% if course.state == 'published' %}
-                                            {% if course.can_publish_grades %}
+                                            {% if course.has_enough_voters_to_publish_grades %}
                                                 <a class="btn btn-sm btn-secondary btn-results btn-row-hover" href="{% url 'results:course_detail' semester.id course.id %}">{% trans 'Results' %}</a>
                                             {% else %}
                                                 <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans 'Results' %}</a></div>

@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 
 from django.conf import settings
 from django.test import TestCase, override_settings
-from django.core.cache import cache
+from django.core.cache import caches
 from django.core import mail
 
 from model_mommy import mommy
@@ -11,7 +11,6 @@ from model_mommy import mommy
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
 from evap.results.tools import calculate_average_grades_and_deviation
-from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -67,16 +66,29 @@ class TestCourses(TestCase):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_ends_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
+        course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today() + timedelta(hours=24))
 
-        Course.update_courses()
+        self.assertFalse(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today()
         self.assertTrue(course.evaluation_ends_soon())
 
-    @override_settings(EVALUATION_END_WARNING_PERIOD=24)
-    def test_evaluation_doesnt_end_soon(self):
-        course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=5),
-                            vote_end_date=date.today() - timedelta(hours=24), is_graded=False)
+        course.vote_end_date = date.today() - timedelta(hours=48)
+        self.assertFalse(course.evaluation_ends_soon())
+
+    @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
+    def test_evaluation_ends_soon(self):
+        course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today())
+
+        self.assertFalse(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today() - timedelta(hours=24)
+        self.assertTrue(course.evaluation_ends_soon())
+
+        course.vote_end_date = date.today() - timedelta(hours=72)
+        self.assertFalse(course.evaluation_ends_soon())
 
     def test_evaluation_ended(self):
         # Course is out of evaluation period.
@@ -292,7 +304,7 @@ class ArchivingTests(TestCase):
 
         self.semester.archive()
         self.refresh_course()
-        cache.clear()
+        caches['results'].clear()
 
         self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
 

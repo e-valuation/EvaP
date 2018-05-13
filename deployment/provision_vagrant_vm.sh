@@ -15,6 +15,9 @@ sudo -u postgres createuser --createdb evap
 sudo -u postgres psql -U postgres -d postgres -c "ALTER USER evap WITH PASSWORD 'evap';"
 sudo -u postgres createdb -O evap evap
 
+# setup redis
+apt-get -q install -y redis-server
+
 # setup apache
 apt-get -q install -y apache2 libapache2-mod-wsgi-py3
 a2enmod expires

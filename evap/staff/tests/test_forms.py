@@ -3,11 +3,58 @@ from django.test import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
-    Contribution, Semester, Degree, EmailTemplate
+    Contribution, Semester, Degree, EmailTemplate, Question
 from evap.evaluation.tests.tools import get_form_data_from_instance, create_course_with_responsible_and_editor, to_querydict
 from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
-    CourseEmailForm
+    CourseEmailForm, QuestionnaireForm
 from evap.contributor.forms import CourseForm as ContributorCourseForm
+
+
+class QuestionnaireFormTest(TestCase):
+    def test_force_highest_order(self):
+        mommy.make(Questionnaire, order=45, type=Questionnaire.TOP)
+
+        question = mommy.make(Question)
+
+        data = {
+            'description_de': 'English description',
+            'description_en': 'German description',
+            'name_de': 'A name',
+            'name_en': 'A german name',
+            'public_name_en': 'A display name',
+            'public_name_de': 'A german display name',
+            'question_set-0-id': question.id,
+            'order': 0,
+            'type': Questionnaire.TOP,
+        }
+
+        form = QuestionnaireForm(data=data)
+        self.assertTrue(form.is_valid())
+        questionnaire = form.save(force_highest_order=True)
+        self.assertEqual(questionnaire.order, 46)
+
+    def test_automatic_order_correction_on_type_change(self):
+        mommy.make(Questionnaire, order=72, type=Questionnaire.BOTTOM)
+
+        questionnaire = mommy.make(Questionnaire, order=7, type=Questionnaire.TOP)
+        question = mommy.make(Question)
+
+        data = {
+            'description_de': questionnaire.description_de,
+            'description_en': questionnaire.description_en,
+            'name_de': questionnaire.name_de,
+            'name_en': questionnaire.name_en,
+            'public_name_en': questionnaire.public_name_en,
+            'public_name_de': questionnaire.public_name_de,
+            'question_set-0-id': question.id,
+            'order': questionnaire.order,
+            'type': Questionnaire.BOTTOM,
+        }
+
+        form = QuestionnaireForm(instance=questionnaire, data=data)
+        self.assertTrue(form.is_valid())
+        questionnaire = form.save()
+        self.assertEqual(questionnaire.order, 73)
 
 
 class CourseEmailFormTests(TestCase):
@@ -156,7 +203,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -197,7 +244,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -246,7 +293,7 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -288,7 +335,7 @@ class ContributionFormsetTests(TestCase):
         """
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True,
                                    comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
 
@@ -326,9 +373,9 @@ class ContributionFormsetTests(TestCase):
             Regression test for #593.
         """
         course = mommy.make(Course)
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, is_for_contributors=True, obsolete=True, staff_only=False)
-        questionnaire_staff_only = mommy.make(Questionnaire, is_for_contributors=True, obsolete=False, staff_only=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, staff_only=False)
+        questionnaire_staff_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=True)
 
         # The normal and staff_only questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
@@ -361,7 +408,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user1 = mommy.make(UserProfile)
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
-        cls.questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
 
@@ -425,7 +472,7 @@ class ContributionFormset775RegressionTests(TestCase):
     def test_swap_contributors_with_extra_form(self):
         # moving a contributor to an extra form should work.
         # first, the second contributor is deleted and removed from self.data
-        self.contribution2.delete()
+        Contribution.objects.get(id=self.contribution2.id).delete()
         self.data['contributions-TOTAL_FORMS'] = 2
         self.data['contributions-INITIAL_FORMS'] = 1
         self.data['contributions-0-contributor'] = self.user2.pk
@@ -444,7 +491,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user1.pk
 
-        questionnaire = mommy.make(Questionnaire, is_for_contributors=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         formset.save()

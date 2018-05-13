@@ -6,8 +6,10 @@
 <td>
     {% if request.user.is_staff and not info_only and not semester.is_archived %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
-            <input type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" data-toggle="tooltip"
-                data-placement="top" title="{% trans 'Click to select for course operation' %}" />
+            <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Click to select for course operation' %}">
+                <input class="form-check-input" type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" />
+                <label class="form-check-label" for="course{{ course.id }}"></label>
+            </div>
         {% endif %}
     {% endif %}
 </td>
@@ -43,7 +45,7 @@
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'in_evaluation' or state == 'evaluated' %}
     <td class="icon" data-order="2"><span class="fas fa-chart-bar icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}"></span></td>
 {% elif state == 'reviewed' %}
-    {% if course.is_single_result or course.final_grade_documents or course.gets_no_grade_documents %}
+    {% if course.is_single_result or course.final_grade_documents or course.gets_no_grade_documents or not course.is_graded %}
         <td class="icon text-center" data-order="0"><span class="fas fa-chart-bar icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}"></span></td>
     {% else %}
         <td class="icon text-center" data-order="1"><span class="fas fa-chart-bar icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}"></span></td>
@@ -141,7 +143,7 @@
 {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if not course.is_single_result %}
         <td style="width: 20%" class="multi-progress-bar">
-            {% if course.can_publish_grades %}
+            {% if course.has_enough_voters_to_publish_grades %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans 'Number of voters' %}">
                     {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants icon='user' %}
                 </span>

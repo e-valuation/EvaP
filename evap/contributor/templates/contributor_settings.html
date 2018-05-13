@@ -1,9 +1,6 @@
-{% extends 'contributor_base.html' %}
+{% extends 'base.html' %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Settings' %}</li>
-{% endblock %}
+{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}

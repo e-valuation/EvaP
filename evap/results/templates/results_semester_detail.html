@@ -1,14 +1,9 @@
-{% extends 'results_base.html' %}
+{% extends 'base.html' %}
 
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-{% block title %}{{ semester.name }} - {{ block.super }}{% endblock %}
-
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item">{{ semester.name }}</li>
-{% endblock %}
+{% block title %}{{ semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
@@ -38,13 +33,23 @@
                                 {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'In evaluation' %}"></span>
                                         {% endif %}
-                                        {% if course.state == 'evaluated' or course.state == 'reviewed' %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-pause" title="{% trans 'This course has not been published yet.' %}"></span>
+                                        {% if course.state == 'evaluated' %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
                                         {% endif %}
-                                        {% if course.state == 'published' and not course|can_publish_grades %}
-                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Not enough answers were given to publish the results.' %}"></span>
+                                        {% if course.state == 'reviewed' %}
+                                            {% if course.is_single_result or course.final_grade_documents or course.gets_no_grade_documents or not course.is_graded %}
+                                                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+                                            {% else %}
+                                                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if course.state == 'published' and not course.has_enough_voters_to_publish_grades %}
+                                            <span data-toggle="tooltip" data-placement="top" class="far fa-eye-slash" title="{% trans 'Not enough votes to publish results' %}"></span>
+                                        {% endif %}
+                                        {% if course.is_private %}
+                                            <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Private course' %}"></span>
                                         {% endif %}
                                         <span class="course-name">{{ course.name }}</span>
                                     </td>

@@ -15,7 +15,7 @@ class TestIndexView(ViewTest):
         """ Tests whether a user can login with an incorrect and a correct password. """
         mommy.make(UserProfile, username='password.user', password=make_password('evap'))
         response = self.app.get("/")
-        password_form = response.forms[2]
+        password_form = response.forms[0]
         password_form['username'] = 'password.user'
         password_form['password'] = 'asd'
         self.assertEqual(password_form.submit().status_code, 200)
@@ -28,7 +28,7 @@ class TestIndexView(ViewTest):
             user without people in cc even if the user has delegates and cc users. """
         mommy.make(UserProfile, email='asdf@example.com')
         response = self.app.get("/")
-        email_form = response.forms[3]
+        email_form = response.forms[1]
         email_form['email'] = "doesnotexist@example.com"
         self.assertIn("No user with this email address was found", email_form.submit())
         email = "asdf@example.com"

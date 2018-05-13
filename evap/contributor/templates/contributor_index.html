@@ -1,7 +1,9 @@
-{% extends 'contributor_base.html' %}
+{% extends 'base.html' %}
 
 {% load results_templatetags %}
 {% load evaluation_filters %}
+
+{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}

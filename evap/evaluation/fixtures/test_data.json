@@ -75,8 +75,8 @@
     "public_name_en": "",
     "teaser_de": null,
     "teaser_en": null,
-    "index": 0,
-    "is_for_contributors": true,
+    "order": 0,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -93,8 +93,8 @@
     "public_name_en": "Lecture's contents",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 0,
-    "is_for_contributors": false,
+    "order": 0,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -111,8 +111,8 @@
     "public_name_en": "Exercise",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 3,
-    "is_for_contributors": false,
+    "order": 3,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -129,8 +129,8 @@
     "public_name_en": "Learning material",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 1,
-    "is_for_contributors": false,
+    "order": 1,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -147,8 +147,8 @@
     "public_name_en": "Miscellaneous",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 2,
-    "is_for_contributors": false,
+    "order": 2,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -165,8 +165,8 @@
     "public_name_en": "Miscellaneous",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 19,
-    "is_for_contributors": false,
+    "order": 1,
+    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -183,8 +183,8 @@
     "public_name_en": "Lecturer",
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
-    "index": 15,
-    "is_for_contributors": true,
+    "order": 15,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -201,8 +201,8 @@
     "public_name_en": "Exercise supervisor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
-    "index": 35,
-    "is_for_contributors": true,
+    "order": 35,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -219,8 +219,8 @@
     "public_name_en": "Seminar",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 4,
-    "is_for_contributors": false,
+    "order": 4,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -237,8 +237,8 @@
     "public_name_en": "Seminar lecturer",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
-    "index": 25,
-    "is_for_contributors": true,
+    "order": 25,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -255,8 +255,8 @@
     "public_name_en": "Project",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 8,
-    "is_for_contributors": false,
+    "order": 8,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -273,8 +273,8 @@
     "public_name_en": "Project's supervisor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
-    "index": 45,
-    "is_for_contributors": true,
+    "order": 45,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -291,8 +291,8 @@
     "public_name_en": "Remarks on the responsible person",
     "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
-    "index": 60,
-    "is_for_contributors": true,
+    "order": 60,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -309,8 +309,8 @@
     "public_name_en": "Tutor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
     "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
-    "index": 35,
-    "is_for_contributors": true,
+    "order": 35,
+    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -327,8 +327,8 @@
     "public_name_en": "Personal Feedback",
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
-    "index": 60,
-    "is_for_contributors": true,
+    "order": 60,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -345,8 +345,8 @@
     "public_name_en": "Remarks on additional contributors",
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
-    "index": 9,
-    "is_for_contributors": false,
+    "order": 9,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -363,8 +363,8 @@
     "public_name_en": "Bachelor's project - General questions",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 10,
-    "is_for_contributors": false,
+    "order": 10,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -381,8 +381,8 @@
     "public_name_en": "Bachelor's project - Effort and time management",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 11,
-    "is_for_contributors": false,
+    "order": 11,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -399,8 +399,8 @@
     "public_name_en": "Bachelor's project - Supervision and business partner",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 12,
-    "is_for_contributors": false,
+    "order": 12,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -417,8 +417,8 @@
     "public_name_en": "Bachelor's project - Bachelor's thesis",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 13,
-    "is_for_contributors": false,
+    "order": 13,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -435,8 +435,8 @@
     "public_name_en": "Lecturer",
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
-    "index": 15,
-    "is_for_contributors": true,
+    "order": 15,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -453,8 +453,8 @@
     "public_name_en": "Master's project - General questions",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 14,
-    "is_for_contributors": false,
+    "order": 14,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -471,8 +471,8 @@
     "public_name_en": "Master's project - Effort and time management",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 15,
-    "is_for_contributors": false,
+    "order": 15,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -489,8 +489,8 @@
     "public_name_en": "Master's project - Supervision",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 16,
-    "is_for_contributors": false,
+    "order": 16,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -507,8 +507,8 @@
     "public_name_en": "Master's thesis",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 17,
-    "is_for_contributors": false,
+    "order": 17,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -525,8 +525,8 @@
     "public_name_en": "Project seminar",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 5,
-    "is_for_contributors": false,
+    "order": 5,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -543,8 +543,8 @@
     "public_name_en": "D-School seminar",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 6,
-    "is_for_contributors": false,
+    "order": 6,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -561,8 +561,8 @@
     "public_name_en": "Seminar accompanying the first bachelor's semester",
     "teaser_de": "",
     "teaser_en": "",
-    "index": 7,
-    "is_for_contributors": false,
+    "order": 7,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -579,8 +579,8 @@
     "public_name_en": "Seminar lecturer",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
-    "index": 25,
-    "is_for_contributors": true,
+    "order": 25,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -597,8 +597,8 @@
     "public_name_en": "Coach",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
-    "index": 25,
-    "is_for_contributors": true,
+    "order": 25,
+    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -615,8 +615,8 @@
     "public_name_en": "Total grade",
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
-    "index": 18,
-    "is_for_contributors": false,
+    "order": 2,
+    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -633,8 +633,8 @@
     "public_name_en": "Future participation",
     "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
-    "index": 61,
-    "is_for_contributors": false,
+    "order": 61,
+    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -81310,17 +81310,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "017fb268-4757-46a9-85ed-aff3f98f61b5",
-  "fields": {
-    "question": 341,
-    "contribution": 788,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "01860507-3572-426c-8796-1197ec0b44ae",
   "fields": {
     "question": 330,
@@ -81728,17 +81717,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "05cd016e-b624-48fd-ab75-1cb690dfb375",
-  "fields": {
-    "question": 341,
-    "contribution": 826,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "05ea8f7a-df23-49d6-8066-b244da23f7f1",
   "fields": {
     "question": 313,
@@ -81844,17 +81822,6 @@
     "contribution": 3685,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "073a42fc-494f-439e-a217-57348adb4165",
-  "fields": {
-    "question": 341,
-    "contribution": 858,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor",
     "state": "PU"
   }
 },
@@ -82355,28 +82322,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "0e28f51b-f0bb-4874-bb22-afd100c8c5b6",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "0e4a3a7a-9cf9-4ac4-95bd-24f1315638fb",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "0e4ce10b-076f-408e-bcba-6c63cd38f1d7",
   "fields": {
     "question": 364,
@@ -82850,17 +82795,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "1439d3a2-a2a4-4e9b-a272-c7bedf2b6a9c",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "144570fa-8fa5-400f-b09e-b945d59d859a",
   "fields": {
     "question": 314,
@@ -83103,17 +83037,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "1760864c-8aad-41e3-a688-60974f043253",
-  "fields": {
-    "question": 341,
-    "contribution": 886,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "176c70ed-0a94-4d34-a51f-c50f307fbdd6",
   "fields": {
     "question": 342,
@@ -83219,17 +83142,6 @@
     "contribution": 1297,
     "reviewed_answer": null,
     "original_answer": "Lorem",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "18a3ef71-22c4-4c0d-ad33-d56634a01a3d",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur",
     "state": "PU"
   }
 },
@@ -83901,17 +83813,6 @@
     "contribution": 4100,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "1ffcdcd9-e56a-403e-bb92-7e94065f9636",
-  "fields": {
-    "question": 341,
-    "contribution": 840,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
     "state": "PU"
   }
 },
@@ -85325,17 +85226,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "326b451f-c9ab-4abb-88af-c3d7a93d9f4d",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "3292d753-a8c9-42cb-bfd4-95480f65d2bc",
   "fields": {
     "question": 330,
@@ -86062,17 +85952,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "3baa4833-a964-4bc3-b6c0-ef03cce27bf0",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "3bcb464d-744f-4a07-9281-b746eaf8b183",
   "fields": {
     "question": 313,
@@ -86453,17 +86332,6 @@
     "contribution": 4283,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "409f4799-3621-4a63-a985-615fef1cd310",
-  "fields": {
-    "question": 341,
-    "contribution": 858,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit",
     "state": "PU"
   }
 },
@@ -87184,17 +87052,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "497f6c09-4e13-4998-875b-3fd41226a747",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "49826305-3f9d-4c24-87d4-32b82a73cbcc",
   "fields": {
     "question": 439,
@@ -87223,17 +87080,6 @@
     "contribution": 822,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "49f99dac-3bf9-4c8e-ba03-886eb3ed4267",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
     "state": "PU"
   }
 },
@@ -87289,17 +87135,6 @@
     "contribution": 1777,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "4adff973-ee22-43c4-9ce1-259fad068955",
-  "fields": {
-    "question": 341,
-    "contribution": 804,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam",
     "state": "PU"
   }
 },
@@ -87476,17 +87311,6 @@
     "contribution": 1837,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "4cf0a349-5bc3-42cd-9dfe-6057c77eb9f8",
-  "fields": {
-    "question": 341,
-    "contribution": 886,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet,",
     "state": "PU"
   }
 },
@@ -87679,17 +87503,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "4f580cda-1c48-47ac-ab58-a0506890efb2",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "4f74750e-4112-443d-87b2-eca614bd20e2",
   "fields": {
     "question": 364,
@@ -87751,17 +87564,6 @@
     "contribution": 4028,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "5019433d-bfa7-43b7-9546-1e028eaebb46",
-  "fields": {
-    "question": 341,
-    "contribution": 858,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum",
     "state": "PU"
   }
 },
@@ -88510,17 +88312,6 @@
     "contribution": 3390,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "58ce4079-c224-4966-9ea1-403346604dd0",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
     "state": "PU"
   }
 },
@@ -89472,17 +89263,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "628e1af1-0fef-4a86-9f44-1000b9a8bad5",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "62b882a2-1996-48b2-b3db-068dba911136",
   "fields": {
     "question": 364,
@@ -90198,17 +89978,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "69da3e6a-e7ef-4adf-b140-4c88da49bdfb",
-  "fields": {
-    "question": 341,
-    "contribution": 858,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "69dbcff6-de39-4f55-8105-b10b4be87c5d",
   "fields": {
     "question": 313,
@@ -90484,17 +90253,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "6d80e426-c84a-478d-90aa-ddd1df8b15da",
-  "fields": {
-    "question": 341,
-    "contribution": 832,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "6db7b3a0-3f39-40e5-801e-3e8be902da50",
   "fields": {
     "question": 318,
@@ -90600,17 +90358,6 @@
     "contribution": 3390,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "6f184115-a972-421f-a00b-6f0cdb3dbb2c",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
     "state": "PU"
   }
 },
@@ -90858,17 +90605,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "716edf4c-cea0-40f3-bf5c-cd3d5cd0f40c",
-  "fields": {
-    "question": 341,
-    "contribution": 894,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "717a70a3-2c2e-4d07-8942-efff7a185b8a",
   "fields": {
     "question": 318,
@@ -91095,17 +90831,6 @@
     "contribution": 880,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "75af0cef-622c-4d6f-8862-db25cd37c669",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore",
     "state": "PU"
   }
 },
@@ -91364,17 +91089,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "79707f13-ede0-4fb5-99c1-7f49367823c5",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet,",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "797bb5cf-37ba-4376-b748-efc9a56317f0",
   "fields": {
     "question": 318,
@@ -91463,17 +91177,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "7b98d49c-ec13-44c0-bc3f-507d92310dbf",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "7bcca34c-26f5-44c0-8f42-18248d26f069",
   "fields": {
     "question": 318,
@@ -91524,17 +91227,6 @@
     "contribution": 4028,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "7c3e30ea-6fb2-48f1-828a-d36ad1456cc1",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy",
     "state": "PU"
   }
 },
@@ -91804,17 +91496,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "7fd79cdb-4b27-4ce1-b926-fd2e039a36da",
-  "fields": {
-    "question": 341,
-    "contribution": 918,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet,",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "7fdf4543-6e63-437b-9860-f56cdb4478da",
   "fields": {
     "question": 314,
@@ -92008,17 +91689,6 @@
     "contribution": 4185,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "824547e7-b33c-4f33-b0d9-0b4c2214684e",
-  "fields": {
-    "question": 341,
-    "contribution": 886,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam",
     "state": "PU"
   }
 },
@@ -92937,17 +92607,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "8e833730-8a9a-4ae8-8a59-b9cd3b04e167",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "8e97eaaf-bc22-4ef8-9c40-02c9f55ec8f7",
   "fields": {
     "question": 318,
@@ -93020,17 +92679,6 @@
     "contribution": 1702,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "8f04ba9c-15c9-415d-9768-1e3048b1512c",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et",
     "state": "PU"
   }
 },
@@ -93273,17 +92921,6 @@
     "contribution": 1634,
     "reviewed_answer": null,
     "original_answer": "Lorem",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "921771eb-04f6-4369-b220-d2e0afc6f7bf",
-  "fields": {
-    "question": 341,
-    "contribution": 894,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod",
     "state": "PU"
   }
 },
@@ -93669,17 +93306,6 @@
     "contribution": 3406,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "9687d9e2-cc97-4f8f-b102-d0a3d6aab01d",
-  "fields": {
-    "question": 341,
-    "contribution": 918,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing",
     "state": "PU"
   }
 },
@@ -94840,17 +94466,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "a6bbe56b-979b-43f9-9fd7-562c31c669d2",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "a6cbcea4-2005-4280-b015-f5d4d7302379",
   "fields": {
     "question": 318,
@@ -94879,17 +94494,6 @@
     "contribution": 1287,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "a6e512ac-d388-47ac-af82-ef3a050c93eb",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed",
     "state": "PU"
   }
 },
@@ -95588,17 +95192,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "afb9c270-801e-401e-a3ea-e5abf864c0ca",
-  "fields": {
-    "question": 341,
-    "contribution": 868,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "afbbb699-9492-4d43-b4ce-b9f6c0edc73b",
   "fields": {
     "question": 364,
@@ -95885,17 +95478,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "b200b996-6821-46a7-93c2-228a28633fc5",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "b2094151-623c-42f2-9260-a34624e4b482",
   "fields": {
     "question": 313,
@@ -96138,17 +95720,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "b47b8660-daf7-4d0b-91bd-16c52d218614",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "b4ca7398-9db1-4892-a23d-a8cf379e968e",
   "fields": {
     "question": 364,
@@ -96188,17 +95759,6 @@
     "contribution": 3390,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "b5356d2e-15ae-4995-9a33-f3a45246e129",
-  "fields": {
-    "question": 341,
-    "contribution": 858,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit",
     "state": "PU"
   }
 },
@@ -96705,17 +96265,6 @@
     "contribution": 1680,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "ba9211b4-c4e7-4df7-9d40-50f1cc34b2f6",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,",
     "state": "PU"
   }
 },
@@ -97656,17 +97205,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "c6358c95-0dbd-40f0-870a-73d7a2520aa1",
-  "fields": {
-    "question": 341,
-    "contribution": 788,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "c652027e-73d8-4c2f-b3f1-8b2a89d4db5c",
   "fields": {
     "question": 313,
@@ -97871,17 +97409,6 @@
     "contribution": 3486,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "c8de0b11-6837-433a-89d9-0836a96c76bd",
-  "fields": {
-    "question": 341,
-    "contribution": 788,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
     "state": "PU"
   }
 },
@@ -98113,17 +97640,6 @@
     "contribution": 3434,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "cbb5c56b-8383-491a-8d13-f117b0fda8a1",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore",
     "state": "PU"
   }
 },
@@ -98822,17 +98338,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "d0fb1e47-9601-4d6e-934b-cdcb14997074",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "d14596e1-4601-41f9-a2e7-886b21c915d6",
   "fields": {
     "question": 358,
@@ -98927,17 +98432,6 @@
     "contribution": 4148,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "d1e7f903-93c8-4b45-976b-e58701478fc5",
-  "fields": {
-    "question": 341,
-    "contribution": 886,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At",
     "state": "PU"
   }
 },
@@ -99257,17 +98751,6 @@
     "contribution": 3422,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "d4992006-9043-42d7-89b8-8bd19f3fb7a8",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,",
     "state": "PU"
   }
 },
@@ -99647,28 +99130,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "d810b777-4526-40c6-86fb-e913482f7dc6",
-  "fields": {
-    "question": 341,
-    "contribution": 832,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "d855f23b-f00e-4f7d-a0aa-131fc66e345d",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "d8717529-5c52-4ab6-93f3-db2b183c3e3c",
   "fields": {
     "question": 364,
@@ -99818,17 +99279,6 @@
     "contribution": 3434,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "da9c6ed4-9f50-4708-b89c-21ff73a961b4",
-  "fields": {
-    "question": 341,
-    "contribution": 918,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
     "state": "PU"
   }
 },
@@ -100368,17 +99818,6 @@
     "contribution": 3740,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "e049ee08-902f-420b-95d8-15eaafba7cf6",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores",
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores",
     "state": "PU"
   }
 },
@@ -101121,17 +100560,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "e8a6caa0-c377-41ea-91a2-d54000ba4eda",
-  "fields": {
-    "question": 341,
-    "contribution": 862,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "e8d9d70a-4c97-4eca-90b9-b7ce9a9b88d8",
   "fields": {
     "question": 313,
@@ -101572,17 +101000,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "eeafb579-ef46-42bd-8b94-e4fd6d2ee265",
-  "fields": {
-    "question": 341,
-    "contribution": 918,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "eee5cc34-1507-466f-b1af-4669cc907019",
   "fields": {
     "question": 364,
@@ -102018,17 +101435,6 @@
     "contribution": 836,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "f189fda8-4347-4dff-97a7-4d11f6ed1284",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy",
     "state": "PU"
   }
 },
@@ -102815,17 +102221,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "fad45973-51c3-4df8-aac1-51c722121076",
-  "fields": {
-    "question": 341,
-    "contribution": 886,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "fb1c608c-3a51-489e-9e4f-6d5b5ee2bc0b",
   "fields": {
     "question": 342,
@@ -102964,17 +102359,6 @@
     "contribution": 4100,
     "reviewed_answer": null,
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "fd646090-6307-4d63-97ca-aa6748e12364",
-  "fields": {
-    "question": 341,
-    "contribution": 1200,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore",
     "state": "PU"
   }
 },
@@ -135345,7 +134729,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2007-02-01T00:00:00",
@@ -135385,7 +134769,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135427,7 +134811,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135463,7 +134847,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135510,7 +134894,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135566,7 +134950,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-01T00:00:00",
@@ -135610,7 +134994,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-29T00:00:00",
@@ -135653,7 +135037,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-12T00:00:00",
@@ -135685,7 +135069,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135784,7 +135168,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135827,7 +135211,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -135883,7 +135267,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -135932,7 +135316,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -135977,7 +135361,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136019,7 +135403,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 62,
     "_voter_count": 35,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136143,7 +135527,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136285,7 +135669,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-04-12T00:00:00",
@@ -136363,7 +135747,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-27T00:00:00",
@@ -136403,7 +135787,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-01-30T00:00:00",
@@ -136551,7 +135935,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136707,7 +136091,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 15,
     "_voter_count": 11,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136761,7 +136145,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-01-22T00:00:00",
@@ -136799,7 +136183,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
@@ -136945,7 +136329,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 74,
     "_voter_count": 27,
     "vote_start_datetime": "2012-07-09T00:00:00",
@@ -137074,7 +136458,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 82,
     "_voter_count": 32,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137216,7 +136600,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137384,7 +136768,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137522,7 +136906,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 26,
     "_voter_count": 10,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137586,7 +136970,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137634,7 +137018,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137676,7 +137060,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137735,7 +137119,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 27,
     "_voter_count": 14,
     "vote_start_datetime": "2012-07-05T00:00:00",
@@ -137804,7 +137188,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137854,7 +137238,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137910,7 +137294,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-05T00:00:00",
@@ -137976,7 +137360,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 7,
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138014,7 +137398,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138060,7 +137444,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 23,
     "_voter_count": 8,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138118,7 +137502,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138160,7 +137544,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138190,7 +137574,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-06T00:00:00",
@@ -138230,7 +137614,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-06T00:00:00",
@@ -138264,7 +137648,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138303,7 +137687,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -138340,7 +137724,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 17,
     "_voter_count": 2,
     "vote_start_datetime": "2012-08-17T00:00:00",
@@ -138387,7 +137771,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138510,7 +137894,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138541,7 +137925,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138590,7 +137974,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138625,7 +138009,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138738,7 +138122,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138775,7 +138159,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-04-01T00:00:00",
@@ -138840,7 +138224,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138896,7 +138280,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138943,7 +138327,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 80,
     "_voter_count": 27,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139078,7 +138462,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 84,
     "_voter_count": 37,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139226,7 +138610,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139280,7 +138664,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139314,7 +138698,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -139349,7 +138733,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139387,7 +138771,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139432,7 +138816,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -139466,7 +138850,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 11,
     "_voter_count": 6,
     "vote_start_datetime": "2013-02-04T00:00:00",
@@ -139510,7 +138894,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139541,7 +138925,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139574,7 +138958,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 27,
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139637,7 +139021,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139679,7 +139063,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139742,7 +139126,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 63,
     "_voter_count": 20,
     "vote_start_datetime": "2013-01-26T00:00:00",
@@ -139850,7 +139234,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 17,
     "_voter_count": 4,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139899,7 +139283,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -139982,7 +139366,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
@@ -140014,7 +139398,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -140080,7 +139464,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 40,
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-25T00:00:00",
@@ -140154,7 +139538,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-28T00:00:00",
@@ -140211,7 +139595,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140250,7 +139634,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -140289,7 +139673,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140437,7 +139821,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140472,7 +139856,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140524,7 +139908,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140570,7 +139954,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 3,
     "_voter_count": 2,
     "vote_start_datetime": "2013-09-01T00:00:00",
@@ -140602,7 +139986,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 32,
     "_voter_count": 5,
     "vote_start_datetime": "2013-08-12T00:00:00",
@@ -140667,7 +140051,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
@@ -140704,7 +140088,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": true,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -140735,7 +140119,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140896,7 +140280,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140945,7 +140329,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141084,7 +140468,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141150,7 +140534,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 9,
     "_voter_count": 4,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141191,7 +140575,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -141254,7 +140638,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 10,
     "_voter_count": 5,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141297,7 +140681,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141336,7 +140720,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 4,
     "_voter_count": 1,
     "vote_start_datetime": "2013-06-24T00:00:00",
@@ -141369,7 +140753,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141400,7 +140784,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-12T00:00:00",
@@ -141439,7 +140823,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
@@ -141479,7 +140863,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
@@ -141515,7 +140899,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -141556,7 +140940,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141584,7 +140968,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141621,7 +141005,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141671,7 +141055,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 2,
     "_voter_count": 0,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141700,7 +141084,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
@@ -141729,7 +141113,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141770,7 +141154,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
@@ -141803,7 +141187,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141836,7 +141220,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
@@ -141870,7 +141254,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141902,7 +141286,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141947,7 +141331,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 6,
     "_voter_count": 3,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141984,7 +141368,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 4,
     "_voter_count": 0,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142015,7 +141399,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142052,7 +141436,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 7,
     "_voter_count": 4,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142091,7 +141475,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
@@ -142123,7 +141507,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 38,
     "_voter_count": 17,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142206,7 +141590,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142237,7 +141621,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142270,7 +141654,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 6,
     "_voter_count": 3,
     "vote_start_datetime": "2014-03-31T00:00:00",
@@ -142307,7 +141691,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 10,
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-11T00:00:00",
@@ -142346,7 +141730,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-01-28T00:00:00",
@@ -142405,7 +141789,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 24,
     "_voter_count": 8,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142464,7 +141848,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142497,7 +141881,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
@@ -142537,7 +141921,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142700,7 +142084,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2015-01-01T00:00:00",
@@ -142735,7 +142119,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142767,7 +142151,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-07T00:00:00",
@@ -142824,7 +142208,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142961,7 +142345,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -142995,7 +142379,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
@@ -143028,7 +142412,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-04T00:00:00",
@@ -143121,7 +142505,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-05T00:00:00",
@@ -143175,7 +142559,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -143311,7 +142695,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 12,
     "_voter_count": 5,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -143356,7 +142740,7 @@
     "is_graded": false,
     "is_private": true,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -143428,7 +142812,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -143576,7 +142960,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-04-06T00:00:00",
@@ -143661,7 +143045,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -143811,7 +143195,7 @@
     "is_graded": true,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -143845,7 +143229,7 @@
     "is_graded": false,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 31,
     "_voter_count": 31,
     "vote_start_datetime": "2015-11-01T00:00:00",
@@ -143871,7 +143255,7 @@
     "is_graded": false,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "is_required_for_reward": true,
+    "is_rewarded": true,
     "_participant_count": 50,
     "_voter_count": 50,
     "vote_start_datetime": "2015-10-01T00:00:00",

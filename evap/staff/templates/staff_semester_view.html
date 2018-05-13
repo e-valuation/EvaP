@@ -19,7 +19,6 @@
         {% endif %}
     </h3>
 
-    {% if num_courses > 0 %}
     <div class="card mb-3">
         <div class="card-header d-flex">
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
@@ -27,19 +26,20 @@
                 <div class="ml-auto">
                     {% if not semester.is_archived %}
                         <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
+                        <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if rewards_active == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if grades_downloadable %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if grades_downloadable == False %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
+                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not grades_downloadable %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,11 @@
                         <td>
                             {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
                         </td>
-                        <td>{{ stats.first_start }} &ndash; {{ stats.last_end }}</td>
+                        <td>
+                            {% if stats.num_courses != 0 %}
+                                {{ stats.first_start }} &ndash; {{ stats.last_end }}
+                            {% endif %}
+                        </td>
                         <td>
                             {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
                         </td>
@@ -78,7 +82,6 @@
             </table>
         </div>
     </div>
-    {% endif %}
 
     <div class="card card-outline-primary">
         <div class="card-header d-flex">
@@ -111,87 +114,91 @@
         </div>
         <div class="card-body">
             <div class="btn-switch mb-2" id="course-filter-buttons">
-                <div class="btn-switch-label my-auto">{% trans 'Filter' %}</div>
-                <div class="btn-group icon-buttons">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
-                        <span class="fas fa-circle icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
-                        <span class="far fa-square icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}">
-                        <span class="far fa-check-square icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}">
-                        <span class="far fa-check-square icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
-                        <span class="fas fa-pause icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
-                        <span class="fas fa-play icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
-                        <span class="fas fa-stop icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
-                        <span class="fas fa-comment icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
-                        <span class="fas fa-comment icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
-                        <span class="fas fa-comment icon-green"></span>
-                    </a>
-                </div>
-                <div class="btn-group icon-buttons ml-2">
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
-                        <span class="fas fa-chart-bar icon-gray"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
-                        <span class="fas fa-chart-bar icon-red"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
-                        <span class="fas fa-chart-bar icon-yellow"></span>
-                    </a>
-                    <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
-                        data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
-                        <span class="fas fa-chart-bar icon-green"></span>
-                    </a>
+                <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
+                <div class="btn-toolbar">
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
+                            <span class="fas fa-circle icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
+                            <span class="far fa-square icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}">
+                            <span class="far fa-check-square icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}">
+                            <span class="far fa-check-square icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
+                            <span class="fas fa-pause icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
+                            <span class="fas fa-play icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
+                            <span class="fas fa-stop icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
+                            <span class="fas fa-comment icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
+                            <span class="fas fa-comment icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
+                            <span class="fas fa-comment icon-green"></span>
+                        </a>
+                    </div>
+                    <div class="btn-group icon-buttons">
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
+                            <span class="fas fa-chart-bar icon-gray"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
+                            <span class="fas fa-chart-bar icon-red"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
+                            <span class="fas fa-chart-bar icon-yellow"></span>
+                        </a>
+                        <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
+                            <span class="fas fa-chart-bar icon-green"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
             <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
                 <table id="course-table" class="table table-striped table-narrow vertically-aligned">
-                    <thead>
-                        <tr>
-                            <th data-orderable="false"></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>{% trans 'Course' %}</th>
-                            <th>{% trans 'Evaluation period' %}</th>
-                            <th data-orderable="false"></th>
-                            <th data-orderable="false"></th>
-                        </tr>
-                    </thead>
+                    {% if num_courses > 0 %}
+                        <thead>
+                            <tr>
+                                <th data-orderable="false"></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th>{% trans 'Course' %}</th>
+                                <th>{% trans 'Evaluation period' %}</th>
+                                <th data-orderable="false"></th>
+                                <th data-orderable="false"></th>
+                            </tr>
+                        </thead>
+                    {% endif %}
                     <tbody>
                     {% for course in courses %}
                         <tr id="course-row-{{ course.id }}">

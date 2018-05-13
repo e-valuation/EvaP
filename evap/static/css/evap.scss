@@ -3,40 +3,46 @@
 
 
 /* override bootstrap values */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll !important;
+}
+
 h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1rem;
 }
 
 .navbar {
-    padding-left: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    padding: 0 1rem;
     -webkit-font-smoothing: subpixel-antialiased;
 }
 
-.navbar-brand {
+.navbar-nav .nav-link,
+.navbar-nav .navbar-text {
+    padding: .0 .5rem;
+    line-height: 42px;
+}
+
+.navbar-dark .navbar-nav .nav-link,
+.navbar-dark .navbar-text {
+    color: $light-gray;
+}
+.navbar-dark .navbar-nav .nav-link:focus,
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: $white;
+}
+.navbar-toggler {
     padding: 0;
 }
 
-.navbar-brand-image {
-    height: 50px;
-}
-
-.navbar-nav .nav-link {
-    padding-right: .5rem;
-    padding-left: .5rem;
-}
-
 div.container {
-    padding-top: 80px; /* for navbar */
-    padding-bottom: 55px; /* for footer */
-}
-
-.footer {
-    height: 45px;
-    line-height: 45px;
-    background-color: $light-gray;
-    padding: 0 15px;
+    padding-top: 80px; // for navbar (and breadcrumbs)
+    flex: 1 0 auto;
 }
 
 .btn.fas {
@@ -141,6 +147,16 @@ a.btn:not([href]):not(.disabled).btn-dark {
     display: inline-flex;
     background-color: lighten($light-gray, 2%);
     border-radius: 0.2rem;
+    .btn-toolbar {
+        background: $white;
+    }
+    .btn-group {
+        background: lighten($light-gray, 2%);
+        &::before {
+            width: 0.5rem;
+            content: "";
+        }
+    }
 }
 .btn-switch-label {
     display: inline-block;
@@ -236,14 +252,27 @@ a.btn:not([href]):not(.disabled).btn-dark {
     }
 }
 
+.dropdown-menu {
+    padding: 0.25rem 0;
+}
+.dropdown-menu-tight {
+    min-width: inherit;
+    padding: 0.25rem 0;
+}
 .dropdown-toggle::after {
     vertical-align: 0.2em;
+}
+.dropdown-item {
+    padding: 0.15rem 1rem;
 }
 .dropdown-item.hover, .dropdown-item:hover {
     background-color: $light-gray;
 }
 .dropdown-item.active, .dropdown-item:active {
     background-color: $dark-gray;
+}
+.dropdown-divider {
+    margin: 0.25rem 0;
 }
 
 .close {
@@ -319,6 +348,10 @@ button {
     padding: 0.5rem 0.75rem;
 }
 
+.nav-item {
+    padding: 0 0.25rem;
+}
+
 
 /* evap print styling */
 @media print {
@@ -387,7 +420,37 @@ button {
 }
 
 .breadcrumb {
-    background-color: $white;
+    display: inline-block;
+    position: relative;
+    float: left;
+    margin: 0;
+    padding: 3px 0.5rem;
+    font-size: small;
+    background-color: $darker-gray;
+    color: $medium-gray;
+    border-radius: 0;
+    a {
+        color: $light-gray;
+    }
+    a:focus, a:hover {
+        color: $white;
+        text-decoration: none;
+    }
+}
+.breadcrumb-item {
+    display: inline-block;
+}
+.breadcrumb-item + .breadcrumb-item::before {
+    padding-right: 0.3rem;
+    padding-left: 0.2rem;
+}
+.breadcrumb-end {
+    position: relative;
+    float: left;
+    content: "";
+    border-top: 25px solid $darker-gray;
+    border-right: 13px solid $darker-gray;
+    border-color: $darker-gray transparent transparent transparent;
 }
 
 
@@ -396,7 +459,71 @@ body {
     background-image: url("../images/triangles_gray.svg");
     background-size: cover;
     background-attachment: fixed;
-    overflow-y: scroll !important;
+}
+
+.btn-switch-navbar {
+    display: inline-flex;
+    background-color: $darker-gray;
+    padding: 0.5rem 0.75rem;
+    .btn-group {
+        .btn.btn-navbar {
+            padding: 0 0.25rem;
+            background-color: lighten($darker-gray, 5%);
+            border-width: 0;
+            color: $light-gray;
+            transition: none;
+            min-width: 28px;
+            margin-left: 0;
+        }
+        .btn.btn-navbar:hover {
+            background-color: lighten($darker-gray, 10%);
+            color: $white;
+        }
+        .btn.btn-navbar:focus {
+            box-shadow: none;
+        }
+        .btn.btn-navbar.active.disabled {
+            background-color: lighten($darker-gray, 5%);
+            color: $medium-gray;
+            border-width: 0;
+            box-shadow: inset 0 0 10px darken($darker-gray, 20%);
+            opacity: 1;
+        }
+    }
+}
+
+.footer {
+    background: $darker-gray;
+    line-height: 1.2;
+    color: $light-gray;
+    a {
+        white-space: nowrap;
+    }
+    .navbar-nav .nav-link.nav-link-multiline {
+        line-height: 1.2;
+    }
+}
+
+.feedback-button{
+    position: fixed;
+    right: 10px;
+    bottom: 8px;
+    a.btn:not([href]):not(.disabled).btn-dark {
+        padding: 0 0.2rem;
+        color: $light-gray;
+    }
+}
+.feedback-button-placeholder {
+    min-width: 140px;
+}
+
+.brand-image {
+    height: 42px;
+}
+
+.color-bar {
+    height: 0.2rem;
+    display: flex;
 }
 
 table#question_table textarea {
@@ -522,7 +649,7 @@ div.preview > textarea {
 .grade-bg-result-bar {
     float: right;
     border-radius: 3px;
-    width: 40px;
+    width: 42px;
     margin-left: 10px;
 }
 
@@ -618,10 +745,6 @@ select[multiple] {
 .collapse-toggle.collapsed:before {
     content: "\f054";
     margin-left: 4px;
-}
-
-.feedback-button {
-    line-height: 40px;
 }
 
 .btn-option {
@@ -1001,6 +1124,89 @@ a.no-underline:hover {
         padding-top: 20px;
         transition: max-width 1s ease 0s, padding-top 1s ease 1s, max-height 1s ease 1s;
     }
+}
+
+
+/* custom checkboxes (based on http://getbootstrap.com/docs/4.0/components/forms/#custom-forms) */
+.form-check-input {
+    position: absolute;
+    z-index: 1;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    &:checked ~ .form-check-label::after {
+        opacity: 1;
+    }
+    &:checked ~ .form-check-label::before {
+        background-color: $evap-dark-blue;
+    }
+    &:hover ~ .form-check-label::before {
+        background-color: darken($light-gray, 10%);
+    }
+    &:checked:hover ~ .form-check-label::before {
+        background-color: darken($evap-dark-blue, 10%);
+    }
+    &:focus ~ .form-check-label::before {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.25);
+    }
+    &:disabled {
+        ~ .form-check-label {
+            color: $medium-gray;
+            &::before {
+                background-color: $lighter-gray;
+                border: 1px solid $light-gray;
+                box-shadow: none;
+            }
+            &::after {
+                color: $medium-gray;
+            }
+        }
+        &:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
+        }
+        &:checked:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
+        }
+    }
+}
+// formset delete checkboxes are hidden when replaced with a link and no checkbox should be shown there
+input[type="hidden"] ~ .form-check-label {
+    display: none;
+}
+.form-check-label {
+  margin-bottom: 0;
+  color: $black;
+  transition: color 0.15s ease-in-out;
+  &::before {  // background
+    position: absolute;
+    top: .25rem;
+    left: 0;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+    user-select: none;
+    content: "";
+    border-radius: 0.25rem;
+    border: 0;
+    background-color: $light-gray;
+    transition: background-color 0.15s ease-in-out;
+  }
+  &::after {  // check icon
+    position: absolute;
+    top: .31rem;
+    left: .2rem;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    content: "\f00c";
+    font-family: "Font Awesome\ 5 Free";
+    font-size: .6rem;
+    font-weight: 900;
+    color: $white;
+  }
 }
 
 

@@ -1,28 +1,32 @@
-{% extends 'results_base.html' %}
+{% extends 'base.html' %}
 
 {% load results_templatetags %}
 
-{% block title %}{{ course.name }} - {{ course.semester.name }} - {{ block.super }}{% endblock %}
+{% block title %}{{ course.name }} - {{ course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'results:semester_detail' course.semester.id %}">{{ course.semester.name }}</a></li>
-    <li class="breadcrumb-item">{{ course.name }}</li>
+{% block breadcrumb_bar %}
+    <div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">{{ course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ course.name }}</li>
+        </ul>
+        <span class="breadcrumb-end"></span>
+    </div>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
-    {% if evaluation_warning %}
+    {% if course.state != 'published' %}
         <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
-    {% elif sufficient_votes_warning %}
-        <div class="alert alert-warning">{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
+    {% elif not course.has_enough_voters_to_publish_grades %}
+        <div class="alert alert-warning"><span class="far fa-eye-slash"></span> {% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
     {% endif %}
 
     {% if reviewer or contributor %}
         {% if course.is_private %}
             <div class="alert alert-info d-print-none">
-                {% trans 'This course is private. Only contributors and participants can see the results.' %}
+                <span class="fas fa-lock"></span> {% trans 'This course is private. Only contributors and participants can see the results.' %}
             </div>
         {% endif %}
         <div class="d-flex">
@@ -35,7 +39,7 @@
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Myself' %}
                     </a>
-                    {% if sufficient_votes_warning %}
+                    {% if not course.has_enough_voters_to_publish_grades %}
                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
                             <a href="#" role="button" class="btn btn-sm btn-light disabled">
                                 {% if course.is_private %}
@@ -119,13 +123,13 @@
         </div>
     </div>
 
-    {% if course_sections %}
+    {% if course_sections_top %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Course' %}
             </div>
             <div class="card-body">
-                {% for section in course_sections %}
+                {% for section in course_sections_top %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
@@ -133,7 +137,7 @@
     {% endif %}
 
     {% if contributor_sections %}
-        <div class="card card-outline-primary">
+        <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Contributors' %}
             </div>
@@ -176,4 +180,18 @@
             </div>
         </div>
     {% endif %}
+
+    {% if course_sections_bottom %}
+        <div class="card card-outline-primary">
+            <div class="card-header">
+                {% trans 'Course' %}
+            </div>
+            <div class="card-body">
+                {% for section in course_sections_bottom %}
+                    {% include 'results_course_detail_questionnaires.html' %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}

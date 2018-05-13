@@ -10,14 +10,14 @@ NEGATIVE_YES_NO_CHOICES = [(str(k), v) for k, v in NEGATIVE_YES_NO_NAMES.items()
 
 
 class HeadingField(forms.Field):
-    """ Pseudo field used to store and display headings inside a QuestionsForm.
+    """ Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
     Does not handle any kind of input."""
 
     def __init__(self, label):
         super().__init__(label=label, required=False)
 
 
-class QuestionsForm(forms.Form):
+class QuestionnaireVotingForm(forms.Form):
     """Dynamic form class that adds one field per question.
 
     See http://jacobian.org/writing/dynamic-form-generation/"""

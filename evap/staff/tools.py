@@ -82,9 +82,9 @@ def custom_redirect(url_name, *args, **kwargs):
     return HttpResponseRedirect(url + "?%s" % params)
 
 
-def delete_navbar_cache():
+def delete_navbar_cache_for_users(users):
     # delete navbar cache from base.html
-    for user in UserProfile.objects.all():
+    for user in users:
         key = make_template_fragment_key('navbar', [user.username, 'de'])
         cache.delete(key)
         key = make_template_fragment_key('navbar', [user.username, 'en'])

@@ -1,17 +1,28 @@
-{% extends 'contributor_base.html' %}
+{% extends 'base.html' %}
 
 {% load evaluation_filters %}
 
-{% block breadcrumb %}
-    {{ block.super }}
-    <li class="breadcrumb-item">{{ course.name }}</li>
+{% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb_bar %}
+    <div>
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item">{{ course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ course.name }}</li>
+        </ul>
+        <span class="breadcrumb-end"></span>
+    </div>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
     <div class="bs-callout bs-callout-info small">
-        {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
+        {% if editable %}
+            {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
+        {% else %}
+            {% blocktrans %}You cannot edit this course because it has already been approved.{% endblocktrans %}
+        {% endif %}
     </div>
 
     <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">

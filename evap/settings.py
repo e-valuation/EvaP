@@ -3,10 +3,10 @@
 Django settings for EvaP project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
+https://docs.djangoproject.com/en/2.0/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
+https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
@@ -26,12 +26,10 @@ ENABLE_DEBUG_TOOLBAR = False
 
 ### EvaP logic
 
-# key authentication settings
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
-# minimum answers needed for publishing
-MIN_ANSWER_COUNT = 2
-MIN_ANSWER_PERCENTAGE = 0.2
+VOTER_COUNT_NEEDED_FOR_PUBLISHING = 2
+VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING = 0.2
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this course)
@@ -45,8 +43,12 @@ RESULTS_WARNING_PERCENTAGE = 0.5
 GRADE_PERCENTAGE = 0.8
 CONTRIBUTION_PERCENTAGE = 0.5
 
-# number of reward points to be given to a student once all courses of a semester have been voted for
-REWARD_POINTS_PER_SEMESTER = 3
+# number of reward points a student should have for a semester after evaluating the given fraction of courses.
+REWARD_POINTS = [
+    (1.0/3.0, 1), 
+    (2.0/3.0, 2), 
+    (3.0/3.0, 3), 
+]
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
@@ -55,7 +57,6 @@ REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 # figure out who can login with username and password and who needs a login key
 INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 
-# maximum length of usernames of internal users
 INTERNAL_USERNAMES_MAX_LENGTH = 20
 
 # the importer accepts only these two strings in the 'graded' column
@@ -70,6 +71,13 @@ DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
 DEFAULT_FINAL_GRADES_DESCRIPTION_DE = "Endnoten"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE = "Zwischennoten"
+
+# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
+EVALUATION_END_OFFSET_HOURS = 3
+
+# Amount of hours in which participant will be warned
+EVALUATION_END_WARNING_PERIOD = 5
+
 
 ### Installation specific settings
 
@@ -98,26 +106,31 @@ DATABASES = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'evap_db_cache',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/0',
         'OPTIONS': {
-            'MAX_ENTRIES': 1000  # note that the results alone need one entry per course
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000
+        }
+    },
+    'results': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'TIMEOUT': None,  # is always invalidated manually
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 100000
         }
     }
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
-TRACKER_URL = "https://github.com/fsr-itse/EvaP"
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Config for legal notice
-# The HTML file which should be used must be located in evap\templates\legal_notice_text.html
-LEGAL_NOTICE_ACTIVE = False
 
 
 LOGGING = {
@@ -208,8 +221,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.legal_notice_active",
-                "evap.context_processors.tracker_url",
+                "evap.context_processors.slogan"
             ],
             'builtins': ['django.templatetags.i18n'],
         },
@@ -233,6 +245,12 @@ WSGI_APPLICATION = 'evap.wsgi.application'
 LOGIN_REDIRECT_URL = '/'
 
 LOGIN_URL = "/"
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
 
 
 ### Internationalization
@@ -264,14 +282,9 @@ USERNAME_REPLACEMENTS = [
     ('ß', 'ss'),
 ]
 
-# Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
-EVALUATION_END_OFFSET_HOURS = 3
-
-# Amount of hours in which participant will be warned
-EVALUATION_END_WARNING_PERIOD = 5
 
 ### Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
+# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
 
@@ -289,6 +302,14 @@ STATICFILES_FINDERS = [
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
 
+# django-compressor settings
+COMPRESS_ENABLED = not DEBUG
+COMPRESS_OFFLINE = False
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'sass {infile} {outfile}'),
+)
+COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
+
 
 ### User-uploaded files
 
@@ -300,15 +321,33 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 SENDFILE_BACKEND = 'sendfile.backends.simple'
 
 
-### Other
+### Slogans
+SLOGANS_DE = [
+    "Evaluierungen verlässlich ausführen und präsentieren",
+    "Entscheidungsgrundlage zur Verbesserung akademischer Programme",
+    "Ein voll atemberaubendes Projekt",
+    "Evaluierungs-Vereinfachung aus Potsdam",
+    "Elegante Verwaltung automatisierter Performancemessungen",
+    "Effektive Vermeidung von anstrengendem Papierkram",
+    "Einfach Verantwortlichen Abstimmungsergebnisse präsentieren",
+    "Ein Vorzeigeprojekt auf Python-Basis",
+    "Erleichtert Verfolgung aufgetretener Probleme",
+    "Entwickelt von arbeitsamen Personen",
+]
+SLOGANS_EN = [
+    "Extremely valuable automated processing",
+    "Exploring various answers professionally",
+    "Encourages values and perfection",
+    "Enables virtuously adressed petitions",
+    "Evades very annoying paperwork",
+    "Engineered voluntarily and passionately",
+    "Elegant valiantly administered platform",
+    "Efficient voting and processing",
+    "Everyone values awesome products",
+    "Enhances vibrant academic programs",
+]
 
-# django-compressor settings
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = False
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile} {outfile}'),
-)
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
+### Other
 
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
@@ -323,6 +362,18 @@ TESTING = 'test' in sys.argv
 if TESTING:
     COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+    # use the database for caching. it's properly reset between tests in constrast to redis,
+    # and does not change behaviour in contrast to disabling the cache entirely.
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_default',
+        },
+        'results': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_results',
+        },
+    }
 
 
 # Django debug toolbar settings

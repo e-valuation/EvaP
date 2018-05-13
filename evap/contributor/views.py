@@ -11,7 +11,7 @@ from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_grades_and_deviation
 from evap.staff.forms import ContributionFormSet
-from evap.student.views import vote_preview
+from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
 @contributor_or_delegate_required
@@ -68,11 +68,8 @@ def course_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
+    if not course.is_user_editor_or_delegate(user) or course.state not in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']:
         raise PermissionDenied
-
-    if course.is_user_editor_or_delegate(user):
-        messages.info(request, _('You cannot edit this course because it has already been approved.'))
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
 
@@ -85,7 +82,7 @@ def course_view(request, course_id):
             field.disabled = True
 
     template_data = dict(form=form, formset=formset, course=course, editable=False,
-                        responsibles=[contributor.username for contributor in course.responsible_contributors])
+                         responsibles=[contributor.username for contributor in course.responsible_contributors])
     return render(request, "contributor_course_form.html", template_data)
 
 
@@ -97,7 +94,7 @@ def render_preview(request, formset, course_form, course):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = vote_preview(request, course, for_rendering_in_modal=True).content.decode()
+            preview_response = get_valid_form_groups_or_render_vote_page(request, course, preview=True, for_rendering_in_modal=True)[1].content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -164,4 +161,4 @@ def course_preview(request, course_id):
     if not (course.is_user_contributor_or_delegate(user) and course.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
-    return vote_preview(request, course)
+    return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]

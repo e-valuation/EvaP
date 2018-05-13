@@ -17,11 +17,13 @@
         </div>
     </div>
 
-    {% if course_questionnaires or contributor_questionnaires %}
-        {% trans 'Course questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=course_questionnaires headline=headline extra_classes='mb-3' %}
+    {% if course_questionnaires_top or course_questionnaires_bottom or contributor_questionnaires %}
+        {% trans 'Top course questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=course_questionnaires_top headline=headline extra_classes='mb-3' type='top' %}
         {% trans 'Contributor questionnaires' as headline %}
-        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='' %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=contributor_questionnaires headline=headline extra_classes='mb-3' type='contributor' %}
+        {% trans 'Bottom course questionnaires' as headline %}
+        {% include 'staff_questionnaire_index_list.html' with questionnaires=course_questionnaires_bottom headline=headline extra_classes='' type='bottom' %}
     {% else %}
         <p>
             {% trans 'There are no questionnaires yet.' %}

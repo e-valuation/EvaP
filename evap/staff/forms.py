@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
@@ -124,7 +124,7 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 class CourseForm(forms.ModelForm):
     general_questions = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.filter(is_for_contributors=False, obsolete=False),
+        Questionnaire.objects.course_questionnaires().filter(obsolete=False),
         widget=CheckboxSelectMultiple,
         label=_("Questions about the course")
     )
@@ -139,8 +139,9 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_required_for_reward', 'vote_start_datetime',
-                  'vote_end_date', 'participants', 'general_questions', 'last_modified_time_2', 'last_modified_user_2', 'semester')
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
+                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questions',
+                  'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -149,7 +150,7 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questions'].queryset = Questionnaire.objects.filter(is_for_contributors=False).filter(
+        self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
@@ -273,7 +274,7 @@ class ContributionForm(forms.ModelForm):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.filter(is_for_contributors=True, obsolete=False),
+        Questionnaire.objects.contributor_questionnaires().filter(obsolete=False),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
@@ -304,7 +305,7 @@ class ContributionForm(forms.ModelForm):
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
 
-        self.fields['questionnaires'].queryset = Questionnaire.objects.filter(is_for_contributors=True).filter(
+        self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
 
         if self.instance.pk:
@@ -387,11 +388,23 @@ class RemindResponsibleForm(forms.Form):
 
 
 class QuestionnaireForm(forms.ModelForm):
-
     class Meta:
         model = Questionnaire
         exclude = ()
-        widgets = {'index': forms.HiddenInput()}
+        widgets = {'order': forms.HiddenInput()}
+
+    def save(self, commit=True, force_highest_order=False, *args, **kwargs):
+        # get instance that has all the changes from the form applied, dont write to database
+        questionnaire_instance = super().save(commit=False, *args, **kwargs)
+
+        if force_highest_order or 'type' in self.changed_data:
+            highest_existing_order = Questionnaire.objects.filter(type=questionnaire_instance.type).aggregate(Max('order'))['order__max'] or -1
+            questionnaire_instance.order = highest_existing_order + 1
+
+        if commit:
+            questionnaire_instance.save(*args, **kwargs)
+
+        return questionnaire_instance
 
 
 class AtLeastOneFormSet(BaseInlineFormSet):
@@ -517,8 +530,8 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.filter(obsolete=False, is_for_contributors=False))
-        contributor_questionnaires = Questionnaire.objects.filter(obsolete=False, is_for_contributors=True)
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.course_questionnaires().filter(obsolete=False))
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
         self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 
 
