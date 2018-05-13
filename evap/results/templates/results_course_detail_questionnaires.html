@@ -24,7 +24,7 @@
                     <td class="result-rating-question my-auto">{{ result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
                         {% with participants_warning=section.warning|or:result.warning %}
-                            {% include 'result_bar.html' with result=result show_grades=show_grades participants_warning=participants_warning %}
+                            {% include 'result_bar.html' with result=result participants_warning=participants_warning %}
                         {% endwith %}
                     </td>
                 </tr>

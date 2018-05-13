@@ -29,8 +29,8 @@
                             </thead>
                             <tbody>
                             {% for course in courses %}
-                                <tr class="{% if not course|can_user_see_results:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
-                                {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
+                                <tr class="{% if not course|can_user_see_results_page:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                {% if course|can_user_see_results_page:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'In evaluation' %}"></span>
@@ -103,7 +103,7 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result show_grades=True participants_warning=False %}</td>
+                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result participants_warning=False %}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

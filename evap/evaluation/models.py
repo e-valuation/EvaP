@@ -337,7 +337,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return True
 
-    def can_user_see_results(self, user):
+    def can_user_see_results_page(self, user):
         if user.is_reviewer:
             return True
         if self.state == 'published':

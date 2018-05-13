@@ -109,7 +109,7 @@
                                 {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
-                        {% if show_grades %}
+                        {% if course.avg_grade is not None %}
                             <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
                             <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
                         {% else %}

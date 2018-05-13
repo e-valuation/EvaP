@@ -1,7 +1,7 @@
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-{% if show_grades and result.total_count > 0 %}
+{% if result.average is not None and result.total_count > 0 %}
     {% spaceless %}
     <div data-toggle="tooltip" data-placement="left"
         title="{% if participants_warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}

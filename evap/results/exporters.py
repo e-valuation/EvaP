@@ -138,7 +138,7 @@ class ExcelExporter(object):
 
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
-                                if grade_result.average:
+                                if grade_result.average is not None:
                                     values.append(grade_result.average * grade_result.total_count)
                                     total_count += grade_result.total_count
                                 if grade_result.question.is_yes_no_question:

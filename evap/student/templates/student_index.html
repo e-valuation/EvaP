@@ -48,7 +48,7 @@
                             {% for course in semester.courses %}
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
-                                    {% elif course.state == 'published' and course.has_enough_voters_to_publish_grades %}
+                                    {% elif course|can_user_see_results_page:request.user %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"

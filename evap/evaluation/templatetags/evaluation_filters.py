@@ -83,9 +83,9 @@ def studentstatename(state):
     return STUDENT_STATES_ORDERED.get(state)
 
 
-@register.filter(name='can_user_see_results')
-def can_user_see_results(course, user):
-    return course.can_user_see_results(user)
+@register.filter(name='can_user_see_results_page')
+def can_user_see_results_page(course, user):
+    return course.can_user_see_results_page(user)
 
 
 @register.filter(name='can_user_use_reward_points')
