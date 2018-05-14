@@ -22,7 +22,7 @@ class TestCalculateResults(TestCase):
         self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
-        course = mommy.make(Course, state='published')
+        course = mommy.make(Course, state='published', _voter_count=0, _participant_count=0)
         collect_results(course)
         course.unpublish()
 

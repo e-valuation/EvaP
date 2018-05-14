@@ -250,6 +250,12 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
         mommy.make(UserProfile, username="staff", groups=[staff_group])
 
     def test_textanswer_visibility_for_staff_before_publish(self):
+        course = Course.objects.get(id=1)
+        course._voter_count = 0  # set these to 0 to make unpublishing work
+        course._participant_count = 0
+        course.unpublish()
+        course.save()
+
         page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
@@ -271,10 +277,6 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_staff(self):
-        course = Course.objects.get(id=1)
-        course.publish()
-        course.save()
-
         page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
@@ -298,12 +300,6 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
 
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ['minimal_test_data_results']
-
-    @classmethod
-    def setUpTestData(cls):
-        course = Course.objects.get(id=1)
-        course.publish()
-        course.save()
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1", user='responsible')

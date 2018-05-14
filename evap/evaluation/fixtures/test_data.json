@@ -102990,8 +102990,8 @@
     "groups": [],
     "user_permissions": [],
     "delegates": [
-      482,
-      591
+      591,
+      482
     ],
     "cc_users": []
   }
@@ -132129,11 +132129,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 7,
+    "_voter_count": 5,
     "vote_start_datetime": "2007-02-01T00:00:00",
     "vote_end_date": "2014-06-02",
-    "last_modified_time": "2018-06-03T10:22:16.139",
+    "last_modified_time": "2018-06-06T09:06:22.498",
     "last_modified_user": null,
     "degrees": [
       1
@@ -132256,11 +132256,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 12,
+    "_voter_count": 7,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-03-01",
-    "last_modified_time": "2018-06-03T10:22:16.234",
+    "last_modified_time": "2018-06-06T09:06:22.574",
     "last_modified_user": null,
     "degrees": [
       1
@@ -132269,6 +132269,7 @@
       665,
       680,
       671,
+      591,
       645,
       559,
       39,
@@ -132276,17 +132277,16 @@
       672,
       653,
       686,
-      669,
-      591
+      669
     ],
     "voters": [
       665,
       671,
+      591,
       559,
       668,
       672,
-      686,
-      591
+      686
     ]
   }
 },
@@ -132306,11 +132306,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 19,
+    "_voter_count": 9,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.272",
+    "last_modified_time": "2018-06-06T09:06:22.597",
     "last_modified_user": null,
     "degrees": [
       1
@@ -132412,11 +132412,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 11,
+    "_voter_count": 4,
     "vote_start_datetime": "2012-02-29T00:00:00",
     "vote_end_date": "2012-03-07",
-    "last_modified_time": "2018-06-03T10:22:16.308",
+    "last_modified_time": "2018-06-06T09:06:22.626",
     "last_modified_user": 1,
     "degrees": [
       1
@@ -132595,11 +132595,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 10,
+    "_voter_count": 5,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.376",
+    "last_modified_time": "2018-06-06T09:06:22.679",
     "last_modified_user": null,
     "degrees": [
       2
@@ -132608,20 +132608,20 @@
       562,
       2311,
       621,
+      591,
       676,
       60,
       579,
       660,
       613,
-      624,
-      591
+      624
     ],
     "voters": [
       562,
       621,
+      591,
       676,
-      613,
-      591
+      613
     ]
   }
 },
@@ -132641,11 +132641,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 20,
+    "_voter_count": 8,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.246",
+    "last_modified_time": "2018-06-06T09:06:22.592",
     "last_modified_user": null,
     "degrees": [
       2
@@ -132668,9 +132668,9 @@
       569,
       939,
       596,
+      679,
       604,
-      673,
-      679
+      673
     ],
     "voters": [
       387,
@@ -132800,11 +132800,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 5,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.357",
+    "last_modified_time": "2018-06-06T09:06:22.661",
     "last_modified_user": null,
     "degrees": [
       2
@@ -132866,8 +132866,10 @@
       825,
       877,
       917,
+      714,
       831,
       732,
+      815,
       837,
       898,
       751,
@@ -132913,9 +132915,7 @@
       862,
       838,
       844,
-      810,
-      714,
-      815
+      810
     ],
     "voters": [
       754,
@@ -132925,8 +132925,10 @@
       927,
       825,
       877,
+      714,
       831,
       732,
+      815,
       801,
       872,
       913,
@@ -132950,9 +132952,7 @@
       806,
       742,
       786,
-      844,
-      714,
-      815
+      844
     ]
   }
 },
@@ -132972,11 +132972,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 78,
+    "_voter_count": 36,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-09",
-    "last_modified_time": "2018-06-03T10:22:16.260",
+    "last_modified_time": "2018-06-06T09:06:22.587",
     "last_modified_user": null,
     "degrees": [
       2
@@ -133117,11 +133117,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 36,
+    "_voter_count": 14,
     "vote_start_datetime": "2012-04-12T00:00:00",
     "vote_end_date": "2012-04-26",
-    "last_modified_time": "2018-06-03T10:22:16.144",
+    "last_modified_time": "2018-06-06T09:06:22.503",
     "last_modified_user": null,
     "degrees": [
       2
@@ -133198,11 +133198,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 10,
+    "_voter_count": 2,
     "vote_start_datetime": "2012-03-27T00:00:00",
     "vote_end_date": "2012-04-04",
-    "last_modified_time": "2018-06-03T10:22:16.205",
+    "last_modified_time": "2018-06-06T09:06:22.551",
     "last_modified_user": null,
     "degrees": [
       1
@@ -133241,11 +133241,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 79,
+    "_voter_count": 41,
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2018-06-03T10:22:16.185",
+    "last_modified_time": "2018-06-06T09:06:22.536",
     "last_modified_user": null,
     "degrees": [
       2
@@ -133278,6 +133278,7 @@
       737,
       860,
       712,
+      815,
       916,
       847,
       872,
@@ -133328,8 +133329,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -133346,6 +133346,7 @@
       928,
       737,
       860,
+      815,
       916,
       847,
       872,
@@ -133371,8 +133372,7 @@
       744,
       906,
       755,
-      844,
-      815
+      844
     ]
   }
 },
@@ -133392,11 +133392,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 84,
+    "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.172",
+    "last_modified_time": "2018-06-06T09:06:22.516",
     "last_modified_user": null,
     "degrees": [
       1
@@ -133430,6 +133430,7 @@
       737,
       860,
       712,
+      815,
       759,
       880,
       916,
@@ -133484,8 +133485,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -133502,6 +133502,7 @@
       739,
       737,
       860,
+      815,
       759,
       916,
       711,
@@ -133530,8 +133531,7 @@
       742,
       786,
       755,
-      844,
-      815
+      844
     ]
   }
 },
@@ -133649,11 +133649,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 74,
+    "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.218",
+    "last_modified_time": "2018-06-06T09:06:22.562",
     "last_modified_user": null,
     "degrees": [
       2
@@ -133838,6 +133838,7 @@
       737,
       860,
       712,
+      815,
       875,
       916,
       847,
@@ -133880,8 +133881,7 @@
       755,
       844,
       760,
-      1081,
-      815
+      1081
     ],
     "voters": [
       693,
@@ -133895,6 +133895,7 @@
       807,
       737,
       860,
+      815,
       916,
       849,
       913,
@@ -133909,8 +133910,7 @@
       744,
       742,
       844,
-      1081,
-      815
+      1081
     ]
   }
 },
@@ -134075,11 +134075,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 108,
+    "_voter_count": 32,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.135",
+    "last_modified_time": "2018-06-06T09:06:22.493",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -134123,6 +134123,7 @@
       739,
       702,
       737,
+      815,
       837,
       916,
       898,
@@ -134191,8 +134192,7 @@
       838,
       844,
       760,
-      810,
-      815
+      810
     ],
     "voters": [
       696,
@@ -134204,6 +134204,7 @@
       839,
       928,
       702,
+      815,
       916,
       872,
       849,
@@ -134225,8 +134226,7 @@
       744,
       786,
       844,
-      810,
-      815
+      810
     ]
   }
 },
@@ -134246,11 +134246,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 76,
+    "_voter_count": 34,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-11",
-    "last_modified_time": "2018-06-03T10:22:16.282",
+    "last_modified_time": "2018-06-06T09:06:22.603",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -134282,6 +134282,7 @@
       702,
       737,
       860,
+      815,
       916,
       847,
       872,
@@ -134330,8 +134331,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -134346,6 +134346,7 @@
       739,
       702,
       860,
+      815,
       916,
       872,
       830,
@@ -134366,8 +134367,7 @@
       838,
       844,
       810,
-      1081,
-      815
+      1081
     ]
   }
 },
@@ -134454,11 +134454,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 16,
+    "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.232",
+    "last_modified_time": "2018-06-06T09:06:22.572",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -134505,11 +134505,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.365",
+    "last_modified_time": "2018-06-06T09:06:22.666",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -134550,11 +134550,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 20,
+    "_voter_count": 11,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.300",
+    "last_modified_time": "2018-06-06T09:06:22.615",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -134684,11 +134684,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 17,
+    "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.314",
+    "last_modified_time": "2018-06-06T09:06:22.619",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -134737,11 +134737,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 19,
+    "_voter_count": 9,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-12",
-    "last_modified_time": "2018-06-03T10:22:16.201",
+    "last_modified_time": "2018-06-06T09:06:22.547",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -134796,11 +134796,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 28,
+    "_voter_count": 10,
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.230",
+    "last_modified_time": "2018-06-06T09:06:22.569",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -134832,8 +134832,8 @@
       664,
       939,
       596,
-      661,
-      679
+      679,
+      661
     ],
     "voters": [
       665,
@@ -134906,11 +134906,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 11,
+    "_voter_count": 7,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.295",
+    "last_modified_time": "2018-06-06T09:06:22.612",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -135016,11 +135016,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 10,
+    "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.348",
+    "last_modified_time": "2018-06-06T09:06:22.649",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -135061,11 +135061,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 3,
+    "_voter_count": 0,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.897",
+    "last_modified_time": "2018-06-06T09:06:22.655",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -135094,11 +135094,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 7,
+    "_voter_count": 5,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2018-06-03T10:22:16.168",
+    "last_modified_time": "2018-06-06T09:06:22.524",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -135137,11 +135137,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 4,
+    "_voter_count": 2,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2018-06-03T10:22:16.270",
+    "last_modified_time": "2018-06-06T09:06:22.594",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -135174,11 +135174,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 7,
+    "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.180",
+    "last_modified_time": "2018-06-06T09:06:22.531",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -135216,11 +135216,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 3,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2018-06-03T10:22:16.238",
+    "last_modified_time": "2018-06-06T09:06:22.577",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -135306,11 +135306,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 72,
+    "_voter_count": 23,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.325",
+    "last_modified_time": "2018-06-06T09:06:22.637",
     "last_modified_user": 643,
     "degrees": [
       1
@@ -135432,11 +135432,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 2,
+    "_voter_count": 1,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.726",
+    "last_modified_time": "2018-06-06T09:06:22.527",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -135466,11 +135466,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 13,
+    "_voter_count": 8,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.163",
+    "last_modified_time": "2018-06-06T09:06:22.522",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -135518,11 +135518,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 1,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.698",
+    "last_modified_time": "2018-06-06T09:06:22.495",
     "last_modified_user": 963,
     "degrees": [
       2
@@ -135556,11 +135556,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 58,
+    "_voter_count": 27,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.367",
+    "last_modified_time": "2018-06-06T09:06:22.668",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -135672,11 +135672,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 3,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.305",
+    "last_modified_time": "2018-06-06T09:06:22.624",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -135712,11 +135712,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 30,
+    "_voter_count": 7,
     "vote_start_datetime": "2013-04-01T00:00:00",
     "vote_end_date": "2013-04-14",
-    "last_modified_time": "2018-06-03T10:22:16.191",
+    "last_modified_time": "2018-06-06T09:06:22.542",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -135780,11 +135780,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 19,
+    "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2018-06-03T10:22:16.141",
+    "last_modified_time": "2018-06-06T09:06:22.500",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -135839,11 +135839,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 14,
+    "_voter_count": 5,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.189",
+    "last_modified_time": "2018-06-06T09:06:22.539",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -136178,11 +136178,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 17,
+    "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.350",
+    "last_modified_time": "2018-06-06T09:06:22.657",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -136351,11 +136351,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 14,
+    "_voter_count": 3,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.285",
+    "last_modified_time": "2018-06-06T09:06:22.605",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -136619,11 +136619,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 5,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-28",
-    "last_modified_time": "2018-06-03T10:22:16.262",
+    "last_modified_time": "2018-06-06T09:06:22.589",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -136664,11 +136664,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 25,
+    "_voter_count": 10,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.344",
+    "last_modified_time": "2018-06-06T09:06:22.647",
     "last_modified_user": 650,
     "degrees": [
       1
@@ -136755,6 +136755,7 @@
       658,
       1085,
       692,
+      611,
       1082,
       614,
       580,
@@ -136799,12 +136800,12 @@
       682,
       1084,
       687,
-      721,
-      611
+      721
     ],
     "voters": [
       621,
       1085,
+      611,
       1082,
       614,
       580,
@@ -136820,8 +136821,7 @@
       673,
       682,
       1084,
-      721,
-      611
+      721
     ]
   }
 },
@@ -136893,11 +136893,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 40,
+    "_voter_count": 15,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.146",
+    "last_modified_time": "2018-06-06T09:06:22.507",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -136937,12 +136937,12 @@
       724,
       757,
       1078,
+      679,
       667,
       670,
       613,
       1084,
-      721,
-      679
+      721
     ],
     "voters": [
       677,
@@ -136956,10 +136956,10 @@
       2091,
       930,
       724,
+      679,
       670,
       1084,
-      721,
-      679
+      721
     ]
   }
 },
@@ -136990,10 +136990,10 @@
     ],
     "participants": [
       1101,
+      679,
       667,
       670,
-      1084,
-      679
+      1084
     ],
     "voters": []
   }
@@ -137014,11 +137014,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 28,
+    "_voter_count": 10,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.226",
+    "last_modified_time": "2018-06-06T09:06:22.565",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -137102,6 +137102,7 @@
       1102,
       671,
       690,
+      611,
       1082,
       593,
       2110,
@@ -137129,18 +137130,17 @@
       2098,
       619,
       2228,
-      624,
-      611
+      624
     ],
     "voters": [
+      611,
       1082,
       593,
       1079,
       2106,
       2101,
       79,
-      624,
-      611
+      624
     ]
   }
 },
@@ -137160,11 +137160,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 18,
+    "_voter_count": 11,
     "vote_start_datetime": "2013-06-28T00:00:00",
     "vote_end_date": "2013-07-04",
-    "last_modified_time": "2018-06-03T10:22:16.335",
+    "last_modified_time": "2018-06-06T09:06:22.644",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -137279,11 +137279,11 @@
       793,
       2137,
       757,
+      679,
       845,
       2138,
       682,
-      721,
-      679
+      721
     ],
     "voters": []
   }
@@ -137304,11 +137304,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 95,
+    "_voter_count": 25,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2018-06-03T10:22:16.242",
+    "last_modified_time": "2018-06-06T09:06:22.579",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -137455,11 +137455,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 5,
+    "_voter_count": 2,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-30",
-    "last_modified_time": "2018-06-03T10:22:16.341",
+    "last_modified_time": "2018-06-06T09:06:22.652",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -137493,11 +137493,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 16,
+    "_voter_count": 8,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2018-06-03T10:22:16.175",
+    "last_modified_time": "2018-06-06T09:06:22.529",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -137548,11 +137548,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 12,
+    "_voter_count": 6,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.331",
+    "last_modified_time": "2018-06-06T09:06:22.641",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -137700,11 +137700,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 5,
+    "_voter_count": 4,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.359",
+    "last_modified_time": "2018-06-06T09:06:22.663",
     "last_modified_user": 408,
     "degrees": [
       1
@@ -137740,11 +137740,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 4,
+    "_voter_count": 0,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2016-02-22T22:08:19.835",
+    "last_modified_time": "2018-06-06T09:06:22.610",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -137774,11 +137774,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 107,
+    "_voter_count": 26,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-18",
-    "last_modified_time": "2018-06-03T10:22:16.252",
+    "last_modified_time": "2018-06-06T09:06:22.582",
     "last_modified_user": 251,
     "degrees": [
       1
@@ -137938,11 +137938,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 15,
+    "_voter_count": 6,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.355",
+    "last_modified_time": "2018-06-06T09:06:22.659",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -137990,11 +137990,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 82,
+    "_voter_count": 29,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.216",
+    "last_modified_time": "2018-06-06T09:06:22.560",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138132,11 +138132,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 26,
+    "_voter_count": 12,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.157",
+    "last_modified_time": "2018-06-06T09:06:22.514",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138245,11 +138245,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 26,
+    "_voter_count": 9,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2018-06-03T10:22:16.149",
+    "last_modified_time": "2018-06-06T09:06:22.505",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138279,8 +138279,8 @@
       724,
       2098,
       1078,
-      669,
-      679
+      679,
+      669
     ],
     "voters": [
       754,
@@ -138357,11 +138357,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 2,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.210",
+    "last_modified_time": "2018-06-06T09:06:22.556",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138469,11 +138469,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 10,
+    "_voter_count": 1,
     "vote_start_datetime": "2013-07-12T00:00:00",
     "vote_end_date": "2013-07-29",
-    "last_modified_time": "2016-02-22T22:08:19.711",
+    "last_modified_time": "2018-06-06T09:06:22.511",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138511,11 +138511,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 6,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.303",
+    "last_modified_time": "2018-06-06T09:06:22.621",
     "last_modified_user": 204,
     "degrees": [
       2
@@ -138523,18 +138523,18 @@
     "participants": [
       861,
       739,
+      815,
       847,
       774,
-      806,
-      815
+      806
     ],
     "voters": [
       861,
       739,
+      815,
       847,
       774,
-      806,
-      815
+      806
     ]
   }
 },
@@ -138554,11 +138554,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 5,
+    "_voter_count": 3,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.384",
+    "last_modified_time": "2018-06-06T09:06:22.671",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138668,11 +138668,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 3,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.208",
+    "last_modified_time": "2018-06-06T09:06:22.553",
     "last_modified_user": 640,
     "degrees": [
       1
@@ -138825,11 +138825,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 4,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-03T10:22:16.318",
+    "last_modified_time": "2018-06-06T09:06:22.631",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138869,11 +138869,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 3,
+    "_voter_count": 2,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2018-06-03T10:22:16.316",
+    "last_modified_time": "2018-06-06T09:06:22.629",
     "last_modified_user": 173,
     "degrees": [
       1
@@ -138905,11 +138905,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 4,
+    "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.845",
+    "last_modified_time": "2018-06-06T09:06:22.617",
     "last_modified_user": 591,
     "degrees": [
       2
@@ -139013,11 +139013,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 11,
+    "_voter_count": 6,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.386",
+    "last_modified_time": "2018-06-06T09:06:22.673",
     "last_modified_user": 204,
     "degrees": [
       1
@@ -139135,11 +139135,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 6,
+    "_voter_count": 3,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.224",
+    "last_modified_time": "2018-06-06T09:06:22.567",
     "last_modified_user": 18,
     "degrees": [
       2
@@ -139217,11 +139217,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 3,
+    "_voter_count": 1,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2016-02-22T22:08:19.923",
+    "last_modified_time": "2018-06-06T09:06:22.681",
     "last_modified_user": 169,
     "degrees": [
       1
@@ -139372,11 +139372,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 4,
+    "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.820",
+    "last_modified_time": "2018-06-06T09:06:22.600",
     "last_modified_user": 234,
     "degrees": [
       2
@@ -139490,11 +139490,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 20,
+    "_voter_count": 11,
     "vote_start_datetime": "2014-01-28T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.287",
+    "last_modified_time": "2018-06-06T09:06:22.607",
     "last_modified_user": 419,
     "degrees": [
       2
@@ -139567,6 +139567,7 @@
       800,
       866,
       789,
+      611,
       732,
       858,
       666,
@@ -139583,18 +139584,17 @@
       897,
       783,
       2098,
-      604,
-      611
+      604
     ],
     "voters": [
       736,
       800,
+      611,
       732,
       666,
       2106,
       873,
-      897,
-      611
+      897
     ]
   }
 },
@@ -139663,12 +139663,12 @@
       823,
       773,
       807,
+      815,
       817,
       855,
       914,
-      821,
-      815,
-      679
+      679,
+      821
     ],
     "voters": [
       823,
@@ -139693,11 +139693,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 84,
+    "_voter_count": 51,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-05",
-    "last_modified_time": "2018-06-03T10:22:16.195",
+    "last_modified_time": "2018-06-06T09:06:22.544",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -139770,6 +139770,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -139785,8 +139786,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -139932,11 +139932,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 19,
+    "_voter_count": 10,
     "vote_start_datetime": "2014-03-07T00:00:00",
     "vote_end_date": "2014-03-16",
-    "last_modified_time": "2018-06-03T10:22:16.258",
+    "last_modified_time": "2018-06-06T09:06:22.585",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -139945,6 +139945,7 @@
       736,
       737,
       732,
+      815,
       2211,
       2213,
       829,
@@ -139959,20 +139960,19 @@
       864,
       1078,
       742,
-      844,
-      815
+      844
     ],
     "voters": [
       736,
       737,
+      815,
       2213,
       873,
       606,
       776,
       722,
       742,
-      844,
-      815
+      844
     ]
   }
 },
@@ -139992,11 +139992,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 81,
+    "_voter_count": 28,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-07",
-    "last_modified_time": "2018-06-03T10:22:16.214",
+    "last_modified_time": "2018-06-06T09:06:22.558",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140205,11 +140205,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 48,
+    "_voter_count": 17,
     "vote_start_datetime": "2014-02-04T00:00:00",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2018-06-03T10:22:16.320",
+    "last_modified_time": "2018-06-06T09:06:22.634",
     "last_modified_user": 310,
     "degrees": [
       1
@@ -140301,11 +140301,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 18,
+    "_voter_count": 8,
     "vote_start_datetime": "2014-02-05T00:00:00",
     "vote_end_date": "2014-02-12",
-    "last_modified_time": "2018-06-03T10:22:16.327",
+    "last_modified_time": "2018-06-06T09:06:22.639",
     "last_modified_user": 650,
     "degrees": [
       2
@@ -140358,11 +140358,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 76,
+    "_voter_count": 32,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.203",
+    "last_modified_time": "2018-06-06T09:06:22.549",
     "last_modified_user": 2324,
     "degrees": [
       1
@@ -140545,11 +140545,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 28,
+    "_voter_count": 16,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.151",
+    "last_modified_time": "2018-06-06T09:06:22.510",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -140620,11 +140620,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 81,
+    "_voter_count": 39,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-03T10:22:16.178",
+    "last_modified_time": "2018-06-06T09:06:22.534",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140694,6 +140694,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -140709,8 +140710,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -140771,11 +140771,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 48,
+    "_voter_count": 9,
     "vote_start_datetime": "2014-04-06T00:00:00",
     "vote_end_date": "2014-04-13",
-    "last_modified_time": "2018-06-03T10:22:16.161",
+    "last_modified_time": "2018-06-06T09:06:22.519",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140859,11 +140859,11 @@
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 80,
+    "_voter_count": 42,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-14",
-    "last_modified_time": "2018-06-03T10:22:16.373",
+    "last_modified_time": "2018-06-06T09:06:22.676",
     "last_modified_user": 116,
     "degrees": [
       1
@@ -140932,6 +140932,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -140947,8 +140948,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -141023,12 +141023,12 @@
     ],
     "participants": [
       2059,
+      815,
       2039,
       689,
       932,
       597,
-      55,
-      815
+      55
     ],
     "voters": []
   }

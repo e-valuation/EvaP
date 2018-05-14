@@ -783,7 +783,7 @@ class TestCourseOperationView(ViewTest):
         self.helper_semester_state_views(course, "editor_approved", "prepared")
 
     def test_semester_unpublish(self):
-        course = mommy.make(Course, semester=self.semester, state='published')
+        course = mommy.make(Course, semester=self.semester, state='published', _participant_count=0, _voter_count=0)
         self.helper_semester_state_views(course, "published", "reviewed")
 
     def test_operation_start_evaluation(self):

@@ -442,6 +442,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
+        assert self._voter_count is None and self._participant_count is None
+        self._voter_count = self.num_voters
+        self._participant_count = self.num_participants
+
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
         else:
@@ -451,6 +455,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
         from evap.results.tools import get_collect_results_cache_key
+        assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
+        self._voter_count = None
+        self._participant_count = None
         caches['results'].delete(get_collect_results_cache_key(self))
 
     @cached_property
@@ -541,6 +548,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Should be called only via Semester.archive_participations"""
         if not self.participations_can_be_archived:
             raise NotArchiveable()
+        if self._participant_count is not None:
+            assert self._voter_count is not None
+            assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
+            return
+        assert self._participant_count is None and self._voter_count is None
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
