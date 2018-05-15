@@ -27,7 +27,12 @@ class Command(BaseCommand):
         self.stdout.write('Executing "python manage.py migrate"')
         call_command("migrate")
 
-        self.stdout.write('Executing "python manage.py load_testdata"')
+        # clear any data the migrations created.
+        # their pks might differ from the ones in the dump, which results in errors on loaddata
+        self.stdout.write('Executing "python manage.py flush"')
+        call_command("flush", interactive=False)
+
+        self.stdout.write('Executing "python manage.py loaddata test_data"')
         call_command("loaddata", "test_data")
 
         self.stdout.write('Executing "python manage.py clear_cache"')
