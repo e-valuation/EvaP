@@ -256,7 +256,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     # type of course: lecture, seminar, project
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
- 
+
     is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # e.g. Bachelor, Master
@@ -454,11 +454,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
-        from evap.results.tools import get_collect_results_cache_key
         assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
-        caches['results'].delete(get_collect_results_cache_key(self))
 
     @cached_property
     def general_contribution(self):
@@ -609,6 +607,24 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
+
+
+@receiver(post_transition, sender=Course)
+def warmup_cache_on_publish(instance, target, **_kwargs):
+    if target == 'published':
+        from evap.results.tools import collect_results
+        from evap.results.views import warm_up_template_cache
+        collect_results(instance)
+        warm_up_template_cache([instance])
+
+
+@receiver(post_transition, sender=Course)
+def delete_cache_on_unpublish(instance, source, **_kwargs):
+    if source == 'published':
+        from evap.results.tools import get_collect_results_cache_key
+        from evap.results.views import delete_template_cache
+        caches['results'].delete(get_collect_results_cache_key(instance))
+        delete_template_cache(instance)
 
 
 @receiver(post_transition, sender=Course)

@@ -167,10 +167,11 @@ class TestCourses(WebTest):
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester), is_single_result=True)
-        mommy.make(Contribution,
+        contribution = mommy.make(Contribution,
             course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
         course.single_result_created()
         course.publish()
         course.save()
