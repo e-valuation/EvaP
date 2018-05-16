@@ -77,7 +77,7 @@ class TestCourses(TestCase):
         self.assertFalse(course.evaluation_ends_soon())
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
-    def test_evaluation_ends_soon(self):
+    def test_evaluation_ends_soon_with_offset(self):
         course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
