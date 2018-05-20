@@ -108,7 +108,7 @@
                 </span>
             {% endif %}
         {% endif %}
-        {% if course.days_until_evaluation == 0 and state != 'in_evaluation' %}
+        {% if course.days_until_evaluation == 0 %}
             <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will start later today' %}">
                 <span class="fas fa-pause"></span> {% trans 'today' %}
             </span>

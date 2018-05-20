@@ -470,7 +470,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def days_until_evaluation(self):
-        return (self.vote_start_datetime.date() - date.today()).days
+        days_left = (self.vote_start_datetime.date() - date.today()).days
+        if self.vote_start_datetime < datetime.now():
+            days_left -= 1
+        return days_left
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
