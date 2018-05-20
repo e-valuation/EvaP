@@ -87,11 +87,13 @@
         <span class="badge badge-info">{% if course.is_private %}{% trans 'private' %}{% endif %}</span>
     {% endif %}
 
-    {% if state == 'new' or state == 'prepared' or state == 'editor_approved' and not course.all_contributions_have_questionnaires %}
-        {% if not course.general_contribution_has_questionnaires %}
-            <span class="badge badge-warning">{% trans 'Course has no questionnaires' %}</span>
-        {% else %}
-            <span class="badge badge-warning">{% trans 'Not all contributors have questionnaires' %}</span>
+    {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+        {% if not course.all_contributions_have_questionnaires %}
+            {% if not course.general_contribution_has_questionnaires %}
+                <span class="badge badge-danger">{% trans 'Course has no questionnaires' %}</span>
+            {% else %}
+                <span class="badge badge-warning">{% trans 'Not all contributors have questionnaires' %}</span>
+            {% endif %}
         {% endif %}
     {% endif %}
 </td>
