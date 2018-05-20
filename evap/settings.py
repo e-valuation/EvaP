@@ -121,7 +121,15 @@ CACHES = {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'MAX_ENTRIES': 100000
         }
-    }
+    },
+    'sessions': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/2',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000
+        }
+    },
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
@@ -247,7 +255,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = "/"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
+SESSION_CACHE_ALIAS = "sessions"
 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
@@ -372,6 +380,10 @@ if TESTING:
         'results': {
             'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
             'LOCATION': 'testing_cache_results',
+        },
+        'sessions': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_sessions',
         },
     }
 
