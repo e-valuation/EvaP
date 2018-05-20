@@ -41,7 +41,7 @@
                     </a>
                     {% if not course.has_enough_voters_to_publish_grades %}
                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
-                            <a href="#" role="button" class="btn btn-sm btn-light disabled">
+                            <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
                                 {% if course.is_private %}
                                     {% trans 'Participant' %}
                                 {% else %}
