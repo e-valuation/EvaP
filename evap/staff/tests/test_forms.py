@@ -58,7 +58,6 @@ class QuestionnaireFormTest(TestCase):
 
 
 class CourseEmailFormTests(TestCase):
-
     def test_course_email_form(self):
         """
             Tests the CourseEmailForm with one valid and one invalid input dataset.
@@ -76,7 +75,6 @@ class CourseEmailFormTests(TestCase):
 
 
 class UserFormTests(TestCase):
-
     def test_user_form(self):
         """
             Tests the UserForm with one valid and one invalid input dataset.
@@ -130,9 +128,20 @@ class UserFormTests(TestCase):
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
+    def test_user_cannot_be_removed_from_course_already_voted_for(self):
+        student = mommy.make(UserProfile)
+        course = mommy.make(Course, participants=[student], voters=[student])
+
+        form_data = get_form_data_from_instance(UserForm, student)
+        form_data["courses_participating_in"] = []
+        form = UserForm(form_data, instance=student)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('courses_participating_in', form.errors)
+        self.assertIn("Courses for which the user already voted can't be removed", form.errors['courses_participating_in'][0])
+
 
 class SingleResultFormTests(TestCase):
-
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
@@ -194,7 +203,6 @@ class SingleResultFormTests(TestCase):
 
 
 class ContributionFormsetTests(TestCase):
-
     def test_contribution_form_set(self):
         """
             Tests the ContributionFormset with various input data sets.
@@ -578,3 +586,16 @@ class CourseFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('name_de', form.errors)
         self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])
+
+    def test_voter_cannot_be_removed_from_course(self):
+        student = mommy.make(UserProfile)
+        course = mommy.make(Course, degrees=[mommy.make(Degree)], participants=[student], voters=[student])
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+        form_data = get_form_data_from_instance(CourseForm, course)
+        form_data["participants"] = []
+        form = CourseForm(form_data, instance=course)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('participants', form.errors)
+        self.assertIn("Participants who already voted for the course can't be removed", form.errors['participants'][0])
