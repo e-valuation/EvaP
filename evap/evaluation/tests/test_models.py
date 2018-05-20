@@ -221,7 +221,7 @@ class TestUserProfile(TestCase):
     def test_can_staff_delete(self):
         user = mommy.make(UserProfile)
         mommy.make(Course, participants=[user], state="new")
-        self.assertTrue(user.can_staff_delete)
+        self.assertFalse(user.can_staff_delete)
 
         user2 = mommy.make(UserProfile)
         mommy.make(Course, participants=[user2], state="in_evaluation")
