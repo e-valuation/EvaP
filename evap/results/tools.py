@@ -115,11 +115,13 @@ def _calculate_results_impl(course):
     for questionnaire, max_answers in questionnaire_med_answers.items():
         questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers), settings.RESULTS_WARNING_COUNT)
 
+    results_contain_rating_questions = False
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
+                results_contain_rating_questions = True
                 answer_counters = get_answers(contribution, question)
                 answers = get_answers_from_answer_counters(answer_counters)
 
@@ -147,7 +149,7 @@ def _calculate_results_impl(course):
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
 
-        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
+        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire] and results_contain_rating_questions
 
         sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
 
