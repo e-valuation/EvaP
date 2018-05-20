@@ -148,7 +148,10 @@ def semester_course_operation(request, semester_id):
         raise SuspiciousOperation("Unknown target state: " + target_state)
 
     course_ids = (request.GET if request.method == 'GET' else request.POST).getlist('course')
-    courses = Course.objects.filter(id__in=course_ids)
+    courses = Course.objects.filter(id__in=course_ids).annotate(
+        midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+        final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+    )
 
     if request.method == 'POST':
         template = None
