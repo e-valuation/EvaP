@@ -219,6 +219,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
+.btn-sm-narrow, {
+    line-height: 1;
+}
+
 .tooltip.show {
     opacity: 1;
 }
@@ -981,10 +985,6 @@ tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
     width: 5px;
     height:auto;
     display:inline-block;
-}
-
-span.line {
-    display: inline-block;
 }
 
 .modal-xl {

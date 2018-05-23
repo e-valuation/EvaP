@@ -65,14 +65,6 @@ STATE_DESCRIPTIONS = OrderedDict((
     ('published', _('The results for this course have been published.'))
 ))
 
-# the names used for students
-STUDENT_STATES_ORDERED = OrderedDict((
-    ('in_evaluation', _('in evaluation')),
-    ('upcoming', _('upcoming')),
-    ('evaluationFinished', _('evaluation finished')),
-    ('published', _('published'))
-))
-
 
 def questionnaires_and_contributions(course):
     """Yields tuples of (questionnaire, contribution) for the given course."""

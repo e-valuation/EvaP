@@ -25,19 +25,6 @@ from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
 logger = logging.getLogger(__name__)
 
 
-# for converting state into student_state
-STUDENT_STATES_NAMES = {
-    'new': 'upcoming',
-    'prepared': 'upcoming',
-    'editor_approved': 'upcoming',
-    'approved': 'upcoming',
-    'in_evaluation': 'in_evaluation',
-    'evaluated': 'evaluationFinished',
-    'reviewed': 'evaluationFinished',
-    'published': 'published'
-}
-
-
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
     pass
@@ -430,10 +417,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def unpublish(self):
         from evap.results.tools import get_results_cache_key
         caches['results'].delete(get_results_cache_key(self))
-
-    @property
-    def student_state(self):
-        return STUDENT_STATES_NAMES[self.state]
 
     @cached_property
     def general_contribution(self):
