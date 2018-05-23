@@ -28,7 +28,7 @@
                             </thead>
                             <tbody>
                             {% for course in courses %}
-                                <tr class="{% if not course|can_user_see_results_page:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                <tr class="hover-results {% if not course|can_user_see_results_page:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
                                 {% if course|can_user_see_results_page:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
