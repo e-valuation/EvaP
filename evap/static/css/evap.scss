@@ -156,6 +156,11 @@ a.btn:not([href]):not(.disabled).btn-dark {
             width: 0.5rem;
             content: "";
         }
+        .disabled-right {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            margin-left: -1px;
+        }
     }
 }
 .btn-switch-label {
