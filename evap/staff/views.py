@@ -16,7 +16,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-from django.utils.translation import get_language, ungettext
+from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
@@ -593,11 +593,15 @@ def course_edit(request, semester_id, course_id):
 @staff_required
 def helper_course_edit(request, semester, course):
     @receiver(RewardPointGranting.granted_by_removal)
-    def notify_reward_points(users, **_kwargs):
-        names = ", ".join('"{}"'.format(user.username) for user in users)
-        messages.info(request, ungettext("The removal of participants has granted {affected} user reward points: {names}.",
-            "The removal of participants has granted {affected} users reward points: {names}.",
-            len(users)).format(affected=len(users), names=names))
+    def notify_reward_points(grantings, **_kwargs):
+        for granting in grantings:
+            messages.info(request,
+                ngettext(
+                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward point for the active semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward points for the active semester.',
+                    granting.value
+                ).format(granting=granting)
+            )
 
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
@@ -1187,8 +1191,16 @@ def user_import(request):
 @staff_required
 def user_edit(request, user_id):
     @receiver(RewardPointGranting.granted_by_removal)
-    def notify_reward_points(users, **_kwargs):
-        messages.info(request, _('The removal of courses has granted the user "{}" reward points for the active semester.'.format(users[0].username)))
+    def notify_reward_points(grantings, **_kwargs):
+        assert len(grantings) == 1
+
+        messages.info(request,
+            ngettext(
+                'The removal of courses has granted the user "{granting.user_profile.username}" {granting.value} reward point for the active semester.',
+                'The removal of courses has granted the user "{granting.user_profile.username}" {granting.value} reward points for the active semester.',
+                grantings[0].value
+            ).format(granting=grantings[0])
+        )
 
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
