@@ -124,7 +124,7 @@
     }, true);
 
     // activate clickable hover tables
-    $(".table-hover-evap tbody tr:not(.nohover) td:not(.noanchor)").wrapInner(function() {
+    $(".table-hover-evap tbody tr:not(.nohover) td").wrapInner(function() {
         var url = $(this).closest("[data-url]").data('url');
         if (url) { return "<a href='" + url + "'></a>"; }
         else { return ""; }

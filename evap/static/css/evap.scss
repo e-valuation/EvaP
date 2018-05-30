@@ -219,6 +219,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
+.btn-sm-narrow, {
+    line-height: 1;
+}
+
 .tooltip.show {
     opacity: 1;
 }
@@ -396,9 +400,6 @@ button {
         width: 35px;
     }
     .grade-bg {
-        width: 30px;
-    }
-    .deviation-bg {
         width: 30px;
     }
     .alert {
@@ -637,6 +638,8 @@ div.preview > textarea {
     overflow: hidden;
     white-space: nowrap;
     border-radius: 3px;
+    flex-grow: 1;
+    transition: box-shadow 0.15s ease-in-out;
 }
 
 .distribution-bar div {
@@ -645,10 +648,19 @@ div.preview > textarea {
 
 .distribution-bar div:last-child { width: 100% !important; }
 
+.distribution-bar-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}
+
 .grade-bg {
     display: inline-block;
     border-radius: 3px;
     width: 45px;
+}
+.grade-bg-with-distribution {
+    float: left;
+    margin-right: 5px;
 }
 
 .grade-bg-result-bar {
@@ -656,6 +668,7 @@ div.preview > textarea {
     border-radius: 3px;
     width: 42px;
     margin-left: 10px;
+    transition: box-shadow 0.15s ease-in-out;
 }
 
 .grade-bg-result-bar-count {
@@ -669,23 +682,11 @@ div.preview > textarea {
 
 .grade-bg-disabled {
     background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
 }
 
 .grade-bg.vertically-aligned {
     vertical-align: middle;
-}
-
-.deviation-bg {
-    display: inline-block;
-    border-radius: 3px;
-    width: 45px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: $dark-gray;
-}
-
-.deviation-bg-disabled {
-    background-color: $light-gray;
 }
 
 select[multiple='multiple'] {
@@ -923,9 +924,6 @@ div.disabled-tooltip {
 .table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
-    td span.course-name {
-        text-decoration: underline;
-    }
 }
 .table-hover-evap tbody tr.hover-vote:hover:not(.hoverpause),
 .table-hover-evap tbody tr.hover-edit:hover:not(.hoverpause) {
@@ -942,11 +940,13 @@ div.disabled-tooltip {
     margin: -10em;
     padding: 10em;
 }
-tr.hover-results:hover:not(.hoverpause) .btn-results {
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .btn-results,
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
     box-shadow: 0 0 0 3px rgba($dark-gray, .5);
 }
-tr.hover-vote:hover:not(.hoverpause) .btn-vote,
-tr.hover-edit:hover:not(.hoverpause) .btn-edit {
+tr.hover-vote:hover:not(.nohover):not(.hoverpause) .btn-vote,
+tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
 
@@ -985,10 +985,6 @@ tr.hover-edit:hover:not(.hoverpause) .btn-edit {
     width: 5px;
     height:auto;
     display:inline-block;
-}
-
-span.line {
-    display: inline-block;
 }
 
 .modal-xl {

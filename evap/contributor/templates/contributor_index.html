@@ -48,8 +48,8 @@
                         <th style="width: 35%">{% trans 'Name' %}</th>
                         <th style="width: 15%">{% trans 'State' %}</th>
                         <th style="width: 17%">{% trans 'Evaluation Period' %}</th>
-                        <th style="width: 18%">{% trans 'Participants' %}</th>
-                        <th style="width: 15%"></th>
+                        <th style="width: 15%">{% trans 'Participants' %}</th>
+                        <th style="width: 18%"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -76,31 +76,27 @@
                             <td>
                                 {{ course.vote_start_datetime }}{% if not course.is_single_result %} &ndash; {{ course.vote_end_date }}{% endif %}
                             </td>
-                            <td>
-                                {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                    {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants icon='user' %}
-                                {% else %}
+                            {% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                <td>
+                                    {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants %}
+                                </td>
+                            {% else %}
+                                <td class="text-center">
                                     {% if course.is_single_result %}&mdash;{% else %}<span class="fas fa-user"></span> {{ course.num_participants }}{% endif %}
-                                {% endif %}
-                            </td>
-                            <td class="text-right noanchor">
-                                {% if course|is_user_editor_or_delegate:user %}
-                                    {% if course.state == 'prepared' %}
-                                        <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fas fa-pencil-alt"></span></a>
-                                    {% elif course.state == 'editor_approved' or course.state == 'approved' %}
-                                        <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fas fa-pencil-alt"></span></a>
-                                    {% endif %}
-                                {% endif %}
+                                </td>
+                            {% endif %}
+                            <td class="text-right">
                                 {% if course.state != 'published' %}
-                                    <a href="{% url 'contributor:course_preview' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
-                                    <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'The results are not yet available. You will receive an email once they are published.' %}">
-                                        <a role="button" class="btn btn-sm btn-secondary disabled"><span class="fas fa-chart-bar"></span></a>
-                                    </div>
-                                {% else %}
-                                    {% if course.avg_grade %}
-                                        <div class="grade-bg text-center vertically-aligned" style="background-color: {{ course.avg_grade|gradecolor }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Average grade' %}">{{ course.avg_grade|floatformat:1 }}</div>
+                                    {% if course|is_user_editor_or_delegate:user %}
+                                        {% if course.state == 'prepared' %}
+                                            <a href="{% url 'contributor:course_edit' course.id %}" class="btn btn-primary btn-edit btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}"><span class="fas fa-pencil-alt"></span></a>
+                                        {% elif course.state == 'editor_approved' or course.state == 'approved' %}
+                                            <a href="{% url 'contributor:course_view' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'You already approved the course, the edit form will be disabled.' %}"><span class="fas fa-pencil-alt"></span></a>
+                                        {% endif %}
                                     {% endif %}
-                                    <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-secondary btn-results btn-row-hover" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}"><span class="fas fa-chart-bar"></span></a>
+                                    <a href="{% url 'contributor:course_preview' course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
+                                {% else %}
+                                    {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
                                 {% endif %}
                             </td>
                         </tr>

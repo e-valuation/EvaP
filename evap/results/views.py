@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, \
-    HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
+from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
+    TextResult, RatingResult, HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
 
 
 @internal_required
@@ -29,9 +29,9 @@ def semester_detail(request, semester_id):
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
-    # Annotate each course object with its grades.
     for course in courses:
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(request.user) else None
+        course.avg_grade = distribution_to_grade(course.distribution)
 
     CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
 
@@ -57,7 +57,7 @@ def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
 
-    if not course.can_user_see_results(request.user):
+    if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
 
     sections = calculate_results(course)
@@ -74,9 +74,9 @@ def course_detail(request, semester_id, course_id):
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
 
-    show_grades = request.user.is_reviewer or course.has_enough_voters_to_publish_grades
+    show_grades = course.can_user_see_grades(request.user)
 
-    # filter text answers
+    # remove text answers and grades if the user may not see them
     for section in sections:
         results = []
         for result in section.results:
@@ -84,8 +84,13 @@ def course_detail(request, semester_id, course_id):
                 answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
                 if answers:
                     results.append(TextResult(question=result.question, answers=answers))
+            elif isinstance(result, RatingResult) and not show_grades:
+                results.append(RatingResult(question=result.question, total_count=result.total_count, average=None, counts=None, warning=result.warning))
+            elif isinstance(result, YesNoResult) and not show_grades:
+                results.append(YesNoResult(question=result.question, total_count=result.total_count, average=None, counts=None, warning=result.warning, approval_count=None))
             else:
                 results.append(result)
+
         section.results[:] = results
 
     # filter empty headings
@@ -125,14 +130,14 @@ def course_detail(request, semester_id, course_id):
                     if show_grades:
                         contributor_sections[section.contributor]['total_votes'] += result.total_count
 
-    course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+    course.distribution = calculate_average_distribution(course) if show_grades else None
+    course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(
             course=course,
             course_sections_top=course_sections_top,
             course_sections_bottom=course_sections_bottom,
             contributor_sections=contributor_sections,
-            show_grades=show_grades,
             reviewer=request.user.is_reviewer,
             contributor=course.is_user_contributor_or_delegate(request.user),
             can_download_grades=request.user.can_download_grades,

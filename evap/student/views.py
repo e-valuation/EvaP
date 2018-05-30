@@ -10,10 +10,11 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Course, Semester
-from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
+
+from evap.results.tools import calculate_average_distribution, distribution_to_grade
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -22,10 +23,22 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
+    for course in courses:
+        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(request.user) else None
+        course.avg_grade = distribution_to_grade(course.distribution)
+
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
     due_courses = list(set(Course.objects.filter(participants=request.user, state='in_evaluation').exclude(voters=request.user)))
 
-    sorter = lambda course: (list(STUDENT_STATES_ORDERED.keys()).index(course.student_state), course.vote_end_date, course.name)
+    # due courses come first, then everything else in chronological order
+    # some states are handled as a group because they appear the same to students
+    sorter = lambda course: (
+        course not in due_courses,
+        course.state not in ['prepared', 'editor_approved', 'approved'],
+        course.state != 'in_evaluation',
+        course.state not in ['evaluated', 'reviewed'],
+        course.name
+    )
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
@@ -35,7 +48,6 @@ def index(request):
     template_data = dict(
         semester_list=semester_list,
         voted_courses=voted_courses,
-        due_courses=due_courses,
         can_download_grades=request.user.can_download_grades,
     )
     return render(request, "student_index.html", template_data)

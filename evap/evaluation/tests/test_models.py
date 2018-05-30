@@ -10,7 +10,7 @@ from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
-from evap.results.tools import calculate_average_grades_and_deviation
+from evap.results.tools import calculate_average_distribution
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -300,13 +300,14 @@ class ArchivingTests(TestCase):
         self.assertTrue(self.course.is_archived)
 
     def test_archiving_does_not_change_results(self):
-        results = calculate_average_grades_and_deviation(self.course)
+        distribution = calculate_average_distribution(self.course)
 
         self.semester.archive()
         self.refresh_course()
         caches['results'].clear()
 
-        self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
+        new_distribution = calculate_average_distribution(self.course)
+        self.assertEqual(new_distribution, distribution)
 
     def test_archiving_twice_raises_exception(self):
         self.semester.archive()

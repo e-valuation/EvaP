@@ -25,19 +25,6 @@ from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
 logger = logging.getLogger(__name__)
 
 
-# for converting state into student_state
-STUDENT_STATES_NAMES = {
-    'new': 'upcoming',
-    'prepared': 'upcoming',
-    'editor_approved': 'upcoming',
-    'approved': 'upcoming',
-    'in_evaluation': 'in_evaluation',
-    'evaluated': 'evaluationFinished',
-    'reviewed': 'evaluationFinished',
-    'published': 'published'
-}
-
-
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
     pass
@@ -337,7 +324,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return True
 
-    def can_user_see_results(self, user):
+    def can_user_see_results_page(self, user):
         if user.is_reviewer:
             return True
         if self.state == 'published':
@@ -347,6 +334,15 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                 return False
             return self.can_user_see_course(user)
         return False
+
+    def can_user_see_grades(self, user):
+        if user.is_reviewer:
+            return True
+        if self.state != 'published':
+            return False
+        if not self.has_enough_voters_to_publish_grades:
+            return False
+        return self.can_user_see_course(user)
 
     @property
     def is_single_result(self):
@@ -421,10 +417,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def unpublish(self):
         from evap.results.tools import get_results_cache_key
         caches['results'].delete(get_results_cache_key(self))
-
-    @property
-    def student_state(self):
-        return STUDENT_STATES_NAMES[self.state]
 
     @cached_property
     def general_contribution(self):
@@ -702,6 +694,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     @property
     def is_rating_question(self):
         return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
+
+    @property
+    def is_non_grade_rating_question(self):
+        return self.is_rating_question and not self.is_grade_question
 
     @property
     def is_heading_question(self):
