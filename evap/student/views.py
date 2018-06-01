@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
@@ -85,7 +86,7 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         course_form_group_bottom=course_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
         course=course,
-        participants_warning=course.num_participants <= 5,
+        participants_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         vote_end_datetime=course.vote_end_datetime,
         hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
@@ -99,7 +100,6 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
 
 @participant_required
 def vote(request, course_id):
-
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
         raise PermissionDenied
@@ -137,6 +137,12 @@ def vote(request, course_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()
+
+        if not course.can_publish_text_results:
+            # enable text result publishing if first user confirmed that publishing is okay
+            if request.POST.get('text_results_publish_confirmation_top') == 'on' or request.POST.get('text_results_publish_confirmation_bottom') == 'on':
+                course.can_publish_text_results = True
+                course.save()
 
         course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 

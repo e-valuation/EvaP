@@ -531,7 +531,8 @@
     "vote_end_date": "2014-09-30",
     "name_en": "a course",
     "type": 1,
-    "vote_start_datetime": "2014-09-10"
+    "vote_start_datetime": "2014-09-10",
+    "can_publish_text_results": true
   }
 },
 {

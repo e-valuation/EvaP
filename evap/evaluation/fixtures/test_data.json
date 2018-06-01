@@ -67,6 +67,7 @@
   "model": "evaluation.questionnaire",
   "pk": 1,
   "fields": {
+    "type": 20,
     "name_de": "Einzelergebnis",
     "name_en": "Single result",
     "description_de": null,
@@ -76,7 +77,6 @@
     "teaser_de": null,
     "teaser_en": null,
     "order": 0,
-    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -85,6 +85,7 @@
   "model": "evaluation.questionnaire",
   "pk": 48,
   "fields": {
+    "type": 10,
     "name_de": "Vorlesung 1 - Inhalt",
     "name_en": "Lecture 1 - Content",
     "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt allgemeine Sachfragen zu den Themen der Vorlesung.",
@@ -94,7 +95,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -103,6 +103,7 @@
   "model": "evaluation.questionnaire",
   "pk": 50,
   "fields": {
+    "type": 10,
     "name_de": "Vorlesung 4 - \u00dcbung",
     "name_en": "Lecture 4 - Exercise",
     "description_de": "Dieser Fragebogen enth\u00e4lt 4 Fragen zu einer vorlesungsbegleitenden \u00dcbung.",
@@ -112,7 +113,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 3,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -121,6 +121,7 @@
   "model": "evaluation.questionnaire",
   "pk": 81,
   "fields": {
+    "type": 10,
     "name_de": "Vorlesung 2 - Lehrmittel",
     "name_en": "Lecture 2 - learning material",
     "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt Fragen zu den Lehrmitteln.",
@@ -130,7 +131,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -139,6 +139,7 @@
   "model": "evaluation.questionnaire",
   "pk": 82,
   "fields": {
+    "type": 10,
     "name_de": "Vorlesung 3 - Sonstiges",
     "name_en": "Lecture 3 - Miscellaneous",
     "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt Fragen zu u.a. Lernerfolg, Zeitaufwand und Transparenz der Bewertungskriterien.",
@@ -148,7 +149,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 2,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -157,6 +157,7 @@
   "model": "evaluation.questionnaire",
   "pk": 83,
   "fields": {
+    "type": 30,
     "name_de": "Sonstiges",
     "name_en": "Miscellaneous",
     "description_de": "Dieser Fragebogen enth\u00e4lt eine Frage f\u00fcr sonstige Kommentare.",
@@ -166,7 +167,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -175,6 +175,7 @@
   "model": "evaluation.questionnaire",
   "pk": 84,
   "fields": {
+    "type": 20,
     "name_de": "Dozent",
     "name_en": "Lecturer",
     "description_de": "6 Fragen f\u00fcr Personen, die Dozent einer Vorlesung waren. Wenn sie mehrmals, aber nicht durchg\u00e4ngig Vortr\u00e4ge gehalten haben (in Vorlesungen oder Seminaren), kann der Fragebogen auch verwendet werden.",
@@ -184,7 +185,6 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -193,6 +193,7 @@
   "model": "evaluation.questionnaire",
   "pk": 85,
   "fields": {
+    "type": 20,
     "name_de": "\u00dcbungsleiter",
     "name_en": "Exercise Supervisor",
     "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen zu Personen, die beim \u00dcbungsbetrieb leitend oder unterst\u00fctzend mitgewirkt haben.",
@@ -202,7 +203,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -211,6 +211,7 @@
   "model": "evaluation.questionnaire",
   "pk": 86,
   "fields": {
+    "type": 10,
     "name_de": "Seminar",
     "name_en": "Seminar",
     "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen zur Beurteilung eines Seminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
@@ -220,7 +221,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 4,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -229,6 +229,7 @@
   "model": "evaluation.questionnaire",
   "pk": 87,
   "fields": {
+    "type": 20,
     "name_de": "Seminarleiter_alt",
     "name_en": "Seminar lecturer_old",
     "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen f\u00fcr Seminarleiter bzw. Seminarbetreuer.",
@@ -238,7 +239,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -247,6 +247,7 @@
   "model": "evaluation.questionnaire",
   "pk": 88,
   "fields": {
+    "type": 10,
     "name_de": "Projekt",
     "name_en": "Project",
     "description_de": "Dieser Fragebogen bezieht sich auf Projekte und enth\u00e4lt 6 Fragen zum Aufwand, Lernerfolg und zur Transparenz der Bewertungskriterien.",
@@ -256,7 +257,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 8,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -265,6 +265,7 @@
   "model": "evaluation.questionnaire",
   "pk": 89,
   "fields": {
+    "type": 20,
     "name_de": "Projektbetreuer",
     "name_en": "Project's supervisor",
     "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen zur Bewertung eines Projektbetreuers.",
@@ -274,7 +275,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -283,6 +283,7 @@
   "model": "evaluation.questionnaire",
   "pk": 90,
   "fields": {
+    "type": 20,
     "name_de": "Kommentare zum Verantwortlichen",
     "name_en": "Remarks on the responsible person",
     "description_de": "Dieser Fragebogen soll dem f\u00fcr die Lehrveranstaltung verantwortlichen Dozenten zugeordnet werden, falls dieser die Veranstaltung nicht selbst gehalten hat.\r\nEr sollte nicht gemeinsam mit \"Kommentare zur Person\" verwendet werden.",
@@ -292,7 +293,6 @@
     "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -301,6 +301,7 @@
   "model": "evaluation.questionnaire",
   "pk": 91,
   "fields": {
+    "type": 20,
     "name_de": "Tutor",
     "name_en": "Tutor",
     "description_de": "Dieser Fragebogen enth\u00e4lt 5 Fragen f\u00fcr Personen, die Studenten bei \u00dcbungsaufgaben betreut haben. Er ist inhaltlich \u00e4hnlich zum \u00dcbungsleiter-Fragebogen, ist aber etwas umfangreicher.\r\n",
@@ -310,7 +311,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
     "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
-    "type": 20,
     "staff_only": false,
     "obsolete": true
   }
@@ -319,6 +319,7 @@
   "model": "evaluation.questionnaire",
   "pk": 92,
   "fields": {
+    "type": 20,
     "name_de": "Kommentare zur Person",
     "name_en": "Personal Feedback",
     "description_de": "Dieser Fragebogen kann f\u00fcr alle Mitwirkenden genutzt werden, die sichtbar f\u00fcr Studenten an einer Lehrveranstaltung beteiligt waren. Er enth\u00e4lt eine Kommentar-Frage.",
@@ -328,7 +329,6 @@
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -337,6 +337,7 @@
   "model": "evaluation.questionnaire",
   "pk": 93,
   "fields": {
+    "type": 10,
     "name_de": "Kommentare zu weiteren Mitwirkenden",
     "name_en": "Remarks on additional contributors",
     "description_de": "Dieser Fragebogen kann f\u00fcr Lehrveranstaltungen genutzt werden, bei denen zus\u00e4tzliche Personen mitgewirkt haben, die nicht gesondert aufgef\u00fchrt sind.\r\nEr enth\u00e4lt lediglich eine Kommentarfrage.",
@@ -346,7 +347,6 @@
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
     "order": 9,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -355,6 +355,7 @@
   "model": "evaluation.questionnaire",
   "pk": 94,
   "fields": {
+    "type": 10,
     "name_de": "Bachelorprojekt 0 - Allgemeines",
     "name_en": "Bachelor's project 0 - General Questions",
     "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur allgemeinen Bewertung.",
@@ -364,7 +365,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 10,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -373,6 +373,7 @@
   "model": "evaluation.questionnaire",
   "pk": 95,
   "fields": {
+    "type": 10,
     "name_de": "Bachelorprojekt 1 - Aufwand/Zeitplanung",
     "name_en": "Bachelor's project 1 - Effort/time management",
     "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zum Aufwand und der Zeitplanung.",
@@ -382,7 +383,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 11,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -391,6 +391,7 @@
   "model": "evaluation.questionnaire",
   "pk": 96,
   "fields": {
+    "type": 10,
     "name_de": "Bachelorprojekt 2 - Betreuung/Praxispartner",
     "name_en": "Bachelor's project 2 - Supervision/business partner",
     "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur Betreuung und dem Projektpartner.",
@@ -400,7 +401,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 12,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -409,6 +409,7 @@
   "model": "evaluation.questionnaire",
   "pk": 97,
   "fields": {
+    "type": 10,
     "name_de": "Bachelorprojekt 3 - Bachelorarbeit",
     "name_en": "Bachelor's project 3 - Bachelor's thesis",
     "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur Bachelorarbeit.",
@@ -418,7 +419,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 13,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -427,6 +427,7 @@
   "model": "evaluation.questionnaire",
   "pk": 98,
   "fields": {
+    "type": 20,
     "name_de": "Externer Dozent",
     "name_en": "External lecturer",
     "description_de": "Wie Dozentenfragebogen aber ohne Frage nach Erreichbarkeit.",
@@ -436,7 +437,6 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -445,6 +445,7 @@
   "model": "evaluation.questionnaire",
   "pk": 99,
   "fields": {
+    "type": 10,
     "name_de": "Masterprojekt 0 - Allgemeines",
     "name_en": "Master's project 0 - General questions",
     "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zur allgemeinen Bewertung.",
@@ -454,7 +455,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 14,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -463,6 +463,7 @@
   "model": "evaluation.questionnaire",
   "pk": 100,
   "fields": {
+    "type": 10,
     "name_de": "Masterprojekt 1 - Aufwand/Zeitplanung",
     "name_en": "Master's project 1 - Effort/time management",
     "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zum Aufwand und der Zeitplanung.",
@@ -472,7 +473,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 15,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -481,6 +481,7 @@
   "model": "evaluation.questionnaire",
   "pk": 101,
   "fields": {
+    "type": 10,
     "name_de": "Masterprojekt 2 - Betreuung",
     "name_en": "Master's project 2 - Supervision",
     "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zur Betreuung.",
@@ -490,7 +491,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 16,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -499,6 +499,7 @@
   "model": "evaluation.questionnaire",
   "pk": 102,
   "fields": {
+    "type": 10,
     "name_de": "Masterarbeit",
     "name_en": "Master's thesis",
     "description_de": "Fragebogen f\u00fcr eine Masterarbeit.",
@@ -508,7 +509,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 17,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -517,6 +517,7 @@
   "model": "evaluation.questionnaire",
   "pk": 104,
   "fields": {
+    "type": 10,
     "name_de": "Projektseminar",
     "name_en": "Project seminar",
     "description_de": "Dieser Fragebogen enth\u00e4lt 9 Fragen zur Beurteilung eines Projektseminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
@@ -526,7 +527,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 5,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -535,6 +535,7 @@
   "model": "evaluation.questionnaire",
   "pk": 105,
   "fields": {
+    "type": 10,
     "name_de": "D-School-Seminar",
     "name_en": "D-School seminar",
     "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen zur Beurteilung eines D-School-Seminares, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
@@ -544,7 +545,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 6,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -553,6 +553,7 @@
   "model": "evaluation.questionnaire",
   "pk": 106,
   "fields": {
+    "type": 10,
     "name_de": "Studienbegleitendes Seminar",
     "name_en": "Seminar accompanying the first bachelor's semester",
     "description_de": "Dieser Fragebogen enth\u00e4lt 7 Fragen zur Beurteilung des Studienbegleitenden Seminares w\u00e4hrend des ersten Bachelorsemesters.",
@@ -562,7 +563,6 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 7,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -571,6 +571,7 @@
   "model": "evaluation.questionnaire",
   "pk": 107,
   "fields": {
+    "type": 20,
     "name_de": "Seminarleiter",
     "name_en": "Seminar lecturer",
     "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen f\u00fcr Seminarleiter bzw. Seminarbetreuer.",
@@ -580,7 +581,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -589,6 +589,7 @@
   "model": "evaluation.questionnaire",
   "pk": 108,
   "fields": {
+    "type": 20,
     "name_de": "D-School Coach",
     "name_en": "D-School Coach",
     "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen f\u00fcr D-School Coaches.",
@@ -598,7 +599,6 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
-    "type": 20,
     "staff_only": false,
     "obsolete": false
   }
@@ -607,6 +607,7 @@
   "model": "evaluation.questionnaire",
   "pk": 109,
   "fields": {
+    "type": 30,
     "name_de": "Gesamtnote",
     "name_en": "Total grade",
     "description_de": "Ein Fragebogen mit der Fragen nach einer Gesamtbewertung.",
@@ -616,7 +617,6 @@
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
     "order": 2,
-    "type": 30,
     "staff_only": false,
     "obsolete": false
   }
@@ -625,6 +625,7 @@
   "model": "evaluation.questionnaire",
   "pk": 110,
   "fields": {
+    "type": 10,
     "name_de": "Zuk\u00fcnftige Teilnahme",
     "name_en": "Future participation",
     "description_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
@@ -634,7 +635,6 @@
     "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
-    "type": 10,
     "staff_only": false,
     "obsolete": false
   }
@@ -105586,8 +105586,8 @@
     "groups": [],
     "user_permissions": [],
     "delegates": [
-      591,
-      482
+      482,
+      591
     ],
     "cc_users": []
   }
@@ -125775,8 +125775,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -125844,8 +125844,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -125881,8 +125881,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -125916,8 +125916,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -125951,8 +125951,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -125985,8 +125985,8 @@
     "order": 0,
     "questionnaires": [
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126022,8 +126022,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126057,8 +126057,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126092,8 +126092,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126197,8 +126197,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126234,8 +126234,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126272,8 +126272,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126307,8 +126307,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126343,8 +126343,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126450,8 +126450,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126489,8 +126489,8 @@
       50,
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -126711,8 +126711,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127291,8 +127291,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127326,8 +127326,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127361,8 +127361,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127395,8 +127395,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127430,8 +127430,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127501,8 +127501,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127644,8 +127644,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127678,8 +127678,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127732,8 +127732,8 @@
       81,
       50,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127771,8 +127771,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127806,8 +127806,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127841,8 +127841,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -127876,8 +127876,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -128850,8 +128850,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -129137,8 +129137,8 @@
       82,
       50,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -129327,8 +129327,8 @@
     "order": 0,
     "questionnaires": [
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -129429,8 +129429,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -129770,8 +129770,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -130752,8 +130752,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -130787,8 +130787,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -130825,8 +130825,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -130893,8 +130893,8 @@
     "order": 0,
     "questionnaires": [
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -130928,8 +130928,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131033,8 +131033,8 @@
       95,
       96,
       97,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131068,8 +131068,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131106,8 +131106,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131141,8 +131141,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131178,8 +131178,8 @@
       48,
       81,
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131213,8 +131213,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131249,8 +131249,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131286,8 +131286,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131322,8 +131322,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131356,8 +131356,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131427,8 +131427,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131463,8 +131463,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131572,8 +131572,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131607,8 +131607,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131642,8 +131642,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131677,8 +131677,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131713,8 +131713,8 @@
     "questionnaires": [
       86,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -131748,8 +131748,8 @@
     "order": 0,
     "questionnaires": [
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132669,8 +132669,8 @@
       99,
       100,
       101,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132704,8 +132704,8 @@
     "order": 0,
     "questionnaires": [
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132740,8 +132740,8 @@
       99,
       100,
       101,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132778,8 +132778,8 @@
       95,
       96,
       97,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132813,8 +132813,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132848,8 +132848,8 @@
     "order": 0,
     "questionnaires": [
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132912,8 +132912,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -132951,8 +132951,8 @@
       82,
       50,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133085,8 +133085,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133121,8 +133121,8 @@
       99,
       100,
       101,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133196,8 +133196,8 @@
       82,
       50,
       88,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133233,8 +133233,8 @@
       48,
       86,
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133295,8 +133295,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133333,8 +133333,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133368,9 +133368,9 @@
     "order": 0,
     "questionnaires": [
       104,
-      109,
+      110,
       83,
-      110
+      109
     ]
   }
 },
@@ -133434,8 +133434,8 @@
     "order": 0,
     "questionnaires": [
       86,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133471,8 +133471,8 @@
       48,
       81,
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133508,8 +133508,8 @@
       48,
       81,
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133543,8 +133543,8 @@
     "order": 0,
     "questionnaires": [
       105,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133580,8 +133580,8 @@
       48,
       81,
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133654,8 +133654,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133724,8 +133724,8 @@
       48,
       81,
       82,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133762,8 +133762,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133796,8 +133796,8 @@
     "order": 0,
     "questionnaires": [
       104,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -133985,8 +133985,8 @@
     "order": 0,
     "questionnaires": [
       106,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -134550,8 +134550,8 @@
       81,
       82,
       50,
-      83,
-      110
+      110,
+      83
     ]
   }
 },
@@ -134730,11 +134730,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2007-02-01T00:00:00",
     "vote_end_date": "2014-06-02",
-    "last_modified_time": "2016-02-22T22:08:19.699",
+    "last_modified_time": "2018-06-03T10:22:16.139",
     "last_modified_user": null,
     "degrees": [
       1
@@ -134770,11 +134772,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.833",
+    "last_modified_time": "2018-06-03T10:22:16.291",
     "last_modified_user": null,
     "degrees": [
       1
@@ -134812,11 +134816,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2016-02-22T22:08:19.886",
+    "last_modified_time": "2018-06-03T10:22:16.339",
     "last_modified_user": null,
     "degrees": [
       2
@@ -134848,11 +134854,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-03-01",
-    "last_modified_time": "2016-02-22T22:08:19.780",
+    "last_modified_time": "2018-06-03T10:22:16.234",
     "last_modified_user": null,
     "degrees": [
       1
@@ -134861,7 +134869,6 @@
       665,
       680,
       671,
-      591,
       645,
       559,
       39,
@@ -134869,16 +134876,17 @@
       672,
       653,
       686,
-      669
+      669,
+      591
     ],
     "voters": [
       665,
       671,
-      591,
       559,
       668,
       672,
-      686
+      686,
+      591
     ]
   }
 },
@@ -134895,11 +134903,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.815",
+    "last_modified_time": "2018-06-03T10:22:16.272",
     "last_modified_user": null,
     "degrees": [
       1
@@ -134951,11 +134961,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-01T00:00:00",
     "vote_end_date": "2012-03-18",
-    "last_modified_time": "2016-02-22T22:08:19.905",
+    "last_modified_time": "2018-06-03T10:22:16.361",
     "last_modified_user": 1,
     "degrees": [
       1
@@ -134995,11 +135007,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-29T00:00:00",
     "vote_end_date": "2012-03-07",
-    "last_modified_time": "2016-02-22T22:08:19.854",
+    "last_modified_time": "2018-06-03T10:22:16.308",
     "last_modified_user": 1,
     "degrees": [
       1
@@ -135038,6 +135052,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-12T00:00:00",
@@ -135070,11 +135086,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.881",
+    "last_modified_time": "2018-06-03T10:22:16.333",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135169,11 +135187,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.921",
+    "last_modified_time": "2018-06-03T10:22:16.376",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135182,20 +135202,20 @@
       562,
       2311,
       621,
-      591,
       676,
       60,
       579,
       660,
       613,
-      624
+      624,
+      591
     ],
     "voters": [
       562,
       621,
-      591,
       676,
-      613
+      613,
+      591
     ]
   }
 },
@@ -135212,11 +135232,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.807",
+    "last_modified_time": "2018-06-03T10:22:16.246",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135239,9 +135261,9 @@
       569,
       939,
       596,
-      679,
       604,
-      673
+      673,
+      679
     ],
     "voters": [
       387,
@@ -135268,11 +135290,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2016-02-22T22:08:19.750",
+    "last_modified_time": "2018-06-03T10:22:16.199",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135317,11 +135341,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2016-02-22T22:08:19.888",
+    "last_modified_time": "2018-06-03T10:22:16.352",
     "last_modified_user": null,
     "degrees": [
       1
@@ -135362,11 +135388,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.902",
+    "last_modified_time": "2018-06-03T10:22:16.357",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135404,11 +135432,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 62,
     "_voter_count": 35,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.915",
+    "last_modified_time": "2018-06-03T10:22:16.390",
     "last_modified_user": null,
     "degrees": [
       1
@@ -135425,10 +135455,8 @@
       825,
       877,
       917,
-      714,
       831,
       732,
-      815,
       837,
       898,
       751,
@@ -135474,7 +135502,9 @@
       862,
       838,
       844,
-      810
+      810,
+      714,
+      815
     ],
     "voters": [
       754,
@@ -135484,10 +135514,8 @@
       927,
       825,
       877,
-      714,
       831,
       732,
-      815,
       801,
       872,
       913,
@@ -135511,7 +135539,9 @@
       806,
       742,
       786,
-      844
+      844,
+      714,
+      815
     ]
   }
 },
@@ -135528,11 +135558,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-09",
-    "last_modified_time": "2016-02-22T22:08:19.798",
+    "last_modified_time": "2018-06-03T10:22:16.260",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135670,11 +135702,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-04-12T00:00:00",
     "vote_end_date": "2012-04-26",
-    "last_modified_time": "2016-02-22T22:08:19.702",
+    "last_modified_time": "2018-06-03T10:22:16.144",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135748,11 +135782,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-03-27T00:00:00",
     "vote_end_date": "2012-04-04",
-    "last_modified_time": "2016-02-22T22:08:19.755",
+    "last_modified_time": "2018-06-03T10:22:16.205",
     "last_modified_user": null,
     "degrees": [
       1
@@ -135788,11 +135824,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2016-02-22T22:08:19.738",
+    "last_modified_time": "2018-06-03T10:22:16.185",
     "last_modified_user": null,
     "degrees": [
       2
@@ -135825,7 +135863,6 @@
       737,
       860,
       712,
-      815,
       916,
       847,
       872,
@@ -135876,7 +135913,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -135893,7 +135931,6 @@
       928,
       737,
       860,
-      815,
       916,
       847,
       872,
@@ -135919,7 +135956,8 @@
       744,
       906,
       755,
-      844
+      844,
+      815
     ]
   }
 },
@@ -135936,11 +135974,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.716",
+    "last_modified_time": "2018-06-03T10:22:16.172",
     "last_modified_user": null,
     "degrees": [
       1
@@ -135974,7 +136014,6 @@
       737,
       860,
       712,
-      815,
       759,
       880,
       916,
@@ -136029,7 +136068,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -136046,7 +136086,6 @@
       739,
       737,
       860,
-      815,
       759,
       916,
       711,
@@ -136075,7 +136114,8 @@
       742,
       786,
       755,
-      844
+      844,
+      815
     ]
   }
 },
@@ -136092,11 +136132,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 15,
     "_voter_count": 11,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.776",
+    "last_modified_time": "2018-06-03T10:22:16.228",
     "last_modified_user": null,
     "degrees": [
       2
@@ -136146,6 +136188,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-01-22T00:00:00",
@@ -136184,11 +136228,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.764",
+    "last_modified_time": "2018-06-03T10:22:16.218",
     "last_modified_user": null,
     "degrees": [
       2
@@ -136330,11 +136376,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 74,
     "_voter_count": 27,
     "vote_start_datetime": "2012-07-09T00:00:00",
     "vote_end_date": "2012-07-29",
-    "last_modified_time": "2016-02-22T22:08:19.720",
+    "last_modified_time": "2018-06-03T10:22:16.166",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -136370,7 +136418,6 @@
       737,
       860,
       712,
-      815,
       875,
       916,
       847,
@@ -136413,7 +136460,8 @@
       755,
       844,
       760,
-      1081
+      1081,
+      815
     ],
     "voters": [
       693,
@@ -136427,7 +136475,6 @@
       807,
       737,
       860,
-      815,
       916,
       849,
       913,
@@ -136442,7 +136489,8 @@
       744,
       742,
       844,
-      1081
+      1081,
+      815
     ]
   }
 },
@@ -136459,11 +136507,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 82,
     "_voter_count": 32,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.713",
+    "last_modified_time": "2018-06-03T10:22:16.154",
     "last_modified_user": 93,
     "degrees": [
       2
@@ -136601,11 +136651,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.696",
+    "last_modified_time": "2018-06-03T10:22:16.135",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -136649,7 +136701,6 @@
       739,
       702,
       737,
-      815,
       837,
       916,
       898,
@@ -136718,7 +136769,8 @@
       838,
       844,
       760,
-      810
+      810,
+      815
     ],
     "voters": [
       696,
@@ -136730,7 +136782,6 @@
       839,
       928,
       702,
-      815,
       916,
       872,
       849,
@@ -136752,7 +136803,8 @@
       744,
       786,
       844,
-      810
+      810,
+      815
     ]
   }
 },
@@ -136769,11 +136821,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-11",
-    "last_modified_time": "2016-02-22T22:08:19.825",
+    "last_modified_time": "2018-06-03T10:22:16.282",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -136805,7 +136859,6 @@
       702,
       737,
       860,
-      815,
       916,
       847,
       872,
@@ -136854,7 +136907,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -136869,7 +136923,6 @@
       739,
       702,
       860,
-      815,
       916,
       872,
       830,
@@ -136890,7 +136943,8 @@
       838,
       844,
       810,
-      1081
+      1081,
+      815
     ]
   }
 },
@@ -136907,11 +136961,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 26,
     "_voter_count": 10,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.789",
+    "last_modified_time": "2018-06-03T10:22:16.244",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -136971,11 +137027,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.774",
+    "last_modified_time": "2018-06-03T10:22:16.232",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -137019,11 +137077,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.908",
+    "last_modified_time": "2018-06-03T10:22:16.365",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -137061,11 +137121,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.843",
+    "last_modified_time": "2018-06-03T10:22:16.300",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137120,11 +137182,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 27,
     "_voter_count": 14,
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.884",
+    "last_modified_time": "2018-06-03T10:22:16.337",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137189,11 +137253,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.847",
+    "last_modified_time": "2018-06-03T10:22:16.314",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137239,11 +137305,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-12",
-    "last_modified_time": "2016-02-22T22:08:19.752",
+    "last_modified_time": "2018-06-03T10:22:16.201",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137295,11 +137363,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.778",
+    "last_modified_time": "2018-06-03T10:22:16.230",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137331,8 +137401,8 @@
       664,
       939,
       596,
-      679,
-      661
+      661,
+      679
     ],
     "voters": [
       665,
@@ -137361,11 +137431,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.832",
+    "last_modified_time": "2018-06-03T10:22:16.289",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137399,11 +137471,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.837",
+    "last_modified_time": "2018-06-03T10:22:16.295",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137445,11 +137519,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 23,
     "_voter_count": 8,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.803",
+    "last_modified_time": "2018-06-03T10:22:16.266",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137503,11 +137579,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.891",
+    "last_modified_time": "2018-06-03T10:22:16.348",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137545,6 +137623,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
@@ -137575,11 +137655,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2016-02-22T22:08:19.723",
+    "last_modified_time": "2018-06-03T10:22:16.168",
     "last_modified_user": 674,
     "degrees": [
       1
@@ -137615,11 +137697,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
-    "last_modified_time": "2016-02-22T22:08:19.814",
+    "last_modified_time": "2018-06-03T10:22:16.270",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -137649,11 +137733,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.735",
+    "last_modified_time": "2018-06-03T10:22:16.180",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137688,11 +137774,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
-    "last_modified_time": "2016-02-22T22:08:19.783",
+    "last_modified_time": "2018-06-03T10:22:16.238",
     "last_modified_user": 482,
     "degrees": [
       2
@@ -137725,11 +137813,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 2,
     "vote_start_datetime": "2012-08-17T00:00:00",
     "vote_end_date": "2012-08-24",
-    "last_modified_time": "2016-02-22T22:08:19.808",
+    "last_modified_time": "2018-06-03T10:22:16.248",
     "last_modified_user": 674,
     "degrees": [
       2
@@ -137772,11 +137862,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.876",
+    "last_modified_time": "2018-06-03T10:22:16.325",
     "last_modified_user": 643,
     "degrees": [
       1
@@ -137895,6 +137987,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -137926,11 +138020,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.721",
+    "last_modified_time": "2018-06-03T10:22:16.163",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -137975,6 +138071,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138010,11 +138108,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.911",
+    "last_modified_time": "2018-06-03T10:22:16.367",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138123,11 +138223,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.850",
+    "last_modified_time": "2018-06-03T10:22:16.305",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -138160,11 +138262,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-04-01T00:00:00",
     "vote_end_date": "2013-04-14",
-    "last_modified_time": "2016-02-22T22:08:19.744",
+    "last_modified_time": "2018-06-03T10:22:16.191",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138225,11 +138329,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2016-02-22T22:08:19.701",
+    "last_modified_time": "2018-06-03T10:22:16.141",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138281,11 +138387,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.734",
+    "last_modified_time": "2018-06-03T10:22:16.189",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -138328,11 +138436,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 80,
     "_voter_count": 27,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-14",
-    "last_modified_time": "2016-02-22T22:08:19.717",
+    "last_modified_time": "2018-06-03T10:22:16.159",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -138463,11 +138573,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 84,
     "_voter_count": 37,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.732",
+    "last_modified_time": "2018-06-03T10:22:16.187",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138611,11 +138723,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.889",
+    "last_modified_time": "2018-06-03T10:22:16.350",
     "last_modified_user": 591,
     "degrees": [
       1
@@ -138665,6 +138779,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138699,6 +138815,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -138734,6 +138852,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138772,11 +138892,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.828",
+    "last_modified_time": "2018-06-03T10:22:16.285",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -138817,6 +138939,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -138851,11 +138975,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 11,
     "_voter_count": 6,
     "vote_start_datetime": "2013-02-04T00:00:00",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2016-02-22T22:08:19.819",
+    "last_modified_time": "2018-06-03T10:22:16.276",
     "last_modified_user": 484,
     "degrees": [
       2
@@ -138895,6 +139021,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138926,6 +139054,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
@@ -138959,11 +139089,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 27,
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.743",
+    "last_modified_time": "2018-06-03T10:22:16.182",
     "last_modified_user": 1075,
     "degrees": [
       2
@@ -139022,11 +139154,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-28",
-    "last_modified_time": "2016-02-22T22:08:19.800",
+    "last_modified_time": "2018-06-03T10:22:16.262",
     "last_modified_user": 1124,
     "degrees": [
       1
@@ -139064,11 +139198,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.887",
+    "last_modified_time": "2018-06-03T10:22:16.344",
     "last_modified_user": 650,
     "degrees": [
       1
@@ -139127,11 +139263,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 63,
     "_voter_count": 20,
     "vote_start_datetime": "2013-01-26T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.892",
+    "last_modified_time": "2018-06-03T10:22:16.346",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -139152,7 +139290,6 @@
       658,
       1085,
       692,
-      611,
       1082,
       614,
       580,
@@ -139197,12 +139334,12 @@
       682,
       1084,
       687,
-      721
+      721,
+      611
     ],
     "voters": [
       621,
       1085,
-      611,
       1082,
       614,
       580,
@@ -139218,7 +139355,8 @@
       673,
       682,
       1084,
-      721
+      721,
+      611
     ]
   }
 },
@@ -139235,11 +139373,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 17,
     "_voter_count": 4,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-03-20",
-    "last_modified_time": "2016-02-22T22:08:19.909",
+    "last_modified_time": "2018-06-03T10:22:16.370",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -139284,11 +139424,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.707",
+    "last_modified_time": "2018-06-03T10:22:16.146",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -139328,12 +139470,12 @@
       724,
       757,
       1078,
-      679,
       667,
       670,
       613,
       1084,
-      721
+      721,
+      679
     ],
     "voters": [
       677,
@@ -139347,10 +139489,10 @@
       2091,
       930,
       724,
-      679,
       670,
       1084,
-      721
+      721,
+      679
     ]
   }
 },
@@ -139367,6 +139509,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
@@ -139378,10 +139522,10 @@
     ],
     "participants": [
       1101,
-      679,
       667,
       670,
-      1084
+      1084,
+      679
     ],
     "voters": []
   }
@@ -139399,11 +139543,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.773",
+    "last_modified_time": "2018-06-03T10:22:16.226",
     "last_modified_user": 408,
     "degrees": [
       2
@@ -139465,11 +139611,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 40,
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-25T00:00:00",
     "vote_end_date": "2013-03-03",
-    "last_modified_time": "2016-02-22T22:08:19.749",
+    "last_modified_time": "2018-06-03T10:22:16.197",
     "last_modified_user": 484,
     "degrees": [
       1
@@ -139484,7 +139632,6 @@
       1102,
       671,
       690,
-      611,
       1082,
       593,
       2110,
@@ -139512,17 +139659,18 @@
       2098,
       619,
       2228,
-      624
+      624,
+      611
     ],
     "voters": [
-      611,
       1082,
       593,
       1079,
       2106,
       2101,
       79,
-      624
+      624,
+      611
     ]
   }
 },
@@ -139539,11 +139687,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-28T00:00:00",
     "vote_end_date": "2013-07-04",
-    "last_modified_time": "2016-02-22T22:08:19.883",
+    "last_modified_time": "2018-06-03T10:22:16.335",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -139596,6 +139746,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -139635,6 +139787,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -139652,11 +139806,11 @@
       793,
       2137,
       757,
-      679,
       845,
       2138,
       682,
-      721
+      721,
+      679
     ],
     "voters": []
   }
@@ -139674,11 +139828,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2016-02-22T22:08:19.787",
+    "last_modified_time": "2018-06-03T10:22:16.242",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -139822,11 +139978,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-30",
-    "last_modified_time": "2016-02-22T22:08:19.895",
+    "last_modified_time": "2018-06-03T10:22:16.341",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -139857,11 +140015,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
-    "last_modified_time": "2016-02-22T22:08:19.728",
+    "last_modified_time": "2018-06-03T10:22:16.175",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -139909,11 +140069,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.880",
+    "last_modified_time": "2018-06-03T10:22:16.331",
     "last_modified_user": 318,
     "degrees": [
       2
@@ -139955,11 +140117,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 3,
     "_voter_count": 2,
     "vote_start_datetime": "2013-09-01T00:00:00",
     "vote_end_date": "2013-09-15",
-    "last_modified_time": "2016-02-22T22:08:19.822",
+    "last_modified_time": "2018-06-03T10:22:16.279",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -139987,11 +140151,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 32,
     "_voter_count": 5,
     "vote_start_datetime": "2013-08-12T00:00:00",
     "vote_end_date": "2013-08-23",
-    "last_modified_time": "2016-02-22T22:08:19.782",
+    "last_modified_time": "2018-06-03T10:22:16.236",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140052,11 +140218,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.903",
+    "last_modified_time": "2018-06-03T10:22:16.359",
     "last_modified_user": 408,
     "degrees": [
       1
@@ -140089,6 +140257,8 @@
     "is_private": false,
     "gets_no_grade_documents": true,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
@@ -140120,11 +140290,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-18",
-    "last_modified_time": "2016-02-22T22:08:19.791",
+    "last_modified_time": "2018-06-03T10:22:16.252",
     "last_modified_user": 251,
     "degrees": [
       1
@@ -140281,11 +140453,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.900",
+    "last_modified_time": "2018-06-03T10:22:16.355",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140330,11 +140504,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.763",
+    "last_modified_time": "2018-06-03T10:22:16.216",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140469,11 +140645,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.714",
+    "last_modified_time": "2018-06-03T10:22:16.157",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140535,11 +140713,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 9,
     "_voter_count": 4,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.817",
+    "last_modified_time": "2018-06-03T10:22:16.274",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140576,11 +140756,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2016-02-22T22:08:19.705",
+    "last_modified_time": "2018-06-03T10:22:16.149",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140610,8 +140792,8 @@
       724,
       2098,
       1078,
-      679,
-      669
+      669,
+      679
     ],
     "voters": [
       754,
@@ -140639,11 +140821,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 10,
     "_voter_count": 5,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.839",
+    "last_modified_time": "2018-06-03T10:22:16.297",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -140682,11 +140866,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.760",
+    "last_modified_time": "2018-06-03T10:22:16.210",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140721,6 +140907,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 1,
     "vote_start_datetime": "2013-06-24T00:00:00",
@@ -140754,6 +140942,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140785,6 +140975,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-12T00:00:00",
@@ -140824,11 +141016,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.849",
+    "last_modified_time": "2018-06-03T10:22:16.303",
     "last_modified_user": 204,
     "degrees": [
       2
@@ -140836,18 +141030,18 @@
     "participants": [
       861,
       739,
-      815,
       847,
       774,
-      806
+      806,
+      815
     ],
     "voters": [
       861,
       739,
-      815,
       847,
       774,
-      806
+      806,
+      815
     ]
   }
 },
@@ -140864,11 +141058,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.912",
+    "last_modified_time": "2018-06-03T10:22:16.384",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -140900,11 +141096,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2016-02-22T22:08:19.759",
+    "last_modified_time": "2018-06-03T10:22:16.212",
     "last_modified_user": null,
     "degrees": [
       1
@@ -140941,6 +141139,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -140969,11 +141169,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.757",
+    "last_modified_time": "2018-06-03T10:22:16.208",
     "last_modified_user": 640,
     "degrees": [
       1
@@ -141006,6 +141208,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141056,6 +141260,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": 2,
     "_voter_count": 0,
     "vote_start_datetime": "2013-07-01T00:00:00",
@@ -141085,6 +141291,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
@@ -141114,11 +141322,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2016-02-22T22:08:19.869",
+    "last_modified_time": "2018-06-03T10:22:16.318",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -141155,11 +141365,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2016-02-22T22:08:19.867",
+    "last_modified_time": "2018-06-03T10:22:16.316",
     "last_modified_user": 173,
     "degrees": [
       1
@@ -141188,6 +141400,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141221,11 +141435,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2016-02-22T22:08:19.906",
+    "last_modified_time": "2018-06-03T10:22:16.363",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -141255,6 +141471,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141287,11 +141505,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.914",
+    "last_modified_time": "2018-06-03T10:22:16.386",
     "last_modified_user": 204,
     "degrees": [
       1
@@ -141332,11 +141552,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.871",
+    "last_modified_time": "2018-06-03T10:22:16.322",
     "last_modified_user": 204,
     "degrees": [
       2
@@ -141369,6 +141591,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": 4,
     "_voter_count": 0,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141400,11 +141624,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.771",
+    "last_modified_time": "2018-06-03T10:22:16.224",
     "last_modified_user": 18,
     "degrees": [
       2
@@ -141437,11 +141663,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 7,
     "_voter_count": 4,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2016-02-22T22:08:19.724",
+    "last_modified_time": "2018-06-03T10:22:16.170",
     "last_modified_user": 169,
     "degrees": [
       2
@@ -141476,6 +141704,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
@@ -141508,11 +141738,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 38,
     "_voter_count": 17,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.926",
+    "last_modified_time": "2018-06-03T10:22:16.382",
     "last_modified_user": 234,
     "degrees": [
       1
@@ -141591,6 +141823,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141622,6 +141856,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141655,11 +141891,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 6,
     "_voter_count": 3,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
-    "last_modified_time": "2016-02-22T22:08:19.805",
+    "last_modified_time": "2018-06-03T10:22:16.268",
     "last_modified_user": 234,
     "degrees": [
       2
@@ -141692,6 +141930,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": 10,
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-11T00:00:00",
@@ -141731,11 +141971,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-01-28T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.830",
+    "last_modified_time": "2018-06-03T10:22:16.287",
     "last_modified_user": 419,
     "degrees": [
       2
@@ -141790,11 +142032,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 24,
     "_voter_count": 8,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.792",
+    "last_modified_time": "2018-06-03T10:22:16.255",
     "last_modified_user": 2319,
     "degrees": [
       2
@@ -141805,7 +142049,6 @@
       800,
       866,
       789,
-      611,
       732,
       858,
       666,
@@ -141822,17 +142065,18 @@
       897,
       783,
       2098,
-      604
+      604,
+      611
     ],
     "voters": [
       736,
       800,
-      611,
       732,
       666,
       2106,
       873,
-      897
+      897,
+      611
     ]
   }
 },
@@ -141849,6 +142093,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -141882,11 +142128,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2016-02-22T22:08:19.918",
+    "last_modified_time": "2018-06-03T10:22:16.388",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -141895,12 +142143,12 @@
       823,
       773,
       807,
-      815,
       817,
       855,
       914,
-      679,
-      821
+      821,
+      815,
+      679
     ],
     "voters": [
       823,
@@ -141922,11 +142170,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-05",
-    "last_modified_time": "2016-02-22T22:08:19.747",
+    "last_modified_time": "2018-06-03T10:22:16.195",
     "last_modified_user": 815,
     "degrees": [
       1
@@ -141999,7 +142249,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -142015,7 +142264,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -142085,11 +142335,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2015-01-01T00:00:00",
     "vote_end_date": "2099-12-31",
-    "last_modified_time": "2016-02-22T22:08:19.878",
+    "last_modified_time": "2018-06-03T10:22:16.329",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142120,6 +142372,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
@@ -142152,11 +142406,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-03-07T00:00:00",
     "vote_end_date": "2014-03-16",
-    "last_modified_time": "2016-02-22T22:08:19.795",
+    "last_modified_time": "2018-06-03T10:22:16.258",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142165,7 +142421,6 @@
       736,
       737,
       732,
-      815,
       2211,
       2213,
       829,
@@ -142180,19 +142435,20 @@
       864,
       1078,
       742,
-      844
+      844,
+      815
     ],
     "voters": [
       736,
       737,
-      815,
       2213,
       873,
       606,
       776,
       722,
       742,
-      844
+      844,
+      815
     ]
   }
 },
@@ -142209,11 +142465,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-07",
-    "last_modified_time": "2016-02-22T22:08:19.762",
+    "last_modified_time": "2018-06-03T10:22:16.214",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142346,6 +142604,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -142380,6 +142640,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
@@ -142413,11 +142675,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-04T00:00:00",
     "vote_end_date": "2014-02-16",
-    "last_modified_time": "2016-02-22T22:08:19.870",
+    "last_modified_time": "2018-06-03T10:22:16.320",
     "last_modified_user": 310,
     "degrees": [
       1
@@ -142506,11 +142770,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-05T00:00:00",
     "vote_end_date": "2014-02-12",
-    "last_modified_time": "2016-02-22T22:08:19.877",
+    "last_modified_time": "2018-06-03T10:22:16.327",
     "last_modified_user": 650,
     "degrees": [
       2
@@ -142560,11 +142826,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.753",
+    "last_modified_time": "2018-06-03T10:22:16.203",
     "last_modified_user": 2324,
     "degrees": [
       1
@@ -142696,11 +142964,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 12,
     "_voter_count": 5,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.857",
+    "last_modified_time": "2018-06-03T10:22:16.311",
     "last_modified_user": 812,
     "degrees": [
       1
@@ -142741,11 +143011,13 @@
     "is_private": true,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-06-06T20:52:24.422",
+    "last_modified_time": "2018-06-03T10:22:16.151",
     "last_modified_user": 812,
     "degrees": [
       2
@@ -142813,11 +143085,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2016-02-22T22:08:19.736",
+    "last_modified_time": "2018-06-03T10:22:16.178",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -142887,7 +143161,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -142903,7 +143176,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -142961,11 +143235,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-04-06T00:00:00",
     "vote_end_date": "2014-04-13",
-    "last_modified_time": "2016-02-22T22:08:19.719",
+    "last_modified_time": "2018-06-03T10:22:16.161",
     "last_modified_user": 815,
     "degrees": [
       2
@@ -143046,11 +143322,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-14",
-    "last_modified_time": "2016-02-22T22:08:19.920",
+    "last_modified_time": "2018-06-03T10:22:16.373",
     "last_modified_user": 116,
     "degrees": [
       1
@@ -143119,7 +143397,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -143135,7 +143412,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -143196,6 +143474,8 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
@@ -143207,12 +143487,12 @@
     ],
     "participants": [
       2059,
-      815,
       2039,
       689,
       932,
       597,
-      55
+      55,
+      815
     ],
     "voters": []
   }
@@ -143230,11 +143510,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 31,
     "_voter_count": 31,
     "vote_start_datetime": "2015-11-01T00:00:00",
     "vote_end_date": "2015-11-01",
-    "last_modified_time": "2016-02-22T22:08:19.924",
+    "last_modified_time": "2018-06-03T10:22:16.380",
     "last_modified_user": 815,
     "degrees": [
       3
@@ -143256,11 +143538,13 @@
     "is_private": false,
     "gets_no_grade_documents": false,
     "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": true,
     "_participant_count": 50,
     "_voter_count": 50,
     "vote_start_datetime": "2015-10-01T00:00:00",
     "vote_end_date": "2015-10-01",
-    "last_modified_time": "2016-02-22T22:08:19.746",
+    "last_modified_time": "2018-06-03T10:22:16.193",
     "last_modified_user": 815,
     "degrees": [
       3

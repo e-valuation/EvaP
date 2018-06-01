@@ -186,6 +186,19 @@ class TestCourses(TestCase):
         course.delete()
         self.assertFalse(Course.objects.filter(pk=course.pk).exists())
 
+    def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
+        student1 = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1])
+        course.save()
+
+        self.assertFalse(course.can_publish_text_results)
+
+        course.voters.add(student2)
+        course = Course.objects.get(pk=course.pk)
+
+        self.assertTrue(course.can_publish_text_results)
+
 
 class TestUserProfile(TestCase):
 

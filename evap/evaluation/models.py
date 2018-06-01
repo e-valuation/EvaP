@@ -241,6 +241,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # whether the evaluation does take place during the semester, stating that evaluation results will be published while the course is still running
     is_midterm_evaluation = models.BooleanField(verbose_name=_("is midterm evaluation"), default=False)
 
+    # True, if the course has at least two voters or if the first voter explicitly confirmed that given text answers
+    # can be published even if no other person evaluates the course
+    can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
@@ -576,6 +580,14 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
+
+
+@receiver(models.signals.m2m_changed, sender=Course.voters.through)
+def voters_changed(instance, action, reverse, **kwargs):
+    if not reverse and action == 'post_add':
+        if not instance.can_publish_text_results and instance.voters.count() >= 2:
+            instance.can_publish_text_results = True
+            instance.save()
 
 
 @receiver(post_transition, sender=Course)

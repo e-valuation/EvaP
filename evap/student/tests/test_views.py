@@ -204,3 +204,26 @@ class TestVoteView(ViewTest):
 
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
         self.assertIn(evaluation_warning, page)
+
+    def helper_test_answer_publish_confirmation(self, form_element):
+        page = self.get_assert_200(self.url, user=self.voting_user1.username)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form, fill_complete=True)
+        if form_element:
+            form[form_element] = True
+        response = form.submit()
+        self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
+        course = Course.objects.get(pk=self.course.pk)
+        if form_element:
+            self.assertTrue(course.can_publish_text_results)
+        else:
+            self.assertFalse(course.can_publish_text_results)
+
+    def test_user_checked_top_text_answer_publish_confirmation(self):
+        self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_top")
+
+    def test_user_checked_bottom_text_answer_publish_confirmation(self):
+        self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_bottom")
+
+    def test_user_did_not_check_text_answer_publish_confirmation(self):
+        self.helper_test_answer_publish_confirmation(None)
