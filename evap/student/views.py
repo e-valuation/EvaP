@@ -25,7 +25,7 @@ def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
     for course in courses:
-        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(request.user) else None
+        course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
 
     voted_courses = list(set(Course.objects.filter(voters=request.user)))

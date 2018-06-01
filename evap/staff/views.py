@@ -58,7 +58,7 @@ def get_courses_with_prefetched_data(semester):
             "degrees"
         ).annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
-            num_textanswers=Count("contributions__textanswer_set", distinct=True),
+            num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__course__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
             midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
             final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
@@ -755,6 +755,9 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
     filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
@@ -784,6 +787,9 @@ def course_comments_update_publish(request):
     course_id = request.POST["course_id"]
 
     course = Course.objects.get(pk=course_id)
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     answer = TextAnswer.objects.get(pk=comment_id)
 
     if action == 'publish':
@@ -812,6 +818,10 @@ def course_comments_update_publish(request):
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
+
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
     reviewed_answer = text_answer.reviewed_answer
     if reviewed_answer is None:

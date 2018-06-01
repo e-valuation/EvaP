@@ -19,8 +19,6 @@
 
     {% if course.state != 'published' %}
         <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
-    {% elif not course.has_enough_voters_to_publish_grades %}
-        <div class="alert alert-warning"><span class="far fa-eye-slash"></span> {% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
     {% endif %}
 
     {% if reviewer or contributor %}
@@ -39,7 +37,7 @@
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Myself' %}
                     </a>
-                    {% if not course.has_enough_voters_to_publish_grades %}
+                    {% if not course.can_publish_rating_results %}
                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
                             <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
                                 {% if course.is_private %}

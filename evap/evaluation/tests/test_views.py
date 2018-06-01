@@ -54,10 +54,10 @@ class TestContactEmail(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='evap')
+        mommy.make(UserProfile, username='staff')
 
     def test_sends_mail(self):
-        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user='evap')
+        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user='staff')
         self.assertEqual(len(mail.outbox), 1)
 
 

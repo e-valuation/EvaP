@@ -92,16 +92,17 @@ def send_publish_notifications(courses, template=None):
         template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
     for course in courses:
-        # for courses with published grades, all contributors and participants get a notification
-        if course.has_enough_voters_to_publish_grades:
+        # for courses with published averaged grade, all contributors and participants get a notification
+        # we don't send a notification if the significance threshold isn't met
+        if course.can_publish_average_grade:
             for participant in course.participants.all():
                 publish_notifications[participant].add(course)
             for contribution in course.contributions.all():
                 if contribution.contributor:
                     publish_notifications[contribution.contributor].add(course)
-        # if the grades were not published, notifications are only sent for contributors who can see comments
-        elif len(course.textanswer_set) > 0:
-            for textanswer in course.textanswer_set:
+        # if the average grade was not published, notifications are only sent for contributors who can see text answers
+        elif course.visible_textanswer_set:
+            for textanswer in course.visible_textanswer_set:
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(course)
 

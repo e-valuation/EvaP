@@ -44,9 +44,6 @@
                                                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
                                             {% endif %}
                                         {% endif %}
-                                        {% if course.state == 'published' and not course.has_enough_voters_to_publish_grades %}
-                                            <span data-toggle="tooltip" data-placement="top" class="far fa-eye-slash" title="{% trans 'Not enough votes to publish results' %}"></span>
-                                        {% endif %}
                                         {% if course.is_private %}
                                             <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Private course' %}"></span>
                                         {% endif %}

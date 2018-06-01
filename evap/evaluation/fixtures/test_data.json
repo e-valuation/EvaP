@@ -81178,17 +81178,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "001e8160-b761-4d54-b519-af4306cbeed2",
-  "fields": {
-    "question": 364,
-    "contribution": 4041,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "00347b40-3f1e-4c56-92cd-4978c5f8c39f",
   "fields": {
     "question": 324,
@@ -89005,17 +88994,6 @@
     "contribution": 1779,
     "reviewed_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At",
     "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
-  "pk": "609c5939-b9d4-43b4-b48a-8219c6ae66d2",
-  "fields": {
-    "question": 324,
-    "contribution": 4040,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et",
     "state": "PU"
   }
 },
@@ -98261,17 +98239,6 @@
 },
 {
   "model": "evaluation.textanswer",
-  "pk": "d0550b31-b5b9-4c26-b29c-e2f1c0768123",
-  "fields": {
-    "question": 342,
-    "contribution": 3382,
-    "reviewed_answer": null,
-    "original_answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata",
-    "state": "PU"
-  }
-},
-{
-  "model": "evaluation.textanswer",
   "pk": "d062b741-c76f-4e97-bd60-814860504045",
   "fields": {
     "question": 364,
@@ -105586,8 +105553,8 @@
     "groups": [],
     "user_permissions": [],
     "delegates": [
-      482,
-      591
+      591,
+      482
     ],
     "cc_users": []
   }
@@ -134869,6 +134836,7 @@
       665,
       680,
       671,
+      591,
       645,
       559,
       39,
@@ -134876,17 +134844,16 @@
       672,
       653,
       686,
-      669,
-      591
+      669
     ],
     "voters": [
       665,
       671,
+      591,
       559,
       668,
       672,
-      686,
-      591
+      686
     ]
   }
 },
@@ -135202,20 +135169,20 @@
       562,
       2311,
       621,
+      591,
       676,
       60,
       579,
       660,
       613,
-      624,
-      591
+      624
     ],
     "voters": [
       562,
       621,
+      591,
       676,
-      613,
-      591
+      613
     ]
   }
 },
@@ -135261,9 +135228,9 @@
       569,
       939,
       596,
+      679,
       604,
-      673,
-      679
+      673
     ],
     "voters": [
       387,
@@ -135455,8 +135422,10 @@
       825,
       877,
       917,
+      714,
       831,
       732,
+      815,
       837,
       898,
       751,
@@ -135502,9 +135471,7 @@
       862,
       838,
       844,
-      810,
-      714,
-      815
+      810
     ],
     "voters": [
       754,
@@ -135514,8 +135481,10 @@
       927,
       825,
       877,
+      714,
       831,
       732,
+      815,
       801,
       872,
       913,
@@ -135539,9 +135508,7 @@
       806,
       742,
       786,
-      844,
-      714,
-      815
+      844
     ]
   }
 },
@@ -135863,6 +135830,7 @@
       737,
       860,
       712,
+      815,
       916,
       847,
       872,
@@ -135913,8 +135881,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -135931,6 +135898,7 @@
       928,
       737,
       860,
+      815,
       916,
       847,
       872,
@@ -135956,8 +135924,7 @@
       744,
       906,
       755,
-      844,
-      815
+      844
     ]
   }
 },
@@ -136014,6 +135981,7 @@
       737,
       860,
       712,
+      815,
       759,
       880,
       916,
@@ -136068,8 +136036,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -136086,6 +136053,7 @@
       739,
       737,
       860,
+      815,
       759,
       916,
       711,
@@ -136114,8 +136082,7 @@
       742,
       786,
       755,
-      844,
-      815
+      844
     ]
   }
 },
@@ -136418,6 +136385,7 @@
       737,
       860,
       712,
+      815,
       875,
       916,
       847,
@@ -136460,8 +136428,7 @@
       755,
       844,
       760,
-      1081,
-      815
+      1081
     ],
     "voters": [
       693,
@@ -136475,6 +136442,7 @@
       807,
       737,
       860,
+      815,
       916,
       849,
       913,
@@ -136489,8 +136457,7 @@
       744,
       742,
       844,
-      1081,
-      815
+      1081
     ]
   }
 },
@@ -136701,6 +136668,7 @@
       739,
       702,
       737,
+      815,
       837,
       916,
       898,
@@ -136769,8 +136737,7 @@
       838,
       844,
       760,
-      810,
-      815
+      810
     ],
     "voters": [
       696,
@@ -136782,6 +136749,7 @@
       839,
       928,
       702,
+      815,
       916,
       872,
       849,
@@ -136803,8 +136771,7 @@
       744,
       786,
       844,
-      810,
-      815
+      810
     ]
   }
 },
@@ -136859,6 +136826,7 @@
       702,
       737,
       860,
+      815,
       916,
       847,
       872,
@@ -136907,8 +136875,7 @@
       844,
       760,
       810,
-      1081,
-      815
+      1081
     ],
     "voters": [
       696,
@@ -136923,6 +136890,7 @@
       739,
       702,
       860,
+      815,
       916,
       872,
       830,
@@ -136943,8 +136911,7 @@
       838,
       844,
       810,
-      1081,
-      815
+      1081
     ]
   }
 },
@@ -137401,8 +137368,8 @@
       664,
       939,
       596,
-      661,
-      679
+      679,
+      661
     ],
     "voters": [
       665,
@@ -139290,6 +139257,7 @@
       658,
       1085,
       692,
+      611,
       1082,
       614,
       580,
@@ -139334,12 +139302,12 @@
       682,
       1084,
       687,
-      721,
-      611
+      721
     ],
     "voters": [
       621,
       1085,
+      611,
       1082,
       614,
       580,
@@ -139355,8 +139323,7 @@
       673,
       682,
       1084,
-      721,
-      611
+      721
     ]
   }
 },
@@ -139470,12 +139437,12 @@
       724,
       757,
       1078,
+      679,
       667,
       670,
       613,
       1084,
-      721,
-      679
+      721
     ],
     "voters": [
       677,
@@ -139489,10 +139456,10 @@
       2091,
       930,
       724,
+      679,
       670,
       1084,
-      721,
-      679
+      721
     ]
   }
 },
@@ -139522,10 +139489,10 @@
     ],
     "participants": [
       1101,
+      679,
       667,
       670,
-      1084,
-      679
+      1084
     ],
     "voters": []
   }
@@ -139632,6 +139599,7 @@
       1102,
       671,
       690,
+      611,
       1082,
       593,
       2110,
@@ -139659,18 +139627,17 @@
       2098,
       619,
       2228,
-      624,
-      611
+      624
     ],
     "voters": [
+      611,
       1082,
       593,
       1079,
       2106,
       2101,
       79,
-      624,
-      611
+      624
     ]
   }
 },
@@ -139806,11 +139773,11 @@
       793,
       2137,
       757,
+      679,
       845,
       2138,
       682,
-      721,
-      679
+      721
     ],
     "voters": []
   }
@@ -140792,8 +140759,8 @@
       724,
       2098,
       1078,
-      669,
-      679
+      679,
+      669
     ],
     "voters": [
       754,
@@ -141030,18 +140997,18 @@
     "participants": [
       861,
       739,
+      815,
       847,
       774,
-      806,
-      815
+      806
     ],
     "voters": [
       861,
       739,
+      815,
       847,
       774,
-      806,
-      815
+      806
     ]
   }
 },
@@ -142049,6 +142016,7 @@
       800,
       866,
       789,
+      611,
       732,
       858,
       666,
@@ -142065,18 +142033,17 @@
       897,
       783,
       2098,
-      604,
-      611
+      604
     ],
     "voters": [
       736,
       800,
+      611,
       732,
       666,
       2106,
       873,
-      897,
-      611
+      897
     ]
   }
 },
@@ -142143,12 +142110,12 @@
       823,
       773,
       807,
+      815,
       817,
       855,
       914,
-      821,
-      815,
-      679
+      679,
+      821
     ],
     "voters": [
       823,
@@ -142249,6 +142216,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -142264,8 +142232,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -142421,6 +142388,7 @@
       736,
       737,
       732,
+      815,
       2211,
       2213,
       829,
@@ -142435,20 +142403,19 @@
       864,
       1078,
       742,
-      844,
-      815
+      844
     ],
     "voters": [
       736,
       737,
+      815,
       2213,
       873,
       606,
       776,
       722,
       742,
-      844,
-      815
+      844
     ]
   }
 },
@@ -143161,6 +143128,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -143176,8 +143144,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -143397,6 +143364,7 @@
       2283,
       2285,
       2268,
+      2257,
       2224,
       2266,
       2233,
@@ -143412,8 +143380,7 @@
       2225,
       2221,
       2241,
-      2292,
-      2257
+      2292
     ],
     "voters": [
       2227,
@@ -143487,12 +143454,12 @@
     ],
     "participants": [
       2059,
+      815,
       2039,
       689,
       932,
       597,
-      55,
-      815
+      55
     ],
     "voters": []
   }

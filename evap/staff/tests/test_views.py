@@ -1236,39 +1236,56 @@ class TestCourseEmailView(ViewTest):
 
 class TestCourseCommentView(ViewTest):
     url = '/staff/semester/1/course/1/comments'
-    test_users = ['staff']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
-        cls.course = mommy.make(Course, pk=1, semester=semester)
+        student1 = mommy.make(UserProfile)
+        cls.student2 = mommy.make(UserProfile)
+        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1])
 
     def test_comments_showing_up(self):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=self.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
-        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='should show up')
-        response = self.app.get(self.url, user='staff')
+        answer = 'should show up'
+        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer=answer)
 
-        self.assertContains(response, 'should show up')
+        # in a course with only one voter the view should not be available
+        self.get_assert_403(self.url, user='staff')
+
+        # add additional voter
+        self.course.voters.add(self.student2)
+
+        # now it should work
+        page = self.get_assert_200(self.url, user='staff')
+        self.assertContains(page, answer)
 
 
 class TestCourseCommentEditView(ViewTest):
     url = '/staff/semester/1/course/1/comment/00000000-0000-0000-0000-000000000001/edit'
-    test_users = ['staff']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         semester = mommy.make(Semester, pk=1)
-        course = mommy.make(Course, semester=semester, pk=1)
+        student1 = mommy.make(UserProfile)
+        cls.student2 = mommy.make(UserProfile)
+        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
-        contribution = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
     def test_comments_showing_up(self):
+        # in a course with only one voter the view should not be available
+        self.get_assert_403(self.url, user='staff')
+
+        # add additional voter
+        self.course.voters.add(self.student2)
+
+        # now it should work
         response = self.app.get(self.url, user='staff')
 
         form = response.forms['comment-edit-form']
@@ -1571,16 +1588,28 @@ class TestCourseCommentsUpdatePublishView(WebTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
-        cls.course = mommy.make(Course)
+        cls.student1 = mommy.make(UserProfile)
+        cls.student2 = mommy.make(UserProfile)
+        cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1])
 
-    def helper(self, old_state, expected_new_state, action):
+    def helper(self, old_state, expected_new_state, action, expect_errors=False):
         textanswer = mommy.make(TextAnswer, state=old_state)
-        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "course_id": self.course.pk}, user="staff.user")
-        self.assertEqual(response.status_code, 200)
-        textanswer.refresh_from_db()
-        self.assertEqual(textanswer.state, expected_new_state)
+        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "course_id": self.course.pk}, user="staff.user", expect_errors=expect_errors)
+        if expect_errors:
+            self.assertEqual(response.status_code, 403)
+        else:
+            self.assertEqual(response.status_code, 200)
+            textanswer.refresh_from_db()
+            self.assertEqual(textanswer.state, expected_new_state)
 
     def test_review_actions(self):
+        # in a course with only one voter reviewing should fail
+        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish", expect_errors=True)
+
+        self.course.voters.add(self.student2)
+        self.course.save()
+
+        # now reviewing should work
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")

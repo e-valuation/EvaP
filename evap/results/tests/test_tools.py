@@ -32,7 +32,7 @@ class TestCalculateResults(TestCase):
         contributor1 = mommy.make(UserProfile)
         student = mommy.make(UserProfile)
 
-        course = mommy.make(Course, state='published', participants=[student, contributor1])
+        course = mommy.make(Course, state='published', participants=[student, contributor1], voters=[student, contributor1])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type="G")
         contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
@@ -107,42 +107,48 @@ class TestCalculateResults(TestCase):
     def test_average_grade(self):
         contributor1 = mommy.make(UserProfile)
         contributor2 = mommy.make(UserProfile)
+        student1 = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
 
-        course = mommy.make(Course)
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1, student2])
         questionnaire = mommy.make(Questionnaire)
         question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
+        question_grade2 = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
         general_contribution = mommy.make(Contribution, contributor=None, course=course, questionnaires=[questionnaire])
         contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
         contribution2 = mommy.make(Contribution, contributor=contributor2, course=course, questionnaires=[questionnaire])
 
-        mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution1, answer=1, count=1)
+        mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution1, answer=2, count=1)
         mommy.make(RatingAnswerCounter, question=question_grade, contribution=contribution2, answer=4, count=2)
+        mommy.make(RatingAnswerCounter, question=question_grade2, contribution=contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=contribution1, answer=3, count=4)
         mommy.make(RatingAnswerCounter, question=question_likert, contribution=general_contribution, answer=5, count=3)
 
         contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT
-        contributor1_average = (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * 1 + (settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT) * 3) / contributor_weights_sum  # 2.2
+        contributor1_average = (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * (2 + 1) / 2 + (settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT) * 3) / contributor_weights_sum  # 2.4
         contributor2_average = 4
-        contributors_average = (contributor1_average + contributor2_average) / 2  # 3.1
+        contributors_average = (contributor1_average + contributor2_average) / 2  # 3.2
 
         course_non_grade_average = 5
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (settings.CONTRIBUTIONS_WEIGHT + settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT)  # 0.375
         course_non_grade_percentage = settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT / (settings.CONTRIBUTIONS_WEIGHT + settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT)  # 0.625
 
-        total_grade = contributors_percentage * contributors_average + course_non_grade_percentage * course_non_grade_average  # 1.1625 + 3.125 = 4.2875
+        total_grade = contributors_percentage * contributors_average + course_non_grade_percentage * course_non_grade_average  # 1.2 + 3.125 = 4.325
 
         average_grade = distribution_to_grade(calculate_average_distribution(course))
         self.assertAlmostEqual(average_grade, total_grade)
-        self.assertAlmostEqual(average_grade, 4.2875)
+        self.assertAlmostEqual(average_grade, 4.325)
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_distribution_without_course_grade_question(self):
         contributor1 = mommy.make(UserProfile)
         contributor2 = mommy.make(UserProfile)
+        student1 = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
 
-        course = mommy.make(Course)
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1, student2])
         questionnaire = mommy.make(Questionnaire)
         question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
@@ -177,8 +183,10 @@ class TestCalculateResults(TestCase):
     def test_distribution_with_course_grade_question(self):
         contributor1 = mommy.make(UserProfile)
         contributor2 = mommy.make(UserProfile)
+        student1 = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
 
-        course = mommy.make(Course)
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1, student2])
         questionnaire = mommy.make(Questionnaire)
         question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")

@@ -287,7 +287,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_fully_reviewed(self):
-        return not self.open_textanswer_set.exists()
+        if not self.can_publish_text_results:
+            return True
+        return not self.unreviewed_textanswer_set.exists()
 
     @property
     def vote_end_datetime(self):
@@ -331,20 +333,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_results_page(self, user):
         if user.is_reviewer:
             return True
-        if self.state == 'published':
-            if self.is_user_contributor_or_delegate(user):
-                return True
-            if not self.has_enough_voters_to_publish_grades:
-                return False
-            return self.can_user_see_course(user)
-        return False
-
-    def can_user_see_grades(self, user):
-        if user.is_reviewer:
-            return True
         if self.state != 'published':
             return False
-        if not self.has_enough_voters_to_publish_grades:
+        if self.is_user_contributor_or_delegate(user):
+            return True
+        if not self.can_publish_rating_results:
             return False
         return self.can_user_see_course(user)
 
@@ -365,13 +358,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
-    def has_enough_voters_to_publish_grades(self):
-        from evap.results.tools import get_sum_of_answer_counters
+    def can_publish_average_grade(self):
         if self.is_single_result:
-            return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
+            return True
 
-        return (self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING
-                and float(self.num_voters) / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING)
+        # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
+        return self.can_publish_rating_results and self.num_voters / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE
+
+    @property
+    def can_publish_rating_results(self):
+        if self.is_single_result:
+            return True
+
+        # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
+        return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
     @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
@@ -415,7 +415,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
-        pass
+        if not self.can_publish_text_results:
+            self.textanswer_set.delete()
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
@@ -489,21 +490,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(contribution__course=self)
 
     @cached_property
     def num_textanswers(self):
+        if not self.can_publish_text_results:
+            return 0
         return self.textanswer_set.count()
 
     @property
-    def open_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
+    def unreviewed_textanswer_set(self):
         return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
 
     @cached_property
@@ -511,8 +511,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.reviewed_textanswer_set.count()
 
     @property
+    def visible_textanswer_set(self):
+        if not self.can_publish_text_results:
+            return self.textanswer_set.none()
+        return self.textanswer_set.filter(state__in=[TextAnswer.PUBLISHED, TextAnswer.PRIVATE])
+
+    @property
     def ratinganswer_counters(self):
-        """Pseudo relationship to all rating answers for this course"""
         return RatingAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):

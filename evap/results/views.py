@@ -30,7 +30,7 @@ def semester_detail(request, semester_id):
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
     for course in courses:
-        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(request.user) else None
+        course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
 
     CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
@@ -67,14 +67,12 @@ def course_detail(request, semester_id, course_id):
     else:
         public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
 
-    # If grades are not published, there is no public view
-    if not course.has_enough_voters_to_publish_grades:
+    # redirect to non-public view if there is none because the results have not been published
+    if not course.can_publish_rating_results:
         public_view = False
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
-
-    show_grades = course.can_user_see_grades(request.user)
 
     # remove text answers and grades if the user may not see them
     for section in sections:
@@ -84,10 +82,6 @@ def course_detail(request, semester_id, course_id):
                 answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
                 if answers:
                     results.append(TextResult(question=result.question, answers=answers))
-            elif isinstance(result, RatingResult) and not show_grades:
-                results.append(RatingResult(question=result.question, total_count=result.total_count, average=None, counts=None, warning=result.warning))
-            elif isinstance(result, YesNoResult) and not show_grades:
-                results.append(YesNoResult(question=result.question, total_count=result.total_count, average=None, counts=None, warning=result.warning, approval_count=None))
             else:
                 results.append(result)
 
@@ -127,10 +121,10 @@ def course_detail(request, semester_id, course_id):
                     contributor_sections[section.contributor]['total_votes'] += 1
                 elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
                     # Only count rating results if we show the grades.
-                    if show_grades:
+                    if course.can_publish_rating_results:
                         contributor_sections[section.contributor]['total_votes'] += result.total_count
 
-    course.distribution = calculate_average_distribution(course) if show_grades else None
+    course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(

@@ -91,7 +91,7 @@ class ExcelExporter(object):
             for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result:
                     continue
-                if not course.has_enough_voters_to_publish_grades and not include_not_enough_voters:
+                if not course.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
                 for questionnaire, contributor, __, data, __ in calculate_results(course):
@@ -143,7 +143,7 @@ class ExcelExporter(object):
                                     total_count += grade_result.total_count
                                     if grade_result.question.is_yes_no_question:
                                         approval_count += grade_result.approval_count
-                        if values and course.has_enough_voters_to_publish_grades:
+                        if values:
                             avg = sum(values) / total_count
 
                             if question.is_yes_no_question:
@@ -171,8 +171,9 @@ class ExcelExporter(object):
 
             writen(self, _("Evaluation rate"), "bold")
             for course, results in courses_with_results:
-                percent_participants = float(course.num_voters) / float(course.num_participants) if course.num_participants > 0 else 0
-                writec(self, "{:.0%}".format(percent_participants), "evaluation_rate")
+                # round down like in progress bar
+                percentage_participants = int((course.num_voters / course.num_participants) * 100) if course.num_participants > 0 else 0
+                writec(self, "{}%".format(percentage_participants), "evaluation_rate")
 
         self.workbook.save(response)
 

@@ -28,7 +28,7 @@ def index(request):
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     for course in all_courses:
-        course.distribution = calculate_average_distribution(course) if course.can_user_see_grades(user) else None
+        course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
 
     semesters = Semester.objects.all()

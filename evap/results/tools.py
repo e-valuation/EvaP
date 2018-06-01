@@ -126,8 +126,8 @@ def _calculate_results_impl(course):
                 answers = get_answers_from_answer_counters(answer_counters)
 
                 total_count = len(answers)
-                average = avg(answers) if total_count > 0 else None
-                counts = get_counts(answer_counters) if total_count > 0 else None
+                average = avg(answers) if total_count > 0 and course.can_publish_rating_results else None
+                counts = get_counts(answer_counters) if total_count > 0 and course.can_publish_rating_results else None
                 warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
                 if question.is_yes_no_question:
@@ -142,7 +142,7 @@ def _calculate_results_impl(course):
                 else:
                     results.append(RatingResult(question, total_count, average, counts, warning))
 
-            elif question.is_text_question:
+            elif question.is_text_question and course.can_publish_text_results:
                 answers = get_textanswers(contribution, question, COMMENT_STATES_REQUIRED_FOR_VISIBILITY)
                 results.append(TextResult(question=question, answers=answers))
 
@@ -179,6 +179,9 @@ def avg_distribution(distributions, weights=itertools.repeat(1)):
 
 
 def calculate_average_distribution(course):
+    if not course.can_publish_average_grade:
+        return None
+
     # will contain a list of results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
     for __, contributor, __, results, __ in calculate_results(course):
