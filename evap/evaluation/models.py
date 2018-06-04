@@ -417,6 +417,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def publish(self):
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
+        else:
+            self.textanswer_set.filter(state=TextAnswer.HIDDEN).delete()
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
@@ -509,12 +511,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     @cached_property
     def num_reviewed_textanswers(self):
         return self.reviewed_textanswer_set.count()
-
-    @property
-    def visible_textanswer_set(self):
-        if not self.can_publish_text_results:
-            return self.textanswer_set.none()
-        return self.textanswer_set.filter(state__in=[TextAnswer.PUBLISHED, TextAnswer.PRIVATE])
 
     @property
     def ratinganswer_counters(self):

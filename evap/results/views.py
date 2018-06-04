@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
 from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
-    TextResult, RatingResult, HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
+    TextAnswer, TextResult, RatingResult, HeadingResult, YesNoResult
 
 
 @internal_required
@@ -140,9 +140,9 @@ def course_detail(request, semester_id, course_id):
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
+    assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+
     if public_view:
-        return False
-    if text_answer.state not in COMMENT_STATES_REQUIRED_FOR_VISIBILITY:
         return False
     if user.is_reviewer:
         return True

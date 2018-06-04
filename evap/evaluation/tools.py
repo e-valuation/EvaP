@@ -101,8 +101,8 @@ def send_publish_notifications(courses, template=None):
                 if contribution.contributor:
                     publish_notifications[contribution.contributor].add(course)
         # if the average grade was not published, notifications are only sent for contributors who can see text answers
-        elif course.visible_textanswer_set:
-            for textanswer in course.visible_textanswer_set:
+        elif course.textanswer_set:
+            for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(course)
 

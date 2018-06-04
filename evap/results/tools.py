@@ -20,8 +20,6 @@ GRADE_COLORS = {
     5: (235,  89, 90),
 }
 
-COMMENT_STATES_REQUIRED_FOR_VISIBILITY = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
-
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
@@ -143,7 +141,7 @@ def _calculate_results_impl(course):
                     results.append(RatingResult(question, total_count, average, counts, warning))
 
             elif question.is_text_question and course.can_publish_text_results:
-                answers = get_textanswers(contribution, question, COMMENT_STATES_REQUIRED_FOR_VISIBILITY)
+                answers = get_textanswers(contribution, question, filter_states=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                 results.append(TextResult(question=question, answers=answers))
 
             elif question.is_heading_question:

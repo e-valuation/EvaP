@@ -223,6 +223,22 @@ class TestCourses(TestCase):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 1)
 
+    def test_hidden_text_answers_get_deleted_on_publish(self):
+        student = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        course.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="hidden", state=TextAnswer.HIDDEN)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="published", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="private", state=TextAnswer.PRIVATE)
+
+        self.assertEqual(course.textanswer_set.count(), 3)
+        course.publish()
+        self.assertEqual(course.textanswer_set.count(), 2)
+        self.assertFalse(TextAnswer.objects.filter(original_answer="hidden").exists())
+
 
 class TestUserProfile(TestCase):
 

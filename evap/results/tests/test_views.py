@@ -248,8 +248,69 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         self.get_assert_200(url, "student_external")  # this external user participates in the course and can see the results
 
 
+class TestResultsTextanswerVisibilityForStaff(WebTest):
+    fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        staff_group = Group.objects.get(name="Staff")
+        mommy.make(UserProfile, username="staff", groups=[staff_group])
+
+    def test_textanswer_visibility_for_staff_before_publish(self):
+        page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertIn(".contributor_orig_private.", page)
+        self.assertIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertIn(".other_responsible_changed_published.", page)
+        self.assertIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_staff(self):
+        course = Course.objects.get(id=1)
+        course.publish()
+        course.save()
+
+        page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertIn(".contributor_orig_private.", page)
+        self.assertIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertIn(".other_responsible_changed_published.", page)
+        self.assertIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        course = Course.objects.get(id=1)
+        course.publish()
+        course.save()
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1", user='responsible')
