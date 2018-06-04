@@ -696,19 +696,16 @@ select[multiple] {
     min-height: 40px;
 }
 
+.warning-label {
+    color: $evap-dark-yellow;
+}
 .error-label {
     color: $evap-dark-red;
-}
-
-.warning-label-bottom {
-    margin-top: auto;
-    color: $evap-dark-yellow;
 }
 
 .warning-border {
     border: 1px solid $evap-yellow;
 }
-
 
 .card-submit-area {
     background-color: $lighter-gray;
