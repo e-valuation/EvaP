@@ -700,6 +700,16 @@ select[multiple] {
     color: $evap-dark-red;
 }
 
+.warning-label-bottom {
+    margin-top: auto;
+    color: $evap-dark-yellow;
+}
+
+.warning-border {
+    border: 1px solid $evap-yellow;
+}
+
+
 .card-submit-area {
     background-color: $lighter-gray;
     border-color: rgba($evap-dark-blue, 0.5);;
