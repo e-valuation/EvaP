@@ -419,6 +419,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             self.textanswer_set.delete()
         else:
             self.textanswer_set.filter(state=TextAnswer.HIDDEN).delete()
+            self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
