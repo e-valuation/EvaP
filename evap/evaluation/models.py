@@ -754,8 +754,8 @@ class TextAnswer(Answer):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
+    answer = models.TextField(verbose_name=_("answer"))
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
     HIDDEN = 'HI'
     PUBLISHED = 'PU'
@@ -787,14 +787,9 @@ class TextAnswer(Answer):
     def is_published(self):
         return self.state == self.PUBLISHED
 
-    @property
-    def answer(self):
-        return self.reviewed_answer or self.original_answer
-
-    @answer.setter
-    def answer(self, value):
-        self.original_answer = value
-        self.reviewed_answer = None
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        assert self.answer != self.original_answer
 
     def publish(self):
         self.state = self.PUBLISHED

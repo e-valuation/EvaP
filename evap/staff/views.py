@@ -823,10 +823,7 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
         raise PermissionDenied
 
     text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
-    reviewed_answer = text_answer.reviewed_answer
-    if reviewed_answer is None:
-        reviewed_answer = text_answer.original_answer
-    form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
+    form = TextAnswerForm(request.POST or None, instance=text_answer)
 
     if form.is_valid():
         form.save()

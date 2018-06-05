@@ -230,14 +230,14 @@ class TestCourses(TestCase):
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         question = mommy.make(Question, type="T", questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="hidden", state=TextAnswer.HIDDEN)
-        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="published", state=TextAnswer.PUBLISHED)
-        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, original_answer="private", state=TextAnswer.PRIVATE)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="private", state=TextAnswer.PRIVATE)
 
         self.assertEqual(course.textanswer_set.count(), 3)
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 2)
-        self.assertFalse(TextAnswer.objects.filter(original_answer="hidden").exists())
+        self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
 
 
 class TestUserProfile(TestCase):

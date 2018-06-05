@@ -78,9 +78,9 @@ class Command(BaseCommand):
 
     def randomize_text_answers(self, lorem_ipsum):
         for text_answer in TextAnswer.objects.all():
-            text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
-            if text_answer.reviewed_answer:
-                text_answer.reviewed_answer = self.lorem(text_answer.reviewed_answer, lorem_ipsum)
+            text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
+            if text_answer.original_answer:
+                text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
             text_answer.save()
 
     @staticmethod

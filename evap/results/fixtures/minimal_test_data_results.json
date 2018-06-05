@@ -108,9 +108,9 @@
   "pk": "00000000-0000-0000-0000-000000000001",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".course_orig_published.",
     "question": 3,
-    "original_answer": ".course_orig_published.",
+    "original_answer": null,
     "contribution": 1,
     "state": "PU"
   }
@@ -119,9 +119,9 @@
   "pk": "00000000-0000-0000-0000-000000000002",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".course_orig_hidden.",
     "question": 3,
-    "original_answer": ".course_orig_hidden.",
+    "original_answer": null,
     "contribution": 1,
     "state": "HI"
   }
@@ -130,7 +130,7 @@
   "pk": "00000000-0000-0000-0000-000000000003",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": ".course_changed_published.",
+    "answer": ".course_changed_published.",
     "question": 3,
     "original_answer": ".course_orig_published_changed.",
     "contribution": 1,
@@ -141,9 +141,9 @@
   "pk": "00000000-0000-0000-0000-000000000004",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".responsible_orig_published.",
     "question": 1,
-    "original_answer": ".responsible_orig_published.",
+    "original_answer": null,
     "contribution": 2,
     "state": "PU"
   }
@@ -152,9 +152,9 @@
   "pk": "00000000-0000-0000-0000-000000000005",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".responsible_orig_hidden.",
     "question": 1,
-    "original_answer": ".responsible_orig_hidden.",
+    "original_answer": null,
     "contribution": 2,
     "state": "HI"
   }
@@ -163,7 +163,7 @@
   "pk": "00000000-0000-0000-0000-000000000006",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": ".responsible_changed_published.",
+    "answer": ".responsible_changed_published.",
     "question": 1,
     "original_answer": ".responsible_orig_published_changed.",
     "contribution": 2,
@@ -174,9 +174,9 @@
   "pk": "00000000-0000-0000-0000-000000000007",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".responsible_orig_private.",
     "question": 1,
-    "original_answer": ".responsible_orig_private.",
+    "original_answer": null,
     "contribution": 2,
     "state": "PR"
   }
@@ -185,9 +185,9 @@
   "pk": "00000000-0000-0000-0000-000000000008",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".responsible_orig_notreviewed.",
     "question": 1,
-    "original_answer": ".responsible_orig_notreviewed.",
+    "original_answer": null,
     "contribution": 2,
     "state": "NR"
   }
@@ -196,9 +196,9 @@
   "pk": "00000000-0000-0000-0000-000000000009",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".contributor_orig_published.",
     "question": 1,
-    "original_answer": ".contributor_orig_published.",
+    "original_answer": null,
     "contribution": 3,
     "state": "PU"
   }
@@ -207,9 +207,9 @@
   "pk": "00000000-0000-0000-0000-000000000010",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".contributor_orig_private.",
     "question": 1,
-    "original_answer": ".contributor_orig_private.",
+    "original_answer": null,
     "contribution": 3,
     "state": "PR"
   }
@@ -218,9 +218,9 @@
   "pk": "00000000-0000-0000-0000-000000000011",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".other_responsible_orig_published.",
     "question": 1,
-    "original_answer": ".other_responsible_orig_published.",
+    "original_answer": null,
     "contribution": 6,
     "state": "PU"
   }
@@ -229,9 +229,9 @@
   "pk": "00000000-0000-0000-0000-000000000012",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".other_responsible_orig_hidden.",
     "question": 1,
-    "original_answer": ".other_responsible_orig_hidden.",
+    "original_answer": null,
     "contribution": 6,
     "state": "HI"
   }
@@ -240,7 +240,7 @@
   "pk": "00000000-0000-0000-0000-000000000013",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": ".other_responsible_changed_published.",
+    "answer": ".other_responsible_changed_published.",
     "question": 1,
     "original_answer": ".other_responsible_orig_published_changed.",
     "contribution": 6,
@@ -251,9 +251,9 @@
   "pk": "00000000-0000-0000-0000-000000000014",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".other_responsible_orig_private.",
     "question": 1,
-    "original_answer": ".other_responsible_orig_private.",
+    "original_answer": null,
     "contribution": 6,
     "state": "PR"
   }
@@ -262,9 +262,9 @@
   "pk": "00000000-0000-0000-0000-000000000015",
   "model": "evaluation.textanswer",
   "fields": {
-    "reviewed_answer": null,
+    "answer": ".other_responsible_orig_notreviewed.",
     "question": 1,
-    "original_answer": ".other_responsible_orig_notreviewed.",
+    "original_answer": null,
     "contribution": 6,
     "state": "NR"
   }

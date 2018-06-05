@@ -1250,7 +1250,7 @@ class TestCourseCommentView(ViewTest):
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=self.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         answer = 'should show up'
-        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer=answer)
+        mommy.make(TextAnswer, contribution=contribution, question=question, answer=answer)
 
         # in a course with only one voter the view should not be available
         self.get_assert_403(self.url, user='staff')
@@ -1276,7 +1276,7 @@ class TestCourseCommentEditView(ViewTest):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
-        mommy.make(TextAnswer, contribution=contribution, question=question, original_answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
+        mommy.make(TextAnswer, contribution=contribution, question=question, answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
     def test_comments_showing_up(self):
         # in a course with only one voter the view should not be available
@@ -1289,12 +1289,12 @@ class TestCourseCommentEditView(ViewTest):
         response = self.app.get(self.url, user='staff')
 
         form = response.forms['comment-edit-form']
-        self.assertEqual(form['original_answer'].value, 'test answer text')
-        form['reviewed_answer'] = 'edited answer text'
+        self.assertEqual(form['answer'].value, 'test answer text')
+        form['answer'] = 'edited answer text'
         form.submit()
 
         answer = TextAnswer.objects.get(pk='00000000-0000-0000-0000-000000000001')
-        self.assertEqual(answer.reviewed_answer, 'edited answer text')
+        self.assertEqual(answer.answer, 'edited answer text')
 
 
 # Staff Questionnaire Views

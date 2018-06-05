@@ -19,11 +19,10 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
-                                    {% if answer.reviewed_answer %}
-                                        <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.reviewed_answer|linebreaksbr }}</a><br />
+                                    <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                                    {% if answer.original_answer %}
+                                        <br />
                                         <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
-                                    {% else %}
-                                        <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.original_answer|linebreaksbr }}</a>
                                     {% endif %}
                                 </td>
                                 <td>

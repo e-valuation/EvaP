@@ -155,16 +155,16 @@ class TestVoteView(ViewTest):
         self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[0].contribution, self.course.general_contribution)
         self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[1].contribution, self.course.general_contribution)
 
-        answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution1).values_list('original_answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution1).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some other text"] * 2)
 
-        answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution2).values_list('original_answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution2).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some more text"] * 2)
 
-        answers = TextAnswer.objects.filter(question=self.top_text_question, contribution=self.course.general_contribution).values_list('original_answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.top_text_question, contribution=self.course.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some text"] * 2)
 
-        answers = TextAnswer.objects.filter(question=self.bottom_text_question, contribution=self.course.general_contribution).values_list('original_answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.bottom_text_question, contribution=self.course.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
 
     def test_user_cannot_vote_multiple_times(self):
