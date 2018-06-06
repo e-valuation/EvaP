@@ -164,6 +164,14 @@ def avg_distribution(distributions, weights=itertools.repeat(1)):
     return normalized_distribution(summed_distribution)
 
 
+def average_grade_questions_distribution(results):
+    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_grade_question])
+
+
+def average_non_grade_rating_questions_distribution(results):
+    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_non_grade_rating_question])
+
+
 def calculate_average_distribution(course):
     if not course.can_publish_average_grade:
         return None
@@ -173,27 +181,18 @@ def calculate_average_distribution(course):
     for __, contributor, __, results, __ in calculate_results(course):
         grouped_results[contributor].extend(results)
 
-    average_contributor_distributions = []
-    average_course_grade_questions_distribution = None
-    average_course_non_grade_questions_distribution = None
+    course_results = grouped_results.pop(None)
 
-    for contributor, results in grouped_results.items():
-        average_grade_questions_distribution = avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_grade_question])
-        average_non_grade_questions_distribution = avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_non_grade_rating_question])
-        if contributor:
-            average_contributor_distributions.append(avg_distribution(
-                [average_grade_questions_distribution, average_non_grade_questions_distribution],
-                [settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT]
-            ))
-        else:
-            average_course_grade_questions_distribution = average_grade_questions_distribution
-            average_course_non_grade_questions_distribution = average_non_grade_questions_distribution
-
-    average_contributor_distribution = avg_distribution(average_contributor_distributions)
+    average_contributor_distribution = avg_distribution([
+        avg_distribution(
+            [average_grade_questions_distribution(results), average_non_grade_rating_questions_distribution(results)],
+            [settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT]
+        ) for results in grouped_results.values()
+    ])
 
     return avg_distribution(
-        [average_contributor_distribution, average_course_grade_questions_distribution, average_course_non_grade_questions_distribution],
-        [settings.CONTRIBUTIONS_WEIGHT, settings.COURSE_GRADE_QUESTIONS_WEIGHT, settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT]
+        [average_grade_questions_distribution(course_results), average_non_grade_rating_questions_distribution(course_results), average_contributor_distribution],
+        [settings.COURSE_GRADE_QUESTIONS_WEIGHT, settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTIONS_WEIGHT]
     )
 
 

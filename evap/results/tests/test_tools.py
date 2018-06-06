@@ -109,7 +109,7 @@ class TestCalculateAverageDistribution(TestCase):
         answers = get_answers_from_answer_counters(answer_counters)
         self.assertListEqual(answers, [1, 3, 3, 3, 3, 4, 4, 5, 5, 5])
 
-    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
+    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_average_grade(self):
         question_grade2 = mommy.make(Question, questionnaire=self.questionnaire, type="G")
 
@@ -119,8 +119,8 @@ class TestCalculateAverageDistribution(TestCase):
         mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4)
         mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=3)
 
-        contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT
-        contributor1_average = (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * (2 + 1) / 2 + (settings.CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT) * 3) / contributor_weights_sum  # 2.4
+        contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
+        contributor1_average = (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * (2 + 1) / 2 + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT) * 3) / contributor_weights_sum  # 2.4
         contributor2_average = 4
         contributors_average = (contributor1_average + contributor2_average) / 2  # 3.2
 
@@ -135,7 +135,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(average_grade, total_grade)
         self.assertAlmostEqual(average_grade, 4.325)
 
-    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
+    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_distribution_without_course_grade_question(self):
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)
@@ -160,7 +160,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[3], 0.09375)
         self.assertAlmostEqual(distribution[4], 0.68125)
 
-    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
+    @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_distribution_with_course_grade_question(self):
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)

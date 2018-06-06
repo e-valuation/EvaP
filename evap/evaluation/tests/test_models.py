@@ -320,6 +320,7 @@ class ArchivingTests(TestCase):
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
         cls.course = mommy.make(Course, state="published", semester=cls.semester)
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         users = mommy.make(UserProfile, _quantity=3)
         cls.course.participants.set(users)
