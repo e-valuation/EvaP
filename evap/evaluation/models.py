@@ -954,10 +954,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_delete(self):
-        states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
-        if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
-            return False
         if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
+            return False
+        if any(not course.is_archived for course in self.courses_participating_in.all()):
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False

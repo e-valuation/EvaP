@@ -72,11 +72,18 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
 
     course_form_group = form_groups.pop(course.general_contribution)
 
+    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()]
+    course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
+    course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
+    if not contributor_form_groups:
+        course_form_group_top += course_form_group_bottom
+        course_form_group_bottom = []
+
     template_data = dict(
         errors_exist=any(any(form.errors for form in form_group) for form_group in form_groups.values()),
-        course_form_group_top=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors],
-        course_form_group_bottom=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors],
-        contributor_form_groups=[(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()],
+        course_form_group_top=course_form_group_top,
+        course_form_group_bottom=course_form_group_bottom,
+        contributor_form_groups=contributor_form_groups,
         course=course,
         participants_warning=course.num_participants <= 5,
         preview=preview,

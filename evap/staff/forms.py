@@ -181,6 +181,17 @@ class CourseForm(forms.ModelForm):
                     name_field = e.params["unique_check"][1]
                     self.add_error(name_field, e)
 
+    def clean_participants(self):
+        participants = self.cleaned_data.get('participants')
+        if self.instance.pk:
+            voters = self.instance.voters.all()
+            removed_voters = set(voters) - set(participants)
+            if removed_voters:
+                names = [str(user) for user in removed_voters]
+                self.add_error("participants", _("Participants who already voted for the course can't be removed: %s") % ", ".join(names))
+
+        return participants
+
     def clean(self):
         super().clean()
         vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
@@ -228,7 +239,9 @@ class SingleResultForm(forms.ModelForm):
             disable_all_fields(self)
 
         if self.instance.pk:
-            self.fields['responsible'].initial = self.instance.responsible_contributors[0]
+            responsible = self.instance.responsible_contributors[0]
+            self.fields['responsible'].queryset |= UserProfile.objects.filter(pk=responsible.pk)
+            self.fields['responsible'].initial = responsible
             answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
                 answer_counts[answer_counter.answer] = answer_counter.count
@@ -304,6 +317,9 @@ class ContributionForm(forms.ModelForm):
             self.fields['responsibility'].initial = Contribution.IS_EDITOR
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
+
+        if self.instance.contributor:
+            self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
@@ -574,6 +590,17 @@ class UserForm(forms.ModelForm):
         if user_with_same_name.exists():
             raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
         return username.lower()
+
+    def clean_courses_participating_in(self):
+        courses_participating_in = self.cleaned_data.get('courses_participating_in')
+        if self.instance.pk:
+            courses_voted_for = self.instance.courses_voted_for.filter(semester=Semester.active_semester())
+            removed_courses_voted_for = set(courses_voted_for) - set(courses_participating_in)
+            if removed_courses_voted_for:
+                names = [str(course) for course in removed_courses_voted_for]
+                self.add_error("courses_participating_in", _("Courses for which the user already voted can't be removed: %s") % ", ".join(names))
+
+        return courses_participating_in
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
