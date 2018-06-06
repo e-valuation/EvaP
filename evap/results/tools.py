@@ -41,18 +41,6 @@ def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
 
 
-def get_number_of_answers(contribution, question):
-    answers = get_answers(contribution, question)
-    if question.is_rating_question:
-        return get_sum_of_answer_counters(answers)
-    else:
-        return len(answers)
-
-
-def get_sum_of_answer_counters(answer_counters):
-    return answer_counters.aggregate(total_count=Sum('count'))['total_count'] or 0
-
-
 def get_answers_from_answer_counters(answer_counters):
     answers = []
     for answer_counter in answer_counters:
@@ -107,7 +95,7 @@ def _calculate_results_impl(course):
     questionnaire_max_answers = {}
     questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_number_of_answers(contribution, question) for question in questionnaire.rating_questions], default=0)
+        max_answers = max([get_answers(contribution, question).aggregate(Sum('count'))['count__sum'] or 0 for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
@@ -173,7 +161,7 @@ def avg_distribution(distributions, weights=itertools.repeat(1)):
         if distribution:
             for index, value in enumerate(distribution):
                 summed_distribution[index] += weight * value
-    return normalized_distribution(tuple(summed_distribution))
+    return normalized_distribution(summed_distribution)
 
 
 def calculate_average_distribution(course):
@@ -203,12 +191,10 @@ def calculate_average_distribution(course):
 
     average_contributor_distribution = avg_distribution(average_contributor_distributions)
 
-    average_distribution = avg_distribution(
+    return avg_distribution(
         [average_contributor_distribution, average_course_grade_questions_distribution, average_course_non_grade_questions_distribution],
         [settings.CONTRIBUTIONS_WEIGHT, settings.COURSE_GRADE_QUESTIONS_WEIGHT, settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT]
     )
-
-    return average_distribution
 
 
 def distribution_to_grade(distribution):
