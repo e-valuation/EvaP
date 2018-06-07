@@ -28,8 +28,9 @@ ENABLE_DEBUG_TOOLBAR = False
 
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
-VOTER_COUNT_NEEDED_FOR_PUBLISHING = 2
-VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING = 0.2
+VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
+VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2
+SMALL_COURSE_SIZE = 5  # up to which number of participants the course gets additional warnings about anonymity
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this course)

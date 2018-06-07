@@ -682,16 +682,17 @@ class TextAnswerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['original_answer'].disabled = "True"
+        self.initial['original_answer'] = self.instance.original_answer or self.instance.answer
 
     class Meta:
         model = TextAnswer
-        fields = ("original_answer", "reviewed_answer",)
+        fields = ("answer", "original_answer",)
 
-    def clean_reviewed_answer(self):
-        reviewed_answer = normalize_newlines(self.cleaned_data.get('reviewed_answer'))
-        if reviewed_answer == normalize_newlines(self.instance.original_answer) or reviewed_answer == '':
+    def clean_original_answer(self):
+        original_answer = normalize_newlines(self.cleaned_data.get('original_answer'))
+        if original_answer == normalize_newlines(self.cleaned_data.get('answer')):
             return None
-        return reviewed_answer
+        return original_answer
 
 
 class ExportSheetForm(forms.Form):

@@ -241,6 +241,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # whether the evaluation does take place during the semester, stating that evaluation results will be published while the course is still running
     is_midterm_evaluation = models.BooleanField(verbose_name=_("is midterm evaluation"), default=False)
 
+    # True, if the course has at least two voters or if the first voter explicitly confirmed that given text answers
+    # can be published even if no other person evaluates the course
+    can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
@@ -283,7 +287,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_fully_reviewed(self):
-        return not self.open_textanswer_set.exists()
+        if not self.can_publish_text_results:
+            return True
+        return not self.unreviewed_textanswer_set.exists()
 
     @property
     def vote_end_datetime(self):
@@ -327,20 +333,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_results_page(self, user):
         if user.is_reviewer:
             return True
-        if self.state == 'published':
-            if self.is_user_contributor_or_delegate(user):
-                return True
-            if not self.has_enough_voters_to_publish_grades:
-                return False
-            return self.can_user_see_course(user)
-        return False
-
-    def can_user_see_grades(self, user):
-        if user.is_reviewer:
-            return True
         if self.state != 'published':
             return False
-        if not self.has_enough_voters_to_publish_grades:
+        if self.is_user_contributor_or_delegate(user):
+            return True
+        if not self.can_publish_rating_results:
             return False
         return self.can_user_see_course(user)
 
@@ -361,13 +358,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
 
     @property
-    def has_enough_voters_to_publish_grades(self):
-        from evap.results.tools import get_sum_of_answer_counters
+    def can_publish_average_grade(self):
         if self.is_single_result:
-            return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
+            return True
 
-        return (self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING
-                and float(self.num_voters) / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING)
+        # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
+        return self.can_publish_rating_results and self.num_voters / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE
+
+    @property
+    def can_publish_rating_results(self):
+        if self.is_single_result:
+            return True
+
+        # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
+        return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
     @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
@@ -411,7 +415,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
-        pass
+        if not self.can_publish_text_results:
+            self.textanswer_set.delete()
+        else:
+            self.textanswer_set.filter(state=TextAnswer.HIDDEN).delete()
+            self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
@@ -485,21 +493,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(contribution__course=self)
 
     @cached_property
     def num_textanswers(self):
+        if not self.can_publish_text_results:
+            return 0
         return self.textanswer_set.count()
 
     @property
-    def open_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
+    def unreviewed_textanswer_set(self):
         return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
 
     @cached_property
@@ -508,7 +515,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def ratinganswer_counters(self):
-        """Pseudo relationship to all rating answers for this course"""
         return RatingAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
@@ -576,6 +582,14 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
+
+
+@receiver(models.signals.m2m_changed, sender=Course.voters.through)
+def voters_changed(instance, action, reverse, **kwargs):
+    if not reverse and action == 'post_add':
+        if not instance.can_publish_text_results and instance.voters.count() >= 2:
+            instance.can_publish_text_results = True
+            instance.save()
 
 
 @receiver(post_transition, sender=Course)
@@ -741,8 +755,8 @@ class TextAnswer(Answer):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
+    answer = models.TextField(verbose_name=_("answer"))
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
     HIDDEN = 'HI'
     PUBLISHED = 'PU'
@@ -774,14 +788,9 @@ class TextAnswer(Answer):
     def is_published(self):
         return self.state == self.PUBLISHED
 
-    @property
-    def answer(self):
-        return self.reviewed_answer or self.original_answer
-
-    @answer.setter
-    def answer(self, value):
-        self.original_answer = value
-        self.reviewed_answer = None
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        assert self.answer != self.original_answer
 
     def publish(self):
         self.state = self.PUBLISHED

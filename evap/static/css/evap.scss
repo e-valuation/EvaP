@@ -204,10 +204,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
 }
 
 .card-outline-warning {
-    border-color: rgba($evap-yellow, 0.5);
+    border-color: $evap-yellow;
 }
 .card-outline-warning > .card-header {
-    background-color: $evap-light-yellow;
+    background-color: rgba($evap-yellow, 0.5);
 }
 
 .badge-info, .badge-warning {

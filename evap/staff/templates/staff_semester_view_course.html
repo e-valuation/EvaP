@@ -145,12 +145,12 @@
 {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if not course.is_single_result %}
         <td style="width: 20%" class="multi-progress-bar">
-            {% if course.has_enough_voters_to_publish_grades %}
+            {% if course.can_publish_average_grade %}
                 <span data-toggle="tooltip" data-placement="left" title="{% trans 'Number of voters' %}">
                     {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants icon='user' %}
                 </span>
             {% else %}
-                <span data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough voters to publish results' %}">
+                <span data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough voters to publish average grade' %}">
                     {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants icon='user' warning=True %}
                 </span>
             {% endif %}
