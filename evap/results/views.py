@@ -73,18 +73,13 @@ def course_detail(request, semester_id, course_id):
 
     represented_users = list(request.user.represented_users.all()) + [request.user]
 
-    # remove text answers and grades if the user may not see them
+    # remove text answers if the user may not see them
     for section in sections:
-        results = []
         for result in section.results:
             if isinstance(result, TextResult):
-                answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
-                if answers:
-                    results.append(TextResult(question=result.question, answers=answers))
-            else:
-                results.append(result)
-
-        section.results[:] = results
+                result.answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
+        # remove empty TextResults
+        section.results[:] = [result for result in section.results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
     # filter empty headings
     for section in sections:

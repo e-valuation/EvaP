@@ -2,7 +2,7 @@
 {% load evaluation_filters %}
 
 {% spaceless %}
-<div {% if result.average is not None %}
+<div {% if result.has_answers %}
         {% if participants_warning %}
             class="participants-warning"
         {% endif %}
@@ -20,7 +20,7 @@
     {% endif %}
 >
 
-    <div class="grade-bg-result-bar-count text-center{% if result.average is None %} grade-bg-disabled{% endif %}">
+    <div class="grade-bg-result-bar-count text-center{% if not result.has_answers %} grade-bg-disabled{% endif %}">
         <span class="fas fa-user small"></span> {{ result.total_count }}
     </div>
 

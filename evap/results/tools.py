@@ -24,29 +24,48 @@ GRADE_COLORS = {
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'counts', 'warning'))
-YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'counts', 'warning', 'approval_count'))
-TextResult = namedtuple('TextResult', ('question', 'answers'))
 HeadingResult = namedtuple('HeadingResult', ('question'))
 
+class RatingResult:
+    def __init__(self, question, counts, warning):
+        assert question.is_rating_question
+        self.question = question
+        self.counts = counts
+        self.warning = warning
 
-def avg(iterable):
-    items = [item for item in iterable if item is not None]
-    if not items:
-        return None
-    return sum(items) / len(items)
+    @property
+    def total_count(self):
+        if not self.has_answers:
+            return 0
+        return sum(self.counts)
+
+    @property
+    def approval_count(self):
+        assert self.question.is_yes_no_question
+        if not self.has_answers:
+            return None
+        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[4]
+
+    @property
+    def average(self):
+        if not self.has_answers:
+            return None
+        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.total_count
+
+    @property
+    def has_answers(self):
+        return self.counts is not None
+
+
+class TextResult:
+    def __init__(self, question, answers):
+        assert question.is_text_question
+        self.question = question
+        self.answers = answers
 
 
 def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
-
-
-def get_answers_from_answer_counters(answer_counters):
-    answers = []
-    for answer_counter in answer_counters:
-        for __ in range(0, answer_counter.count):
-            answers.append(answer_counter.answer)
-    return answers
 
 
 def get_textanswers(contribution, question, filter_states=None):
@@ -84,7 +103,7 @@ def calculate_results(course, force_recalculation=False):
 def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of (Rating|YesNo|Text|Heading)Result tuples,
+    contributor (or None), a list of (Rating|Text|Heading)Result tuples,
     the average grade and distribution for that section (or None)."""
 
     # there will be one section per relevant questionnaire--contributor pair
@@ -108,30 +127,12 @@ def _calculate_results_impl(course):
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
                 results_contain_rating_questions = True
-                answer_counters = get_answers(contribution, question)
-                answers = get_answers_from_answer_counters(answer_counters)
-
-                total_count = len(answers)
-                average = avg(answers) if total_count > 0 and course.can_publish_rating_results else None
-                counts = get_counts(answer_counters) if total_count > 0 and course.can_publish_rating_results else None
-                warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
-
-                if question.is_yes_no_question:
-                    if not counts:
-                        approval_count = None
-                    else:
-                        if question.is_positive_yes_no_question:
-                            approval_count = counts[0]
-                        else:
-                            approval_count = counts[4]
-                    results.append(YesNoResult(question, total_count, average, counts, warning, approval_count))
-                else:
-                    results.append(RatingResult(question, total_count, average, counts, warning))
-
+                counts = get_counts(get_answers(contribution, question)) if course.can_publish_rating_results else None
+                warning = counts is not None and sum(counts) < questionnaire_warning_thresholds[questionnaire]
+                results.append(RatingResult(question, counts, warning))
             elif question.is_text_question and course.can_publish_text_results:
                 answers = get_textanswers(contribution, question, filter_states=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                 results.append(TextResult(question=question, answers=answers))
-
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
 

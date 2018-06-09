@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_answers, get_answers_from_answer_counters, get_results_cache_key, calculate_average_distribution, calculate_results, distribution_to_grade
+from evap.results.tools import get_results_cache_key, calculate_average_distribution, calculate_results, distribution_to_grade
 from evap.staff.tools import merge_users
 
 
@@ -88,26 +88,6 @@ class TestCalculateAverageDistribution(TestCase):
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
         cls.contribution2 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
-
-    def test_answer_counting(self):
-        contribution3 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=self.course, questionnaires=[self.questionnaire])
-
-        rating_answer_counters = []
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=4))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=4, count=2))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=5, count=3))
-
-        # create some unrelated answer counters for different questions / contributions
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=contribution3, answer=1, count=1)
-
-        answer_counters = get_answers(self.contribution1, self.question_grade)
-        self.assertSetEqual(set(rating_answer_counters), set(answer_counters))
-
-        answers = get_answers_from_answer_counters(answer_counters)
-        self.assertListEqual(answers, [1, 3, 3, 3, 3, 4, 4, 5, 5, 5])
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_average_grade(self):
