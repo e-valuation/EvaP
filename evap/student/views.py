@@ -86,7 +86,7 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         course_form_group_bottom=course_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
         course=course,
-        participants_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
+        small_course_size_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         vote_end_datetime=course.vote_end_datetime,
         hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,

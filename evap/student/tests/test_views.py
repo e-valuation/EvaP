@@ -206,16 +206,16 @@ class TestVoteView(ViewTest):
         self.assertIn(evaluation_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=5)
-    def test_participants_warning_shown(self):
-        participants_warning = "Only a small number of people can take part in this evaluation."
+    def test_small_course_size_warning_shown(self):
+        small_course_size_warning = "Only a small number of people can take part in this evaluation."
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
-        self.assertIn(participants_warning, page)
+        self.assertIn(small_course_size_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=2)
-    def test_participants_warning_not_shown(self):
-        participants_warning = "Only a small number of people can take part in this evaluation."
+    def test_small_course_size_warning_not_shown(self):
+        small_course_size_warning = "Only a small number of people can take part in this evaluation."
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
-        self.assertNotIn(participants_warning, page)
+        self.assertNotIn(small_course_size_warning, page)
 
     def helper_test_answer_publish_confirmation(self, form_element):
         page = self.get_assert_200(self.url, user=self.voting_user1.username)
