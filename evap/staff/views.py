@@ -2,7 +2,7 @@ import csv
 from datetime import datetime, date
 from xlrd import open_workbook as open_workbook
 from xlutils.copy import copy as copy_workbook
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 
 from django.conf import settings
 from django.contrib import messages
@@ -25,7 +25,7 @@ from evap.evaluation.tools import questionnaires_and_contributions, send_publish
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, distribution_to_grade
+from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
@@ -765,6 +765,7 @@ def course_comments(request, semester_id, course_id):
 
     filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
 
+    CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
     contributor_sections = []
     for questionnaire, contribution in questionnaires_and_contributions(course):

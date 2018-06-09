@@ -1,12 +1,10 @@
 from collections import namedtuple, defaultdict
 from functools import partial
 from math import ceil
-from statistics import median
 import itertools
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Sum
 
 from evap.evaluation.models import TextAnswer, Contribution, RatingAnswerCounter
 from evap.evaluation.tools import questionnaires_and_contributions
@@ -21,17 +19,19 @@ GRADE_COLORS = {
 }
 
 
-# see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
-CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
-HeadingResult = namedtuple('HeadingResult', ('question'))
+class ResultSection:
+    def __init__(self, questionnaire, contributor, label, results):
+        self.questionnaire = questionnaire
+        self.contributor = contributor
+        self.label = label
+        self.results = results
+
 
 class RatingResult:
-    def __init__(self, question, counts, warning):
+    def __init__(self, question, counts):
         assert question.is_rating_question
         self.question = question
         self.counts = counts
-        self.warning = warning
 
     @property
     def total_count(self):
@@ -62,6 +62,9 @@ class TextResult:
         assert question.is_text_question
         self.question = question
         self.answers = answers
+
+
+HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
 def get_answers(contribution, question):
@@ -100,37 +103,19 @@ def _calculate_results_impl(course):
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
-
-    # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
-    questionnaire_med_answers = defaultdict(list)
-    questionnaire_max_answers = {}
-    questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_answers(contribution, question).aggregate(Sum('count'))['count__sum'] or 0 for question in questionnaire.rating_questions], default=0)
-        questionnaire_max_answers[(questionnaire, contribution)] = max_answers
-        questionnaire_med_answers[questionnaire].append(max_answers)
-    for questionnaire, max_answers in questionnaire_med_answers.items():
-        questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers), settings.RESULTS_WARNING_COUNT)
-
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        results_contain_rating_questions = False
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
-                results_contain_rating_questions = True
                 counts = get_counts(get_answers(contribution, question)) if course.can_publish_rating_results else None
-                warning = counts is not None and sum(counts) < questionnaire_warning_thresholds[questionnaire]
-                results.append(RatingResult(question, counts, warning))
+                results.append(RatingResult(question, counts))
             elif question.is_text_question and course.can_publish_text_results:
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                 results.append(TextResult(question=question, answers=answers))
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
-
-        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire] and results_contain_rating_questions
-
-        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
+        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results))
 
     return sections
 
@@ -171,8 +156,8 @@ def calculate_average_distribution(course):
 
     # will contain a list of results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
-    for __, contributor, __, results, __ in calculate_results(course):
-        grouped_results[contributor].extend(results)
+    for section in calculate_results(course):
+        grouped_results[section.contributor].extend(section.results)
 
     course_results = grouped_results.pop(None, [])
 

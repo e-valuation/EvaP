@@ -1,5 +1,7 @@
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, defaultdict
+from statistics import median
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
@@ -79,7 +81,7 @@ def course_detail(request, semester_id, course_id):
             if isinstance(result, TextResult):
                 result.answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
         # remove empty TextResults
-        section.results[:] = [result for result in section.results if not isinstance(result, TextResult) or len(result.answers) > 0]
+        section.results = [result for result in section.results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
     # filter empty headings
     for section in sections:
@@ -90,10 +92,12 @@ def course_detail(request, semester_id, course_id):
                 if index == len(section.results) - 1 or isinstance(section.results[index + 1], HeadingResult):
                     continue
             filtered_results.append(result)
-        section.results[:] = filtered_results
+        section.results = filtered_results
 
     # remove empty sections
     sections = [section for section in sections if section.results]
+
+    add_warnings(course, sections)
 
     # group by contributor
     course_sections_top = []
@@ -125,6 +129,29 @@ def course_detail(request, semester_id, course_id):
             can_download_grades=request.user.can_download_grades,
             public_view=public_view)
     return render(request, "results_course_detail.html", template_data)
+
+
+def add_warnings(course, result_sections):
+    if not course.can_publish_rating_results:
+        return
+
+    # calculate the median values of how many people answered a questionnaire across all contributions
+    questionnaire_max_answers = defaultdict(list)
+    for section in result_sections:
+        max_answers = max((result.total_count for result in section.results if result.question.is_rating_question), default=0)
+        questionnaire_max_answers[section.questionnaire].append(max_answers)
+
+    questionnaire_warning_thresholds = {}
+    for questionnaire, max_answers_list in questionnaire_max_answers.items():
+        questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers_list), settings.RESULTS_WARNING_COUNT)
+
+    for section in result_sections:
+        rating_results = [result for result in section.results if result.question.is_rating_question]
+        max_answers = max((result.total_count for result in rating_results), default=0)
+        section.warning = 0 < max_answers < questionnaire_warning_thresholds[section.questionnaire]
+
+        for result in rating_results:
+            result.warning = result.has_answers and result.total_count < questionnaire_warning_thresholds[section.questionnaire]
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
