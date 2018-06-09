@@ -68,14 +68,6 @@ def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
 
 
-def get_textanswers(contribution, question, filter_states=None):
-    assert question.is_text_question
-    answers = get_answers(contribution, question)
-    if filter_states is not None:
-        answers = answers.filter(state__in=filter_states)
-    return answers
-
-
 def get_counts(answer_counters):
     if not answer_counters:
         return None
@@ -131,7 +123,7 @@ def _calculate_results_impl(course):
                 warning = counts is not None and sum(counts) < questionnaire_warning_thresholds[questionnaire]
                 results.append(RatingResult(question, counts, warning))
             elif question.is_text_question and course.can_publish_text_results:
-                answers = get_textanswers(contribution, question, filter_states=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
+                answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                 results.append(TextResult(question=question, answers=answers))
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))

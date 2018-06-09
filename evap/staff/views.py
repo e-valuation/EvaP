@@ -25,7 +25,7 @@ from evap.evaluation.tools import questionnaires_and_contributions, send_publish
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, get_textanswers, distribution_to_grade
+from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
@@ -764,14 +764,15 @@ def course_comments(request, semester_id, course_id):
         raise PermissionDenied
 
     filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
-    filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
     course_sections = []
     contributor_sections = []
     for questionnaire, contribution in questionnaires_and_contributions(course):
         text_results = []
         for question in questionnaire.text_questions:
-            answers = get_textanswers(contribution, question, filter_states)
+            answers = TextAnswer.objects.filter(contribution=contribution, question=question)
+            if filter_comments:
+                answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
             if answers:
                 text_results.append(TextResult(question=question, answers=answers))
         if not text_results:
