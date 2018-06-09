@@ -298,9 +298,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_in_evaluation_period(self):
-        now = datetime.now()
-
-        return self.vote_start_datetime <= now <= self.vote_end_datetime
+        return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -355,7 +353,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
+        return self.can_staff_edit and (self.num_voters == 0 or self.is_single_result)
 
     @property
     def can_publish_average_grade(self):
@@ -593,12 +591,8 @@ def voters_changed(instance, action, reverse, **kwargs):
 
 
 @receiver(post_transition, sender=Course)
-def log_state_transition(sender, **kwargs):
-    course = kwargs['instance']
-    transition_name = kwargs['name']
-    source_state = kwargs['source']
-    target_state = kwargs['target']
-    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(course, course.id, source_state, target_state, transition_name))
+def log_state_transition(sender, instance, name, source, target, **kwargs):
+    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
 class Contribution(models.Model):

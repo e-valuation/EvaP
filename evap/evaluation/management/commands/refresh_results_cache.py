@@ -12,7 +12,7 @@ class Command(BaseCommand):
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
-        self.stdout.write("Clearing cache...")
+        self.stdout.write("Clearing results cache...")
         caches['results'].clear()
         total_count = Course.objects.count()
 
