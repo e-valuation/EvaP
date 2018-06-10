@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
 from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
-    TextAnswer, TextResult, RatingResult, HeadingResult, YesNoResult
+    TextAnswer, TextResult, HeadingResult
 
 
 @internal_required
@@ -71,8 +71,7 @@ def course_detail(request, semester_id, course_id):
     if not course.can_publish_rating_results:
         public_view = False
 
-    represented_users = list(request.user.represented_users.all())
-    represented_users.append(request.user)
+    represented_users = list(request.user.represented_users.all()) + [request.user]
 
     # remove text answers and grades if the user may not see them
     for section in sections:
@@ -90,8 +89,7 @@ def course_detail(request, semester_id, course_id):
     # filter empty headings
     for section in sections:
         filtered_results = []
-        for index in range(len(section.results)):
-            result = section.results[index]
+        for index, result in enumerate(section.results):
             # filter out if there are no more questions or the next question is also a heading question
             if isinstance(result, HeadingResult):
                 if index == len(section.results) - 1 or isinstance(section.results[index + 1], HeadingResult):
@@ -114,15 +112,10 @@ def course_detail(request, semester_id, course_id):
                 course_sections_top.append(section)
         else:
             contributor_sections.setdefault(section.contributor,
-                                            {'total_votes': 0, 'sections': []})['sections'].append(section)
+                                            {'has_votes': False, 'sections': []})['sections'].append(section)
 
-            for result in section.results:
-                if isinstance(result, TextResult):
-                    contributor_sections[section.contributor]['total_votes'] += 1
-                elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
-                    # Only count rating results if we show the grades.
-                    if course.can_publish_rating_results:
-                        contributor_sections[section.contributor]['total_votes'] += result.total_count
+            if any(result.question.is_rating_question and result.total_count or result.question.is_text_question for result in section.results):
+                contributor_sections[section.contributor]['has_votes'] = True
 
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)

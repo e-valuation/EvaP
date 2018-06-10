@@ -2,7 +2,7 @@
 
 <div class="d-flex">
     <h4>{{ section.questionnaire.public_name }}</h4>
-    {% if section.warning and not contributor_data.total_votes == 0 %}
+    {% if section.warning %}
         <p class="ml-auto mt-auto participants-warning questionnaire-warning">
             <span class="fas fa-exclamation-triangle"></span>
             {% trans 'Only a few participants answered these questions.' %}
