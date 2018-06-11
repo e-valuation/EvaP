@@ -180,12 +180,6 @@ def distribution_to_grade(distribution):
     return sum(answer * percentage for answer, percentage in enumerate(distribution, start=1))
 
 
-def has_no_rating_answers(course, contributor, questionnaire):
-    questions = questionnaire.rating_questions
-    contribution = Contribution.objects.get(course=course, contributor=contributor)
-    return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0
-
-
 def color_mix(color1, color2, fraction):
     return tuple(
         int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)

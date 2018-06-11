@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType
-from evap.results.tools import calculate_results, calculate_average_distribution, get_grade_color, has_no_rating_answers, distribution_to_grade
+from evap.results.tools import calculate_results, calculate_average_distribution, get_grade_color, distribution_to_grade
 
 
 class ExcelExporter(object):
@@ -95,7 +95,7 @@ class ExcelExporter(object):
                     continue
                 results = OrderedDict()
                 for section in calculate_results(course):
-                    if has_no_rating_answers(course, section.contributor, section.questionnaire):
+                    if all(not result.question.is_rating_question or result.counts is None for result in section.results):
                         continue
                     results.setdefault(section.questionnaire.id, []).extend(section.results)
                     used_questionnaires.add(section.questionnaire)
