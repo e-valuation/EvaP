@@ -66,20 +66,6 @@ STATE_DESCRIPTIONS = OrderedDict((
 ))
 
 
-def questionnaires_and_contributions(course):
-    """Yields tuples of (questionnaire, contribution) for the given course."""
-    result = []
-
-    for contribution in course.contributions.all():
-        for questionnaire in contribution.questionnaires.all():
-            result.append((questionnaire, contribution))
-
-    # sort questionnaires for general contributions first
-    result.sort(key=lambda t: not t[1].is_general)
-
-    return result
-
-
 def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 

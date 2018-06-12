@@ -89,10 +89,6 @@ class TextResult:
 HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
-def get_answers(contribution, question):
-    return question.answer_class.objects.filter(contribution=contribution, question=question)
-
-
 def get_counts(answer_counters):
     if not answer_counters:
         return None
@@ -125,8 +121,8 @@ def _calculate_results_impl(course):
             results = []
             for question in questionnaire.question_set.all():
                 if question.is_rating_question:
-                    counts = get_counts(get_answers(contribution, question)) if course.can_publish_rating_results else None
-                    results.append(RatingResult(question, counts))
+                    answers = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if course.can_publish_rating_results else None
+                    results.append(RatingResult(question, get_counts(answers)))
                 elif question.is_text_question and course.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                     results.append(TextResult(question=question, answers=answers))
