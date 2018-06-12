@@ -99,21 +99,21 @@ def get_counts(answer_counters):
     return tuple(counts)
 
 
-def get_results_cache_key(course):
-    return 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
+def get_collect_results_cache_key(course):
+    return 'evap.staff.results.tools.collect_results-{:d}'.format(course.id)
 
 
-def calculate_results(course, force_recalculation=False):
+def collect_results(course, force_recalculation=False):
     if course.state != "published":
-        return _calculate_results_impl(course)
+        return _collect_results_impl(course)
 
-    cache_key = get_results_cache_key(course)
+    cache_key = get_collect_results_cache_key(course)
     if force_recalculation:
         caches['results'].delete(cache_key)
-    return caches['results'].get_or_set(cache_key, partial(_calculate_results_impl, course))
+    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, course))
 
 
-def _calculate_results_impl(course):
+def _collect_results_impl(course):
     contributor_contribution_results = []
     for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
         questionnaire_results = []
@@ -169,7 +169,7 @@ def calculate_average_distribution(course):
 
     # will contain a list of question results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
-    for contribution_result in calculate_results(course).contribution_results:
+    for contribution_result in collect_results(course).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 

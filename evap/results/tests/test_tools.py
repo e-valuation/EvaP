@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_results_cache_key, calculate_average_distribution, calculate_results, distribution_to_grade
+from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade
 from evap.staff.tools import merge_users
 
 
@@ -15,18 +15,18 @@ class TestCalculateResults(TestCase):
     def test_caches_published_course(self):
         course = mommy.make(Course, state='published')
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
-        calculate_results(course)
+        collect_results(course)
 
-        self.assertIsNotNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
         course = mommy.make(Course, state='published')
-        calculate_results(course)
+        collect_results(course)
         course.unpublish()
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)
@@ -43,7 +43,7 @@ class TestCalculateResults(TestCase):
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=4, count=60)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=5, count=30)
 
-        course_results = calculate_results(course)
+        course_results = collect_results(course)
 
         self.assertEqual(len(course_results.questionnaire_results), 1)
         questionnaire_result = course_results.questionnaire_results[0]
@@ -54,7 +54,7 @@ class TestCalculateResults(TestCase):
         self.assertAlmostEqual(question_result.average, float(109) / 30)
         self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 
-    def test_calculate_results_after_user_merge(self):
+    def test_collect_results_after_user_merge(self):
         """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
         contributor = mommy.make(UserProfile)
         main_user = mommy.make(UserProfile)
@@ -65,11 +65,11 @@ class TestCalculateResults(TestCase):
         mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
 
-        calculate_results(course)
+        collect_results(course)
 
         merge_users(main_user, contributor)
 
-        course_results = calculate_results(course)
+        course_results = collect_results(course)
 
         for contribution_result in course_results.contribution_results:
             self.assertTrue(Contribution.objects.filter(course=course, contributor=contribution_result.contributor).exists())

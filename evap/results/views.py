@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
+from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
     TextAnswer, TextResult, HeadingResult
 
 
@@ -43,7 +43,7 @@ def semester_detail(request, semester_id):
     for course in courses:
         if course.is_single_result:
             for degree in course.degrees.all():
-                question_result = calculate_results(course).questionnaire_results[0].question_results[0]
+                question_result = collect_results(course).questionnaire_results[0].question_results[0]
                 courses_by_degree[degree].single_results.append((course, question_result))
         else:
             for degree in course.degrees.all():
@@ -61,7 +61,7 @@ def course_detail(request, semester_id, course_id):
     if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
 
-    course_result = calculate_results(course)
+    course_result = collect_results(course)
 
     if request.user.is_reviewer:
         public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.

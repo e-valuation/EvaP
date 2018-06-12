@@ -421,8 +421,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
-        from evap.results.tools import get_results_cache_key
-        caches['results'].delete(get_results_cache_key(self))
+        from evap.results.tools import get_collect_results_cache_key
+        caches['results'].delete(get_collect_results_cache_key(self))
 
     @cached_property
     def general_contribution(self):

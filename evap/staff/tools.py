@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 
 from evap.evaluation.models import UserProfile, Course, Contribution
 from evap.grades.models import GradeDocument
-from evap.results.tools import calculate_results
+from evap.results.tools import collect_results
 
 
 def get_parameter_from_url_or_session(request, parameter):
@@ -182,7 +182,7 @@ def merge_users(main_user, other_user, preview=False):
 
     # refresh results cache
     for course in Course.objects.filter(contributions__contributor=main_user).distinct():
-        calculate_results(course, force_recalculation=True)
+        collect_results(course, force_recalculation=True)
 
     # delete other_user
     other_user.delete()

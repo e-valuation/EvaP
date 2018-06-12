@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType
-from evap.results.tools import calculate_results, calculate_average_distribution, get_grade_color, distribution_to_grade
+from evap.results.tools import collect_results, calculate_average_distribution, get_grade_color, distribution_to_grade
 
 
 class ExcelExporter(object):
@@ -94,7 +94,7 @@ class ExcelExporter(object):
                 if not course.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for questionnaire_result in calculate_results(course).questionnaire_results:
+                for questionnaire_result in collect_results(course).questionnaire_results:
                     if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
                         continue
                     results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
