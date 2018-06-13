@@ -114,6 +114,10 @@ def course_detail(request, semester_id, course_id):
         else:
             contributor_contribution_results.append(contribution_result)
 
+    if not contributor_contribution_results:
+        course_questionnaire_results_top += course_questionnaire_results_bottom
+        course_questionnaire_results_bottom = []
+
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
 
