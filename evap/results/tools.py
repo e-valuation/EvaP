@@ -181,7 +181,7 @@ def calculate_average_distribution(course):
     for __, contributor, __, results, __ in calculate_results(course):
         grouped_results[contributor].extend(results)
 
-    course_results = grouped_results.pop(None)
+    course_results = grouped_results.pop(None, [])
 
     average_contributor_distribution = avg_distribution([
         avg_distribution(
