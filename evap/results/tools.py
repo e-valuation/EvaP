@@ -6,8 +6,7 @@ import itertools
 from django.conf import settings
 from django.core.cache import caches
 
-from evap.evaluation.models import TextAnswer, Contribution, RatingAnswerCounter
-from evap.evaluation.tools import questionnaires_and_contributions
+from evap.evaluation.models import TextAnswer, RatingAnswerCounter
 
 
 GRADE_COLORS = {
@@ -19,11 +18,34 @@ GRADE_COLORS = {
 }
 
 
-class QuestionnaireResult:
-    def __init__(self, questionnaire, contributor, label, question_results):
-        self.questionnaire = questionnaire
+class CourseResult:
+    def __init__(self, contribution_results):
+        self.contribution_results = contribution_results
+
+    @property
+    def questionnaire_results(self):
+        return [questionnaire_result for contribution_result in self.contribution_results for questionnaire_result in contribution_result.questionnaire_results]
+
+
+class ContributionResult:
+    def __init__(self, contributor, label, questionnaire_results):
         self.contributor = contributor
         self.label = label
+        self.questionnaire_results = questionnaire_results
+
+    @property
+    def has_answers(self):
+        for questionnaire_result in self.questionnaire_results:
+            for question_result in questionnaire_result.question_results:
+                question = question_result.question
+                if question.is_text_question or question.is_rating_question and question_result.has_answers:
+                    return True
+        return False
+
+
+class QuestionnaireResult:
+    def __init__(self, questionnaire, question_results):
+        self.questionnaire = questionnaire
         self.question_results = question_results
 
 
@@ -96,28 +118,23 @@ def calculate_results(course, force_recalculation=False):
 
 
 def _calculate_results_impl(course):
-    """Calculates the result data for a single course. Returns a list of
-    `QuestionnaireResult` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of (Rating|Text|Heading)Result tuples,
-    the average grade and distribution for that QuestionnaireResult (or None)."""
-
-    # there will be one questionnaire_result per relevant questionnaire--contributor pair
-    questionnaire_results = []
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        # will contain one object per question
-        results = []
-        for question in questionnaire.question_set.all():
-            if question.is_rating_question:
-                counts = get_counts(get_answers(contribution, question)) if course.can_publish_rating_results else None
-                results.append(RatingResult(question, counts))
-            elif question.is_text_question and course.can_publish_text_results:
-                answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
-                results.append(TextResult(question=question, answers=answers))
-            elif question.is_heading_question:
-                results.append(HeadingResult(question=question))
-        questionnaire_results.append(QuestionnaireResult(questionnaire, contribution.contributor, contribution.label, results))
-
-    return questionnaire_results
+    contributor_contribution_results = []
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+        questionnaire_results = []
+        for questionnaire in contribution.questionnaires.all():
+            results = []
+            for question in questionnaire.question_set.all():
+                if question.is_rating_question:
+                    counts = get_counts(get_answers(contribution, question)) if course.can_publish_rating_results else None
+                    results.append(RatingResult(question, counts))
+                elif question.is_text_question and course.can_publish_text_results:
+                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
+                    results.append(TextResult(question=question, answers=answers))
+                elif question.is_heading_question:
+                    results.append(HeadingResult(question=question))
+            questionnaire_results.append(QuestionnaireResult(questionnaire, results))
+        contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
+    return CourseResult(contributor_contribution_results)
 
 
 def normalized_distribution(distribution):
@@ -156,8 +173,9 @@ def calculate_average_distribution(course):
 
     # will contain a list of question results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
-    for questionnaire_result in calculate_results(course):
-        grouped_results[questionnaire_result.contributor].extend(questionnaire_result.question_results)
+    for contribution_result in calculate_results(course).contribution_results:
+        for questionnaire_result in contribution_result.questionnaire_results:
+            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     course_results = grouped_results.pop(None, [])
 
