@@ -22,15 +22,14 @@
                                     <th style="width: 36%">{% trans 'Course' %}</th>
                                     <th style="width: 8%">{% trans 'Type' %}</th>
                                     <th style="width: 25%">{% trans 'Responsible' %}</th>
-                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Average grade' %}">{% trans 'Avg.' %}</th>
-                                    <th style="width: 8%" data-toggle="tooltip" data-placement="bottom" title="{% trans 'Standard deviation' %}">{% trans 'Std. dev.' %}</th>
                                     <th style="width: 15%">{% trans 'Voters' %}</th>
+                                    <th style="width: 16%">{% trans 'Result' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for course in courses %}
-                                <tr class="{% if not course|can_user_see_results:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
-                                {% if course|can_user_see_results:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
+                                <tr class="hover-results {% if not course|can_user_see_results_page:request.user %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+                                {% if course|can_user_see_results_page:request.user %}data-url="{% url 'results:course_detail' semester.id course.id %}"{% endif %}>
                                     <td data-order="{{ course.name }}">
                                         {% if course.state == 'in_evaluation' %}
                                             <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'In evaluation' %}"></span>
@@ -45,9 +44,6 @@
                                                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
                                             {% endif %}
                                         {% endif %}
-                                        {% if course.state == 'published' and not course.has_enough_voters_to_publish_grades %}
-                                            <span data-toggle="tooltip" data-placement="top" class="far fa-eye-slash" title="{% trans 'Not enough votes to publish results' %}"></span>
-                                        {% endif %}
                                         {% if course.is_private %}
                                             <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Private course' %}"></span>
                                         {% endif %}
@@ -59,20 +55,12 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    {% if course|can_user_see_results:request.user and course.avg_grade %}
-                                        <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                                        <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
-                                    {% else %}
-                                        <td class="text-center"><div class="grade-bg grade-bg-disabled">
-                                            &mdash;
-                                        </div></td>
-                                        <td class="text-center"><div class="deviation-bg deviation-bg-disabled">
-                                            &mdash;
-                                        </div></td>
-                                    {% endif %}
                                     {% with num_participants=course.num_participants num_voters=course.num_voters %}
                                         <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
                                     {% endwith %}
+                                    <td data-order="{{ course.avg_grade }}">
+                                        {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -103,7 +91,7 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result show_grades=True questionnaire_warning=False %}</td>
+                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result participants_warning=False %}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

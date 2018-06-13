@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Degree, Contribution
 from evap.evaluation.auth import internal_required
-from evap.results.tools import calculate_results, calculate_average_grades_and_deviation, TextResult, RatingResult, \
-    HeadingResult, COMMENT_STATES_REQUIRED_FOR_VISIBILITY, YesNoResult
+from evap.results.tools import calculate_results, calculate_average_distribution, distribution_to_grade, \
+    TextAnswer, TextResult, RatingResult, HeadingResult, YesNoResult
 
 
 @internal_required
@@ -29,9 +29,9 @@ def semester_detail(request, semester_id):
 
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
-    # Annotate each course object with its grades.
     for course in courses:
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        course.distribution = calculate_average_distribution(course)
+        course.avg_grade = distribution_to_grade(course.distribution)
 
     CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
 
@@ -57,7 +57,7 @@ def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
 
-    if not course.can_user_see_results(request.user):
+    if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
 
     sections = calculate_results(course)
@@ -67,16 +67,14 @@ def course_detail(request, semester_id, course_id):
     else:
         public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
 
-    # If grades are not published, there is no public view
-    if not course.has_enough_voters_to_publish_grades:
+    # redirect to non-public view if there is none because the results have not been published
+    if not course.can_publish_rating_results:
         public_view = False
 
     represented_users = list(request.user.represented_users.all())
     represented_users.append(request.user)
 
-    show_grades = request.user.is_reviewer or course.has_enough_voters_to_publish_grades
-
-    # filter text answers
+    # remove text answers and grades if the user may not see them
     for section in sections:
         results = []
         for result in section.results:
@@ -86,6 +84,7 @@ def course_detail(request, semester_id, course_id):
                     results.append(TextResult(question=result.question, answers=answers))
             else:
                 results.append(result)
+
         section.results[:] = results
 
     # filter empty headings
@@ -122,17 +121,17 @@ def course_detail(request, semester_id, course_id):
                     contributor_sections[section.contributor]['total_votes'] += 1
                 elif isinstance(result, RatingResult) or isinstance(result, YesNoResult):
                     # Only count rating results if we show the grades.
-                    if show_grades:
+                    if course.can_publish_rating_results:
                         contributor_sections[section.contributor]['total_votes'] += result.total_count
 
-    course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+    course.distribution = calculate_average_distribution(course)
+    course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(
             course=course,
             course_sections_top=course_sections_top,
             course_sections_bottom=course_sections_bottom,
             contributor_sections=contributor_sections,
-            show_grades=show_grades,
             reviewer=request.user.is_reviewer,
             contributor=course.is_user_contributor_or_delegate(request.user),
             can_download_grades=request.user.can_download_grades,
@@ -141,9 +140,9 @@ def course_detail(request, semester_id, course_id):
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
+    assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+
     if public_view:
-        return False
-    if text_answer.state not in COMMENT_STATES_REQUIRED_FOR_VISIBILITY:
         return False
     if user.is_reviewer:
         return True

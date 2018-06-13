@@ -19,8 +19,6 @@
 
     {% if course.state != 'published' %}
         <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
-    {% elif not course.has_enough_voters_to_publish_grades %}
-        <div class="alert alert-warning"><span class="far fa-eye-slash"></span> {% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}</div>
     {% endif %}
 
     {% if reviewer or contributor %}
@@ -39,9 +37,9 @@
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Myself' %}
                     </a>
-                    {% if not course.has_enough_voters_to_publish_grades %}
+                    {% if not course.can_publish_rating_results %}
                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
-                            <a href="#" role="button" class="btn btn-sm btn-light disabled">
+                            <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
                                 {% if course.is_private %}
                                     {% trans 'Participant' %}
                                 {% else %}
@@ -72,7 +70,7 @@
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
             {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}">{{ course.grade_documents.all.first.description }}</a>
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.first.id %}">{{ course.grade_documents.first.description }}</a>
             {% elif course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
                     <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
@@ -90,10 +88,9 @@
                     <tr>
                         <th style="width: 10%">{% trans 'Degree' %}</th>
                         <th style="width: 15%">{% trans 'Type' %}</th>
-                        <th style="width: 24%">{% trans 'Responsible' %}</th>
-                        <th style="width: 18%" class="text-center">{% trans 'Average Grade' %}</th>
-                        <th style="width: 18%" class="text-center">{% trans 'Standard Deviation' %}</th>
+                        <th style="width: 30%">{% trans 'Responsible' %}</th>
                         <th style="width: 15%">{% if not course.is_single_result %}{% trans 'Voters' %}{% endif %}</th>
+                        <th style="width: 30%">{% trans 'Distribution and average grade' %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,14 +106,8 @@
                                 {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
-                        {% if show_grades %}
-                            <td class="text-center"><div class="grade-bg" style="background-color: {{ course.avg_grade|gradecolor }};">{{ course.avg_grade|floatformat:1 }}</div></td>
-                            <td class="text-center"><div class="deviation-bg" style="background-color: {{ course.avg_deviation|deviationcolor }};">{{ course.avg_deviation|floatformat:1 }}</div></td>
-                        {% else %}
-                            <td class="text-center"><div class="grade-bg grade-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">&mdash;</div></td>
-                            <td class="text-center"><div class="deviation-bg deviation-bg-disabled" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">&mdash;</div></td>
-                        {% endif %}
                         <td>{% if not course.is_single_result %}{% include 'progress_bar.html' with done=course.num_voters total=course.num_participants %}{% endif %}</td>
+                        <td>{% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}</td>
                     </tr>
                 </tbody>
             </table>

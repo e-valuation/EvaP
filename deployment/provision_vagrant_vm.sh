@@ -50,5 +50,4 @@ sudo -H -u vagrant python3 manage.py migrate --noinput
 sudo -H -u vagrant python3 manage.py collectstatic --noinput
 sudo -H -u vagrant python3 manage.py compilemessages
 sudo -H -u vagrant python3 manage.py loaddata test_data.json
-sudo -H -u vagrant python3 manage.py createcachetable
 sudo -H -u vagrant python3 manage.py refresh_results_cache

@@ -25,7 +25,7 @@ from evap.evaluation.tools import questionnaires_and_contributions, send_publish
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import CommentSection, TextResult, calculate_average_grades_and_deviation, get_textanswers
+from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, get_textanswers, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
@@ -58,7 +58,7 @@ def get_courses_with_prefetched_data(semester):
             "degrees"
         ).annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
-            num_textanswers=Count("contributions__textanswer_set", distinct=True),
+            num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__course__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
             midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
             final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
@@ -148,7 +148,10 @@ def semester_course_operation(request, semester_id):
         raise SuspiciousOperation("Unknown target state: " + target_state)
 
     course_ids = (request.GET if request.method == 'GET' else request.POST).getlist('course')
-    courses = Course.objects.filter(id__in=course_ids)
+    courses = Course.objects.filter(id__in=course_ids).annotate(
+        midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+        final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+    )
 
     if request.method == 'POST':
         template = None
@@ -411,9 +414,9 @@ def semester_raw_export(request, semester_id):
         _('#Participants'), _('#Comments'), _('Average grade')])
     for course in semester.course_set.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
-        course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
-        if course.state in ['evaluated', 'reviewed', 'published'] and course.avg_grade is not None:
-            avg_grade = "{:.1f}".format(course.avg_grade)
+        distribution = calculate_average_distribution(course)
+        if course.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
+            avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         else:
             avg_grade = ""
         writer.writerow([course.name, degrees, course.type.name, course.is_single_result, course.state,
@@ -752,6 +755,9 @@ def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
     filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
@@ -781,6 +787,9 @@ def course_comments_update_publish(request):
     course_id = request.POST["course_id"]
 
     course = Course.objects.get(pk=course_id)
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     answer = TextAnswer.objects.get(pk=comment_id)
 
     if action == 'publish':
@@ -809,11 +818,12 @@ def course_comments_update_publish(request):
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
+
+    if not course.can_publish_text_results:
+        raise PermissionDenied
+
     text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
-    reviewed_answer = text_answer.reviewed_answer
-    if reviewed_answer is None:
-        reviewed_answer = text_answer.original_answer
-    form = TextAnswerForm(request.POST or None, instance=text_answer, initial={'reviewed_answer': reviewed_answer})
+    form = TextAnswerForm(request.POST or None, instance=text_answer)
 
     if form.is_valid():
         form.save()

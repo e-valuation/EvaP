@@ -65,14 +65,6 @@ STATE_DESCRIPTIONS = OrderedDict((
     ('published', _('The results for this course have been published.'))
 ))
 
-# the names used for students
-STUDENT_STATES_ORDERED = OrderedDict((
-    ('in_evaluation', _('in evaluation')),
-    ('upcoming', _('upcoming')),
-    ('evaluationFinished', _('evaluation finished')),
-    ('published', _('published'))
-))
-
 
 def questionnaires_and_contributions(course):
     """Yields tuples of (questionnaire, contribution) for the given course."""
@@ -100,15 +92,16 @@ def send_publish_notifications(courses, template=None):
         template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
     for course in courses:
-        # for courses with published grades, all contributors and participants get a notification
-        if course.has_enough_voters_to_publish_grades:
+        # for courses with published averaged grade, all contributors and participants get a notification
+        # we don't send a notification if the significance threshold isn't met
+        if course.can_publish_average_grade:
             for participant in course.participants.all():
                 publish_notifications[participant].add(course)
             for contribution in course.contributions.all():
                 if contribution.contributor:
                     publish_notifications[contribution.contributor].add(course)
-        # if the grades were not published, notifications are only sent for contributors who can see comments
-        elif len(course.textanswer_set) > 0:
+        # if the average grade was not published, notifications are only sent for contributors who can see text answers
+        elif course.textanswer_set:
             for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(course)

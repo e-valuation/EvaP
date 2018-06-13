@@ -1,7 +1,8 @@
-from collections import namedtuple, defaultdict, OrderedDict
+from collections import namedtuple, defaultdict
 from functools import partial
 from math import ceil
-from statistics import pstdev, median
+from statistics import median
+import itertools
 
 from django.conf import settings
 from django.core.cache import caches
@@ -19,52 +20,25 @@ GRADE_COLORS = {
     5: (235,  89, 90),
 }
 
-COMMENT_STATES_REQUIRED_FOR_VISIBILITY = [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
-
 
 # see calculate_results
 ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
 CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning'))
-YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'deviation', 'counts', 'warning', 'approval_count'))
+RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'counts', 'warning'))
+YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'counts', 'warning', 'approval_count'))
 TextResult = namedtuple('TextResult', ('question', 'answers'))
 HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
 def avg(iterable):
-    """Simple arithmetic average function. Returns `None` if the length of
-    `iterable` is 0 or no items except None exist."""
     items = [item for item in iterable if item is not None]
-    if len(items) == 0:
+    if not items:
         return None
-    return float(sum(items)) / len(items)
-
-
-def mix(a, b, alpha):
-    if a is None and b is None:
-        return None
-    if a is None:
-        return b
-    if b is None:
-        return a
-
-    return alpha * a + (1 - alpha) * b
+    return sum(items) / len(items)
 
 
 def get_answers(contribution, question):
     return question.answer_class.objects.filter(contribution=contribution, question=question)
-
-
-def get_number_of_answers(contribution, question):
-    answers = get_answers(contribution, question)
-    if question.is_rating_question:
-        return get_sum_of_answer_counters(answers)
-    else:
-        return len(answers)
-
-
-def get_sum_of_answer_counters(answer_counters):
-    return answer_counters.aggregate(total_count=Sum('count'))['total_count'] or 0
 
 
 def get_answers_from_answer_counters(answer_counters):
@@ -83,20 +57,14 @@ def get_textanswers(contribution, question, filter_states=None):
     return answers
 
 
-def get_counts(question, answer_counters):
-    counts = OrderedDict()
+def get_counts(answer_counters):
+    if not answer_counters:
+        return None
 
-    possible_answers = range(1, 6)
-    if question.is_yes_no_question:
-        possible_answers = [1, 5]
-
-    # ensure ordering of answers
-    for answer in possible_answers:
-        counts[answer] = 0
-
+    counts = [0, 0, 0, 0, 0]
     for answer_counter in answer_counters:
-        counts[answer_counter.answer] = answer_counter.count
-    return counts
+        counts[answer_counter.answer - 1] = answer_counter.count
+    return tuple(counts)
 
 
 def get_results_cache_key(course):
@@ -116,9 +84,8 @@ def calculate_results(course, force_recalculation=False):
 def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
     `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of single result elements, the average grade and
-    deviation for that section (or None). The result elements are either
-    `RatingResult` or `TextResult` instances."""
+    contributor (or None), a list of (Rating|YesNo|Text|Heading)Result tuples,
+    the average grade and distribution for that section (or None)."""
 
     # there will be one section per relevant questionnaire--contributor pair
     sections = []
@@ -128,85 +95,111 @@ def _calculate_results_impl(course):
     questionnaire_max_answers = {}
     questionnaire_warning_thresholds = {}
     for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_number_of_answers(contribution, question) for question in questionnaire.rating_questions], default=0)
+        max_answers = max([get_answers(contribution, question).aggregate(Sum('count'))['count__sum'] or 0 for question in questionnaire.rating_questions], default=0)
         questionnaire_max_answers[(questionnaire, contribution)] = max_answers
         questionnaire_med_answers[questionnaire].append(max_answers)
     for questionnaire, max_answers in questionnaire_med_answers.items():
         questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers), settings.RESULTS_WARNING_COUNT)
 
+    results_contain_rating_questions = False
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
             if question.is_rating_question:
+                results_contain_rating_questions = True
                 answer_counters = get_answers(contribution, question)
                 answers = get_answers_from_answer_counters(answer_counters)
 
                 total_count = len(answers)
-                average = avg(answers) if total_count > 0 else None
-                deviation = pstdev(answers, average) if total_count > 0 else None
-                counts = get_counts(question, answer_counters)
+                average = avg(answers) if total_count > 0 and course.can_publish_rating_results else None
+                counts = get_counts(answer_counters) if total_count > 0 and course.can_publish_rating_results else None
                 warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
 
                 if question.is_yes_no_question:
-                    if question.is_positive_yes_no_question:
-                        approval_count = counts[1]
+                    if not counts:
+                        approval_count = None
                     else:
-                        approval_count = counts[5]
-                    results.append(YesNoResult(question, total_count, average, deviation, counts, warning, approval_count))
+                        if question.is_positive_yes_no_question:
+                            approval_count = counts[0]
+                        else:
+                            approval_count = counts[4]
+                    results.append(YesNoResult(question, total_count, average, counts, warning, approval_count))
                 else:
-                    results.append(RatingResult(question, total_count, average, deviation, counts, warning))
+                    results.append(RatingResult(question, total_count, average, counts, warning))
 
-            elif question.is_text_question:
-                answers = get_textanswers(contribution, question, COMMENT_STATES_REQUIRED_FOR_VISIBILITY)
+            elif question.is_text_question and course.can_publish_text_results:
+                answers = get_textanswers(contribution, question, filter_states=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                 results.append(TextResult(question=question, answers=answers))
 
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
 
-        section_warning = questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire]
+        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire] and results_contain_rating_questions
 
         sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
 
     return sections
 
 
-def calculate_average_grades_and_deviation(course):
-    """Determines the final average grade and deviation for a course."""
-    avg_generic_likert = []
-    avg_contribution_likert = []
-    dev_generic_likert = []
-    dev_contribution_likert = []
-    avg_generic_grade = []
-    avg_contribution_grade = []
-    dev_generic_grade = []
-    dev_contribution_grade = []
+def normalized_distribution(distribution):
+    """Returns a normalized distribution with the individual values adding up to 1.
+    Can also be used to convert counts to a distribution."""
+    if distribution is None:
+        return None
 
+    distribution_sum = sum(distribution)
+    return tuple((value / distribution_sum) for value in distribution)
+
+
+def avg_distribution(distributions, weights=itertools.repeat(1)):
+    if all(distribution is None for distribution in distributions):
+        return None
+
+    summed_distribution = [0, 0, 0, 0, 0]
+    for distribution, weight in zip(distributions, weights):
+        if distribution:
+            for index, value in enumerate(distribution):
+                summed_distribution[index] += weight * value
+    return normalized_distribution(summed_distribution)
+
+
+def average_grade_questions_distribution(results):
+    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_grade_question])
+
+
+def average_non_grade_rating_questions_distribution(results):
+    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_non_grade_rating_question])
+
+
+def calculate_average_distribution(course):
+    if not course.can_publish_average_grade:
+        return None
+
+    # will contain a list of results for each contributor and one for the course (where contributor is None)
+    grouped_results = defaultdict(list)
     for __, contributor, __, results, __ in calculate_results(course):
-        average_likert = avg([result.average for result in results if result.question.is_likert_question])
-        deviation_likert = avg([result.deviation for result in results if result.question.is_likert_question])
-        average_grade = avg([result.average for result in results if result.question.is_grade_question])
-        deviation_grade = avg([result.deviation for result in results if result.question.is_grade_question])
+        grouped_results[contributor].extend(results)
 
-        (avg_contribution_likert if contributor else avg_generic_likert).append(average_likert)
-        (dev_contribution_likert if contributor else dev_generic_likert).append(deviation_likert)
-        (avg_contribution_grade if contributor else avg_generic_grade).append(average_grade)
-        (dev_contribution_grade if contributor else dev_generic_grade).append(deviation_grade)
+    course_results = grouped_results.pop(None)
 
-    # the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
-    # final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
-    # final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
-    # final = GP * final_grade + (1-GP) * final_likert
+    average_contributor_distribution = avg_distribution([
+        avg_distribution(
+            [average_grade_questions_distribution(results), average_non_grade_rating_questions_distribution(results)],
+            [settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT]
+        ) for results in grouped_results.values()
+    ])
 
-    final_likert_avg = mix(avg(avg_contribution_likert), avg(avg_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
-    final_likert_dev = mix(avg(dev_contribution_likert), avg(dev_generic_likert), settings.CONTRIBUTION_PERCENTAGE)
-    final_grade_avg = mix(avg(avg_contribution_grade), avg(avg_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
-    final_grade_dev = mix(avg(dev_contribution_grade), avg(dev_generic_grade), settings.CONTRIBUTION_PERCENTAGE)
+    return avg_distribution(
+        [average_grade_questions_distribution(course_results), average_non_grade_rating_questions_distribution(course_results), average_contributor_distribution],
+        [settings.COURSE_GRADE_QUESTIONS_WEIGHT, settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTIONS_WEIGHT]
+    )
 
-    final_avg = mix(final_grade_avg, final_likert_avg, settings.GRADE_PERCENTAGE)
-    final_dev = mix(final_grade_dev, final_likert_dev, settings.GRADE_PERCENTAGE)
 
-    return final_avg, final_dev
+def distribution_to_grade(distribution):
+    if distribution is None:
+        return None
+    return sum(answer * percentage for answer, percentage in enumerate(distribution, start=1))
 
 
 def has_no_rating_answers(course, contributor, questionnaire):
@@ -229,12 +222,3 @@ def get_grade_color(grade):
     next_lower = int(grade)
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
-
-
-def get_deviation_color(deviation):
-    if deviation is None:
-        return (255, 255, 255)
-
-    capped_deviation = min(deviation, 2.0)  # values above that are very uncommon in practice
-    val = int(255 - capped_deviation * 60)  # tweaked to look good
-    return (val, val, val)

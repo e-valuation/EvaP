@@ -25,19 +25,6 @@ from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
 logger = logging.getLogger(__name__)
 
 
-# for converting state into student_state
-STUDENT_STATES_NAMES = {
-    'new': 'upcoming',
-    'prepared': 'upcoming',
-    'editor_approved': 'upcoming',
-    'approved': 'upcoming',
-    'in_evaluation': 'in_evaluation',
-    'evaluated': 'evaluationFinished',
-    'reviewed': 'evaluationFinished',
-    'published': 'published'
-}
-
-
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
     pass
@@ -254,6 +241,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # whether the evaluation does take place during the semester, stating that evaluation results will be published while the course is still running
     is_midterm_evaluation = models.BooleanField(verbose_name=_("is midterm evaluation"), default=False)
 
+    # True, if the course has at least two voters or if the first voter explicitly confirmed that given text answers
+    # can be published even if no other person evaluates the course
+    can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
+
     # students that are allowed to vote
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
@@ -296,7 +287,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_fully_reviewed(self):
-        return not self.open_textanswer_set.exists()
+        if not self.can_publish_text_results:
+            return True
+        return not self.unreviewed_textanswer_set.exists()
 
     @property
     def vote_end_datetime(self):
@@ -305,9 +298,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_in_evaluation_period(self):
-        now = datetime.now()
-
-        return self.vote_start_datetime <= now <= self.vote_end_datetime
+        return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
     @property
     def general_contribution_has_questionnaires(self):
@@ -337,16 +328,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return True
 
-    def can_user_see_results(self, user):
+    def can_user_see_results_page(self, user):
         if user.is_reviewer:
             return True
-        if self.state == 'published':
-            if self.is_user_contributor_or_delegate(user):
-                return True
-            if not self.has_enough_voters_to_publish_grades:
-                return False
-            return self.can_user_see_course(user)
-        return False
+        if self.state != 'published':
+            return False
+        if self.is_user_contributor_or_delegate(user):
+            return True
+        if not self.can_publish_rating_results:
+            return False
+        return self.can_user_see_course(user)
 
     @property
     def is_single_result(self):
@@ -362,16 +353,23 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_delete(self):
-        return self.can_staff_edit and (not self.num_voters > 0 or self.is_single_result)
+        return self.can_staff_edit and (self.num_voters == 0 or self.is_single_result)
 
     @property
-    def has_enough_voters_to_publish_grades(self):
-        from evap.results.tools import get_sum_of_answer_counters
+    def can_publish_average_grade(self):
         if self.is_single_result:
-            return get_sum_of_answer_counters(self.ratinganswer_counters) > 0
+            return True
 
-        return (self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING
-                and float(self.num_voters) / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING)
+        # the average grade is only published if at least the configured percentage of participants voted during the evaluation for significance reasons
+        return self.can_publish_rating_results and self.num_voters / self.num_participants >= settings.VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE
+
+    @property
+    def can_publish_rating_results(self):
+        if self.is_single_result:
+            return True
+
+        # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
+        return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
     @transition(field=state, source=['new', 'editor_approved'], target='prepared')
     def ready_for_editors(self):
@@ -415,16 +413,16 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
-        pass
+        if not self.can_publish_text_results:
+            self.textanswer_set.delete()
+        else:
+            self.textanswer_set.filter(state=TextAnswer.HIDDEN).delete()
+            self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
         from evap.results.tools import get_results_cache_key
         caches['results'].delete(get_results_cache_key(self))
-
-    @property
-    def student_state(self):
-        return STUDENT_STATES_NAMES[self.state]
 
     @cached_property
     def general_contribution(self):
@@ -470,7 +468,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def days_until_evaluation(self):
-        return (self.vote_start_datetime.date() - date.today()).days
+        days_left = (self.vote_start_datetime.date() - date.today()).days
+        if self.vote_start_datetime < datetime.now():
+            days_left -= 1
+        return days_left
 
     def is_user_editor_or_delegate(self, user):
         if self.contributions.filter(can_edit=True, contributor=user).exists():
@@ -490,21 +491,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return TextAnswer.objects.filter(contribution__course=self)
 
     @cached_property
     def num_textanswers(self):
+        if not self.can_publish_text_results:
+            return 0
         return self.textanswer_set.count()
 
     @property
-    def open_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
+    def unreviewed_textanswer_set(self):
         return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
-        """Pseudo relationship to all text answers for this course"""
         return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
 
     @cached_property
@@ -513,7 +513,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def ratinganswer_counters(self):
-        """Pseudo relationship to all rating answers for this course"""
         return RatingAnswerCounter.objects.filter(contribution__course=self)
 
     def _archive(self):
@@ -583,13 +582,17 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         logger.info("update_courses finished.")
 
 
+@receiver(models.signals.m2m_changed, sender=Course.voters.through)
+def voters_changed(instance, action, reverse, **kwargs):
+    if not reverse and action == 'post_add':
+        if not instance.can_publish_text_results and instance.voters.count() >= 2:
+            instance.can_publish_text_results = True
+            instance.save()
+
+
 @receiver(post_transition, sender=Course)
-def log_state_transition(sender, **kwargs):
-    course = kwargs['instance']
-    transition_name = kwargs['name']
-    source_state = kwargs['source']
-    target_state = kwargs['target']
-    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(course, course.id, source_state, target_state, transition_name))
+def log_state_transition(sender, instance, name, source, target, **kwargs):
+    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
 class Contribution(models.Model):
@@ -701,6 +704,10 @@ class Question(models.Model, metaclass=LocalizeModelBase):
         return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
 
     @property
+    def is_non_grade_rating_question(self):
+        return self.is_rating_question and not self.is_grade_question
+
+    @property
     def is_heading_question(self):
         return self.type == "H"
 
@@ -742,8 +749,8 @@ class TextAnswer(Answer):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    reviewed_answer = models.TextField(verbose_name=_("reviewed answer"), blank=True, null=True)
-    original_answer = models.TextField(verbose_name=_("original answer"), blank=True)
+    answer = models.TextField(verbose_name=_("answer"))
+    original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
     HIDDEN = 'HI'
     PUBLISHED = 'PU'
@@ -775,14 +782,9 @@ class TextAnswer(Answer):
     def is_published(self):
         return self.state == self.PUBLISHED
 
-    @property
-    def answer(self):
-        return self.reviewed_answer or self.original_answer
-
-    @answer.setter
-    def answer(self, value):
-        self.original_answer = value
-        self.reviewed_answer = None
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        assert self.answer != self.original_answer
 
     def publish(self):
         self.state = self.PUBLISHED
@@ -955,10 +957,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_staff_delete(self):
-        states_with_votes = ["in_evaluation", "reviewed", "evaluated", "published"]
-        if any(course.state in states_with_votes and not course.is_archived for course in self.courses_participating_in.all()):
-            return False
         if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
+            return False
+        if any(not course.is_archived for course in self.courses_participating_in.all()):
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False

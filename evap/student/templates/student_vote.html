@@ -25,9 +25,6 @@
     {% if course.is_midterm_evaluation %}
         <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
-    {% if participants_warning %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who wrote a comment and who voted for a specific answer. Please remember that your comments will be visible for the responsible persons and the contributors you're evaluating. If two or more people evaluate the course, the results of all voting questions will also be published.{% endblocktrans %}</div>
-    {% endif %}
     {% if evaluation_ends_soon %}
         <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
     {% endif %}
@@ -42,6 +39,29 @@
     <h3 class="mb-3">{{ course.name }} ({{ course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
+
+        {% if participants_warning %}
+            <div class="card card-outline-warning mb-3">
+                <div class="card-header">
+                    <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
+                </div>
+                <div class="card-body">
+                    {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
+                    {% if course.num_voters == 0 %}
+                        <br />
+                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
+
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" id="text_results_publish_confirmation_top" type="checkbox"
+                                name="text_results_publish_confirmation_top" onchange="textResultsPublishConfirmationTopChanged();" />
+                            <label class="form-check-label" for="text_results_publish_confirmation_top">
+                                {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
+                            </label>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
         {% if course_form_group_top %}
             <div class="card card-outline-primary mb-3">
@@ -91,21 +111,39 @@
                 </div>
             </div>
         {% endif %}
-        {% if not for_rendering_in_modal %}
-        <div class="card card-submit-area{% if not preview %} card-submit-area-2{% endif %} text-center">
-            <div class="card-body">
-                {% if preview %}
-                    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
-                {% else %}
-                    <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</a>
-                    <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
-                    <p id="submit-error-warning" style="display: none">
-                        <span class="fas fa-exclamation-triangle"></span>
-                        {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
-                    </p>
-                {% endif %}
+        {% if participants_warning and course.num_voters == 0 %}
+            <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
+                <div class="card-header">
+                    <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
+                </div>
+                <div class="card-body">
+                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
+
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" id="text_results_publish_confirmation_bottom" type="checkbox"
+                            name="text_results_publish_confirmation_bottom" onchange="textResultsPublishConfirmationBottomChanged();" />
+                        <label class="form-check-label" for="text_results_publish_confirmation_bottom">
+                            {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
+                        </label>
+                    </div>
+                </div>
             </div>
-        </div>
+        {% endif %}
+        {% if not for_rendering_in_modal %}
+            <div class="card card-submit-area{% if not preview %} card-submit-area-2{% endif %} text-center">
+                <div class="card-body">
+                    {% if preview %}
+                        <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
+                    {% else %}
+                        <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</a>
+                        <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
+                        <p id="submit-error-warning" style="display: none">
+                            <span class="fas fa-exclamation-triangle"></span>
+                            {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
         {% endif %}
     </form>
 {% endblock %}
@@ -126,6 +164,11 @@
                     // update vote button states
                     $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
                     $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
+
+                    // restore publish confirmation state
+                    if($("#text_results_publish_confirmation_top").prop('checked')) {
+                        $("#bottom_text_results_publish_confirmation_card").hide();
+                    }
                 }
             });
             // save all data after loading the page
@@ -212,6 +255,16 @@
                     presaveButton.removeClass("disabled");
                     presaveButton.text(originalPresaveText);
                 }, 2500);
+            }
+
+            // handle text_results_publish_confirmation checkbox changes
+            function textResultsPublishConfirmationTopChanged() {
+                var topIsChecked = $("#text_results_publish_confirmation_top").prop('checked');
+                $("#text_results_publish_confirmation_bottom").prop('checked', topIsChecked);
+                $("#bottom_text_results_publish_confirmation_card").toggle(!topIsChecked);
+            }
+            function textResultsPublishConfirmationBottomChanged() {
+                $("#text_results_publish_confirmation_top").prop('checked', $("#text_results_publish_confirmation_bottom").prop('checked'));
             }
         </script>
     {% endif %}

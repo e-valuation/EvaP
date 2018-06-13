@@ -8,14 +8,13 @@ from django.core import mail
 
 from model_mommy import mommy
 
-from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Questionnaire,
-                                    RatingAnswerCounter, Semester, UserProfile)
-from evap.results.tools import calculate_average_grades_and_deviation
+from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Question,
+                                    Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.results.tools import calculate_average_distribution
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestCourses(TestCase):
-
     def test_approved_to_in_evaluation(self):
         course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now())
 
@@ -78,7 +77,7 @@ class TestCourses(TestCase):
         self.assertFalse(course.evaluation_ends_soon())
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
-    def test_evaluation_ends_soon(self):
+    def test_evaluation_ends_soon_with_offset(self):
         course = mommy.make(Course, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
@@ -186,6 +185,75 @@ class TestCourses(TestCase):
         course.delete()
         self.assertFalse(Course.objects.filter(pk=course.pk).exists())
 
+    def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
+        student1 = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1])
+        course.save()
+
+        self.assertFalse(course.can_publish_text_results)
+
+        course.voters.add(student2)
+        course = Course.objects.get(pk=course.pk)
+
+        self.assertTrue(course.can_publish_text_results)
+
+    def test_text_answers_get_deleted_if_they_cannot_be_published(self):
+        student = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student], voters=[student])
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        course.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
+
+        self.assertEqual(course.textanswer_set.count(), 1)
+        course.publish()
+        self.assertEqual(course.textanswer_set.count(), 0)
+
+    def test_text_answers_do_not_get_deleted_if_they_can_be_published(self):
+        student = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        course.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
+
+        self.assertEqual(course.textanswer_set.count(), 1)
+        course.publish()
+        self.assertEqual(course.textanswer_set.count(), 1)
+
+    def test_hidden_text_answers_get_deleted_on_publish(self):
+        student = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        course.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="private", state=TextAnswer.PRIVATE)
+
+        self.assertEqual(course.textanswer_set.count(), 3)
+        course.publish()
+        self.assertEqual(course.textanswer_set.count(), 2)
+        self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
+
+    def test_original_text_answers_get_deleted_on_publish(self):
+        student = mommy.make(UserProfile)
+        student2 = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        course.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
+
+        self.assertEqual(course.textanswer_set.count(), 1)
+        self.assertFalse(TextAnswer.objects.get().original_answer is None)
+        course.publish()
+        self.assertEqual(course.textanswer_set.count(), 1)
+        self.assertTrue(TextAnswer.objects.get().original_answer is None)
+
 
 class TestUserProfile(TestCase):
 
@@ -221,7 +289,7 @@ class TestUserProfile(TestCase):
     def test_can_staff_delete(self):
         user = mommy.make(UserProfile)
         mommy.make(Course, participants=[user], state="new")
-        self.assertTrue(user.can_staff_delete)
+        self.assertFalse(user.can_staff_delete)
 
         user2 = mommy.make(UserProfile)
         mommy.make(Course, participants=[user2], state="in_evaluation")
@@ -252,6 +320,7 @@ class ArchivingTests(TestCase):
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
         cls.course = mommy.make(Course, state="published", semester=cls.semester)
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         users = mommy.make(UserProfile, _quantity=3)
         cls.course.participants.set(users)
@@ -300,13 +369,14 @@ class ArchivingTests(TestCase):
         self.assertTrue(self.course.is_archived)
 
     def test_archiving_does_not_change_results(self):
-        results = calculate_average_grades_and_deviation(self.course)
+        distribution = calculate_average_distribution(self.course)
 
         self.semester.archive()
         self.refresh_course()
         caches['results'].clear()
 
-        self.assertEqual(calculate_average_grades_and_deviation(self.course), results)
+        new_distribution = calculate_average_distribution(self.course)
+        self.assertEqual(new_distribution, distribution)
 
     def test_archiving_twice_raises_exception(self):
         self.semester.archive()

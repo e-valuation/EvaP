@@ -9,7 +9,7 @@ from evap.contributor.forms import CourseForm, DelegatesForm, EditorContribution
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.tools import STATES_ORDERED, sort_formset
-from evap.results.tools import calculate_average_grades_and_deviation
+from evap.results.tools import calculate_average_distribution, distribution_to_grade
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -28,8 +28,8 @@ def index(request):
     all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
     for course in all_courses:
-        if course.state == 'published':
-            course.avg_grade, course.avg_deviation = calculate_average_grades_and_deviation(course)
+        course.distribution = calculate_average_distribution(course)
+        course.avg_grade = distribution_to_grade(course.distribution)
 
     semesters = Semester.objects.all()
     semester_list = [dict(

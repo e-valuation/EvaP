@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import transaction
@@ -10,10 +11,11 @@ from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Course, Semester
-from evap.evaluation.tools import STUDENT_STATES_ORDERED
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
+
+from evap.results.tools import calculate_average_distribution, distribution_to_grade
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -22,10 +24,22 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 def index(request):
     # retrieve all courses, where the user is a participant and that are not new
     courses = list(set(Course.objects.filter(participants=request.user).exclude(state="new")))
+    for course in courses:
+        course.distribution = calculate_average_distribution(course)
+        course.avg_grade = distribution_to_grade(course.distribution)
+
     voted_courses = list(set(Course.objects.filter(voters=request.user)))
     due_courses = list(set(Course.objects.filter(participants=request.user, state='in_evaluation').exclude(voters=request.user)))
 
-    sorter = lambda course: (list(STUDENT_STATES_ORDERED.keys()).index(course.student_state), course.vote_end_date, course.name)
+    # due courses come first, then everything else in chronological order
+    # some states are handled as a group because they appear the same to students
+    sorter = lambda course: (
+        course not in due_courses,
+        course.state not in ['prepared', 'editor_approved', 'approved'],
+        course.state != 'in_evaluation',
+        course.state not in ['evaluated', 'reviewed'],
+        course.name
+    )
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
@@ -35,7 +49,6 @@ def index(request):
     template_data = dict(
         semester_list=semester_list,
         voted_courses=voted_courses,
-        due_courses=due_courses,
         can_download_grades=request.user.can_download_grades,
     )
     return render(request, "student_index.html", template_data)
@@ -60,13 +73,20 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
 
     course_form_group = form_groups.pop(course.general_contribution)
 
+    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()]
+    course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
+    course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
+    if not contributor_form_groups:
+        course_form_group_top += course_form_group_bottom
+        course_form_group_bottom = []
+
     template_data = dict(
         errors_exist=any(any(form.errors for form in form_group) for form_group in form_groups.values()),
-        course_form_group_top=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors],
-        course_form_group_bottom=[questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors],
-        contributor_form_groups=[(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()],
+        course_form_group_top=course_form_group_top,
+        course_form_group_bottom=course_form_group_bottom,
+        contributor_form_groups=contributor_form_groups,
         course=course,
-        participants_warning=course.num_participants <= 5,
+        participants_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         vote_end_datetime=course.vote_end_datetime,
         hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
@@ -80,7 +100,6 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
 
 @participant_required
 def vote(request, course_id):
-
     course = get_object_or_404(Course, id=course_id)
     if not course.can_user_vote(request.user):
         raise PermissionDenied
@@ -118,6 +137,12 @@ def vote(request, course_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.add_vote()
                             answer_counter.save()
+
+        if not course.can_publish_text_results:
+            # enable text result publishing if first user confirmed that publishing is okay
+            if request.POST.get('text_results_publish_confirmation_top') == 'on' or request.POST.get('text_results_publish_confirmation_bottom') == 'on':
+                course.can_publish_text_results = True
+                course.save()
 
         course.course_evaluated.send(sender=Course, request=request, semester=course.semester)
 

@@ -28,26 +28,27 @@ ENABLE_DEBUG_TOOLBAR = False
 
 LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
-VOTER_COUNT_NEEDED_FOR_PUBLISHING = 2
-VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING = 0.2
+VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
+VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2
+SMALL_COURSE_SIZE = 5  # up to which number of participants the course gets additional warnings about anonymity
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
 # or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this course)
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# the final total grade will be calculated by the following formula (GP = GRADE_PERCENTAGE, CP = CONTRIBUTION_PERCENTAGE):
-# final_likert = CP * likert_answers_about_persons + (1-CP) * likert_answers_about_courses
-# final_grade = CP * grade_answers_about_persons + (1-CP) * grade_answers_about_courses
-# final = GP * final_grade + (1-GP) * final_likert
-GRADE_PERCENTAGE = 0.8
-CONTRIBUTION_PERCENTAGE = 0.5
+# percentages for calculating a course's total average grade
+CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
+CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the course's average grade
+COURSE_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all grade questions about the course is weighted this much for the course's average grade
+COURSE_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all non-grade questions about the course is weighted this much for the course's average grade
 
 # number of reward points a student should have for a semester after evaluating the given fraction of courses.
 REWARD_POINTS = [
-    (1.0/3.0, 1), 
-    (2.0/3.0, 2), 
-    (3.0/3.0, 3), 
+    (1.0/3.0, 1),
+    (2.0/3.0, 2),
+    (3.0/3.0, 3),
 ]
 
 # days before end date to send reminder
@@ -121,7 +122,15 @@ CACHES = {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'MAX_ENTRIES': 100000
         }
-    }
+    },
+    'sessions': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/2',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000
+        }
+    },
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
@@ -247,7 +256,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = "/"
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
+SESSION_CACHE_ALIAS = "sessions"
 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
@@ -372,6 +381,10 @@ if TESTING:
         'results': {
             'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
             'LOCATION': 'testing_cache_results',
+        },
+        'sessions': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'testing_cache_sessions',
         },
     }
 

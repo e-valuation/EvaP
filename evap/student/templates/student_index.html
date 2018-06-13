@@ -38,17 +38,21 @@
                     <table class="table table-hover-evap vertically-aligned">
                         <thead>
                             <tr>
-                                <th style="width: 40%">{% trans 'Name' %}</th>
-                                <th style="width: 12%">{% trans 'State' %}</th>
-                                <th style="width: 25%">{% trans 'Evaluation Period' %}</th>
-                                <th style="width: 23%"></th>
+                                <th style="width: 42%">{% trans 'Name' %}</th>
+                                <th style="width: 17%">{% trans 'Evaluation Period' %}</th>
+                                {% if can_download_grades and semester.courses.0.grades_activated %}
+                                    <th style="width: 8%" class="text-center">{% trans 'Grades' %}</th>
+                                {% endif %}
+                                <th style="width: 15%" class="text-center">{% trans 'Participants' %}</th>
+                                <th style="width: 18%"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for course in semester.courses %}
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
-                                    {% elif course.state == 'published' and course.has_enough_voters_to_publish_grades %}
+                                    {# staff users should be able to access courses through the student index only if it actually has published results #}
+                                    {% elif course.state == 'published' and course.can_publish_rating_results %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"
@@ -59,56 +63,78 @@
                                         </div>
                                         <span class="badge badge-secondary">{{ course.type }}</span>
                                         {% if course in voted_courses %}
-                                            {% if course.state == 'in_evaluation' %}
-                                                <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already evaluated this course.' %}"><span class="far fa-smile" aria-hidden="true"></span></span>
-                                            {% endif %}
+                                            <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already evaluated this course.' %}"><span class="far fa-smile" aria-hidden="true"></span></span>
                                         {% elif course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                                <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not evaluate this course.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
+                                            <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not evaluate this course.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {{ course.student_state|studentstatename }}
-                                    </td>
-                                    <td>
-                                        <span class="line">{{ course.vote_start_datetime }} &ndash;</span> <span class="line">{{ course.vote_end_date }}</span>
-                                        {% if course.state == 'in_evaluation' and course in due_courses %}
-                                            {% if course.days_left_for_evaluation <= 0 %}
+                                        {{ course.vote_start_datetime }} &ndash;<br />
+                                        {{ course.vote_end_date }}<br />
+                                        {% if course.state == 'prepared' or course.state == 'editor_approved' or course.state == 'approved' %}
+                                            {% if course.days_until_evaluation == 0 %}
+                                                <span class="badge badge-primary">{% trans 'starts today' %}</span>
+                                            {% elif course.days_until_evaluation == 1 %}
+                                                <span class="badge badge-primary">{% trans 'starts tomorrow' %}</span>
+                                            {% elif course.days_until_evaluation > 1 and course.days_until_evaluation < 8 %}
+                                                <span class="badge badge-info">{% blocktrans with days=course.days_until_evaluation %}starts in {{ days }} days{% endblocktrans %}</span>
+                                            {% endif %}
+                                        {% elif course.state == 'in_evaluation' %}
+                                            {% if course.days_left_for_evaluation < 0 %}
+                                                <span class="badge badge-danger">
+                                                    {% blocktrans with time_string=course.time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}
+                                                </span>
+                                            {% elif course.days_left_for_evaluation == 0 %}
                                                 <span class="badge badge-danger">{% trans 'ends today' %}</span>
                                             {% elif course.days_left_for_evaluation == 1 %}
                                                 <span class="badge badge-danger">{% trans 'ends tomorrow' %}</span>
-                                            {% elif course.days_left_for_evaluation < 5 %}
-                                                <span class="badge badge-secondary">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+                                            {% elif course.days_left_for_evaluation < 8 %}
+                                                <span class="badge badge-warning">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    <td class="text-right">
-                                        {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
-                                            <a class="btn btn-sm btn-light" href="{% url 'grades:download_grades' course.grade_documents.all.first.id %}" role="button">{{ course.grade_documents.all.first.description }}</a>
-                                        {% elif course.grade_documents.count > 1 and can_download_grades %}
-                                            <div class="btn-group" role="group">
-                                                <a id="btnDownload{{ course.id }}" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
-                                                <div class="dropdown-menu" aria-labelledby="btnDownload{{ course.id }}">
+                                    {% if can_download_grades and course.grades_activated %}
+                                        <td class="text-center">
+                                            {% if course.grade_documents.count == 1 %}
+                                                <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' course.grade_documents.first.id %}" role="button"
+                                                    data-toggle="tooltip" data-placement="top" title="{{ course.grade_documents.first.description }}">
+                                                    <span class="far fa-file"></span>
+                                                </a>
+                                            {% elif course.grade_documents.count > 1 %}
+                                                <div class="btn-group" role="group">
                                                     {% for grade_document in course.grade_documents.all %}
-                                                        <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
+                                                        <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' grade_document.id %}" role="button"
+                                                            data-toggle="tooltip" data-placement="top" title="{{ grade_document.description }}">
+                                                            <span class="far fa-file"></span>
+                                                        </a>
                                                     {% endfor %}
                                                 </div>
-                                            </div>
-                                        {% elif course.grades_activated and course.is_graded and can_download_grades %}
-                                            <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'No grades are available yet.' %}">
-                                                <a role="button" class="btn btn-sm btn-light disabled">{% trans 'Grades' %}</a>
-                                            </div>
-                                        {% endif %}
-                                        {% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
-                                        {% endif %}
-                                        {% if course.state == 'published' %}
-                                            {% if course.has_enough_voters_to_publish_grades %}
-                                                <a class="btn btn-sm btn-secondary btn-results btn-row-hover" href="{% url 'results:course_detail' semester.id course.id %}">{% trans 'Results' %}</a>
-                                            {% else %}
-                                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'We did not receive enough votes to publish the results of this course.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans 'Results' %}</a></div>
                                             {% endif %}
-                                        {% elif course.state == 'inEvaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
-                                            <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'The results are not available yet.' %}"><a role="button" class="btn btn-sm btn-secondary disabled">{% trans 'Results' %}</a></div>
+                                        </td>
+                                    {% endif %}
+                                    {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                        <td>
+                                            {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants %}
+                                        </td>
+                                    {% else %}
+                                        <td class="text-center">
+                                            <span class="fas fa-user"></span> {{ course.num_participants }}
+                                        </td>
+                                    {% endif %}
+                                    <td class="text-right">
+                                        {% if course.state == 'prepared' or course.state == 'editor_approved' or course.state == 'approved' %}
+                                            <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the evaluation period begins.' %}">
+                                                <a class="btn btn-sm btn-primary btn-vote disabled">{% trans 'Evaluate' %}</a>
+                                            </div>
+                                        {% elif course.state == 'in_evaluation' and course not in voted_courses %}
+                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
+                                        {% elif course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
+                                            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
+                                                <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-hourglass-half"></span></div>
+                                                <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-hourglass-half"></span></div>
+                                            </div>
+                                        {% elif course.state == 'published' %}
+                                            {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
                                         {% endif %}
                                     </td>
                                 </tr>
