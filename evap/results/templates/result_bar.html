@@ -2,15 +2,15 @@
 {% load evaluation_filters %}
 
 {% spaceless %}
-<div {% if result.has_answers %}
-        {% if result.warning %}
+<div {% if question_result.has_answers %}
+        {% if question_result.warning %}
             class="participants-warning"
         {% endif %}
-        data-toggle="tooltip" data-placement="left" title="{% if result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
-        {% for count in result.counts %}
-            {% with answer_name=result.question|get_answer_name:forloop.counter %}
+        data-toggle="tooltip" data-placement="left" title="{% if question_result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
+        {% for count in question_result.counts %}
+            {% with answer_name=question_result.question|get_answer_name:forloop.counter %}
                 {% if answer_name %}
-                    {{ answer_name }}: {{ count }}/{{ result.total_count }} ({{ count|percentage_one_decimal:result.total_count }})
+                    {{ answer_name }}: {{ count }}/{{ question_result.total_count }} ({{ count|percentage_one_decimal:question_result.total_count }})
                     {% if not forloop.last %}</br>{% endif %}
                 {% endif %}
             {% endwith %}
@@ -20,10 +20,10 @@
     {% endif %}
 >
 
-    <div class="grade-bg-result-bar-count text-center{% if not result.has_answers %} grade-bg-disabled{% endif %}">
-        <span class="fas fa-user small"></span> {{ result.total_count }}
+    <div class="grade-bg-result-bar-count text-center{% if not question_result.has_answers %} grade-bg-disabled{% endif %}">
+        <span class="fas fa-user small"></span> {{ question_result.total_count }}
     </div>
 
-    {% include 'distribution_bar.html' with result=result distribution=result.counts|normalized_distribution average=result.average %}
+    {% include 'distribution_bar.html' with question_result=question_result distribution=question_result.counts|normalized_distribution average=question_result.average %}
 </div>
 {% endspaceless %}

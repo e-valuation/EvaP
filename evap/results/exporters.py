@@ -94,11 +94,11 @@ class ExcelExporter(object):
                 if not course.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for section in calculate_results(course):
-                    if all(not result.question.is_rating_question or result.counts is None for result in section.results):
+                for questionnaire_result in calculate_results(course):
+                    if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
                         continue
-                    results.setdefault(section.questionnaire.id, []).extend(section.results)
-                    used_questionnaires.add(section.questionnaire)
+                    results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
+                    used_questionnaires.add(questionnaire_result.questionnaire)
                 courses_with_results.append((course, results))
 
             courses_with_results.sort(key=lambda cr: (cr[0].type, cr[0].name))

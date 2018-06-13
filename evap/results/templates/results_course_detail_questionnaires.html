@@ -1,6 +1,6 @@
 <div class="d-flex">
-    <h4>{{ section.questionnaire.public_name }}</h4>
-    {% if section.warning %}
+    <h4>{{ questionnaire_result.questionnaire.public_name }}</h4>
+    {% if questionnaire_result.warning %}
         <p class="ml-auto mt-auto participants-warning questionnaire-warning">
             <span class="fas fa-exclamation-triangle"></span>
             {% trans 'Only a few participants answered these questions.' %}
@@ -9,27 +9,27 @@
 </div>
 <table class="table table-striped{% if not last %} mb-3{% endif %}">
     <tbody>
-        {% for result in section.results %}
-            {% if result.question.is_heading_question %}
+        {% for question_result in questionnaire_result.question_results %}
+            {% if question_result.question.is_heading_question %}
                 {# We want to start a new section here, so we close the table, render the heading and reopen the table #}
                 </tbody>
                 </table>
-                <h5{% if not forloop.first %} class="mt-3"{% endif %}>{{ result.question.text }}</h5>
+                <h5{% if not forloop.first %} class="mt-3"{% endif %}>{{ question_result.question.text }}</h5>
                 <table class="table table-striped{% if not last %} mb-3{% endif %}">
                 <tbody>
-            {% elif result.question.is_rating_question %}
+            {% elif question_result.question.is_rating_question %}
                 <tr class="no-break d-flex">
-                    <td class="result-rating-question my-auto">{{ result.question.text }}</td>
+                    <td class="result-rating-question my-auto">{{ question_result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
-                        {% include 'result_bar.html' with result=result %}
+                        {% include 'result_bar.html' with question_result=question_result %}
                     </td>
                 </tr>
-            {% elif result.question.is_text_question %}
+            {% elif question_result.question.is_text_question %}
                 <tr class="text-answer d-flex">
-                    <td class="result-text-question">{{ result.question.text }}</td>
+                    <td class="result-text-question">{{ question_result.question.text }}</td>
                     <td class="result-text-answer">
                         <ul>
-                        {% for answer in result.answers %}
+                        {% for answer in question_result.answers %}
                             <li>
                                 {% if answer.is_private %}
                                     <span data-toggle="tooltip" data-placement="left" class="fas fa-info-circle" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>

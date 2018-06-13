@@ -43,9 +43,9 @@ def semester_detail(request, semester_id):
     for course in courses:
         if course.is_single_result:
             for degree in course.degrees.all():
-                section = calculate_results(course)[0]
-                result = section.results[0]
-                courses_by_degree[degree].single_results.append((course, result))
+                questionnaire_result = calculate_results(course)[0]
+                question_result = questionnaire_result.question_results[0]
+                courses_by_degree[degree].single_results.append((course, question_result))
         else:
             for degree in course.degrees.all():
                 courses_by_degree[degree].courses.append(course)
@@ -62,7 +62,7 @@ def course_detail(request, semester_id, course_id):
     if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
 
-    sections = calculate_results(course)
+    questionnaire_results = calculate_results(course)
 
     if request.user.is_reviewer:
         public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.
@@ -76,54 +76,54 @@ def course_detail(request, semester_id, course_id):
     represented_users = list(request.user.represented_users.all()) + [request.user]
 
     # remove text answers if the user may not see them
-    for section in sections:
-        for result in section.results:
-            if isinstance(result, TextResult):
-                result.answers = [answer for answer in result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
+    for questionnaire_result in questionnaire_results:
+        for question_result in questionnaire_result.question_results:
+            if isinstance(question_result, TextResult):
+                question_result.answers = [answer for answer in question_result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
         # remove empty TextResults
-        section.results = [result for result in section.results if not isinstance(result, TextResult) or len(result.answers) > 0]
+        questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
     # filter empty headings
-    for section in sections:
-        filtered_results = []
-        for index, result in enumerate(section.results):
+    for questionnaire_result in questionnaire_results:
+        filtered_question_results = []
+        for index, question_result in enumerate(questionnaire_result.question_results):
             # filter out if there are no more questions or the next question is also a heading question
-            if isinstance(result, HeadingResult):
-                if index == len(section.results) - 1 or isinstance(section.results[index + 1], HeadingResult):
+            if isinstance(question_result, HeadingResult):
+                if index == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[index + 1], HeadingResult):
                     continue
-            filtered_results.append(result)
-        section.results = filtered_results
+            filtered_question_results.append(question_result)
+        questionnaire_result.question_results = filtered_question_results
 
-    # remove empty sections
-    sections = [section for section in sections if section.results]
+    # remove empty questionnaire_results
+    questionnaire_results = [questionnaire_result for questionnaire_result in questionnaire_results if questionnaire_result.question_results]
 
-    add_warnings(course, sections)
+    add_warnings(course, questionnaire_results)
 
     # group by contributor
-    course_sections_top = []
-    course_sections_bottom = []
-    contributor_sections = OrderedDict()
-    for section in sections:
-        if section.contributor is None:
-            if section.questionnaire.is_below_contributors:
-                course_sections_bottom.append(section)
+    course_questionnaire_results_top = []
+    course_questionnaire_results_bottom = []
+    contributor_questionnaire_results = OrderedDict()
+    for questionnaire_result in questionnaire_results:
+        if questionnaire_result.contributor is None:
+            if questionnaire_result.questionnaire.is_below_contributors:
+                course_questionnaire_results_bottom.append(questionnaire_result)
             else:
-                course_sections_top.append(section)
+                course_questionnaire_results_top.append(questionnaire_result)
         else:
-            contributor_sections.setdefault(section.contributor,
-                                            {'has_votes': False, 'sections': []})['sections'].append(section)
+            contributor_questionnaire_results.setdefault(questionnaire_result.contributor,
+                                            {'has_votes': False, 'questionnaire_results': []})['questionnaire_results'].append(questionnaire_result)
 
-            if any(result.question.is_rating_question and result.total_count or result.question.is_text_question for result in section.results):
-                contributor_sections[section.contributor]['has_votes'] = True
+            if any(question_result.question.is_rating_question and question_result.total_count or question_result.question.is_text_question for question_result in questionnaire_result.question_results):
+                contributor_questionnaire_results[questionnaire_result.contributor]['has_votes'] = True
 
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
 
     template_data = dict(
             course=course,
-            course_sections_top=course_sections_top,
-            course_sections_bottom=course_sections_bottom,
-            contributor_sections=contributor_sections,
+            course_questionnaire_results_top=course_questionnaire_results_top,
+            course_questionnaire_results_bottom=course_questionnaire_results_bottom,
+            contributor_questionnaire_results=contributor_questionnaire_results,
             reviewer=request.user.is_reviewer,
             contributor=course.is_user_contributor_or_delegate(request.user),
             can_download_grades=request.user.can_download_grades,
@@ -131,27 +131,27 @@ def course_detail(request, semester_id, course_id):
     return render(request, "results_course_detail.html", template_data)
 
 
-def add_warnings(course, result_sections):
+def add_warnings(course, questionnaire_results):
     if not course.can_publish_rating_results:
         return
 
     # calculate the median values of how many people answered a questionnaire across all contributions
     questionnaire_max_answers = defaultdict(list)
-    for section in result_sections:
-        max_answers = max((result.total_count for result in section.results if result.question.is_rating_question), default=0)
-        questionnaire_max_answers[section.questionnaire].append(max_answers)
+    for questionnaire_result in questionnaire_results:
+        max_answers = max((question_result.total_count for question_result in questionnaire_result.question_results if question_result.question.is_rating_question), default=0)
+        questionnaire_max_answers[questionnaire_result.questionnaire].append(max_answers)
 
     questionnaire_warning_thresholds = {}
     for questionnaire, max_answers_list in questionnaire_max_answers.items():
         questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers_list), settings.RESULTS_WARNING_COUNT)
 
-    for section in result_sections:
-        rating_results = [result for result in section.results if result.question.is_rating_question]
-        max_answers = max((result.total_count for result in rating_results), default=0)
-        section.warning = 0 < max_answers < questionnaire_warning_thresholds[section.questionnaire]
+    for questionnaire_result in questionnaire_results:
+        rating_results = [question_result for question_result in questionnaire_result.question_results if question_result.question.is_rating_question]
+        max_answers = max((rating_result.total_count for rating_result in rating_results), default=0)
+        questionnaire_result.warning = 0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
-        for result in rating_results:
-            result.warning = section.warning or result.has_answers and result.total_count < questionnaire_warning_thresholds[section.questionnaire]
+        for rating_result in rating_results:
+            rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.total_count < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):

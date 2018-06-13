@@ -19,12 +19,12 @@ GRADE_COLORS = {
 }
 
 
-class ResultSection:
-    def __init__(self, questionnaire, contributor, label, results):
+class QuestionnaireResult:
+    def __init__(self, questionnaire, contributor, label, question_results):
         self.questionnaire = questionnaire
         self.contributor = contributor
         self.label = label
-        self.results = results
+        self.question_results = question_results
 
 
 class RatingResult:
@@ -97,12 +97,12 @@ def calculate_results(course, force_recalculation=False):
 
 def _calculate_results_impl(course):
     """Calculates the result data for a single course. Returns a list of
-    `ResultSection` tuples. Each of those tuples contains the questionnaire, the
+    `QuestionnaireResult` tuples. Each of those tuples contains the questionnaire, the
     contributor (or None), a list of (Rating|Text|Heading)Result tuples,
-    the average grade and distribution for that section (or None)."""
+    the average grade and distribution for that QuestionnaireResult (or None)."""
 
-    # there will be one section per relevant questionnaire--contributor pair
-    sections = []
+    # there will be one questionnaire_result per relevant questionnaire--contributor pair
+    questionnaire_results = []
     for questionnaire, contribution in questionnaires_and_contributions(course):
         # will contain one object per question
         results = []
@@ -115,9 +115,9 @@ def _calculate_results_impl(course):
                 results.append(TextResult(question=question, answers=answers))
             elif question.is_heading_question:
                 results.append(HeadingResult(question=question))
-        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results))
+        questionnaire_results.append(QuestionnaireResult(questionnaire, contribution.contributor, contribution.label, results))
 
-    return sections
+    return questionnaire_results
 
 
 def normalized_distribution(distribution):
@@ -154,10 +154,10 @@ def calculate_average_distribution(course):
     if not course.can_publish_average_grade:
         return None
 
-    # will contain a list of results for each contributor and one for the course (where contributor is None)
+    # will contain a list of question results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
-    for section in calculate_results(course):
-        grouped_results[section.contributor].extend(section.results)
+    for questionnaire_result in calculate_results(course):
+        grouped_results[questionnaire_result.contributor].extend(questionnaire_result.question_results)
 
     course_results = grouped_results.pop(None, [])
 

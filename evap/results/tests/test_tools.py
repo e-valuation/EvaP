@@ -46,12 +46,12 @@ class TestCalculateResults(TestCase):
         results = calculate_results(course)
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(len(results[0].results), 1)
-        result = results[0].results[0]
+        self.assertEqual(len(results[0].question_results), 1)
+        question_result = results[0].question_results[0]
 
-        self.assertEqual(result.total_count, 150)
-        self.assertAlmostEqual(result.average, float(109) / 30)
-        self.assertEqual(result.counts, (5, 15, 40, 60, 30))
+        self.assertEqual(question_result.total_count, 150)
+        self.assertAlmostEqual(question_result.average, float(109) / 30)
+        self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 
     def test_calculate_results_after_user_merge(self):
         """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
@@ -70,8 +70,8 @@ class TestCalculateResults(TestCase):
 
         results = calculate_results(course)
 
-        for section in results:
-            self.assertTrue(Contribution.objects.filter(course=course, contributor=section.contributor).exists())
+        for questionnaire_result in results:
+            self.assertTrue(Contribution.objects.filter(course=course, contributor=questionnaire_result.contributor).exists())
 
 
 class TestCalculateAverageDistribution(TestCase):
