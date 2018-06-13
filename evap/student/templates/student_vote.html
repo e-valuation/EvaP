@@ -46,19 +46,10 @@
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body">
-                    {% blocktrans %}
-                        Only a small number of people can take part in this evaluation. You should be aware that
-                        contributors might be able to guess who voted for a specific answer and who wrote a text
-                        answer. Results will only be published if two or more people participated in the evaluation.
-                    {% endblocktrans %}
+                    {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
                     {% if course.num_voters == 0 %}
                         <br />
-                        {% blocktrans %}
-                            You're the first person taking part in this evaluation. If you want your text answers to be
-                            shown to the contributors even if you remain the only person taking part, please check the
-                            box below. Otherwise your text answers will be deleted if no other person evaluates the
-                            course.
-                        {% endblocktrans %}
+                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
 
                         <div class="form-check mt-3">
                             <input class="form-check-input" id="text_results_publish_confirmation_top" type="checkbox"
@@ -126,12 +117,7 @@
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body">
-                    {% blocktrans %}
-                        You're the first person taking part in this evaluation. If you want your text answers to be
-                        shown to the contributors even if you remain the only person taking part, please check the
-                        box below. Otherwise your text answers will be deleted if no other person evaluates the
-                        course.
-                    {% endblocktrans %}
+                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
 
                     <div class="form-check mt-3">
                         <input class="form-check-input" id="text_results_publish_confirmation_bottom" type="checkbox"
