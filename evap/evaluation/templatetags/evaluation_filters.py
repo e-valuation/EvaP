@@ -6,16 +6,11 @@ register = Library()
 
 
 @register.filter(name='zip')
-def zip_lists(a, b):
+def _zip(a, b):
     return zip(a, b)
 
 
-@register.filter(name='or')
-def _or(a, b):
-    return a or b
-
-
-@register.filter(name='ordering_index')
+@register.filter
 def ordering_index(course):
     if course.state in ['new', 'prepared', 'editor_approved', 'approved']:
         return course.days_until_evaluation
@@ -26,7 +21,7 @@ def ordering_index(course):
 
 
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
-@register.filter(name='percentage')
+@register.filter
 def percentage(fraction, population):
     try:
         return "{0:.0f}%".format(int(float(fraction) / float(population) * 100))
@@ -36,7 +31,7 @@ def percentage(fraction, population):
         return None
 
 
-@register.filter(name='percentage_one_decimal')
+@register.filter
 def percentage_one_decimal(fraction, population):
     try:
         return "{0:.1f}%".format((float(fraction) / float(population)) * 100)
@@ -46,7 +41,7 @@ def percentage_one_decimal(fraction, population):
         return None
 
 
-@register.filter(name='percentage_value')
+@register.filter
 def percentage_value(fraction, population):
     try:
         return "{0:0f}".format((float(fraction) / float(population)) * 100)
@@ -56,7 +51,7 @@ def percentage_value(fraction, population):
         return None
 
 
-@register.filter(name='get_answer_name')
+@register.filter
 def get_answer_name(question, grade):
     if question.is_likert_question:
         return LIKERT_NAMES.get(grade)
@@ -68,23 +63,23 @@ def get_answer_name(question, grade):
         return grade
 
 
-@register.filter(name='statename')
+@register.filter
 def statename(state):
     return STATES_ORDERED.get(state)
 
 
-@register.filter(name='statedescription')
+@register.filter
 def statedescription(state):
     return STATE_DESCRIPTIONS.get(state)
 
 
-@register.filter(name='can_user_see_results_page')
+@register.filter
 def can_user_see_results_page(course, user):
     return course.can_user_see_results_page(user)
 
 
 @register.filter(name='can_user_use_reward_points')
-def can_use_reward_points(user):
+def _can_user_use_reward_points(user):
     return can_user_use_reward_points(user)
 
 

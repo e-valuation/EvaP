@@ -1,5 +1,3 @@
-{% load evaluation_filters %}
-
 <div class="d-flex">
     <h4>{{ section.questionnaire.public_name }}</h4>
     {% if section.warning %}
@@ -23,9 +21,7 @@
                 <tr class="no-break d-flex">
                     <td class="result-rating-question my-auto">{{ result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
-                        {% with participants_warning=section.warning|or:result.warning %}
-                            {% include 'result_bar.html' with result=result participants_warning=participants_warning %}
-                        {% endwith %}
+                        {% include 'result_bar.html' with result=result %}
                     </td>
                 </tr>
             {% elif result.question.is_text_question %}

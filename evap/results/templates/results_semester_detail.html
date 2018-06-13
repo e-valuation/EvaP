@@ -91,7 +91,7 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result participants_warning=False %}</td>
+                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result %}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

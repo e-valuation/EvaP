@@ -151,7 +151,7 @@ def add_warnings(course, result_sections):
         section.warning = 0 < max_answers < questionnaire_warning_thresholds[section.questionnaire]
 
         for result in rating_results:
-            result.warning = result.has_answers and result.total_count < questionnaire_warning_thresholds[section.questionnaire]
+            result.warning = section.warning or result.has_answers and result.total_count < questionnaire_warning_thresholds[section.questionnaire]
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):

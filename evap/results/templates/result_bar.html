@@ -3,10 +3,10 @@
 
 {% spaceless %}
 <div {% if result.has_answers %}
-        {% if participants_warning %}
+        {% if result.warning %}
             class="participants-warning"
         {% endif %}
-        data-toggle="tooltip" data-placement="left" title="{% if participants_warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
+        data-toggle="tooltip" data-placement="left" title="{% if result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
         {% for count in result.counts %}
             {% with answer_name=result.question|get_answer_name:forloop.counter %}
                 {% if answer_name %}
