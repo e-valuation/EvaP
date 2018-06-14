@@ -1682,3 +1682,38 @@ class TestDegreeView(ViewTest):
         self.assertIn("Successfully", str(response))
 
         self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+
+
+class TestSemesterQuestionnaireAssignment(ViewTest):
+    url = "/staff/semester/1/assign"
+    test_users = ['staff']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        cls.semester = mommy.make(Semester, id=1)
+        cls.course_type_1 = mommy.make(CourseType)
+        cls.course_type_2 = mommy.make(CourseType)
+        cls.responsible = mommy.make(UserProfile)
+        cls.questionnaire_1 = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.questionnaire_2 = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.questionnaire_responsible = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.course_1 = mommy.make(Course, semester=cls.semester, type=cls.course_type_1)
+        cls.course_2 = mommy.make(Course, semester=cls.semester, type=cls.course_type_2)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_questionnaire_assignment(self):
+        page = self.get_assert_200(self.url, user="staff")
+        form = page.forms["questionnaire-assign-form"]
+        form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
+        form[self.course_type_2.name] = [self.questionnaire_2.pk]
+        form["Responsible contributor"] = [self.questionnaire_responsible.pk]
+
+        response = form.submit()
+        self.assertIn("Successfully", str(response))
+
+        self.assertEqual(set(self.course_1.general_contribution.questionnaires.all()), set([self.questionnaire_1, self.questionnaire_2]))
+        self.assertEqual(set(self.course_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
+        self.assertEqual(set(self.course_1.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
+        self.assertEqual(set(self.course_2.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
