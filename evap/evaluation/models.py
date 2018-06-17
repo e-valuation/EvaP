@@ -39,6 +39,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
+    results_are_archived = models.BooleanField(default=False, verbose_name=_("results are archived"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
@@ -62,6 +63,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def grade_documents_can_be_deleted(self):
         return not self.grade_documents_are_deleted
 
+    @property
+    def results_can_be_archived(self):
+        return not self.results_are_archived
+
     @transaction.atomic
     def archive_participations(self):
         if not self.participations_can_be_archived:
@@ -81,9 +86,19 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         self.grade_documents_are_deleted = True
         self.save()
 
+    def archive_results(self):
+        if not self.results_can_be_archived:
+            raise NotArchiveable()
+        self.results_are_archived = True
+        self.save()
+
     @classmethod
-    def get_all_with_published_courses(cls):
-        return cls.objects.filter(course__state="published").distinct()
+    def get_all_with_unarchived_results(cls):
+        return cls.objects.filter(results_are_archived=False).distinct()
+
+    @classmethod
+    def get_all_with_published_unarchived_results(cls):
+        return cls.objects.filter(course__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -351,6 +366,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         if self.is_user_contributor_or_delegate(user):
             return True
         if not self.can_publish_rating_results:
+            return False
+        if self.semester.results_are_archived:
             return False
         return self.can_user_see_course(user)
 

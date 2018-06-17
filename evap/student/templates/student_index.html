@@ -52,7 +52,7 @@
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
                                     {# staff users should be able to access courses through the student index only if it actually has published results #}
-                                    {% elif course.state == 'published' and course.can_publish_rating_results %}
+                                    {% elif course.state == 'published' and course.can_publish_rating_results and not semester.results_are_archived %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"
@@ -132,6 +132,11 @@
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-hourglass-half"></span></div>
                                                 <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-hourglass-half"></span></div>
+                                            </div>
+                                        {% elif course.state == 'published' and semester.results_are_archived %}
+                                            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
+                                                <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-archive"></span></div>
+                                                <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-archive"></span></div>
                                             </div>
                                         {% elif course.state == 'published' %}
                                             {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}

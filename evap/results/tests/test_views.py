@@ -497,3 +497,51 @@ class TestResultsTextanswerVisibility(WebTest):
     def test_textanswer_visibility_for_student_external(self):
         # the external user does not participate in or contribute to the course and therefore can't see the results
         self.app.get("/results/semester/1/course/1", user='student_external', status=403)
+
+
+class TestArchivedResults(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester)
+        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
+        student_external = mommy.make(UserProfile, username="student_external")
+        contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
+        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+
+        cls.course = mommy.make(Course, state='published', semester=cls.semester, participants=[student, student_external], voters=[student, student_external], degrees=[mommy.make(Degree)])
+        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS, contributor=responsible)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
+
+    def test_unarchived_results(self):
+        url = '/results/semester/%s' % (self.semester.id)
+        self.assertIn(self.course.name, self.app.get(url, user='student'))
+        self.assertIn(self.course.name, self.app.get(url, user='responsible'))
+        self.assertIn(self.course.name, self.app.get(url, user='contributor'))
+        self.assertIn(self.course.name, self.app.get(url, user='staff'))
+        self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
+
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        self.app.get(url, user="student", status=200)
+        self.app.get(url, user="responsible", status=200)
+        self.app.get(url, user="contributor", status=200)
+        self.app.get(url, user="staff", status=200)
+        self.app.get(url, user='student_external', status=200)
+
+    def test_archived_results(self):
+        self.semester.archive_results()
+
+        url = '/results/semester/%s' % (self.semester.id)
+        self.app.get(url, user='student', status=403)
+        self.app.get(url, user='responsible', status=403)
+        self.app.get(url, user='contributor', status=403)
+        self.app.get(url, user='staff', status=403)
+        self.app.get(url, user='student_external', status=403)
+
+        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
+        self.app.get(url, user='student', status=403)
+        self.app.get(url, user='responsible', status=200)
+        self.app.get(url, user='contributor', status=200)
+        self.app.get(url, user='staff', status=200)
+        self.app.get(url, user='student_external', status=403)

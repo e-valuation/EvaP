@@ -553,6 +553,19 @@ def semester_delete_grade_documents(request):
     return HttpResponse()  # 200 OK
 
 
+@require_POST
+@staff_required
+def semester_archive_results(request):
+    semester_id = request.POST.get("semester_id")
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    if not semester.results_can_be_archived:
+        raise SuspiciousOperation("Archiving results for this semester is not allowed")
+    semester.archive_results()
+    delete_navbar_cache_for_users(UserProfile.objects.all())
+    return HttpResponse()  # 200 OK
+
+
 @staff_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)

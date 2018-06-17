@@ -9,7 +9,7 @@ def include_navbar(user, language):
     return {
         'user': user,
         'language': language,
-        'result_semesters': Semester.get_all_with_published_courses(),
-        'last_five_semesters': Semester.objects.all()[:5],
+        'published_result_semesters': Semester.get_all_with_published_unarchived_results(),
+        'result_semesters': Semester.get_all_with_unarchived_results(),
         'grade_document_semesters': Semester.objects.filter(grade_documents_are_deleted=False),
     }
