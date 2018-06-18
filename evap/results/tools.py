@@ -101,8 +101,8 @@ def _calculate_results_impl(course):
     for questionnaire, max_answers in questionnaire_med_answers.items():
         questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers), settings.RESULTS_WARNING_COUNT)
 
-    results_contain_rating_questions = False
     for questionnaire, contribution in questionnaires_and_contributions(course):
+        results_contain_rating_questions = False
         # will contain one object per question
         results = []
         for question in questionnaire.question_set.all():
