@@ -184,12 +184,11 @@
                 textarea.parents('tr').find('.warning-label').toggleClass('d-none', !showWarning);
                 textarea.toggleClass('warning-border', showWarning);
             }
+            var warningdelayTimer;
             $('textarea').on('input', function() { // Run the check on input
                 let textarea = $(this);
-                if(textarea.hasClass('warning-border') || textarea.val().length >= 3 || !isTextareaInvalid(textarea))
-                    updateTextareaWarning(textarea);
-                else
-                    setTimeout(() => updateTextareaWarning(textarea), 1000);
+                clearTimeout(warningdelayTimer);
+                warningdelayTimer = setTimeout(() => updateTextareaWarning(textarea), 300);
             });
             $('textarea').blur(function() { // Run the check when focus is lost
                 updateTextareaWarning($(this));
