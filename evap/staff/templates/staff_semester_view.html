@@ -5,19 +5,31 @@
 {% block content %}
     {{ block.super }}
 
-    {% if semester.participations_are_archived %}
-        <p class="bs-callout bs-callout-info">{% trans 'This semester is archived.' %}</p>
-    {% endif %}
-
     <h3>
         {{ semester.name }}
         {% if request.user.is_staff %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
             <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
-            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.participations_can_be_archived %} disabled{% endif %}">{% trans 'Archive' %}</a>
         {% endif %}
     </h3>
+
+    {% if request.user.is_staff %}
+        <div class="card mb-3">
+            <div class="card-header d-flex">
+                <a class="collapse-toggle{% if not semester.participations_are_archived %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
+            </div>
+            <div class="card-body collapse{% if semester.participations_are_archived %} show{% endif %}" id="archivingCard">
+                {% if semester.participations_can_be_archived %}
+                    <a onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</a>
+                {% elif semester.participations_are_archived %}
+                    <a class="btn btn-sm btn-success disabled">{% trans 'Participations have been archived' %}</a>
+                {% else %}
+                    <span data-toggle="tooltip" data-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}"><a class="btn btn-sm btn-warning disabled">{% trans 'Archive participations' %}</a></span>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="card mb-3">
         <div class="card-header d-flex">
@@ -274,12 +286,12 @@
             });
         };
     </script>
-    {% trans 'Archive semester' as title %}
-    {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
-    {% trans 'Archive semester' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='archiveSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
+    {% trans 'Archive participations' as title %}
+    {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong id="data-label"></strong>? Further changes to the courses won't be possible and you can't undo this action.{% endblocktrans %}
+    {% trans 'Archive participations' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='archiveParticipationsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
-        function archiveSemesterModalAction(dataId) {
+        function archiveParticipationsModalAction(dataId) {
             $.ajax({
                 type: "POST",
                 url: "{% url 'staff:semester_archive_participations' %}",
