@@ -40,7 +40,7 @@
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
-        {% if participants_warning %}
+        {% if participants_warning and not preview %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
