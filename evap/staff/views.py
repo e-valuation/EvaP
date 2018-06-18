@@ -35,7 +35,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, raise_permission_denied_if_archived, get_parameter_from_url_or_session)
+                              save_import_file, raise_permission_denied_if_participations_are_archived, get_parameter_from_url_or_session)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -141,7 +141,7 @@ def semester_view(request, semester_id):
 @staff_required
 def semester_course_operation(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
+    raise_permission_denied_if_participations_are_archived(semester)
 
     target_state = request.GET.get('target_state')
     if target_state not in ['new', 'prepared', 'in_evaluation', 'reviewed', 'published']:
@@ -334,7 +334,7 @@ def semester_delete(request):
 @staff_required
 def semester_import(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
+    raise_permission_denied_if_participations_are_archived(semester)
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
     import_type = 'semester'
@@ -455,7 +455,7 @@ def semester_participation_export(request, semester_id):
 @staff_required
 def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
+    raise_permission_denied_if_participations_are_archived(semester)
     courses = semester.course_set.filter(state='new')
     course_types = CourseType.objects.filter(courses__in=courses)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
@@ -530,20 +530,20 @@ def send_reminder(request, semester_id, responsible_id):
 
 @require_POST
 @staff_required
-def semester_archive(request):
+def semester_archive_participations(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if not semester.is_archiveable:
-        raise SuspiciousOperation("Archiving semester not allowed")
-    semester.archive()
+    if not semester.participations_can_be_archived:
+        raise SuspiciousOperation("Archiving participations for this semester is not allowed")
+    semester.archive_participations()
     return HttpResponse()  # 200 OK
 
 
 @staff_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
+    raise_permission_denied_if_participations_are_archived(semester)
 
     course = Course(semester=semester)
     InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
@@ -564,7 +564,7 @@ def course_create(request, semester_id):
 @staff_required
 def single_result_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    raise_permission_denied_if_archived(semester)
+    raise_permission_denied_if_participations_are_archived(semester)
 
     course = Course(semester=semester)
 
@@ -615,7 +615,7 @@ def helper_course_edit(request, semester, course):
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if not course.can_staff_edit or course.is_archived:
+        if not course.can_staff_edit or course.participations_are_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
@@ -650,7 +650,7 @@ def helper_single_result_edit(request, semester, course):
     form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
-        if not course.can_staff_edit or course.is_archived:
+        if not course.can_staff_edit or course.participations_are_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
         form.save(user=request.user)
@@ -698,7 +698,7 @@ def course_email(request, semester_id, course_id):
 def course_person_import(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
-    raise_permission_denied_if_archived(course)
+    raise_permission_denied_if_participations_are_archived(course)
 
     # Each form required two times so the errors can be displayed correctly
     participant_excel_form = UserImportForm(request.POST or None, request.FILES or None)

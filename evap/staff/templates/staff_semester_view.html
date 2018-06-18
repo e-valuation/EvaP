@@ -5,7 +5,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% if semester.is_archived %}
+    {% if semester.participations_are_archived %}
         <p class="bs-callout bs-callout-info">{% trans 'This semester is archived.' %}</p>
     {% endif %}
 
@@ -15,7 +15,7 @@
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
             <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
-            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.is_archiveable %} disabled{% endif %}">{% trans 'Archive' %}</a>
+            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.participations_can_be_archived %} disabled{% endif %}">{% trans 'Archive' %}</a>
         {% endif %}
     </h3>
 
@@ -24,7 +24,7 @@
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_staff %}
                 <div class="ml-auto">
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
                         <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
@@ -88,7 +88,7 @@
             {% trans 'Courses' %}
             {% if request.user.is_staff %}
                 <div class="ml-auto">
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <div class="btn-group" role="group">
                             <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</a>
                             <div class="dropdown-menu" aria-labelledby="btnAdd">
@@ -106,7 +106,7 @@
                             <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
                         </div>
                     </div>
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
                 </div>
@@ -210,7 +210,7 @@
                     </tbody>
                 </table>
 
-                {% if request.user.is_staff and not semester.is_archived %}
+                {% if request.user.is_staff and not semester.participations_are_archived %}
                     <div class="my-2">
                         <a role="button" class="btn btn-sm btn-secondary"
                             onclick="$('#course_operation_form td').prev().find(':checkbox').prop('checked', true);">
@@ -270,7 +270,7 @@
                 url: "{% url 'staff:semester_delete' %}",
                 data: {"semester_id": dataId},
                 success: function(){ location.replace("{% url 'staff:index' %}"); },
-                error: function(){}
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>
@@ -282,10 +282,10 @@
         function archiveSemesterModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url 'staff:semester_archive' %}",
+                url: "{% url 'staff:semester_archive_participations' %}",
                 data: {"semester_id": dataId},
                 success: function(){ location.reload(); },
-                error: function(){}
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>

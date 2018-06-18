@@ -28,8 +28,8 @@ def get_parameter_from_url_or_session(request, parameter):
     return result
 
 
-def raise_permission_denied_if_archived(archiveable):
-    if archiveable.is_archived:
+def raise_permission_denied_if_participations_are_archived(archiveable):
+    if archiveable.participations_are_archived:
         raise PermissionDenied
 
 

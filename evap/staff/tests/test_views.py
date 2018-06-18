@@ -96,7 +96,7 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
         course = mommy.make(Course, state="published", semester=semester, _participant_count=1, _voter_count=1)  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
@@ -215,7 +215,7 @@ class TestUserBulkDeleteView(ViewTest):
         mommy.make(UserProfile, username='testuser1')
         mommy.make(UserProfile, username='testuser2')
         contribution1 = mommy.make(Contribution)
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
         course = mommy.make(Course, semester=semester, _participant_count=0, _voter_count=0)
         contribution2 = mommy.make(Contribution, course=course)
         mommy.make(UserProfile, username='contributor1', contributions=[contribution1])
@@ -1662,7 +1662,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
 
 
-class ArchivingTests(WebTest):
+class ParticipationArchivingTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
@@ -1670,9 +1670,9 @@ class ArchivingTests(WebTest):
 
     def test_raise_403(self):
         """
-            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
+            Tests whether inaccessible views on semesters/courses with archived participations correctly raise a 403.
         """
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
 
         semester_url = "/staff/semester/{}/".format(semester.pk)
 

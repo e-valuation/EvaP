@@ -53,7 +53,7 @@ def semester_view(request, semester_id):
     template_data = dict(
         semester=semester,
         courses=courses,
-        disable_if_archived="disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.participations_are_archived else "",
         disable_breadcrumb_semester=True,
     )
     return render(request, "grades_semester_view.html", template_data)
@@ -68,7 +68,7 @@ def course_view(request, semester_id, course_id):
         semester=semester,
         course=course,
         grade_documents=course.grade_documents.all(),
-        disable_if_archived="disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.participations_are_archived else "",
         disable_breadcrumb_course=True,
     )
     return render(request, "grades_course_view.html", template_data)
