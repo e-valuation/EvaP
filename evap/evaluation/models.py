@@ -38,6 +38,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     name = Translate
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
+    grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
@@ -57,6 +58,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def participations_can_be_archived(self):
         return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.course_set.all())
 
+    @property
+    def grade_documents_can_be_deleted(self):
+        return not self.grade_documents_are_deleted
+
     @transaction.atomic
     def archive_participations(self):
         if not self.participations_can_be_archived:
@@ -64,6 +69,16 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         for course in self.course_set.all():
             course._archive_participations()
         self.participations_are_archived = True
+        self.save()
+
+    @transaction.atomic
+    def delete_grade_documents(self):
+        from evap.grades.models import GradeDocument
+
+        if not self.grade_documents_can_be_deleted:
+            raise NotArchiveable()
+        GradeDocument.objects.filter(course__semester=self).delete()
+        self.grade_documents_are_deleted = True
         self.save()
 
     @classmethod
@@ -543,11 +558,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
-
-    @property
-    def grades_activated(self):
-        from evap.grades.tools import are_grades_activated
-        return are_grades_activated(self.semester)
 
     @classmethod
     def update_courses(cls):

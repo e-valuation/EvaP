@@ -22,7 +22,6 @@ from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import send_publish_notifications, sort_formset
-from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
@@ -86,7 +85,6 @@ def get_courses_with_prefetched_data(semester):
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     rewards_active = is_semester_activated(semester)
-    grades_downloadable = are_grades_activated(semester)
 
     courses = get_courses_with_prefetched_data(semester)
     courses = sorted(courses, key=lambda cr: cr.name)
@@ -131,7 +129,6 @@ def semester_view(request, semester_id):
         courses=courses,
         disable_breadcrumb_semester=True,
         rewards_active=rewards_active,
-        grades_downloadable=grades_downloadable,
         num_courses=len(courses),
         degree_stats=degree_stats
     )
@@ -540,6 +537,19 @@ def semester_archive_participations(request):
     if not semester.participations_can_be_archived:
         raise SuspiciousOperation("Archiving participations for this semester is not allowed")
     semester.archive_participations()
+    return HttpResponse()  # 200 OK
+
+
+@require_POST
+@staff_required
+def semester_delete_grade_documents(request):
+    semester_id = request.POST.get("semester_id")
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    if not semester.grade_documents_can_be_deleted:
+        raise SuspiciousOperation("Deleting grade documents for this semester is not allowed")
+    semester.delete_grade_documents()
+    delete_navbar_cache_for_users(UserProfile.objects.all())
     return HttpResponse()  # 200 OK
 
 

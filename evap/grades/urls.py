@@ -16,6 +16,4 @@ urlpatterns = [
 
     path("delete_grades", views.delete_grades, name="delete_grades"),
     path("toggle_no_grades", views.toggle_no_grades, name="toggle_no_grades"),
-
-    path("semester/<int:semester_id>/grade_activation/<str:active>", views.semester_grade_activation, name="semester_grade_activation"),
 ]

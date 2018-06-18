@@ -5,9 +5,8 @@ from django.contrib.auth.models import Group
 
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution
-from evap.evaluation.tests.tools import WebTest
-from evap.grades.models import SemesterGradeDownloadActivation
+from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
+from evap.evaluation.tests.tools import ViewTest, WebTest
 
 
 class GradeUploadTests(WebTest):
@@ -21,9 +20,11 @@ class GradeUploadTests(WebTest):
         cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
+        cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
         cls.course = mommy.make(
             Course,
             name_en="Test",
+            semester=cls.semester,
             vote_start_datetime=datetime.now() - timedelta(days=10),
             vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
@@ -36,11 +37,8 @@ class GradeUploadTests(WebTest):
 
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
-        cls.activation = SemesterGradeDownloadActivation.objects.create(semester=cls.course.semester, is_active=True)
-
     def setUp(self):
         self.course = Course.objects.get(pk=self.course.pk)
-        self.activation.refresh_from_db()
 
     def tearDown(self):
         for course in Course.objects.all():
@@ -157,10 +155,7 @@ class GradeUploadTests(WebTest):
         course = Course.objects.get(id=course.id)
         self.assertFalse(course.gets_no_grade_documents)
 
-    def test_grade_activation(self):
-        self.activation.is_active = True
-        self.activation.save()
-
+    def test_grade_document_download_after_archiving(self):
         # upload grade document
         self.helper_upload_grades(self.course, final_grades=False)
         self.assertGreater(self.course.midterm_grade_documents.count(), 0)
@@ -168,6 +163,54 @@ class GradeUploadTests(WebTest):
         url = "/grades/download/" + str(self.course.midterm_grade_documents.first().id)
         self.app.get(url, user="student", status=200)  # grades should be downloadable
 
-        self.activation.is_active = False
-        self.activation.save()
-        self.app.get(url, user="student", status=403)  # grades should not be downloadable anymore
+        self.semester.delete_grade_documents()
+        self.app.get(url, user="student", status=404)  # grades should not be downloadable anymore
+
+
+class GradeDocumentIndexTest(ViewTest):
+    url = '/grades/'
+    test_users = ['grade_publisher']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
+        cls.archived_semester = mommy.make(Semester, grade_documents_are_deleted=True)
+
+    def test_visible_semesters(self):
+        page = self.app.get(self.url, user="grade_publisher", status=200)
+        self.assertIn(self.semester.name, page)
+        self.assertNotIn(self.archived_semester.name, page)
+
+
+class GradeDocumentSemesterViewTest(ViewTest):
+    url = '/grades/semester/1'
+    test_users = ['grade_publisher']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
+        cls.semester_course = mommy.make(Course, semester=semester, state="prepared")
+
+    def test_semester_pages(self):
+        page = self.app.get(self.url, user="grade_publisher", status=200)
+        self.assertIn(self.semester_course.name, page)
+        self.app.get('/grades/semester/2', user="grade_publisher", status=403)
+
+
+class GradeDocumentCourseViewTest(ViewTest):
+    url = '/grades/semester/1/course/1'
+    test_users = ['grade_publisher']
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        archived_semester = mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
+        mommy.make(Course, pk=1, semester=semester, state="prepared")
+        mommy.make(Course, pk=2, semester=archived_semester, state="prepared")
+
+    def test_course_page(self):
+        self.app.get('/grades/semester/2/course/2', user="grade_publisher", status=403)

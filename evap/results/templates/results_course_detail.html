@@ -69,7 +69,7 @@
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
-            {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
+            {% if course.grade_documents.count == 1 and can_download_grades %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.first.id %}">{{ course.grade_documents.first.description }}</a>
             {% elif course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">

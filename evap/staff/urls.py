@@ -33,6 +33,7 @@ urlpatterns = [
 
     path("semester/delete", views.semester_delete, name="semester_delete"),
     path("semester/archive_participations", views.semester_archive_participations, name="semester_archive_participations"),
+    path("semester/delete_grade_documents", views.semester_delete_grade_documents, name="semester_delete_grade_documents"),
     path("semester/course_delete", views.course_delete, name="course_delete"),
 
     path("comments/update_publish", views.course_comments_update_publish, name="course_comments_update_publish"),

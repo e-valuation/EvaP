@@ -17,15 +17,20 @@
     {% if request.user.is_staff %}
         <div class="card mb-3">
             <div class="card-header d-flex">
-                <a class="collapse-toggle{% if not semester.participations_are_archived %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
+                <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
             </div>
-            <div class="card-body collapse{% if semester.participations_are_archived %} show{% endif %}" id="archivingCard">
+            <div class="card-body collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted %} show{% endif %}" id="archivingCard">
                 {% if semester.participations_can_be_archived %}
                     <a onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</a>
                 {% elif semester.participations_are_archived %}
                     <a class="btn btn-sm btn-success disabled">{% trans 'Participations have been archived' %}</a>
                 {% else %}
                     <span data-toggle="tooltip" data-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}"><a class="btn btn-sm btn-warning disabled">{% trans 'Archive participations' %}</a></span>
+                {% endif %}
+                {% if semester.grade_documents_can_be_deleted %}
+                    <a onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</a>
+                {% elif semester.grade_documents_are_deleted %}
+                    <a class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</a>
                 {% endif %}
             </div>
         </div>
@@ -45,13 +50,6 @@
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
                             <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
-                        </div>
-                    </div>
-                    <div class="btn-switch ml-2">
-                        <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
-                        <div class="btn-group icon-buttons">
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if grades_downloadable %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not grades_downloadable %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>
@@ -295,6 +293,21 @@
             $.ajax({
                 type: "POST",
                 url: "{% url 'staff:semester_archive_participations' %}",
+                data: {"semester_id": dataId},
+                success: function(){ location.reload(); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+        };
+    </script>
+    {% trans 'Delete grade documents' as title %}
+    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
+    {% trans 'Delete grade documents' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
+    <script type="text/javascript">
+        function deleteGradeDocumentsModalAction(dataId) {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:semester_delete_grade_documents' %}",
                 data: {"semester_id": dataId},
                 success: function(){ location.reload(); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }

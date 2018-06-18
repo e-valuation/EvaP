@@ -40,7 +40,7 @@
                             <tr>
                                 <th style="width: 42%">{% trans 'Name' %}</th>
                                 <th style="width: 17%">{% trans 'Evaluation period' %}</th>
-                                {% if can_download_grades and semester.courses.0.grades_activated %}
+                                {% if can_download_grades and not semester.grade_documents_are_deleted %}
                                     <th style="width: 8%" class="text-center">{% trans 'Grades' %}</th>
                                 {% endif %}
                                 <th style="width: 15%" class="text-center">{% trans 'Participants' %}</th>
@@ -93,7 +93,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    {% if can_download_grades and course.grades_activated %}
+                                    {% if can_download_grades and not semester.grade_documents_are_deleted %}
                                         <td class="text-center">
                                             {% if course.grade_documents.count == 1 %}
                                                 <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' course.grade_documents.first.id %}" role="button"
