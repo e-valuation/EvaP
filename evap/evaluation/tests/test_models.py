@@ -10,11 +10,12 @@ from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Question,
                                     Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.tests.tools import WebTest
 from evap.results.tools import calculate_average_distribution
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
-class TestCourses(TestCase):
+class TestCourses(WebTest):
     def test_approved_to_in_evaluation(self):
         course = mommy.make(Course, state='approved', vote_start_datetime=datetime.now())
 
@@ -188,19 +189,22 @@ class TestCourses(TestCase):
     def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
         student1 = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
-        course = mommy.make(Course, participants=[student1, student2], voters=[student1])
+        course = mommy.make(Course, participants=[student1, student2], voters=[student1], state="in_evaluation")
         course.save()
+        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
+        course.general_contribution.questionnaires.set([top_course_questionnaire])
 
         self.assertFalse(course.can_publish_text_results)
 
-        course.voters.add(student2)
+        self.let_user_vote_for_course(student2, course)
         course = Course.objects.get(pk=course.pk)
 
         self.assertTrue(course.can_publish_text_results)
 
     def test_text_answers_get_deleted_if_they_cannot_be_published(self):
         student = mommy.make(UserProfile)
-        course = mommy.make(Course, state='reviewed', participants=[student], voters=[student])
+        course = mommy.make(Course, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         question = mommy.make(Question, type="T", questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
@@ -213,7 +217,7 @@ class TestCourses(TestCase):
     def test_text_answers_do_not_get_deleted_if_they_can_be_published(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
-        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         question = mommy.make(Question, type="T", questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
@@ -226,7 +230,7 @@ class TestCourses(TestCase):
     def test_hidden_text_answers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
-        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         question = mommy.make(Question, type="T", questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
@@ -242,7 +246,7 @@ class TestCourses(TestCase):
     def test_original_text_answers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
-        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2])
+        course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         question = mommy.make(Question, type="T", questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
