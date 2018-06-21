@@ -582,14 +582,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         logger.info("update_courses finished.")
 
 
-@receiver(models.signals.m2m_changed, sender=Course.voters.through)
-def voters_changed(instance, action, reverse, **kwargs):
-    if not reverse and action == 'post_add':
-        if not instance.can_publish_text_results and instance.voters.count() >= 2:
-            instance.can_publish_text_results = True
-            instance.save()
-
-
 @receiver(post_transition, sender=Course)
 def log_state_transition(sender, instance, name, source, target, **kwargs):
     logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))

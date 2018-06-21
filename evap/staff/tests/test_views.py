@@ -1243,7 +1243,10 @@ class TestCourseCommentView(ViewTest):
         semester = mommy.make(Semester, pk=1)
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
-        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1])
+        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
+        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
 
     def test_comments_showing_up(self):
         questionnaire = mommy.make(Questionnaire)
@@ -1256,7 +1259,7 @@ class TestCourseCommentView(ViewTest):
         self.get_assert_403(self.url, user='staff')
 
         # add additional voter
-        self.course.voters.add(self.student2)
+        self.let_user_vote_for_course(self.student2, self.course)
 
         # now it should work
         page = self.get_assert_200(self.url, user='staff')
@@ -1272,7 +1275,10 @@ class TestCourseCommentEditView(ViewTest):
         semester = mommy.make(Semester, pk=1)
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
-        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1])
+        cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
+        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
@@ -1283,7 +1289,7 @@ class TestCourseCommentEditView(ViewTest):
         self.get_assert_403(self.url, user='staff')
 
         # add additional voter
-        self.course.voters.add(self.student2)
+        self.let_user_vote_for_course(self.student2, self.course)
 
         # now it should work
         response = self.app.get(self.url, user='staff')
@@ -1590,7 +1596,10 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         mommy.make(UserProfile, username="staff.user", groups=[Group.objects.get(name="Staff")])
         cls.student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
-        cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1])
+        cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
+        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):
         textanswer = mommy.make(TextAnswer, state=old_state)
@@ -1606,8 +1615,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         # in a course with only one voter reviewing should fail
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish", expect_errors=True)
 
-        self.course.voters.add(self.student2)
-        self.course.save()
+        self.let_user_vote_for_course(self.student2, self.course)
 
         # now reviewing should work
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")

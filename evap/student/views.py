@@ -139,8 +139,8 @@ def vote(request, course_id):
                             answer_counter.save()
 
         if not course.can_publish_text_results:
-            # enable text result publishing if first user confirmed that publishing is okay
-            if request.POST.get('text_results_publish_confirmation_top') == 'on' or request.POST.get('text_results_publish_confirmation_bottom') == 'on':
+            # enable text result publishing if first user confirmed that publishing is okay or second user voted
+            if request.POST.get('text_results_publish_confirmation_top') == 'on' or request.POST.get('text_results_publish_confirmation_bottom') == 'on' or course.voters.count() >= 2:
                 course.can_publish_text_results = True
                 course.save()
 
