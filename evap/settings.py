@@ -387,6 +387,9 @@ if TESTING:
             'LOCATION': 'testing_cache_sessions',
         },
     }
+    # give random char field values a reasonable length
+    from model_mommy import random_gen
+    MOMMY_CUSTOM_FIELDS_GEN = {'django.db.models.CharField': lambda: random_gen.gen_string(30)}
 
 
 # Django debug toolbar settings

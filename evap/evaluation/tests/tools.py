@@ -5,6 +5,7 @@ from model_mommy import mommy
 from webtest import AppError
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
+from evap.student.tools import question_id
 
 
 def to_querydict(dictionary):
@@ -52,6 +53,19 @@ class WebTest(DjangoWebTest):
         response = response.forms[1].submit("")
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "{}"'.format(url, user))
         return response
+
+    def let_user_vote_for_course(self, user, course):
+        url = '/student/vote/{}'.format(course.id)
+        page = self.get_assert_200(url, user=user)
+        form = page.forms["student-vote-form"]
+        for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+            for questionnaire in contribution.questionnaires.all():
+                for question in questionnaire.question_set.all():
+                    if question.type == "T":
+                        form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
+                    elif question.type in ["L", "G", "P", "N"]:
+                        form[question_id(contribution, questionnaire, question)] = 1
+        form.submit()
 
 
 class ViewTest(WebTest):

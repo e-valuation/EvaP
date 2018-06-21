@@ -162,25 +162,24 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         cls.semester = mommy.make(Semester, id=2)
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
         responsible = mommy.make(UserProfile, username='responsible')
-        student1 = mommy.make(UserProfile, username='student')
+        cls.student1 = mommy.make(UserProfile, username='student')
         cls.student2 = mommy.make(UserProfile)
+        students = mommy.make(UserProfile, _quantity=10)
+        students.extend([cls.student1, cls.student2])
 
-        cls.course = mommy.make(Course, id=22, state='published', semester=cls.semester, participants=[student1, cls.student2], voters=[student1])
+        cls.course = mommy.make(Course, id=22, state='in_evaluation', semester=cls.semester, participants=students)
         questionnaire = mommy.make(Questionnaire)
         cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
         question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = mommy.make(Contribution, contributor=responsible, course=cls.course, questionnaires=[questionnaire])
 
-        mommy.make(RatingAnswerCounter, question=cls.question_grade, contribution=cls.responsible_contribution, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=question_likert, contribution=cls.responsible_contribution, answer=3, count=1)
-        cls.course.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(RatingAnswerCounter, question=question_likert, contribution=cls.course.general_contribution, answer=5, count=1)
+    def setUp(self):
+        self.course = Course.objects.get(pk=self.course.pk)
 
-    def helper_test_answer_visibility(self, username, expect_page_not_visible_first=False):
-        caches["results"].clear()
-        page = self.app.get("/results/semester/2/course/22", user=username, expect_errors=expect_page_not_visible_first)
-        if expect_page_not_visible_first:
+    def helper_test_answer_visibility_one_voter(self, username, expect_page_not_visible=False):
+        page = self.app.get("/results/semester/2/course/22", user=username, expect_errors=expect_page_not_visible)
+        if expect_page_not_visible:
             self.assertEqual(page.status_code, 403)
         else:
             self.assertEqual(page.status_code, 200)
@@ -191,10 +190,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
             number_of_disabled_grade_badges = str(page).count("grade-bg-result-bar text-center grade-bg-disabled")
             self.assertEqual(number_of_disabled_grade_badges, 5)
 
-        # add additional voter
-        self.course.voters.add(self.student2)
-
-        caches["results"].clear()
+    def helper_test_answer_visibility_two_voters(self, username):
         page = self.app.get("/results/semester/2/course/22", user=username)
         number_of_grade_badges = str(page).count("grade-bg-result-bar text-center")
         self.assertEqual(number_of_grade_badges, 5)  # 1 course overview and 4 questions
@@ -203,13 +199,30 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         number_of_disabled_grade_badges = str(page).count("grade-bg-result-bar text-center grade-bg-disabled")
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
-        # remove additional voter
-        self.course.voters.remove(self.student2)
+    def test_answer_visibility_one_voter(self):
+        self.let_user_vote_for_course(self.student1, self.course)
+        self.course.evaluation_end()
+        self.course.review_finished()
+        self.course.publish()
+        self.course.save()
+        self.assertEqual(self.course.voters.count(), 1)
+        self.helper_test_answer_visibility_one_voter("staff")
+        self.course = Course.objects.get(id=self.course.id)
+        self.helper_test_answer_visibility_one_voter("responsible")
+        self.helper_test_answer_visibility_one_voter("student", expect_page_not_visible=True)
 
-    def test_answer_visibility(self):
-        self.helper_test_answer_visibility("staff")
-        self.helper_test_answer_visibility("responsible")
-        self.helper_test_answer_visibility("student", expect_page_not_visible_first=True)
+    def test_answer_visibility_two_voters(self):
+        self.let_user_vote_for_course(self.student1, self.course)
+        self.let_user_vote_for_course(self.student2, self.course)
+        self.course.evaluation_end()
+        self.course.review_finished()
+        self.course.publish()
+        self.course.save()
+        self.assertEqual(self.course.voters.count(), 2)
+
+        self.helper_test_answer_visibility_two_voters("staff")
+        self.helper_test_answer_visibility_two_voters("responsible")
+        self.helper_test_answer_visibility_two_voters("student")
 
 
 class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
