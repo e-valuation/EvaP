@@ -147,7 +147,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-id": "{}".format(contribution.pk),
             "contributions-0-contributor": "{}".format(user.pk),
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-responsibility": "RESPONSIBLE",
             "contributions-0-comment_visibility": "OWN",
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
@@ -178,7 +178,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-0-id": "{}".format(contribution.pk),
             "contributions-0-contributor": "{}".format(user1.pk),
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
+            "contributions-0-responsibility": "RESPONSIBLE",
             "contributions-0-comment_visibility": "OWN",
             "contributions-0-label": "",
         }
@@ -193,7 +193,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-1-id": "",
             "contributions-1-contributor": "{}".format(user2.pk),
             "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": "RESPONSBILE",
+            "contributions-1-responsibility": "RESPONSIBLE",
             "contributions-1-comment_visibility": "OWN",
             "contributions-1-label": "",
         })
