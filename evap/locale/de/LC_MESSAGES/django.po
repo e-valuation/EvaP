@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-13 12:04+0200\n"
-"PO-Revision-Date: 2018-06-13 12:04+0200\n"
-"Last-Translator: Johannes Wolf <janno42@gmail.com>\n"
+"POT-Creation-Date: 2018-06-21 11:12+0200\n"
+"PO-Revision-Date: 2018-06-21 11:14+0200\n"
+"Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -156,7 +156,7 @@ msgstr "Informationen für Mitwirkende"
 
 #: evap/contributor/templates/contributor_index.html:18
 #: evap/contributor/templates/contributor_settings.html:66
-#: evap/evaluation/models.py:889 evap/staff/templates/staff_user_merge.html:75
+#: evap/evaluation/models.py:881 evap/staff/templates/staff_user_merge.html:75
 msgid "Delegates"
 msgstr "Stellvertreter"
 
@@ -238,7 +238,7 @@ msgid "FAQ/Results"
 msgstr "FAQ/Ergebnisse"
 
 #: evap/contributor/templates/contributor_index.html:48
-#: evap/evaluation/models.py:1080
+#: evap/evaluation/models.py:1072
 #: evap/grades/templates/grades_semester_view.html:23
 #: evap/staff/templates/staff_user_index.html:35 evap/staff/views.py:413
 #: evap/student/templates/student_index.html:41
@@ -305,7 +305,7 @@ msgid "Username"
 msgstr "Benutzername"
 
 #: evap/contributor/templates/contributor_settings.html:20
-#: evap/evaluation/models.py:882 evap/staff/templates/staff_user_merge.html:33
+#: evap/evaluation/models.py:874 evap/staff/templates/staff_user_merge.html:33
 msgid "Title"
 msgstr "Titel"
 
@@ -550,7 +550,7 @@ msgstr "obsolet"
 msgid "questionnaire"
 msgstr "Fragebogen"
 
-#: evap/evaluation/models.py:129 evap/evaluation/models.py:620
+#: evap/evaluation/models.py:129 evap/evaluation/models.py:612
 msgid "questionnaires"
 msgstr "Fragebögen"
 
@@ -614,7 +614,7 @@ msgstr "Beginn der Evaluierung"
 msgid "last day of evaluation"
 msgstr "letzter Evaluierungstag"
 
-#: evap/evaluation/models.py:272 evap/evaluation/models.py:618
+#: evap/evaluation/models.py:272 evap/evaluation/models.py:610
 msgid "course"
 msgstr "Veranstaltung"
 
@@ -622,11 +622,11 @@ msgstr "Veranstaltung"
 msgid "courses"
 msgstr "Veranstaltungen"
 
-#: evap/evaluation/models.py:605
+#: evap/evaluation/models.py:597
 msgid "Own"
 msgstr "Eigene"
 
-#: evap/evaluation/models.py:606 evap/grades/models.py:18
+#: evap/evaluation/models.py:598 evap/grades/models.py:18
 #: evap/results/templates/results_course_detail.html:120
 #: evap/results/templates/results_course_detail.html:178
 #: evap/results/templates/results_semester_detail.html:22
@@ -636,21 +636,21 @@ msgstr "Eigene"
 msgid "Course"
 msgstr "Veranstaltung"
 
-#: evap/evaluation/models.py:607
+#: evap/evaluation/models.py:599
 msgid "All"
 msgstr "Alle"
 
-#: evap/evaluation/models.py:613
+#: evap/evaluation/models.py:605
 #: evap/evaluation/templates/contribution_formset.html:21
 #: evap/staff/templates/staff_user_labels.html:11
 msgid "Contributor"
 msgstr "Mitwirkender"
 
-#: evap/evaluation/models.py:614
+#: evap/evaluation/models.py:606
 msgid "Editor"
 msgstr "Bearbeiter"
 
-#: evap/evaluation/models.py:615
+#: evap/evaluation/models.py:607
 #: evap/grades/templates/grades_semester_view.html:24
 #: evap/results/templates/results_course_detail.html:91
 #: evap/results/templates/results_semester_detail.html:24
@@ -659,241 +659,241 @@ msgstr "Bearbeiter"
 msgid "Responsible"
 msgstr "Verantwortlicher"
 
-#: evap/evaluation/models.py:619
+#: evap/evaluation/models.py:611
 msgid "contributor"
 msgstr "Mitwirkender"
 
-#: evap/evaluation/models.py:621
+#: evap/evaluation/models.py:613
 #: evap/staff/templates/staff_course_comments_section.html:6
 msgid "responsible"
 msgstr "verantwortlich"
 
-#: evap/evaluation/models.py:622
+#: evap/evaluation/models.py:614
 msgid "can edit"
 msgstr "kann bearbeiten"
 
-#: evap/evaluation/models.py:623
+#: evap/evaluation/models.py:615
 msgid "comment visibility"
 msgstr "Kommentar-Sichtbarkeit"
 
-#: evap/evaluation/models.py:624
+#: evap/evaluation/models.py:616
 msgid "label"
 msgstr "Label"
 
-#: evap/evaluation/models.py:626
+#: evap/evaluation/models.py:618
 msgid "contribution order"
 msgstr "Mitwirkungs-Reihenfolge"
 
-#: evap/evaluation/models.py:648
+#: evap/evaluation/models.py:640
 msgid "Text Question"
 msgstr "Freitextfrage"
 
-#: evap/evaluation/models.py:649
+#: evap/evaluation/models.py:641
 msgid "Likert Question"
 msgstr "Likert-Frage"
 
-#: evap/evaluation/models.py:650
+#: evap/evaluation/models.py:642
 msgid "Grade Question"
 msgstr "Bewertungsfrage"
 
-#: evap/evaluation/models.py:651
+#: evap/evaluation/models.py:643
 msgid "Positive Yes-No Question"
 msgstr "Positive Ja-Nein-Frage"
 
-#: evap/evaluation/models.py:652
+#: evap/evaluation/models.py:644
 msgid "Negative Yes-No Question"
 msgstr "Negative Ja-Nein-Frage"
 
-#: evap/evaluation/models.py:653
+#: evap/evaluation/models.py:645
 msgid "Heading"
 msgstr "Überschrift"
 
-#: evap/evaluation/models.py:656 evap/evaluation/models.py:822
+#: evap/evaluation/models.py:648 evap/evaluation/models.py:814
 msgid "question order"
 msgstr "Reihenfolge"
 
-#: evap/evaluation/models.py:658
+#: evap/evaluation/models.py:650
 msgid "question text (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evap/evaluation/models.py:659
+#: evap/evaluation/models.py:651
 msgid "question text (english)"
 msgstr "Fragetext (englisch)"
 
-#: evap/evaluation/models.py:660
+#: evap/evaluation/models.py:652
 msgid "question type"
 msgstr "Frageart"
 
-#: evap/evaluation/models.py:666 evap/evaluation/models.py:834
+#: evap/evaluation/models.py:658 evap/evaluation/models.py:826
 msgid "question"
 msgstr "Frage"
 
-#: evap/evaluation/models.py:667 evap/evaluation/models.py:835
+#: evap/evaluation/models.py:659 evap/evaluation/models.py:827
 msgid "questions"
 msgstr "Fragen"
 
-#: evap/evaluation/models.py:725 evap/evaluation/models.py:732
-#: evap/evaluation/models.py:752
+#: evap/evaluation/models.py:717 evap/evaluation/models.py:724
+#: evap/evaluation/models.py:744
 msgid "answer"
 msgstr "Antwort"
 
-#: evap/evaluation/models.py:726
+#: evap/evaluation/models.py:718
 msgid "answers"
 msgstr "Antworten"
 
-#: evap/evaluation/models.py:733
+#: evap/evaluation/models.py:725
 msgid "count"
 msgstr "Anzahl"
 
-#: evap/evaluation/models.py:739
+#: evap/evaluation/models.py:731
 msgid "rating answer"
 msgstr "Bewertungs-Antwort"
 
-#: evap/evaluation/models.py:740
+#: evap/evaluation/models.py:732
 msgid "rating answers"
 msgstr "Bewertungs-Antworten"
 
-#: evap/evaluation/models.py:753
+#: evap/evaluation/models.py:745
 msgid "original answer"
 msgstr "Originale Antwort"
 
-#: evap/evaluation/models.py:760
+#: evap/evaluation/models.py:752
 msgid "hidden"
 msgstr "versteckt"
 
-#: evap/evaluation/models.py:761 evap/evaluation/tools.py:53
+#: evap/evaluation/models.py:753 evap/evaluation/tools.py:53
 msgid "published"
 msgstr "veröffentlicht"
 
-#: evap/evaluation/models.py:762
+#: evap/evaluation/models.py:754
 #: evap/staff/templates/staff_course_comments_section.html:31
 #: evap/staff/templates/staff_semester_view_course.html:87
 msgid "private"
 msgstr "privat"
 
-#: evap/evaluation/models.py:763
+#: evap/evaluation/models.py:755
 msgid "not reviewed"
 msgstr "nicht überprüft"
 
-#: evap/evaluation/models.py:765
+#: evap/evaluation/models.py:757
 msgid "state of answer"
 msgstr "Zustand der Antwort"
 
-#: evap/evaluation/models.py:770
+#: evap/evaluation/models.py:762
 msgid "text answer"
 msgstr "Text-Antwort"
 
-#: evap/evaluation/models.py:771
+#: evap/evaluation/models.py:763
 msgid "text answers"
 msgstr "Text-Antworten"
 
-#: evap/evaluation/models.py:805
+#: evap/evaluation/models.py:797
 msgid "section order"
 msgstr "Reihenfolge"
 
-#: evap/evaluation/models.py:807
+#: evap/evaluation/models.py:799
 msgid "section title (german)"
 msgstr "Abschnittstitel (deutsch)"
 
-#: evap/evaluation/models.py:808
+#: evap/evaluation/models.py:800
 msgid "section title (english)"
 msgstr "Abschnittstitel (englisch)"
 
-#: evap/evaluation/models.py:813
+#: evap/evaluation/models.py:805
 msgid "section"
 msgstr "Abschnitt"
 
-#: evap/evaluation/models.py:814
+#: evap/evaluation/models.py:806
 msgid "sections"
 msgstr "Abschnitte"
 
-#: evap/evaluation/models.py:824
+#: evap/evaluation/models.py:816
 msgid "question (german)"
 msgstr "Fragetext (deutsch)"
 
-#: evap/evaluation/models.py:825
+#: evap/evaluation/models.py:817
 msgid "question (english)"
 msgstr "Fragetext (englisch)"
 
-#: evap/evaluation/models.py:828 evap/evaluation/models.py:829
+#: evap/evaluation/models.py:820 evap/evaluation/models.py:821
 msgid "answer (german)"
 msgstr "Antwort (deutsch)"
 
-#: evap/evaluation/models.py:850
+#: evap/evaluation/models.py:842
 msgid "Users must have a username"
 msgstr "Benutzer müssen einen Benutzernamen haben"
 
-#: evap/evaluation/models.py:877
+#: evap/evaluation/models.py:869
 msgid "username"
 msgstr "Benutzername"
 
-#: evap/evaluation/models.py:880
+#: evap/evaluation/models.py:872
 msgid "email address"
 msgstr "E‑Mail-Adresse"
 
-#: evap/evaluation/models.py:883
+#: evap/evaluation/models.py:875
 msgid "first name"
 msgstr "Vorname"
 
-#: evap/evaluation/models.py:884
+#: evap/evaluation/models.py:876
 msgid "last name"
 msgstr "Nachname"
 
-#: evap/evaluation/models.py:886
+#: evap/evaluation/models.py:878
 msgid "language"
 msgstr "Sprache"
 
-#: evap/evaluation/models.py:892
+#: evap/evaluation/models.py:884
 msgid "CC Users"
 msgstr "CC-Benutzer"
 
-#: evap/evaluation/models.py:897
+#: evap/evaluation/models.py:889
 msgid "Login Key"
 msgstr "Anmeldeschlüssel"
 
-#: evap/evaluation/models.py:898
+#: evap/evaluation/models.py:890
 msgid "Login Key Validity"
 msgstr "Gültigkeit des Anmeldeschlüssels"
 
-#: evap/evaluation/models.py:900
+#: evap/evaluation/models.py:892
 msgid "active"
 msgstr "aktiv"
 
-#: evap/evaluation/models.py:904
+#: evap/evaluation/models.py:896
 msgid "user"
 msgstr "Benutzer"
 
-#: evap/evaluation/models.py:905
+#: evap/evaluation/models.py:897
 msgid "users"
 msgstr "Benutzer"
 
-#: evap/evaluation/models.py:1082
+#: evap/evaluation/models.py:1074
 #: evap/evaluation/templates/contact_modal.html:30 evap/staff/forms.py:351
 #: evap/staff/forms.py:383
 msgid "Subject"
 msgstr "Betreff"
 
-#: evap/evaluation/models.py:1083
+#: evap/evaluation/models.py:1075
 msgid "Body"
 msgstr "Text"
 
-#: evap/evaluation/models.py:1099
+#: evap/evaluation/models.py:1091
 msgid "all participants"
 msgstr "Alle Teilnehmenden"
 
-#: evap/evaluation/models.py:1100
+#: evap/evaluation/models.py:1092
 msgid "due participants"
 msgstr "Ausstehende Teilnehmende"
 
-#: evap/evaluation/models.py:1101
+#: evap/evaluation/models.py:1093
 msgid "responsible person"
 msgstr "verantwortliche Person"
 
-#: evap/evaluation/models.py:1102
+#: evap/evaluation/models.py:1094
 msgid "all editors"
 msgstr "alle Bearbeiter"
 
-#: evap/evaluation/models.py:1103
+#: evap/evaluation/models.py:1095
 msgid "all contributors"
 msgstr "alle Mitwirkenden"
 
@@ -2496,7 +2496,7 @@ msgid ""
 msgstr ""
 "Wenn du \"nein\" als Veröffentlichungs-Option für eine Textantwort auf "
 "dieser Seite wählst, wird die entsprechende Antwort unwiderruflich gelöscht, "
-"sobald die Evaluierungsergebnisse der Veranstaltung veröfentlicht werden. "
+"sobald die Evaluierungsergebnisse der Veranstaltung veröffentlicht werden. "
 "Solltest du eine Antwort bearbeiten, wird die originale Antwort ebenfalls "
 "beim Veröffentlichen gelöscht."
 
@@ -2931,6 +2931,7 @@ msgid "Save semester"
 msgstr "Semester speichern"
 
 #: evap/staff/templates/staff_semester_grade_reminder.html:5
+#: evap/staff/templates/staff_semester_grade_reminder.html:11
 #: evap/staff/templates/staff_semester_view.html:29
 msgid "Grade publish reminder"
 msgstr "Erinnerung zur Notenveröffentlichung"
