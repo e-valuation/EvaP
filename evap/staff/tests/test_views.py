@@ -806,7 +806,7 @@ class TestSingleResultCreateView(ViewTest):
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
         form["type"] = self.course_type.pk
-        form["degrees"] = ["1"]
+        form["degrees"] = [1]
         form["event_date"] = "2014-01-01"
         form["answer_1"] = 6
         form["answer_3"] = 2
@@ -843,7 +843,7 @@ class TestCourseCreateView(ViewTest):
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
         form["type"] = self.course_type.pk
-        form["degrees"] = ["1"]
+        form["degrees"] = [1]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questions"] = [self.q1.pk]
@@ -855,8 +855,8 @@ class TestCourseCreateView(ViewTest):
         form['contributions-0-contributor'] = self.staff_user.pk
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = "RESPONSIBLE"
-        form['contributions-0-comment_visibility'] = "ALL"
+        form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
+        form['contributions-0-comment_visibility'] = Contribution.ALL_COMMENTS
 
         form.submit()
         self.assertFalse(Course.objects.exists())
@@ -893,7 +893,7 @@ class TestCourseEditView(ViewTest):
         # remove responsibility
         form = page.forms["course-form"]
         form['contributions-0-contributor'] = user.pk
-        form['contributions-0-responsibility'] = "RESPONSIBLE"
+        form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
         page = form.submit("operation", value="save")
         self.assertEqual(list(self.course.responsible_contributors), [user])
 

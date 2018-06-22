@@ -111,31 +111,26 @@ def vote(request, course_id):
     # all forms are valid, begin vote operation
     with transaction.atomic():
         # add user to course.voters
-        # not using course.voters.add(request.user) since it fails silently when done twice.
-        # manually inserting like this gives us the 'created' return value and ensures at the database level that nobody votes twice.
-        __, created = course.voters.through.objects.get_or_create(userprofile_id=request.user.pk, course_id=course.pk)
-        if not created:  # vote already got recorded, bail out
-            raise SuspiciousOperation("A second vote has been received shortly after the first one.")
+        # not using course.voters.add(request.user) since that fails silently when done twice.
+        course.voters.through.objects.create(userprofile_id=request.user.pk, course_id=course.pk)
 
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
                 for question in questionnaire.question_set.all():
+                    if question.is_heading_question:
+                        continue
+
                     identifier = question_id(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
                     if question.is_text_question:
                         if value:
-                            question.answer_class.objects.create(
-                                contribution=contribution,
-                                question=question,
-                                answer=value)
-                    elif question.is_heading_question:
-                        pass  # ignore these
+                            question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
                     else:
                         if value != 6:
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
-                            answer_counter.add_vote()
+                            answer_counter.count += 1
                             answer_counter.save()
 
         if not course.can_publish_text_results:

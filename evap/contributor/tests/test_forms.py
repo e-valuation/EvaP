@@ -71,17 +71,17 @@ class ContributionFormsetTests(TestCase):
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
-            "contributions-TOTAL_FORMS": "1",
-            "contributions-INITIAL_FORMS": "1",
-            "contributions-MIN_NUM_FORMS": "0",
-            "contributions-MAX_NUM_FORMS": "1000",
-            "contributions-0-course": "{}".format(course.pk),
-            "contributions-0-order": "1",
-            "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-TOTAL_FORMS": 1,
+            "contributions-INITIAL_FORMS": 1,
+            "contributions-MIN_NUM_FORMS": 0,
+            "contributions-MAX_NUM_FORMS": 1000,
+            "contributions-0-course": course.pk,
+            "contributions-0-order": 1,
+            "contributions-0-id": contribution.pk,
+            "contributions-0-contributor": user.pk,
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "EDITOR",
-            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-responsibility": Contribution.IS_EDITOR,
+            "contributions-0-comment_visibility": Contribution.OWN_COMMENTS,
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
         }
@@ -100,33 +100,33 @@ class ContributionFormsetTests(TestCase):
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
-            "contributions-TOTAL_FORMS": "2",
-            "contributions-INITIAL_FORMS": "2",
-            "contributions-MIN_NUM_FORMS": "0",
-            "contributions-MAX_NUM_FORMS": "1000",
-            "contributions-0-course": "{}".format(course.pk),
-            "contributions-0-order": "1",
-            "contributions-0-id": "{}".format(contribution1.pk),
-            "contributions-0-contributor": "{}".format(user1.pk),
+            "contributions-TOTAL_FORMS": 2,
+            "contributions-INITIAL_FORMS": 2,
+            "contributions-MIN_NUM_FORMS": 0,
+            "contributions-MAX_NUM_FORMS": 1000,
+            "contributions-0-course": course.pk,
+            "contributions-0-order": 1,
+            "contributions-0-id": contribution1.pk,
+            "contributions-0-contributor": user1.pk,
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSIBLE",
-            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
+            "contributions-0-comment_visibility": Contribution.OWN_COMMENTS,
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
-            "contributions-1-course": "{}".format(course.pk),
-            "contributions-1-order": "1",
-            "contributions-1-id": "{}".format(contribution2.pk),
-            "contributions-1-contributor": "{}".format(user2.pk),
+            "contributions-1-course": course.pk,
+            "contributions-1-order": 1,
+            "contributions-1-id": contribution2.pk,
+            "contributions-1-contributor": user2.pk,
             "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": "EDITOR",
-            "contributions-1-comment_visibility": "ALL",
+            "contributions-1-responsibility": Contribution.IS_EDITOR,
+            "contributions-1-comment_visibility": Contribution.ALL_COMMENTS,
             "contributions-1-label": "",
             "contributions-1-DELETE": "",
         }
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
         self.assertTrue(formset.is_valid())
 
-        data["contributions-1-responsibility"] = "RESPONSIBLE"
+        data["contributions-1-responsibility"] = Contribution.IS_RESPONSIBLE
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
         self.assertFalse(formset.is_valid())
 
@@ -138,24 +138,24 @@ class ContributionFormsetTests(TestCase):
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
-            "contributions-TOTAL_FORMS": "1",
-            "contributions-INITIAL_FORMS": "1",
-            "contributions-MIN_NUM_FORMS": "0",
-            "contributions-MAX_NUM_FORMS": "1000",
-            "contributions-0-course": "{}".format(course.pk),
-            "contributions-0-order": "1",
-            "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user.pk),
+            "contributions-TOTAL_FORMS": 1,
+            "contributions-INITIAL_FORMS": 1,
+            "contributions-MIN_NUM_FORMS": 0,
+            "contributions-MAX_NUM_FORMS": 1000,
+            "contributions-0-course": course.pk,
+            "contributions-0-order": 1,
+            "contributions-0-id": contribution.pk,
+            "contributions-0-contributor": user.pk,
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
-            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
+            "contributions-0-comment_visibility": Contribution.OWN_COMMENTS,
             "contributions-0-label": "",
             "contributions-0-DELETE": "",
         }
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
         self.assertTrue(formset.is_valid())
 
-        data["contributions-0-DELETE"] = "1"
+        data["contributions-0-DELETE"] = 1
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
         self.assertFalse(formset.is_valid())
 
@@ -168,33 +168,33 @@ class ContributionFormsetTests(TestCase):
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
-            "contributions-TOTAL_FORMS": "1",
-            "contributions-INITIAL_FORMS": "1",
-            "contributions-MIN_NUM_FORMS": "0",
-            "contributions-MAX_NUM_FORMS": "1000",
+            "contributions-TOTAL_FORMS": 1,
+            "contributions-INITIAL_FORMS": 1,
+            "contributions-MIN_NUM_FORMS": 0,
+            "contributions-MAX_NUM_FORMS": 1000,
             "contributions-0-DELETE": "",
-            "contributions-0-course": "{}".format(course.pk),
-            "contributions-0-order": "1",
-            "contributions-0-id": "{}".format(contribution.pk),
-            "contributions-0-contributor": "{}".format(user1.pk),
+            "contributions-0-course": course.pk,
+            "contributions-0-order": 1,
+            "contributions-0-id": contribution.pk,
+            "contributions-0-contributor": user1.pk,
             "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": "RESPONSBILE",
-            "contributions-0-comment_visibility": "OWN",
+            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
+            "contributions-0-comment_visibility": Contribution.OWN_COMMENTS,
             "contributions-0-label": "",
         }
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})
         self.assertTrue(formset.is_valid())
 
         data.update({
-            "contributions-TOTAL_FORMS": "2",
+            "contributions-TOTAL_FORMS": 2,
             "contributions-1-DELETE": "",
-            "contributions-1-course": "{}".format(course.pk),
-            "contributions-1-order": "1",
+            "contributions-1-course": course.pk,
+            "contributions-1-order": 1,
             "contributions-1-id": "",
-            "contributions-1-contributor": "{}".format(user2.pk),
+            "contributions-1-contributor": user2.pk,
             "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": "RESPONSBILE",
-            "contributions-1-comment_visibility": "OWN",
+            "contributions-1-responsibility": Contribution.IS_RESPONSIBLE,
+            "contributions-1-comment_visibility": Contribution.OWN_COMMENTS,
             "contributions-1-label": "",
         })
         formset = InlineContributionFormset(data, instance=course, can_change_responsible=False, form_kwargs={'course': course})

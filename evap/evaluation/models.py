@@ -731,9 +731,6 @@ class RatingAnswerCounter(Answer):
         verbose_name = _("rating answer")
         verbose_name_plural = _("rating answers")
 
-    def add_vote(self):
-        self.count += 1
-
 
 class TextAnswer(Answer):
     """A free-form text answer to a question (usually a comment about a course
