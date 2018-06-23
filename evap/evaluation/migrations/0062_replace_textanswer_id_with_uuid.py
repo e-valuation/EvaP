@@ -33,7 +33,13 @@ class Migration(migrations.Migration):
             name='uuid',
             field=models.UUIDField(primary_key=False, default=uuid.uuid4, serialize=False, editable=False),
         ),
-        migrations.RemoveField('TextAnswer', 'id'),
+        # rename the old id field before deleting it at the end of the
+        # migration for compatibility with the sqlite driver
+        migrations.RenameField(
+            model_name='textanswer',
+            old_name='id',
+            new_name='old_id'
+        ),
         migrations.RenameField(
             model_name='textanswer',
             old_name='uuid',
@@ -48,5 +54,6 @@ class Migration(migrations.Migration):
             name='textanswer',
             options={'ordering': ['id'], 'verbose_name': 'text answer', 'verbose_name_plural': 'text answers'},
         ),
+        migrations.RemoveField(model_name='textanswer', name='old_id'),
     ]
 
