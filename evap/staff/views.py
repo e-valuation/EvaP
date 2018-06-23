@@ -442,7 +442,7 @@ def semester_participation_export(request, semester_id):
         number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=True).count()
         number_of_optional_courses = semester.course_set.filter(participants=participant, is_rewarded=False).count()
         number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=False).count()
-        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).exists()
+        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
             participant.username, can_user_use_reward_points(participant), number_of_required_courses_voted_for,
             number_of_required_courses, number_of_optional_courses_voted_for, number_of_optional_courses,
