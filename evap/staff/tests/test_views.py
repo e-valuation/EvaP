@@ -13,7 +13,7 @@ from evap.evaluation.models import Semester, UserProfile, Course, CourseType, Te
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
                                    RatingAnswerCounter
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
-from evap.rewards.models import SemesterActivation
+from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename
 
 
@@ -695,21 +695,25 @@ class TestSemesterParticipationDataExportView(ViewTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
         cls.student_user = mommy.make(UserProfile, username='student')
+        cls.student_user2 = mommy.make(UserProfile, username='student2')
         cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType, name_en="Type")
         cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_rewarded=True)
-        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
+        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Course 2", is_rewarded=False)
         mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
+        mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
     def test_view_downloads_csv_file(self):
         response = self.app.get(self.url, user='staff')
         expected_content = (
             "Username;Can use reward points;#Required courses voted for;#Required courses;#Optional courses voted for;"
             "#Optional courses;Earned reward points\r\n"
-            "student;False;1;1;0;1;False\r\n")
+            "student;False;1;1;0;1;65\r\n"
+            "student2;False;0;0;0;1;0\r\n")
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
