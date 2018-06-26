@@ -46,13 +46,13 @@ class TestUserImporter(TestCase):
     def test_created_users(self):
         original_user_count = UserProfile.objects.count()
 
-        user_list, v1, v2, v3 = UserImporter.process(self.valid_excel_content, test_run=False)
+        user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
 
-        self.assertIn("Successfully read sheet 'Users'.", v1)
-        self.assertIn('Successfully created 2 user(s):<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)', v1)
-        self.assertIn('Successfully read Excel file.', v1)
-        self.assertEqual(v2, {})
-        self.assertEqual(v3, [])
+        self.assertIn("Successfully read sheet 'Users'.", success_messages)
+        self.assertIn('Successfully created 2 user(s):<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)', success_messages)
+        self.assertIn('Successfully read Excel file.', success_messages)
+        self.assertEqual(warnings, {})
+        self.assertEqual(errors, [])
 
         self.assertEqual(len(user_list), 2)
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)

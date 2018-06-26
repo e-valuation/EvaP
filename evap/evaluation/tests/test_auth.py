@@ -54,4 +54,3 @@ class LoginTests(WebTest):
         self.assertEqual(old_key, new_key)
         self.assertEqual(len(mail.outbox), 1)  # a login key was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
-

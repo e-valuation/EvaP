@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
+from django.db import migrations
 
 
-def add_single_result_questionnaire(apps, schema_editor):
+def add_single_result_questionnaire(apps, _schema_editor):
     Questionnaire = apps.get_model('evaluation', 'Questionnaire')
     Question = apps.get_model('evaluation', 'Question')
 
@@ -12,6 +9,7 @@ def add_single_result_questionnaire(apps, schema_editor):
     questionnaire.save()
     question = Question(questionnaire=questionnaire, text_de='Einzelergebnis', text_en='Single result', type='G')
     question.save()
+
 
 class Migration(migrations.Migration):
 

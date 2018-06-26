@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -89,4 +88,3 @@ class TestGrantRewardPointsParticipationChange(TestCase):
         self.student.courses_participating_in.remove(self.course)
 
         self.assertEqual(reward_points_of_user(self.student), 3)
-

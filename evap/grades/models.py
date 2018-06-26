@@ -50,14 +50,14 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
 
 
 @receiver(pre_delete, sender=GradeDocument)
-def delete_file_pre_delete(sender, instance, **kwargs):
+def delete_file_pre_delete(instance, **_kwargs):
     if instance.file:
         instance.file.delete(False)
 
 
 # Changing should lead to the removal of the old file
 @receiver(pre_save, sender=GradeDocument)
-def delete_file_pre_save(sender, instance, **kwargs):
+def delete_file_pre_save(instance, **_kwargs):
     if not instance.pk:  # We do not want to trigger document creation
         return False
     try:

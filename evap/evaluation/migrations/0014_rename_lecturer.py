@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
+from django.db import migrations
 
 
-def rename_lecturer(apps, schema_editor):
+def rename_lecturer(apps, _schema_editor):
     Course = apps.get_model("evaluation", "Course")
     Course.objects.filter(state="lecturerApproved").update(state="editorApproved")
 
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
     EmailTemplate.objects.filter(name="Lecturer Review Notice").update(name="Editor Review Notice")
 
-def rename_lecturer_reverse(apps, schema_editor):
+
+def rename_lecturer_reverse(apps, _schema_editor):
     Course = apps.get_model("evaluation", "Course")
     Course.objects.filter(state="editorApproved").update(state="lecturerApproved")
 

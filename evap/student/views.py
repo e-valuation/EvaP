@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render

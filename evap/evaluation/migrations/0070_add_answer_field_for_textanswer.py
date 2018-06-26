@@ -3,7 +3,7 @@
 from django.db import migrations, models
 
 
-def fill_answer_field(apps, schema_editor):
+def fill_answer_field(apps, _schema_editor):
     TextAnswer = apps.get_model('evaluation', 'TextAnswer')
     for text_answer in TextAnswer.objects.all():
         if text_answer.reviewed_answer:
@@ -14,7 +14,7 @@ def fill_answer_field(apps, schema_editor):
         text_answer.save()
 
 
-def refill_reviewed_answer_field(apps, schema_editor):
+def refill_reviewed_answer_field(apps, _schema_editor):
     TextAnswer = apps.get_model('evaluation', 'TextAnswer')
     for text_answer in TextAnswer.objects.all():
         if text_answer.original_answer:

@@ -83,13 +83,11 @@ def grant_reward_points_if_eligible(user, semester):
         return missing_points, progress >= 1.0
     return 0, False
 
+
 # Signal handlers
 
 @receiver(Course.course_evaluated)
-def grant_reward_points_after_evaluate(sender, **kwargs):
-    request = kwargs['request']
-    semester = kwargs['semester']
-
+def grant_reward_points_after_evaluate(request, semester, **_kwargs):
     points_granted, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
     if points_granted:
         message = ngettext("You just earned {count} reward point for this semester.",
@@ -103,8 +101,9 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
 
         messages.success(request, message)
 
+
 @receiver(models.signals.m2m_changed, sender=Course.participants.through)
-def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
+def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwargs):
     # if users do not need to evaluate a course anymore, they may have earned reward points
     if action == 'post_remove':
         affected = []

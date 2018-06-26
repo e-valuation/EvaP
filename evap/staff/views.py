@@ -492,6 +492,7 @@ def semester_todo(request, semester_id):
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_todo.html", template_data)
 
+
 @staff_required
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -592,7 +593,7 @@ def course_edit(request, semester_id, course_id):
 @staff_required
 def helper_course_edit(request, semester, course):
     @receiver(RewardPointGranting.granted_by_removal)
-    def notify_reward_points(users, **kwargs):
+    def notify_reward_points(users, **_kwargs):
         names = ", ".join('"{}"'.format(user.username) for user in users)
         messages.info(request, ungettext("The removal of participants has granted {affected} user reward points: {names}.",
             "The removal of participants has granted {affected} users reward points: {names}.",
@@ -1186,7 +1187,7 @@ def user_import(request):
 @staff_required
 def user_edit(request, user_id):
     @receiver(RewardPointGranting.granted_by_removal)
-    def notify_reward_points(users, **kwargs):
+    def notify_reward_points(users, **_kwargs):
         messages.info(request, _('The removal of courses has granted the user "{}" reward points for the active semester.'.format(users[0].username)))
 
     user = get_object_or_404(UserProfile, id=user_id)

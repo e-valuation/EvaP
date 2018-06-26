@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
-from django.db import models, migrations
+from django.db import migrations
 from django.contrib.auth.models import Group
 
 
-def insert_emailtemplates(apps, schema_editor):
+def insert_emailtemplates(apps, _schema_editor):
     emailtemplates = [
         ("Lecturer Review Notice", "[EvaP] New Course ready for approval"),
         ("Student Reminder", "[EvaP] Evaluation period is ending"),
@@ -16,7 +14,7 @@ def insert_emailtemplates(apps, schema_editor):
 
     for name, subject in emailtemplates:
         if not EmailTemplate.objects.filter(name=name).exists():
-           EmailTemplate.objects.create(name=name, subject=subject, body="")
+            EmailTemplate.objects.create(name=name, subject=subject, body="")
 
     Group.objects.create(name="Staff")
 

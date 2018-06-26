@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from django.db import migrations
 
-from django.db import models, migrations
 
-def update_states(apps, schema_editor):
+def update_states(apps, _schema_editor):
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for answer in TextAnswer.objects.all():
         if answer.hidden:
@@ -14,7 +12,8 @@ def update_states(apps, schema_editor):
             answer.state = 'NR'
         answer.save()
 
-def backward_update_states(apps, schema_editor):
+
+def backward_update_states(apps, _schema_editor):
     TextAnswer = apps.get_model("evaluation", "TextAnswer")
     for answer in TextAnswer.objects.all():
         if answer.state == 'HI':
@@ -30,6 +29,7 @@ def backward_update_states(apps, schema_editor):
             answer.hidden = True
             answer.checked = False
         answer.save()
+
 
 class Migration(migrations.Migration):
 

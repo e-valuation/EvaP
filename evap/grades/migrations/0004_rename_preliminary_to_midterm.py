@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models, migrations
 
 
-def rename(apps, schema_editor):
+def rename(apps, _schema_editor):
     GradeDocument = apps.get_model('grades', 'GradeDocument')
     for grade_document in GradeDocument.objects.all():
         if grade_document.type == 'PRE':
