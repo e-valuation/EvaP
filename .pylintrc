@@ -18,11 +18,11 @@ ignore-patterns=
 #init-hook=
 
 # Use multiple processes to speed up Pylint.
-jobs=1
+jobs=4
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_django
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -127,13 +127,23 @@ disable=print-statement,
         next-method-defined,
         dict-items-not-iterating,
         dict-keys-not-iterating,
-        dict-values-not-iterating
+        dict-values-not-iterating,
         deprecated-operator-function,
         deprecated-urllib-function,
         xreadlines-attribute,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
+        line-too-long,               # we don't enforce some fixed line length but rather complain about long lines in reviews.
+        too-many-public-methods,     # reported for some models, that won't change
+        too-few-public-methods,      # noisy, e.g. exception classes, mixins etc
+        no-member, no-name-in-module, # false positives, deals badly with django classes
+        pointless-string-statement,  # used for documentation in some test files
+        logging-format-interpolation, # decided against the proposed change in favor of .format()
+        too-many-ancestors,          # noisy, reported for all test classes
+        bad-continuation,            # Over a hundred reports, we seem to indent differently, but at least consistently.
+        missing-docstring,           # yeah... we don't have those
+        protected-access,            # for us that means "be careful", not "don't do it"
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -186,14 +196,15 @@ argument-naming-style=snake_case
 
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style
-#argument-rgx=
+# allowing capital letters for less noise, (some arguments are supposed to take a class)
+argument-rgx=[A-Za-z_][A-Za-z0-9_]{0,30}$
 
 # Naming style matching correct attribute names
 attr-naming-style=snake_case
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style
-#attr-rgx=
+attr-rgx=[a-z_][a-z0-9_]{1,60}$
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,
@@ -232,7 +243,7 @@ function-naming-style=snake_case
 
 # Regular expression matching correct function names. Overrides function-
 # naming-style
-#function-rgx=
+function-rgx=[a-z_][a-z0-9_]{2,60}$
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,
@@ -240,7 +251,10 @@ good-names=i,
            k,
            ex,
            Run,
-           _
+           _,
+           __,
+           e,
+           logger
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -257,14 +271,15 @@ method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style
-#method-rgx=
+method-rgx=[a-z_][a-z0-9_]{2,60}$
 
 # Naming style matching correct module names
 module-naming-style=snake_case
 
 # Regular expression matching correct module names. Overrides module-naming-
 # style
-#module-rgx=
+# allowing exactly four digits at the beginning for migrations
+module-rgx=([0-9]{4})?([a-z_][a-z0-9_]*)$
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.
@@ -283,13 +298,14 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style
-#variable-rgx=
+# allowing capital letters for less noise, (mostly Formset classes made from factories)
+variable-rgx=[A-Za-z_][A-Za-z0-9_]{2,60}$
 
 
 [FORMAT]
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-expected-line-ending-format=
+expected-line-ending-format=LF
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$

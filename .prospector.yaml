@@ -17,6 +17,7 @@ pep8:
     - E128  # hanging indents not allowed - we indent differently
     - E126  # overindentation - we indent differently
     - N802  # function name should be lowercase - lots of false positives in tests that pylint doesn't show
+    - N803  # argument name should be lowercase - pylint has this as well (and there we tweaked it)
     - N806  # variable in function should be lowercase - lots of false positives, mostly Formset classes made from factories
     - N804  # first argument of a classmethod should be named 'cls' - one false positive and pylint does it better
     - E266  # too many leading '#' for block comment - that's used in settings on purpose
