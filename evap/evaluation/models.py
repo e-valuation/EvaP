@@ -583,7 +583,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
 
 @receiver(post_transition, sender=Course)
-def log_state_transition(sender, instance, name, source, target, **kwargs):
+def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 

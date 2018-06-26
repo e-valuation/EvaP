@@ -29,7 +29,7 @@ class GradeUploadTests(WebTest):
             participants=[cls.student, cls.student2, cls.student3],
             voters=[cls.student, cls.student2],
         )
-        
+
         contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
                                   can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])

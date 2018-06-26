@@ -130,7 +130,7 @@ class UserFormTests(TestCase):
 
     def test_user_cannot_be_removed_from_course_already_voted_for(self):
         student = mommy.make(UserProfile)
-        course = mommy.make(Course, participants=[student], voters=[student])
+        mommy.make(Course, participants=[student], voters=[student])
 
         form_data = get_form_data_from_instance(UserForm, student)
         form_data["courses_participating_in"] = []

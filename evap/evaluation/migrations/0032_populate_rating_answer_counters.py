@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from django.db import models, migrations
+from django.db import migrations
 
 
-def populateRatingAnswerCounters(apps, schema_editor):
+def populate_rating_answer_counters(apps, _schema_editor):
     LikertAnswerCounter = apps.get_model('evaluation', 'LikertAnswerCounter')
     GradeAnswerCounter = apps.get_model('evaluation', 'GradeAnswerCounter')
     RatingAnswerCounter = apps.get_model('evaluation', 'RatingAnswerCounter')
 
     for counter in list(LikertAnswerCounter.objects.all()) + list(GradeAnswerCounter.objects.all()):
         RatingAnswerCounter.objects.create(question=counter.question, contribution=counter.contribution, answer=counter.answer, count=counter.count)
+
 
 class Migration(migrations.Migration):
 
@@ -19,6 +17,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(populateRatingAnswerCounters),
+        migrations.RunPython(populate_rating_answer_counters),
     ]
-

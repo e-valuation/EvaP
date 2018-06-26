@@ -3,7 +3,7 @@
 from django.db import migrations, models
 
 
-def fill_can_publish_text_results(apps, schema_editor):
+def fill_can_publish_text_results(apps, _schema_editor):
     Course = apps.get_model('evaluation', 'Course')
     for course in Course.objects.all():
         num_voters = course.voters.count()

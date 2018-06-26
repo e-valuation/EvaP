@@ -22,7 +22,7 @@ class TestLanguageSignalReceiver(WebTest):
         user = mommy.make(UserProfile, language=None, email="user@institution.example.com")
         user.ensure_valid_login_key()
 
-        set_or_get_language(None, user, None)
+        set_or_get_language(user=user, request=None)
 
         user.refresh_from_db()
         self.assertEqual(user.language, 'de')

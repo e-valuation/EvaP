@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
@@ -168,7 +167,7 @@ class TestCourses(WebTest):
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester))
-        contribution = mommy.make(Contribution,
+        mommy.make(Contribution,
             course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )

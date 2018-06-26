@@ -7,7 +7,6 @@ from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
-from django.urls import resolve, Resolver404
 from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language

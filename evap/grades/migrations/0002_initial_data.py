@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
-from django.db import models, migrations
+from django.db import migrations
 from django.contrib.auth.models import Group
 
 
-def add_group(apps, schema_editor):
+def add_group(_apps, _schema_editor):
     Group.objects.create(name="Grade publisher")
 
 
