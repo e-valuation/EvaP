@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
+from django.test import override_settings
 from model_mommy import mommy
 import xlrd
 
@@ -124,6 +125,11 @@ class TestUserCreateView(ViewTest):
         self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
 
 
+@override_settings(REWARD_POINTS=[
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
+])
 class TestUserEditView(ViewTest):
     url = "/staff/user/3/edit"
     test_users = ['staff']
@@ -156,7 +162,7 @@ class TestUserEditView(ViewTest):
         student.refresh_from_db()
 
         self.assertIn("Successfully updated user.", page)
-        self.assertIn("The removal of courses has granted the user &quot;{}&quot; reward points for the active semester.".format(student.username), page)
+        self.assertIn("The removal of courses has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
 
 
 class TestUserMergeSelectionView(ViewTest):
@@ -872,6 +878,11 @@ class TestCourseCreateView(ViewTest):
         self.assertEqual(Course.objects.get().name_de, "lfo9e7bmxp1xi")
 
 
+@override_settings(REWARD_POINTS=[
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
+])
 class TestCourseEditView(ViewTest):
     url = '/staff/semester/1/course/1/edit'
     test_users = ['staff']
@@ -925,7 +936,7 @@ class TestCourseEditView(ViewTest):
         form['participants'] = [other.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal of participants has granted 1 user reward points: &quot;{}&quot;".format(student.username), page)
+        self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
 
     def test_remove_participants(self):
         already_evaluated = mommy.make(Course, semester=self.course.semester)
@@ -934,7 +945,7 @@ class TestCourseEditView(ViewTest):
 
         for name in ["a", "b", "c", "d", "e"]:
             mommy.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
-            courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
+                courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
 
         page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='staff')
 
@@ -943,7 +954,30 @@ class TestCourseEditView(ViewTest):
         form['participants'] = [student.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal of participants has granted 5 users reward points: &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;.", page)
+        for name in ["a", "b", "c", "d", "e"]:
+            self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(name), page)
+
+    def test_remove_participants_proportional_reward_points(self):
+        already_evaluated = mommy.make(Course, semester=self.course.semester)
+        SemesterActivation.objects.create(semester=self.course.semester, is_active=True)
+        student = mommy.make(UserProfile, courses_participating_in=[self.course])
+
+        for name, points_granted in [("a", 0), ("b", 1), ("c", 2), ("d", 3)]:
+            user = mommy.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
+                courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
+            RewardPointGranting.objects.create(user_profile=user, semester=self.course.semester, value=points_granted)
+
+        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='staff')
+
+        # remove four participants
+        form = page.forms['course-form']
+        form['participants'] = [student.pk]
+        page = form.submit('operation', value='save').follow()
+
+        self.assertIn("The removal as participant has granted the user &quot;a&quot; 3 reward points for the active semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;b&quot; 2 reward points for the active semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;c&quot; 1 reward point for the active semester.", page)
+        self.assertNotIn("The removal as participant has granted the user &quot;d&quot;", page)
 
     def test_last_modified_user(self):
         """

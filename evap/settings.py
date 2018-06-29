@@ -45,9 +45,9 @@ COURSE_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all non-grade ques
 
 # number of reward points a student should have for a semester after evaluating the given fraction of courses.
 REWARD_POINTS = [
-    (1.0/3.0, 1),
-    (2.0/3.0, 2),
-    (3.0/3.0, 3),
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
 ]
 
 # days before end date to send reminder

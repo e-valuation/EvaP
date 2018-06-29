@@ -11,9 +11,9 @@ from evap.rewards.tools import reward_points_of_user
 
 
 @override_settings(REWARD_POINTS=[
-    (1.0/3.0, 1),
-    (2.0/3.0, 2),
-    (3.0/3.0, 3),
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
 ])
 class TestGrantRewardPoints(WebTest):
     csrf_checks = False
@@ -66,9 +66,9 @@ class TestGrantRewardPoints(WebTest):
 
 
 @override_settings(REWARD_POINTS=[
-    (1.0/3.0, 1),
-    (2.0/3.0, 2),
-    (3.0/3.0, 3),
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
 ])
 class TestGrantRewardPointsParticipationChange(TestCase):
     @classmethod
