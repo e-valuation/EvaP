@@ -936,7 +936,7 @@ class TestCourseEditView(ViewTest):
         form['participants'] = [other.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
+        self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(student.username), page)
 
     def test_remove_participants(self):
         already_evaluated = mommy.make(Course, semester=self.course.semester)
@@ -955,7 +955,7 @@ class TestCourseEditView(ViewTest):
         page = form.submit('operation', value='save').follow()
 
         for name in ["a", "b", "c", "d", "e"]:
-            self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(name), page)
+            self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(name), page)
 
     def test_remove_participants_proportional_reward_points(self):
         already_evaluated = mommy.make(Course, semester=self.course.semester)
@@ -974,9 +974,9 @@ class TestCourseEditView(ViewTest):
         form['participants'] = [student.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal as participant has granted the user &quot;a&quot; 3 reward points for the active semester.", page)
-        self.assertIn("The removal as participant has granted the user &quot;b&quot; 2 reward points for the active semester.", page)
-        self.assertIn("The removal as participant has granted the user &quot;c&quot; 1 reward point for the active semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;a&quot; 3 reward points for the semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;b&quot; 2 reward points for the semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;c&quot; 1 reward point for the semester.", page)
         self.assertNotIn("The removal as participant has granted the user &quot;d&quot;", page)
 
     def test_last_modified_user(self):

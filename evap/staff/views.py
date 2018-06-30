@@ -597,8 +597,8 @@ def helper_course_edit(request, semester, course):
         for granting in grantings:
             messages.info(request,
                 ngettext(
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward point for the active semester.',
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward points for the active semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward point for the semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward points for the semester.',
                     granting.value
                 ).format(granting=granting)
             )
