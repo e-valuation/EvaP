@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
@@ -103,11 +103,12 @@ def contact(request):
         try:
             mail.send()
             logger.info('Sent contact email: \n{}\n'.format(mail.message()))
+            return HttpResponse()
         except Exception:
             logger.exception('An exception occurred when sending the following contact email:\n{}\n'.format(mail.message()))
             raise
 
-    return HttpResponse()
+    return HttpResponseBadRequest()
 
 
 @require_POST
