@@ -115,4 +115,3 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=content_en.read())
         self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course2")
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Course1")
-

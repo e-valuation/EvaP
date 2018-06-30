@@ -64,13 +64,13 @@ def is_semester_activated(semester):
 
 def grant_reward_points_if_eligible(user, semester):
     if not can_user_use_reward_points(user):
-        return 0, False
+        return None, False
     if not is_semester_activated(semester):
-        return 0, False
+        return None, False
     # does the user have at least one required course in this semester?
     required_courses = Course.objects.filter(participants=user, semester=semester, is_rewarded=True)
     if not required_courses.exists():
-        return 0, False
+        return None, False
 
     # How many points have been granted to this user vs how many should they have (this semester)
     granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
@@ -79,21 +79,19 @@ def grant_reward_points_if_eligible(user, semester):
     missing_points = target_points - granted_points
 
     if missing_points > 0:
-        RewardPointGranting.objects.create(user_profile=user, semester=semester, value=missing_points)
-        return missing_points, progress >= 1.0
-    return 0, False
+        granting = RewardPointGranting.objects.create(user_profile=user, semester=semester, value=missing_points)
+        return granting, progress >= 1.0
+    return None, False
+
 
 # Signal handlers
 
 @receiver(Course.course_evaluated)
-def grant_reward_points_after_evaluate(sender, **kwargs):
-    request = kwargs['request']
-    semester = kwargs['semester']
-
-    points_granted, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
-    if points_granted:
+def grant_reward_points_after_evaluate(request, semester, **_kwargs):
+    granting, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
+    if granting:
         message = ngettext("You just earned {count} reward point for this semester.",
-                           "You just earned {count} reward points for this semester.", points_granted).format(count=points_granted)
+                           "You just earned {count} reward points for this semester.", granting.value).format(count=granting.value)
 
         if completed_evaluation:
             message += " " + _("Thank you very much for evaluating all your courses.")
@@ -103,26 +101,29 @@ def grant_reward_points_after_evaluate(sender, **kwargs):
 
         messages.success(request, message)
 
+
 @receiver(models.signals.m2m_changed, sender=Course.participants.through)
-def grant_reward_points_after_delete(instance, action, reverse, pk_set, **kwargs):
+def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwargs):
     # if users do not need to evaluate a course anymore, they may have earned reward points
     if action == 'post_remove':
-        affected = []
+        grantings = []
 
         if reverse:
             # a course got removed from a participant
             user = instance
 
             for semester in Semester.objects.filter(course__pk__in=pk_set):
-                if grant_reward_points_if_eligible(user, semester):
-                    affected = [user]
+                granting, __ = grant_reward_points_if_eligible(user, semester)
+                if granting:
+                    grantings = [granting]
         else:
             # a participant got removed from a course
             course = instance
 
             for user in UserProfile.objects.filter(pk__in=pk_set):
-                if grant_reward_points_if_eligible(user, course.semester):
-                    affected.append(user)
+                granting, __ = grant_reward_points_if_eligible(user, course.semester)
+                if granting:
+                    grantings.append(granting)
 
-        if affected:
-            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, users=affected)
+        if grantings:
+            RewardPointGranting.granted_by_removal.send(sender=RewardPointGranting, grantings=grantings)

@@ -42,6 +42,6 @@ class Command(BaseCommand):
         call_command("refresh_results_cache")
 
         self.stdout.write('Executing "python manage.py clear_cache --cache=sessions"')
-        call_command('clear_cache --cache=sessions')
+        call_command('clear_cache', '--cache=sessions')
 
         self.stdout.write('Done.')

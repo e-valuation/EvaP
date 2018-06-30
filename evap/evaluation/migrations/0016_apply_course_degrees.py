@@ -1,25 +1,22 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models, migrations
 
 
-def apply_degrees(apps, schema_editor):
+def apply_degrees(apps, _schema_editor):
     Degree = apps.get_model("evaluation", "Degree")
     Course = apps.get_model("evaluation", "Course")
 
-    ba = Degree.objects.get(name_en='Bachelor')
-    ma = Degree.objects.get(name_en='Master')
-    ot = Degree.objects.get(name_en='Other')
+    bachelor = Degree.objects.get(name_en='Bachelor')
+    master = Degree.objects.get(name_en='Master')
+    other = Degree.objects.get(name_en='Other')
 
-    for c in Course.objects.all():
-        if c.degree == 'Bachelor':
-            c.degrees.add(ba)
-        elif c.degree == 'Master':
-            c.degrees.add(ma)
+    for course in Course.objects.all():
+        if course.degree == 'Bachelor':
+            course.degrees.add(bachelor)
+        elif course.degree == 'Master':
+            course.degrees.add(master)
         else:
-            c.degrees.add(ot)
-        c.save()
+            course.degrees.add(other)
+        course.save()
 
 
 class Migration(migrations.Migration):

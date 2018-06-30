@@ -3,12 +3,12 @@
 from django.db import migrations, models
 
 
-def migrate_is_for_contributors_to_type(apps, schema_editor):
+def migrate_is_for_contributors_to_type(apps, _schema_editor):
     Questionnaire = apps.get_model('evaluation', 'Questionnaire')
     Questionnaire.objects.filter(is_for_contributors=True).update(type=20)
 
 
-def migrate_type_to_is_for_contributors(apps, schema_editor):
+def migrate_type_to_is_for_contributors(apps, _schema_editor):
     Questionnaire = apps.get_model('evaluation', 'Questionnaire')
     Questionnaire.objects.filter(type=20).update(is_for_contributors=True)
 

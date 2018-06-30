@@ -14,6 +14,7 @@ from evap.evaluation.tests.tools import WebTest
 
 from django.urls import reverse
 
+
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
 class SampleXlsTests(WebTest):
 

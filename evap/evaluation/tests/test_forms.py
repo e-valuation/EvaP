@@ -20,4 +20,3 @@ class TestNewKeyForm(TestCase):
         form = NewKeyForm(data)
         self.assertFalse(form.is_valid())
         self.assertIn("Inactive users cannot request login keys.", form.errors["email"])
-

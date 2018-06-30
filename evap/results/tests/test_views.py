@@ -1,5 +1,4 @@
 from django.contrib.auth.models import Group
-from django.core.cache import caches
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
@@ -170,7 +169,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         cls.course = mommy.make(Course, id=22, state='in_evaluation', semester=cls.semester, participants=students)
         questionnaire = mommy.make(Questionnaire)
         cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
-        question_likert = mommy.make(Question, questionnaire=questionnaire, type="L")
+        mommy.make(Question, questionnaire=questionnaire, type="L")
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = mommy.make(Contribution, contributor=responsible, course=cls.course, questionnaires=[questionnaire])
 

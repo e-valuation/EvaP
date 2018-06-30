@@ -46,12 +46,12 @@
 
 <script type="text/javascript">
     function {{ modal_id }}Show() {
-        $('#{{ modal_id }}ActionButton').unbind().click(function(){ {{ modal_id }}Action(); });
+        $('#{{ modal_id }}ActionButton').unbind().click(function(event){ {{ modal_id }}Action(event); });
         $('#{{ modal_id }}').modal();
         // remove wrongly added padding by Bootstrap (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
         $('body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top').css('padding-right', '');
     }
-    function {{ modal_id }}Action() {
+    function {{ modal_id }}Action(event) {
         var actionButton = $('#{{ modal_id }}ActionButton');
         actionButton.prop('disabled', true);
         event.preventDefault();

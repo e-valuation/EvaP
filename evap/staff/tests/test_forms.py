@@ -130,7 +130,7 @@ class UserFormTests(TestCase):
 
     def test_user_cannot_be_removed_from_course_already_voted_for(self):
         student = mommy.make(UserProfile)
-        course = mommy.make(Course, participants=[student], voters=[student])
+        mommy.make(Course, participants=[student], voters=[student])
 
         form_data = get_form_data_from_instance(UserForm, student)
         form_data["courses_participating_in"] = []
@@ -150,7 +150,7 @@ class SingleResultFormTests(TestCase):
             "name_de": "qwertz",
             "name_en": "qwertz",
             "type": course_type.pk,
-            "degrees": ["1"],
+            "degrees": [1],
             "event_date": "2014-01-01",
             "responsible": responsible.pk,
             "answer_1": 6,
@@ -177,7 +177,7 @@ class SingleResultFormTests(TestCase):
             "name_de": "qwertz",
             "name_en": "qwertz",
             "type": course_type.pk,
-            "degrees": ["1"],
+            "degrees": [1],
             "event_date": "2014-01-01",
             "responsible": responsible.pk,
             "answer_1": 6,
@@ -222,8 +222,8 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
         })
         # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
@@ -236,11 +236,11 @@ class ContributionFormsetTests(TestCase):
         data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = questionnaire.pk
         data['contributions-1-order'] = 1
-        data['contributions-1-comment_visibility'] = "ALL"
+        data['contributions-1-comment_visibility'] = Contribution.ALL_COMMENTS
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = user2.pk
-        data['contributions-1-responsibility'] = "RESPONSIBLE"
+        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
         self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
 
     def test_dont_validate_deleted_contributions(self):
@@ -265,20 +265,20 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
-            'contributions-1-responsibility': "RESPONSIBLE",
-            'contributions-1-comment_visibility': "ALL",
+            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-1-contributor': user2.pk,
             'contributions-2-course': course.pk,
             'contributions-2-questionnaires': "",
             'contributions-2-order': 1,
             'contributions-2-responsibility': "CONTRIBUTOR",
-            'contributions-2-comment_visibility': "OWN",
+            'contributions-2-comment_visibility': Contribution.OWN_COMMENTS,
             'contributions-2-contributor': user2.pk,
         })
 
@@ -312,14 +312,14 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': "",
             'contributions-1-order': -1,
             'contributions-1-responsibility': "CONTRIBUTOR",
-            'contributions-1-comment_visibility': "OWN",
+            'contributions-1-comment_visibility': Contribution.OWN_COMMENTS,
             'contributions-1-contributor': "",
         })
 
@@ -331,7 +331,7 @@ class ContributionFormsetTests(TestCase):
 
         # delete first, change data in extra formset
         data['contributions-0-DELETE'] = 'on'
-        data['contributions-1-responsibility'] = 'RESPONSIBLE'
+        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         formset.is_valid()
 
@@ -357,16 +357,16 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-course': course.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-id': '',
-            'contributions-1-responsibility': "RESPONSIBLE",
-            'contributions-1-comment_visibility': "ALL",
+            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-1-contributor': user1.pk,
         })
 
@@ -431,15 +431,15 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-0-course': self.course.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': "RESPONSIBLE",
-            'contributions-0-comment_visibility': "ALL",
+            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
             'contributions-0-contributor': self.user1.pk,
             'contributions-1-id': str(self.contribution2.pk),
             'contributions-1-course': self.course.pk,
             'contributions-1-questionnaires': self.questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-responsibility': "CONTRIBUTOR",
-            'contributions-1-comment_visibility': "OWN",
+            'contributions-1-comment_visibility': Contribution.OWN_COMMENTS,
             'contributions-1-contributor': self.user2.pk,
         })
 
@@ -473,7 +473,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-2-id'] = ""
         self.data['contributions-2-order'] = -1
         self.data['contributions-2-responsibility'] = "CONTRIBUTOR"
-        self.data['contributions-2-comment_visibility'] = "OWN"
+        self.data['contributions-2-comment_visibility'] = Contribution.OWN_COMMENTS
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         self.assertTrue(formset.is_valid())
 
@@ -488,7 +488,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-1-id'] = ""
         self.data['contributions-1-order'] = -1
         self.data['contributions-1-responsibility'] = "CONTRIBUTOR"
-        self.data['contributions-1-comment_visibility'] = "OWN"
+        self.data['contributions-1-comment_visibility'] = Contribution.OWN_COMMENTS
 
         formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
         self.assertTrue(formset.is_valid())

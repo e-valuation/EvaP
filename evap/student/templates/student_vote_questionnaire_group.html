@@ -20,11 +20,17 @@
                     <tr class="vote-row d-flex">
                         {% if field|is_choice_field %}
                             <td class="vote-question vote-question-choice my-auto{% if field.errors %} choice-error{% endif %}" name="{{ field.name }}">
+                                {{ field.label }}
+                            </td>
                         {% else %}
-                            <td class="vote-question vote-question-text">
+                            <td class="vote-question vote-question-text d-flex flex-column">
+                                {{ field.label }}
+                                <div class="warning-label mt-auto d-none">
+                                    <span class="fas fa-exclamation-triangle"></span>
+                                    {% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}
+                                </div>
+                            </td>
                         {% endif %}
-                        {{ field.label }}
-                        </td>
                         {% if field|is_choice_field %}
                             <td class="vote-answer-buttons my-auto">
                                 <div class="vote-inputs btn-group btn-group-toggle" data-toggle="buttons"{% if preview %} disabled{% endif %}>

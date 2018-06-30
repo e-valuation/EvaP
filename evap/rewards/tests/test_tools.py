@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -12,9 +11,9 @@ from evap.rewards.tools import reward_points_of_user
 
 
 @override_settings(REWARD_POINTS=[
-    (1.0/3.0, 1),
-    (2.0/3.0, 2),
-    (3.0/3.0, 3),
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
 ])
 class TestGrantRewardPoints(WebTest):
     csrf_checks = False
@@ -67,9 +66,9 @@ class TestGrantRewardPoints(WebTest):
 
 
 @override_settings(REWARD_POINTS=[
-    (1.0/3.0, 1),
-    (2.0/3.0, 2),
-    (3.0/3.0, 3),
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
 ])
 class TestGrantRewardPointsParticipationChange(TestCase):
     @classmethod
@@ -89,4 +88,3 @@ class TestGrantRewardPointsParticipationChange(TestCase):
         self.student.courses_participating_in.remove(self.course)
 
         self.assertEqual(reward_points_of_user(self.student), 3)
-
