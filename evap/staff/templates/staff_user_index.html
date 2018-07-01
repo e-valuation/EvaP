@@ -43,7 +43,7 @@
                     <tr id="user-row-{{ user.id }}">
                         <td>{{ user.full_name }}</td>
                         <td>{{ user.username }}</td>
-                        <td>{% include 'staff_user_labels.html' with user=user %}</td>
+                        <td>{% include 'staff_user_badges.html' with user=user %}</td>
                         <td>
                             <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                             {% if user.can_staff_delete %}
