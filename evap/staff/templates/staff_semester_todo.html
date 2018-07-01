@@ -40,10 +40,7 @@
                             <tr{% if course.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
                                     <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a><br />
-                                    {% for degree in course.degrees.all %}
-                                        <span class="badge badge-primary">{{ degree }}</span>
-                                    {% endfor %}
-                                    <span class="badge badge-secondary">{{ course.type }}</span>
+                                    {% include 'course_badges.html' with mode='staff' %}
                                 </th>
                                 <td>{{ course.state|statename }}</td>
                                 <td>{{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}</td>

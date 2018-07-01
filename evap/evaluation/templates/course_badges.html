@@ -1,0 +1,13 @@
+{% if not mode == 'student' %}
+    {% for degree in course.degrees.all %}
+        <span class="badge badge-primary">{{ degree }}</span>
+    {% endfor %}
+{% endif %}
+<span class="badge badge-secondary">{{ course.type }}</span>
+{% if course.is_single_result %}
+    <span class="badge badge-success">{% trans 'Single result' %}</span>
+{% endif %}
+{% if mode == 'staff' and not course.is_single_result %}
+    <span class="badge badge-info">{% if course.is_graded %}{% trans 'graded' %}{% else %}{% trans 'not graded' %}{% endif %}</span>
+    {% if course.is_private %}<span class="badge badge-info">{% trans 'private' %}</span>{% endif %}
+{% endif %}

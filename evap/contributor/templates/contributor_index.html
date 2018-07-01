@@ -59,13 +59,7 @@
                                 <div>
                                     {{ course.name }}
                                 </div>
-                                {% for degree in course.degrees.all %}
-                                    <span class="badge badge-primary">{{ degree }}</span>
-                                {% endfor %}
-                                <span class="badge badge-secondary">{{ course.type }}</span>
-                                {% if course.is_single_result %}
-                                    <span class="badge badge-success">{% trans 'Single result' %}</span>
-                                {% endif %}
+                                {% include 'course_badges.html' with mode='contributor' %}
                                 {% if course in delegated_courses %}
                                     <span class="badge badge-info" data-toggle="tooltip" data-placement="right" title="{% trans 'You are seeing this course because you are a delegate of a lecturer who can edit the course.' %}">{% trans 'Delegate' %}</span>
                                 {% endif %}

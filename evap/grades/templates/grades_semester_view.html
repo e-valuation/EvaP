@@ -38,10 +38,7 @@
                                         <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     {% endif %}
                                     <br />
-                                    {% for degree in course.degrees.all %}
-                                        <span class="badge badge-primary">{{ degree }}</span>
-                                    {% endfor %}
-                                    <span class="badge badge-secondary">{{ course.type }}</span>
+                                    {% include 'course_badges.html' with mode='grades' %}
                                 </td>
                                 <td>
                                     {% for contributor in course.responsible_contributors %}
