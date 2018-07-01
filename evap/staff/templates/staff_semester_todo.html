@@ -31,7 +31,7 @@
                         <tr>
                             <th style="width: 40%">{% trans 'Name' %}</th>
                             <th style="width: 17%">{% trans 'State' %}</th>
-                            <th style="width: 18%">{% trans 'Evaluation period' %}</th>
+                            <th style="width: 18%">{% trans 'Evaluation start' %}</th>
                             <th style="width: 25%">{% trans 'Last modified by' %}</th>
                        </tr>
                     </thead>
@@ -43,7 +43,7 @@
                                     {% include 'course_badges.html' with mode='staff' %}
                                 </th>
                                 <td>{{ course.state|statename }}</td>
-                                <td>{{ course.vote_start_datetime }} &ndash; {{ course.vote_end_date }}</td>
+                                <td>{% include 'staff_course_evaluation_period.html' with state=course.state start_only=True %}</td>
                                 <td>
                                     {% if course.last_modified_user %}
                                         {{ course.last_modified_user }}

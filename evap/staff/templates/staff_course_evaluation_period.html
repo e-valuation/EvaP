@@ -1,8 +1,8 @@
 {% if course.is_single_result %}
     {{ course.vote_start_datetime|date:"Y-m-d" }}
 {% else %}
-    {{ course.vote_start_datetime }} &ndash;<br />
-    {{ course.vote_end_date }}<br />
+    {{ course.vote_start_datetime }}{% if not start_only %} &ndash;<br />
+    {{ course.vote_end_date }}{% endif %}<br />
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
         {% if course.days_until_evaluation < 0 %}
             <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation should already have started' %}">
