@@ -2,7 +2,7 @@ import csv
 from datetime import datetime, date
 from xlrd import open_workbook as open_workbook
 from xlutils.copy import copy as copy_workbook
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,11 +21,11 @@ from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, staff_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
-from evap.evaluation.tools import questionnaires_and_contributions, send_publish_notifications, sort_formset
+from evap.evaluation.tools import send_publish_notifications, sort_formset
 from evap.grades.tools import are_grades_activated
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import CommentSection, TextResult, calculate_average_distribution, get_textanswers, distribution_to_grade
+from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseEmailForm, CourseForm, CourseParticipantCopyForm,
@@ -764,20 +764,23 @@ def course_comments(request, semester_id, course_id):
         raise PermissionDenied
 
     filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
-    filter_states = [TextAnswer.NOT_REVIEWED] if filter_comments else None
 
+    CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
     contributor_sections = []
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        text_results = []
-        for question in questionnaire.text_questions:
-            answers = get_textanswers(contribution, question, filter_states)
-            if answers:
-                text_results.append(TextResult(question=question, answers=answers))
-        if not text_results:
-            continue
-        section_list = course_sections if contribution.is_general else contributor_sections
-        section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
+    for contribution in course.contributions.all().prefetch_related("questionnaires"):
+        for questionnaire in contribution.questionnaires.all():
+            text_results = []
+            for question in questionnaire.text_questions:
+                answers = TextAnswer.objects.filter(contribution=contribution, question=question)
+                if filter_comments:
+                    answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
+                if answers:
+                    text_results.append(TextResult(question=question, answers=answers))
+            if not text_results:
+                continue
+            section_list = course_sections if contribution.is_general else contributor_sections
+            section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, course_sections=course_sections,
             contributor_sections=contributor_sections, filter_comments=filter_comments)

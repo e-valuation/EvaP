@@ -12,15 +12,15 @@
             {% endfor %}
         </div>
         <div class="grade-bg-result-bar text-center" style="background-color: {{ average|gradecolor }}">
-            {% if result.question.is_yes_no_question %}
-                {{ result.approval_count|percentage:result.total_count }}
+            {% if question_result.question.is_yes_no_question %}
+                {{ question_result.approval_count|percentage:question_result.total_count }}
             {% else %}
                 {{ average|floatformat:1 }}
             {% endif %}
         </div>
     </div>
 {% else %}
-    <div class="d-flex"{% if not result %} data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"{% endif %}>
+    <div class="d-flex"{% if not question_result %} data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"{% endif %}>
         <div class="distribution-bar distribution-bar-disabled text-center"><span class="far fa-eye-slash"></span></div>
         <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="far fa-eye-slash"></span></div>
     </div>

@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_answers, get_answers_from_answer_counters, get_results_cache_key, calculate_average_distribution, calculate_results, distribution_to_grade
+from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade
 from evap.staff.tools import merge_users
 
 
@@ -15,18 +15,18 @@ class TestCalculateResults(TestCase):
     def test_caches_published_course(self):
         course = mommy.make(Course, state='published')
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
-        calculate_results(course)
+        collect_results(course)
 
-        self.assertIsNotNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
         course = mommy.make(Course, state='published')
-        calculate_results(course)
+        collect_results(course)
         course.unpublish()
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)
@@ -43,17 +43,18 @@ class TestCalculateResults(TestCase):
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=4, count=60)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=5, count=30)
 
-        results = calculate_results(course)
+        course_results = collect_results(course)
 
-        self.assertEqual(len(results), 1)
-        self.assertEqual(len(results[0].results), 1)
-        result = results[0].results[0]
+        self.assertEqual(len(course_results.questionnaire_results), 1)
+        questionnaire_result = course_results.questionnaire_results[0]
+        self.assertEqual(len(questionnaire_result.question_results), 1)
+        question_result = questionnaire_result.question_results[0]
 
-        self.assertEqual(result.total_count, 150)
-        self.assertAlmostEqual(result.average, float(109) / 30)
-        self.assertEqual(result.counts, (5, 15, 40, 60, 30))
+        self.assertEqual(question_result.total_count, 150)
+        self.assertAlmostEqual(question_result.average, float(109) / 30)
+        self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 
-    def test_calculate_results_after_user_merge(self):
+    def test_collect_results_after_user_merge(self):
         """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
         contributor = mommy.make(UserProfile)
         main_user = mommy.make(UserProfile)
@@ -64,14 +65,14 @@ class TestCalculateResults(TestCase):
         mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
 
-        calculate_results(course)
+        collect_results(course)
 
         merge_users(main_user, contributor)
 
-        results = calculate_results(course)
+        course_results = collect_results(course)
 
-        for section in results:
-            self.assertTrue(Contribution.objects.filter(course=course, contributor=section.contributor).exists())
+        for contribution_result in course_results.contribution_results:
+            self.assertTrue(Contribution.objects.filter(course=course, contributor=contribution_result.contributor).exists())
 
 
 class TestCalculateAverageDistribution(TestCase):
@@ -88,26 +89,6 @@ class TestCalculateAverageDistribution(TestCase):
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
         cls.contribution2 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
-
-    def test_answer_counting(self):
-        contribution3 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=self.course, questionnaires=[self.questionnaire])
-
-        rating_answer_counters = []
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=4))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=4, count=2))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=5, count=3))
-
-        # create some unrelated answer counters for different questions / contributions
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=contribution3, answer=1, count=1)
-
-        answer_counters = get_answers(self.contribution1, self.question_grade)
-        self.assertSetEqual(set(rating_answer_counters), set(answer_counters))
-
-        answers = get_answers_from_answer_counters(answer_counters)
-        self.assertListEqual(answers, [1, 3, 3, 3, 3, 4, 4, 5, 5, 5])
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_average_grade(self):

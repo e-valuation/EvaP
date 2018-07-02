@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType
-from evap.results.tools import calculate_results, calculate_average_distribution, get_grade_color, has_no_rating_answers, distribution_to_grade
+from evap.results.tools import collect_results, calculate_average_distribution, get_grade_color, distribution_to_grade
 
 
 class ExcelExporter(object):
@@ -94,11 +94,11 @@ class ExcelExporter(object):
                 if not course.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for questionnaire, contributor, __, data, __ in calculate_results(course):
-                    if has_no_rating_answers(course, contributor, questionnaire):
+                for questionnaire_result in collect_results(course).questionnaire_results:
+                    if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
                         continue
-                    results.setdefault(questionnaire.id, []).extend(data)
-                    used_questionnaires.add(questionnaire)
+                    results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
+                    used_questionnaires.add(questionnaire_result.questionnaire)
                 courses_with_results.append((course, results))
 
             courses_with_results.sort(key=lambda cr: (cr[0].type, cr[0].name))
@@ -138,7 +138,7 @@ class ExcelExporter(object):
 
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
-                                if grade_result.average is not None:
+                                if grade_result.has_answers:
                                     values.append(grade_result.average * grade_result.total_count)
                                     total_count += grade_result.total_count
                                     if grade_result.question.is_yes_no_question:
@@ -147,7 +147,7 @@ class ExcelExporter(object):
                             avg = sum(values) / total_count
 
                             if question.is_yes_no_question:
-                                percent_approval = float(approval_count) / float(total_count) if total_count > 0 else 0
+                                percent_approval = approval_count / total_count if total_count > 0 else 0
                                 writec(self, "{:.0%}".format(percent_approval), self.grade_to_style(avg))
                             else:
                                 writec(self, avg, self.grade_to_style(avg))

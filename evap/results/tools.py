@@ -1,15 +1,12 @@
 from collections import namedtuple, defaultdict
 from functools import partial
 from math import ceil
-from statistics import median
 import itertools
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Sum
 
-from evap.evaluation.models import TextAnswer, Contribution, RatingAnswerCounter
-from evap.evaluation.tools import questionnaires_and_contributions
+from evap.evaluation.models import TextAnswer, RatingAnswerCounter
 
 
 GRADE_COLORS = {
@@ -21,125 +18,120 @@ GRADE_COLORS = {
 }
 
 
-# see calculate_results
-ResultSection = namedtuple('ResultSection', ('questionnaire', 'contributor', 'label', 'results', 'warning'))
-CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
-RatingResult = namedtuple('RatingResult', ('question', 'total_count', 'average', 'counts', 'warning'))
-YesNoResult = namedtuple('YesNoResult', ('question', 'total_count', 'average', 'counts', 'warning', 'approval_count'))
-TextResult = namedtuple('TextResult', ('question', 'answers'))
+class CourseResult:
+    def __init__(self, contribution_results):
+        self.contribution_results = contribution_results
+
+    @property
+    def questionnaire_results(self):
+        return [questionnaire_result for contribution_result in self.contribution_results for questionnaire_result in contribution_result.questionnaire_results]
+
+
+class ContributionResult:
+    def __init__(self, contributor, label, questionnaire_results):
+        self.contributor = contributor
+        self.label = label
+        self.questionnaire_results = questionnaire_results
+
+    @property
+    def has_answers(self):
+        for questionnaire_result in self.questionnaire_results:
+            for question_result in questionnaire_result.question_results:
+                question = question_result.question
+                if question.is_text_question or question.is_rating_question and question_result.has_answers:
+                    return True
+        return False
+
+
+class QuestionnaireResult:
+    def __init__(self, questionnaire, question_results):
+        self.questionnaire = questionnaire
+        self.question_results = question_results
+
+
+class RatingResult:
+    def __init__(self, question, counts):
+        assert question.is_rating_question
+        self.question = question
+        self.counts = counts
+
+    @property
+    def total_count(self):
+        if not self.is_published:
+            return None
+        return sum(self.counts)
+
+    @property
+    def approval_count(self):
+        assert self.question.is_yes_no_question
+        if not self.is_published:
+            return None
+        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[4]
+
+    @property
+    def average(self):
+        if not self.has_answers:
+            return None
+        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.total_count
+
+    @property
+    def has_answers(self):
+        return self.is_published and any(count != 0 for count in self.counts)
+
+    @property
+    def is_published(self):
+        return self.counts is not None
+
+
+class TextResult:
+    def __init__(self, question, answers):
+        assert question.is_text_question
+        self.question = question
+        self.answers = answers
+
+
 HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
-def avg(iterable):
-    items = [item for item in iterable if item is not None]
-    if not items:
-        return None
-    return sum(items) / len(items)
-
-
-def get_answers(contribution, question):
-    return question.answer_class.objects.filter(contribution=contribution, question=question)
-
-
-def get_answers_from_answer_counters(answer_counters):
-    answers = []
-    for answer_counter in answer_counters:
-        for __ in range(0, answer_counter.count):
-            answers.append(answer_counter.answer)
-    return answers
-
-
-def get_textanswers(contribution, question, filter_states=None):
-    assert question.is_text_question
-    answers = get_answers(contribution, question)
-    if filter_states is not None:
-        answers = answers.filter(state__in=filter_states)
-    return answers
-
-
 def get_counts(answer_counters):
-    if not answer_counters:
-        return None
-
     counts = [0, 0, 0, 0, 0]
     for answer_counter in answer_counters:
         counts[answer_counter.answer - 1] = answer_counter.count
     return tuple(counts)
 
 
-def get_results_cache_key(course):
-    return 'evap.staff.results.tools.calculate_results-{:d}'.format(course.id)
+def get_collect_results_cache_key(course):
+    return 'evap.staff.results.tools.collect_results-{:d}'.format(course.id)
 
 
-def calculate_results(course, force_recalculation=False):
+def collect_results(course, force_recalculation=False):
     if course.state != "published":
-        return _calculate_results_impl(course)
+        return _collect_results_impl(course)
 
-    cache_key = get_results_cache_key(course)
+    cache_key = get_collect_results_cache_key(course)
     if force_recalculation:
         caches['results'].delete(cache_key)
-    return caches['results'].get_or_set(cache_key, partial(_calculate_results_impl, course))
+    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, course))
 
 
-def _calculate_results_impl(course):
-    """Calculates the result data for a single course. Returns a list of
-    `ResultSection` tuples. Each of those tuples contains the questionnaire, the
-    contributor (or None), a list of (Rating|YesNo|Text|Heading)Result tuples,
-    the average grade and distribution for that section (or None)."""
-
-    # there will be one section per relevant questionnaire--contributor pair
-    sections = []
-
-    # calculate the median values of how many people answered a questionnaire type (lecturer, tutor, ...)
-    questionnaire_med_answers = defaultdict(list)
-    questionnaire_max_answers = {}
-    questionnaire_warning_thresholds = {}
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        max_answers = max([get_answers(contribution, question).aggregate(Sum('count'))['count__sum'] or 0 for question in questionnaire.rating_questions], default=0)
-        questionnaire_max_answers[(questionnaire, contribution)] = max_answers
-        questionnaire_med_answers[questionnaire].append(max_answers)
-    for questionnaire, max_answers in questionnaire_med_answers.items():
-        questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers), settings.RESULTS_WARNING_COUNT)
-
-    results_contain_rating_questions = False
-    for questionnaire, contribution in questionnaires_and_contributions(course):
-        # will contain one object per question
-        results = []
-        for question in questionnaire.question_set.all():
-            if question.is_rating_question:
-                results_contain_rating_questions = True
-                answer_counters = get_answers(contribution, question)
-                answers = get_answers_from_answer_counters(answer_counters)
-
-                total_count = len(answers)
-                average = avg(answers) if total_count > 0 and course.can_publish_rating_results else None
-                counts = get_counts(answer_counters) if total_count > 0 and course.can_publish_rating_results else None
-                warning = total_count > 0 and total_count < questionnaire_warning_thresholds[questionnaire]
-
-                if question.is_yes_no_question:
-                    if not counts:
-                        approval_count = None
-                    else:
-                        if question.is_positive_yes_no_question:
-                            approval_count = counts[0]
-                        else:
-                            approval_count = counts[4]
-                    results.append(YesNoResult(question, total_count, average, counts, warning, approval_count))
-                else:
-                    results.append(RatingResult(question, total_count, average, counts, warning))
-
-            elif question.is_text_question and course.can_publish_text_results:
-                answers = get_textanswers(contribution, question, filter_states=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
-                results.append(TextResult(question=question, answers=answers))
-
-            elif question.is_heading_question:
-                results.append(HeadingResult(question=question))
-
-        section_warning = 0 < questionnaire_max_answers[(questionnaire, contribution)] < questionnaire_warning_thresholds[questionnaire] and results_contain_rating_questions
-
-        sections.append(ResultSection(questionnaire, contribution.contributor, contribution.label, results, section_warning))
-
-    return sections
+def _collect_results_impl(course):
+    contributor_contribution_results = []
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+        questionnaire_results = []
+        for questionnaire in contribution.questionnaires.all():
+            results = []
+            for question in questionnaire.question_set.all():
+                if question.is_rating_question:
+                    counts = get_counts(RatingAnswerCounter.objects.filter(contribution=contribution, question=question)) if course.can_publish_rating_results else None
+                    results.append(RatingResult(question, counts))
+                elif question.is_text_question and course.can_publish_text_results:
+                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
+                    results.append(TextResult(question=question, answers=answers))
+                elif question.is_heading_question:
+                    results.append(HeadingResult(question=question))
+            questionnaire_results.append(QuestionnaireResult(questionnaire, results))
+        contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
+    return CourseResult(contributor_contribution_results)
 
 
 def normalized_distribution(distribution):
@@ -149,6 +141,9 @@ def normalized_distribution(distribution):
         return None
 
     distribution_sum = sum(distribution)
+    if distribution_sum == 0:
+        return None
+
     return tuple((value / distribution_sum) for value in distribution)
 
 
@@ -176,10 +171,11 @@ def calculate_average_distribution(course):
     if not course.can_publish_average_grade:
         return None
 
-    # will contain a list of results for each contributor and one for the course (where contributor is None)
+    # will contain a list of question results for each contributor and one for the course (where contributor is None)
     grouped_results = defaultdict(list)
-    for __, contributor, __, results, __ in calculate_results(course):
-        grouped_results[contributor].extend(results)
+    for contribution_result in collect_results(course).contribution_results:
+        for questionnaire_result in contribution_result.questionnaire_results:
+            grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
     course_results = grouped_results.pop(None, [])
 
@@ -200,12 +196,6 @@ def distribution_to_grade(distribution):
     if distribution is None:
         return None
     return sum(answer * percentage for answer, percentage in enumerate(distribution, start=1))
-
-
-def has_no_rating_answers(course, contributor, questionnaire):
-    questions = questionnaire.rating_questions
-    contribution = Contribution.objects.get(course=course, contributor=contributor)
-    return RatingAnswerCounter.objects.filter(question__in=questions, contribution=contribution).count() == 0
 
 
 def color_mix(color1, color2, fraction):
