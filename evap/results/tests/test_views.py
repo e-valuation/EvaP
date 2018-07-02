@@ -46,16 +46,16 @@ class TestResultsViewContributionWarning(WebTest):
 
     def test_many_answers_course_no_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
-        page = self.get_assert_200(self.url, 'staff')
+        page = self.app.get(self.url, user='staff', status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_course_no_warning(self):
-        page = self.get_assert_200(self.url, 'staff')
+        page = self.app.get(self.url, user='staff', status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_course_show_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
-        page = self.get_assert_200(self.url, 'staff')
+        page = self.app.get(self.url, user='staff', status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
 
@@ -134,7 +134,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     def test_single_result_course(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
         user = 'staff'
-        self.get_assert_200(url, user)
+        self.app.get(url, user=user, status=200)
 
     def test_default_view_is_public(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
@@ -152,7 +152,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     def test_wrong_state(self):
         course = mommy.make(Course, state='reviewed', semester=self.semester)
         url = '/results/semester/%s/course/%s' % (self.semester.id, course.id)
-        self.get_assert_403(url, 'student')
+        self.app.get(url, user='student', status=403)
 
 
 class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
@@ -250,16 +250,16 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         self.assertIn(private_course.name, self.app.get(url, user='other_responsible'))
         self.assertIn(private_course.name, self.app.get(url, user='contributor'))
         self.assertIn(private_course.name, self.app.get(url, user='staff'))
-        self.get_assert_403(url, 'student_external')  # external users can't see results semester view
+        self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/course/%s' % (semester.id, private_course.id)
-        self.get_assert_403(url, "random")
-        self.get_assert_200(url, "student")
-        self.get_assert_200(url, "responsible")
-        self.get_assert_200(url, "other_responsible")
-        self.get_assert_200(url, "contributor")
-        self.get_assert_200(url, "staff")
-        self.get_assert_200(url, "student_external")  # this external user participates in the course and can see the results
+        self.app.get(url, user="random", status=403)
+        self.app.get(url, user="student", status=200)
+        self.app.get(url, user="responsible", status=200)
+        self.app.get(url, user="other_responsible", status=200)
+        self.app.get(url, user="contributor", status=200)
+        self.app.get(url, user="staff", status=200)
+        self.app.get(url, user="student_external", status=200)  # this external user participates in the course and can see the results
 
 
 class TestResultsTextanswerVisibilityForStaff(WebTest):
@@ -496,4 +496,4 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_textanswer_visibility_for_student_external(self):
         # the external user does not participate in or contribute to the course and therefore can't see the results
-        self.get_assert_403("/results/semester/1/course/1", 'student_external')
+        self.app.get("/results/semester/1/course/1", user='student_external', status=403)

@@ -166,8 +166,8 @@ class GradeUploadTests(WebTest):
         self.assertGreater(self.course.midterm_grade_documents.count(), 0)
 
         url = "/grades/download/" + str(self.course.midterm_grade_documents.first().id)
-        self.get_assert_200(url, "student")  # grades should be downloadable
+        self.app.get(url, user="student", status=200)  # grades should be downloadable
 
         self.activation.is_active = False
         self.activation.save()
-        self.get_assert_403(url, "student")  # grades should not be downloadable anymore
+        self.app.get(url, user="student", status=403)  # grades should not be downloadable anymore

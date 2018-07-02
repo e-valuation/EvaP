@@ -25,7 +25,7 @@ class TestContributorSettingsView(ViewTest):
 
     def test_save_settings(self):
         user = mommy.make(UserProfile)
-        page = self.get_assert_200(self.url, "responsible")
+        page = self.app.get(self.url, user="responsible", status=200)
         form = page.forms["settings-form"]
         form["delegates"] = [user.pk]
         form.submit()
@@ -47,7 +47,7 @@ class TestContributorCourseView(ViewTest):
     def test_wrong_state(self):
         self.course.revert_to_new()
         self.course.save()
-        self.get_assert_403(self.url, 'responsible')
+        self.app.get(self.url, user='responsible', status=403)
 
     def test_information_message(self):
         self.course.editor_approve()
@@ -72,7 +72,7 @@ class TestContributorCoursePreviewView(ViewTest):
     def test_wrong_state(self):
         self.course.revert_to_new()
         self.course.save()
-        self.get_assert_403(self.url, 'responsible')
+        self.app.get(self.url, user='responsible', status=403)
 
 
 class TestContributorCourseEditView(ViewTest):
@@ -99,7 +99,7 @@ class TestContributorCourseEditView(ViewTest):
             that is required for a specific view gets a 403.
             Regression test for #483
         """
-        self.get_assert_403(self.url, 'student')
+        self.app.get(self.url, user='student', status=403)
 
     def test_wrong_state(self):
         """
@@ -109,14 +109,14 @@ class TestContributorCourseEditView(ViewTest):
         self.course.editor_approve()
         self.course.save()
 
-        self.get_assert_403(self.url, 'responsible')
+        self.app.get(self.url, user='responsible', status=403)
 
     def test_contributor_course_edit(self):
         """
             Tests whether the "save" button in the contributor's course edit view does not
             change the course's state, and that the "approve" button does that.
         """
-        page = self.get_assert_200(self.url, user="responsible")
+        page = self.app.get(self.url, user="responsible", status=200)
         form = page.forms["course-form"]
         form["vote_start_datetime"] = "2098-01-01 11:43:12"
         form["vote_end_date"] = "2099-01-01"
@@ -160,7 +160,7 @@ class TestContributorCourseEditView(ViewTest):
         """
         self.course.name_en = "Adam & Eve"
         self.course.save()
-        page = self.get_assert_200(self.url, user="responsible")
+        page = self.app.get(self.url, user="responsible", status=200)
 
         self.assertIn("changeParticipantRequestModalLabel", page)
 
