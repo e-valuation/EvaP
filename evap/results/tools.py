@@ -57,14 +57,14 @@ class RatingResult:
 
     @property
     def total_count(self):
-        if not self.has_answers:
-            return 0
+        if not self.is_published:
+            return None
         return sum(self.counts)
 
     @property
     def approval_count(self):
         assert self.question.is_yes_no_question
-        if not self.has_answers:
+        if not self.is_published:
             return None
         return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[4]
 
@@ -76,6 +76,10 @@ class RatingResult:
 
     @property
     def has_answers(self):
+        return self.is_published and any(count != 0 for count in self.counts)
+
+    @property
+    def is_published(self):
         return self.counts is not None
 
 
@@ -90,9 +94,6 @@ HeadingResult = namedtuple('HeadingResult', ('question'))
 
 
 def get_counts(answer_counters):
-    if not answer_counters:
-        return None
-
     counts = [0, 0, 0, 0, 0]
     for answer_counter in answer_counters:
         counts[answer_counter.answer - 1] = answer_counter.count
@@ -121,8 +122,8 @@ def _collect_results_impl(course):
             results = []
             for question in questionnaire.question_set.all():
                 if question.is_rating_question:
-                    answers = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if course.can_publish_rating_results else None
-                    results.append(RatingResult(question, get_counts(answers)))
+                    counts = get_counts(RatingAnswerCounter.objects.filter(contribution=contribution, question=question)) if course.can_publish_rating_results else None
+                    results.append(RatingResult(question, counts))
                 elif question.is_text_question and course.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                     results.append(TextResult(question=question, answers=answers))
@@ -140,6 +141,9 @@ def normalized_distribution(distribution):
         return None
 
     distribution_sum = sum(distribution)
+    if distribution_sum == 0:
+        return None
+
     return tuple((value / distribution_sum) for value in distribution)
 
 
