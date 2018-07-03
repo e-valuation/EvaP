@@ -232,7 +232,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
 
-    # graders can set this to True, then the course will be handled as if final grades have already been uploaded
+    # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     # whether participants must vote to qualify for reward points
