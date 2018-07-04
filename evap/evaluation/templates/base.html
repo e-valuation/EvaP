@@ -38,7 +38,7 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 <div class="fixed-top d-print-none">
-    {% cache 3600 navbar request.session.session_key LANGUAGE_CODE %}
+    {% cache 3600 navbar request.user.username LANGUAGE_CODE %}
         {% include_navbar user LANGUAGE_CODE %}
     {% endcache %}
 
