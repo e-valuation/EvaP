@@ -69,7 +69,7 @@
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
-            {% if course.grades_activated and course.grade_documents.count == 1 and can_download_grades %}
+            {% if course.grade_documents.count == 1 and can_download_grades %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.first.id %}">{{ course.grade_documents.first.description }}</a>
             {% elif course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
@@ -114,55 +114,47 @@
         </div>
     </div>
 
-    {% if course_sections_top %}
+    {% if course_questionnaire_results_top %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Course' %}
             </div>
             <div class="card-body">
-                {% for section in course_sections_top %}
+                {% for questionnaire_result in course_questionnaire_results_top %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
         </div>
     {% endif %}
 
-    {% if contributor_sections %}
+    {% if contributor_contribution_results %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Contributors' %}
             </div>
             <div class="card-body">
-                {% for contributor, contributor_data in contributor_sections.items %}
+                {% for contribution_result in contributor_contribution_results %}
                     <div class="card{% if not forloop.last %} mb-3{% endif %}">
-                        {# Logic for collapsing Contributor Sections with no votes. #}
-                        {% if contributor_data.total_votes == 0 %}
-                            <div class="card-header d-flex">
-                                <div class="mr-auto">
-                                    <a class="collapse-toggle collapsed" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
-                                        {{ contributor.full_name }}
-                                        {% if contributor_data.sections.0.label %}
-                                            &ndash; <i>{{ contributor_data.sections.0.label }}</i>
-                                        {% endif %}
-                                    </a>
-                                </div>
+                        <div class="card-header d-flex">
+                            <div class="mr-auto">
+                                <a class="collapse-toggle{% if not contribution_result.has_answers %} collapsed{% endif %}"
+                                        data-toggle="collapse" href="#contributor-{{ contribution_result.contributor.id }}"
+                                        aria-controls="contributor-{{ contribution_result.contributor.id }}">
+                                    {{ contribution_result.contributor.full_name }}
+                                    {% if contribution_result.label %}
+                                        &ndash; <i>{{ contribution_result.label }}</i>
+                                    {% endif %}
+                                </a>
+                            </div>
+                            {% if not contribution_result.has_answers %}
                                 <div class="participants-warning">
                                     <span class="fas fa-info-circle"></span>
                                     {% trans 'There are no results for this person.' %}
                                 </div>
-                            </div>
-                        {% else %}
-                            <div class="card-header">
-                                <a class="collapse-toggle" data-toggle="collapse" href="#contributor-{{ contributor.id }}" aria-expanded="false" aria-controls="contributor-{{ contributor.id }}">
-                                    {{ contributor.full_name }}
-                                    {% if contributor_data.sections.0.label %}
-                                        &ndash; <i>{{ contributor_data.sections.0.label }}</i>
-                                    {% endif %}
-                                </a>
-                            </div>
-                        {% endif %}
-                        <div class="card-body collapse{% if contributor_data.total_votes > 0 %} show{% endif %}" id="contributor-{{ contributor.id }}">
-                            {% for section in contributor_data.sections %}
+                            {% endif %}
+                        </div>
+                        <div class="card-body collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
+                            {% for questionnaire_result in contribution_result.questionnaire_results %}
                                 {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
                             {% endfor %}
                         </div>
@@ -172,13 +164,13 @@
         </div>
     {% endif %}
 
-    {% if course_sections_bottom %}
+    {% if course_questionnaire_results_bottom %}
         <div class="card card-outline-primary">
             <div class="card-header">
                 {% trans 'Course' %}
             </div>
             <div class="card-body">
-                {% for section in course_sections_bottom %}
+                {% for questionnaire_result in course_questionnaire_results_bottom %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>

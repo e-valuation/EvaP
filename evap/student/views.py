@@ -43,8 +43,13 @@ def index(request):
     courses.sort(key=sorter)
 
     semesters = Semester.objects.all()
-    semester_list = [dict(semester_name=semester.name, id=semester.id, is_active_semester=semester.is_active_semester,
-        courses=[course for course in courses if course.semester_id == semester.id]) for semester in semesters]
+    semester_list = [dict(
+        semester_name=semester.name,
+        id=semester.id,
+        is_active_semester=semester.is_active_semester,
+        results_are_archived=semester.results_are_archived,
+        courses=[course for course in courses if course.semester_id == semester.id]
+    ) for semester in semesters]
 
     template_data = dict(
         semester_list=semester_list,
@@ -86,7 +91,7 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         course_form_group_bottom=course_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
         course=course,
-        participants_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
+        small_course_size_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         vote_end_datetime=course.vote_end_datetime,
         hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,

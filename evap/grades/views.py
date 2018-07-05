@@ -1,26 +1,25 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Prefetch
+from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.views.decorators.http import require_POST, require_GET
 
 from sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required, staff_required
+from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required
 from evap.evaluation.models import Semester, Contribution, Course
-from evap.grades.models import GradeDocument, SemesterGradeDownloadActivation
+from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
-
-from evap.staff.views import semester_view as staff_semester_view
 
 
 @grade_publisher_required
 def index(request):
     template_data = dict(
-        semesters=Semester.objects.all(),
+        semesters=Semester.objects.filter(grade_documents_are_deleted=False),
         disable_breadcrumb_grades=True,
     )
     return render(request, "grades_index.html", template_data)
@@ -46,6 +45,8 @@ def prefetch_data(courses):
 @grade_publisher_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.grade_documents_are_deleted:
+        raise PermissionDenied
 
     courses = semester.course_set.filter(is_graded=True).exclude(state='new')
     courses = prefetch_data(courses)
@@ -53,7 +54,7 @@ def semester_view(request, semester_id):
     template_data = dict(
         semester=semester,
         courses=courses,
-        disable_if_archived="disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.grade_documents_are_deleted else "",
         disable_breadcrumb_semester=True,
     )
     return render(request, "grades_semester_view.html", template_data)
@@ -62,13 +63,15 @@ def semester_view(request, semester_id):
 @grade_publisher_or_staff_required
 def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.grade_documents_are_deleted:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     template_data = dict(
         semester=semester,
         course=course,
         grade_documents=course.grade_documents.all(),
-        disable_if_archived="disabled" if semester.is_archived else "",
+        disable_if_archived="disabled" if semester.grade_documents_are_deleted else "",
         disable_breadcrumb_course=True,
     )
     return render(request, "grades_course_view.html", template_data)
@@ -77,6 +80,8 @@ def course_view(request, semester_id, course_id):
 @grade_publisher_required
 def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.grade_documents_are_deleted:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     final_grades = request.GET.get('final') == 'true'  # if parameter is not given, assume midterm grades
@@ -118,6 +123,8 @@ def upload_grades(request, semester_id, course_id):
 def toggle_no_grades(request):
     course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
+    if course.semester.grade_documents_are_deleted:
+        raise PermissionDenied
 
     course.gets_no_grade_documents = not course.gets_no_grade_documents
     course.save()
@@ -134,8 +141,8 @@ def toggle_no_grades(request):
 @grade_downloader_required
 def download_grades(request, grade_document_id):
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
-    if not grade_document.course.grades_activated:
-        return HttpResponseForbidden()
+    if grade_document.course.semester.grade_documents_are_deleted:
+        raise PermissionDenied
 
     return sendfile(request, grade_document.file.path, attachment=True, attachment_filename=grade_document.filename())
 
@@ -143,6 +150,8 @@ def download_grades(request, grade_document_id):
 @grade_publisher_required
 def edit_grades(request, semester_id, course_id, grade_document_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.grade_documents_are_deleted:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
     grade_document = get_object_or_404(GradeDocument, id=grade_document_id, course=course)
 
@@ -170,15 +179,3 @@ def delete_grades(request):
 
     grade_document.delete()
     return HttpResponse()  # 200 OK
-
-
-@staff_required
-def semester_grade_activation(request, semester_id, active):
-    semester = get_object_or_404(Semester, id=semester_id)
-    active = active == 'on'
-
-    SemesterGradeDownloadActivation.objects.update_or_create(
-        semester=semester,
-        defaults={'is_active': active})
-
-    return staff_semester_view(request=request, semester_id=semester_id)

@@ -19,7 +19,7 @@
                         <table class="table table-hover-evap course-table vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
                             <thead>
                                 <tr>
-                                    <th style="width: 36%">{% trans 'Course' %}</th>
+                                    <th style="width: 36%">{% trans 'Name' %}</th>
                                     <th style="width: 8%">{% trans 'Type' %}</th>
                                     <th style="width: 25%">{% trans 'Responsible' %}</th>
                                     <th style="width: 15%">{% trans 'Voters' %}</th>
@@ -70,14 +70,14 @@
                         <table class="table course-table vertically-aligned">
                             <thead class="nowrap">
                                 <tr>
-                                    <th style="width: 36%">{% trans 'Course' %}</th>
+                                    <th style="width: 36%">{% trans 'Name' %}</th>
                                     <th style="width: 8%">{% trans 'Type' %}</th>
                                     <th style="width: 25%">{% trans 'Responsible' %}</th>
                                     <th style="width: 31%">{% trans 'Result' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for single_result, result in single_results %}
+                            {% for single_result, question_result in single_results %}
                                 <tr{% if single_result.state != 'published' %} class="preview"{% endif %}>
                                     <td>
                                         {% if single_result.state != 'published' %}
@@ -91,7 +91,7 @@
                                             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
-                                    <td data-order="{{ result.average|default:'0' }}">{% include 'result_bar.html' with result=result participants_warning=False %}</td>
+                                    <td data-order="{{ question_result.average|default:'0' }}">{% include 'result_bar.html' with question_result=question_result %}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>

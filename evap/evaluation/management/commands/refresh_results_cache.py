@@ -3,7 +3,7 @@ from django.core.serializers.base import ProgressBar
 from django.core.cache import caches
 
 from evap.evaluation.models import Course
-from evap.results.tools import calculate_results
+from evap.results.tools import collect_results
 
 
 class Command(BaseCommand):
@@ -23,6 +23,6 @@ class Command(BaseCommand):
 
         for counter, course in enumerate(Course.objects.all()):
             progress_bar.update(counter + 1)
-            calculate_results(course)
+            collect_results(course)
 
         self.stdout.write("Results cache has been refreshed.\n")

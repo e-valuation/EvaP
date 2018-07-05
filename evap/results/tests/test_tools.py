@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_answers, get_answers_from_answer_counters, get_results_cache_key, calculate_average_distribution, calculate_results, distribution_to_grade
+from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade
 from evap.staff.tools import merge_users
 
 
@@ -15,18 +15,18 @@ class TestCalculateResults(TestCase):
     def test_caches_published_course(self):
         course = mommy.make(Course, state='published')
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
-        calculate_results(course)
+        collect_results(course)
 
-        self.assertIsNotNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
         course = mommy.make(Course, state='published')
-        calculate_results(course)
+        collect_results(course)
         course.unpublish()
 
-        self.assertIsNone(caches['results'].get(get_results_cache_key(course)))
+        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_calculation_results(self):
         contributor1 = mommy.make(UserProfile)
@@ -43,17 +43,18 @@ class TestCalculateResults(TestCase):
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=4, count=60)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=5, count=30)
 
-        results = calculate_results(course)
+        course_results = collect_results(course)
 
-        self.assertEqual(len(results), 1)
-        self.assertEqual(len(results[0].results), 1)
-        result = results[0].results[0]
+        self.assertEqual(len(course_results.questionnaire_results), 1)
+        questionnaire_result = course_results.questionnaire_results[0]
+        self.assertEqual(len(questionnaire_result.question_results), 1)
+        question_result = questionnaire_result.question_results[0]
 
-        self.assertEqual(result.total_count, 150)
-        self.assertAlmostEqual(result.average, float(109) / 30)
-        self.assertEqual(result.counts, (5, 15, 40, 60, 30))
+        self.assertEqual(question_result.count_sum, 150)
+        self.assertAlmostEqual(question_result.average, float(109) / 30)
+        self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 
-    def test_calculate_results_after_user_merge(self):
+    def test_collect_results_after_user_merge(self):
         """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
         contributor = mommy.make(UserProfile)
         main_user = mommy.make(UserProfile)
@@ -64,14 +65,14 @@ class TestCalculateResults(TestCase):
         mommy.make(Question, questionnaire=questionnaire, type="G")
         mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
 
-        calculate_results(course)
+        collect_results(course)
 
         merge_users(main_user, contributor)
 
-        results = calculate_results(course)
+        course_results = collect_results(course)
 
-        for section in results:
-            self.assertTrue(Contribution.objects.filter(course=course, contributor=section.contributor).exists())
+        for contribution_result in course_results.contribution_results:
+            self.assertTrue(Contribution.objects.filter(course=course, contributor=contribution_result.contributor).exists())
 
 
 class TestCalculateAverageDistribution(TestCase):
@@ -84,30 +85,11 @@ class TestCalculateAverageDistribution(TestCase):
         cls.questionnaire = mommy.make(Questionnaire)
         cls.question_grade = mommy.make(Question, questionnaire=cls.questionnaire, type="G")
         cls.question_likert = mommy.make(Question, questionnaire=cls.questionnaire, type="L")
+        cls.question_likert_2 = mommy.make(Question, questionnaire=cls.questionnaire, type="L")
         cls.general_contribution = cls.course.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
         cls.contribution2 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
-
-    def test_answer_counting(self):
-        contribution3 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=self.course, questionnaires=[self.questionnaire])
-
-        rating_answer_counters = []
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=4))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=4, count=2))
-        rating_answer_counters.append(mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=5, count=3))
-
-        # create some unrelated answer counters for different questions / contributions
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=1, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=contribution3, answer=1, count=1)
-
-        answer_counters = get_answers(self.contribution1, self.question_grade)
-        self.assertSetEqual(set(rating_answer_counters), set(answer_counters))
-
-        answers = get_answers_from_answer_counters(answer_counters)
-        self.assertListEqual(answers, [1, 3, 3, 3, 3, 4, 4, 5, 5, 5])
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_average_grade(self):
@@ -117,71 +99,74 @@ class TestCalculateAverageDistribution(TestCase):
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2)
         mommy.make(RatingAnswerCounter, question=question_grade2, contribution=self.contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
+        mommy.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
 
         contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
-        contributor1_average = (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * (2 + 1) / 2 + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT) * 3) / contributor_weights_sum  # 2.4
+        contributor1_average = ((settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * ((2 * 1) + (1 * 1)) / (1 + 1)) + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT * 3)) / contributor_weights_sum  # 2.4
         contributor2_average = 4
-        contributors_average = (contributor1_average + contributor2_average) / 2  # 3.2
+        contributors_average = (((1 + 1 + 4) * contributor1_average) + (2 * contributor2_average)) / (1 + 1 + 4 + 2)  # 2.8
 
-        course_non_grade_average = 5
+        course_non_grade_average = ((5 * 5) + (3 * 3)) / (5 + 3)  # 4.25
 
         contributors_percentage = settings.CONTRIBUTIONS_WEIGHT / (settings.CONTRIBUTIONS_WEIGHT + settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT)  # 0.375
         course_non_grade_percentage = settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT / (settings.CONTRIBUTIONS_WEIGHT + settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT)  # 0.625
 
-        total_grade = contributors_percentage * contributors_average + course_non_grade_percentage * course_non_grade_average  # 1.2 + 3.125 = 4.325
+        total_grade = contributors_percentage * contributors_average + course_non_grade_percentage * course_non_grade_average  # 1.05 + 2.65625 = 3.70625
 
         average_grade = distribution_to_grade(calculate_average_distribution(self.course))
         self.assertAlmostEqual(average_grade, total_grade)
-        self.assertAlmostEqual(average_grade, 4.325)
+        self.assertAlmostEqual(average_grade, 3.70625)
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_distribution_without_course_grade_question(self):
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=2)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=4)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1)
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
+        mommy.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
 
         # contribution1: 0.4 * (0.5, 0, 0.5, 0, 0) + 0.6 * (0, 0, 0.5, 0, 0.5) = (0.2, 0, 0.5, 0, 0.3)
         # contribution2: (0, 0.5, 0, 0.5, 0)
-        # contributions: (0.1, 0.25, 0.25, 0.25, 0.15)
+        # contributions: (8 / 10) * (0.2, 0, 0.5, 0, 0.3) + (2 / 10) * (0, 0.5, 0, 0.5, 0) = (0.16, 0.1, 0.4, 0.1, 0.24)
 
-        # course_non_grade: (0, 0, 0, 0, 1)
+        # course_non_grade: (0, 0, 0.375, 0, 0.625)
 
-        # total: 0.375 * (0.1, 0.25, 0.25, 0.25, 0.15) + 0.625 * (0, 0, 0, 0, 1) = (0.0375, 0.09375, 0.09375, 0.09375, 0.68125)
+        # total: 0.375 * (0.16, 0.1, 0.4, 0.1, 0.24) + 0.625 * (0, 0, 0.375, 0, 0.625) = (0.06, 0.0375, 0.384375, 0.0375, 0.480625)
 
         distribution = calculate_average_distribution(self.course)
-        self.assertAlmostEqual(distribution[0], 0.0375)
-        self.assertAlmostEqual(distribution[1], 0.09375)
-        self.assertAlmostEqual(distribution[2], 0.09375)
-        self.assertAlmostEqual(distribution[3], 0.09375)
-        self.assertAlmostEqual(distribution[4], 0.68125)
+        self.assertAlmostEqual(distribution[0], 0.06)
+        self.assertAlmostEqual(distribution[1], 0.0375)
+        self.assertAlmostEqual(distribution[2], 0.384375)
+        self.assertAlmostEqual(distribution[3], 0.0375)
+        self.assertAlmostEqual(distribution[4], 0.480625)
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, COURSE_GRADE_QUESTIONS_WEIGHT=2, COURSE_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_distribution_with_course_grade_question(self):
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2)
-        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=2)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=4)
-        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1)
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
+        mommy.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
+        mommy.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.general_contribution, answer=2, count=10)
 
         # contributions and course_non_grade are as above
         # course_grade: (0, 1, 0, 0, 0)
 
-        # total: 0.3 * (0.1, 0.25, 0.25, 0.25, 0.15) + 0.2 * (0, 1, 0, 0, 0) + 0.5 * (0, 0, 0, 0, 1) = (0.03, 0.275, 0.075, 0.075, 0.545)
+        # total: 0.3 * (0.16, 0.1, 0.4, 0.1, 0.24) + 0.2 * (0, 1, 0, 0, 0) + 0.5 * (0, 0, 0.375, 0, 0.625) = (0.048, 0.23, 0.3075, 0.03, 0.3845)
 
         distribution = calculate_average_distribution(self.course)
-        self.assertAlmostEqual(distribution[0], 0.03)
-        self.assertAlmostEqual(distribution[1], 0.275)
-        self.assertAlmostEqual(distribution[2], 0.075)
-        self.assertAlmostEqual(distribution[3], 0.075)
-        self.assertAlmostEqual(distribution[4], 0.545)
+        self.assertAlmostEqual(distribution[0], 0.048)
+        self.assertAlmostEqual(distribution[1], 0.23)
+        self.assertAlmostEqual(distribution[2], 0.3075)
+        self.assertAlmostEqual(distribution[3], 0.03)
+        self.assertAlmostEqual(distribution[4], 0.3845)
 
     def test_single_result_calculate_average_distribution(self):
         single_result_course = mommy.make(Course, state='published')

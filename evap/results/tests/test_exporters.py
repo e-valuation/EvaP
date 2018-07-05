@@ -25,7 +25,7 @@ class TestExporters(TestCase):
         self.assertEqual(exporter.normalize_number(2.8), 2.8)
 
     def test_questionnaire_ordering(self):
-        course = mommy.make(Course, state='published')
+        course = mommy.make(Course, state='published', _participant_count=2, _voter_count=2)
 
         questionnaire_1 = mommy.make(Questionnaire, order=1, type=Questionnaire.TOP)
         questionnaire_2 = mommy.make(Questionnaire, order=4, type=Questionnaire.TOP)
@@ -62,10 +62,11 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(12)[0], question_4.text)
 
     def test_heading_question_filtering(self):
-        course = mommy.make(Course, state='published')
+        course = mommy.make(Course, state='published', _participant_count=2, _voter_count=2)
         contributor = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire)
+        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
+        questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, type="H", questionnaire=questionnaire, order=0)
         heading_question = mommy.make(Question, type="H", questionnaire=questionnaire, order=1)
         likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)

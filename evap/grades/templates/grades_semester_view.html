@@ -3,10 +3,6 @@
 {% block content %}
     {{ block.super }}
 
-    {% if semester.is_archived %}
-        <p class="bs-callout bs-callout-info">{% trans 'This semester is archived.' %}</p>
-    {% endif %}
-
     <h3>
         {{ semester.name }}
     </h3>
@@ -32,16 +28,9 @@
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td>
-                                    {% if semester.is_archived %}
-                                        {{ course.name }}
-                                    {% else %}
-                                        <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
-                                    {% endif %}
+                                    <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
-                                    {% for degree in course.degrees.all %}
-                                        <span class="badge badge-primary">{{ degree }}</span>
-                                    {% endfor %}
-                                    <span class="badge badge-secondary">{{ course.type }}</span>
+                                    {% include 'course_badges.html' with mode='grades' %}
                                 </td>
                                 <td>
                                     {% for contributor in course.responsible_contributors %}
@@ -58,30 +47,22 @@
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
-                                        {% if semester.is_archived %}
-                                            <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded.' %}"></span>
-                                        {% else %}
-                                            <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
-                                                <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
-                                            </a>
-                                        {% endif %}
+                                       <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
+                                            <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                        </a>
                                     {% endif %}
                                 </td>
                                 <td class="text-right" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
                                             <a onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fas fa-times"></span></a>
-                                            {% if semester.is_archived %}
-                                                <a class="btn btn-sm btn-dark disabled"><span class="fas fa-upload"></span></a>
-                                            {% else %}
-                                                <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
-                                                    <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
-                                                    <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
-                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
-                                                        <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>
-                                                    </div>
+                                            <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
+                                                <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
+                                                <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>
                                                 </div>
-                                            {% endif %}
+                                            </div>
                                         {% else %}
                                             <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil-alt"></span></a>
                                         {% endif %}

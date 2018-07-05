@@ -37,7 +37,9 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = Translate
 
-    is_archived = models.BooleanField(default=False, verbose_name=_("is archived"))
+    participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
+    grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
+    results_are_archived = models.BooleanField(default=False, verbose_name=_("results are archived"))
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
@@ -54,21 +56,49 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         return all(course.can_staff_delete for course in self.course_set.all())
 
     @property
-    def is_archiveable(self):
-        return not self.is_archived and all(course.is_archiveable for course in self.course_set.all())
+    def participations_can_be_archived(self):
+        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.course_set.all())
+
+    @property
+    def grade_documents_can_be_deleted(self):
+        return not self.grade_documents_are_deleted
+
+    @property
+    def results_can_be_archived(self):
+        return not self.results_are_archived
 
     @transaction.atomic
-    def archive(self):
-        if not self.is_archiveable:
+    def archive_participations(self):
+        if not self.participations_can_be_archived:
             raise NotArchiveable()
         for course in self.course_set.all():
-            course._archive()
-        self.is_archived = True
+            course._archive_participations()
+        self.participations_are_archived = True
+        self.save()
+
+    @transaction.atomic
+    def delete_grade_documents(self):
+        from evap.grades.models import GradeDocument
+
+        if not self.grade_documents_can_be_deleted:
+            raise NotArchiveable()
+        GradeDocument.objects.filter(course__semester=self).delete()
+        self.grade_documents_are_deleted = True
+        self.save()
+
+    def archive_results(self):
+        if not self.results_can_be_archived:
+            raise NotArchiveable()
+        self.results_are_archived = True
         self.save()
 
     @classmethod
-    def get_all_with_published_courses(cls):
-        return cls.objects.filter(course__state="published").distinct()
+    def get_all_with_unarchived_results(cls):
+        return cls.objects.filter(results_are_archived=False).distinct()
+
+    @classmethod
+    def get_all_with_published_unarchived_results(cls):
+        return cls.objects.filter(course__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -232,7 +262,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
 
-    # graders can set this to True, then the course will be handled as if final grades have already been uploaded
+    # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     # whether participants must vote to qualify for reward points
@@ -337,6 +367,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return True
         if not self.can_publish_rating_results:
             return False
+        if self.semester.results_are_archived:
+            return False
         return self.can_user_see_course(user)
 
     @property
@@ -349,7 +381,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_staff_edit(self):
-        return not self.is_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
+        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
     def can_staff_delete(self):
@@ -421,8 +453,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
-        from evap.results.tools import get_results_cache_key
-        caches['results'].delete(get_results_cache_key(self))
+        from evap.results.tools import get_collect_results_cache_key
+        caches['results'].delete(get_collect_results_cache_key(self))
 
     @cached_property
     def general_contribution(self):
@@ -515,24 +547,24 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def ratinganswer_counters(self):
         return RatingAnswerCounter.objects.filter(contribution__course=self)
 
-    def _archive(self):
-        """Should be called only via Semester.archive"""
-        if not self.is_archiveable:
+    def _archive_participations(self):
+        """Should be called only via Semester.archive_participations"""
+        if not self.participations_can_be_archived:
             raise NotArchiveable()
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
 
     @property
-    def is_archived(self):
-        semester_is_archived = self.semester.is_archived
-        if semester_is_archived:
+    def participations_are_archived(self):
+        semester_participations_are_archived = self.semester.participations_are_archived
+        if semester_participations_are_archived:
             assert self._participant_count is not None and self._voter_count is not None
-        return semester_is_archived
+        return semester_participations_are_archived
 
     @property
-    def is_archiveable(self):
-        return not self.is_archived and self.state in ["new", "published"]
+    def participations_can_be_archived(self):
+        return not self.semester.participations_are_archived and self.state in ["new", "published"]
 
     @property
     def final_grade_documents(self):
@@ -543,11 +575,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
-
-    @property
-    def grades_activated(self):
-        from evap.grades.tools import are_grades_activated
-        return are_grades_activated(self.semester)
 
     @classmethod
     def update_courses(cls):
@@ -938,9 +965,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_staff_mark_inactive(self):
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
-        if any(not course.is_archived for course in self.courses_participating_in.all()):
+        if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
             return False
-        if any(not contribution.course.is_archived for contribution in self.contributions.all()):
+        if any(not contribution.course.participations_are_archived for contribution in self.contributions.all()):
             return False
         return True
 
@@ -948,7 +975,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_staff_delete(self):
         if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
-        if any(not course.is_archived for course in self.courses_participating_in.all()):
+        if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
             return False
         if any(not user.can_staff_delete for user in self.represented_users.all()):
             return False

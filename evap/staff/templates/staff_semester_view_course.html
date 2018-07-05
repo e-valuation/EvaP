@@ -4,7 +4,7 @@
 
 
 <td>
-    {% if request.user.is_staff and not info_only and not semester.is_archived %}
+    {% if request.user.is_staff and not info_only and not semester.participations_are_archived %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
             <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Click to select for course operation' %}">
                 <input class="form-check-input" type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" />
@@ -76,16 +76,7 @@
             </a>
         {% endif %}
     </div>
-    {% for degree in course.degrees.all %}
-        <span class="badge badge-primary">{{ degree }}</span>
-    {% endfor %}
-    <span class="badge badge-secondary">{{ course.type }}</span>
-    {% if course.is_single_result %}
-        <span class="badge badge-success">{% trans 'Single result' %}</span>
-    {% else %}
-        <span class="badge badge-info">{% if course.is_graded %}{% trans 'graded' %}{% else %}{% trans 'not graded' %}{% endif %}</span>
-        <span class="badge badge-info">{% if course.is_private %}{% trans 'private' %}{% endif %}</span>
-    {% endif %}
+    {% include 'course_badges.html' with mode='staff' %}
 
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
         {% if not course.all_contributions_have_questionnaires %}
@@ -98,49 +89,7 @@
     {% endif %}
 </td>
 <td style="width: 22%" data-order="{{ course|ordering_index }}">
-    {% if course.is_single_result %}
-        {{ course.vote_start_datetime|date:"Y-m-d" }}
-    {% else %}
-        {{ course.vote_start_datetime }} &ndash;<br />
-        {{ course.vote_end_date }}<br />
-        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
-            {% if course.days_until_evaluation < 0 %}
-                <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation should already have started' %}">
-                    {% trans 'overdue' %}
-                </span>
-            {% endif %}
-        {% endif %}
-        {% if course.days_until_evaluation == 0 %}
-            <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will start later today' %}">
-                <span class="fas fa-pause"></span> {% trans 'today' %}
-            </span>
-        {% elif course.days_until_evaluation == 1 %}
-            <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will start tomorrow' %}">
-                <span class="fas fa-pause"></span> {% trans 'tomorrow' %}
-            </span>
-        {% elif course.days_until_evaluation > 1 %}
-            <span class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="left"
-                title="{% blocktrans with days=course.days_until_evaluation %}Evaluation will start in {{ days }} days{% endblocktrans %}">
-                <span class="fas fa-pause"></span> {{ course.days_until_evaluation }}
-            </span>
-        {% endif %}
-        {% if state == 'in_evaluation' %}
-            {% if course.days_left_for_evaluation == 0 %}
-                <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will end today' %}">
-                    <span class="fas fa-play"></span> {% trans 'today' %}
-                </span>
-            {% elif course.days_left_for_evaluation == 1 %}
-                <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will end tomorrow' %}">
-                    <span class="fas fa-play"></span> {% trans 'tomorrow' %}
-                </span>
-            {% elif course.days_left_for_evaluation > 1 %}
-                <span class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="left"
-                    title="{% blocktrans with days=course.days_left_for_evaluation %}Evaluation will end in {{ days }} days{% endblocktrans %}">
-                    <span class="fas fa-play"></span> {{ course.days_left_for_evaluation }}
-                </span>
-            {% endif %}
-        {% endif %}
-    {% endif %}
+    {% include 'staff_course_evaluation_period.html' %}
 </td>
 {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if not course.is_single_result %}
