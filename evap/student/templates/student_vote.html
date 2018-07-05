@@ -213,7 +213,7 @@
                 var submitButton = $('#vote-submit-btn');
                 var originalText = submitButton.text();
 
-                submitButton.text("Submitting...");
+                submitButton.text("{% trans 'Submitting...' %}");
                 submitButton.prop('disabled', true);
 
                 $.ajax({
