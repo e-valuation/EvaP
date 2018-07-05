@@ -10,7 +10,7 @@
         {% for count in question_result.counts %}
             {% with answer_name=question_result.question|get_answer_name:forloop.counter %}
                 {% if answer_name %}
-                    {{ answer_name }}: {{ count }}/{{ question_result.total_count }} ({{ count|percentage_one_decimal:question_result.total_count }})
+                    {{ answer_name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
                     {% if not forloop.last %}</br>{% endif %}
                 {% endif %}
             {% endwith %}
@@ -22,7 +22,7 @@
 
     <div class="grade-bg-result-bar-count text-center{% if not question_result.has_answers %} grade-bg-disabled{% endif %}">
         {% if question_result.is_published %}
-            <span class="fas fa-user small"></span> {{ question_result.total_count }}
+            <span class="fas fa-user small"></span> {{ question_result.count_sum }}
         {% else %}
             <span class="far fa-eye-slash"></span>
         {% endif %}

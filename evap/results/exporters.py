@@ -133,21 +133,21 @@ class ExcelExporter(object):
                             continue
                         qn_results = results[questionnaire.id]
                         values = []
-                        total_count = 0
+                        count_sum = 0
                         approval_count = 0
 
                         for grade_result in qn_results:
                             if grade_result.question.id == question.id:
                                 if grade_result.has_answers:
-                                    values.append(grade_result.average * grade_result.total_count)
-                                    total_count += grade_result.total_count
+                                    values.append(grade_result.average * grade_result.count_sum)
+                                    count_sum += grade_result.count_sum
                                     if grade_result.question.is_yes_no_question:
                                         approval_count += grade_result.approval_count
                         if values:
-                            avg = sum(values) / total_count
+                            avg = sum(values) / count_sum
 
                             if question.is_yes_no_question:
-                                percent_approval = approval_count / total_count if total_count > 0 else 0
+                                percent_approval = approval_count / count_sum if count_sum > 0 else 0
                                 writec(self, "{:.0%}".format(percent_approval), self.grade_to_style(avg))
                             else:
                                 writec(self, avg, self.grade_to_style(avg))

@@ -56,7 +56,7 @@ class RatingResult:
         self.counts = counts
 
     @property
-    def total_count(self):
+    def count_sum(self):
         if not self.is_published:
             return None
         return sum(self.counts)
@@ -72,7 +72,7 @@ class RatingResult:
     def average(self):
         if not self.has_answers:
             return None
-        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.total_count
+        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.count_sum
 
     @property
     def has_answers(self):
@@ -147,12 +147,12 @@ def normalized_distribution(distribution):
     return tuple((value / distribution_sum) for value in distribution)
 
 
-def avg_distribution(distributions, weights=itertools.repeat(1)):
-    if all(distribution is None for distribution in distributions):
+def avg_distribution(weighted_distributions):
+    if all(distribution is None for distribution, __ in weighted_distributions):
         return None
 
     summed_distribution = [0, 0, 0, 0, 0]
-    for distribution, weight in zip(distributions, weights):
+    for distribution, weight in weighted_distributions:
         if distribution:
             for index, value in enumerate(distribution):
                 summed_distribution[index] += weight * value
@@ -160,11 +160,15 @@ def avg_distribution(distributions, weights=itertools.repeat(1)):
 
 
 def average_grade_questions_distribution(results):
-    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_grade_question])
+    return avg_distribution(
+        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_grade_question]
+    )
 
 
 def average_non_grade_rating_questions_distribution(results):
-    return avg_distribution([normalized_distribution(result.counts) for result in results if result.question.is_non_grade_rating_question])
+    return avg_distribution(
+        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
+    )
 
 
 def calculate_average_distribution(course):
@@ -180,16 +184,21 @@ def calculate_average_distribution(course):
     course_results = grouped_results.pop(None, [])
 
     average_contributor_distribution = avg_distribution([
-        avg_distribution(
-            [average_grade_questions_distribution(results), average_non_grade_rating_questions_distribution(results)],
-            [settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT]
-        ) for results in grouped_results.values()
+        (
+            avg_distribution([
+                (average_grade_questions_distribution(contributor_results), settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT),
+                (average_non_grade_rating_questions_distribution(contributor_results), settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT)
+            ]),
+            sum(result.count_sum for result in contributor_results if result.question.is_rating_question)
+        )
+        for contributor_results in grouped_results.values()
     ])
 
-    return avg_distribution(
-        [average_grade_questions_distribution(course_results), average_non_grade_rating_questions_distribution(course_results), average_contributor_distribution],
-        [settings.COURSE_GRADE_QUESTIONS_WEIGHT, settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT, settings.CONTRIBUTIONS_WEIGHT]
-    )
+    return avg_distribution([
+        (average_grade_questions_distribution(course_results), settings.COURSE_GRADE_QUESTIONS_WEIGHT),
+        (average_non_grade_rating_questions_distribution(course_results), settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT),
+        (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT)
+    ])
 
 
 def distribution_to_grade(distribution):
