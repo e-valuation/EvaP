@@ -143,7 +143,7 @@ def add_warnings(course, course_result):
     # calculate the median values of how many people answered a questionnaire across all contributions
     questionnaire_max_answers = defaultdict(list)
     for questionnaire_result in course_result.questionnaire_results:
-        max_answers = max((question_result.total_count for question_result in questionnaire_result.question_results if question_result.question.is_rating_question), default=0)
+        max_answers = max((question_result.count_sum for question_result in questionnaire_result.question_results if question_result.question.is_rating_question), default=0)
         questionnaire_max_answers[questionnaire_result.questionnaire].append(max_answers)
 
     questionnaire_warning_thresholds = {}
@@ -152,11 +152,11 @@ def add_warnings(course, course_result):
 
     for questionnaire_result in course_result.questionnaire_results:
         rating_results = [question_result for question_result in questionnaire_result.question_results if question_result.question.is_rating_question]
-        max_answers = max((rating_result.total_count for rating_result in rating_results), default=0)
+        max_answers = max((rating_result.count_sum for rating_result in rating_results), default=0)
         questionnaire_result.warning = 0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
         for rating_result in rating_results:
-            rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.total_count < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+            rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
 def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):

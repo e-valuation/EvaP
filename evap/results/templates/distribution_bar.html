@@ -13,7 +13,7 @@
         </div>
         <div class="grade-bg-result-bar text-center" style="background-color: {{ average|gradecolor }}">
             {% if question_result.question.is_yes_no_question %}
-                {{ question_result.approval_count|percentage:question_result.total_count }}
+                {{ question_result.approval_count|percentage:question_result.count_sum }}
             {% else %}
                 {{ average|floatformat:1 }}
             {% endif %}

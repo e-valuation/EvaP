@@ -50,7 +50,7 @@ class TestCalculateResults(TestCase):
         self.assertEqual(len(questionnaire_result.question_results), 1)
         question_result = questionnaire_result.question_results[0]
 
-        self.assertEqual(question_result.total_count, 150)
+        self.assertEqual(question_result.count_sum, 150)
         self.assertAlmostEqual(question_result.average, float(109) / 30)
         self.assertEqual(question_result.counts, (5, 15, 40, 60, 30))
 

@@ -56,7 +56,7 @@ class RatingResult:
         self.counts = counts
 
     @property
-    def total_count(self):
+    def count_sum(self):
         if not self.is_published:
             return None
         return sum(self.counts)
@@ -72,7 +72,7 @@ class RatingResult:
     def average(self):
         if not self.has_answers:
             return None
-        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.total_count
+        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.count_sum
 
     @property
     def has_answers(self):
