@@ -5,26 +5,48 @@
 {% block content %}
     {{ block.super }}
 
-    {% if semester.is_archived %}
-        <p class="bs-callout bs-callout-info">{% trans 'This semester is archived.' %}</p>
-    {% endif %}
-
     <h3>
         {{ semester.name }}
         {% if request.user.is_staff %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
             <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
-            <a onclick="archiveSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning{% if not semester.is_archiveable %} disabled{% endif %}">{% trans 'Archive' %}</a>
         {% endif %}
     </h3>
+
+    {% if request.user.is_staff %}
+        <div class="card mb-3">
+            <div class="card-header d-flex">
+                <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
+            </div>
+            <div class="card-body collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
+                {% if semester.participations_can_be_archived %}
+                    <a onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</a>
+                {% elif semester.participations_are_archived %}
+                    <a class="btn btn-sm btn-success disabled">{% trans 'Participations have been archived' %}</a>
+                {% else %}
+                    <span data-toggle="tooltip" data-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}"><a class="btn btn-sm btn-warning disabled">{% trans 'Archive participations' %}</a></span>
+                {% endif %}
+                {% if semester.grade_documents_can_be_deleted %}
+                    <a onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</a>
+                {% elif semester.grade_documents_are_deleted %}
+                    <a class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</a>
+                {% endif %}
+                {% if semester.results_can_be_archived %}
+                    <a onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</a>
+                {% elif semester.results_are_archived %}
+                    <a class="btn btn-sm btn-success disabled">{% trans 'Results have been archived' %}</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="card mb-3">
         <div class="card-header d-flex">
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_staff %}
                 <div class="ml-auto">
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
                         <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
@@ -33,13 +55,6 @@
                         <div class="btn-group icon-buttons">
                             <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
                             <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
-                        </div>
-                    </div>
-                    <div class="btn-switch ml-2">
-                        <div class="btn-switch-label">{% trans 'Grades downloadable' %}</div>
-                        <div class="btn-group icon-buttons">
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if grades_downloadable %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
-                            <a href="{% url 'grades:semester_grade_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not grades_downloadable %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
                     </div>
                 </div>
@@ -88,7 +103,7 @@
             {% trans 'Courses' %}
             {% if request.user.is_staff %}
                 <div class="ml-auto">
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <div class="btn-group" role="group">
                             <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</a>
                             <div class="dropdown-menu" aria-labelledby="btnAdd">
@@ -106,7 +121,7 @@
                             <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
                         </div>
                     </div>
-                    {% if not semester.is_archived %}
+                    {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
                 </div>
@@ -210,7 +225,7 @@
                     </tbody>
                 </table>
 
-                {% if request.user.is_staff and not semester.is_archived %}
+                {% if request.user.is_staff and not semester.participations_are_archived %}
                     <div class="my-2">
                         <a role="button" class="btn btn-sm btn-secondary"
                             onclick="$('#course_operation_form td').prev().find(':checkbox').prop('checked', true);">
@@ -270,22 +285,52 @@
                 url: "{% url 'staff:semester_delete' %}",
                 data: {"semester_id": dataId},
                 success: function(){ location.replace("{% url 'staff:index' %}"); },
-                error: function(){}
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>
-    {% trans 'Archive semester' as title %}
-    {% trans 'Do you really want to archive the semester <strong id="data-label"></strong>?' as question %}
-    {% trans 'Archive semester' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='archiveSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
+    {% trans 'Archive participations' as title %}
+    {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong id="data-label"></strong>? Further changes to the courses won't be possible and you can't undo this action.{% endblocktrans %}
+    {% trans 'Archive participations' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='archiveParticipationsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
-        function archiveSemesterModalAction(dataId) {
+        function archiveParticipationsModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url 'staff:semester_archive' %}",
+                url: "{% url 'staff:semester_archive_participations' %}",
                 data: {"semester_id": dataId},
                 success: function(){ location.reload(); },
-                error: function(){}
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+        };
+    </script>
+    {% trans 'Delete grade documents' as title %}
+    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
+    {% trans 'Delete grade documents' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
+    <script type="text/javascript">
+        function deleteGradeDocumentsModalAction(dataId) {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:semester_delete_grade_documents' %}",
+                data: {"semester_id": dataId},
+                success: function(){ location.reload(); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+        };
+    </script>
+    {% trans 'Archive results' as title %}
+    {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong id="data-label"></strong>? This will make the results of all courses inaccessible for all users except their contributors and staff. You can't undo this action.{% endblocktrans %}
+    {% trans 'Archive results' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='archiveResultsModal' title=title question=question action_text=action_text btn_type='danger' %}
+    <script type="text/javascript">
+        function archiveResultsModalAction(dataId) {
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:semester_archive_results' %}",
+                data: {"semester_id": dataId},
+                success: function(){ location.reload(); },
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
     </script>

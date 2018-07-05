@@ -40,7 +40,7 @@
                             <tr>
                                 <th style="width: 42%">{% trans 'Name' %}</th>
                                 <th style="width: 17%">{% trans 'Evaluation period' %}</th>
-                                {% if can_download_grades and semester.courses.0.grades_activated %}
+                                {% if can_download_grades and not semester.grade_documents_are_deleted %}
                                     <th style="width: 8%" class="text-center">{% trans 'Grades' %}</th>
                                 {% endif %}
                                 <th style="width: 15%" class="text-center">{% trans 'Participants' %}</th>
@@ -52,7 +52,7 @@
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
                                     {# staff users should be able to access courses through the student index only if it actually has published results #}
-                                    {% elif course.state == 'published' and course.can_publish_rating_results %}
+                                    {% elif course.state == 'published' and course.can_publish_rating_results and not semester.results_are_archived %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"
@@ -93,7 +93,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    {% if can_download_grades and course.grades_activated %}
+                                    {% if can_download_grades and not semester.grade_documents_are_deleted %}
                                         <td class="text-center">
                                             {% if course.grade_documents.count == 1 %}
                                                 <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' course.grade_documents.first.id %}" role="button"
@@ -132,6 +132,11 @@
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-hourglass-half"></span></div>
                                                 <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-hourglass-half"></span></div>
+                                            </div>
+                                        {% elif course.state == 'published' and semester.results_are_archived %}
+                                            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
+                                                <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-archive"></span></div>
+                                                <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-archive"></span></div>
                                             </div>
                                         {% elif course.state == 'published' %}
                                             {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}

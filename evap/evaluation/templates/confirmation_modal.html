@@ -8,7 +8,7 @@
                 <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
             </div>
             <div class="modal-body">
-                {{ question }}
+                {{ question|safe }}
             </div>
             <div class="modal-footer">
                 <a role="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</a>

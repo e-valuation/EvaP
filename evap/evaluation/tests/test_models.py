@@ -317,7 +317,7 @@ class TestUserProfile(TestCase):
         self.assertIn(inactive_user, user_list)
 
 
-class ArchivingTests(TestCase):
+class ParticipationArchivingTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -344,7 +344,7 @@ class ArchivingTests(TestCase):
         voter_count = self.course.num_voters
         participant_count = self.course.num_participants
 
-        self.semester.archive()
+        self.semester.archive_participations()
         self.refresh_course()
 
         self.assertEqual(voter_count, self.course.num_voters)
@@ -352,48 +352,48 @@ class ArchivingTests(TestCase):
 
     def test_participants_do_not_loose_courses(self):
         """
-            Asserts that participants still participate in their courses after they get archived.
+            Asserts that participants still participate in their courses after the participations get archived.
         """
         some_participant = self.course.participants.first()
 
-        self.semester.archive()
+        self.semester.archive_participations()
 
         self.assertEqual(list(some_participant.courses_participating_in.all()), [self.course])
 
-    def test_is_archived(self):
+    def test_participations_are_archived(self):
         """
-            Tests whether is_archived returns True on archived semesters and courses.
+            Tests whether participations_are_archived returns True on semesters and courses with archived participations.
         """
-        self.assertFalse(self.course.is_archived)
+        self.assertFalse(self.course.participations_are_archived)
 
-        self.semester.archive()
+        self.semester.archive_participations()
         self.refresh_course()
 
-        self.assertTrue(self.course.is_archived)
+        self.assertTrue(self.course.participations_are_archived)
 
-    def test_archiving_does_not_change_results(self):
+    def test_archiving_participations_does_not_change_results(self):
         distribution = calculate_average_distribution(self.course)
 
-        self.semester.archive()
+        self.semester.archive_participations()
         self.refresh_course()
         caches['results'].clear()
 
         new_distribution = calculate_average_distribution(self.course)
         self.assertEqual(new_distribution, distribution)
 
-    def test_archiving_twice_raises_exception(self):
-        self.semester.archive()
+    def test_archiving_participations_twice_raises_exception(self):
+        self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.archive()
+            self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.course_set.first()._archive()
+            self.semester.course_set.first()._archive_participations()
 
-    def test_course_is_not_archived_if_participant_count_is_set(self):
+    def test_course_participations_are_not_archived_if_participant_count_is_set(self):
         course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
-        self.assertFalse(course.is_archived)
-        self.assertTrue(course.is_archiveable)
+        self.assertFalse(course.participations_are_archived)
+        self.assertTrue(course.participations_can_be_archived)
 
-    def test_archiving_doesnt_change_single_results_participant_count(self):
+    def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, state="published")
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
@@ -404,7 +404,7 @@ class ArchivingTests(TestCase):
         course._voter_count = 5
         course.save()
 
-        course._archive()
+        course.semester.archive_participations()
         self.assertEqual(course._participant_count, 5)
         self.assertEqual(course._voter_count, 5)
 

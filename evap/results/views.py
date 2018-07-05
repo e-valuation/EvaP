@@ -14,7 +14,7 @@ from evap.results.tools import collect_results, calculate_average_distribution, 
 
 @internal_required
 def index(request):
-    semesters = Semester.get_all_with_published_courses()
+    semesters = Semester.get_all_with_published_unarchived_results()
 
     return render(request, "results_index.html", dict(semesters=semesters))
 
@@ -22,6 +22,9 @@ def index(request):
 @internal_required
 def semester_detail(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+
+    if semester.results_are_archived:
+        raise PermissionDenied
 
     visible_states = ['published']
     if request.user.is_reviewer:

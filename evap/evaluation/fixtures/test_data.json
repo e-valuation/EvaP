@@ -29,7 +29,9 @@
   "fields": {
     "name_de": "Wintersemester 2012/2013",
     "name_en": "Winter term 2012/2013",
-    "is_archived": true,
+    "participations_are_archived": true,
+    "grade_documents_are_deleted": true,
+    "results_are_archived": true,
     "created_at": "2013-01-24"
   }
 },
@@ -39,7 +41,9 @@
   "fields": {
     "name_de": "Sommersemester 2013",
     "name_en": "Summer term 2013",
-    "is_archived": false,
+    "participations_are_archived": false,
+    "grade_documents_are_deleted": false,
+    "results_are_archived": false,
     "created_at": "2013-04-22"
   }
 },
@@ -49,7 +53,9 @@
   "fields": {
     "name_de": "Wintersemester 2013/2014",
     "name_en": "Winter term 2013/2014",
-    "is_archived": false,
+    "participations_are_archived": false,
+    "grade_documents_are_deleted": false,
+    "results_are_archived": false,
     "created_at": "2014-01-08"
   }
 },
@@ -59,7 +65,9 @@
   "fields": {
     "name_de": "Sommersemester 2014",
     "name_en": "Summer term 2014",
-    "is_archived": false,
+    "participations_are_archived": false,
+    "grade_documents_are_deleted": false,
+    "results_are_archived": false,
     "created_at": "2014-06-02"
   }
 },
@@ -121199,11 +121207,11 @@
     "password": "pbkdf2_sha256$100000$OqMHXWeUCCnd$0/jerl1QOWflFRxWyz1LNdEQBEZrYkLEUOQsspUB/70=",
     "last_login": "2017-12-23T18:14:16.042",
     "is_superuser": false,
-    "username": "grader",
-    "email": "grader@institution.example.com",
+    "username": "grade_publisher",
+    "email": "grade_publisher@institution.example.com",
     "title": "",
     "first_name": "",
-    "last_name": "grader",
+    "last_name": "grade_publisher",
     "language": null,
     "login_key": null,
     "login_key_valid_until": null,
@@ -123186,14 +123194,6 @@
     "description_en": "Midterm grades",
     "last_modified_time": "2016-02-01T21:56:14.374",
     "last_modified_user": 2370
-  }
-},
-{
-  "model": "grades.semestergradedownloadactivation",
-  "pk": 1,
-  "fields": {
-    "semester": 21,
-    "is_active": true
   }
 },
 {

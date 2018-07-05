@@ -96,7 +96,7 @@ class TestUserIndexView(ViewTest):
             and not linear to the number of users
         """
         num_users = 50
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
         course = mommy.make(Course, state="published", semester=semester, _participant_count=1, _voter_count=1)  # this triggers more checks in UserProfile.can_staff_delete
         mommy.make(UserProfile, _quantity=num_users, courses_participating_in=[course])
 
@@ -113,7 +113,7 @@ class TestUserCreateView(ViewTest):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
 
     def test_user_is_created(self):
-        page = self.get_assert_200(self.url, "staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["user-form"]
         form["username"] = "mflkd862xmnbo5"
         form["first_name"] = "asd"
@@ -140,7 +140,7 @@ class TestUserEditView(ViewTest):
         mommy.make(UserProfile, pk=3)
 
     def test_questionnaire_edit(self):
-        page = self.get_assert_200(self.url, "staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["user-form"]
         form["username"] = "lfo9e7bmxp1xi"
         form.submit()
@@ -153,7 +153,7 @@ class TestUserEditView(ViewTest):
         student = mommy.make(UserProfile, email="foo@institution.example.com",
             courses_participating_in=[course, already_evaluated], courses_voted_for=[already_evaluated])
 
-        page = self.get_assert_200(reverse('staff:user_edit', args=[student.pk]), 'staff')
+        page = self.app.get(reverse('staff:user_edit', args=[student.pk]), user='staff', status=200)
         form = page.forms['user-form']
         form['courses_participating_in'] = [already_evaluated.pk]
 
@@ -215,7 +215,7 @@ class TestUserBulkDeleteView(ViewTest):
         mommy.make(UserProfile, username='testuser1')
         mommy.make(UserProfile, username='testuser2')
         contribution1 = mommy.make(Contribution)
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
         course = mommy.make(Course, semester=semester, _participant_count=0, _voter_count=0)
         contribution2 = mommy.make(Contribution, course=course)
         mommy.make(UserProfile, username='contributor1', contributions=[contribution1])
@@ -811,7 +811,7 @@ class TestSingleResultCreateView(ViewTest):
         """
             Tests the single result creation view with one valid and one invalid input dataset.
         """
-        response = self.get_assert_200(self.url, "staff")
+        response = self.app.get(self.url, user="staff", status=200)
         form = response.forms["single-result-form"]
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
@@ -848,7 +848,7 @@ class TestCourseCreateView(ViewTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        response = self.get_assert_200("/staff/semester/1/course/create", "staff")
+        response = self.app.get("/staff/semester/1/course/create", user="staff", status=200)
         form = response.forms["course-form"]
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
@@ -994,7 +994,7 @@ class TestCourseEditView(ViewTest):
         self.assertEqual(old_last_modified_user.username, self.user.username)
         self.assertEqual(old_state, "new")
 
-        page = self.get_assert_200('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username)
+        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
         form = page.forms["course-form"]
         # approve without changes
         form.submit(name="operation", value="approve")
@@ -1010,7 +1010,7 @@ class TestCourseEditView(ViewTest):
         self.course.save()
         self.assertEqual(self.course.state, "new")
 
-        page = self.get_assert_200('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username)
+        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
         form = page.forms["course-form"]
         form["name_de"] = "Test name"
         # approve after changes
@@ -1262,7 +1262,7 @@ class TestCourseEmailView(ViewTest):
         mommy.make(Course, pk=1, semester=semester, participants=[participant1, participant2])
 
     def test_emails_are_sent(self):
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["course-email-form"]
         form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
@@ -1294,13 +1294,13 @@ class TestCourseCommentView(ViewTest):
         mommy.make(TextAnswer, contribution=contribution, question=question, answer=answer)
 
         # in a course with only one voter the view should not be available
-        self.get_assert_403(self.url, user='staff')
+        self.app.get(self.url, user='staff', status=403)
 
         # add additional voter
         self.let_user_vote_for_course(self.student2, self.course)
 
         # now it should work
-        page = self.get_assert_200(self.url, user='staff')
+        page = self.app.get(self.url, user='staff', status=200)
         self.assertContains(page, answer)
 
 
@@ -1324,7 +1324,7 @@ class TestCourseCommentEditView(ViewTest):
 
     def test_comments_showing_up(self):
         # in a course with only one voter the view should not be available
-        self.get_assert_403(self.url, user='staff')
+        self.app.get(self.url, user='staff', status=403)
 
         # add additional voter
         self.let_user_vote_for_course(self.student2, self.course)
@@ -1508,7 +1508,8 @@ class TestQuestionnaireCopyView(ViewTest):
         mommy.make(UserProfile, username="staff", groups=[Group.objects.get(name="Staff")])
 
     def test_not_changing_name_fails(self):
-        response = self.get_submit_assert_200(self.url, "staff")
+        response = self.app.get(self.url, user="staff", status=200)
+        response = response.forms[1].submit("", status=200)
         self.assertIn("already exists", response)
 
     def test_copy_questionnaire(self):
@@ -1563,14 +1564,14 @@ class TestCourseTypeView(ViewTest):
 
     def test_page_displays_something(self):
         CourseType.objects.create(name_de='uZJcsl0rNc', name_en='uZJcsl0rNc')
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         self.assertIn('uZJcsl0rNc', page)
 
     def test_course_type_form(self):
         """
             Adds a course type via the staff form and verifies that the type was created in the db.
         """
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["course-type-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
         form["form-" + str(last_form_id) + "-name_de"].value = "Test"
@@ -1592,7 +1593,7 @@ class TestCourseTypeMergeSelectionView(ViewTest):
         cls.other_type = mommy.make(CourseType, name_en="Obsolete course type")
 
     def test_same_course_fails(self):
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["course-type-merge-selection-form"]
         form["main_type"] = self.main_type.pk
         form["other_type"] = self.main_type.pk
@@ -1613,7 +1614,7 @@ class TestCourseTypeMergeView(ViewTest):
         mommy.make(Course, type=cls.other_type)
 
     def test_merge_works(self):
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["course-type-merge-form"]
         response = form.submit()
         self.assertIn("Successfully", str(response))
@@ -1662,7 +1663,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
 
 
-class ArchivingTests(WebTest):
+class ParticipationArchivingTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
@@ -1670,16 +1671,16 @@ class ArchivingTests(WebTest):
 
     def test_raise_403(self):
         """
-            Tests whether inaccessible views on archived semesters/courses correctly raise a 403.
+            Tests whether inaccessible views on semesters/courses with archived participations correctly raise a 403.
         """
-        semester = mommy.make(Semester, is_archived=True)
+        semester = mommy.make(Semester, participations_are_archived=True)
 
         semester_url = "/staff/semester/{}/".format(semester.pk)
 
-        self.get_assert_403(semester_url + "import", "staff")
-        self.get_assert_403(semester_url + "assign", "staff")
-        self.get_assert_403(semester_url + "course/create", "staff")
-        self.get_assert_403(semester_url + "courseoperation", "staff")
+        self.app.get(semester_url + "import", user="staff", status=403)
+        self.app.get(semester_url + "assign", user="staff", status=403)
+        self.app.get(semester_url + "course/create", user="staff", status=403)
+        self.app.get(semester_url + "courseoperation", user="staff", status=403)
 
 
 class TestTemplateEditView(ViewTest):
@@ -1694,7 +1695,7 @@ class TestTemplateEditView(ViewTest):
         """
             Tests the emailtemplate view with one valid and one invalid input datasets.
         """
-        page = self.get_assert_200(self.url, "staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"
@@ -1719,7 +1720,7 @@ class TestDegreeView(ViewTest):
         """
             Adds a degree via the staff form and verifies that the degree was created in the db.
         """
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["degree-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
         form["form-" + str(last_form_id) + "-name_de"].value = "Test"
@@ -1750,7 +1751,7 @@ class TestSemesterQuestionnaireAssignment(ViewTest):
         mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_questionnaire_assignment(self):
-        page = self.get_assert_200(self.url, user="staff")
+        page = self.app.get(self.url, user="staff", status=200)
         form = page.forms["questionnaire-assign-form"]
         form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
         form[self.course_type_2.name] = [self.questionnaire_2.pk]

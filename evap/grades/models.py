@@ -67,8 +67,3 @@ def delete_file_pre_save(instance, **_kwargs):
     newFile = instance.file
     if not oldFile == newFile:
         oldFile.delete(False)
-
-
-class SemesterGradeDownloadActivation(models.Model):
-    semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='grades_downloadable')
-    is_active = models.BooleanField(default=False)
