@@ -78,10 +78,10 @@ class TestCalculateResults(TestCase):
 class TestCalculateAverageDistribution(TestCase):
     @classmethod
     def setUpTestData(cls):
-        student1 = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
+        cls.student1 = mommy.make(UserProfile)
+        cls.student2 = mommy.make(UserProfile)
 
-        cls.course = mommy.make(Course, state='published', participants=[student1, student2], voters=[student1, student2])
+        cls.course = mommy.make(Course, state='published', participants=[cls.student1, cls.student2], voters=[cls.student1, cls.student2])
         cls.questionnaire = mommy.make(Questionnaire)
         cls.question_grade = mommy.make(Question, questionnaire=cls.questionnaire, type="G")
         cls.question_likert = mommy.make(Question, questionnaire=cls.questionnaire, type="L")
@@ -176,3 +176,15 @@ class TestCalculateAverageDistribution(TestCase):
         mommy.make(RatingAnswerCounter, question=questionnaire.question_set.first(), contribution=contribution, answer=4, count=1)
         distribution = calculate_average_distribution(single_result_course)
         self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
+
+    def test_result_calculation_with_no_contributor_rating_question_does_not_fail(self):
+        course = mommy.make(Course, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2])
+        questionnaire_text = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire_text, type="T")
+        mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course, questionnaires=[questionnaire_text])
+
+        course.general_contribution.questionnaires.set([self.questionnaire])
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=course.general_contribution, answer=1, count=1)
+
+        distribution = calculate_average_distribution(course)
+        self.assertEqual(distribution[0], 1)
