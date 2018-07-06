@@ -189,7 +189,7 @@ def calculate_average_distribution(course):
                 (average_grade_questions_distribution(contributor_results), settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT),
                 (average_non_grade_rating_questions_distribution(contributor_results), settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT)
             ]),
-            max(result.count_sum for result in contributor_results if result.question.is_rating_question)
+            max((result.count_sum for result in contributor_results if result.question.is_rating_question), default=0)
         )
         for contributor_results in grouped_results.values()
     ])
