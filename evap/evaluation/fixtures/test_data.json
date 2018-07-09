@@ -77274,46 +77274,6 @@
 },
 {
   "model": "evaluation.ratinganswercounter",
-  "pk": 7516,
-  "fields": {
-    "question": 473,
-    "contribution": 4301,
-    "answer": 1,
-    "count": 1
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7517,
-  "fields": {
-    "question": 473,
-    "contribution": 4301,
-    "answer": 5,
-    "count": 38
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7518,
-  "fields": {
-    "question": 472,
-    "contribution": 4301,
-    "answer": 1,
-    "count": 34
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7519,
-  "fields": {
-    "question": 472,
-    "contribution": 4301,
-    "answer": 5,
-    "count": 5
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
   "pk": 7520,
   "fields": {
     "question": 473,
@@ -79080,46 +79040,6 @@
     "contribution": 840,
     "answer": 1,
     "count": 3
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7868,
-  "fields": {
-    "question": 473,
-    "contribution": 4299,
-    "answer": 1,
-    "count": 21
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7869,
-  "fields": {
-    "question": 473,
-    "contribution": 4299,
-    "answer": 5,
-    "count": 2
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7870,
-  "fields": {
-    "question": 472,
-    "contribution": 4299,
-    "answer": 1,
-    "count": 21
-  }
-},
-{
-  "model": "evaluation.ratinganswercounter",
-  "pk": 7871,
-  "fields": {
-    "question": 472,
-    "contribution": 4299,
-    "answer": 5,
-    "count": 2
   }
 },
 {
