@@ -74,11 +74,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         # Normal course with responsible and contributor.
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
 
-        # Special single result course.
-        cls.single_result_course = mommy.make(Course, state='published', semester=cls.semester)
-        questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
@@ -130,11 +125,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertIn(heading_question_1.text, page)
         self.assertIn(likert_question.text, page)
         self.assertNotIn(heading_question_2.text, page)
-
-    def test_single_result_course(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
-        user = 'staff'
-        self.app.get(url, user=user, status=200)
 
     def test_default_view_is_public(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
