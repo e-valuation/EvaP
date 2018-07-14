@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.forms import UserModelMultipleChoiceField
+from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
 from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
@@ -98,3 +98,7 @@ class DelegatesForm(forms.ModelForm):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "{}" edited the settings.'.format(self.instance.username))
+
+
+class DelegateSelectionForm(forms.Form):
+    delegate_user = UserModelChoiceField(UserProfile.objects.all())

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
 
-from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
+from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
 from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
@@ -31,6 +31,8 @@ def index(request):
         displayed_courses += list(delegated_courses)
     displayed_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
+    delegate_selection_form = DelegateSelectionForm
+
     for course in displayed_courses:
         course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
@@ -46,6 +48,7 @@ def index(request):
     template_data = dict(
         semester_list=semester_list,
         show_delegated=show_delegated,
+        delegate_selection_form=delegate_selection_form,
     )
     return render(request, "contributor_index.html", template_data)
 
