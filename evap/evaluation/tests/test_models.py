@@ -11,6 +11,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, EmailTempl
                                     Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tests.tools import WebTest
 from evap.results.tools import calculate_average_distribution
+from evap.results.views import get_course_result_template_fragment_cache_key
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
@@ -257,6 +258,29 @@ class TestCourses(WebTest):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 1)
         self.assertTrue(TextAnswer.objects.get().original_answer is None)
+
+    def test_publishing_and_unpublishing_effect_on_template_cache(self):
+        student = mommy.make(UserProfile)
+        course = mommy.make(Course, state='reviewed', participants=[student], voters=[student], can_publish_text_results=True)
+
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", True)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", False)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", True)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", False)))
+
+        course.publish()
+
+        self.assertIsNotNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", True)))
+        self.assertIsNotNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", False)))
+        self.assertIsNotNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", True)))
+        self.assertIsNotNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", False)))
+
+        course.unpublish()
+
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", True)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "en", False)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", True)))
+        self.assertIsNone(caches['results'].get(get_course_result_template_fragment_cache_key(course.id, "de", False)))
 
 
 class TestUserProfile(TestCase):
