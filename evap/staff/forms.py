@@ -82,7 +82,7 @@ class UserBulkDeleteForm(forms.Form):
 class SemesterForm(forms.ModelForm):
     class Meta:
         model = Semester
-        fields = ("name_de", "name_en")
+        fields = ("name_de", "name_en", "short_name_de", "short_name_en")
 
 
 class DegreeForm(forms.ModelForm):
@@ -255,6 +255,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance.vote_start_datetime = date_to_datetime(event_date)
         self.instance.vote_end_date = event_date
         self.instance.is_graded = False
+        self.instance.is_single_result = True
         super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()

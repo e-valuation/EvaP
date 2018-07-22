@@ -7,7 +7,7 @@ from django.test import override_settings
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade
+from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade, get_single_result_rating_result
 from evap.staff.tools import merge_users
 
 
@@ -22,7 +22,7 @@ class TestCalculateResults(TestCase):
         self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(course)))
 
     def test_cache_unpublished_course(self):
-        course = mommy.make(Course, state='published')
+        course = mommy.make(Course, state='published', _voter_count=0, _participant_count=0)
         collect_results(course)
         course.unpublish()
 
@@ -168,14 +168,16 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[3], 0.0375)
         self.assertAlmostEqual(distribution[4], 0.38)
 
-    def test_single_result_calculate_average_distribution(self):
-        single_result_course = mommy.make(Course, state='published')
+    def test_get_single_result_rating_result(self):
+        single_result_course = mommy.make(Course, state='published', is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
         contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(RatingAnswerCounter, question=questionnaire.question_set.first(), contribution=contribution, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=questionnaire.question_set.first(), contribution=contribution, answer=4, count=1)
         distribution = calculate_average_distribution(single_result_course)
         self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
+        rating_result = get_single_result_rating_result(single_result_course)
+        self.assertEqual(rating_result.counts, (1, 0, 0, 1, 0))
 
     def test_result_calculation_with_no_contributor_rating_question_does_not_fail(self):
         course = mommy.make(Course, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2])

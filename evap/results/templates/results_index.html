@@ -1,22 +1,188 @@
 {% extends 'base.html' %}
 
+{% load results_templatetags %}
+{% load evaluation_filters %}
+
 {% block title %}{% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
     {{ block.super }}
-
-    <h3>{% trans 'Semesters' %}</h3>
-    <div class="card mb-3">
+    <h3>{% trans 'Evaluation results' %}</h3>
+    <div class="card mb-1">
         <div class="card-body">
-            {% if semesters %}
-                <ul>
-                    {% for semester in semesters %}
-                        <li><a href="{% url 'results:semester_detail' semester.id %}">{{ semester.name }}</a></li>
+            <h5 class="card-title mb-4">{% trans 'Filter' %}</h5>
+            <div class="row">
+                <div class="col-sm">
+                    <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
+                    <div id="degree-select" class="result-filter-list">
+                        {% for degree in degrees %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}">
+                                <label class="form-check-label" for="degree-{{ degree.id }}">
+                                    {{ degree.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <h6 class="card-subtitle mb-1">{% trans 'Course types' %}</h6>
+                    <div id="course-type-select" class="result-filter-list">
+                        {% for course_type in course_types %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}">
+                                <label class="form-check-label" for="courseType-{{ course_type.id }}">
+                                    {{ course_type.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <h6 class="card-subtitle mb-1">{% trans 'Semester' %}</h6>
+                    <div id="semester-select" class="result-filter-list">
+                        {% for semester in semesters %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}">
+                                <label class="form-check-label" for="semester-{{ semester.id }}">
+                                    {{ semester.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-sm d-flex separation-left flex-column">
+                    <div class="ml-auto clear-filter-button" onclick="clearFilters();">
+                        <span class="far fa-times-circle"></span>
+                        {% trans 'Clear all filters' %}
+                    </div>
+                    <div class="input-group mt-auto">
+                        <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            {% if courses %}
+                <table id="results-table" class="table table-hover-evap vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
+                    <thead>
+                        <tr class="table-header">
+                            <th style="width: 35%">{% trans 'Course' %}</th>
+                            <th style="width: 10%">{% trans 'Semester' %}</th>
+                            <th style="width: 22%">{% trans 'Responsible' %}</th>
+                            <th style="width: 13%">{% trans 'Voters' %}</th>
+                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for course in courses %}
+                        {% include 'results_index_course.html' with can_user_see_results_page=course|can_user_see_results_page:request.user %}
                     {% endfor %}
-                </ul>
-            {% else %}
-                {% trans 'No results available yet' %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% get_current_language as LANGUAGE_CODE %}
+    {% load static %}
+    {% load compress %}
+
+    {% compress js %}
+        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap4.min.js"></script>
+    {% endcompress %}
+
+    <script type="text/javascript">
+        var delayTimer;
+        function updateTable(){
+            var searchValue = $('input#search').val().toLowerCase();
+            localStorage['results_enteredSearchValue'] = $('input#search').val();
+
+            var semesters = $('input[name=semester]:checked').get().map(elem => elem.value);
+            var degrees = $('input[name=degree]:checked').get().map(elem => elem.value);
+            var courseTypes = $('input[name=courseType]:checked').get().map(elem => elem.value);
+
+            localStorage['results_selectedSemesters'] = JSON.stringify(semesters);
+            localStorage['results_selectedDegrees'] = JSON.stringify(degrees);
+            localStorage['results_selectedCourseTypes'] = JSON.stringify(courseTypes);
+
+            // find which rows to show
+            $('#results-table tr:not(.table-header)').each(function() {
+                var showRow =
+                    (semesters.length == 0 || semesters.includes($(this).find('.semester-name').text())) &&
+                    (degrees.length == 0 || degrees.includes($(this).find('.badge-degree').text())) &&
+                    (courseTypes.length == 0 || courseTypes.includes($(this).find('.badge-course-type').text())) &&
+                    (searchValue.length == 0 ||
+                        $(this).find('.course-name').html().toLowerCase().includes(searchValue) ||
+                        $(this).find('.contributor-name').html().toLowerCase().includes(searchValue));
+                $(this).toggleClass("d-none", !showRow);
+            });
+        };
+
+        function clearFilters(){
+            $('input[name=semester]').prop('checked', false);
+            $('input[name=degree]').prop('checked', false);
+            $('input[name=courseType]').prop('checked', false);
+            $('input#search').val('');
+            updateTable();
+        }
+
+        $(document).ready(function() {
+            // load previously selected filters
+            $('input#search').val(localStorage['results_enteredSearchValue']);
+            if(localStorage.getItem('results_selectedSemesters') != null){
+                var selectedSemesters = JSON.parse(localStorage['results_selectedSemesters']);
+                selectedSemesters.forEach(function(value){
+                    $(`input[name=semester][value="${value}"]`).prop('checked', true);
+                });
+            }
+            if(localStorage.getItem('results_selectedDegrees') != null){
+                var selectedDegrees = JSON.parse(localStorage['results_selectedDegrees']);
+                selectedDegrees.forEach(function(value){
+                    $(`input[name=degree][value="${value}"]`).prop('checked', true);
+                });
+            }
+            if(localStorage.getItem('results_selectedCourseTypes') != null){
+                var selectedCourseTypes = JSON.parse(localStorage['results_selectedCourseTypes']);
+                selectedCourseTypes.forEach(function(value){
+                    $(`input[name=courseType][value="${value}"]`).prop('checked', true);
+                });
+            }
+
+            // add change handlers for filter checkboxes and search field
+            $('input[name=semester]').on('change', function() {
+                updateTable();
+            });
+            $('input[name=degree]').on('change', function() {
+                updateTable();
+            });
+            $('input[name=courseType]').on('change', function() {
+                updateTable();
+            });
+            $('input#search').on('change paste input', function() {
+                clearTimeout(delayTimer);
+                delayTimer = setTimeout(function() {
+                    updateTable();
+                }, 200);
+            });
+
+            var table = $('#results-table').DataTable({
+                "paging": false,
+                "info": false,
+                "stateSave": true,
+                "language": {
+                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
+                },
+                "dom": 'rt'
+            });
+
+            // apply initial filters
+            updateTable();
+        });
+    </script>
 {% endblock %}

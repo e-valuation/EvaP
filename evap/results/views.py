@@ -1,59 +1,96 @@
-from collections import OrderedDict, namedtuple, defaultdict
+from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
+from django.db.models import QuerySet, Prefetch, Count
+from django.core.cache import caches
+from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
+from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Contribution
+from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
-    TextAnswer, TextResult, HeadingResult
+    TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
+
+
+def get_course_result_template_fragment_cache_key(course_id, language, can_user_see_results_page):
+    return make_template_fragment_key('course_result_template_fragment', [course_id, language, can_user_see_results_page])
+
+
+def delete_template_cache(course):
+    assert course.state != 'published'
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', True))
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', False))
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', True))
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', False))
+
+
+def warm_up_template_cache(courses):
+    courses = get_courses_with_prefetched_data(courses)
+    current_language = translation.get_language()
+    try:
+        for course in courses:
+            assert course.state == 'published'
+            translation.activate('en')
+            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=True))
+            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=False))
+            translation.activate('de')
+            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=True))
+            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=False))
+            assert get_course_result_template_fragment_cache_key(course.id, 'en', True) in caches['results']
+            assert get_course_result_template_fragment_cache_key(course.id, 'en', False) in caches['results']
+            assert get_course_result_template_fragment_cache_key(course.id, 'de', True) in caches['results']
+            assert get_course_result_template_fragment_cache_key(course.id, 'de', False) in caches['results']
+    finally:
+        translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
+
+
+def get_courses_with_prefetched_data(courses):
+    if isinstance(courses, QuerySet):
+        courses = (courses
+            .annotate(num_participants=Count("participants", distinct=True), num_voters=Count("voters", distinct=True))
+            .select_related("type")
+            .prefetch_related(
+                "degrees",
+                "semester",
+                Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions")
+            )
+        )
+        for course in courses:
+            course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
+    for course in courses:
+        if not course.is_single_result:
+            course.distribution = calculate_average_distribution(course)
+            course.avg_grade = distribution_to_grade(course.distribution)
+        else:
+            course.single_result_rating_result = get_single_result_rating_result(course)
+    return courses
 
 
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-
-    return render(request, "results_index.html", dict(semesters=semesters))
-
-
-@internal_required
-def semester_detail(request, semester_id):
-    semester = get_object_or_404(Semester, id=semester_id)
-
-    if semester.results_are_archived:
-        raise PermissionDenied
-
-    visible_states = ['published']
-    if request.user.is_reviewer:
-        visible_states += ['in_evaluation', 'evaluated', 'reviewed']
-
-    courses = semester.course_set.filter(state__in=visible_states).prefetch_related("degrees")
-
+    courses = Course.objects.filter(semester__in=semesters, state='published')
     courses = [course for course in courses if course.can_user_see_course(request.user)]
 
-    for course in courses:
-        course.distribution = calculate_average_distribution(course)
-        course.avg_grade = distribution_to_grade(course.distribution)
+    if request.user.is_reviewer:
+        additional_courses = Course.objects.filter(semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
+        courses += get_courses_with_prefetched_data(additional_courses)
 
-    CourseTuple = namedtuple('CourseTuple', ('courses', 'single_results'))
-
-    courses_by_degree = OrderedDict()
-    for degree in Degree.objects.all():
-        courses_by_degree[degree] = CourseTuple([], [])
-    for course in courses:
-        if course.is_single_result:
-            for degree in course.degrees.all():
-                question_result = collect_results(course).questionnaire_results[0].question_results[0]
-                courses_by_degree[degree].single_results.append((course, question_result))
-        else:
-            for degree in course.degrees.all():
-                courses_by_degree[degree].courses.append(course)
-
-    template_data = dict(semester=semester, courses_by_degree=courses_by_degree)
-    return render(request, "results_semester_detail.html", template_data)
+    course_pks = [course.pk for course in courses]
+    degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
+    course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
+    template_data = dict(
+        courses=courses,
+        degrees=degrees,
+        course_types=sorted(course_types, key=lambda course_type: course_type.name),
+        semesters=semesters,
+    )
+    return render(request, "results_index.html", template_data)
 
 
 @login_required

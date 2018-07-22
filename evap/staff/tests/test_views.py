@@ -378,15 +378,19 @@ class TestSemesterCreateView(ViewTest):
 
     def test_create(self):
         name_de = 'name_de'
+        short_name_de = 'short_name_de'
         name_en = 'name_en'
+        short_name_en = 'short_name_en'
 
         response = self.app.get(self.url, user='staff')
         form = response.forms['semester-form']
         form['name_de'] = name_de
+        form['short_name_de'] = short_name_de
         form['name_en'] = name_en
+        form['short_name_en'] = short_name_en
         form.submit()
 
-        self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en).count(), 1)
+        self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en, short_name_de=short_name_de, short_name_en=short_name_en).count(), 1)
 
 
 class TestSemesterEditView(ViewTest):
@@ -673,22 +677,34 @@ class TestSemesterRawDataExportView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
-        cls.student_user = mommy.make(UserProfile, username='student')
         cls.semester = mommy.make(Semester, pk=1)
         cls.course_type = mommy.make(CourseType, name_en="Type")
-        cls.course1 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
-            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1")
-        cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user],
-            name_de="Veranstaltung 2", name_en="Course 2")
-        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_view_downloads_csv_file(self):
+        student_user = mommy.make(UserProfile, username='student')
+        course1 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+            voters=[student_user], name_de="1", name_en="Course 1")
+        course2 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+            name_de="2", name_en="Course 2")
+        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+
         response = self.app.get(self.url, user='staff')
         expected_content = (
             "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average grade\r\n"
             "Course 1;;Type;False;new;1;1;0;\r\n"
             "Course 2;;Type;False;new;0;1;0;\r\n"
+        )
+        self.assertEqual(response.content, expected_content.encode("utf-8"))
+
+    def test_single_result(self):
+        mommy.make(Course, type=self.course_type, semester=self.semester, _participant_count=5, _voter_count=5,
+            is_single_result=True, name_de="3", name_en="Single Result")
+
+        response = self.app.get(self.url, user='staff')
+        expected_content = (
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average grade\r\n"
+            "Single Result;;Type;True;new;5;5;0;\r\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -767,7 +783,7 @@ class TestCourseOperationView(ViewTest):
         self.helper_semester_state_views(course, "editor_approved", "prepared")
 
     def test_semester_unpublish(self):
-        course = mommy.make(Course, semester=self.semester, state='published')
+        course = mommy.make(Course, semester=self.semester, state='published', _participant_count=0, _voter_count=0)
         self.helper_semester_state_views(course, "published", "reviewed")
 
     def test_operation_start_evaluation(self):

@@ -37,6 +37,10 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
     name = Translate
 
+    short_name_de = models.CharField(max_length=20, unique=True, verbose_name=_("short name (german)"))
+    short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
+    short_name = Translate
+
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
     results_are_archived = models.BooleanField(default=False, verbose_name=_("results are archived"))
@@ -253,6 +257,8 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     # type of course: lecture, seminar, project
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
 
+    is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
+
     # e.g. Bachelor, Master
     degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
 
@@ -306,6 +312,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     def save(self, *args, **kw):
+        first_save = self.pk is None
         super().save(*args, **kw)
 
         # make sure there is a general contribution
@@ -313,7 +320,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
-        assert self.vote_end_date >= self.vote_start_datetime.date()
+        if self.is_single_result:
+            # adding m2ms such as contributions/questionnaires requires saving the course first,
+            # therefore we must allow the single result questionnaire to not exist on first save
+            assert first_save or Questionnaire.objects.get(contributions__course=self).name_en == Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
+            assert self.vote_end_date == self.vote_start_datetime.date()
+        else:
+            assert self.vote_end_date >= self.vote_start_datetime.date()
 
     @property
     def is_fully_reviewed(self):
@@ -348,36 +361,20 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_course(self, user):
         if user.is_reviewer:
             return True
-        if self.is_user_contributor_or_delegate(user):
-            return True
-        if user in self.participants.all():
-            return True
-        if self.is_private:
-            return False
-        if user.is_external:
-            return False
+        if self.is_private or user.is_external:
+            return self.is_user_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
         return True
 
     def can_user_see_results_page(self, user):
+        if self.is_single_result:
+            return False
         if user.is_reviewer:
             return True
         if self.state != 'published':
             return False
-        if self.is_user_contributor_or_delegate(user):
-            return True
-        if not self.can_publish_rating_results:
-            return False
-        if self.semester.results_are_archived:
-            return False
-        return self.can_user_see_course(user)
-
-    @property
-    def is_single_result(self):
-        # early return to save some queries
-        if self.vote_start_datetime.date() != self.vote_end_date:
-            return False
-
-        return self.contributions.filter(responsible=True, questionnaires__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME).exists()
+        if not self.can_publish_rating_results or self.semester.results_are_archived or not self.can_user_see_course(user):
+            return self.is_user_contributor_or_delegate(user)
+        return True
 
     @property
     def can_staff_edit(self):
@@ -445,6 +442,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
+        assert self._voter_count is None and self._participant_count is None
+        self._voter_count = self.num_voters
+        self._participant_count = self.num_participants
+
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
         else:
@@ -453,8 +454,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='published', target='reviewed')
     def unpublish(self):
-        from evap.results.tools import get_collect_results_cache_key
-        caches['results'].delete(get_collect_results_cache_key(self))
+        assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
+        self._voter_count = None
+        self._participant_count = None
 
     @cached_property
     def general_contribution(self):
@@ -506,20 +508,13 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return days_left
 
     def is_user_editor_or_delegate(self, user):
-        if self.contributions.filter(can_edit=True, contributor=user).exists():
-            return True
-        represented_users = user.represented_users.all()
-        if self.contributions.filter(can_edit=True, contributor__in=represented_users).exists():
-            return True
-        return False
+        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all()), can_edit=True).exists()
 
     def is_user_contributor_or_delegate(self, user):
-        if self.contributions.filter(contributor=user).exists():
-            return True
-        represented_users = user.represented_users.all()
-        if self.contributions.filter(contributor__in=represented_users).exists():
-            return True
-        return False
+        # early out that saves database hits since is_contributor_or_delegate is a cached_property
+        if not user.is_contributor_or_delegate:
+            return False
+        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
 
     @property
     def textanswer_set(self):
@@ -551,6 +546,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         """Should be called only via Semester.archive_participations"""
         if not self.participations_can_be_archived:
             raise NotArchiveable()
+        if self._participant_count is not None:
+            assert self._voter_count is not None
+            assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
+            return
+        assert self._participant_count is None and self._voter_count is None
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
@@ -610,6 +610,24 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
 
 @receiver(post_transition, sender=Course)
+def warmup_cache_on_publish(instance, target, **_kwargs):
+    if target == 'published':
+        from evap.results.tools import collect_results
+        from evap.results.views import warm_up_template_cache
+        collect_results(instance)
+        warm_up_template_cache([instance])
+
+
+@receiver(post_transition, sender=Course)
+def delete_cache_on_unpublish(instance, source, **_kwargs):
+    if source == 'published':
+        from evap.results.tools import get_collect_results_cache_key
+        from evap.results.views import delete_template_cache
+        caches['results'].delete(get_collect_results_cache_key(instance))
+        delete_template_cache(instance)
+
+
+@receiver(post_transition, sender=Course)
 def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
@@ -657,7 +675,7 @@ class Contribution(models.Model):
 
     @property
     def is_general(self):
-        return self.contributor is None
+        return self.contributor_id is None
 
 
 class Question(models.Model, metaclass=LocalizeModelBase):
@@ -1025,7 +1043,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 
-    @property
+    @cached_property
     def is_contributor_or_delegate(self):
         return self.is_contributor or self.is_delegate
 
