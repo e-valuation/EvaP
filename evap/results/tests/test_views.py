@@ -479,6 +479,7 @@ class TestArchivedResults(WebTest):
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')], email="reviewer@institution.example.com")
         student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         student_external = mommy.make(UserProfile, username="student_external")
         contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
@@ -495,6 +496,7 @@ class TestArchivedResults(WebTest):
         self.assertIn(self.course.name, self.app.get(url, user='responsible'))
         self.assertIn(self.course.name, self.app.get(url, user='contributor'))
         self.assertIn(self.course.name, self.app.get(url, user='staff'))
+        self.assertIn(self.course.name, self.app.get(url, user='reviewer'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
@@ -502,6 +504,7 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user="responsible", status=200)
         self.app.get(url, user="contributor", status=200)
         self.app.get(url, user="staff", status=200)
+        self.app.get(url, user="reviewer", status=200)
         self.app.get(url, user='student_external', status=200)
 
     def test_archived_results(self):
@@ -512,4 +515,5 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user='responsible', status=200)
         self.app.get(url, user='contributor', status=200)
         self.app.get(url, user='staff', status=200)
+        self.app.get(url, user='reviewer', status=403)
         self.app.get(url, user='student_external', status=403)

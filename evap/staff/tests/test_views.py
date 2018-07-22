@@ -367,6 +367,16 @@ class TestSemesterView(ViewTest):
         position_course2 = page.find("Course 2")
         self.assertLess(position_course1, position_course2)
 
+    def test_access_to_semester_with_archived_results(self):
+        mommy.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')])
+        mommy.make(Semester, pk=2, results_are_archived=True)
+
+        # reviewers shouldn't be allowed to access the semester page
+        self.app.get('/staff/semester/2', user='reviewer', status=403)
+
+        # staff users can access the page
+        self.app.get('/staff/semester/2', user='staff', status=200)
+
 
 class TestSemesterCreateView(ViewTest):
     url = '/staff/semester/create'

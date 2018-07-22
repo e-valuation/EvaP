@@ -359,7 +359,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             and user not in self.voters.all())
 
     def can_user_see_course(self, user):
-        if user.is_reviewer:
+        if user.is_staff:
+            return True
+        if user.is_reviewer and not self.semester.results_are_archived:
             return True
         if self.is_private or user.is_external:
             return self.is_user_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
@@ -368,7 +370,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_results_page(self, user):
         if self.is_single_result:
             return False
-        if user.is_reviewer:
+        if user.is_staff:
+            return True
+        if user.is_reviewer and not self.semester.results_are_archived:
             return True
         if self.state != 'published':
             return False
