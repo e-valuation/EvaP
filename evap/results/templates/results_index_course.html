@@ -22,9 +22,6 @@
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% endif %}
         {% endif %}
-        {% if course.is_private %}
-            <span data-toggle="tooltip" data-placement="top" class="fas fa-lock" title="{% trans 'Private course' %}"></span>
-        {% endif %}
         <span class="course-name">{{ course.name }}</span>
         <div>
             {% for degree in course.degrees.all %}
