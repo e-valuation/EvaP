@@ -929,6 +929,9 @@ div.disabled-tooltip {
     padding-bottom: 0.4rem;
 }
 
+.table-hover-evap tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
 .table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;

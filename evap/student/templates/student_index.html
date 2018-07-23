@@ -41,10 +41,13 @@
                                 <th style="width: 42%">{% trans 'Name' %}</th>
                                 <th style="width: 17%">{% trans 'Evaluation period' %}</th>
                                 {% if can_download_grades and not semester.grade_documents_are_deleted %}
-                                    <th style="width: 8%" class="text-center">{% trans 'Grades' %}</th>
+                                    <th style="width: 8%">{% trans 'Grades' %}</th>
+                                    <th style="width: 15%">{% trans 'Participants' %}</th>
+                                    <th style="width: 18%"></th>
+                                {% else %}
+                                    <th style="width: 19%">{% trans 'Participants' %}</th>
+                                    <th style="width: 22%"></th>
                                 {% endif %}
-                                <th style="width: 15%" class="text-center">{% trans 'Participants' %}</th>
-                                <th style="width: 18%"></th>
                             </tr>
                         </thead>
                         <tbody>
