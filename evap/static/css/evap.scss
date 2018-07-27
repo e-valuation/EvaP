@@ -3,14 +3,14 @@
 
 
 /* override bootstrap values */
-html, body {
-    height: 100%;
+html {
+  position: relative;
+  min-height: 100%;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
     overflow-y: scroll !important;
+    margin-bottom: 60px; // keep space for footer
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -499,6 +499,10 @@ body {
 }
 
 .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 46px;
     background: $darker-gray;
     line-height: 1.2;
     color: $light-gray;
@@ -1012,6 +1016,14 @@ tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
 
 .card-body .form-group:last-of-type {
     margin-bottom: 0;
+}
+
+.card-noflex {
+    flex: none;
+    display: block;
+    .card-body {
+        flex: none;
+    }
 }
 
 .icon-gray {
