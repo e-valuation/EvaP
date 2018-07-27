@@ -3,14 +3,14 @@
 
 
 /* override bootstrap values */
-html, body {
-    height: 100%;
+html {
+  position: relative;
+  min-height: 100%;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
     overflow-y: scroll !important;
+    margin-bottom: 60px; // keep space for footer
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -499,6 +499,10 @@ body {
 }
 
 .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 46px;
     background: $darker-gray;
     line-height: 1.2;
     color: $light-gray;
@@ -929,6 +933,9 @@ div.disabled-tooltip {
     padding-bottom: 0.4rem;
 }
 
+.table-hover-evap tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
 .table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
     background-color: rgba(0, 0, 0, 0.075);
     cursor: pointer;
@@ -1011,6 +1018,14 @@ tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
     margin-bottom: 0;
 }
 
+.card-noflex {
+    flex: none;
+    display: block;
+    .card-body {
+        flex: none;
+    }
+}
+
 .icon-gray {
     color: $medium-gray !important;
 }
@@ -1033,6 +1048,33 @@ a.no-underline:hover {
     text-decoration: none;
 }
 
+/* Results index page */
+// make the line always break between semester and year (e.g., "WT<break>17/18" and "ST<break>18")
+.semester-short-name {
+    word-spacing: 30000px;
+}
+
+.separation-left {
+    border-left: 1px solid $medium-gray;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.clear-filter-button {
+    color: $darker-gray;
+    cursor: pointer;
+}
+.clear-filter-button:hover {
+    color: $dark-gray;
+}
+
+.result-filter-list {
+    max-height: 145px;
+    overflow-y: auto;
+    padding-left: 4px;
+}
 
 /* Bootstrap callouts (from https://gist.github.com/matthiasg/6153853) */
 .bs-callout {
@@ -1257,6 +1299,9 @@ table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_des
 }
 .filter-toolbar {
     float: left;
+}
+.dataTables_wrapper.container-fluid {
+    padding: 0;
 }
 
 

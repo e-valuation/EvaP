@@ -84,6 +84,8 @@ def get_courses_with_prefetched_data(semester):
 @reviewer_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.results_are_archived and not request.user.is_staff:
+        raise PermissionDenied
     rewards_active = is_semester_activated(semester)
 
     courses = get_courses_with_prefetched_data(semester)
@@ -787,6 +789,8 @@ def course_person_import(request, semester_id, course_id):
 @reviewer_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.results_are_archived and not request.user.is_staff:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     if not course.can_publish_text_results:
@@ -824,6 +828,8 @@ def course_comments_update_publish(request):
     course_id = request.POST["course_id"]
 
     course = Course.objects.get(pk=course_id)
+    if course.semester.results_are_archived and not request.user.is_staff:
+        raise PermissionDenied
     if not course.can_publish_text_results:
         raise PermissionDenied
 
@@ -854,6 +860,8 @@ def course_comments_update_publish(request):
 @reviewer_required
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.results_are_archived and not request.user.is_staff:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     if not course.can_publish_text_results:
@@ -875,6 +883,8 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
 @reviewer_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
+    if semester.results_are_archived and not request.user.is_staff:
+        raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]

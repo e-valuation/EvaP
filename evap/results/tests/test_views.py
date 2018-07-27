@@ -16,17 +16,6 @@ class TestResultsView(ViewTest):
         mommy.make(UserProfile, username='staff', email="staff@institution.example.com")
 
 
-class TestResultsSemesterDetailView(ViewTest):
-    url = '/results/semester/1'
-    test_users = ['staff']
-
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', email="staff@institution.example.com")
-
-        cls.semester = mommy.make(Semester, id=1)
-
-
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -73,11 +62,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
 
         # Normal course with responsible and contributor.
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
-
-        # Special single result course.
-        cls.single_result_course = mommy.make(Course, state='published', semester=cls.semester)
-        questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        mommy.make(Contribution, course=cls.single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
@@ -130,11 +114,6 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertIn(heading_question_1.text, page)
         self.assertIn(likert_question.text, page)
         self.assertNotIn(heading_question_2.text, page)
-
-    def test_single_result_course(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.single_result_course.id)
-        user = 'staff'
-        self.app.get(url, user=user, status=200)
 
     def test_default_view_is_public(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
@@ -243,7 +222,7 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
-        url = '/results/semester/%s' % (semester.id)
+        url = '/results/'
         self.assertNotIn(private_course.name, self.app.get(url, user='random'))
         self.assertIn(private_course.name, self.app.get(url, user='student'))
         self.assertIn(private_course.name, self.app.get(url, user='responsible'))
@@ -271,6 +250,12 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
         mommy.make(UserProfile, username="staff", groups=[staff_group])
 
     def test_textanswer_visibility_for_staff_before_publish(self):
+        course = Course.objects.get(id=1)
+        course._voter_count = 0  # set these to 0 to make unpublishing work
+        course._participant_count = 0
+        course.unpublish()
+        course.save()
+
         page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
@@ -292,10 +277,6 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_staff(self):
-        course = Course.objects.get(id=1)
-        course.publish()
-        course.save()
-
         page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
@@ -319,12 +300,6 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
 
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ['minimal_test_data_results']
-
-    @classmethod
-    def setUpTestData(cls):
-        course = Course.objects.get(id=1)
-        course.publish()
-        course.save()
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1", user='responsible')
@@ -504,6 +479,7 @@ class TestArchivedResults(WebTest):
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
         mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')], email="reviewer@institution.example.com")
         student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         student_external = mommy.make(UserProfile, username="student_external")
         contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
@@ -515,11 +491,12 @@ class TestArchivedResults(WebTest):
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
     def test_unarchived_results(self):
-        url = '/results/semester/%s' % (self.semester.id)
+        url = '/results/'
         self.assertIn(self.course.name, self.app.get(url, user='student'))
         self.assertIn(self.course.name, self.app.get(url, user='responsible'))
         self.assertIn(self.course.name, self.app.get(url, user='contributor'))
         self.assertIn(self.course.name, self.app.get(url, user='staff'))
+        self.assertIn(self.course.name, self.app.get(url, user='reviewer'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
@@ -527,21 +504,16 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user="responsible", status=200)
         self.app.get(url, user="contributor", status=200)
         self.app.get(url, user="staff", status=200)
+        self.app.get(url, user="reviewer", status=200)
         self.app.get(url, user='student_external', status=200)
 
     def test_archived_results(self):
         self.semester.archive_results()
-
-        url = '/results/semester/%s' % (self.semester.id)
-        self.app.get(url, user='student', status=403)
-        self.app.get(url, user='responsible', status=403)
-        self.app.get(url, user='contributor', status=403)
-        self.app.get(url, user='staff', status=403)
-        self.app.get(url, user='student_external', status=403)
 
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         self.app.get(url, user='student', status=403)
         self.app.get(url, user='responsible', status=200)
         self.app.get(url, user='contributor', status=200)
         self.app.get(url, user='staff', status=200)
+        self.app.get(url, user='reviewer', status=403)
         self.app.get(url, user='student_external', status=403)

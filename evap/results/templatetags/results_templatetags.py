@@ -12,3 +12,10 @@ def gradecolor(grade):
 @register.filter(name='normalized_distribution')
 def norm_distribution(distribution):
     return normalized_distribution(distribution)
+
+
+@register.filter(name='course_results_cache_timeout')
+def course_results_cache_timeout(course):
+    if course.state == 'published':
+        return None  # cache forever
+    return 0  # don't cache at all

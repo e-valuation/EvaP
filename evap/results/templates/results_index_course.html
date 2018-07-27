@@ -1,0 +1,63 @@
+{% load cache %}
+{% load i18n %}
+
+{% load evaluation_filters %}
+{% load results_templatetags %}
+
+{% get_current_language as LANGUAGE_CODE %}
+
+{% cache course|course_results_cache_timeout course_result_template_fragment course.id LANGUAGE_CODE can_user_see_results_page using="results" %}
+
+<tr class="hover-results {% if not can_user_see_results_page %}nohover{% endif %}{% if course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %} preview{% endif %}"
+        {% if can_user_see_results_page %}data-url="{% url 'results:course_detail' course.semester.id course.id %}"{% endif %}>
+    <td data-order="{{ course.name }}">
+        {% if course.state == 'in_evaluation' %}
+            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This course is still in evaluation.' %}"></span>
+        {% elif course.state == 'evaluated' %}
+            <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+        {% elif course.state == 'reviewed' %}
+            {% if course.is_single_result or course.final_grade_documents or course.gets_no_grade_documents or not course.is_graded %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+            {% else %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+            {% endif %}
+        {% endif %}
+        <span class="course-name">{{ course.name }}</span>
+        <div>
+            {% for degree in course.degrees.all %}
+                <span class="badge badge-primary badge-degree">{{ degree }}</span>
+            {% endfor %}
+            <span class="badge badge-secondary badge-course-type">{{ course.type }}</span>
+            {% if course.is_single_result %}
+                <span class="badge badge-success">{% trans 'Single result' %}</span>
+            {% endif %}
+        </div>
+    </td>
+    <td data-order="{{ course.semester.id }}" class="text-center semester-short-name">
+        <span class="semester-name">{{ course.semester.short_name }}</span>
+    </td>
+    <td data-order="{{ course.responsible_contributors.0.last_name }}">
+        <span class="contributor-name">
+            {% for contributor in course.responsible_contributors %}
+                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </span>
+    </td>
+    {% if course.is_single_result %}
+        <td class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ course.single_result_rating_result.count_sum }}</td>
+    {% else %}
+        {% with num_participants=course.num_participants num_voters=course.num_voters %}
+            <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
+        {% endwith %}
+    {% endif %}
+
+    <td data-order="{% if course.is_single_result %}{{ course.single_result_rating_result.average }}{% else %}{{ course.avg_grade }}{% endif %}">
+        {% if course.is_single_result %}
+            {% include 'result_bar.html' with question_result=course.single_result_rating_result single_result=True %}
+        {% else %}
+            {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+        {% endif %}
+    </td>
+</tr>
+
+{% endcache %}

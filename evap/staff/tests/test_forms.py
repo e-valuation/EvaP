@@ -145,7 +145,7 @@ class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        course = Course(semester=mommy.make(Semester))
+        course = Course(semester=mommy.make(Semester), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -172,7 +172,7 @@ class SingleResultFormTests(TestCase):
     def test_single_result_form_can_change_responsible(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        course = Course(semester=mommy.make(Semester))
+        course = Course(semester=mommy.make(Semester), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",

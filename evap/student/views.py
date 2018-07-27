@@ -48,6 +48,7 @@ def index(request):
         id=semester.id,
         is_active_semester=semester.is_active_semester,
         results_are_archived=semester.results_are_archived,
+        grade_documents_are_deleted=semester.grade_documents_are_deleted,
         courses=[course for course in courses if course.semester_id == semester.id]
     ) for semester in semesters]
 

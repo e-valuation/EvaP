@@ -4,6 +4,7 @@ from django.core.cache import caches
 
 from evap.evaluation.models import Course
 from evap.results.tools import collect_results
+from evap.results.views import warm_up_template_cache
 
 
 class Command(BaseCommand):
@@ -24,5 +25,9 @@ class Command(BaseCommand):
         for counter, course in enumerate(Course.objects.all()):
             progress_bar.update(counter + 1)
             collect_results(course)
+
+        self.stdout.write("Prerendering result index page...\n")
+
+        warm_up_template_cache(Course.objects.filter(state='published'))
 
         self.stdout.write("Results cache has been refreshed.\n")
