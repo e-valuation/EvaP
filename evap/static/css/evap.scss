@@ -245,6 +245,14 @@ a.btn:not([href]):not(.disabled).btn-dark {
     border-width: 0;
 }
 
+#results-table.table th {
+    border-top: none;
+}
+
+.card-subtitle {
+    font-weight: 600;
+}
+
 .result-rating-question {
     width: 60%;
 }
@@ -1071,7 +1079,7 @@ a.no-underline:hover {
 }
 
 .result-filter-list {
-    max-height: 145px;
+    max-height: 170px;
     overflow-y: auto;
     padding-left: 4px;
 }

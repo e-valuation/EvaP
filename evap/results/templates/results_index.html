@@ -10,7 +10,7 @@
     <h3>{% trans 'Evaluation results' %}</h3>
     <div class="card mb-1">
         <div class="card-body">
-            <h5 class="card-title mb-4">{% trans 'Filter' %}</h5>
+            <h5 class="card-title mb-3">{% trans 'Filter' %}</h5>
             <div class="row">
                 <div class="col-sm">
                     <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
@@ -18,7 +18,7 @@
                         {% for degree in degrees %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}">
-                                <label class="form-check-label" for="degree-{{ degree.id }}">
+                                <label class="form-check-label w-100" for="degree-{{ degree.id }}">
                                     {{ degree.name }}
                                 </label>
                             </div>
@@ -31,7 +31,7 @@
                         {% for course_type in course_types %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}">
-                                <label class="form-check-label" for="courseType-{{ course_type.id }}">
+                                <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
                                     {{ course_type.name }}
                                 </label>
                             </div>
@@ -44,7 +44,7 @@
                         {% for semester in semesters %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}">
-                                <label class="form-check-label" for="semester-{{ semester.id }}">
+                                <label class="form-check-label w-100" for="semester-{{ semester.id }}">
                                     {{ semester.name }}
                                 </label>
                             </div>
@@ -64,7 +64,7 @@
         </div>
     </div>
     <div class="card card-noflex">
-        <div class="card-body">
+        <div class="card-body pt-0 pb-2">
             {% if courses %}
                 <table id="results-table" class="table table-hover-evap vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
                     <thead>
