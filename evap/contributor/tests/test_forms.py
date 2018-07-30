@@ -31,17 +31,17 @@ class UserFormTests(TestCase):
 
 class ContributionFormsetTests(TestCase):
 
-    def test_staff_only(self):
+    def test_manager_only(self):
         """
-            Asserts that staff_only questionnaires are shown to Editors only if
+            Asserts that manager_only questionnaires are shown to Editors only if
             they are already selected for a contribution of the Course.
             Regression test for #593.
         """
         course = mommy.make(Course)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=False)
-        questionnaire_staff_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=False)
+        questionnaire_manager_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=True)
         # one obsolete questionnaire that should never be shown
-        mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, staff_only=False)
+        mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, manager_only=False)
 
         # just the normal questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
@@ -53,13 +53,13 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
-        # now a staff member adds a staff only questionnaire, which should be shown as well
-        contribution1.questionnaires.set([questionnaire_staff_only])
+        # now a manager adds a manager only questionnaire, which should be shown as well
+        contribution1.questionnaires.set([questionnaire_manager_only])
 
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
         formset = InlineContributionFormset(instance=course, form_kwargs={'course': course})
 
-        expected = set([questionnaire, questionnaire_staff_only])
+        expected = set([questionnaire, questionnaire_manager_only])
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 

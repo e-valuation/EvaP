@@ -17,11 +17,11 @@ class TestEventDeleteView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
     def test_deletion_success(self):
         event = mommy.make(RewardPointRedemptionEvent)
-        response = self.app.post(self.url, params={'event_id': event.pk}, user='staff')
+        response = self.app.post(self.url, params={'event_id': event.pk}, user='manager')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
@@ -30,7 +30,7 @@ class TestEventDeleteView(ViewTest):
         event = mommy.make(RewardPointRedemptionEvent)
         mommy.make(RewardPointRedemption, value=1, event=event)
 
-        response = self.app.post(self.url, params={'event_id': event.pk}, user='staff', expect_errors=True)
+        response = self.app.post(self.url, params={'event_id': event.pk}, user='manager', expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
@@ -80,28 +80,28 @@ class TestIndexView(ViewTest):
 
 class TestEventsView(ViewTest):
     url = reverse('rewards:reward_point_redemption_events')
-    test_users = ['staff']
+    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
 class TestEventCreateView(ViewTest):
     url = reverse('rewards:reward_point_redemption_event_create')
-    test_users = ['staff']
+    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
     def test_create_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 0)
-        response = self.app.get(self.url, user='staff')
+        response = self.app.get(self.url, user='manager')
 
         form = response.forms['reward-point-redemption-event-form']
         form.set('name', 'Test3Event')
@@ -115,17 +115,17 @@ class TestEventCreateView(ViewTest):
 
 class TestEventEditView(ViewTest):
     url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
-    test_users = ['staff']
+    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.event = mommy.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
-        response = self.app.get(self.url, user='staff')
+        response = self.app.get(self.url, user='manager')
 
         form = response.forms['reward-point-redemption-event-form']
         form.set('name', 'new name')
@@ -137,11 +137,11 @@ class TestEventEditView(ViewTest):
 
 class TestExportView(ViewTest):
     url = '/rewards/reward_point_redemption_event/1/export'
-    test_users = ['staff']
+    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         event = mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
         mommy.make(RewardPointRedemption, value=1, event=event)
 
@@ -152,15 +152,15 @@ class TestSemesterActivationView(ViewTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
 
     def test_activate(self):
         mommy.make(SemesterActivation, semester=self.semester, is_active=False)
-        self.app.post(self.url + 'on', user='staff')
+        self.app.post(self.url + 'on', user='manager')
         self.assertTrue(is_semester_activated(self.semester))
 
     def test_deactivate(self):
         mommy.make(SemesterActivation, semester=self.semester, is_active=True)
-        self.app.post(self.url + 'off', user='staff')
+        self.app.post(self.url + 'off', user='manager')
         self.assertFalse(is_semester_activated(self.semester))

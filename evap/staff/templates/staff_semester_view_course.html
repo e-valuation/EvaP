@@ -4,7 +4,7 @@
 
 
 <td>
-    {% if request.user.is_staff and not info_only and not semester.participations_are_archived %}
+    {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
             <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Click to select for course operation' %}">
                 <input class="form-check-input" type="checkbox" name="course" id="course{{ course.id }}" value="{{ course.id }}" />
@@ -19,9 +19,9 @@
 {% elif state == 'prepared' %}
     <td class="icon" data-order="2"><span class="far fa-square icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}"></span></td>
 {% elif state == 'editor_approved' %}
-    <td class="icon" data-order="1"><span class="far fa-check-square icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting staff review' %}"></span></td>
+    <td class="icon" data-order="1"><span class="far fa-check-square icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting manager review' %}"></span></td>
 {% elif state == 'approved' or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    <td class="icon" data-order="3"><span class="far fa-check-square icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by staff' %}"></span></td>
+    <td class="icon" data-order="3"><span class="far fa-check-square icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by manager' %}"></span></td>
 {% endif %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
@@ -56,7 +56,7 @@
 
 <td style="width: {% if info_only %}51%{% else %}42%{% endif %}" data-order="{{ course.name }}">
     <div>
-    {% if not info_only and request.user.is_staff %}
+    {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
     {% else %}
         {{ course.name }}
@@ -66,7 +66,7 @@
         {% for contributor in course.responsible_contributors %}
             {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
-        {% if info_only or not request.user.is_staff or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+        {% if info_only or not request.user.is_manager or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
             <span class="small" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of contributors' %}">
                 ({{ course.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </span>
@@ -76,7 +76,7 @@
             </a>
         {% endif %}
     </div>
-    {% include 'course_badges.html' with mode='staff' %}
+    {% include 'course_badges.html' with mode='manager' %}
 
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
         {% if not course.all_contributions_have_questionnaires %}
@@ -118,7 +118,7 @@
                 <br />
             {% endif %}
             {% if course.is_graded %}
-                {% if info_only or not request.user.is_staff %}
+                {% if info_only or not request.user.is_manager %}
                     <span data-toggle="tooltip" data-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
                         {% blocktrans with midterm=course.midterm_grade_documents_count final=course.final_grade_documents_count %}M: {{ midterm }}, F: {{ final }}{% endblocktrans %}
@@ -143,7 +143,7 @@
             </span>
         </td>
     {% endif %}
-{% elif info_only or not request.user.is_staff %}
+{% elif info_only or not request.user.is_manager %}
     <td style="width: 20%">
         <span data-toggle="tooltip" data-placement="top" title="{% trans 'Number of participants' %}">
             <span class="fas fa-user"></span> {{ course.num_participants }}
@@ -158,7 +158,7 @@
 {% endif %}
 {% if not info_only %}
     <td style="width: 16%">
-        {% if request.user.is_staff %}
+        {% if request.user.is_manager %}
             <a href="{% url 'staff:course_email' semester.id course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Send email' %}">
                 <span class="fas fa-envelope" aria-hidden="true"></span>
             </a>
@@ -176,7 +176,7 @@
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
         {% endif %}
-        {% if request.user.is_staff and course.can_staff_delete %}
+        {% if request.user.is_manager and course.can_manager_delete %}
             <a onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
         {% endif %}
     </td>

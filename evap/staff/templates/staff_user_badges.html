@@ -1,6 +1,6 @@
 {% if user.pk %}
-    {% if user.is_staff %}
-        <span class="badge badge-primary">{% trans 'Staff' %}</span>
+    {% if user.is_manager %}
+        <span class="badge badge-primary">{% trans 'Manager' %}</span>
     {% elif user.is_reviewer %}
         <span class="badge badge-primary">{% trans 'Reviewer' %}</span>
     {% endif %}

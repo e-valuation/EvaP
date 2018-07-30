@@ -97,7 +97,7 @@ class DegreeForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+        if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting degree not allowed")
 
 
@@ -108,7 +108,7 @@ class CourseTypeForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get('DELETE') and not self.instance.can_staff_delete:
+        if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting course type not allowed")
 
 
@@ -165,7 +165,7 @@ class CourseForm(forms.ModelForm):
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
 
-        if not self.instance.can_staff_edit:
+        if not self.instance.can_manager_edit:
             # form is used as read-only course view
             disable_all_fields(self)
 
@@ -205,7 +205,7 @@ class CourseForm(forms.ModelForm):
         self.instance.last_modified_user = user
         super().save(*args, **kw)
         self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
-        logger.info('Course "{}" (id {}) was edited by staff member {}.'.format(self.instance, self.instance.id, user.username))
+        logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))
 
 
 class SingleResultForm(forms.ModelForm):
@@ -235,7 +235,7 @@ class SingleResultForm(forms.ModelForm):
         if self.instance.vote_start_datetime:
             self.fields['event_date'].initial = self.instance.vote_start_datetime
 
-        if not self.instance.can_staff_edit:
+        if not self.instance.can_manager_edit:
             disable_all_fields(self)
 
         if self.instance.pk:
@@ -328,7 +328,7 @@ class ContributionForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
 
-        if not self.course.can_staff_edit:
+        if not self.course.can_manager_edit:
             # form is used as read-only course view
             disable_all_fields(self)
 
@@ -553,7 +553,7 @@ class QuestionnairesAssignForm(forms.Form):
 
 
 class UserForm(forms.ModelForm):
-    is_staff = forms.BooleanField(required=False, label=_("Staff user"))
+    is_manager = forms.BooleanField(required=False, label=_("Manager"))
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
@@ -575,7 +575,7 @@ class UserForm(forms.ModelForm):
         self.fields['courses_participating_in'].queryset = courses_in_active_semester
         if self.instance.pk:
             self.fields['courses_participating_in'].initial = courses_in_active_semester.filter(participants=self.instance)
-            self.fields['is_staff'].initial = self.instance.is_staff
+            self.fields['is_manager'].initial = self.instance.is_manager
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
             self.fields['is_inactive'].initial = not self.instance.is_active
@@ -623,20 +623,20 @@ class UserForm(forms.ModelForm):
         new_course_list = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
         self.instance.courses_participating_in.set(new_course_list)
 
-        staff_group = Group.objects.get(name="Staff")
+        manager_group = Group.objects.get(name="Manager")
         grade_publisher_group = Group.objects.get(name="Grade publisher")
         reviewer_group = Group.objects.get(name="Reviewer")
-        if self.cleaned_data.get('is_staff'):
-            self.instance.groups.add(staff_group)
+        if self.cleaned_data.get('is_manager'):
+            self.instance.groups.add(manager_group)
         else:
-            self.instance.groups.remove(staff_group)
+            self.instance.groups.remove(manager_group)
 
         if self.cleaned_data.get('is_grade_publisher'):
             self.instance.groups.add(grade_publisher_group)
         else:
             self.instance.groups.remove(grade_publisher_group)
 
-        if self.cleaned_data.get('is_reviewer') and not self.cleaned_data.get('is_staff'):
+        if self.cleaned_data.get('is_reviewer') and not self.cleaned_data.get('is_manager'):
             self.instance.groups.add(reviewer_group)
         else:
             self.instance.groups.remove(reviewer_group)

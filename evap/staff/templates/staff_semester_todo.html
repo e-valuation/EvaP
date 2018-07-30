@@ -40,7 +40,7 @@
                             <tr{% if course.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
                                     <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a><br />
-                                    {% include 'course_badges.html' with mode='staff' %}
+                                    {% include 'course_badges.html' with mode='manager' %}
                                 </th>
                                 <td>{{ course.state|statename }}</td>
                                 <td>{% include 'staff_course_evaluation_period.html' with state=course.state start_only=True %}</td>
