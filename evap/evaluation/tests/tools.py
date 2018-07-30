@@ -34,9 +34,9 @@ class WebTest(DjangoWebTest):
         url = '/student/vote/{}'.format(course.id)
         page = self.app.get(url, user=user, status=200)
         form = page.forms["student-vote-form"]
-        for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+        for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
             for questionnaire in contribution.questionnaires.all():
-                for question in questionnaire.question_set.all():
+                for question in questionnaire.questions.all():
                     if question.type == "T":
                         form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
                     elif question.type in ["L", "G", "P", "N"]:

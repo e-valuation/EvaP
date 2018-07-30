@@ -49,7 +49,7 @@ def index(request):
 
 
 def get_courses_with_prefetched_data(semester):
-    courses = (semester.course_set
+    courses = (semester.courses
         .select_related('type')
         .prefetch_related(
             Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
@@ -68,8 +68,8 @@ def get_courses_with_prefetched_data(semester):
     # num_voters_annotated=Count("voters", distinct=True), or more completely
     # courses.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
     # but that was prohibitively slow.
-    participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-    voter_counts = semester.course_set.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    participant_counts = semester.courses.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+    voter_counts = semester.courses.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
 
     for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
         course.general_contribution = course.general_contribution[0]
@@ -413,7 +413,7 @@ def semester_raw_export(request, semester_id):
     writer = csv.writer(response, delimiter=";")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
         _('#Participants'), _('#Comments'), _('Average grade')])
-    for course in semester.course_set.all():
+    for course in semester.courses.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
         distribution = calculate_average_distribution(course)
         if course.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
@@ -439,10 +439,10 @@ def semester_participation_export(request, semester_id):
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required courses voted for'),
         _('#Required courses'), _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
     for participant in participants:
-        number_of_required_courses = semester.course_set.filter(participants=participant, is_rewarded=True).count()
-        number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=True).count()
-        number_of_optional_courses = semester.course_set.filter(participants=participant, is_rewarded=False).count()
-        number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=False).count()
+        number_of_required_courses = semester.courses.filter(participants=participant, is_rewarded=True).count()
+        number_of_required_courses_voted_for = semester.courses.filter(voters=participant, is_rewarded=True).count()
+        number_of_optional_courses = semester.courses.filter(participants=participant, is_rewarded=False).count()
+        number_of_optional_courses_voted_for = semester.courses.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
             participant.username, can_user_use_reward_points(participant), number_of_required_courses_voted_for,
@@ -458,7 +458,7 @@ def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
-    courses = semester.course_set.filter(state='new')
+    courses = semester.courses.filter(state='new')
     course_types = CourseType.objects.filter(courses__in=courses)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
@@ -481,9 +481,9 @@ def semester_questionnaire_assign(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
+    courses = semester.courses.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
 
-    prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
+    prepared_courses = semester.courses.filter(state__in=['prepared']).all()
     responsibles = (contributor for course in prepared_courses for contributor in course.responsible_contributors)
     responsibles = list(set(responsibles))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
@@ -499,7 +499,7 @@ def semester_todo(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
+    courses = semester.courses.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
 
     responsibles = (contributor for course in courses for contributor in course.responsible_contributors)
@@ -961,7 +961,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     if editable:
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
     else:
-        question_count = questionnaire.question_set.count()
+        question_count = questionnaire.questions.count()
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
                                                       can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
 
@@ -1017,7 +1017,7 @@ def get_identical_form_and_formset(questionnaire):
     inline_question_formset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_set.all())
+    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
 
 
 @manager_required
@@ -1262,7 +1262,7 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    semesters_with_courses = Semester.objects.filter(course__contributions__contributor=user).distinct()
+    semesters_with_courses = Semester.objects.filter(courses__contributions__contributor=user).distinct()
     courses_contributing_to = [(semester, Course.objects.filter(semester=semester, contributions__contributor=user)) for semester in semesters_with_courses]
 
     if form.is_valid():

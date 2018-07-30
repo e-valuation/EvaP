@@ -23,7 +23,7 @@ class QuestionnaireFormTest(TestCase):
             'name_en': 'A german name',
             'public_name_en': 'A display name',
             'public_name_de': 'A german display name',
-            'question_set-0-id': question.id,
+            'questions-0-id': question.id,
             'order': 0,
             'type': Questionnaire.TOP,
         }
@@ -46,7 +46,7 @@ class QuestionnaireFormTest(TestCase):
             'name_en': questionnaire.name_en,
             'public_name_en': questionnaire.public_name_en,
             'public_name_de': questionnaire.public_name_de,
-            'question_set-0-id': question.id,
+            'questions-0-id': question.id,
             'order': questionnaire.order,
             'type': Questionnaire.BOTTOM,
         }

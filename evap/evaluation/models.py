@@ -55,11 +55,11 @@ class Semester(models.Model):
 
     @property
     def can_manager_delete(self):
-        return all(course.can_manager_delete for course in self.course_set.all())
+        return all(course.can_manager_delete for course in self.courses.all())
 
     @property
     def participations_can_be_archived(self):
-        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.course_set.all())
+        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.courses.all())
 
     @property
     def grade_documents_can_be_deleted(self):
@@ -73,7 +73,7 @@ class Semester(models.Model):
     def archive_participations(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
-        for course in self.course_set.all():
+        for course in self.courses.all():
             course._archive_participations()
         self.participations_are_archived = True
         self.save()
@@ -100,7 +100,7 @@ class Semester(models.Model):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(course__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(courses__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -187,11 +187,11 @@ class Questionnaire(models.Model):
 
     @property
     def text_questions(self):
-        return [question for question in self.question_set.all() if question.is_text_question]
+        return [question for question in self.questions.all() if question.is_text_question]
 
     @property
     def rating_questions(self):
-        return [question for question in self.question_set.all() if question.is_rating_question]
+        return [question for question in self.questions.all() if question.is_rating_question]
 
     SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
@@ -245,7 +245,7 @@ class Course(models.Model):
 
     state = FSMField(default='new', protected=True)
 
-    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
@@ -695,7 +695,7 @@ class Question(models.Model):
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
-    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
+    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en='text_en', de='text_de')
@@ -869,7 +869,7 @@ class FaqQuestion(models.Model):
     question = translate(en='question_en', de='question_de')
 
     answer_de = models.TextField(verbose_name=_("answer (german)"))
-    answer_en = models.TextField(verbose_name=_("answer (german)"))
+    answer_en = models.TextField(verbose_name=_("answer (english)"))
     answer = translate(en='answer_en', de='answer_de')
 
     class Meta:
@@ -1030,8 +1030,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor:
             return True
 
-        last_semester_participated = Semester.objects.filter(course__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_participated = Semester.objects.filter(courses__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(courses__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 

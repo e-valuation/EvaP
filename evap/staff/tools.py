@@ -177,7 +177,7 @@ def merge_users(main_user, other_user, preview=False):
 
 
 def find_next_unreviewed_course(semester, excluded):
-    return semester.course_set.exclude(pk__in=excluded) \
+    return semester.courses.exclude(pk__in=excluded) \
         .exclude(state='published') \
         .exclude(can_publish_text_results=False) \
         .filter(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED) \

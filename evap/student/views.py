@@ -123,7 +123,7 @@ def vote(request, course_id):
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
-                for question in questionnaire.question_set.all():
+                for question in questionnaire.questions.all():
                     if question.is_heading_question:
                         continue
 
