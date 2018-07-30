@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 from model_mommy import mommy
@@ -226,6 +228,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
 
 
 class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_course(self):
         semester = mommy.make(Semester)
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
@@ -725,6 +728,7 @@ class TestArchivedResults(WebTest):
         cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS, contributor=responsible)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = '/results/'
         self.assertIn(self.course.name, self.app.get(url, user='student'))
