@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 {{ question }}
-                {% include 'bootstrap_form.html' with form=form %}
+                {% include 'bootstrap_form.html' with form=form wide=True %}
             </div>
             <div class="modal-footer">
                 <a role="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</a>
@@ -27,5 +27,8 @@
         $('#{{ modal_id }} #data-label').text(dataLabel);
         // show modal
         $('#{{ modal_id }}').modal();
+
+        // fix incorrect select2 width calculation that occurrs because the select2 is applied while the modal is invisible
+        $('#{{ modal_id }} span.select2').width("100%");
     }
 </script>

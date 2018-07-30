@@ -126,7 +126,7 @@
     {% trans 'Delegate the preparation' as title %}
     {% trans 'Do you really want to delegate the preparation of the course <strong id="data-label"></strong>?' as question %}
     {% trans 'Delegate preparation' as action_text %}
-    {% include 'user_profile_select_modal.html' with modal_id='addEditorModal' title=title form=delegate_selection_form question=question action_text=action_text btn_type='danger' %}
+    {% include 'user_profile_select_modal.html' with modal_id='addEditorModal' title=title form=delegate_selection_form question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function addEditorModalAction(dataId) {
             $.ajax({
