@@ -187,6 +187,21 @@ class TestCourses(WebTest):
         course.delete()
         self.assertFalse(Course.objects.filter(pk=course.pk).exists())
 
+    def test_single_result_can_be_published(self):
+        """ Regression test for #1238 """
+        responsible = mommy.make(UserProfile)
+        single_result = mommy.make(Course,
+            semester=mommy.make(Semester), is_single_result=True, _participant_count=5, _voter_count=5
+        )
+        contribution = mommy.make(Contribution,
+            course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            questionnaires=[Questionnaire.single_result_questionnaire()]
+        )
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
+
+        single_result.single_result_created()
+        single_result.publish()  # used to crash
+
     def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
         student1 = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
@@ -420,15 +435,14 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
-        course = mommy.make(Course, state="published", is_single_result=True)
+        course = mommy.make(Course,
+            state="published", is_single_result=True, _participant_count=5, _voter_count=5
+        )
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
-        course._participant_count = 5
-        course._voter_count = 5
-        course.save()
-
         course.semester.archive_participations()
+        course = Course.objects.get(pk=course.pk)
         self.assertEqual(course._participant_count, 5)
         self.assertEqual(course._voter_count, 5)
 
