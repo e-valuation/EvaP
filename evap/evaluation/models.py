@@ -446,7 +446,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     @transition(field=state, source='reviewed', target='published')
     def publish(self):
-        assert self._voter_count is None and self._participant_count is None
+        assert self.is_single_result or self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
         self._participant_count = self.num_participants
 
