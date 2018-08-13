@@ -1,0 +1,138 @@
+{% extends 'staff_course_comments.html' %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="modal fade" id="hotkeys-modal" tabindex="-1" role="dialog" aria-labelledby="hotkeys-modal-title" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="hotkeys-modal-title">Hotkeys</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <table class="modal-body table table-striped vertically-aligned">
+                    <tr><td><span class="key">←</span> <span class="key">→</span></td><td>{% trans 'Navigate through answers' %}</td></tr>
+                    <tr><td><span class="key">J</span></td><td>{% trans 'Publish answer' %}</td></tr>
+                    <tr><td><span class="key">K</span></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
+                    <tr><td><span class="key">L</span></td><td>{% trans 'Hide answer' %}</td></tr>
+                    <tr><td><span class="key">&#x232b;</span></td><td>{% trans 'Unreview answer' %}</td></tr>
+                    <tr><td><span class="key">&#x21b2;</span></td><td>{% trans 'Review next course' %}</td></tr>
+                    <tr><td><span class="key">N</span></td><td>{% trans 'Show all again' %}</td></tr>
+                    <tr><td><span class="key">M</span></td><td>{% trans 'Show unreviewed' %}</td></tr>
+                </table>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-outline-primary slider">
+        <div class="card-header">
+            {% trans 'Comments' %}
+            <span class="hotkey-btn" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="{% trans 'Hotkeys' %}">
+                <span class="far fa-keyboard" data-toggle="modal" data-target="#hotkeys-modal"></span>
+            </span>
+        </div>
+        <div class="card-body slider-inner px-0">
+            <div class="slider-side slider-side-left">
+                <span class="badge badge-pill badge-primary" data-counter="reviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Reviewed comments' %}"></span>
+                <span class="fas fa-angle-left" data-slide="left"></span>
+                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Unreviewed comments' %}"></span>
+            </div>
+            <div class="slider-items">
+                {% for questionnaire, contributor, label, is_responsible, results in sections %}
+                    <div class="slider-item" data-layer="0">
+                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
+                    </div>
+                    {% for result in results %}
+                        <div class="slider-item" data-layer="1">
+                            {{ result.question.text}}
+                        </div>
+                        {% for answer in result.answers %}
+                            <div class="slider-item" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
+                                {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}
+                            >
+                            <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                            {% if answer.original_answer %}
+                                <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
+                            {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+                <div class="slider-item alert text-center">
+                    {% if sections %}
+                        <span data-content="unreviewed">
+                            {% trans 'Some comments for this course are still unreviewed.' %}
+                        </span>
+                        <span data-content="reviewed">
+                            {% trans 'You have reviewed all comments for this course.' %}
+                        </span>
+                    {% else %}
+                        <span>
+                            {% trans 'There are no comments for this course.' %}
+                        </span>
+                    {% endif %}
+                    {% if next_course %}
+                        <span>
+                            {% blocktrans with name=next_course.name count answers=next_course.num_unreviewed_textanswers %}
+                                The next course "{{ name }}" has got {{ answers }} unreviewed text answer.
+                            {% plural %}
+                                The next course "{{ name }}" has got {{ answers }} unreviewed text answers.
+                            {% endblocktrans %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="slider-side slider-side-right">
+                <span class="badge badge-pill badge-primary" data-counter="reviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Reviewed comments' %}"></span>
+                <span class="fas fa-angle-right" data-slide="right" title=""></span>
+                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Unreviewed comments' %}"></span>
+            </div>
+        </div>
+        <div class="card-footer d-flex">
+            <div class="lcr-left"></div>
+            <div class="lcr-center" data-action-set="reviewing">
+                <button role="button" data-action="publish" class="btn btn-sm btn-outline-secondary">
+                    {% trans 'yes' %}
+                </button>
+                <button role="button" data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
+                    title="{% blocktrans %}This answer is for a course question and can't be made private.{% endblocktrans %}" data-toggle="tooltip">
+                    {% trans 'private' %}
+                </button>
+                <button role="button" data-action="hide" class="btn btn-sm btn-outline-secondary">
+                    {% trans 'no' %}
+                </button>
+            </div>
+            <div class="lcr-center d-none" data-action-set="summary">
+                {% if next_course %}
+                    <a href="{% url 'staff:course_comments' next_course.semester.id next_course.id %}" data-url="next-course" class="btn btn-sm btn-primary">
+                        {% trans 'Review next course' %}
+                    </a>
+                {% endif %}
+                <button role="button" data-startover="all" class="btn btn-sm btn-outline-primary">
+                    {% trans 'Show all again' %}
+                </button>
+                <button role="button" data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
+                    {% trans 'Show unreviewed' %}
+                </button>
+            </div>
+            <div class="lcr-right">
+                <div data-action-set="reviewing">
+                    <button role="button" data-action="unreview" class="btn btn-sm btn-outline-secondary">
+                        {% trans 'unreview' %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        {% include "quick-review.js" %}
+    </script>
+{% endblock %}

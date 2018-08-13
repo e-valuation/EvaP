@@ -1,0 +1,58 @@
+{% extends 'staff_course_comments.html' %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="card card-outline-primary mb-3">
+        <div class="card-header">
+            {% trans 'Comments about the Course' %}
+        </div>
+        <div class="card-body">
+            {% if course_sections %}
+                {% with course_sections as sections %}
+                    {% include 'staff_course_comments_section.html' %}
+                {% endwith %}
+            {% else %}
+                <i>{% trans 'No comments' %}</i>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card card-outline-primary">
+        <div class="card-header">
+            {% trans 'Comments about the Contributors' %}
+        </div>
+        <div class="card-body">
+            {% if contributor_sections %}
+                {% with contributor_sections as sections %}
+                    {% include 'staff_course_comments_section.html' %}
+                {% endwith %}
+            {% else %}
+                <i>{% trans 'No comments' %}</i>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function press(id, action) {
+            if($("#"+id+"-"+action).hasClass("active")) {
+                action = "unreview";
+            }
+            updateState(id, action);
+            var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:course_comments_update_publish' %}",
+                data: parameters,
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+        }
+
+        function updateState(id, action) {
+            $("#"+id+"-buttons").children().removeClass("active");
+            $("#"+id+"-"+action).addClass("active");
+        }
+    </script>
+{% endblock %}

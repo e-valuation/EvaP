@@ -9,11 +9,12 @@ from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
+from django.db.models import Count
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from evap.evaluation.models import UserProfile, Course, Contribution
+from evap.evaluation.models import UserProfile, Course, Contribution, TextAnswer
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
 
@@ -183,3 +184,12 @@ def merge_users(main_user, other_user, preview=False):
     other_user.delete()
 
     return merged_user, errors, warnings
+
+
+def find_next_unreviewed_course(semester, excluded):
+    return semester.course_set.exclude(pk__in=excluded) \
+        .exclude(state='published') \
+        .exclude(can_publish_text_results=False) \
+        .filter(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED) \
+        .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
+        .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
