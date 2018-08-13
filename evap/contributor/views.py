@@ -4,10 +4,11 @@ from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
+from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Course, Semester
+from evap.evaluation.models import Contribution, Course, Semester, UserProfile
 from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
 from evap.staff.forms import ContributionFormSet
@@ -172,3 +173,24 @@ def course_preview(request, course_id):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]
+
+
+@require_POST
+@editor_or_delegate_required
+def direct_delegate_course_editing_to_user(request, course_id):
+    delegate_user_id = request.POST.get("delegate_user")
+
+    course = get_object_or_404(Course, id=course_id)
+    delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
+
+    # contribution, created = Contribution.objects.get_or_create(course=course, contributor=delegate_user)
+    # contribution.can_edit = True
+    # contribution.save()
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        "User {} was added as a contributor for course {} and sent an email with further information.".format(str(delegate_user), str(course))
+    )
+
+    return redirect('contributor:index')

@@ -117,5 +117,5 @@ def hours_and_minutes(time_left_for_evaluation):
 
 
 @register.filter
-def has_no_editor(course):
-    return True
+def has_nonresponsible_editor(course):
+    return course.contributions.filter(responsible=False, can_edit=True).exists()
