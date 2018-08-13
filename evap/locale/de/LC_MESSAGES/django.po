@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-23 20:44+0200\n"
-"PO-Revision-Date: 2018-07-23 20:49+0200\n"
+"POT-Creation-Date: 2018-08-13 15:53+0200\n"
+"PO-Revision-Date: 2018-08-13 15:56+0200\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.9\n"
+"X-Generator: Poedit 2.1.1\n"
 
 #: evap/contributor/forms.py:18 evap/staff/forms.py:129
 #: evap/student/templates/student_vote.html:69
@@ -648,7 +648,7 @@ msgstr "Eigene"
 #: evap/evaluation/models.py:647 evap/grades/models.py:18
 #: evap/results/templates/results_course_detail.html:120
 #: evap/results/templates/results_course_detail.html:170
-#: evap/results/templates/results_index.html:72 evap/staff/forms.py:57
+#: evap/results/templates/results_index.html:76 evap/staff/forms.py:57
 msgid "Course"
 msgstr "Veranstaltung"
 
@@ -669,7 +669,7 @@ msgstr "Bearbeiter"
 #: evap/evaluation/models.py:656
 #: evap/grades/templates/grades_semester_view.html:20
 #: evap/results/templates/results_course_detail.html:91
-#: evap/results/templates/results_index.html:74 evap/staff/forms.py:216
+#: evap/results/templates/results_index.html:78 evap/staff/forms.py:216
 #: evap/staff/templates/staff_user_badges.html:14
 msgid "Responsible"
 msgstr "Verantwortlicher"
@@ -1787,12 +1787,12 @@ msgid "Degree"
 msgstr "Studiengang"
 
 #: evap/results/templates/results_course_detail.html:92
-#: evap/results/templates/results_index.html:75
+#: evap/results/templates/results_index.html:79
 msgid "Voters"
 msgstr "Abstimmende"
 
 #: evap/results/templates/results_course_detail.html:93
-#: evap/results/templates/results_index.html:76
+#: evap/results/templates/results_index.html:80
 msgid "Distribution and average grade"
 msgstr "Verteilung und Durchschnittsnote"
 
@@ -1822,15 +1822,19 @@ msgid "Filter"
 msgstr "Filter"
 
 #: evap/results/templates/results_index.html:42
-#: evap/results/templates/results_index.html:73
+#: evap/results/templates/results_index.html:77
 msgid "Semester"
 msgstr "Semester"
 
 #: evap/results/templates/results_index.html:57
+msgid "Order by course and semester"
+msgstr "Nach Veranstaltung und Semester sortieren"
+
+#: evap/results/templates/results_index.html:61
 msgid "Clear all filters"
 msgstr "Alle Filter entfernen"
 
-#: evap/results/templates/results_index.html:60
+#: evap/results/templates/results_index.html:64
 msgid "Search..."
 msgstr "Suchen..."
 
@@ -3816,7 +3820,6 @@ msgid "Successfully created single result."
 msgstr "Einzelergebnis erfolgreich erstellt."
 
 #: evap/staff/views.py:630
-#, python-brace-format
 msgid ""
 "The removal as participant has granted the user \"{granting.user_profile."
 "username}\" {granting.value} reward point for the semester."
@@ -3878,7 +3881,6 @@ msgid "Successfully created user."
 msgstr "Benutzer erfolgreich erstellt."
 
 #: evap/staff/views.py:1241
-#, python-brace-format
 msgid ""
 "The removal of courses has granted the user \"{granting.user_profile."
 "username}\" {granting.value} reward point for the active semester."
