@@ -375,9 +375,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return True
         if self.state != 'published':
             return False
-        if not self.can_publish_rating_results or self.semester.results_are_archived or not self.can_user_see_course(user):
+        if not self.can_publish_rating_results or self.semester.results_are_archived:
             return self.is_user_contributor_or_delegate(user)
-        return True
+        return self.can_user_see_course(user)
 
     @property
     def can_manager_edit(self):
