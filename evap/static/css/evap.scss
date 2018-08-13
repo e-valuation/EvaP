@@ -1070,12 +1070,16 @@ a.no-underline:hover {
     flex-direction: column;
 }
 
-.clear-filter-button {
-    color: $darker-gray;
-    cursor: pointer;
-}
-.clear-filter-button:hover {
+.reset-button {
     color: $dark-gray;
+    cursor: pointer;
+    transition: color 0.15s ease-in-out;
+}
+.reset-button:hover {
+    color: $darker-gray;
+}
+.reset-button:active {
+    color: $black;
 }
 
 .result-filter-list {

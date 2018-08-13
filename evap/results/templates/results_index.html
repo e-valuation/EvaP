@@ -52,8 +52,12 @@
                     </div>
                 </div>
                 <div class="col-sm d-flex separation-left flex-column">
-                    <div class="ml-auto clear-filter-button" onclick="clearFilters();">
-                        <span class="far fa-times-circle"></span>
+                    <div class="reset-button" onclick="resetOrdering();">
+                        <span class="fas fa-sort-amount-down"></span>
+                        {% trans 'Order by course and semester' %}
+                    </div>
+                    <div class="mt-3 reset-button" onclick="clearFilters();">
+                        <span class="fas fa-eraser"></span>
                         {% trans 'Clear all filters' %}
                     </div>
                     <div class="input-group mt-auto">
@@ -132,6 +136,10 @@
             updateTable();
         }
 
+        function resetOrdering() {
+            $('#results-table').DataTable().order([0, "asc"], [1, "asc"]).draw();
+        }
+
         $(document).ready(function() {
             // load previously selected filters
             $('input#search').val(localStorage['results_enteredSearchValue']);
@@ -178,6 +186,7 @@
                 "language": {
                     "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
                 },
+                "order": [[0, "asc"], [1, "asc"]],
                 "dom": 'rt'
             });
 
