@@ -32,5 +32,8 @@
 
         // fix incorrect select2 width calculation that occurrs because the select2 is applied while the modal is invisible
         $('#{{ modal_id }} span.select2').width("100%");
+
+        // unselect any previously selected options in the modal
+        $('#{{ modal_id }} select').val(null).trigger('change');
     }
 </script>

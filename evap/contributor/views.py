@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Course, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
 from evap.staff.forms import ContributionFormSet
@@ -183,9 +183,14 @@ def direct_delegate_course_editing_to_user(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
 
-    # contribution, created = Contribution.objects.get_or_create(course=course, contributor=delegate_user)
-    # contribution.can_edit = True
-    # contribution.save()
+    contribution, created = Contribution.objects.get_or_create(course=course, contributor=delegate_user)
+    contribution.can_edit = True
+    contribution.save()
+
+    template = EmailTemplate.objects.get(name=EmailTemplate.DIRECT_DELEGATION)
+    subject_params = {"course": course, "user": request.user, "delegate_user": delegate_user}
+    body_params = subject_params
+    EmailTemplate.send_to_user(delegate_user, template, subject_params, body_params, use_cc=True, additional_cc_user=request.user, request=request)
 
     messages.add_message(
         request,
