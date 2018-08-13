@@ -51,8 +51,9 @@ def warm_up_template_cache(courses):
 
 def get_courses_with_prefetched_data(courses):
     if isinstance(courses, QuerySet):
+        participant_counts = courses.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+        voter_counts = courses.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
         courses = (courses
-            .annotate(num_participants=Count("participants", distinct=True), num_voters=Count("voters", distinct=True))
             .select_related("type")
             .prefetch_related(
                 "degrees",
@@ -60,7 +61,10 @@ def get_courses_with_prefetched_data(courses):
                 Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions")
             )
         )
-        for course in courses:
+        for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
+            if course._participant_count is None:
+                course.num_participants = participant_count
+                course.num_voters = voter_count
             course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
     for course in courses:
         if not course.is_single_result:
