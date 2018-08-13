@@ -32,7 +32,7 @@ def index(request):
         displayed_courses += list(delegated_courses)
     displayed_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
-    delegate_selection_form = DelegateSelectionForm
+    delegate_selection_form = DelegateSelectionForm()
 
     for course in displayed_courses:
         course.distribution = calculate_average_distribution(course)

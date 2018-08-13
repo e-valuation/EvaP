@@ -101,4 +101,4 @@ class DelegatesForm(forms.ModelForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_user = UserModelChoiceField(UserProfile.objects.all())
+    delegate_user = UserModelChoiceField(UserProfile.objects.exclude_inactive_users())
