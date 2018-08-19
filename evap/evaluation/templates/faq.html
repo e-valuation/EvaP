@@ -9,16 +9,14 @@
         {% for section in sections %}
             <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div id="{{ question.id }}-card" class="card{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                <div id="{{ question.id }}-card" class="card collapsible{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
                     <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
                         <a class="collapse-toggle collapsed" data-toggle="collapse" href="#{{ question.id }}-a" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
                             {{ question.question }}
                         </a>
                     </div>
-                    <div id="{{ question.id }}-a" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
-                        <div class="card-body">
-                            {{ question.answer|safe }}
-                        </div>
+                    <div id="{{ question.id }}-a" class="card-body collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
+                        {{ question.answer|safe }}
                     </div>
                 </div>
             {% endfor %}
