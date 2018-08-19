@@ -26,7 +26,7 @@ class CourseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
-            (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.instance)).distinct()
+            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -79,7 +79,7 @@ class EditorContributionForm(ContributionForm):
             self.fields['comment_visibility'].disabled = True
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            (Q(staff_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
+            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
 
 
 class DelegatesForm(forms.ModelForm):

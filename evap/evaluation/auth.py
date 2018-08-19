@@ -127,12 +127,12 @@ def internal_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
-def staff_required(view_func):
+def manager_required(view_func):
     """
-    Decorator for views that checks that the user is logged in and a staff member
+    Decorator for views that checks that the user is logged in and a manager
     """
     def check_user(user):
-        return user.is_staff
+        return user.is_manager
     return user_passes_test(check_user)(view_func)
 
 
@@ -154,12 +154,12 @@ def grade_publisher_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
-def grade_publisher_or_staff_required(view_func):
+def grade_publisher_or_manager_required(view_func):
     """
-    Decorator for views that checks that the user is logged in and a grade publisher or a staff member
+    Decorator for views that checks that the user is logged in and a grade publisher or a manager
     """
     def check_user(user):
-        return user.is_grade_publisher or user.is_staff
+        return user.is_grade_publisher or user.is_manager
     return user_passes_test(check_user)(view_func)
 
 

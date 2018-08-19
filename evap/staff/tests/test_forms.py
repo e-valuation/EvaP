@@ -373,25 +373,25 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_obsolete_staff_only(self):
+    def test_obsolete_manager_only(self):
         """
-            Asserts that obsolete questionnaires are shown to staff members only if
+            Asserts that obsolete questionnaires are shown to managers only if
             they are already selected for a contribution of the Course, and
-            that staff_only questionnaires are always shown.
+            that manager only questionnaires are always shown.
             Regression test for #593.
         """
         course = mommy.make(Course)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, staff_only=False)
-        questionnaire_staff_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, staff_only=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=False)
+        questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, manager_only=False)
+        questionnaire_manager_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=True)
 
-        # The normal and staff_only questionnaire should be shown.
+        # The normal and manager_only questionnaire should be shown.
         contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
 
         inline_contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=course, form_kwargs={'course': course})
 
-        expected = {questionnaire, questionnaire_staff_only}
+        expected = {questionnaire, questionnaire_manager_only}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
@@ -401,7 +401,7 @@ class ContributionFormsetTests(TestCase):
         inline_contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=course, form_kwargs={'course': course})
 
-        expected = {questionnaire, questionnaire_staff_only, questionnaire_obsolete}
+        expected = {questionnaire, questionnaire_manager_only, questionnaire_obsolete}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 

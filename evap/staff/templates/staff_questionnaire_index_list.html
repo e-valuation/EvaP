@@ -24,7 +24,7 @@
                             {% blocktrans count questionnaire.question_set.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                             {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
                             {% if questionnaire.obsolete %}<span class="badge badge-warning">{% trans 'obsolete' %}</span>{% endif %}
-                            {% if questionnaire.staff_only %}<span class="badge badge-info">{% trans 'staff only' %}</span>{% endif %}
+                            {% if questionnaire.manager_only %}<span class="badge badge-info">{% trans 'managers only' %}</span>{% endif %}
                         </td>
                         <td style="text-align: right;">
                             {% if not questionnaire.obsolete %}
@@ -33,7 +33,7 @@
                             <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                             <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-clone"></span></a>
                             <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
-                            {% if questionnaire.can_staff_delete %}
+                            {% if questionnaire.can_manager_delete %}
                                 <a onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="top" class="disabled-tooltip" title="{% trans 'This questionnaire cannot be deleted because it is already in use.' %}"><a href="#" class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a></div>

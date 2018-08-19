@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_POST
 from django.core.exceptions import SuspiciousOperation
 
-from evap.evaluation.auth import reward_user_required, staff_required
+from evap.evaluation.auth import reward_user_required, manager_required
 from evap.evaluation.models import Semester
 
 from evap.staff.views import semester_view
@@ -56,7 +56,7 @@ def index(request):
     return render(request, "rewards_index.html", template_data)
 
 
-@staff_required
+@manager_required
 def reward_point_redemption_events(request):
     upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
     past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by('-date')
@@ -64,7 +64,7 @@ def reward_point_redemption_events(request):
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
 
-@staff_required
+@manager_required
 def reward_point_redemption_event_create(request):
     event = RewardPointRedemptionEvent()
     form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
@@ -77,7 +77,7 @@ def reward_point_redemption_event_create(request):
         return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def reward_point_redemption_event_edit(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
     form = RewardPointRedemptionEventForm(request.POST or None, instance=event)
@@ -92,7 +92,7 @@ def reward_point_redemption_event_edit(request, event_id):
 
 
 @require_POST
-@staff_required
+@manager_required
 def reward_point_redemption_event_delete(request):
     event_id = request.POST.get("event_id")
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
@@ -103,7 +103,7 @@ def reward_point_redemption_event_delete(request):
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@manager_required
 def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
@@ -117,7 +117,7 @@ def reward_point_redemption_event_export(request, event_id):
     return response
 
 
-@staff_required
+@manager_required
 def semester_activation(request, semester_id, active):
     semester = get_object_or_404(Semester, id=semester_id)
     active = active == 'on'

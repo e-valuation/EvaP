@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_staff_required
+from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
 from evap.evaluation.models import Semester, Contribution, Course
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
@@ -60,7 +60,7 @@ def semester_view(request, semester_id):
     return render(request, "grades_semester_view.html", template_data)
 
 
-@grade_publisher_or_staff_required
+@grade_publisher_or_manager_required
 def course_view(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.grade_documents_are_deleted:
