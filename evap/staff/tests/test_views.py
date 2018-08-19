@@ -1311,14 +1311,13 @@ class TestCourseCommentView(ViewTest):
         top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
         cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
-
-    def test_comments_showing_up(self):
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
-        contribution = mommy.make(Contribution, course=self.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
-        answer = 'should show up'
-        mommy.make(TextAnswer, contribution=contribution, question=question, answer=answer)
+        contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
+        cls.answer = 'should show up'
+        mommy.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
 
+    def test_comments_showing_up(self):
         # in a course with only one voter the view should not be available
         self.app.get(self.url, user='manager', status=403)
 
@@ -1326,8 +1325,17 @@ class TestCourseCommentView(ViewTest):
         self.let_user_vote_for_course(self.student2, self.course)
 
         # now it should work
+        self.app.get(self.url, user='manager', status=200)
+
+    def test_comments_quick_view(self):
+        self.let_user_vote_for_course(self.student2, self.course)
         page = self.app.get(self.url, user='manager', status=200)
-        self.assertContains(page, answer)
+        self.assertContains(page, self.answer)
+
+    def test_comments_full_view(self):
+        self.let_user_vote_for_course(self.student2, self.course)
+        page = self.app.get(self.url + '?view=full', user='manager', status=200)
+        self.assertContains(page, self.answer)
 
 
 class TestCourseCommentEditView(ViewTest):

@@ -34,7 +34,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, get_parameter_from_url_or_session)
+                              save_import_file, get_parameter_from_url_or_session, find_next_unreviewed_course)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -796,7 +796,8 @@ def course_comments(request, semester_id, course_id):
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
+    view = request.GET.get('view', 'quick')
+    filter_comments = view == "unreviewed"
 
     CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
@@ -815,9 +816,23 @@ def course_comments(request, semester_id, course_id):
             section_list = course_sections if contribution.is_general else contributor_sections
             section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections,
-            contributor_sections=contributor_sections, filter_comments=filter_comments)
-    return render(request, "staff_course_comments.html", template_data)
+    template_data = dict(semester=semester, course=course, view=view)
+
+    if view == 'quick':
+        visited = request.session.get('review-visited', set())
+        visited.add(course.pk)
+        next_course = find_next_unreviewed_course(semester, visited)
+        if not next_course and len(visited) > 1:
+            visited = {course.pk}
+            next_course = find_next_unreviewed_course(semester, visited)
+        request.session['review-visited'] = visited
+
+        sections = course_sections + contributor_sections
+        template_data.update(dict(sections=sections, next_course=next_course))
+        return render(request, "staff_course_comments_quick.html", template_data)
+    else:
+        template_data.update(dict(course_sections=course_sections, contributor_sections=contributor_sections))
+        return render(request, "staff_course_comments_full.html", template_data)
 
 
 @require_POST
