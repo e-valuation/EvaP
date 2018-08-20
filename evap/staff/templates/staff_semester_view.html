@@ -15,7 +15,7 @@
     </h3>
 
     {% if request.user.is_manager %}
-        <div class="card mb-3">
+        <div class="card collapsible mb-3">
             <div class="card-header d-flex">
                 <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
             </div>
@@ -41,7 +41,7 @@
         </div>
     {% endif %}
 
-    <div class="card mb-3">
+    <div class="card collapsible mb-3">
         <div class="card-header d-flex">
             <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_manager %}

@@ -134,7 +134,7 @@
             </div>
             <div class="card-body">
                 {% for contribution_result in contributor_contribution_results %}
-                    <div class="card{% if not forloop.last %} mb-3{% endif %}">
+                    <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                         <div class="card-header d-flex">
                             <div class="mr-auto">
                                 <a class="collapse-toggle{% if not contribution_result.has_answers %} collapsed{% endif %}"

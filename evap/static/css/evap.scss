@@ -238,6 +238,17 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
+// make collapsed card have no double bottom border
+// (bootstrap bug: https://github.com/twbs/bootstrap/issues/27108)
+.collapsible {
+    .card-header {
+        border-bottom: none;
+    }
+    .card-body {
+        border-top: 1px solid rgba(0, 0, 0, 0.125);
+    }
+}
+
 .btn-sm-narrow, {
     line-height: 1;
 }
