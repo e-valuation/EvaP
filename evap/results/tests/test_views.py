@@ -21,7 +21,14 @@ class TestResultsView(ViewTest):
 class TestGetCoursesWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
         """ Regression test for #1248 """
-        course = mommy.make(Course, state='published', _participant_count=2, _voter_count=2)
+        participants = mommy.make(UserProfile, _quantity=2)
+        course = mommy.make(Course,
+            state='published', _participant_count=2, _voter_count=2,
+            participants=participants, voters=participants
+        )
+        participants[0].delete()
+        course = Course.objects.get(pk=course.pk)
+
         courses = get_courses_with_prefetched_data([course])
         self.assertEqual(courses[0].num_participants, 2)
         self.assertEqual(courses[0].num_voters, 2)
