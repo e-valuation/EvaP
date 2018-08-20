@@ -1,8 +1,10 @@
 from django.contrib.auth.models import Group
+from django.test.testcases import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
 from evap.evaluation.tests.tools import ViewTest, WebTest
+from evap.results.views import get_courses_with_prefetched_data
 
 import random
 
@@ -14,6 +16,25 @@ class TestResultsView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username='manager', email="manager@institution.example.com")
+
+
+class TestGetCoursesWithPrefetchedData(TestCase):
+    def test_returns_correct_participant_count(self):
+        """ Regression test for #1248 """
+        participants = mommy.make(UserProfile, _quantity=2)
+        course = mommy.make(Course,
+            state='published', _participant_count=2, _voter_count=2,
+            participants=participants, voters=participants
+        )
+        participants[0].delete()
+        course = Course.objects.get(pk=course.pk)
+
+        courses = get_courses_with_prefetched_data([course])
+        self.assertEqual(courses[0].num_participants, 2)
+        self.assertEqual(courses[0].num_voters, 2)
+        courses = get_courses_with_prefetched_data(Course.objects.filter(pk=course.pk))
+        self.assertEqual(courses[0].num_participants, 2)
+        self.assertEqual(courses[0].num_voters, 2)
 
 
 class TestResultsViewContributionWarning(WebTest):
