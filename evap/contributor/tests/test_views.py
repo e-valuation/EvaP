@@ -1,9 +1,59 @@
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, UserProfile
-from evap.evaluation.tests.tools import ViewTest, create_course_with_responsible_and_editor
+from django.urls import reverse
+from django.core import mail
+
+from evap.evaluation.models import Course, UserProfile, Contribution
+from evap.evaluation.tests.tools import WebTest, ViewTest, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
+
+
+class TestContributorDirectDelegationView(WebTest):
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.course = mommy.make(Course, state='prepared')
+
+        cls.responsible = mommy.make(UserProfile)
+        cls.non_responsible = mommy.make(UserProfile, email="a@b.c")
+        mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_direct_delegation_request(self):
+        data = {"delegate_user": self.non_responsible.id}
+        page = self.app.post(reverse('contributor:course_direct_delegate', args=[self.course.id]), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            "User {} was added as a contributor for course {} and sent an email with further information.".format(str(self.non_responsible), str(self.course))
+        )
+
+        contribution = Contribution.objects.get(contributor=self.non_responsible)
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_direct_delegation_request_with_existing_contribution(self):
+        contribution = mommy.make(Contribution, course=self.course, contributor=self.non_responsible, can_edit=False, responsible=False)
+        old_contribution_count = Contribution.objects.count()
+
+        data = {"delegate_user": self.non_responsible.id}
+        page = self.app.post(reverse('contributor:course_direct_delegate', args=[self.course.id]), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            "User {} was added as a contributor for course {} and sent an email with further information.".format(str(self.non_responsible), str(self.course))
+        )
+
+        self.assertEqual(Contribution.objects.count(), old_contribution_count)
+
+        contribution.refresh_from_db()
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
 
 
 class TestContributorView(ViewTest):
@@ -13,6 +63,34 @@ class TestContributorView(ViewTest):
     @classmethod
     def setUpTestData(cls):
         create_course_with_responsible_and_editor()
+
+    def test_direct_delegation_button_visibility(self):
+        course = mommy.make(Course, state='prepared')
+
+        responsible = mommy.make(UserProfile)
+        mommy.make(Contribution, course=course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+        page = self.app.get('/contributor/', user=responsible, status=200)
+        self.assertContains(page, 'title="Delegate preparation"')
+
+        non_responsible_editor = mommy.make(UserProfile)
+        mommy.make(Contribution, course=course, contributor=non_responsible_editor, can_edit=True, responsible=False, comment_visibility=Contribution.ALL_COMMENTS)
+
+        page = self.app.get('/contributor/', user=responsible, status=200)
+        self.assertNotContains(page, 'title="Delegate preparation"')
+
+    def test_inactive_users_not_shown_in_direct_delegation_user_select(self):
+        course = mommy.make(Course, state='prepared')
+
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile, is_active=False)
+
+        responsible = mommy.make(UserProfile)
+        mommy.make(Contribution, course=course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+        page = self.app.get('/contributor/', user=responsible, status=200)
+        self.assertContains(page, str(user1))
+        self.assertNotContains(page, str(user2))
 
 
 class TestContributorSettingsView(ViewTest):
