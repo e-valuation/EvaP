@@ -144,3 +144,8 @@ def get_parameter_from_url_or_session(request, parameter, default=False):
         result = {'true': True, 'false': False}.get(result.lower())  # convert parameter to boolean
     request.session[parameter] = result  # store value for session
     return result
+
+
+def translate(**kwargs):
+    # get_language may return None if there is no session (e.g. during management commands)
+    return property(lambda self: getattr(self, kwargs[get_language() or 'en']))

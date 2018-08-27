@@ -18,9 +18,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-# see evaluation.meta for the use of Translate in this file
-from evap.evaluation.meta import LocalizeModelBase, Translate
-from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
+from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
 
 logger = logging.getLogger(__name__)
 
@@ -30,16 +28,16 @@ class NotArchiveable(Exception):
     pass
 
 
-class Semester(models.Model, metaclass=LocalizeModelBase):
+class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     short_name_de = models.CharField(max_length=20, unique=True, verbose_name=_("short name (german)"))
     short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
-    short_name = Translate
+    short_name = translate(en='short_name_en', de='short_name_de')
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
@@ -121,7 +119,7 @@ class QuestionnaireManager(Manager):
         return super().get_queryset().filter(type=Questionnaire.CONTRIBUTOR)
 
 
-class Questionnaire(models.Model, metaclass=LocalizeModelBase):
+class Questionnaire(models.Model):
     """A named collection of questions."""
 
     TOP = 10
@@ -136,19 +134,19 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     description_de = models.TextField(verbose_name=_("description (german)"), blank=True, null=True)
     description_en = models.TextField(verbose_name=_("description (english)"), blank=True, null=True)
-    description = Translate
+    description = translate(en='description_en', de='description_de')
 
     public_name_de = models.CharField(max_length=1024, verbose_name=_("display name (german)"))
     public_name_en = models.CharField(max_length=1024, verbose_name=_("display name (english)"))
-    public_name = Translate
+    public_name = translate(en='public_name_en', de='public_name_de')
 
     teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True, null=True)
     teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
-    teaser = Translate
+    teaser = translate(en='teaser_en', de='teaser_de')
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
@@ -202,10 +200,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
-class Degree(models.Model, metaclass=LocalizeModelBase):
+class Degree(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
@@ -221,12 +219,12 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return not self.courses.all().exists()
 
 
-class CourseType(models.Model, metaclass=LocalizeModelBase):
+class CourseType(models.Model):
     """Model for the type of a course, e.g. a lecture"""
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 
@@ -242,7 +240,7 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
         return not self.courses.all().exists()
 
 
-class Course(models.Model, metaclass=LocalizeModelBase):
+class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
 
     state = FSMField(default='new', protected=True)
@@ -251,7 +249,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     # type of course: lecture, seminar, project
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
@@ -684,7 +682,7 @@ class Contribution(models.Model):
         return self.contributor_id is None
 
 
-class Question(models.Model, metaclass=LocalizeModelBase):
+class Question(models.Model):
     """A question including a type."""
 
     QUESTION_TYPES = (
@@ -700,9 +698,9 @@ class Question(models.Model, metaclass=LocalizeModelBase):
     questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
-    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
+    text = translate(en='text_en', de='text_de')
 
-    text = Translate
+    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     class Meta:
         ordering = ['order', ]
@@ -843,14 +841,15 @@ class TextAnswer(Answer):
         self.state = self.NOT_REVIEWED
 
 
-class FaqSection(models.Model, metaclass=LocalizeModelBase):
+class FaqSection(models.Model):
     """Section in the frequently asked questions"""
 
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
     title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
     title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
-    title = Translate
+    title = translate(en='title_en', de='title_de')
+
 
     class Meta:
         ordering = ['order', ]
@@ -858,7 +857,7 @@ class FaqSection(models.Model, metaclass=LocalizeModelBase):
         verbose_name_plural = _("sections")
 
 
-class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
+class FaqQuestion(models.Model):
     """Question and answer in the frequently asked questions"""
 
     section = models.ForeignKey(FaqSection, models.CASCADE, related_name="questions")
@@ -867,11 +866,11 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
     question_de = models.CharField(max_length=1024, verbose_name=_("question (german)"))
     question_en = models.CharField(max_length=1024, verbose_name=_("question (english)"))
-    question = Translate
+    question = translate(en='question_en', de='question_de')
 
     answer_de = models.TextField(verbose_name=_("answer (german)"))
     answer_en = models.TextField(verbose_name=_("answer (german)"))
-    answer = Translate
+    answer = translate(en='answer_en', de='answer_de')
 
     class Meta:
         ordering = ['order', ]
