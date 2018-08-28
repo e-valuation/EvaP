@@ -16,7 +16,7 @@
                     <tr><td><span class="key">←</span> <span class="key">→</span></td><td>{% trans 'Navigate through answers' %}</td></tr>
                     <tr><td><span class="key">J</span></td><td>{% trans 'Publish answer' %}</td></tr>
                     <tr><td><span class="key">K</span></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
-                    <tr><td><span class="key">L</span></td><td>{% trans 'Hide answer' %}</td></tr>
+                    <tr><td><span class="key">L</span></td><td>{% trans 'Remove answer' %}</td></tr>
                     <tr><td><span class="key">&#x232b;</span></td><td>{% trans 'Unreview answer' %}</td></tr>
                     <tr><td><span class="key">&#x21b2;</span></td><td>{% trans 'Review next course' %}</td></tr>
                     <tr><td><span class="key">N</span></td><td>{% trans 'Show all again' %}</td></tr>
@@ -78,11 +78,7 @@
                     {% endif %}
                     {% if next_course %}
                         <span>
-                            {% blocktrans with name=next_course.name count answers=next_course.num_unreviewed_textanswers %}
-                                The next course "{{ name }}" has got {{ answers }} unreviewed text answer.
-                            {% plural %}
-                                The next course "{{ name }}" has got {{ answers }} unreviewed text answers.
-                            {% endblocktrans %}
+                            {% blocktrans with name=next_course.name count answers=next_course.num_unreviewed_textanswers %}The next course "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next course "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
                         </span>
                     {% endif %}
                 </div>
