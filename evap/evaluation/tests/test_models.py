@@ -178,10 +178,10 @@ class TestCourses(WebTest):
         course.save()
 
         self.assertTrue(Course.objects.filter(pk=course.pk).exists())
-        self.assertFalse(course.can_staff_delete)
+        self.assertFalse(course.can_manager_delete)
 
         course.unpublish()
-        self.assertTrue(course.can_staff_delete)
+        self.assertTrue(course.can_manager_delete)
 
         RatingAnswerCounter.objects.filter(contribution__course=course).delete()
         course.delete()
@@ -329,18 +329,18 @@ class TestUserProfile(TestCase):
 
         self.assertFalse(user.is_student)
 
-    def test_can_staff_delete(self):
+    def test_can_manager_delete(self):
         user = mommy.make(UserProfile)
         mommy.make(Course, participants=[user], state="new")
-        self.assertFalse(user.can_staff_delete)
+        self.assertFalse(user.can_manager_delete)
 
         user2 = mommy.make(UserProfile)
         mommy.make(Course, participants=[user2], state="in_evaluation")
-        self.assertFalse(user2.can_staff_delete)
+        self.assertFalse(user2.can_manager_delete)
 
         contributor = mommy.make(UserProfile)
         mommy.make(Contribution, contributor=contributor)
-        self.assertFalse(contributor.can_staff_delete)
+        self.assertFalse(contributor.can_manager_delete)
 
     def test_inactive_users_hidden(self):
         active_user = mommy.make(UserProfile)

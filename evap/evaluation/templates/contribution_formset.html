@@ -3,7 +3,7 @@
 <fieldset>
     <div class="d-flex mb-2">
         <h5 class="card-title mr-auto">{% trans 'Contributors' %}</h5>
-        {% if not staff %}
+        {% if not manager %}
             <div>
                 <a role="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
                     {% trans 'Request creation of new account' %}
@@ -51,7 +51,7 @@
                     </td>
                     <td>
                         {% trans 'Responsibility' %}:<br />
-                        {% include 'responsibility_buttons.html' with form=form can_change_responsible=staff %}
+                        {% include 'responsibility_buttons.html' with form=form can_change_responsible=manager %}
                         <br /><br />
                         {% trans 'Comment visibility' %}:<br />
                         {% include 'comment_visibility_buttons.html' with form=form %}
@@ -62,7 +62,7 @@
                     </td>
                     <td>
                     {% if editable %}
-                        {% if staff or form.responsibility.value != 'RESPONSIBLE' %}
+                        {% if manager or form.responsibility.value != 'RESPONSIBLE' %}
                             {{ form.DELETE }}
                         {% endif %}
                     {% endif %}

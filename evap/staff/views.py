@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
-from evap.evaluation.auth import reviewer_required, staff_required
+from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import send_publish_notifications, sort_formset
@@ -34,17 +34,17 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, get_parameter_from_url_or_session)
+                              save_import_file, get_parameter_from_url_or_session, find_next_unreviewed_course)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
-@staff_required
+@manager_required
 def index(request):
     template_data = dict(semesters=Semester.objects.all(),
                          templates=EmailTemplate.objects.all().order_by("id"),
                          sections=FaqSection.objects.all(),
-                         disable_breadcrumb_staff=True)
+                         disable_breadcrumb_manager=True)
     return render(request, "staff_index.html", template_data)
 
 
@@ -84,7 +84,7 @@ def get_courses_with_prefetched_data(semester):
 @reviewer_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_staff:
+    if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     rewards_active = is_semester_activated(semester)
 
@@ -137,7 +137,7 @@ def semester_view(request, semester_id):
     return render(request, "staff_semester_view.html", template_data)
 
 
-@staff_required
+@manager_required
 def semester_course_operation(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -189,8 +189,8 @@ def semester_course_operation(request, semester_id):
             difference = len(courses) - len(reviewable_courses)
             if difference:
                 courses = reviewable_courses
-                messages.warning(request, ungettext("%(courses)d course can not be sent to editor review, because it was already approved by a staff member or is currently under review. It was removed from the selection.",
-                    "%(courses)d courses can not be sent to editor review, because they were already approved by a staff member or are currently under review. They were removed from the selection.",
+                messages.warning(request, ungettext("%(courses)d course can not be sent to editor review, because it was already approved by a manager or is currently under review. It was removed from the selection.",
+                    "%(courses)d courses can not be sent to editor review, because they were already approved by a manager or are currently under review. They were removed from the selection.",
                     difference) % {'courses': difference})
             email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
             confirmation_message = _("Do you want to send the following courses to editor review?")
@@ -290,7 +290,7 @@ def helper_semester_course_operation_unpublish(request, courses):
         "Successfully unpublished %(courses)d courses.", len(courses)) % {'courses': len(courses)})
 
 
-@staff_required
+@manager_required
 def semester_create(request):
     form = SemesterForm(request.POST or None)
 
@@ -304,7 +304,7 @@ def semester_create(request):
         return render(request, "staff_semester_form.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def semester_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     form = SemesterForm(request.POST or None, instance=semester)
@@ -319,19 +319,19 @@ def semester_edit(request, semester_id):
 
 
 @require_POST
-@staff_required
+@manager_required
 def semester_delete(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if not semester.can_staff_delete:
+    if not semester.can_manager_delete:
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
     delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@manager_required
 def semester_import(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -378,7 +378,7 @@ def semester_import(request, semester_id):
         excel_form=excel_form, test_passed=test_passed))
 
 
-@staff_required
+@manager_required
 def semester_export(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -402,7 +402,7 @@ def semester_export(request, semester_id):
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
 
 
-@staff_required
+@manager_required
 def semester_raw_export(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -426,7 +426,7 @@ def semester_raw_export(request, semester_id):
     return response
 
 
-@staff_required
+@manager_required
 def semester_participation_export(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     participants = UserProfile.objects.filter(courses_participating_in__semester=semester).distinct().order_by("username")
@@ -453,7 +453,7 @@ def semester_participation_export(request, semester_id):
     return response
 
 
-@staff_required
+@manager_required
 def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -477,7 +477,7 @@ def semester_questionnaire_assign(request, semester_id):
         return render(request, "staff_semester_questionnaire_assign_form.html", dict(semester=semester, form=form))
 
 
-@staff_required
+@manager_required
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -495,7 +495,7 @@ def semester_todo(request, semester_id):
     return render(request, "staff_semester_todo.html", template_data)
 
 
-@staff_required
+@manager_required
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
@@ -513,7 +513,7 @@ def semester_grade_reminder(request, semester_id):
     return render(request, "staff_semester_grade_reminder.html", template_data)
 
 
-@staff_required
+@manager_required
 def send_reminder(request, semester_id, responsible_id):
     responsible = get_object_or_404(UserProfile, id=responsible_id)
     semester = get_object_or_404(Semester, id=semester_id)
@@ -531,7 +531,7 @@ def send_reminder(request, semester_id, responsible_id):
 
 
 @require_POST
-@staff_required
+@manager_required
 def semester_archive_participations(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
@@ -543,7 +543,7 @@ def semester_archive_participations(request):
 
 
 @require_POST
-@staff_required
+@manager_required
 def semester_delete_grade_documents(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
@@ -556,7 +556,7 @@ def semester_delete_grade_documents(request):
 
 
 @require_POST
-@staff_required
+@manager_required
 def semester_archive_results(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
@@ -568,7 +568,7 @@ def semester_archive_results(request):
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@manager_required
 def course_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -587,10 +587,10 @@ def course_create(request, semester_id):
         messages.success(request, _("Successfully created course."))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, staff=True, editable=True, state=""))
+        return render(request, "staff_course_form.html", dict(semester=semester, form=form, formset=formset, manager=True, editable=True, state=""))
 
 
-@staff_required
+@manager_required
 def single_result_create(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -609,7 +609,7 @@ def single_result_create(request, semester_id):
         return render(request, "staff_single_result_form.html", dict(semester=semester, form=form))
 
 
-@staff_required
+@manager_required
 def course_edit(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
@@ -620,7 +620,7 @@ def course_edit(request, semester_id, course_id):
         return helper_course_edit(request, semester, course)
 
 
-@staff_required
+@manager_required
 def helper_course_edit(request, semester, course):
     @receiver(RewardPointGranting.granted_by_removal)
     def notify_reward_points(grantings, **_kwargs):
@@ -637,7 +637,7 @@ def helper_course_edit(request, semester, course):
 
     form = CourseForm(request.POST or None, instance=course)
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
-    editable = course.can_staff_edit
+    editable = course.can_manager_edit
 
     operation = request.POST.get('operation')
 
@@ -645,7 +645,7 @@ def helper_course_edit(request, semester, course):
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if not course.can_staff_edit or course.participations_are_archived:
+        if not course.can_manager_edit or course.participations_are_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
@@ -657,7 +657,7 @@ def helper_course_edit(request, semester, course):
 
         if operation == 'approve':
             # approve course
-            course.staff_approve()
+            course.manager_approve()
             course.save()
             messages.success(request, _("Successfully updated and approved course."))
         else:
@@ -671,16 +671,16 @@ def helper_course_edit(request, semester, course):
         if form.errors or formset.errors:
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
         sort_formset(request, formset)
-        template_data = dict(course=course, semester=semester, form=form, formset=formset, staff=True, state=course.state, editable=editable)
+        template_data = dict(course=course, semester=semester, form=form, formset=formset, manager=True, state=course.state, editable=editable)
         return render(request, "staff_course_form.html", template_data)
 
 
-@staff_required
+@manager_required
 def helper_single_result_edit(request, semester, course):
     form = SingleResultForm(request.POST or None, instance=course)
 
     if form.is_valid():
-        if not course.can_staff_edit or course.participations_are_archived:
+        if not course.can_manager_edit or course.participations_are_archived:
             raise SuspiciousOperation("Modifying this course is not allowed.")
 
         form.save(user=request.user)
@@ -692,12 +692,12 @@ def helper_single_result_edit(request, semester, course):
 
 
 @require_POST
-@staff_required
+@manager_required
 def course_delete(request):
     course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
 
-    if not course.can_staff_delete:
+    if not course.can_manager_delete:
         raise SuspiciousOperation("Deleting course not allowed")
     if course.is_single_result:
         RatingAnswerCounter.objects.filter(contribution__course=course).delete()
@@ -705,7 +705,7 @@ def course_delete(request):
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@manager_required
 def course_email(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
@@ -724,7 +724,7 @@ def course_email(request, semester_id, course_id):
         return render(request, "staff_course_email.html", dict(semester=semester, course=course, form=form))
 
 
-@staff_required
+@manager_required
 def course_person_import(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
@@ -789,14 +789,15 @@ def course_person_import(request, semester_id, course_id):
 @reviewer_required
 def course_comments(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_staff:
+    if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    filter_comments = get_parameter_from_url_or_session(request, "filter_comments")
+    view = request.GET.get('view', 'quick')
+    filter_comments = view == "unreviewed"
 
     CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
@@ -815,9 +816,23 @@ def course_comments(request, semester_id, course_id):
             section_list = course_sections if contribution.is_general else contributor_sections
             section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
-    template_data = dict(semester=semester, course=course, course_sections=course_sections,
-            contributor_sections=contributor_sections, filter_comments=filter_comments)
-    return render(request, "staff_course_comments.html", template_data)
+    template_data = dict(semester=semester, course=course, view=view)
+
+    if view == 'quick':
+        visited = request.session.get('review-visited', set())
+        visited.add(course.pk)
+        next_course = find_next_unreviewed_course(semester, visited)
+        if not next_course and len(visited) > 1:
+            visited = {course.pk}
+            next_course = find_next_unreviewed_course(semester, visited)
+        request.session['review-visited'] = visited
+
+        sections = course_sections + contributor_sections
+        template_data.update(dict(sections=sections, next_course=next_course))
+        return render(request, "staff_course_comments_quick.html", template_data)
+    else:
+        template_data.update(dict(course_sections=course_sections, contributor_sections=contributor_sections))
+        return render(request, "staff_course_comments_full.html", template_data)
 
 
 @require_POST
@@ -828,7 +843,7 @@ def course_comments_update_publish(request):
     course_id = request.POST["course_id"]
 
     course = Course.objects.get(pk=course_id)
-    if course.semester.results_are_archived and not request.user.is_staff:
+    if course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     if not course.can_publish_text_results:
         raise PermissionDenied
@@ -860,7 +875,7 @@ def course_comments_update_publish(request):
 @reviewer_required
 def course_comment_edit(request, semester_id, course_id, text_answer_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_staff:
+    if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
@@ -883,14 +898,14 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
 @reviewer_required
 def course_preview(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_staff:
+    if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]
 
 
-@staff_required
+@manager_required
 def questionnaire_index(request):
     filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
@@ -913,7 +928,7 @@ def questionnaire_index(request):
     return render(request, "staff_questionnaire_index.html", template_data)
 
 
-@staff_required
+@manager_required
 def questionnaire_view(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
@@ -924,7 +939,7 @@ def questionnaire_view(request, questionnaire_id):
     return render(request, "staff_questionnaire_view.html", dict(forms=[form], questionnaire=questionnaire))
 
 
-@staff_required
+@manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
     InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
@@ -954,7 +969,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ['staff_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+        editable_fields = ['manager_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
 
         for name, field in form.fields.items():
             if name not in editable_fields:
@@ -973,10 +988,10 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     return form, formset
 
 
-@staff_required
+@manager_required
 def questionnaire_edit(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    editable = questionnaire.can_staff_edit
+    editable = questionnaire.can_manager_edit
 
     form, formset = make_questionnaire_edit_forms(request, questionnaire, editable)
 
@@ -1005,7 +1020,7 @@ def get_identical_form_and_formset(questionnaire):
     return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_set.all())
 
 
-@staff_required
+@manager_required
 def questionnaire_copy(request, questionnaire_id):
     copied_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
@@ -1029,7 +1044,7 @@ def questionnaire_copy(request, questionnaire_id):
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
-@staff_required
+@manager_required
 def questionnaire_new_version(request, questionnaire_id):
     old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
@@ -1077,19 +1092,19 @@ def questionnaire_new_version(request, questionnaire_id):
 
 
 @require_POST
-@staff_required
+@manager_required
 def questionnaire_delete(request):
     questionnaire_id = request.POST.get("questionnaire_id")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-    if not questionnaire.can_staff_delete:
+    if not questionnaire.can_manager_delete:
         raise SuspiciousOperation("Deleting questionnaire not allowed")
     questionnaire.delete()
     return HttpResponse()  # 200 OK
 
 
 @require_POST
-@staff_required
+@manager_required
 def questionnaire_update_indices(request):
     updated_indices = request.POST
     for questionnaire_id, new_order in updated_indices.items():
@@ -1099,7 +1114,7 @@ def questionnaire_update_indices(request):
     return HttpResponse()
 
 
-@staff_required
+@manager_required
 def degree_index(request):
     degrees = Degree.objects.all()
 
@@ -1115,7 +1130,7 @@ def degree_index(request):
         return render(request, "staff_degree_index.html", dict(formset=formset, degrees=degrees))
 
 
-@staff_required
+@manager_required
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
@@ -1131,7 +1146,7 @@ def course_type_index(request):
         return render(request, "staff_course_type_index.html", dict(formset=formset))
 
 
-@staff_required
+@manager_required
 def course_type_merge_selection(request):
     form = CourseTypeMergeSelectionForm(request.POST or None)
 
@@ -1143,7 +1158,7 @@ def course_type_merge_selection(request):
         return render(request, "staff_course_type_merge_selection.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def course_type_merge(request, main_type_id, other_type_id):
     main_type = get_object_or_404(CourseType, id=main_type_id)
     other_type = get_object_or_404(CourseType, id=other_type_id)
@@ -1159,7 +1174,7 @@ def course_type_merge(request, main_type_id, other_type_id):
             dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
 
 
-@staff_required
+@manager_required
 def user_index(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
@@ -1170,8 +1185,8 @@ def user_index(request):
 
     users = (users
         # the following six annotations basically add three bools indicating whether each user is part of a group or not.
-        .annotate(staff_group_count=Sum(Case(When(groups__name="Staff", then=1), output_field=IntegerField())))
-        .annotate(is_staff=ExpressionWrapper(Q(staff_group_count__exact=1), output_field=BooleanField()))
+        .annotate(manager_group_count=Sum(Case(When(groups__name="Manager", then=1), output_field=IntegerField())))
+        .annotate(is_manager=ExpressionWrapper(Q(manager_group_count__exact=1), output_field=BooleanField()))
         .annotate(reviewer_group_count=Sum(Case(When(groups__name="Reviewer", then=1), output_field=IntegerField())))
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
@@ -1181,7 +1196,7 @@ def user_index(request):
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
 
-@staff_required
+@manager_required
 def user_create(request):
     form = UserForm(request.POST or None, instance=UserProfile())
 
@@ -1193,7 +1208,7 @@ def user_create(request):
         return render(request, "staff_user_form.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = 'user'
@@ -1230,7 +1245,7 @@ def user_import(request):
         success_messages=success_messages, warnings=dict(warnings), errors=errors, test_passed=test_passed))
 
 
-@staff_required
+@manager_required
 def user_edit(request, user_id):
     @receiver(RewardPointGranting.granted_by_removal)
     def notify_reward_points(grantings, **_kwargs):
@@ -1259,18 +1274,18 @@ def user_edit(request, user_id):
 
 
 @require_POST
-@staff_required
+@manager_required
 def user_delete(request):
     user_id = request.POST.get("user_id")
     user = get_object_or_404(UserProfile, id=user_id)
 
-    if not user.can_staff_delete:
+    if not user.can_manager_delete:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     return HttpResponse()  # 200 OK
 
 
-@staff_required
+@manager_required
 def user_bulk_delete(request):
     form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
@@ -1290,7 +1305,7 @@ def user_bulk_delete(request):
         return render(request, "staff_user_bulk_delete.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def user_merge_selection(request):
     form = UserMergeSelectionForm(request.POST or None)
 
@@ -1302,7 +1317,7 @@ def user_merge_selection(request):
         return render(request, "staff_user_merge_selection.html", dict(form=form))
 
 
-@staff_required
+@manager_required
 def user_merge(request, main_user_id, other_user_id):
     main_user = get_object_or_404(UserProfile, id=main_user_id)
     other_user = get_object_or_404(UserProfile, id=other_user_id)
@@ -1319,7 +1334,7 @@ def user_merge(request, main_user_id, other_user_id):
         return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
 
 
-@staff_required
+@manager_required
 def template_edit(request, template_id):
     template = get_object_or_404(EmailTemplate, id=template_id)
     form = EmailTemplateForm(request.POST or None, request.FILES or None, instance=template)
@@ -1333,7 +1348,7 @@ def template_edit(request, template_id):
         return render(request, "staff_template_form.html", dict(form=form, template=template))
 
 
-@staff_required
+@manager_required
 def faq_index(request):
     sections = FaqSection.objects.all()
 
@@ -1349,7 +1364,7 @@ def faq_index(request):
         return render(request, "staff_faq_index.html", dict(formset=formset, sections=sections))
 
 
-@staff_required
+@manager_required
 def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
@@ -1367,7 +1382,7 @@ def faq_section(request, section_id):
         return render(request, "staff_faq_section.html", template_data)
 
 
-@staff_required
+@manager_required
 def download_sample_xls(request, filename):
     email_placeholder = "institution.com"
 

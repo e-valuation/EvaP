@@ -8,7 +8,7 @@
     <span class="badge badge-info">{% trans 'Single result' %}</span>
 {% endif %}
 {% if course.is_midterm_evaluation %}<span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
-{% if mode == 'staff' and not course.is_single_result %}
+{% if mode == 'manager' and not course.is_single_result %}
     {% if not course.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
     {% if not course.is_rewarded %}<span class="badge badge-dark">{% trans 'not rewarded' %}</span>{% endif %}
     {% if course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}

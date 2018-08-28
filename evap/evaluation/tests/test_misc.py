@@ -21,7 +21,7 @@ class SampleXlsTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
-        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Staff")])
+        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Manager")])
         mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
         mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
 

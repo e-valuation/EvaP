@@ -16,7 +16,7 @@
 
 {% for key, warninglist in warnings.items %}
     {% if warninglist %}
-        <div class="card card-outline-warning mb-3">
+        <div class="card collapsible card-outline-warning mb-3">
             <div class="card-header">
                 <a class="collapse-toggle" data-toggle="collapse" href="#{{ key }}Card" aria-expanded="false" aria-controls="{{ key }}Card">{{ key|warningname }}</a>
             </div>

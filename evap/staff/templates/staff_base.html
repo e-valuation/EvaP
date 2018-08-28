@@ -6,7 +6,7 @@
     <div>
         <ul class="breadcrumb">
             {% block breadcrumb %}
-                {% if disable_breadcrumb_staff or not user.is_staff %}
+                {% if disable_breadcrumb_manager or not user.is_manager %}
                     <li class="breadcrumb-item">{% trans 'Manage' %}</li>
                 {% else %}
                     <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">{% trans 'Manage' %}</a></li>

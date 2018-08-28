@@ -1,26 +1,47 @@
 from django.contrib.auth.models import Group
+from django.test.testcases import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
 from evap.evaluation.tests.tools import ViewTest, WebTest
+from evap.results.views import get_courses_with_prefetched_data
 
 import random
 
 
 class TestResultsView(ViewTest):
     url = '/results/'
-    test_users = ['staff']
+    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='staff', email="staff@institution.example.com")
+        mommy.make(UserProfile, username='manager', email="manager@institution.example.com")
+
+
+class TestGetCoursesWithPrefetchedData(TestCase):
+    def test_returns_correct_participant_count(self):
+        """ Regression test for #1248 """
+        participants = mommy.make(UserProfile, _quantity=2)
+        course = mommy.make(Course,
+            state='published', _participant_count=2, _voter_count=2,
+            participants=participants, voters=participants
+        )
+        participants[0].delete()
+        course = Course.objects.get(pk=course.pk)
+
+        courses = get_courses_with_prefetched_data([course])
+        self.assertEqual(courses[0].num_participants, 2)
+        self.assertEqual(courses[0].num_voters, 2)
+        courses = get_courses_with_prefetched_data(Course.objects.filter(pk=course.pk))
+        self.assertEqual(courses[0].num_participants, 2)
+        self.assertEqual(courses[0].num_voters, 2)
 
 
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=3)
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')])
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         contributor = mommy.make(UserProfile)
 
         # Set up a course with one question but no answers
@@ -35,28 +56,28 @@ class TestResultsViewContributionWarning(WebTest):
 
     def test_many_answers_course_no_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
-        page = self.app.get(self.url, user='staff', status=200)
+        page = self.app.get(self.url, user='manager', status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_course_no_warning(self):
-        page = self.app.get(self.url, user='staff', status=200)
+        page = self.app.get(self.url, user='manager', status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_course_show_warning(self):
         mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
-        page = self.app.get(self.url, user='staff', status=200)
+        page = self.app.get(self.url, user='manager', status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
 
 class TestResultsSemesterCourseDetailView(ViewTest):
     url = '/results/semester/2/course/21'
-    test_users = ['staff', 'contributor', 'responsible']
+    test_users = ['manager', 'contributor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
 
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
         contributor = mommy.make(UserProfile, username='contributor')
         responsible = mommy.make(UserProfile, username='responsible')
 
@@ -86,7 +107,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         mommy.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.course.general_contribution, answer=3, count=100)
 
-        content = self.app.get("/results/semester/2/course/21", user='staff').body.decode()
+        content = self.app.get("/results/semester/2/course/21", user='manager').body.decode()
 
         top_heading_index = content.index(top_heading_question.text)
         top_likert_index = content.index(top_likert_question.text)
@@ -108,7 +129,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
-        page = self.app.get("/results/semester/2/course/21", user='staff')
+        page = self.app.get("/results/semester/2/course/21", user='manager')
 
         self.assertNotIn(heading_question_0.text, page)
         self.assertIn(heading_question_1.text, page)
@@ -118,13 +139,13 @@ class TestResultsSemesterCourseDetailView(ViewTest):
     def test_default_view_is_public(self):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
-        page_without_get_parameter = self.app.get(url, user='staff')
+        page_without_get_parameter = self.app.get(url, user='manager')
         url = '/results/semester/%s/course/%s?public_view=true' % (self.semester.id, self.course.id)
         random.seed(42)
-        page_with_get_parameter = self.app.get(url, user='staff')
+        page_with_get_parameter = self.app.get(url, user='manager')
         url = '/results/semester/%s/course/%s?public_view=asdf' % (self.semester.id, self.course.id)
         random.seed(42)
-        page_with_random_get_parameter = self.app.get(url, user='staff')
+        page_with_random_get_parameter = self.app.get(url, user='manager')
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
@@ -138,7 +159,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
         responsible = mommy.make(UserProfile, username='responsible')
         cls.student1 = mommy.make(UserProfile, username='student')
         cls.student2 = mommy.make(UserProfile)
@@ -184,7 +205,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         self.course.publish()
         self.course.save()
         self.assertEqual(self.course.voters.count(), 1)
-        self.helper_test_answer_visibility_one_voter("staff")
+        self.helper_test_answer_visibility_one_voter("manager")
         self.course = Course.objects.get(id=self.course.id)
         self.helper_test_answer_visibility_one_voter("responsible")
         self.helper_test_answer_visibility_one_voter("student", expect_page_not_visible=True)
@@ -198,7 +219,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         self.course.save()
         self.assertEqual(self.course.voters.count(), 2)
 
-        self.helper_test_answer_visibility_two_voters("staff")
+        self.helper_test_answer_visibility_two_voters("manager")
         self.helper_test_answer_visibility_two_voters("responsible")
         self.helper_test_answer_visibility_two_voters("student")
 
@@ -206,7 +227,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
 class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
     def test_private_course(self):
         semester = mommy.make(Semester)
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
         student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         student_external = mommy.make(UserProfile, username="student_external")
         contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
@@ -228,7 +249,7 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         self.assertIn(private_course.name, self.app.get(url, user='responsible'))
         self.assertIn(private_course.name, self.app.get(url, user='other_responsible'))
         self.assertIn(private_course.name, self.app.get(url, user='contributor'))
-        self.assertIn(private_course.name, self.app.get(url, user='staff'))
+        self.assertIn(private_course.name, self.app.get(url, user='manager'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/course/%s' % (semester.id, private_course.id)
@@ -237,26 +258,26 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         self.app.get(url, user="responsible", status=200)
         self.app.get(url, user="other_responsible", status=200)
         self.app.get(url, user="contributor", status=200)
-        self.app.get(url, user="staff", status=200)
+        self.app.get(url, user="manager", status=200)
         self.app.get(url, user="student_external", status=200)  # this external user participates in the course and can see the results
 
 
-class TestResultsTextanswerVisibilityForStaff(WebTest):
+class TestResultsTextanswerVisibilityForManager(WebTest):
     fixtures = ['minimal_test_data_results']
 
     @classmethod
     def setUpTestData(cls):
-        staff_group = Group.objects.get(name="Staff")
-        mommy.make(UserProfile, username="staff", groups=[staff_group])
+        manager_group = Group.objects.get(name="Manager")
+        mommy.make(UserProfile, username="manager", groups=[manager_group])
 
-    def test_textanswer_visibility_for_staff_before_publish(self):
+    def test_textanswer_visibility_for_manager_before_publish(self):
         course = Course.objects.get(id=1)
         course._voter_count = 0  # set these to 0 to make unpublishing work
         course._participant_count = 0
         course.unpublish()
         course.save()
 
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
+        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -276,8 +297,8 @@ class TestResultsTextanswerVisibilityForStaff(WebTest):
         self.assertIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
-    def test_textanswer_visibility_for_staff(self):
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='staff')
+    def test_textanswer_visibility_for_manager(self):
+        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -478,7 +499,7 @@ class TestArchivedResults(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
-        mommy.make(UserProfile, username='staff', groups=[Group.objects.get(name='Staff')], email="staff@institution.example.com")
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
         mommy.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')], email="reviewer@institution.example.com")
         student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         student_external = mommy.make(UserProfile, username="student_external")
@@ -495,7 +516,7 @@ class TestArchivedResults(WebTest):
         self.assertIn(self.course.name, self.app.get(url, user='student'))
         self.assertIn(self.course.name, self.app.get(url, user='responsible'))
         self.assertIn(self.course.name, self.app.get(url, user='contributor'))
-        self.assertIn(self.course.name, self.app.get(url, user='staff'))
+        self.assertIn(self.course.name, self.app.get(url, user='manager'))
         self.assertIn(self.course.name, self.app.get(url, user='reviewer'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
@@ -503,7 +524,7 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user="student", status=200)
         self.app.get(url, user="responsible", status=200)
         self.app.get(url, user="contributor", status=200)
-        self.app.get(url, user="staff", status=200)
+        self.app.get(url, user="manager", status=200)
         self.app.get(url, user="reviewer", status=200)
         self.app.get(url, user='student_external', status=200)
 
@@ -514,6 +535,6 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user='student', status=403)
         self.app.get(url, user='responsible', status=200)
         self.app.get(url, user='contributor', status=200)
-        self.app.get(url, user='staff', status=200)
+        self.app.get(url, user='manager', status=200)
         self.app.get(url, user='reviewer', status=403)
         self.app.get(url, user='student_external', status=403)

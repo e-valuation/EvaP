@@ -3,7 +3,7 @@
   "model": "auth.group",
   "pk": 1,
   "fields": {
-    "name": "Staff",
+    "name": "Manager",
     "permissions": []
   }
 },
@@ -93,7 +93,7 @@
     "teaser_de": null,
     "teaser_en": null,
     "order": 0,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": true
   }
 },
@@ -111,7 +111,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -129,7 +129,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 3,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -147,7 +147,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -165,7 +165,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 2,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -183,7 +183,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -201,7 +201,7 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -219,7 +219,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -237,7 +237,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 4,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -255,7 +255,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": true
   }
 },
@@ -273,7 +273,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 8,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -291,7 +291,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -309,7 +309,7 @@
     "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -327,7 +327,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
     "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": true
   }
 },
@@ -345,7 +345,7 @@
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -363,7 +363,7 @@
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
     "order": 9,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -381,7 +381,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 10,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -399,7 +399,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 11,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -417,7 +417,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 12,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -435,7 +435,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 13,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -453,7 +453,7 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -471,7 +471,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 14,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -489,7 +489,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 15,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -507,7 +507,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 16,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -525,7 +525,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 17,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -543,7 +543,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 5,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -561,7 +561,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 6,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -579,7 +579,7 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 7,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -597,7 +597,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -615,7 +615,7 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -633,7 +633,7 @@
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
     "order": 2,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -651,7 +651,7 @@
     "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
-    "staff_only": false,
+    "manager_only": false,
     "obsolete": false
   }
 },
@@ -102990,8 +102990,8 @@
     "groups": [],
     "user_permissions": [],
     "delegates": [
-      591,
-      482
+      482,
+      591
     ],
     "cc_users": []
   }
@@ -119469,11 +119469,11 @@
     "password": "pbkdf2_sha256$12000$lRV0h1V7qLSK$pKzYyUhT7l65JxoIv7Du3btUHYzfGCZ81JFtbF9ymOY=",
     "last_login": "2014-06-03T09:03:55.162",
     "is_superuser": false,
-    "username": "staff",
-    "email": "staff@institution.example.com",
+    "username": "manager",
+    "email": "manager@institution.example.com",
     "title": "",
     "first_name": "",
-    "last_name": "staff",
+    "last_name": "manager",
     "language": null,
     "login_key": null,
     "login_key_valid_until": null,
@@ -132269,7 +132269,6 @@
       665,
       680,
       671,
-      591,
       645,
       559,
       39,
@@ -132277,16 +132276,17 @@
       672,
       653,
       686,
-      669
+      669,
+      591
     ],
     "voters": [
       665,
       671,
-      591,
       559,
       668,
       672,
-      686
+      686,
+      591
     ]
   }
 },
@@ -132608,20 +132608,20 @@
       562,
       2311,
       621,
-      591,
       676,
       60,
       579,
       660,
       613,
-      624
+      624,
+      591
     ],
     "voters": [
       562,
       621,
-      591,
       676,
-      613
+      613,
+      591
     ]
   }
 },
@@ -132668,9 +132668,9 @@
       569,
       939,
       596,
-      679,
       604,
-      673
+      673,
+      679
     ],
     "voters": [
       387,
@@ -132866,10 +132866,8 @@
       825,
       877,
       917,
-      714,
       831,
       732,
-      815,
       837,
       898,
       751,
@@ -132915,7 +132913,9 @@
       862,
       838,
       844,
-      810
+      810,
+      714,
+      815
     ],
     "voters": [
       754,
@@ -132925,10 +132925,8 @@
       927,
       825,
       877,
-      714,
       831,
       732,
-      815,
       801,
       872,
       913,
@@ -132952,7 +132950,9 @@
       806,
       742,
       786,
-      844
+      844,
+      714,
+      815
     ]
   }
 },
@@ -133278,7 +133278,6 @@
       737,
       860,
       712,
-      815,
       916,
       847,
       872,
@@ -133329,7 +133328,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -133346,7 +133346,6 @@
       928,
       737,
       860,
-      815,
       916,
       847,
       872,
@@ -133372,7 +133371,8 @@
       744,
       906,
       755,
-      844
+      844,
+      815
     ]
   }
 },
@@ -133430,7 +133430,6 @@
       737,
       860,
       712,
-      815,
       759,
       880,
       916,
@@ -133485,7 +133484,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -133502,7 +133502,6 @@
       739,
       737,
       860,
-      815,
       759,
       916,
       711,
@@ -133531,7 +133530,8 @@
       742,
       786,
       755,
-      844
+      844,
+      815
     ]
   }
 },
@@ -133838,7 +133838,6 @@
       737,
       860,
       712,
-      815,
       875,
       916,
       847,
@@ -133881,7 +133880,8 @@
       755,
       844,
       760,
-      1081
+      1081,
+      815
     ],
     "voters": [
       693,
@@ -133895,7 +133895,6 @@
       807,
       737,
       860,
-      815,
       916,
       849,
       913,
@@ -133910,7 +133909,8 @@
       744,
       742,
       844,
-      1081
+      1081,
+      815
     ]
   }
 },
@@ -134123,7 +134123,6 @@
       739,
       702,
       737,
-      815,
       837,
       916,
       898,
@@ -134192,7 +134191,8 @@
       838,
       844,
       760,
-      810
+      810,
+      815
     ],
     "voters": [
       696,
@@ -134204,7 +134204,6 @@
       839,
       928,
       702,
-      815,
       916,
       872,
       849,
@@ -134226,7 +134225,8 @@
       744,
       786,
       844,
-      810
+      810,
+      815
     ]
   }
 },
@@ -134282,7 +134282,6 @@
       702,
       737,
       860,
-      815,
       916,
       847,
       872,
@@ -134331,7 +134330,8 @@
       844,
       760,
       810,
-      1081
+      1081,
+      815
     ],
     "voters": [
       696,
@@ -134346,7 +134346,6 @@
       739,
       702,
       860,
-      815,
       916,
       872,
       830,
@@ -134367,7 +134366,8 @@
       838,
       844,
       810,
-      1081
+      1081,
+      815
     ]
   }
 },
@@ -134832,8 +134832,8 @@
       664,
       939,
       596,
-      679,
-      661
+      661,
+      679
     ],
     "voters": [
       665,
@@ -136755,7 +136755,6 @@
       658,
       1085,
       692,
-      611,
       1082,
       614,
       580,
@@ -136800,12 +136799,12 @@
       682,
       1084,
       687,
-      721
+      721,
+      611
     ],
     "voters": [
       621,
       1085,
-      611,
       1082,
       614,
       580,
@@ -136821,7 +136820,8 @@
       673,
       682,
       1084,
-      721
+      721,
+      611
     ]
   }
 },
@@ -136937,12 +136937,12 @@
       724,
       757,
       1078,
-      679,
       667,
       670,
       613,
       1084,
-      721
+      721,
+      679
     ],
     "voters": [
       677,
@@ -136956,10 +136956,10 @@
       2091,
       930,
       724,
-      679,
       670,
       1084,
-      721
+      721,
+      679
     ]
   }
 },
@@ -136990,10 +136990,10 @@
     ],
     "participants": [
       1101,
-      679,
       667,
       670,
-      1084
+      1084,
+      679
     ],
     "voters": []
   }
@@ -137102,7 +137102,6 @@
       1102,
       671,
       690,
-      611,
       1082,
       593,
       2110,
@@ -137130,17 +137129,18 @@
       2098,
       619,
       2228,
-      624
+      624,
+      611
     ],
     "voters": [
-      611,
       1082,
       593,
       1079,
       2106,
       2101,
       79,
-      624
+      624,
+      611
     ]
   }
 },
@@ -137279,11 +137279,11 @@
       793,
       2137,
       757,
-      679,
       845,
       2138,
       682,
-      721
+      721,
+      679
     ],
     "voters": []
   }
@@ -138279,8 +138279,8 @@
       724,
       2098,
       1078,
-      679,
-      669
+      669,
+      679
     ],
     "voters": [
       754,
@@ -138523,18 +138523,18 @@
     "participants": [
       861,
       739,
-      815,
       847,
       774,
-      806
+      806,
+      815
     ],
     "voters": [
       861,
       739,
-      815,
       847,
       774,
-      806
+      806,
+      815
     ]
   }
 },
@@ -139567,7 +139567,6 @@
       800,
       866,
       789,
-      611,
       732,
       858,
       666,
@@ -139584,17 +139583,18 @@
       897,
       783,
       2098,
-      604
+      604,
+      611
     ],
     "voters": [
       736,
       800,
-      611,
       732,
       666,
       2106,
       873,
-      897
+      897,
+      611
     ]
   }
 },
@@ -139663,12 +139663,12 @@
       823,
       773,
       807,
-      815,
       817,
       855,
       914,
-      679,
-      821
+      821,
+      815,
+      679
     ],
     "voters": [
       823,
@@ -139770,7 +139770,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -139786,7 +139785,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -139945,7 +139945,6 @@
       736,
       737,
       732,
-      815,
       2211,
       2213,
       829,
@@ -139960,19 +139959,20 @@
       864,
       1078,
       742,
-      844
+      844,
+      815
     ],
     "voters": [
       736,
       737,
-      815,
       2213,
       873,
       606,
       776,
       722,
       742,
-      844
+      844,
+      815
     ]
   }
 },
@@ -140694,7 +140694,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -140710,7 +140709,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -140932,7 +140932,6 @@
       2283,
       2285,
       2268,
-      2257,
       2224,
       2266,
       2233,
@@ -140948,7 +140947,8 @@
       2225,
       2221,
       2241,
-      2292
+      2292,
+      2257
     ],
     "voters": [
       2227,
@@ -141023,12 +141023,12 @@
     ],
     "participants": [
       2059,
-      815,
       2039,
       689,
       932,
       597,
-      55
+      55,
+      815
     ],
     "voters": []
   }

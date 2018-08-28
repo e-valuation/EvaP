@@ -46,7 +46,7 @@
                         <td>{% include 'staff_user_badges.html' with user=user %}</td>
                         <td>
                             <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
-                            {% if user.can_staff_delete %}
+                            {% if user.can_manager_delete %}
                                 <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fas fa-trash"></span></a>
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"

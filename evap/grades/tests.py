@@ -99,7 +99,7 @@ class GradeUploadTests(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
-        course.staff_approve()
+        course.manager_approve()
         course.save()
         self.helper_check_final_grade_upload(course, 0)
 

@@ -1,5 +1,6 @@
 @import "evap-variables";
 @import "../bootstrap/scss/bootstrap";
+@import "quick-review";
 
 
 /* override bootstrap values */
@@ -43,6 +44,24 @@ h1, h2, h3, h4, h5, h6 {
 div.container {
     padding-top: 80px; // for navbar (and breadcrumbs)
     flex: 1 0 auto;
+}
+
+.lcr-left {
+    flex: 1;
+}
+.lcr-center {
+    flex: 5;
+    text-align: center;
+}
+.lcr-right {
+    flex: 1;
+    text-align: right;
+}
+
+// remove wrongly added padding by Bootstrap, caused by the always visible scrollbar
+// (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
+body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
+    padding-right: 0 !important;
 }
 
 .btn.fas {
@@ -219,6 +238,17 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
+// make collapsed card have no double bottom border
+// (bootstrap bug: https://github.com/twbs/bootstrap/issues/27108)
+.collapsible {
+    .card-header {
+        border-bottom: none;
+    }
+    .card-body {
+        border-top: 1px solid rgba(0, 0, 0, 0.125);
+    }
+}
+
 .btn-sm-narrow, {
     line-height: 1;
 }
@@ -304,7 +334,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
     margin-bottom: 0;
 }
 
-button {
+button:not(:disabled) {
     cursor: pointer;
 }
 

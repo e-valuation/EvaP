@@ -56,8 +56,8 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
         return self.name
 
     @property
-    def can_staff_delete(self):
-        return all(course.can_staff_delete for course in self.course_set.all())
+    def can_manager_delete(self):
+        return all(course.can_manager_delete for course in self.course_set.all())
 
     @property
     def participations_can_be_archived(self):
@@ -152,7 +152,7 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
-    staff_only = models.BooleanField(verbose_name=_("display for staff only"), default=False)
+    manager_only = models.BooleanField(verbose_name=_("display for managers only"), default=False)
     obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
 
     objects = QuestionnaireManager()
@@ -180,11 +180,11 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return self.type == self.BOTTOM
 
     @property
-    def can_staff_edit(self):
+    def can_manager_edit(self):
         return not self.contributions.exclude(course__state='new').exists()
 
     @property
-    def can_staff_delete(self):
+    def can_manager_delete(self):
         return not self.contributions.exists()
 
     @property
@@ -215,7 +215,7 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
     def __str__(self):
         return self.name
 
-    def can_staff_delete(self):
+    def can_manager_delete(self):
         if self.pk is None:
             return True
         return not self.courses.all().exists()
@@ -237,7 +237,7 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
     def __lt__(self, other):
         return self.name_de < other.name_de
 
-    def can_staff_delete(self):
+    def can_manager_delete(self):
         if not self.pk:
             return True
         return not self.courses.all().exists()
@@ -359,7 +359,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             and user not in self.voters.all())
 
     def can_user_see_course(self, user):
-        if user.is_staff:
+        if user.is_manager:
             return True
         if user.is_reviewer and not self.semester.results_are_archived:
             return True
@@ -370,7 +370,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     def can_user_see_results_page(self, user):
         if self.is_single_result:
             return False
-        if user.is_staff:
+        if user.is_manager:
             return True
         if user.is_reviewer and not self.semester.results_are_archived:
             return True
@@ -381,12 +381,12 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         return True
 
     @property
-    def can_staff_edit(self):
+    def can_manager_edit(self):
         return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
-    def can_staff_delete(self):
-        return self.can_staff_edit and (self.num_voters == 0 or self.is_single_result)
+    def can_manager_delete(self):
+        return self.can_manager_edit and (self.num_voters == 0 or self.is_single_result)
 
     @property
     def can_publish_average_grade(self):
@@ -413,7 +413,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         pass
 
     @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
-    def staff_approve(self):
+    def manager_approve(self):
         pass
 
     @transition(field=state, source=['prepared', 'editor_approved', 'approved'], target='new')
@@ -820,6 +820,10 @@ class TextAnswer(Answer):
     def is_published(self):
         return self.state == self.PUBLISHED
 
+    @property
+    def is_reviewed(self):
+        return self.state != self.NOT_REVIEWED
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         assert self.answer != self.original_answer
@@ -907,7 +911,7 @@ class UserProfileManager(BaseUserManager):
         )
         user.is_superuser = True
         user.save()
-        user.groups.add(Group.objects.get(name="Staff"))
+        user.groups.add(Group.objects.get(name="Manager"))
         return user
 
 
@@ -971,11 +975,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def is_staff(self):
-        return self.groups.filter(name='Staff').exists()
+        return self.is_manager or self.is_reviewer
+
+    @cached_property
+    def is_manager(self):
+        return self.groups.filter(name='Manager').exists()
 
     @cached_property
     def is_reviewer(self):
-        return self.is_staff or self.groups.filter(name='Reviewer').exists()
+        return self.is_manager or self.groups.filter(name='Reviewer').exists()
 
     @cached_property
     def is_grade_publisher(self):
@@ -984,7 +992,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     CRONJOB_USER_USERNAME = "cronjob"
 
     @property
-    def can_staff_mark_inactive(self):
+    def can_manager_mark_inactive(self):
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
@@ -994,14 +1002,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return True
 
     @property
-    def can_staff_delete(self):
+    def can_manager_delete(self):
         if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
             return False
-        if any(not user.can_staff_delete for user in self.represented_users.all()):
+        if any(not user.can_manager_delete for user in self.represented_users.all()):
             return False
-        if any(not user.can_staff_delete for user in self.ccing_users.all()):
+        if any(not user.can_manager_delete for user in self.ccing_users.all()):
             return False
         return True
 

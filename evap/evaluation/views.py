@@ -68,7 +68,7 @@ def index(request):
         # redirect user to appropriate start page
         if request.user.is_reviewer:
             return redirect('staff:semester_view', Semester.active_semester().id)
-        if request.user.is_staff:
+        if request.user.is_manager:
             return redirect('staff:index')
         elif request.user.is_grade_publisher:
             return redirect('grades:semester_view', Semester.active_semester().id)
