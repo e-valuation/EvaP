@@ -19,24 +19,26 @@
             <div class="card-header d-flex">
                 <a class="collapse-toggle{% if not semester.participations_are_archived and not semester.grade_documents_are_deleted and not semester.results_are_archived %} collapsed{% endif %}" data-toggle="collapse" href="#archivingCard">{% trans 'Archiving' %}</a>
             </div>
-            <div class="card-body collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
-                {% if semester.participations_can_be_archived %}
-                    <a onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</a>
-                {% elif semester.participations_are_archived %}
-                    <a class="btn btn-sm btn-success disabled">{% trans 'Participations have been archived' %}</a>
-                {% else %}
-                    <span data-toggle="tooltip" data-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}"><a class="btn btn-sm btn-warning disabled">{% trans 'Archive participations' %}</a></span>
-                {% endif %}
-                {% if semester.grade_documents_can_be_deleted %}
-                    <a onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</a>
-                {% elif semester.grade_documents_are_deleted %}
-                    <a class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</a>
-                {% endif %}
-                {% if semester.results_can_be_archived %}
-                    <a onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</a>
-                {% elif semester.results_are_archived %}
-                    <a class="btn btn-sm btn-success disabled">{% trans 'Results have been archived' %}</a>
-                {% endif %}
+            <div class="collapse{% if semester.participations_are_archived or semester.grade_documents_are_deleted or semester.results_are_archived %} show{% endif %}" id="archivingCard">
+                <div class="card-body">
+                    {% if semester.participations_can_be_archived %}
+                        <a onclick="archiveParticipationsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive participations' %}</a>
+                    {% elif semester.participations_are_archived %}
+                        <a class="btn btn-sm btn-success disabled">{% trans 'Participations have been archived' %}</a>
+                    {% else %}
+                        <span data-toggle="tooltip" data-placement="top" title="{% trans 'The participations in this semester can not be archived.' %}"><a class="btn btn-sm btn-warning disabled">{% trans 'Archive participations' %}</a></span>
+                    {% endif %}
+                    {% if semester.grade_documents_can_be_deleted %}
+                        <a onclick="deleteGradeDocumentsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Delete grade documents' %}</a>
+                    {% elif semester.grade_documents_are_deleted %}
+                        <a class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</a>
+                    {% endif %}
+                    {% if semester.results_can_be_archived %}
+                        <a onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</a>
+                    {% elif semester.results_are_archived %}
+                        <a class="btn btn-sm btn-success disabled">{% trans 'Results have been archived' %}</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     {% endif %}
@@ -60,41 +62,43 @@
                 </div>
             {% endif %}
         </div>
-        <div class="card-body collapse show" id="overviewCard">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="width: 19%">{% trans 'Degree' %}</th>
-                        <th style="width: 30%">{% trans 'Evaluation period' %}</th>
-                        <th style="width: 17%">{% trans 'Evaluated courses' %}</th>
-                        <th style="width: 17%">{% trans 'Reviewed comments' %}</th>
-                        <th style="width: 17%">{% trans 'Participation' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for degree, stats in degree_stats.items %}
-                    <tr{% if degree == 'total' %} class="total-stats"{% endif %}>
-                        <td>
-                            {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
-                        </td>
-                        <td>
-                            {% if stats.num_courses != 0 %}
-                                {{ stats.first_start }} &ndash; {{ stats.last_end }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
-                        </td>
-                        <td>
-                            {% include 'progress_bar.html' with done=stats.num_comments_reviewed total=stats.num_comments %}
-                        </td>
-                        <td>
-                            {% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="collapse show" id="overviewCard">
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th style="width: 19%">{% trans 'Degree' %}</th>
+                            <th style="width: 30%">{% trans 'Evaluation period' %}</th>
+                            <th style="width: 17%">{% trans 'Evaluated courses' %}</th>
+                            <th style="width: 17%">{% trans 'Reviewed comments' %}</th>
+                            <th style="width: 17%">{% trans 'Participation' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for degree, stats in degree_stats.items %}
+                        <tr{% if degree == 'total' %} class="total-stats"{% endif %}>
+                            <td>
+                                {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
+                            </td>
+                            <td>
+                                {% if stats.num_courses != 0 %}
+                                    {{ stats.first_start }} &ndash; {{ stats.last_end }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
+                            </td>
+                            <td>
+                                {% include 'progress_bar.html' with done=stats.num_comments_reviewed total=stats.num_comments %}
+                            </td>
+                            <td>
+                                {% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

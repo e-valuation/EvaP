@@ -153,10 +153,12 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="card-body collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
-                            {% for questionnaire_result in contribution_result.questionnaire_results %}
-                                {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
-                            {% endfor %}
+                        <div class="collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
+                            <div class="card-body">
+                                {% for questionnaire_result in contribution_result.questionnaire_results %}
+                                    {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

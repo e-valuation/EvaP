@@ -100,8 +100,10 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="card-body collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
-                                {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview %}
+                            <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
+                                <div class="card-body">
+                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview %}
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
