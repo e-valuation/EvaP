@@ -21,7 +21,7 @@ from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
-from evap.evaluation.tools import send_publish_notifications, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, send_publish_notifications, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
@@ -34,7 +34,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, get_parameter_from_url_or_session, find_next_unreviewed_course)
+                              save_import_file, find_next_unreviewed_course)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
