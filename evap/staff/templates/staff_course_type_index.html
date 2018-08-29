@@ -21,6 +21,7 @@
                 <table id="course_types_table" class="table vertically-aligned">
                     <thead>
                         <tr>
+                            <th class="movable"></th>
                             <th style="width: 45%">{% trans 'Name (German)' %}</th>
                             <th style="width: 45%">{% trans 'Name (English)' %}</th>
                             <th style="width: 10%">{% trans 'Actions' %}</th>
@@ -28,10 +29,13 @@
                     </thead>
                     <tbody>
                         {% for form in formset %}
-                            <tr>
+                            <tr class="sortable">
                                 {% for hidden in form.hidden_fields %}
                                     {{ hidden }}
                                 {% endfor %}
+                                <td class="movable">
+                                    <span class="movable-icon fas fa-arrows-alt-v"></span>
+                                </td>
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
@@ -62,16 +66,15 @@
 {% endblock %}
 
 {% block additional_javascript %}
+    {% include 'sortable_form_js.html' %}
+
     <script type="text/javascript">
-        $('#course_types_table tbody tr').formset({
-            prefix: "form",
-            deleteCssClass: "btn btn-danger btn-sm fas fa-trash",
-            deleteText: "",
-            addText: "{% trans 'add another' %}",
-            added: function(row){
-                //Remove all error messages
-                row.find(".error-label").remove();
-            }
-        });
+        rowChanged = function(row) {
+            nameDe = $(row.find('input[id$=-name_de]')).val();
+            nameEn = $(row.find('input[id$=-name_en]')).val();
+            return nameDe || nameEn
+        };
+        rowAdded = function(row) { };
+        makeFormSortable("course_types_table", "form", rowChanged, rowAdded, "", true, false);
     </script>
 {% endblock %}

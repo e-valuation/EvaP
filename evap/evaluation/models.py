@@ -228,14 +228,13 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = Translate
 
+    order = models.IntegerField(verbose_name=_("course type order"), default=-1)
+
     class Meta:
-        ordering = ['name_de', ]
+        ordering = ['order', ]
 
     def __str__(self):
         return self.name
-
-    def __lt__(self, other):
-        return self.name_de < other.name_de
 
     def can_manager_delete(self):
         if not self.pk:

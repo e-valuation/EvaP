@@ -1127,7 +1127,7 @@ def degree_index(request):
         messages.success(request, _("Successfully updated the degrees."))
         return custom_redirect('staff:degree_index')
     else:
-        return render(request, "staff_degree_index.html", dict(formset=formset, degrees=degrees))
+        return render(request, "staff_degree_index.html", dict(formset=formset))
 
 
 @manager_required
