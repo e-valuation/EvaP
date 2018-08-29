@@ -102,6 +102,11 @@ class DegreeForm(forms.ModelForm):
 
 
 class CourseTypeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["order"].widget = forms.HiddenInput()
+
     class Meta:
         model = CourseType
         fields = "__all__"
