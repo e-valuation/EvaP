@@ -797,10 +797,11 @@ select[multiple] {
     content: "\f078";
     float: left;
     margin-right: 10px;
+    transform: rotate(0deg);
+    transition: transform 0.15s ease-in-out;
 }
 .collapse-toggle.collapsed:before {
-    content: "\f054";
-    margin-left: 4px;
+    transform: rotate(-90deg);
 }
 
 .btn-option {
