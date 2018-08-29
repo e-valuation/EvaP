@@ -36,7 +36,7 @@
             </div>
         </div>
         {% if user.is_delegate %}
-            <div class="btn-switch mb-auto ml-2 d-print-none">
+            <div class="btn-switch btn-switch-light mb-auto ml-2 d-print-none">
                 <div class="btn-switch-label">{% trans 'Delegated courses' %}</div>
                 <div class="btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">

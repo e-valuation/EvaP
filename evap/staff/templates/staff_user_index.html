@@ -14,7 +14,7 @@
             <a href="{% url 'staff:user_bulk_delete' %}" class="btn btn-sm btn-light">{% trans 'Bulk delete users' %}</a>
             <a href="{% url 'staff:user_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new user' %}</a>
         </div>
-        <div class="btn-switch">
+        <div class="btn-switch btn-switch-light">
             <div class="btn-switch-label">{% trans 'Inactive users' %}</div>
             <div class="btn-group">
                 <a href="{% url 'staff:user_index' %}?filter_users=false" role="button" class="btn btn-sm btn-light{% if not filter_users %} active{% endif %}">
