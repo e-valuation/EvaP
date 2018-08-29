@@ -136,10 +136,10 @@ def get_due_courses_for_user(user):
     return sorted(due_courses.items(), key=operator.itemgetter(1))
 
 
-def get_parameter_from_url_or_session(request, parameter):
+def get_parameter_from_url_or_session(request, parameter, default=False):
     result = request.GET.get(parameter, None)
     if result is None:  # if no parameter is given take session value
-        result = request.session.get(parameter, False)  # defaults to False if no session value exists
+        result = request.session.get(parameter, default)
     else:
         result = {'true': True, 'false': False}.get(result.lower())  # convert parameter to boolean
     request.session[parameter] = result  # store value for session
