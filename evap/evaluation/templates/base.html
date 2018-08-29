@@ -98,10 +98,14 @@
 
     // put this into a function for later re-use
     applySelect2 = function(elem) {
-        elem.select2({
-            language: "{{ LANGUAGE_CODE }}",
-            placeholder: "{% trans 'Please select...' %}",
-            minimumResultsForSearch: 15,});
+        elem.each(function() {
+            $(this).select2({
+                language: "{{ LANGUAGE_CODE }}",
+                placeholder: "{% trans 'Please select...' %}",
+                minimumResultsForSearch: 15,
+                minimumInputLength: $(this).children('option').length > 50 ? 3 : 0
+            });
+        });
     };
     applySelect2($('select').not('.form-template select').not('[disabled]'));
 
