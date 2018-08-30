@@ -22,7 +22,7 @@
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% endif %}
         {% endif %}
-        <span class="course-name">{{ course.name }}</span>
+        <span class="course-name">{{ course.name }}{% if course.is_single_result %} ({{ course.vote_start_datetime|date }}){% endif %}</span>
         <div>
             {% for degree in course.degrees.all %}
                 <span class="badge badge-primary badge-degree">{{ degree }}</span>

@@ -182,6 +182,12 @@ a.btn:not([href]):not(.disabled).btn-dark {
         }
     }
 }
+.btn-switch-light {
+    background-color: $lighter-gray;
+    .btn-group {
+        background: $lighter-gray;
+    }
+}
 .btn-switch-label {
     display: inline-block;
     font-weight: normal;
@@ -797,10 +803,11 @@ select[multiple] {
     content: "\f078";
     float: left;
     margin-right: 10px;
+    transform: rotate(0deg);
+    transition: transform 0.15s ease-in-out;
 }
 .collapse-toggle.collapsed:before {
-    content: "\f054";
-    margin-left: 4px;
+    transform: rotate(-90deg);
 }
 
 .btn-option {

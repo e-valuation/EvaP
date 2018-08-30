@@ -30,7 +30,7 @@
         <div class="d-flex">
             <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
 
-            <div class="btn-switch my-auto d-print-none">
+            <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View as' %}</div>
                 <div class="btn-group">
                     <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
@@ -153,10 +153,12 @@
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="card-body collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
-                            {% for questionnaire_result in contribution_result.questionnaire_results %}
-                                {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
-                            {% endfor %}
+                        <div class="collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
+                            <div class="card-body">
+                                {% for questionnaire_result in contribution_result.questionnaire_results %}
+                                    {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}

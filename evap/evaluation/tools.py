@@ -134,3 +134,13 @@ def get_due_courses_for_user(user):
     # Sort courses by number of days left for evaluation and bring them to following format:
     # [(course, due_in_days), ...]
     return sorted(due_courses.items(), key=operator.itemgetter(1))
+
+
+def get_parameter_from_url_or_session(request, parameter, default=False):
+    result = request.GET.get(parameter, None)
+    if result is None:  # if no parameter is given take session value
+        result = request.session.get(parameter, default)
+    else:
+        result = {'true': True, 'false': False}.get(result.lower())  # convert parameter to boolean
+    request.session[parameter] = result  # store value for session
+    return result

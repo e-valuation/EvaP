@@ -8,7 +8,7 @@ from django.db import IntegrityError, transaction
 from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, Semester
-from evap.evaluation.tools import STATES_ORDERED, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -17,17 +17,21 @@ from evap.student.views import get_valid_form_groups_or_render_vote_page
 @contributor_or_delegate_required
 def index(request):
     user = request.user
+    show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
     contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
     own_courses = Course.objects.filter(contributions__contributor=user, state__in=contributor_visible_states)
 
-    represented_users = user.represented_users.all()
-    delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
+    displayed_courses = list(own_courses)
+    if show_delegated:
+        represented_users = user.represented_users.all()
+        delegated_courses = Course.objects.exclude(id__in=own_courses).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
+        for course in delegated_courses:
+            course.delegated_course = True
+        displayed_courses += list(delegated_courses)
+    displayed_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
-    all_courses = list(own_courses) + list(delegated_courses)
-    all_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
-
-    for course in all_courses:
+    for course in displayed_courses:
         course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
 
@@ -36,10 +40,13 @@ def index(request):
         semester_name=semester.name,
         id=semester.id,
         is_active_semester=semester.is_active_semester,
-        courses=[course for course in all_courses if course.semester_id == semester.id]
+        courses=[course for course in displayed_courses if course.semester_id == semester.id]
     ) for semester in semesters]
 
-    template_data = dict(semester_list=semester_list, delegated_courses=delegated_courses)
+    template_data = dict(
+        semester_list=semester_list,
+        show_delegated=show_delegated,
+    )
     return render(request, "contributor_index.html", template_data)
 
 

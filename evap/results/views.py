@@ -91,7 +91,7 @@ def index(request):
     template_data = dict(
         courses=courses,
         degrees=degrees,
-        course_types=sorted(course_types, key=lambda course_type: course_type.name),
+        course_types=course_types,
         semesters=semesters,
     )
     return render(request, "results_index.html", template_data)

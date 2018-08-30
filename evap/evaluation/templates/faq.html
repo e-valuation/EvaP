@@ -15,8 +15,10 @@
                             {{ question.question }}
                         </a>
                     </div>
-                    <div id="{{ question.id }}-a" class="card-body collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
-                        {{ question.answer|safe }}
+                    <div id="{{ question.id }}-a" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
+                        <div class="card-body">
+                            {{ question.answer|safe }}
+                        </div>
                     </div>
                 </div>
             {% endfor %}
