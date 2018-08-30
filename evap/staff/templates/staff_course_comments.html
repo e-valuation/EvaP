@@ -12,7 +12,7 @@
 
     <div class="d-flex">
         <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
-        <div class="btn-switch my-auto d-print-none">
+        <div class="btn-switch btn-switch-light my-auto d-print-none">
             <div class="btn-switch-label">{% trans 'View' %}</div>
             <div class="btn-group">
                 <a href="{% url 'staff:course_comments' semester.id course.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
@@ -28,6 +28,11 @@
         </div>
     </div>
     <div class="mb-2">
+        {% if course.state == 'in_evaluation' %}
+            <span class="badge badge-warning"><span class="fas fa-play icon-gray"></span> {% trans 'Still in evaluation' %}</span>
+        {% else %}
+            <span class="badge badge-light"><span class="fas fa-stop icon-green"></span> {% trans 'Evaluation finished' %}</span>
+        {% endif %}
         {% include 'course_badges.html' with mode='manager' %}
     </div>
     <div class="bs-callout bs-callout-warning">
