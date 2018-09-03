@@ -25,7 +25,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            "User {} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
+            "{} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
         )
 
         contribution = Contribution.objects.get(contributor=self.non_responsible)
@@ -43,7 +43,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            "User {} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
+            "{} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)

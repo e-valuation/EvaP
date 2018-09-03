@@ -114,7 +114,7 @@
                                             {% if not course|has_nonresponsible_editor %}
                                                 <a href="#" class="btn btn-sm btn-dark" data-toggle="tooltip"
                                                     data-placement="top" title="{% trans 'Delegate preparation' %}"
-                                                    onclick="addEditorModalShow(`{{ course.name }}`, `{% url 'contributor:course_direct_delegation' course.id %}`);return false;"
+                                                    onclick="delegateSelectionModalShow(`{{ course.name }}`, `{% url 'contributor:course_direct_delegation' course.id %}`);return false;"
                                                 >
                                                     <span class="fas fa-hand-point-right fa-flip-horizontal"></span>
                                                 </a>
@@ -148,13 +148,14 @@
 {% block modals %}
     {{ block.super }}
 
-    {% with modal_id='addEditorModal' %}
+    {% with modal_id='delegateSelectionModal' %}
         <div class="modal fade" id="{{ modal_id }}" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form method="POST">
+                        {% csrf_token %}
                         <div class="modal-header">
-                            <h5 class="modal-title" id="{{ modal_id }}Label">{% trans 'Delegate the preparation' %}</h5>
+                            <h5 class="modal-title" id="{{ modal_id }}Label">{% trans 'Delegate preparation' %}</h5>
                             <button role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
                         </div>
                         <div class="modal-body">
@@ -165,9 +166,8 @@
                         </div>
                         <div class="modal-footer">
                             <button type="submit" id="btn-action" class="btn btn-primary">{% trans 'Delegate preparation' %}</a>
-                            <button type="button" class="btn btn-light" data-dismiss="modal" value="Submit">{% trans 'Cancel' %}</a>
+                            <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</a>
                         </div>
-                        {% csrf_token %}
                     </form>
                 </div>
             </div>
@@ -178,9 +178,6 @@
                 // set form's action location
                 $('#{{ modal_id }} form').attr('action', action);
 
-                // show modal
-                $('#{{ modal_id }}').modal();
-
                 // put the correct course name in the modal
                 $('#{{ modal_id }} #data-label').text(courseName);
 
@@ -189,6 +186,9 @@
 
                 // unselect any previously selected options in the modal
                 $('#{{ modal_id }} select').val(null).trigger('change');
+
+                // show modal
+                $('#{{ modal_id }}').modal();
             }
         </script>
     {% endwith %}

@@ -6,12 +6,12 @@ TEMPLATE_NAME = "Direct Delegation"
 TEMPLATE_SUBJECT = "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation"
 
 
-def insert_emailtemplates(apps, _schema_editor):
+def insert_emailtemplate(apps, _schema_editor):
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
     EmailTemplate.objects.create(name=TEMPLATE_NAME, subject=TEMPLATE_SUBJECT, body="")
 
 
-def remove_emailtemplates(apps, _schema_editor):
+def remove_emailtemplate(apps, _schema_editor):
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
     EmailTemplate.objects.filter(name=TEMPLATE_NAME).delete()
 
@@ -23,5 +23,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(insert_emailtemplates, reverse_code=remove_emailtemplates),
+        migrations.RunPython(insert_emailtemplate, reverse_code=remove_emailtemplate),
     ]
