@@ -177,15 +177,13 @@ def course_preview(request, course_id):
 
 @require_POST
 @editor_or_delegate_required
-def direct_delegate_course_editing_to_user(request, course_id):
-    delegate_user_id = request.POST.get("delegate_user")
+def course_direct_delegation(request, course_id):
+    delegate_user_id = request.POST.get("delegate_to")
 
     course = get_object_or_404(Course, id=course_id)
     delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
 
-    contribution, created = Contribution.objects.get_or_create(course=course, contributor=delegate_user)
-    contribution.can_edit = True
-    contribution.save()
+    Contribution.objects.update_or_create(course=course, contributor=delegate_user, defaults={'can_edit': True})
 
     template = EmailTemplate.objects.get(name=EmailTemplate.DIRECT_DELEGATION)
     subject_params = {"course": course, "user": request.user, "delegate_user": delegate_user}
@@ -198,7 +196,7 @@ def direct_delegate_course_editing_to_user(request, course_id):
     messages.add_message(
         request,
         messages.SUCCESS,
-        "User {} was added as a contributor for course {} and sent an email with further information.".format(str(delegate_user), str(course))
+        "User {} was added as a contributor for course {} and was sent an email with further information.".format(str(delegate_user), str(course))
     )
 
     return redirect('contributor:index')

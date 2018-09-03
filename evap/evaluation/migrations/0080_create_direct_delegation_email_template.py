@@ -2,23 +2,18 @@
 
 from django.db import migrations
 
-emailtemplates = [
-    ("Direct Delegation", "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation"),
-]
+TEMPLATE_NAME = "Direct Delegation"
+TEMPLATE_SUBJECT = "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation"
 
 
 def insert_emailtemplates(apps, _schema_editor):
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
-
-    for name, subject in emailtemplates:
-        EmailTemplate.objects.create(name=name, subject=subject, body="")
+    EmailTemplate.objects.create(name=TEMPLATE_NAME, subject=TEMPLATE_SUBJECT, body="")
 
 
 def remove_emailtemplates(apps, _schema_editor):
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
-
-    for name, __ in emailtemplates:
-        EmailTemplate.objects.filter(name=name).delete()
+    EmailTemplate.objects.filter(name=TEMPLATE_NAME).delete()
 
 
 class Migration(migrations.Migration):

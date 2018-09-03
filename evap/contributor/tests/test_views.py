@@ -21,12 +21,12 @@ class TestContributorDirectDelegationView(WebTest):
         mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_direct_delegation_request(self):
-        data = {"delegate_user": self.non_responsible.id}
-        page = self.app.post(reverse('contributor:course_direct_delegate', args=[self.course.id]), params=data, user=self.responsible).follow()
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post(reverse('contributor:course_direct_delegation', args=[self.course.id]), params=data, user=self.responsible).follow()
 
         self.assertContains(
             page,
-            "User {} was added as a contributor for course {} and sent an email with further information.".format(str(self.non_responsible), str(self.course))
+            "User {} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
         )
 
         contribution = Contribution.objects.get(contributor=self.non_responsible)
@@ -39,12 +39,12 @@ class TestContributorDirectDelegationView(WebTest):
         contribution = mommy.make(Contribution, course=self.course, contributor=self.non_responsible, can_edit=False, responsible=False)
         old_contribution_count = Contribution.objects.count()
 
-        data = {"delegate_user": self.non_responsible.id}
-        page = self.app.post(reverse('contributor:course_direct_delegate', args=[self.course.id]), params=data, user=self.responsible).follow()
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post(reverse('contributor:course_direct_delegation', args=[self.course.id]), params=data, user=self.responsible).follow()
 
         self.assertContains(
             page,
-            "User {} was added as a contributor for course {} and sent an email with further information.".format(str(self.non_responsible), str(self.course))
+            "User {} was added as a contributor for course {} and was sent an email with further information.".format(str(self.non_responsible), str(self.course))
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
