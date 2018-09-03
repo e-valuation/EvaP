@@ -63,34 +63,6 @@ class TestContributorView(ViewTest):
     def setUpTestData(cls):
         create_course_with_responsible_and_editor()
 
-    def test_direct_delegation_button_visibility(self):
-        course = mommy.make(Course, state='prepared')
-
-        responsible = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-
-        page = self.app.get('/contributor/', user=responsible, status=200)
-        self.assertContains(page, 'title="Delegate preparation"')
-
-        non_responsible_editor = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=non_responsible_editor, can_edit=True, responsible=False, comment_visibility=Contribution.ALL_COMMENTS)
-
-        page = self.app.get('/contributor/', user=responsible, status=200)
-        self.assertNotContains(page, 'title="Delegate preparation"')
-
-    def test_inactive_users_not_shown_in_direct_delegation_user_select(self):
-        course = mommy.make(Course, state='prepared')
-
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile, is_active=False)
-
-        responsible = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-
-        page = self.app.get('/contributor/', user=responsible, status=200)
-        self.assertContains(page, str(user1))
-        self.assertNotContains(page, str(user2))
-
 
 class TestContributorSettingsView(ViewTest):
     url = '/contributor/settings'
