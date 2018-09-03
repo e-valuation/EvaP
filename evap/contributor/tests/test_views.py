@@ -1,6 +1,5 @@
 from model_mommy import mommy
 
-from django.urls import reverse
 from django.core import mail
 
 from evap.evaluation.models import Course, UserProfile, Contribution
@@ -22,7 +21,7 @@ class TestContributorDirectDelegationView(WebTest):
 
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_responsible.id}
-        page = self.app.post(reverse('contributor:course_direct_delegation', args=[self.course.id]), params=data, user=self.responsible).follow()
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
 
         self.assertContains(
             page,
@@ -40,7 +39,7 @@ class TestContributorDirectDelegationView(WebTest):
         old_contribution_count = Contribution.objects.count()
 
         data = {"delegate_to": self.non_responsible.id}
-        page = self.app.post(reverse('contributor:course_direct_delegation', args=[self.course.id]), params=data, user=self.responsible).follow()
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
 
         self.assertContains(
             page,
