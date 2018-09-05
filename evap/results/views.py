@@ -215,21 +215,20 @@ def add_warnings(course, course_result):
 
 def user_can_see_text_answer(user, represented_users, text_answer, view):
     assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+    contributor = text_answer.contribution.contributor
 
     if view == 'public':
         return False
-    if view == 'export' and text_answer.is_private:
-        return False
-    if user.is_reviewer:
+    elif view == 'export':
+        if text_answer.is_private:
+            return False
+        if not text_answer.contribution.is_general and contributor != user:
+            return False
+    elif user.is_reviewer:
         return True
-
-    contributor = text_answer.contribution.contributor
 
     if text_answer.is_private:
         return contributor == user
-
-    if view == 'export' and not text_answer.contribution.is_general and contributor != user:
-        return False
 
     if text_answer.is_published:
         if text_answer.contribution.responsible:

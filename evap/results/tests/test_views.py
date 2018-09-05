@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
+from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, \
+    RatingAnswerCounter, TextAnswer
 from evap.evaluation.tests.tools import ViewTest, WebTest
 from evap.results.views import get_courses_with_prefetched_data
 
@@ -525,7 +526,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         manager_group = Group.objects.get(name="Manager")
-        mommy.make(UserProfile, username="manager", groups=[manager_group])
+        cls.manager = mommy.make(UserProfile, username="manager", groups=[manager_group])
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/course/1?view=export", user='responsible')
@@ -659,7 +660,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
-    def test_textanswer_visibility_for_staff(self):
+    def test_textanswer_visibility_for_manager(self):
         contributor_id = UserProfile.objects.get(username="responsible").id
         page = self.app.get("/results/semester/1/course/1?view=export&contributor_id={}".format(contributor_id), user='manager')
 
@@ -681,6 +682,28 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".other_responsible_changed_published.", page)
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_manager_own_export(self):
+        course = mommy.make(Course, state='published', can_publish_text_results=True)
+        questionnaire = mommy.make(Questionnaire)
+        question = mommy.make(Question, questionnaire=questionnaire, type="T")
+        course.general_contribution.questionnaires.set([questionnaire])
+        responsible = mommy.make(UserProfile)
+        responsible_contribution = mommy.make(Contribution, contributor=responsible, course=course, questionnaires=[questionnaire],
+            responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        manager_contribution = mommy.make(Contribution, contributor=self.manager, course=course, questionnaires=[questionnaire],
+           comment_visibility=Contribution.OWN_COMMENTS)
+
+        mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="general_contribution", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=responsible_contribution, answer="responsible_contribution", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=manager_contribution, answer="manager_contribution", state=TextAnswer.PUBLISHED)
+        mommy.make(TextAnswer, question=question, contribution=manager_contribution, answer="manager_contribution_private", state=TextAnswer.PRIVATE)
+
+        page = self.app.get("/results/semester/{}/course/{}?view=export&contributor_id={}".format(course.semester.id, course.id, self.manager.id), user='manager')
+        self.assertNotIn("general_contribution", page)
+        self.assertNotIn("responsible_contribution", page)
+        self.assertIn("manager_contribution", page)
+        self.assertNotIn("manager_contribution_private", page)
 
 
 class TestArchivedResults(WebTest):
