@@ -1262,7 +1262,8 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributor=user)
+    semesters_with_courses = Semester.objects.filter(course__contributions__contributor=user).distinct()
+    courses_contributing_to = [(semester, Course.objects.filter(semester=semester, contributions__contributor=user)) for semester in semesters_with_courses]
 
     if form.is_valid():
         form.save()

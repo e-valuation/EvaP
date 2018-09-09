@@ -519,6 +519,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
 
+    def is_user_contributor(self, user):
+        return self.contributions.filter(contributor=user).exists()
+
     @property
     def textanswer_set(self):
         return TextAnswer.objects.filter(contribution__course=self)

@@ -21,7 +21,7 @@
         <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
     {% endif %}
 
-    {% if reviewer or contributor %}
+    {% if is_reviewer or is_contributor_or_delegate %}
         {% if course.is_private %}
             <div class="alert alert-info d-print-none">
                 <span class="fas fa-lock"></span> {% trans 'This course is private. Only contributors and participants can see the results.' %}
@@ -31,14 +31,19 @@
             <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
-                <div class="btn-switch-label">{% trans 'View as' %}</div>
+                <div class="btn-switch-label">{% trans 'View' %}</div>
                 <div class="btn-group">
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=false" role="button" class="btn btn-sm btn-light{% if not public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                    {% if user.is_staff and view == 'export' or is_contributor %}
+                        <a href="{% if is_contributor %}{% url 'results:course_detail' course.semester.id course.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        title="{% blocktrans %}Shows filtered view meant for personal export. Only your personal results and those about the course. Other contributors' results and private answers are hidden.{% endblocktrans %}">
+                        {% trans 'Export' context 'view mode' %}
+                    {% endif %}
+                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                     title="{% trans 'Shows all results available for you.' %}">
-                    {% trans 'Myself' %}
+                    {% trans 'Full' %}
                     </a>
                     {% if not course.can_publish_rating_results %}
-                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
+                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="bottom" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
                             <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
                                 {% if course.is_private %}
                                     {% trans 'Participant' %}
@@ -48,7 +53,7 @@
                             </a>
                         </div>
                     {% else %}
-                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?public_view=true" role="button" class="btn btn-sm btn-light{% if public_view %} active{% endif %}" data-toggle="tooltip" data-placement="top"
+                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                            title="
                         {% if course.is_private %}
                             {% trans 'Shows results available for the participants.' %}">
@@ -162,6 +167,20 @@
                         </div>
                     </div>
                 {% endfor %}
+                {% if view == 'export' and other_contributors %}
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            {% trans 'Other contributors' %}
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                {% for contributor in other_contributors %}
+                                    <li>{{ contributor.full_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     {% endif %}

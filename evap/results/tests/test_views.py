@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
+from evap.evaluation.models import Contribution, Course, Degree, Question, Questionnaire, RatingAnswerCounter, \
+    Semester, UserProfile
 from evap.evaluation.tests.tools import ViewTest, WebTest
 from evap.results.views import get_courses_with_prefetched_data
 
@@ -140,7 +141,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
         page_without_get_parameter = self.app.get(url, user='manager')
-        url = '/results/semester/%s/course/%s?public_view=true' % (self.semester.id, self.course.id)
+        url = '/results/semester/%s/course/%s?view=public' % (self.semester.id, self.course.id)
         random.seed(42)
         page_with_get_parameter = self.app.get(url, user='manager')
         url = '/results/semester/%s/course/%s?public_view=asdf' % (self.semester.id, self.course.id)
@@ -277,7 +278,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         course.unpublish()
         course.save()
 
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
+        page = self.app.get("/results/semester/1/course/1?view=full", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -298,7 +299,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager(self):
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
+        page = self.app.get("/results/semester/1/course/1?view=full", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -493,6 +494,219 @@ class TestResultsTextanswerVisibility(WebTest):
     def test_textanswer_visibility_for_student_external(self):
         # the external user does not participate in or contribute to the course and therefore can't see the results
         self.app.get("/results/semester/1/course/1", user='student_external', status=403)
+
+
+class TestResultsOtherContributorsListOnExportView(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester, id=2)
+        cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
+
+        questionnaire = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([questionnaire])
+
+        responsible = mommy.make(UserProfile, username='responsible')
+        mommy.make(Contribution, course=cls.course, contributor=responsible, questionnaires=[questionnaire], can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.other_contributor_1 = mommy.make(UserProfile, username='other contributor 1')
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_1, questionnaires=[questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
+        cls.other_contributor_2 = mommy.make(UserProfile, username='other contributor 2')
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_2, questionnaires=[questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
+
+    def test_contributor_list(self):
+        url = '/results/semester/{}/course/{}?view=export'.format(self.semester.id, self.course.id)
+        page = self.app.get(url, user='responsible')
+        self.assertIn("<li>{}</li>".format(self.other_contributor_1.username), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_2.username), page)
+
+
+class TestResultsTextanswerVisibilityForExportView(WebTest):
+    fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        manager_group = Group.objects.get(name="Manager")
+        cls.manager = mommy.make(UserProfile, username="manager", groups=[manager_group])
+
+    def test_textanswer_visibility_for_responsible(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='responsible')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_other_responsible(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='other_responsible')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_contributor(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_contributor_course_comments(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor_course_comments')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_contributor_all_comments(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor_all_comments')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_student(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='student')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_manager(self):
+        contributor_id = UserProfile.objects.get(username="responsible").id
+        page = self.app.get("/results/semester/1/course/1?view=export&contributor_id={}".format(contributor_id), user='manager')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_manager_contributor(self):
+        manager_group = Group.objects.get(name="Manager")
+        contributor = UserProfile.objects.get(username="contributor")
+        contributor.groups.add(manager_group)
+        page = self.app.get("/results/semester/1/course/1?view=export&contributor_id={}".format(contributor.id), user='contributor')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
 
 class TestArchivedResults(WebTest):
