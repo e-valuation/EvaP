@@ -791,9 +791,13 @@ class TestCourseOperationView(WebTest):
     """
         The following tests make sure the course state transitions are triggerable via the UI.
     """
-    def test_semester_publish(self):
-        course = mommy.make(Course, semester=self.semester, state='reviewed')
+    @override_settings(VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0)
+    def test_semester_publish(self):        
+        participant1 = mommy.make(UserProfile, email="foo@example.com")
+        participant2 = mommy.make(UserProfile, email="bar@example.com")
+        course = mommy.make(Course, semester=self.semester, state='reviewed', participants=[participant1, participant2], voters=[participant1, participant2])
         self.helper_semester_state_views(course, "reviewed", "published")
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_semester_reset_1(self):
         course = mommy.make(Course, semester=self.semester, state='prepared')

@@ -70,24 +70,26 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(courses, template=None):
+def send_publish_notifications(courses, template=None, send_to_contributors=True, send_to_participants=True):
     from evap.evaluation.models import EmailTemplate
     publish_notifications = defaultdict(set)
 
     if not template:
-        template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+        template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
 
     for course in courses:
         # for courses with published averaged grade, all contributors and participants get a notification
         # we don't send a notification if the significance threshold isn't met
         if course.can_publish_average_grade:
-            for participant in course.participants.all():
-                publish_notifications[participant].add(course)
-            for contribution in course.contributions.all():
-                if contribution.contributor:
-                    publish_notifications[contribution.contributor].add(course)
+            if send_to_participants == True:
+                for participant in course.participants.all():
+                    publish_notifications[participant].add(course)
+            if send_to_contributors == True:
+                for contribution in course.contributions.all():
+                    if contribution.contributor:
+                        publish_notifications[contribution.contributor].add(course)
         # if the average grade was not published, notifications are only sent for contributors who can see text answers
-        elif course.textanswer_set:
+        elif course.textanswer_set and send_to_contributors == True:
             for textanswer in course.textanswer_set:
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(course)

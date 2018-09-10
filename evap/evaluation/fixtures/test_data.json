@@ -121203,14 +121203,23 @@
   "model": "evaluation.emailtemplate",
   "pk": 3,
   "fields": {
-    "name": "Publishing Notice",
+    "name": "Publishing Notice Contributor",
+    "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following courses have just been published:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+  }
+},
+{
+  "model": "evaluation.emailtemplate",
+  "pk": 4,
+  "fields": {
+    "name": "Publishing Notice Participant",
     "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
     "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following courses have just been published:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
   "model": "evaluation.emailtemplate",
-  "pk": 4,
+  "pk": 5,
   "fields": {
     "name": "Login Key Created",
     "subject": "[EvaP] Ihr Anmeldelink / Your login url",
@@ -121219,7 +121228,7 @@
 },
 {
   "model": "evaluation.emailtemplate",
-  "pk": 5,
+  "pk": 6,
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
@@ -121228,7 +121237,7 @@
 },
 {
   "model": "evaluation.emailtemplate",
-  "pk": 6,
+  "pk": 7,
   "fields": {
     "name": "Editor Review Reminder",
     "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Course ready for approval",
@@ -121237,7 +121246,7 @@
 },
 {
   "model": "evaluation.emailtemplate",
-  "pk": 7,
+  "pk": 8,
   "fields": {
     "name": "Direct Delegation",
     "subject": "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation",

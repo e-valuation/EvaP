@@ -156,8 +156,14 @@ def semester_course_operation(request, semester_id):
 
     if request.method == 'POST':
         template = None
+        template_contributor = None
+        template_participant = None
         if request.POST.get('send_email') == 'on':
             template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
+        if request.POST.get('send_email_contributor') == 'on':
+            template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], body=request.POST['email_body_contributor'])
+        if request.POST.get('send_email_participant') == 'on':
+            template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], body=request.POST['email_body_participant'])
 
         if target_state == 'new':
             helper_semester_course_operation_revert(request, courses)
@@ -168,12 +174,14 @@ def semester_course_operation(request, semester_id):
         elif target_state == 'reviewed':
             helper_semester_course_operation_unpublish(request, courses)
         elif target_state == 'published':
-            helper_semester_course_operation_publish(request, courses, template)
+            helper_semester_course_operation_publish(request, courses, template_contributor, template_participant)
 
         return custom_redirect('staff:semester_view', semester_id)
 
     # If necessary, filter courses and set email template for possible editing
     email_template = None
+    email_template_contributor = None
+    email_template_participant = None
     if courses:
         if target_state == 'new':
             revertible_courses = [course for course in courses if course.state in ['prepared', 'editor_approved', 'approved']]
@@ -225,7 +233,8 @@ def semester_course_operation(request, semester_id):
                 messages.warning(request, ungettext("%(courses)d course can not be published, because its evaluation is not finished or not all of its text answers have been reviewed. It was removed from the selection.",
                     "%(courses)d courses can not be published, because their evaluations are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
                     difference) % {'courses': difference})
-            email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
+            email_template_contributor = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
+            email_template_participant = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT)
             confirmation_message = _("Do you want to publish the following courses?")
 
     if not courses:
@@ -238,7 +247,9 @@ def semester_course_operation(request, semester_id):
         target_state=target_state,
         confirmation_message=confirmation_message,
         email_template=email_template,
-        show_email_checkbox=email_template is not None
+        email_template_contributor=email_template_contributor,
+        email_template_participant=email_template_participant,
+        show_email_checkbox=email_template or email_template_participant or email_template_contributor is not None
     )
 
     return render(request, "staff_course_operation.html", template_data)
@@ -273,14 +284,16 @@ def helper_semester_course_operation_start(request, courses, template):
         EmailTemplate.send_to_users_in_courses(template, courses, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
-def helper_semester_course_operation_publish(request, courses, template):
+def helper_semester_course_operation_publish(request, courses, template_contributor, template_participant):
     for course in courses:
         course.publish()
         course.save()
     messages.success(request, ungettext("Successfully published %(courses)d course.",
         "Successfully published %(courses)d courses.", len(courses)) % {'courses': len(courses)})
-    if template:
-        send_publish_notifications(courses, template)
+    if template_contributor:
+        send_publish_notifications(courses, template_contributor, True, False)
+    if template_participant:
+        send_publish_notifications(courses, template_participant, False, True)
 
 
 def helper_semester_course_operation_unpublish(request, courses):
