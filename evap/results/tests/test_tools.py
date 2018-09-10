@@ -6,8 +6,10 @@ from django.test import override_settings
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, RatingAnswerCounter, Questionnaire, Question, Course, UserProfile
-from evap.results.tools import get_collect_results_cache_key, calculate_average_distribution, collect_results, distribution_to_grade, get_single_result_rating_result
+from evap.evaluation.models import Contribution, Course, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
+from evap.results.tools import calculate_average_distribution, collect_results, distribution_to_grade, \
+    get_collect_results_cache_key, get_single_result_rating_result, textanswers_visible_to
+from evap.results.views import user_can_see_text_answer
 from evap.staff.tools import merge_users
 
 
@@ -190,3 +192,70 @@ class TestCalculateAverageDistribution(TestCase):
 
         distribution = calculate_average_distribution(course)
         self.assertEqual(distribution[0], 1)
+
+
+class TestTextAnswerVisibilityInfo(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.delegate1 = mommy.make(UserProfile, username="delegate1")
+        cls.delegate2 = mommy.make(UserProfile, username="delegate2")
+        cls.contributor_own = mommy.make(UserProfile, username="contributor_own", delegates=[cls.delegate1])
+        cls.contributor_course = mommy.make(UserProfile, username="contributor_course", delegates=[cls.delegate2])
+        cls.contributor_all = mommy.make(UserProfile, username="contributor_all")
+        cls.responsible1 = mommy.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_course])
+        cls.responsible2 = mommy.make(UserProfile, username="responsible2")
+        cls.other_user = mommy.make(UserProfile, username="other_user")
+
+        cls.course = mommy.make(Course, state='published', can_publish_text_results=True)
+        cls.questionnaire = mommy.make(Questionnaire)
+        cls.question = mommy.make(Question, questionnaire=cls.questionnaire, type="T")
+        cls.general_contribution = cls.course.general_contribution
+        cls.general_contribution.questionnaires.set([cls.questionnaire])
+        cls.responsible1_contribution = mommy.make(Contribution, contributor=cls.responsible1, course=cls.course,
+            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.responsible2_contribution = mommy.make(Contribution, contributor=cls.responsible2, course=cls.course,
+            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contributor_own_contribution = mommy.make(Contribution, contributor=cls.contributor_own, course=cls.course,
+            questionnaires=[cls.questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
+        cls.contributor_course_contribution = mommy.make(Contribution, contributor=cls.contributor_course, course=cls.course,
+            questionnaires=[cls.questionnaire], comment_visibility=Contribution.GENERAL_COMMENTS)
+        cls.contributor_all_contribution = mommy.make(Contribution, contributor=cls.contributor_all, course=cls.course,
+            questionnaires=[cls.questionnaire], comment_visibility=Contribution.ALL_COMMENTS)
+        cls.general_contribution_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.PUBLISHED)
+        cls.responsible1_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.responsible1_contribution, state=TextAnswer.PUBLISHED)
+        cls.responsible2_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.PUBLISHED)
+        cls.contributor_own_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_own_contribution, state=TextAnswer.PUBLISHED)
+        cls.contributor_course_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_course_contribution, state=TextAnswer.PUBLISHED)
+        cls.contributor_all_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_all_contribution, state=TextAnswer.PUBLISHED)
+
+    def test_correct_contributors_and_delegate_count_are_shown_in_textanswer_visibility_info(self):
+        textanswers = [
+            self.general_contribution_textanswer, self.responsible1_textanswer, self.responsible2_textanswer,
+            self.contributor_own_textanswer, self.contributor_course_textanswer, self.contributor_all_textanswer
+        ]
+        visible_to = [textanswers_visible_to(textanswer.contribution) for textanswer in textanswers]
+        users_seeing_contribution = [(set(), set()) for _ in range(len(textanswers))]
+
+        for user in UserProfile.objects.all():
+            represented_users = [user] + list(user.represented_users.all())
+            for i in range(len(textanswers)):
+                if user_can_see_text_answer(user, represented_users, textanswers[i], 'full'):
+                    if user_can_see_text_answer(user, [user], textanswers[i], 'full'):
+                        users_seeing_contribution[i][0].add(user)
+                    else:
+                        users_seeing_contribution[i][1].add(user)
+
+        for i in range(len(textanswers)):
+            self.assertCountEqual(visible_to[i][0], users_seeing_contribution[i][0])
+
+        expected_delegate_counts = [
+            2,  # delegate1, delegate2
+            2,  # delegate1, contributor_course
+            0,
+            2,  # delegate1, contributor_course
+            2,  # delegate1, delegate2
+            2,  # delegate1, contributor_course
+        ]
+
+        for i in range(len(textanswers)):
+            self.assertTrue(visible_to[i][1] == len(users_seeing_contribution[i][1]) == expected_delegate_counts[i])

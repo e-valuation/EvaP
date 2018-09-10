@@ -180,11 +180,11 @@ class TestVoteView(WebTest):
     def test_user_cannot_vote_for_themselves(self):
         response = self.app.get(self.url, user=self.contributor1, status=200)
 
-        for contributor, _, _, _ in response.context['contributor_form_groups']:
+        for contributor, __, __, __, __ in response.context['contributor_form_groups']:
             self.assertNotEqual(contributor, self.contributor1, "Contributor should not see the questionnaire about themselves")
 
         response = self.app.get(self.url, user=self.voting_user1, status=200)
-        self.assertTrue(any(contributor == self.contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
+        self.assertTrue(any(contributor == self.contributor1 for contributor, __, __, __, __ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")
 
     def test_user_logged_out(self):
@@ -241,3 +241,7 @@ class TestVoteView(WebTest):
 
     def test_user_did_not_check_text_answer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation(None)
+
+    def test_textanswer_visibility_is_shown(self):
+        page = self.app.get(self.url, user=self.voting_user1.username, status=200)
+        self.assertIn("can be seen by: {}".format(self.contributor1.full_name), page)

@@ -5,8 +5,9 @@ import itertools
 
 from django.conf import settings
 from django.core.cache import caches
+from django.db.models import Q
 
-from evap.evaluation.models import TextAnswer, RatingAnswerCounter, Questionnaire, Question
+from evap.evaluation.models import Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
 
 GRADE_COLORS = {
@@ -84,13 +85,15 @@ class RatingResult:
 
 
 class TextResult:
-    def __init__(self, question, answers):
+    def __init__(self, question, answers, answers_visible_to=None):
         assert question.is_text_question
         self.question = question
         self.answers = answers
+        self.answers_visible_to = answers_visible_to
 
 
 HeadingResult = namedtuple('HeadingResult', ('question'))
+TextAnswerVisibility = namedtuple('TextAnswerVisibility', ('visible_by_contribution', 'visible_by_delegation_count'))
 
 
 def get_counts(answer_counters):
@@ -137,7 +140,7 @@ def _collect_results_impl(course):
                     results.append(RatingResult(question, counts))
                 elif question.is_text_question and course.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
-                    results.append(TextResult(question=question, answers=answers))
+                    results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
                 elif question.is_heading_question:
                     results.append(HeadingResult(question=question))
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
@@ -232,3 +235,19 @@ def get_grade_color(grade):
     next_lower = int(grade)
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
+
+
+def textanswers_visible_to(contribution):
+    if contribution.is_general:
+        contributors = UserProfile.objects.filter(
+            Q(contributions__course=contribution.course) & (
+                Q(contributions__comment_visibility=Contribution.ALL_COMMENTS) |
+                Q(contributions__comment_visibility=Contribution.GENERAL_COMMENTS)
+            )
+        ).distinct().order_by('contributions__comment_visibility')
+    else:
+        contributors = [contribution.contributor]
+        if not contribution.responsible:
+            contributors.extend(UserProfile.objects.filter(contributions__course=contribution.course, contributions__comment_visibility=Contribution.ALL_COMMENTS).exclude(id=contribution.contributor.id))
+    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))
+    return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)

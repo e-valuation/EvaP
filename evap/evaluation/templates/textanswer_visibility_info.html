@@ -1,0 +1,10 @@
+<span class="far fa-eye ml-1 icon-gray" data-toggle="tooltip" data-placement="left" title="
+    {{ intro_text }}
+    {% for contributor in visible_by_contribution %}
+        {{ contributor.full_name }}{% if not forloop.last or visible_by_delegation_count > 0 %}, {% endif %}
+    {% endfor %}
+    {% if visible_by_delegation_count > 0 %}
+        {% blocktrans count delegate_count=visible_by_delegation_count %}{{ delegate_count }} delegate{% plural %}{{ delegate_count }} delegates{% endblocktrans %}
+    {% endif %}
+    {% trans 'and the evaluation team.' %}
+"></span>

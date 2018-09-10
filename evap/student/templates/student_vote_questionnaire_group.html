@@ -43,10 +43,14 @@
                                 </div>
                             </td>
                         {% else %}
-                            <td class="vote-text-answer">
+                            <td class="vote-text-answer d-flex">
                                 <div class="vote-inputs{% if preview %} preview{% endif %}">
                                     {{ field.errors }}
                                     <textarea id="{{ field.id_for_label }}" name="{{ field.name }}">{{ field.value|default_if_none:"" }}</textarea>
+                                </div>
+                                <div>
+                                    {% blocktrans asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktrans %}
+                                    {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=textanswers_visible_to.visible_by_contribution visible_by_delegation_count=textanswers_visible_to.visible_by_delegation_count %}
                                 </div>
                             </td>
                         {% endif %}
