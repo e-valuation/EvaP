@@ -1,6 +1,6 @@
-from model_mommy import mommy
-
 from django.core import mail
+
+from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile, Contribution
 from evap.evaluation.tests.tools import WebTest, ViewTest, create_course_with_responsible_and_editor
