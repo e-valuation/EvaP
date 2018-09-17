@@ -26,7 +26,7 @@ class QuestionnaireVotingForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.questionnaire = questionnaire
 
-        for question in self.questionnaire.question_set.all():
+        for question in self.questionnaire.questions.all():
             # generic arguments for all kinds of fields
             field_args = dict(label=question.text)
 

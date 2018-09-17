@@ -264,7 +264,7 @@ class SingleResultForm(forms.ModelForm):
         super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
-        single_result_question = single_result_questionnaire.question_set.first()
+        single_result_question = single_result_questionnaire.questions.first()
 
         contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
         contribution.contributor = self.cleaned_data['responsible']

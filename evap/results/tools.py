@@ -127,11 +127,11 @@ def collect_results(course, force_recalculation=False):
 
 def _collect_results_impl(course):
     contributor_contribution_results = []
-    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results = []
-            for question in questionnaire.question_set.all():
+            for question in questionnaire.questions.all():
                 if question.is_rating_question:
                     counts = get_counts(RatingAnswerCounter.objects.filter(contribution=contribution, question=question)) if course.can_publish_rating_results else None
                     results.append(RatingResult(question, counts))

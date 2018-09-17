@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 from model_mommy import mommy
@@ -108,7 +110,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         mommy.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.course.general_contribution, answer=3, count=100)
 
-        content = self.app.get("/results/semester/2/course/21", user='manager').body.decode()
+        content = self.app.get(self.url, user='manager').body.decode()
 
         top_heading_index = content.index(top_heading_question.text)
         top_likert_index = content.index(top_likert_question.text)
@@ -130,7 +132,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
-        page = self.app.get("/results/semester/2/course/21", user='manager')
+        page = self.app.get(self.url, user='manager')
 
         self.assertNotIn(heading_question_0.text, page)
         self.assertIn(heading_question_1.text, page)
@@ -138,15 +140,12 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertNotIn(heading_question_2.text, page)
 
     def test_default_view_is_public(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
-        page_without_get_parameter = self.app.get(url, user='manager')
-        url = '/results/semester/%s/course/%s?view=public' % (self.semester.id, self.course.id)
+        page_without_get_parameter = self.app.get(self.url, user='manager')
         random.seed(42)
-        page_with_get_parameter = self.app.get(url, user='manager')
-        url = '/results/semester/%s/course/%s?public_view=asdf' % (self.semester.id, self.course.id)
+        page_with_get_parameter = self.app.get(self.url + '?view=public', user='manager')
         random.seed(42)
-        page_with_random_get_parameter = self.app.get(url, user='manager')
+        page_with_random_get_parameter = self.app.get(self.url + '?public_view=asdf', user='manager')
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
@@ -156,7 +155,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.app.get(url, user='student', status=403)
 
 
-class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
+class TestResultsSemesterCourseDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
@@ -226,6 +225,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
 
 
 class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_course(self):
         semester = mommy.make(Semester)
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
@@ -725,6 +725,7 @@ class TestArchivedResults(WebTest):
         cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS, contributor=responsible)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = '/results/'
         self.assertIn(self.course.name, self.app.get(url, user='student'))

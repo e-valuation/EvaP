@@ -172,7 +172,7 @@ class TestCourses(WebTest):
             course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
         course.single_result_created()
         course.publish()
         course.save()
@@ -197,7 +197,7 @@ class TestCourses(WebTest):
             course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
         single_result.single_result_created()
         single_result.publish()  # used to crash
@@ -371,7 +371,7 @@ class ParticipationArchivingTests(TestCase):
 
     def refresh_course(self):
         """ refresh_from_db does not work with courses"""
-        self.course = self.semester.course_set.first()
+        self.course = self.semester.courses.first()
 
     def setUp(self):
         self.semester.refresh_from_db()
@@ -426,7 +426,7 @@ class ParticipationArchivingTests(TestCase):
         with self.assertRaises(NotArchiveable):
             self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.course_set.first()._archive_participations()
+            self.semester.courses.first()._archive_participations()
 
     def test_course_participations_are_not_archived_if_participant_count_is_set(self):
         course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)

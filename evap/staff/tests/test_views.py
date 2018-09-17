@@ -478,7 +478,7 @@ class TestSemesterAssignView(ViewTest):
         assign_form['Lecture'] = [self.questionnaire.pk]
         page = assign_form.submit().follow()
 
-        for course in self.semester.course_set.all():
+        for course in self.semester.courses.all():
             self.assertEqual(course.general_contribution.questionnaires.count(), 1)
             self.assertEqual(course.general_contribution.questionnaires.get(), self.questionnaire)
 
@@ -920,7 +920,7 @@ class TestCourseEditView(ViewTest):
         degree = mommy.make(Degree)
         cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree], last_modified_user=cls.user,
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
-        mommy.make(Questionnaire, question_set=[mommy.make(Question)])
+        mommy.make(Questionnaire, questions=[mommy.make(Question)])
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # This is necessary so that the call to is_single_result does not fail.
@@ -1064,7 +1064,7 @@ class TestSingleResultEditView(ViewTest):
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True,
                                   comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
-        question = Questionnaire.single_result_questionnaire().question_set.get()
+        question = Questionnaire.single_result_questionnaire().questions.get()
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=2, count=15)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=3, count=40)
@@ -1432,16 +1432,16 @@ class TestQuestionnaireCreateView(ViewTest):
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
         questionnaire_form['public_name_en'] = "Public Test Questionnaire"
-        questionnaire_form['question_set-0-text_de'] = "Frage 1"
-        questionnaire_form['question_set-0-text_en'] = "Question 1"
-        questionnaire_form['question_set-0-type'] = "T"
+        questionnaire_form['questions-0-text_de'] = "Frage 1"
+        questionnaire_form['questions-0-text_en'] = "Question 1"
+        questionnaire_form['questions-0-type'] = "T"
         questionnaire_form['order'] = 0
         questionnaire_form['type'] = Questionnaire.TOP
         questionnaire_form.submit().follow()
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
-        self.assertEqual(questionnaire.question_set.count(), 1)
+        self.assertEqual(questionnaire.questions.count(), 1)
 
     def test_create_empty_questionnaire(self):
         page = self.app.get(self.url, user="manager")
@@ -1557,7 +1557,7 @@ class TestQuestionnaireCopyView(ViewTest):
         page = questionnaire_form.submit().follow()
 
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
-        self.assertEqual(questionnaire.question_set.count(), 1)
+        self.assertEqual(questionnaire.questions.count(), 1)
 
 
 class TestQuestionnaireDeletionView(WebTest):

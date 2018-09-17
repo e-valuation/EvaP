@@ -88,7 +88,7 @@ class ExcelExporter(object):
                 course_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for course in self.semester.course_set.filter(state__in=course_states, type__in=course_types).all():
+            for course in self.semester.courses.filter(state__in=course_states, type__in=course_types).all():
                 if course.is_single_result:
                     continue
                 if not course.can_publish_rating_results and not include_not_enough_voters:
@@ -119,7 +119,7 @@ class ExcelExporter(object):
                 for course, results in courses_with_results:
                     self.write_empty_cell_with_borders()
 
-                filtered_questions = self.filter_text_and_heading_questions(questionnaire.question_set.all())
+                filtered_questions = self.filter_text_and_heading_questions(questionnaire.questions.all())
 
                 for question in filtered_questions:
                     if question.is_heading_question:

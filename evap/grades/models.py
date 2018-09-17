@@ -6,15 +6,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
 
-from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.models import Course
+from evap.evaluation.tools import translate
 
 
 def helper_upload_path(instance, filename):
     return "grades/{}/{}".format(instance.course.id, filename)
 
 
-class GradeDocument(models.Model, metaclass=LocalizeModelBase):
+class GradeDocument(models.Model):
     course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("Course"))
     file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
 
@@ -28,8 +28,7 @@ class GradeDocument(models.Model, metaclass=LocalizeModelBase):
 
     description_de = models.CharField(max_length=255, verbose_name=_("description (german)"))
     description_en = models.CharField(max_length=255, verbose_name=_("description (english)"))
-
-    description = Translate
+    description = translate(en='description_en', de='description_de')
 
     last_modified_time = models.DateTimeField(auto_now=True, verbose_name=_("Created"))
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="grades_last_modified_user+", null=True, blank=True)

@@ -12,7 +12,7 @@
                 {{ questionnaire.description }}<br />
             {% endif %}
             <ul>
-                {% for question in questionnaire.question_set.all %}
+                {% for question in questionnaire.questions.all %}
                     {% if question.is_heading_question %}
                         </ul>
                         {{ question.text }}

@@ -9,7 +9,10 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
-  - coverage run manage.py test evap.evaluation evap.staff evap.contributor evap.results evap.student evap.grades evap.rewards evap.evaluation.tests.test_misc.TestDataTest.load_test_data
+  - coverage run manage.py test --keepdb
+  - python manage.py test --keepdb evap.evaluation.tests.test_misc.TestDataTest.load_test_data
+  - python manage.py test --keepdb --reverse
+  - python manage.py test --keepdb --debug-mode
 after_success:
   - coveralls
 sudo: false

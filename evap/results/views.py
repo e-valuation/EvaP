@@ -100,7 +100,7 @@ def index(request):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
+    course = get_object_or_404(semester.courses, id=course_id, semester=semester)
 
     if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
