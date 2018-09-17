@@ -313,7 +313,7 @@ class Course(models.Model):
         super().save(*args, **kw)
 
         # make sure there is a general contribution
-        if not self.general_contribution:
+        if not self.general_contribution and not self.is_single_result:
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
