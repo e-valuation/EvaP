@@ -94,9 +94,6 @@ class TestExporters(TestCase):
         course2 = mommy.make(Course, state='published', type=course_type,
                              name_de='B - Course2', name_en='A - Course2', semester=semester)
 
-        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-
         content_de = BytesIO()
         with translation.override("de"):
             ExcelExporter(semester).export(content_de, [[course_type.id]], True, True)

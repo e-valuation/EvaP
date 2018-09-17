@@ -63,7 +63,6 @@ class CourseEmailFormTests(TestCase):
             Tests the CourseEmailForm with one valid and one invalid input dataset.
         """
         course = create_course_with_responsible_and_editor()
-        mommy.make(Contribution, course=course)
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
         form = CourseEmailForm(course=course, data=data)
         self.assertTrue(form.is_valid())

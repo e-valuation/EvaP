@@ -132069,20 +132069,6 @@
 },
 {
   "model": "evaluation.contribution",
-  "pk": 4299,
-  "fields": {
-    "course": 1713,
-    "contributor": null,
-    "responsible": false,
-    "can_edit": false,
-    "comment_visibility": "OWN",
-    "label": null,
-    "order": -1,
-    "questionnaires": []
-  }
-},
-{
-  "model": "evaluation.contribution",
   "pk": 4300,
   "fields": {
     "course": 1713,
@@ -132095,20 +132081,6 @@
     "questionnaires": [
       1
     ]
-  }
-},
-{
-  "model": "evaluation.contribution",
-  "pk": 4301,
-  "fields": {
-    "course": 1714,
-    "contributor": null,
-    "responsible": false,
-    "can_edit": false,
-    "comment_visibility": "OWN",
-    "label": null,
-    "order": -1,
-    "questionnaires": []
   }
 },
 {

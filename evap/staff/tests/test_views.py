@@ -353,8 +353,6 @@ class TestSemesterView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         cls.course1 = mommy.make(Course, name_de="A - Course 1", name_en="B - Course 1", semester=cls.semester)
         cls.course2 = mommy.make(Course, name_de="B - Course 2", name_en="A - Course 2", semester=cls.semester)
-        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_view_list_sorting(self):
         page = self.app.get(self.url, user='manager', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
@@ -696,8 +694,6 @@ class TestSemesterRawDataExportView(ViewTest):
             voters=[student_user], name_de="1", name_en="Course 1")
         course2 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
             name_de="2", name_en="Course 2")
-        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
