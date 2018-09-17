@@ -114,3 +114,8 @@ def hours_and_minutes(time_left_for_evaluation):
     hours = time_left_for_evaluation.seconds // 3600
     minutes = (time_left_for_evaluation.seconds // 60) % 60
     return "{:02}:{:02}".format(hours, minutes)
+
+
+@register.filter
+def has_nonresponsible_editor(course):
+    return course.contributions.filter(responsible=False, can_edit=True).exists()

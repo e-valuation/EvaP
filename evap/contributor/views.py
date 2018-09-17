@@ -4,10 +4,11 @@ from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
+from django.views.decorators.http import require_POST
 
-from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm
+from evap.contributor.forms import CourseForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Course, Semester
+from evap.evaluation.models import Contribution, Course, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
 from evap.staff.forms import ContributionFormSet
@@ -31,6 +32,8 @@ def index(request):
         displayed_courses += list(delegated_courses)
     displayed_courses.sort(key=lambda course: list(STATES_ORDERED.keys()).index(course.state))
 
+    delegate_selection_form = DelegateSelectionForm()
+
     for course in displayed_courses:
         course.distribution = calculate_average_distribution(course)
         course.avg_grade = distribution_to_grade(course.distribution)
@@ -46,6 +49,7 @@ def index(request):
     template_data = dict(
         semester_list=semester_list,
         show_delegated=show_delegated,
+        delegate_selection_form=delegate_selection_form,
     )
     return render(request, "contributor_index.html", template_data)
 
@@ -169,3 +173,30 @@ def course_preview(request, course_id):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, course, preview=True)[1]
+
+
+@require_POST
+@editor_or_delegate_required
+def course_direct_delegation(request, course_id):
+    delegate_user_id = request.POST.get("delegate_to")
+
+    course = get_object_or_404(Course, id=course_id)
+    delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
+
+    Contribution.objects.update_or_create(course=course, contributor=delegate_user, defaults={'can_edit': True})
+
+    template = EmailTemplate.objects.get(name=EmailTemplate.DIRECT_DELEGATION)
+    subject_params = {"course": course, "user": request.user, "delegate_user": delegate_user}
+    body_params = subject_params
+
+    # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
+    # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
+    EmailTemplate.send_to_user(delegate_user, template, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        '{} was added as a contributor for course "{}" and was sent an email with further information.'.format(str(delegate_user), str(course))
+    )
+
+    return redirect('contributor:index')

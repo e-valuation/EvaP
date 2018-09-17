@@ -1,9 +1,58 @@
+from django.core import mail
+
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, UserProfile
-from evap.evaluation.tests.tools import ViewTest, create_course_with_responsible_and_editor
+from evap.evaluation.models import Course, UserProfile, Contribution
+from evap.evaluation.tests.tools import WebTest, ViewTest, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
+
+
+class TestContributorDirectDelegationView(WebTest):
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.course = mommy.make(Course, state='prepared')
+
+        cls.responsible = mommy.make(UserProfile)
+        cls.non_responsible = mommy.make(UserProfile, email="a@b.c")
+        mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+
+    def test_direct_delegation_request(self):
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            '{} was added as a contributor for course &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.course))
+        )
+
+        contribution = Contribution.objects.get(contributor=self.non_responsible)
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_direct_delegation_request_with_existing_contribution(self):
+        contribution = mommy.make(Contribution, course=self.course, contributor=self.non_responsible, can_edit=False, responsible=False)
+        old_contribution_count = Contribution.objects.count()
+
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            '{} was added as a contributor for course &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.course))
+        )
+
+        self.assertEqual(Contribution.objects.count(), old_contribution_count)
+
+        contribution.refresh_from_db()
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
 
 
 class TestContributorView(ViewTest):

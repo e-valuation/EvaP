@@ -1136,6 +1136,7 @@ class EmailTemplate(models.Model):
     PUBLISHING_NOTICE = "Publishing Notice"
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
+    DIRECT_DELEGATION = "Direct Delegation"
 
     ALL_PARTICIPANTS = 'all_participants'
     DUE_PARTICIPANTS = 'due_participants'
@@ -1198,7 +1199,7 @@ class EmailTemplate(models.Model):
             cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
-    def send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
+    def send_to_user(cls, user, template, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing course states, the request is None.
@@ -1211,11 +1212,18 @@ class EmailTemplate(models.Model):
                 logger.error(warning_message)
             return
 
+        cc_users = set()
+
+        if additional_cc_user:
+            cc_users.add(additional_cc_user)
+
         if use_cc:
-            cc_users = set(user.delegates.all() | user.cc_users.all())
-            cc_addresses = [p.email for p in cc_users if p.email]
-        else:
-            cc_addresses = []
+            cc_users |= set(user.delegates.all() | user.cc_users.all())
+
+            if additional_cc_user:
+                cc_users |= set(additional_cc_user.delegates.all() | additional_cc_user.cc_users.all())
+
+        cc_addresses = [p.email for p in cc_users if p.email]
 
         send_separate_login_url = False
         body_params['login_url'] = ""
