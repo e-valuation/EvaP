@@ -112,7 +112,7 @@ class Semester(models.Model):
 
 
 class QuestionnaireManager(Manager):
-    def course_questionnaires(self):
+    def general_questionnaires(self):
         return super().get_queryset().exclude(type=Questionnaire.CONTRIBUTOR)
 
     def contributor_questionnaires(self):
@@ -640,11 +640,11 @@ class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
     OWN_COMMENTS = 'OWN'
-    COURSE_COMMENTS = 'COURSE'
+    GENERAL_COMMENTS = 'GENERAL'
     ALL_COMMENTS = 'ALL'
     COMMENT_VISIBILITY_CHOICES = (
         (OWN_COMMENTS, _('Own')),
-        (COURSE_COMMENTS, _('Course')),
+        (GENERAL_COMMENTS, _('General')),
         (ALL_COMMENTS, _('All')),
     )
     IS_CONTRIBUTOR = 'CONTRIBUTOR'

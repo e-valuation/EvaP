@@ -909,19 +909,19 @@ def course_preview(request, semester_id, course_id):
 def questionnaire_index(request):
     filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
-    course_questionnaires = Questionnaire.objects.course_questionnaires()
+    general_questionnaires = Questionnaire.objects.general_questionnaires()
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
 
     if filter_questionnaires:
-        course_questionnaires = course_questionnaires.filter(obsolete=False)
+        general_questionnaires = general_questionnaires.filter(obsolete=False)
         contributor_questionnaires = contributor_questionnaires.filter(obsolete=False)
 
-    course_questionnaires_top = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_above_contributors]
-    course_questionnaires_bottom = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_below_contributors]
+    general_questionnaires_top = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors]
+    general_questionnaires_bottom = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors]
 
     template_data = dict(
-        course_questionnaires_top=course_questionnaires_top,
-        course_questionnaires_bottom=course_questionnaires_bottom,
+        general_questionnaires_top=general_questionnaires_top,
+        general_questionnaires_bottom=general_questionnaires_bottom,
         contributor_questionnaires=contributor_questionnaires,
         filter_questionnaires=filter_questionnaires,
     )

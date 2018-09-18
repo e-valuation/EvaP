@@ -128,10 +128,10 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    general_questions = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.course_questionnaires().filter(obsolete=False),
+    general_questionnaires = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.general_questionnaires().filter(obsolete=False),
         widget=CheckboxSelectMultiple,
-        label=_("Questions about the course")
+        label=_("General questions")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
@@ -145,7 +145,7 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
-                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questions',
+                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
                   'last_modified_time_2', 'last_modified_user_2', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
@@ -155,13 +155,13 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
 
         if self.instance.general_contribution:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         if self.instance.last_modified_user:
@@ -209,7 +209,7 @@ class CourseForm(forms.ModelForm):
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user
         super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
+        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
         logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))
 
 
@@ -552,7 +552,7 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.course_questionnaires().filter(obsolete=False))
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().filter(obsolete=False))
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
         self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 

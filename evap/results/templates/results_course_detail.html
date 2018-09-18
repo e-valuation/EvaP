@@ -119,13 +119,13 @@
         </div>
     </div>
 
-    {% if course_questionnaire_results_top %}
+    {% if general_questionnaire_results_top %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
-                {% trans 'Course' %}
+                {% trans 'General' %}
             </div>
             <div class="card-body">
-                {% for questionnaire_result in course_questionnaire_results_top %}
+                {% for questionnaire_result in general_questionnaire_results_top %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
@@ -185,13 +185,13 @@
         </div>
     {% endif %}
 
-    {% if course_questionnaire_results_bottom %}
+    {% if general_questionnaire_results_bottom %}
         <div class="card card-outline-primary">
             <div class="card-header">
-                {% trans 'Course' %}
+                {% trans 'General' %}
             </div>
             <div class="card-body">
-                {% for questionnaire_result in course_questionnaire_results_bottom %}
+                {% for questionnaire_result in general_questionnaire_results_bottom %}
                     {% include 'results_course_detail_questionnaires.html' %}
                 {% endfor %}
             </div>

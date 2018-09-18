@@ -206,8 +206,8 @@ def calculate_average_distribution(course):
     ])
 
     return avg_distribution([
-        (average_grade_questions_distribution(course_results), settings.COURSE_GRADE_QUESTIONS_WEIGHT),
-        (average_non_grade_rating_questions_distribution(course_results), settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT),
+        (average_grade_questions_distribution(course_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
+        (average_non_grade_rating_questions_distribution(course_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
         (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT)
     ])
 

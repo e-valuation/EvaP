@@ -207,9 +207,9 @@ class TestCourses(WebTest):
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, participants=[student1, student2], voters=[student1], state="in_evaluation")
         course.save()
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        course.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(course.can_publish_text_results)
 

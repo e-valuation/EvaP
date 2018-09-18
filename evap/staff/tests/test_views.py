@@ -878,7 +878,7 @@ class TestCourseCreateView(ViewTest):
         form["degrees"] = [1]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
-        form["general_questions"] = [self.q1.pk]
+        form["general_questionnaires"] = [self.q1.pk]
 
         form['contributions-TOTAL_FORMS'] = 1
         form['contributions-INITIAL_FORMS'] = 0
@@ -1304,9 +1304,9 @@ class TestCourseCommentView(ViewTest):
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
@@ -1344,9 +1344,9 @@ class TestCourseCommentEditView(ViewTest):
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, questionnaire=questionnaire, type='T')
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
@@ -1666,9 +1666,9 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         cls.student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):
         textanswer = mommy.make(TextAnswer, state=old_state)
