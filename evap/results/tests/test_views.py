@@ -497,6 +497,10 @@ class TestResultsTextanswerVisibility(WebTest):
         # the external user does not participate in or contribute to the course and therefore can't see the results
         self.app.get("/results/semester/1/course/1", user='student_external', status=403)
 
+    def test_textanswer_visibility_info_is_shown(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor')
+        self.assertIn("can be seen by: contributor user", page)
+
 
 class TestResultsOtherContributorsListOnExportView(WebTest):
     @classmethod

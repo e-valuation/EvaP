@@ -27,7 +27,7 @@
             {% elif question_result.question.is_text_question %}
                 <tr class="text-answer d-flex">
                     <td class="result-text-question">{{ question_result.question.text }}</td>
-                    <td class="result-text-answer">
+                    <td class="result-text-answer d-flex">
                         <ul>
                         {% for answer in question_result.answers %}
                             <li>
@@ -38,6 +38,10 @@
                             </li>
                         {% endfor %}
                         </ul>
+                        <div class="ml-auto d-print-none">
+                            {% blocktrans asvar intro_text %}These text answers can be seen by:{% endblocktrans %}
+                            {% include 'textanswer_visibility_info.html' with intro_text=intro_text visible_by_contribution=question_result.answers_visible_to.visible_by_contribution visible_by_delegation_count=question_result.answers_visible_to.visible_by_delegation_count %}
+                        </div>
                     </td>
                 </tr>
             {% endif %}
