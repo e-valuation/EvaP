@@ -36,11 +36,11 @@
     "order": 0,
     "teaser_de": "answer questions regarding a course here",
     "public_name_en": "the course",
-    "description_en": "course_questionnaire description",
+    "description_en": "general_questionnaire description",
     "obsolete": false,
-    "name_de": "course_questionnaire",
-    "description_de": "course_questionnaire description",
-    "name_en": "course_questionnaire"
+    "name_de": "general_questionnaire",
+    "description_de": "general_questionnaire description",
+    "name_en": "general_questionnaire"
   }
 },
 {
@@ -475,7 +475,7 @@
       1
     ],
     "can_edit": false,
-    "comment_visibility": "COURSE"
+    "comment_visibility": "GENERAL"
   }
 },
 {

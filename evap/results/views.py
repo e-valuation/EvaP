@@ -150,22 +150,22 @@ def course_detail(request, semester_id, course_id):
     add_warnings(course, course_result)
 
     # split course_result into different lists
-    course_questionnaire_results_top = []
-    course_questionnaire_results_bottom = []
+    general_questionnaire_results_top = []
+    general_questionnaire_results_bottom = []
     contributor_contribution_results = []
     for contribution_result in course_result.contribution_results:
         if contribution_result.contributor is None:
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
-                    course_questionnaire_results_bottom.append(questionnaire_result)
+                    general_questionnaire_results_bottom.append(questionnaire_result)
                 else:
-                    course_questionnaire_results_top.append(questionnaire_result)
+                    general_questionnaire_results_top.append(questionnaire_result)
         elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
             contributor_contribution_results.append(contribution_result)
 
     if not contributor_contribution_results:
-        course_questionnaire_results_top += course_questionnaire_results_bottom
-        course_questionnaire_results_bottom = []
+        general_questionnaire_results_top += general_questionnaire_results_bottom
+        general_questionnaire_results_bottom = []
 
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
@@ -176,8 +176,8 @@ def course_detail(request, semester_id, course_id):
 
     template_data = dict(
         course=course,
-        course_questionnaire_results_top=course_questionnaire_results_top,
-        course_questionnaire_results_bottom=course_questionnaire_results_bottom,
+        general_questionnaire_results_top=general_questionnaire_results_top,
+        general_questionnaire_results_bottom=general_questionnaire_results_bottom,
         contributor_contribution_results=contributor_contribution_results,
         is_reviewer=view_as_user.is_reviewer,
         is_contributor=course.is_user_contributor(view_as_user),
@@ -240,7 +240,7 @@ def user_can_see_text_answer(user, represented_users, text_answer, view):
                 contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
         if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
+                contributor__in=represented_users, comment_visibility=Contribution.GENERAL_COMMENTS).exists():
             return True
 
     return False

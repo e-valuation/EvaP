@@ -1,9 +1,9 @@
 <div class="btn-group btn-group-toggle" data-toggle="buttons">
     {% for choice in form.comment_visibility %}
         {% if choice.data.value == 'ALL' %}
-            {% trans 'Will see all comments about the course and about all non-responsible contributors.' as tooltip %}
-        {% elif choice.data.value == 'COURSE' %}
-            {% trans 'Will see own comments and comments about the course.' as tooltip %}
+            {% trans 'Will see all comments to general questions and about all non-responsible contributors.' as tooltip %}
+        {% elif choice.data.value == 'GENERAL' %}
+            {% trans 'Will see own and general comments.' as tooltip %}
         {% elif choice.data.value == 'OWN' %}
             {% trans 'Default value. Will only see own comments.' as tooltip %}
         {% endif %}
