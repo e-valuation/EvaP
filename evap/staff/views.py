@@ -72,7 +72,8 @@ def get_courses_with_prefetched_data(semester):
     voter_counts = semester.courses.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
 
     for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
-        course.general_contribution = course.general_contribution[0]
+        if not course.is_single_result:
+            course.general_contribution = course.general_contribution[0]
         course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
         if course._participant_count is None:
             course.num_participants = participant_count
