@@ -3,10 +3,11 @@ from datetime import date, datetime, timedelta
 from django.core import mail
 from django.contrib.auth.models import Group
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
-from evap.evaluation.tests.tools import WebTestWith200Check, WebTest
+from evap.evaluation.tests.tools import WebTestWith200Check
 
 
 class GradeUploadTests(WebTest):

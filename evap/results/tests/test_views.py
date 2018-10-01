@@ -2,11 +2,13 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, Degree, Question, Questionnaire, RatingAnswerCounter, \
     Semester, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, WebTest
+from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_course
 from evap.results.views import get_courses_with_prefetched_data
 
 import random
@@ -199,7 +201,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(WebTest):
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
     def test_answer_visibility_one_voter(self):
-        self.let_user_vote_for_course(self.student1, self.course)
+        let_user_vote_for_course(self.app, self.student1, self.course)
         self.course.evaluation_end()
         self.course.review_finished()
         self.course.publish()
@@ -211,8 +213,8 @@ class TestResultsSemesterCourseDetailViewFewVoters(WebTest):
         self.helper_test_answer_visibility_one_voter("student", expect_page_not_visible=True)
 
     def test_answer_visibility_two_voters(self):
-        self.let_user_vote_for_course(self.student1, self.course)
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student1, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
         self.course.evaluation_end()
         self.course.review_finished()
         self.course.publish()

@@ -1,9 +1,10 @@
 from django.core import mail
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile, Contribution
-from evap.evaluation.tests.tools import WebTest, WebTestWith200Check, create_course_with_responsible_and_editor
+from evap.evaluation.tests.tools import WebTestWith200Check, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 

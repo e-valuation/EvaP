@@ -8,13 +8,15 @@ from django.core import mail
 from django.urls import reverse
 from django.test import override_settings
 from django.test.testcases import TestCase
+
+from django_webtest import WebTest
 from model_mommy import mommy
 import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
                                    RatingAnswerCounter
-from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_course, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename
 from evap.staff.views import get_courses_with_prefetched_data
@@ -1326,18 +1328,18 @@ class TestCourseCommentView(WebTestWith200Check):
         self.app.get(self.url, user='manager', status=403)
 
         # add additional voter
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now it should work
         self.app.get(self.url, user='manager', status=200)
 
     def test_comments_quick_view(self):
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
         page = self.app.get(self.url, user='manager', status=200)
         self.assertContains(page, self.answer)
 
     def test_comments_full_view(self):
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
         page = self.app.get(self.url + '?view=full', user='manager', status=200)
         self.assertContains(page, self.answer)
 
@@ -1365,7 +1367,7 @@ class TestCourseCommentEditView(WebTestWith200Check):
         self.app.get(self.url, user='manager', status=403)
 
         # add additional voter
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now it should work
         response = self.app.get(self.url, user='manager')
@@ -1692,7 +1694,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         # in a course with only one voter reviewing should fail
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish", expect_errors=True)
 
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now reviewing should work
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
