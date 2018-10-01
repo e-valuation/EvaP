@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
 from django.test import override_settings
+from django.test.testcases import TestCase
 from model_mommy import mommy
 import xlrd
 
@@ -16,6 +17,7 @@ from evap.evaluation.models import Semester, UserProfile, Course, CourseType, Te
 from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename
+from evap.staff.views import get_courses_with_prefetched_data
 
 
 def helper_delete_all_import_files(user_id):
@@ -374,6 +376,12 @@ class TestSemesterView(ViewTest):
 
         # managers can access the page
         self.app.get('/staff/semester/2', user='manager', status=200)
+
+
+class TestGetCoursesWithPrefetchedData(TestCase):
+    def test_get_courses_with_prefetched_data(self):
+        course = mommy.make(Course, is_single_result=True)
+        get_courses_with_prefetched_data(course.semester)
 
 
 class TestSemesterCreateView(ViewTest):
