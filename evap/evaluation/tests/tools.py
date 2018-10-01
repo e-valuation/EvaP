@@ -44,7 +44,7 @@ class WebTest(DjangoWebTest):
         form.submit()
 
 
-class ViewTest(WebTest):
+class WebTestWith200Check(WebTest):
     url = "/"
     test_users = []
 

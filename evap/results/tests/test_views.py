@@ -6,13 +6,13 @@ from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, Degree, Question, Questionnaire, RatingAnswerCounter, \
     Semester, UserProfile
-from evap.evaluation.tests.tools import ViewTest, WebTest
+from evap.evaluation.tests.tools import WebTestWith200Check, WebTest
 from evap.results.views import get_courses_with_prefetched_data
 
 import random
 
 
-class TestResultsView(ViewTest):
+class TestResultsView(WebTestWith200Check):
     url = '/results/'
     test_users = ['manager']
 
@@ -72,7 +72,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertIn("Only a few participants answered these questions.", page)
 
 
-class TestResultsSemesterCourseDetailView(ViewTest):
+class TestResultsSemesterCourseDetailView(WebTestWith200Check):
     url = '/results/semester/2/course/21'
     test_users = ['manager', 'contributor', 'responsible']
 

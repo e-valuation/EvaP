@@ -6,12 +6,12 @@ from django.urls import reverse
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Semester
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
 
 
-class TestEventDeleteView(ViewTest):
+class TestEventDeleteView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_event_delete')
     csrf_checks = False
 
@@ -35,7 +35,7 @@ class TestEventDeleteView(ViewTest):
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
 
-class TestIndexView(ViewTest):
+class TestIndexView(WebTestWith200Check):
     url = reverse('rewards:index')
     test_users = ['student']
     csrf_checks = False
@@ -78,7 +78,7 @@ class TestIndexView(ViewTest):
         self.assertEqual(5, reward_points_of_user(self.student))
 
 
-class TestEventsView(ViewTest):
+class TestEventsView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_events')
     test_users = ['manager']
 
@@ -89,7 +89,7 @@ class TestEventsView(ViewTest):
         mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
-class TestEventCreateView(ViewTest):
+class TestEventCreateView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_event_create')
     test_users = ['manager']
     csrf_checks = False
@@ -113,7 +113,7 @@ class TestEventCreateView(ViewTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 1)
 
 
-class TestEventEditView(ViewTest):
+class TestEventEditView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
     test_users = ['manager']
     csrf_checks = False
@@ -135,7 +135,7 @@ class TestEventEditView(ViewTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, 'new name')
 
 
-class TestExportView(ViewTest):
+class TestExportView(WebTestWith200Check):
     url = '/rewards/reward_point_redemption_event/1/export'
     test_users = ['manager']
 
@@ -146,7 +146,7 @@ class TestExportView(ViewTest):
         mommy.make(RewardPointRedemption, value=1, event=event)
 
 
-class TestSemesterActivationView(ViewTest):
+class TestSemesterActivationView(WebTestWith200Check):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
 

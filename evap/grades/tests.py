@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
-from evap.evaluation.tests.tools import ViewTest, WebTest
+from evap.evaluation.tests.tools import WebTestWith200Check, WebTest
 
 
 class GradeUploadTests(WebTest):
@@ -167,7 +167,7 @@ class GradeUploadTests(WebTest):
         self.app.get(url, user="student", status=404)  # grades should not be downloadable anymore
 
 
-class GradeDocumentIndexTest(ViewTest):
+class GradeDocumentIndexTest(WebTestWith200Check):
     url = '/grades/'
     test_users = ['grade_publisher']
 
@@ -183,7 +183,7 @@ class GradeDocumentIndexTest(ViewTest):
         self.assertNotIn(self.archived_semester.name, page)
 
 
-class GradeDocumentSemesterViewTest(ViewTest):
+class GradeDocumentSemesterWebTestWith200Check(WebTestWith200Check):
     url = '/grades/semester/1'
     test_users = ['grade_publisher']
 
@@ -200,7 +200,7 @@ class GradeDocumentSemesterViewTest(ViewTest):
         self.app.get('/grades/semester/2', user="grade_publisher", status=403)
 
 
-class GradeDocumentCourseViewTest(ViewTest):
+class GradeDocumentCourseWebTestWith200Check(WebTestWith200Check):
     url = '/grades/semester/1/course/1'
     test_users = ['grade_publisher']
 

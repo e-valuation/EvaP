@@ -4,10 +4,10 @@ from django.contrib.auth.hashers import make_password
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import WebTestWith200Check
 
 
-class TestIndexView(ViewTest):
+class TestIndexView(WebTestWith200Check):
     url = '/'
     test_users = ['']
 
@@ -39,17 +39,17 @@ class TestIndexView(ViewTest):
         self.assertEqual(len(mail.outbox[0].cc), 0)
 
 
-class TestLegalNoticeView(ViewTest):
+class TestLegalNoticeView(WebTestWith200Check):
     url = '/legal_notice'
     test_users = ['']
 
 
-class TestFAQView(ViewTest):
+class TestFAQView(WebTestWith200Check):
     url = '/faq'
     test_users = ['']
 
 
-class TestContactEmail(ViewTest):
+class TestContactEmail(WebTestWith200Check):
     csrf_checks = False
 
     def test_sends_mail(self):
@@ -58,7 +58,7 @@ class TestContactEmail(ViewTest):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class TestChangeLanguageView(ViewTest):
+class TestChangeLanguageView(WebTestWith200Check):
     url = '/set_lang'
     csrf_checks = False
 

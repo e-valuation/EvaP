@@ -14,7 +14,7 @@ import xlrd
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
                                    RatingAnswerCounter
-from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
+from evap.evaluation.tests.tools import FuzzyInt, WebTest, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename
 from evap.staff.views import get_courses_with_prefetched_data
@@ -27,7 +27,7 @@ def helper_delete_all_import_files(user_id):
 
 
 # Staff - Sample Files View
-class TestDownloadSampleXlsView(ViewTest):
+class TestDownloadSampleXlsView(WebTestWith200Check):
     test_users = ['manager']
     url = '/staff/download_sample_xls/sample.xls'
     email_placeholder = "institution.com"
@@ -53,7 +53,7 @@ class TestDownloadSampleXlsView(ViewTest):
 
 
 # Staff - Root View
-class TestStaffIndexView(ViewTest):
+class TestStaffIndexView(WebTestWith200Check):
     test_users = ['manager']
     url = '/staff/'
 
@@ -63,7 +63,7 @@ class TestStaffIndexView(ViewTest):
 
 
 # Staff - FAQ View
-class TestStaffFAQView(ViewTest):
+class TestStaffFAQView(WebTestWith200Check):
     url = '/staff/faq/'
     test_users = ['manager']
 
@@ -72,7 +72,7 @@ class TestStaffFAQView(ViewTest):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
 
-class TestStaffFAQEditView(ViewTest):
+class TestStaffFAQEditView(WebTestWith200Check):
     url = '/staff/faq/1'
     test_users = ['manager']
 
@@ -84,7 +84,7 @@ class TestStaffFAQEditView(ViewTest):
 
 
 # Staff - User Views
-class TestUserIndexView(ViewTest):
+class TestUserIndexView(WebTestWith200Check):
     url = '/staff/user/'
     test_users = ['manager']
 
@@ -106,7 +106,7 @@ class TestUserIndexView(ViewTest):
             self.app.get(self.url, user="manager")
 
 
-class TestUserCreateView(ViewTest):
+class TestUserCreateView(WebTestWith200Check):
     url = "/staff/user/create"
     test_users = ['manager']
 
@@ -132,7 +132,7 @@ class TestUserCreateView(ViewTest):
     (2 / 3, 2),
     (3 / 3, 3),
 ])
-class TestUserEditView(ViewTest):
+class TestUserEditView(WebTestWith200Check):
     url = "/staff/user/3/edit"
     test_users = ['manager']
 
@@ -167,7 +167,7 @@ class TestUserEditView(ViewTest):
         self.assertIn("The removal of courses has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
 
 
-class TestUserMergeSelectionView(ViewTest):
+class TestUserMergeSelectionView(WebTestWith200Check):
     url = "/staff/user/merge"
     test_users = ['manager']
 
@@ -177,7 +177,7 @@ class TestUserMergeSelectionView(ViewTest):
         mommy.make(UserProfile)
 
 
-class TestUserMergeView(ViewTest):
+class TestUserMergeView(WebTestWith200Check):
     url = "/staff/user/3/merge/4"
     test_users = ['manager']
 
@@ -188,7 +188,7 @@ class TestUserMergeView(ViewTest):
         mommy.make(UserProfile, pk=4)
 
 
-class TestUserBulkDeleteView(ViewTest):
+class TestUserBulkDeleteView(WebTestWith200Check):
     url = '/staff/user/bulk_delete'
     test_users = ['manager']
     filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
@@ -249,7 +249,7 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
 
 
-class TestUserImportView(ViewTest):
+class TestUserImportView(WebTestWith200Check):
     url = "/staff/user/import"
     test_users = ["manager"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
@@ -345,7 +345,7 @@ class TestUserImportView(ViewTest):
 
 
 # Staff - Semester Views
-class TestSemesterView(ViewTest):
+class TestSemesterView(WebTestWith200Check):
     url = '/staff/semester/1'
     test_users = ['manager']
 
@@ -384,7 +384,7 @@ class TestGetCoursesWithPrefetchedData(TestCase):
         get_courses_with_prefetched_data(course.semester)
 
 
-class TestSemesterCreateView(ViewTest):
+class TestSemesterCreateView(WebTestWith200Check):
     url = '/staff/semester/create'
     test_users = ['manager']
 
@@ -409,7 +409,7 @@ class TestSemesterCreateView(ViewTest):
         self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en, short_name_de=short_name_de, short_name_en=short_name_en).count(), 1)
 
 
-class TestSemesterEditView(ViewTest):
+class TestSemesterEditView(WebTestWith200Check):
     url = '/staff/semester/1/edit'
     test_users = ['manager']
 
@@ -435,7 +435,7 @@ class TestSemesterEditView(ViewTest):
         self.assertEqual(self.semester.name_en, new_name_en)
 
 
-class TestSemesterDeleteView(ViewTest):
+class TestSemesterDeleteView(WebTestWith200Check):
     url = '/staff/semester/delete'
     csrf_checks = False
 
@@ -459,7 +459,7 @@ class TestSemesterDeleteView(ViewTest):
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
 
-class TestSemesterAssignView(ViewTest):
+class TestSemesterAssignView(WebTestWith200Check):
     url = '/staff/semester/1/assign'
     test_users = ['manager']
 
@@ -489,7 +489,7 @@ class TestSemesterAssignView(ViewTest):
             self.assertEqual(course.general_contribution.questionnaires.get(), self.questionnaire)
 
 
-class TestSemesterTodoView(ViewTest):
+class TestSemesterTodoView(WebTestWith200Check):
     url = '/staff/semester/1/todo'
     test_users = ['manager']
 
@@ -508,7 +508,7 @@ class TestSemesterTodoView(ViewTest):
         self.assertContains(response, 'name_to_find')
 
 
-class TestSendReminderView(ViewTest):
+class TestSendReminderView(WebTestWith200Check):
     url = '/staff/semester/1/responsible/3/send_reminder'
     test_users = ['manager']
 
@@ -531,7 +531,7 @@ class TestSendReminderView(ViewTest):
         self.assertIn("uiae", mail.outbox[0].body)
 
 
-class TestSemesterImportView(ViewTest):
+class TestSemesterImportView(WebTestWith200Check):
     url = "/staff/semester/1/import"
     test_users = ["manager"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
@@ -660,7 +660,7 @@ class TestSemesterImportView(ViewTest):
         self.assertContains(page, 'Import previously uploaded file')
 
 
-class TestSemesterExportView(ViewTest):
+class TestSemesterExportView(WebTestWith200Check):
     url = '/staff/semester/1/export'
     test_users = ['manager']
 
@@ -686,7 +686,7 @@ class TestSemesterExportView(ViewTest):
                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
-class TestSemesterRawDataExportView(ViewTest):
+class TestSemesterRawDataExportView(WebTestWith200Check):
     url = '/staff/semester/1/raw_export'
     test_users = ['manager']
 
@@ -723,7 +723,7 @@ class TestSemesterRawDataExportView(ViewTest):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
-class TestSemesterParticipationDataExportView(ViewTest):
+class TestSemesterParticipationDataExportView(WebTestWith200Check):
     url = '/staff/semester/1/participation_export'
     test_users = ['manager']
 
@@ -753,7 +753,7 @@ class TestSemesterParticipationDataExportView(ViewTest):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
-class TestCourseOperationView(ViewTest):
+class TestCourseOperationView(WebTestWith200Check):
     url = '/staff/semester/1/courseoperation'
 
     @classmethod
@@ -827,7 +827,7 @@ class TestCourseOperationView(ViewTest):
         self.assertEqual(course.state, 'prepared')
 
 
-class TestSingleResultCreateView(ViewTest):
+class TestSingleResultCreateView(WebTestWith200Check):
     url = '/staff/semester/1/singleresult/create'
     test_users = ['manager']
 
@@ -862,7 +862,7 @@ class TestSingleResultCreateView(ViewTest):
 
 
 # Staff - Semester - Course Views
-class TestCourseCreateView(ViewTest):
+class TestCourseCreateView(WebTestWith200Check):
     url = '/staff/semester/1/course/create'
     test_users = ['manager']
 
@@ -913,7 +913,7 @@ class TestCourseCreateView(ViewTest):
     (2 / 3, 2),
     (3 / 3, 3),
 ])
-class TestCourseEditView(ViewTest):
+class TestCourseEditView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/edit'
     test_users = ['manager']
 
@@ -1054,7 +1054,7 @@ class TestCourseEditView(ViewTest):
         self.assertEqual(self.course.vote_end_date, old_vote_end_date)
 
 
-class TestSingleResultEditView(ViewTest):
+class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/edit'
     test_users = ['manager']
 
@@ -1076,7 +1076,7 @@ class TestSingleResultEditView(ViewTest):
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=5, count=30)
 
 
-class TestCoursePreviewView(ViewTest):
+class TestCoursePreviewView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/preview'
     test_users = ['manager']
 
@@ -1088,7 +1088,7 @@ class TestCoursePreviewView(ViewTest):
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
 
-class TestCourseImportPersonsView(ViewTest):
+class TestCourseImportPersonsView(WebTestWith200Check):
     url = "/staff/semester/1/course/1/person_import"
     test_users = ["manager"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
@@ -1279,7 +1279,7 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertEqual(reply.status_code, 400)
 
 
-class TestCourseEmailView(ViewTest):
+class TestCourseEmailView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/email'
     test_users = ['manager']
 
@@ -1302,7 +1302,7 @@ class TestCourseEmailView(ViewTest):
         self.assertEqual(len(mail.outbox), 2)
 
 
-class TestCourseCommentView(ViewTest):
+class TestCourseCommentView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/comments'
 
     @classmethod
@@ -1342,7 +1342,7 @@ class TestCourseCommentView(ViewTest):
         self.assertContains(page, self.answer)
 
 
-class TestCourseCommentEditView(ViewTest):
+class TestCourseCommentEditView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/comment/00000000-0000-0000-0000-000000000001/edit'
 
     @classmethod
@@ -1380,7 +1380,7 @@ class TestCourseCommentEditView(ViewTest):
 
 
 # Staff Questionnaire Views
-class TestQuestionnaireNewVersionView(ViewTest):
+class TestQuestionnaireNewVersionView(WebTestWith200Check):
     url = '/staff/questionnaire/2/new_version'
     test_users = ['manager']
 
@@ -1420,7 +1420,7 @@ class TestQuestionnaireNewVersionView(ViewTest):
         self.assertEqual(page.location, '/staff/questionnaire/')
 
 
-class TestQuestionnaireCreateView(ViewTest):
+class TestQuestionnaireCreateView(WebTestWith200Check):
     url = "/staff/questionnaire/create"
     test_users = ['manager']
 
@@ -1463,7 +1463,7 @@ class TestQuestionnaireCreateView(ViewTest):
         self.assertFalse(Questionnaire.objects.filter(name_de="Test Fragebogen", name_en="test questionnaire").exists())
 
 
-class TestQuestionnaireIndexView(ViewTest):
+class TestQuestionnaireIndexView(WebTestWith200Check):
     url = "/staff/questionnaire/"
     test_users = ['manager']
 
@@ -1483,7 +1483,7 @@ class TestQuestionnaireIndexView(ViewTest):
         self.assertTrue(top_index < contributor_index < bottom_index)
 
 
-class TestQuestionnaireEditView(ViewTest):
+class TestQuestionnaireEditView(WebTestWith200Check):
     url = '/staff/questionnaire/2/edit'
     test_users = ['manager']
 
@@ -1522,7 +1522,7 @@ class TestQuestionnaireEditView(ViewTest):
         self.assertEqual(form['type'].options, [('20', True, 'Contributor questionnaire')])
 
 
-class TestQuestionnaireViewView(ViewTest):
+class TestQuestionnaireViewView(WebTestWith200Check):
     url = '/staff/questionnaire/2'
     test_users = ['manager']
 
@@ -1535,7 +1535,7 @@ class TestQuestionnaireViewView(ViewTest):
         mommy.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
 
-class TestQuestionnaireCopyView(ViewTest):
+class TestQuestionnaireCopyView(WebTestWith200Check):
     url = '/staff/questionnaire/2/copy'
     test_users = ['manager']
 
@@ -1592,7 +1592,7 @@ class TestQuestionnaireDeletionView(WebTest):
 
 
 # Staff Course Types Views
-class TestCourseTypeView(ViewTest):
+class TestCourseTypeView(WebTestWith200Check):
     url = "/staff/course_types/"
     test_users = ['manager']
 
@@ -1620,7 +1620,7 @@ class TestCourseTypeView(ViewTest):
         self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
 
 
-class TestCourseTypeMergeSelectionView(ViewTest):
+class TestCourseTypeMergeSelectionView(WebTestWith200Check):
     url = "/staff/course_types/merge"
     test_users = ['manager']
 
@@ -1639,7 +1639,7 @@ class TestCourseTypeMergeSelectionView(ViewTest):
         self.assertIn("You must select two different course types", str(response))
 
 
-class TestCourseTypeMergeView(ViewTest):
+class TestCourseTypeMergeView(WebTestWith200Check):
     url = "/staff/course_types/1/merge/2"
     test_users = ['manager']
 
@@ -1721,7 +1721,7 @@ class ParticipationArchivingTests(WebTest):
         self.app.get(semester_url + "courseoperation", user="manager", status=403)
 
 
-class TestTemplateEditView(ViewTest):
+class TestTemplateEditView(WebTestWith200Check):
     url = "/staff/template/1"
     test_users = ['manager']
 
@@ -1746,7 +1746,7 @@ class TestTemplateEditView(ViewTest):
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
 
-class TestDegreeView(ViewTest):
+class TestDegreeView(WebTestWith200Check):
     url = "/staff/degrees/"
     test_users = ['manager']
 
@@ -1769,7 +1769,7 @@ class TestDegreeView(ViewTest):
         self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
 
 
-class TestSemesterQuestionnaireAssignment(ViewTest):
+class TestSemesterQuestionnaireAssignment(WebTestWith200Check):
     url = "/staff/semester/1/assign"
     test_users = ['manager']
 
