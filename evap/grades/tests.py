@@ -168,9 +168,8 @@ class GradeUploadTests(WebTest):
         self.app.get(url, user="student", status=404)  # grades should not be downloadable anymore
 
 
-class GradeDocumentIndexTest(WebTestWith200Check):
+class GradeDocumentIndexTest(WebTest):
     url = '/grades/'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):

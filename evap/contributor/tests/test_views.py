@@ -65,9 +65,8 @@ class TestContributorView(WebTestWith200Check):
         create_course_with_responsible_and_editor()
 
 
-class TestContributorSettingsView(WebTestWith200Check):
+class TestContributorSettingsView(WebTest):
     url = '/contributor/settings'
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
@@ -125,9 +124,8 @@ class TestContributorCoursePreviewView(WebTestWith200Check):
         self.app.get(self.url, user='responsible', status=403)
 
 
-class TestContributorCourseEditView(WebTestWith200Check):
+class TestContributorCourseEditView(WebTest):
     url = '/contributor/course/%s/edit' % TESTING_COURSE_ID
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):

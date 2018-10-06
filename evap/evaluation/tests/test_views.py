@@ -1,15 +1,15 @@
 from django.core import mail
 from django.contrib.auth.hashers import make_password
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check
 
 
-class TestIndexView(WebTestWith200Check):
+class TestIndexView(WebTest):
     url = '/'
-    test_users = ['']
 
     def test_passworduser_login(self):
         """ Tests whether a user can login with an incorrect and a correct password. """

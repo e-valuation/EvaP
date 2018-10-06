@@ -1,5 +1,7 @@
 from django.test.utils import override_settings
 from django.urls import reverse
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
@@ -19,7 +21,7 @@ class TestStudentIndexView(WebTestWith200Check):
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
-class TestVoteView(WebTestWith200Check):
+class TestVoteView(WebTest):
     url = '/student/vote/1'
 
     @classmethod

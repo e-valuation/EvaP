@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Semester
@@ -11,7 +12,7 @@ from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting,
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
 
 
-class TestEventDeleteView(WebTestWith200Check):
+class TestEventDeleteView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_delete')
     csrf_checks = False
 
@@ -35,9 +36,8 @@ class TestEventDeleteView(WebTestWith200Check):
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
 
-class TestIndexView(WebTestWith200Check):
+class TestIndexView(WebTest):
     url = reverse('rewards:index')
-    test_users = ['student']
     csrf_checks = False
 
     @classmethod
@@ -89,9 +89,8 @@ class TestEventsView(WebTestWith200Check):
         mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
-class TestEventCreateView(WebTestWith200Check):
+class TestEventCreateView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_create')
-    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
@@ -113,9 +112,8 @@ class TestEventCreateView(WebTestWith200Check):
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 1)
 
 
-class TestEventEditView(WebTestWith200Check):
+class TestEventEditView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
-    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
@@ -146,7 +144,7 @@ class TestExportView(WebTestWith200Check):
         mommy.make(RewardPointRedemption, value=1, event=event)
 
 
-class TestSemesterActivationView(WebTestWith200Check):
+class TestSemesterActivationView(WebTest):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
 
