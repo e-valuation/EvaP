@@ -7,10 +7,9 @@ from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
-from evap.evaluation.tests.tools import WebTestWith200Check
 
 
-class GradeUploadTests(WebTest):
+class GradeUploadTest(WebTest):
     csrf_checks = False
 
     @classmethod
@@ -183,34 +182,37 @@ class GradeDocumentIndexTest(WebTest):
         self.assertNotIn(self.archived_semester.name, page)
 
 
-class GradeDocumentSemesterWebTestWith200Check(WebTestWith200Check):
+class GradeSemesterViewTest(WebTest):
     url = '/grades/semester/1'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
-        cls.semester_course = mommy.make(Course, semester=semester, state="prepared")
 
-    def test_semester_pages(self):
+    def test_does_not_crash(self):
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        semester_course = mommy.make(Course, semester=semester, state="prepared")
         page = self.app.get(self.url, user="grade_publisher", status=200)
-        self.assertIn(self.semester_course.name, page)
-        self.app.get('/grades/semester/2', user="grade_publisher", status=403)
+        self.assertIn(semester_course.name, page)
+
+    def test_403_on_deleted(self):
+        mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
+        self.app.get('/grades/semester/1', user="grade_publisher", status=403)
 
 
-class GradeDocumentCourseWebTestWith200Check(WebTestWith200Check):
+class GradeCourseViewTest(WebTest):
     url = '/grades/semester/1/course/1'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        archived_semester = mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
-        mommy.make(Course, pk=1, semester=semester, state="prepared")
-        mommy.make(Course, pk=2, semester=archived_semester, state="prepared")
 
-    def test_course_page(self):
-        self.app.get('/grades/semester/2/course/2', user="grade_publisher", status=403)
+    def test_does_not_crash(self):
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        mommy.make(Course, pk=1, semester=semester, state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=200)
+
+    def test_403_on_archived_semester(self):
+        archived_semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
+        mommy.make(Course, pk=1, semester=archived_semester, state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=403)

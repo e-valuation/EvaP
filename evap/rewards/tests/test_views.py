@@ -49,7 +49,7 @@ class TestIndexView(WebTest):
         mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-1', 2)
         form.set('points-2', 3)
@@ -59,7 +59,7 @@ class TestIndexView(WebTest):
         self.assertEqual(0, reward_points_of_user(self.student))
 
     def test_redeem_too_many_points(self):
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-1', 3)
         form.set('points-2', 3)
@@ -69,7 +69,7 @@ class TestIndexView(WebTest):
 
     def test_redeem_points_for_expired_event(self):
         """ Regression test for #846 """
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-2', 1)
         RewardPointRedemptionEvent.objects.update(redeem_end_date=date.today() - timedelta(days=1))

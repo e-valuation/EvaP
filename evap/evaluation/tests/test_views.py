@@ -14,7 +14,7 @@ class TestIndexView(WebTest):
     def test_passworduser_login(self):
         """ Tests whether a user can login with an incorrect and a correct password. """
         mommy.make(UserProfile, username='password.user', password=make_password('evap'))
-        response = self.app.get("/")
+        response = self.app.get(self.url)
         password_form = response.forms[0]
         password_form['username'] = 'password.user'
         password_form['password'] = 'asd'
@@ -27,7 +27,7 @@ class TestIndexView(WebTest):
             shows the expected success message and sends only one email to the requesting
             user without people in cc even if the user has delegates and cc users. """
         mommy.make(UserProfile, email='asdf@example.com')
-        response = self.app.get("/")
+        response = self.app.get(self.url)
         email_form = response.forms[1]
         email_form['email'] = "doesnotexist@example.com"
         self.assertIn("No user with this email address was found", email_form.submit())
@@ -49,7 +49,7 @@ class TestFAQView(WebTestWith200Check):
     test_users = ['']
 
 
-class TestContactEmail(WebTestWith200Check):
+class TestContactEmail(WebTest):
     csrf_checks = False
 
     def test_sends_mail(self):
@@ -58,7 +58,7 @@ class TestContactEmail(WebTestWith200Check):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class TestChangeLanguageView(WebTestWith200Check):
+class TestChangeLanguageView(WebTest):
     url = '/set_lang'
     csrf_checks = False
 

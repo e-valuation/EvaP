@@ -687,9 +687,9 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
 
     def test_view_downloads_csv_file(self):
         student_user = mommy.make(UserProfile, username='student')
-        course1 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+        mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
             voters=[student_user], name_de="1", name_en="Course 1")
-        course2 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+        mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
             name_de="2", name_en="Course 2")
 
         response = self.app.get(self.url, user='manager')

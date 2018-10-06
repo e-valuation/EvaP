@@ -113,7 +113,7 @@ class TestContributorCoursePreviewView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -129,7 +129,7 @@ class TestContributorCourseEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
