@@ -18,7 +18,12 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
+# see evaluation.meta for the use of Translate in this file
+from evap.evaluation.meta import LocalizeModelBase, Translate
 from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
+
+from evap.settings import EVALUATION_END_OFFSET_HOURS, EVALUATION_END_WARNING_PERIOD, DROPOUT_QUESTIONNAIRE_NAME_EN
+
 
 logger = logging.getLogger(__name__)
 
@@ -324,6 +329,9 @@ class Course(models.Model):
             assert self.vote_end_date == self.vote_start_datetime.date()
         else:
             assert self.vote_end_date >= self.vote_start_datetime.date()
+
+    def has_dropout_questionnaire(self):
+        return self.general_contribution.questionnaires.filter(name_en=DROPOUT_QUESTIONNAIRE_NAME_EN).exists()
 
     @property
     def is_fully_reviewed(self):

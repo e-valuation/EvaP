@@ -71,7 +71,6 @@ DEFAULT_FINAL_GRADES_DESCRIPTION_EN = "Final grades"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN = "Midterm grades"
 DEFAULT_FINAL_GRADES_DESCRIPTION_DE = "Endnoten"
 DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE = "Zwischennoten"
-
 # Specify an offset that will be added to the evaluation end date (e.g. 3: If the end date is 01.01., the evaluation will end at 02.01. 03:00.).
 EVALUATION_END_OFFSET_HOURS = 3
 

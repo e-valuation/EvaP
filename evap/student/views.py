@@ -63,6 +63,7 @@ def index(request):
 
 
 def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rendering_in_modal=False):
+    dropped = request.GET.get("dropped", False) == 'True'
     contributions_to_vote_on = course.contributions.all()
     # prevent a user from voting on themselves
     if not preview:
@@ -73,7 +74,8 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
+
+        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires.exclude(name_en=settings.DROPOUT_QUESTIONNAIRE_NAME_EN)]
 
     if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
         assert not preview
@@ -88,11 +90,15 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         course_form_group_top += course_form_group_bottom
         course_form_group_bottom = []
 
+    dropout_form_group = [QuestionnaireVotingForm(request.POST or None, contribution=course.general_contribution,
+                                        questionnaire=Questionnaire.objects.get(name_en=settings.DROPOUT_QUESTIONNAIRE_NAME_EN))]
+
     template_data = dict(
         errors_exist=any(any(form.errors for form in form_group) for form_group in form_groups.values()),
         course_form_group_top=course_form_group_top,
         course_form_group_bottom=course_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
+        dropout_form_group=dropout_form_group,
         course=course,
         small_course_size_warning=course.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
@@ -102,7 +108,8 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         success_magic_string=SUCCESS_MAGIC_STRING,
         success_redirect_url=reverse('student:index'),
         evaluation_ends_soon=course.evaluation_ends_soon(),
-        for_rendering_in_modal=for_rendering_in_modal)
+        for_rendering_in_modal=for_rendering_in_modal,
+        dropped=dropped)
     return None, render(request, "student_vote.html", template_data)
 
 
@@ -115,38 +122,6 @@ def vote(request, course_id):
     form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, course, preview=False)
     if rendered_page is not None:
         return rendered_page
-
-    # prevent a user from voting on themselves.
-    contributions_to_vote_on = course.contributions.exclude(contributor=request.user).all()
-    form_groups = helper_create_voting_form_groups(request, contributions_to_vote_on)
-
-    if not all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
-        errors_exist = any(helper_has_errors(form_group) for form_group in form_groups.values())
-
-        course_form_group = form_groups.pop(course.general_contribution)
-
-        contributor_form_groups = list((contribution.contributor, contribution.label, form_group, helper_has_errors(form_group)) for contribution, form_group in form_groups.items())
-
-        dropout_form_group = [QuestionsForm(request.POST or None, contribution=course.general_contribution,
-                                            questionnaire=Questionnaire.objects.get(name_en=settings.DROPOUT_QUESTIONNAIRE_NAME_EN))]
-
-        template_data = dict(
-            errors_exist=errors_exist,
-            course_form_group=course_form_group,
-            contributor_form_groups=contributor_form_groups,
-            dropout_form_group=dropout_form_group,
-            course=course,
-            participants_warning=course.num_participants <= 5,
-            preview=False,
-            vote_end_datetime=course.vote_end_datetime,
-            hours_left_for_evaluation=course.time_left_for_evaluation.seconds//3600,
-            minutes_left_for_evaluation=(course.time_left_for_evaluation.seconds//60)%60,
-            success_magic_string=SUCCESS_MAGIC_STRING,
-            success_redirect_url=reverse('student:index'),
-            evaluation_ends_soon=course.evaluation_ends_soon(),
-            dropped=False)
-
-        return render(request, "student_vote.html", template_data)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
@@ -183,3 +158,4 @@ def vote(request, course_id):
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)
+

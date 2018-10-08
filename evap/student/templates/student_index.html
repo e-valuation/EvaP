@@ -125,9 +125,12 @@
                                         </td>
                                     {% endif %}
                                     <td class="text-right">
+                                        {% if course.has_dropout_questionnaire %}
+                                            <a onclick="dropCourseModalShow({{ course.id }});" class="btn btn-sm btn-outline-danger">{% trans 'Drop' %}</a>
+                                        {% endif %}
                                         {% if course.state == 'prepared' or course.state == 'editor_approved' or course.state == 'approved' %}
                                             <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the evaluation period begins.' %}">
-                                                <a class="btn btn-sm btn-primary btn-vote disabled">{% trans 'Evaluate' %}</a>
+                                                <a class="btn btn-sm btn-primary btn-vote disabledhover">{% trans 'Evaluate' %}</a>
                                             </div>
                                         {% elif course.state == 'in_evaluation' and course not in voted_courses %}
                                             <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
@@ -153,8 +156,23 @@
             </div>
         {% endif %}
     {% endfor %}
-{% endblock %}
+{% endblock %}mo
 
+{% block modals %}
+    {% include 'confirmation_modal.html' with modal_id='dropCourseModal' title='Title for dropping course' question='Description for dropping course. This will be very bad.' action_text='Action for dropping course' btn_type='danger' %}
+    <script type="text/javascript">
+        function dropCourseModalAction(dataId) {
+            console.log("Drop course modal opened")
+            $.ajax({
+                type: "GET",
+                url: "{% url 'staff:index' %}",
+                success: function(){},
+                error: function(){Console.log("Error");}
+            });
+            return false;
+        };
+    </script>
+{% endblock %}
 {% block additional_javascript %}
     {% include 'infobox_js.html' with id='participantInfobox' %}
 {% endblock %}

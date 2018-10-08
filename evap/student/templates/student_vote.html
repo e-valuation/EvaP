@@ -63,21 +63,10 @@
             </div>
         {% endif %}
 
-        {% if not preview %}
-            <div class="card card-submit-area text-center mb-3" id="droppedButtonCard" {% if dropped %}style="display:none"{% endif %}>
-                <div class="card-body">
-                    <a role="button" class="btn btn-light" id="droppedButton">
-                        {% trans "I dropped this course" %}
-                    </a>
-                </div>
-            </div>
-            <div class="card card-outline-primary mb-3" id="droppedCard"
-                 {% if not dropped %}style="display:none;"{% endif %}>
+        {% if dropped and course.has_dropout_questionnaire and not preview%}
+            <div class="card card-outline-primary mb-3" id="droppedCard">
                 <div class="card-header">
-                    {% trans "Questions about your Dropout" %}
-                    <a role="button" class="btn btn-light btn-sm" id="cancelDropoutButton" style="float:right;">
-                        {% trans "I did not drop this course" %}
-                    </a>
+                    {% trans "Questions about your dropout" %}
                 </div>
                 <div class="card-body">
                     {% include "student_vote_questionnaire_group.html" with questionnaire_group=dropout_form_group preview=preview %}
