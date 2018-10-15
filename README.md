@@ -21,16 +21,19 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
-2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
+2. If you're using Windows, you want to change git's autocrlf setting to "input" so git will not change line endings when checking out files, using this command:
 
         git config --global core.autocrlf input
+
+3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
+
         git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
         cd EvaP
         vagrant up
         vagrant ssh
         ./manage.py run
 
-3. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
+4. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
 
 
 That's it!
