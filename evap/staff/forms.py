@@ -7,6 +7,7 @@ from django.db.models import Q, Max
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
+from django.utils import timezone
 from django.utils.text import normalize_newlines
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
@@ -134,19 +135,13 @@ class CourseForm(forms.ModelForm):
         label=_("General questions")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-
-    # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
-    # uneditable and so it can't be displayed in the model form
-    # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
-    # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
+    last_modified_user_name = forms.CharField(disabled=True, required=False)
 
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
                   'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time_2', 'last_modified_user_2', 'semester')
+                  'last_modified_time', 'last_modified_user_name', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -163,9 +158,9 @@ class CourseForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
+        self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
+            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
@@ -208,6 +203,7 @@ class CourseForm(forms.ModelForm):
 
     def save(self, user, *args, **kw):
         self.instance.last_modified_user = user
+        self.instance.last_modified_time = timezone.now()
         super().save(*args, **kw)
         self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
         logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))

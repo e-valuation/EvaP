@@ -5,6 +5,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
 from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
@@ -64,6 +65,7 @@ class CourseForm(forms.ModelForm):
     def save(self, *args, **kw):
         user = kw.pop("user")
         self.instance.last_modified_user = user
+        self.instance.last_modified_time = timezone.now()
         super().save(*args, **kw)
         self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
         logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))

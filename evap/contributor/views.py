@@ -115,11 +115,10 @@ def render_preview(request, formset, course_form, course):
 
 @editor_or_delegate_required
 def course_edit(request, course_id):
-    user = request.user
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
+    if not (course.is_user_editor_or_delegate(request.user) and course.state == 'prepared'):
         raise PermissionDenied
 
     post_operation = request.POST.get('operation') if request.POST else None
@@ -135,8 +134,12 @@ def course_edit(request, course_id):
         if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        course_form.save(user=user)
-        formset.save()
+        if course_form.has_changed():
+            course_form.save(user=request.user)
+        elif formset.has_changed():
+            # Save form, even if only formset has changed, to update last_modified_user
+            course_form.save(user=request.user)
+            formset.save()
 
         if post_operation == 'approve':
             course.editor_approve()

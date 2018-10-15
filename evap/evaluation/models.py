@@ -14,6 +14,7 @@ from django.db.models import Count, Q, Manager
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMField, transition
@@ -291,7 +292,7 @@ class Course(models.Model):
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
-    last_modified_time = models.DateTimeField(auto_now=True)
+    last_modified_time = models.DateTimeField(default=timezone.now)
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
     course_evaluated = Signal(providing_args=['request', 'semester'])
@@ -592,7 +593,6 @@ class Course(models.Model):
             try:
                 if course.state == "approved" and course.vote_start_datetime <= datetime.now():
                     course.evaluation_begin()
-                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
@@ -602,7 +602,6 @@ class Course(models.Model):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
-                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -879,11 +878,6 @@ class FaqQuestion(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def get_queryset(self):
-        return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
-
-    def cronjob_user(self):
-        return super().get_queryset().get(username=UserProfile.CRONJOB_USER_USERNAME)
 
     def exclude_inactive_users(self):
         return self.get_queryset().exclude(is_active=False)
@@ -989,8 +983,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @cached_property
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
-
-    CRONJOB_USER_USERNAME = "cronjob"
 
     @property
     def can_manager_mark_inactive(self):
