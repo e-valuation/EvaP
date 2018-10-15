@@ -23,6 +23,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
 
 2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
 
+        git config --global core.autocrlf input
         git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
         cd EvaP
         vagrant up
