@@ -4,6 +4,9 @@ cd `dirname $0`/.. # change to root directory
 
 sudo -H -u evap git fetch
 
+# Note that apache should not be running during most of the upgrade,
+# since then e.g. the backup might be incomplete or the code does not
+# match the database layout, or https://github.com/fsr-itse/EvaP/issues/1237.
 sudo service apache2 stop
 
 # argument 1 is the filename for the backupfile.
