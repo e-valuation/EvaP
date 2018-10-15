@@ -355,7 +355,7 @@ class ContributionForm(forms.ModelForm):
 class CourseEmailForm(forms.Form):
     recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.EMAIL_RECIPIENTS, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
-    body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
+    body = forms.CharField(widget=forms.Textarea(), label=_("Message"), help_text=(_("Available placeholders")+": users, courses, due_courses"))
 
     def __init__(self, *args, course, export=False, **kwargs):
         super().__init__(*args, **kwargs)

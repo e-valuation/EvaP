@@ -38,7 +38,10 @@
                     </div>
                     <div class="form-group d-flex">
                         <div class="form-label">Email body</div>
-                        <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
+                        <div class="form-field">
+                            <textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea>
+                            <p>{% trans 'Available placeholders' %}: user, courses, due_courses</p>
+                        </div>
                     </div>
                 </div>
             </div>
