@@ -13,7 +13,10 @@ def create_cronjob_user(apps, _schema_editor):
 def delete_cronjob_user(apps, _schema_editor):
     UserProfile = apps.get_model('evaluation', 'UserProfile')
 
-    UserProfile.objects.get(username="cronjob").delete()
+    try:
+        UserProfile.objects.get(username="cronjob").delete()
+    except UserProfile.DoesNotExist:
+        pass
 
 
 class Migration(migrations.Migration):

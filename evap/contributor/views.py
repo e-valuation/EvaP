@@ -129,17 +129,16 @@ def course_edit(request, course_id):
     formset = InlineContributionFormset(request.POST or None, instance=course, can_change_responsible=False, form_kwargs={'course': course})
 
     forms_are_valid = course_form.is_valid() and formset.is_valid()
-
     if forms_are_valid and not preview:
         if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if course_form.has_changed():
-            course_form.save(user=request.user)
-        elif formset.has_changed():
+        if formset.has_changed():
+            formset.save()
             # Save form, even if only formset has changed, to update last_modified_user
             course_form.save(user=request.user)
-            formset.save()
+        elif course_form.has_changed():
+            course_form.save(user=request.user)
 
         if post_operation == 'approve':
             course.editor_approve()

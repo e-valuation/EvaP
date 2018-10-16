@@ -220,3 +220,37 @@ class TestContributorCourseEditView(WebTest):
         page = self.app.get(self.url, user='editor')
         self.assertNotContains(page, "You cannot edit this course because it has already been approved")
         self.assertContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
+
+    def test_last_modified_on_formset_change(self):
+        """
+            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
+        """
+
+        self.assertEqual(self.course.last_modified_user, None)
+        last_modified_time_before = self.course.last_modified_time
+
+        page = self.app.get(self.url, user='responsible', status=200)
+        form = page.forms["course-form"]
+
+        # Change label of the first contribution
+        form['contributions-0-label'] = 'test_label'
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user.username, 'responsible')
+        self.assertGreater(self.course.last_modified_time, last_modified_time_before)
+
+    def test_last_modified_unchanged(self):
+        """
+            Tests if last_modified_{user,time} stays the same when no values are changed in the form
+        """
+        self.assertIsNone(self.course.last_modified_user)
+        last_modified_time_before = self.course.last_modified_time
+
+        page = self.app.get(self.url, user='responsible', status=200)
+        form = page.forms["course-form"]
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertIsNone(self.course.last_modified_user)
+        self.assertEqual(self.course.last_modified_time, last_modified_time_before)

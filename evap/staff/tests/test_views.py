@@ -1038,6 +1038,60 @@ class TestCourseEditView(WebTest):
         self.assertEqual(self.course.vote_start_datetime, old_vote_start_datetime)
         self.assertEqual(self.course.vote_end_date, old_vote_end_date)
 
+    def test_last_modified_on_formset_change(self):
+        """
+            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
+        """
+
+        self.assertEqual(self.course.last_modified_user, self.user)
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+        page = self.app.get(
+            '/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk),
+            user=test_user.username,
+            status=200
+        )
+        form = page.forms["course-form"]
+
+        # Change label of the first contribution
+        form['contributions-0-label'] = 'test_label'
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, test_user)
+        self.assertGreater(self.course.last_modified_time, last_modified_time_before)
+
+    def test_last_modified_unchanged(self):
+        """
+            Tests if last_modified_{user,time} stays the same when no values are changed in the form
+        """
+        last_modified_user_before = self.course.last_modified_user
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+
+        page = self.app.get(
+            '/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk),
+            user=test_user,
+            status=200
+        )
+        form = page.forms["course-form"]
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, last_modified_user_before)
+        self.assertEqual(self.course.last_modified_time, last_modified_time_before)
+
+
 
 class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/edit'
