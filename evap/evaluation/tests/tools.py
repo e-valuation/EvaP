@@ -1,6 +1,6 @@
 from django.http.request import QueryDict
 
-from django_webtest import WebTest as DjangoWebTest
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
@@ -29,22 +29,21 @@ class FuzzyInt(int):
         return "[%d..%d]" % (self.lowest, self.highest)
 
 
-class WebTest(DjangoWebTest):
-    def let_user_vote_for_course(self, user, course):
-        url = '/student/vote/{}'.format(course.id)
-        page = self.app.get(url, user=user, status=200)
-        form = page.forms["student-vote-form"]
-        for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
-            for questionnaire in contribution.questionnaires.all():
-                for question in questionnaire.questions.all():
-                    if question.type == "T":
-                        form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
-                    elif question.type in ["L", "G", "P", "N"]:
-                        form[question_id(contribution, questionnaire, question)] = 1
-        form.submit()
+def let_user_vote_for_course(app, user, course):
+    url = '/student/vote/{}'.format(course.id)
+    page = app.get(url, user=user, status=200)
+    form = page.forms["student-vote-form"]
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+        for questionnaire in contribution.questionnaires.all():
+            for question in questionnaire.questions.all():
+                if question.type == "T":
+                    form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
+                elif question.type in ["L", "G", "P", "N"]:
+                    form[question_id(contribution, questionnaire, question)] = 1
+    form.submit()
 
 
-class ViewTest(WebTest):
+class WebTestWith200Check(WebTest):
     url = "/"
     test_users = []
 

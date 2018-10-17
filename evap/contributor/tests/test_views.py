@@ -1,9 +1,10 @@
 from django.core import mail
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Course, UserProfile, Contribution
-from evap.evaluation.tests.tools import WebTest, ViewTest, create_course_with_responsible_and_editor
+from evap.evaluation.tests.tools import WebTestWith200Check, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 
@@ -55,7 +56,7 @@ class TestContributorDirectDelegationView(WebTest):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class TestContributorView(ViewTest):
+class TestContributorView(WebTestWith200Check):
     url = '/contributor/'
     test_users = ['editor', 'responsible']
 
@@ -64,9 +65,8 @@ class TestContributorView(ViewTest):
         create_course_with_responsible_and_editor()
 
 
-class TestContributorSettingsView(ViewTest):
+class TestContributorSettingsView(WebTest):
     url = '/contributor/settings'
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
@@ -82,7 +82,7 @@ class TestContributorSettingsView(ViewTest):
         self.assertEqual(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
 
 
-class TestContributorCourseView(ViewTest):
+class TestContributorCourseView(WebTestWith200Check):
     url = '/contributor/course/%s' % TESTING_COURSE_ID
     test_users = ['editor', 'responsible']
 
@@ -107,13 +107,13 @@ class TestContributorCourseView(ViewTest):
         self.assertNotContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
 
 
-class TestContributorCoursePreviewView(ViewTest):
+class TestContributorCoursePreviewView(WebTestWith200Check):
     url = '/contributor/course/%s/preview' % TESTING_COURSE_ID
     test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -124,13 +124,12 @@ class TestContributorCoursePreviewView(ViewTest):
         self.app.get(self.url, user='responsible', status=403)
 
 
-class TestContributorCourseEditView(ViewTest):
+class TestContributorCourseEditView(WebTest):
     url = '/contributor/course/%s/edit' % TESTING_COURSE_ID
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
