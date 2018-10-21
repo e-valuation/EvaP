@@ -5,11 +5,12 @@ from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Question,
                                     Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
-from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tests.tools import let_user_vote_for_course
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_course_result_template_fragment_cache_key
 
@@ -213,7 +214,7 @@ class TestCourses(WebTest):
 
         self.assertFalse(course.can_publish_text_results)
 
-        self.let_user_vote_for_course(student2, course)
+        let_user_vote_for_course(self.app, student2, course)
         course = Course.objects.get(pk=course.pk)
 
         self.assertTrue(course.can_publish_text_results)

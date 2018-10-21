@@ -3,15 +3,16 @@ from datetime import date, timedelta
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Semester
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
 
 
-class TestEventDeleteView(ViewTest):
+class TestEventDeleteView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_delete')
     csrf_checks = False
 
@@ -35,9 +36,8 @@ class TestEventDeleteView(ViewTest):
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
 
-class TestIndexView(ViewTest):
+class TestIndexView(WebTest):
     url = reverse('rewards:index')
-    test_users = ['student']
     csrf_checks = False
 
     @classmethod
@@ -49,7 +49,7 @@ class TestIndexView(ViewTest):
         mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-1', 2)
         form.set('points-2', 3)
@@ -59,7 +59,7 @@ class TestIndexView(ViewTest):
         self.assertEqual(0, reward_points_of_user(self.student))
 
     def test_redeem_too_many_points(self):
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-1', 3)
         form.set('points-2', 3)
@@ -69,7 +69,7 @@ class TestIndexView(ViewTest):
 
     def test_redeem_points_for_expired_event(self):
         """ Regression test for #846 """
-        response = self.app.get(reverse('rewards:index'), user='student')
+        response = self.app.get(self.url, user='student')
         form = response.forms['reward-redemption-form']
         form.set('points-2', 1)
         RewardPointRedemptionEvent.objects.update(redeem_end_date=date.today() - timedelta(days=1))
@@ -78,7 +78,7 @@ class TestIndexView(ViewTest):
         self.assertEqual(5, reward_points_of_user(self.student))
 
 
-class TestEventsView(ViewTest):
+class TestEventsView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_events')
     test_users = ['manager']
 
@@ -89,9 +89,8 @@ class TestEventsView(ViewTest):
         mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
-class TestEventCreateView(ViewTest):
+class TestEventCreateView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_create')
-    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
@@ -113,9 +112,8 @@ class TestEventCreateView(ViewTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 1)
 
 
-class TestEventEditView(ViewTest):
+class TestEventEditView(WebTest):
     url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
-    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
@@ -135,7 +133,7 @@ class TestEventEditView(ViewTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, 'new name')
 
 
-class TestExportView(ViewTest):
+class TestExportView(WebTestWith200Check):
     url = '/rewards/reward_point_redemption_event/1/export'
     test_users = ['manager']
 
@@ -146,7 +144,7 @@ class TestExportView(ViewTest):
         mommy.make(RewardPointRedemption, value=1, event=event)
 
 
-class TestSemesterActivationView(ViewTest):
+class TestSemesterActivationView(WebTest):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
 
