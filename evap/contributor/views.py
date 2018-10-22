@@ -101,7 +101,9 @@ def render_preview(request, formset, course_form, course):
     # open transaction to not let any other requests see anything of what we're doing here
     try:
         with transaction.atomic():
-            course_form.save(user=request.user)
+            course = course_form.save()
+            course.set_last_modified(request.user)
+            course.save()
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
@@ -115,11 +117,10 @@ def render_preview(request, formset, course_form, course):
 
 @editor_or_delegate_required
 def course_edit(request, course_id):
-    user = request.user
     course = get_object_or_404(Course, id=course_id)
 
     # check rights
-    if not (course.is_user_editor_or_delegate(user) and course.state == 'prepared'):
+    if not (course.is_user_editor_or_delegate(request.user) and course.state == 'prepared'):
         raise PermissionDenied
 
     post_operation = request.POST.get('operation') if request.POST else None
@@ -130,18 +131,24 @@ def course_edit(request, course_id):
     formset = InlineContributionFormset(request.POST or None, instance=course, can_change_responsible=False, form_kwargs={'course': course})
 
     forms_are_valid = course_form.is_valid() and formset.is_valid()
-
     if forms_are_valid and not preview:
         if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        course_form.save(user=user)
+        form_has_changed = course_form.has_changed() or formset.has_changed()
+
+        if form_has_changed:
+            course.set_last_modified(request.user)
+        course_form.save()
         formset.save()
 
         if post_operation == 'approve':
             course.editor_approve()
             course.save()
-            messages.success(request, _("Successfully updated and approved course."))
+            if form_has_changed:
+                messages.success(request, _("Successfully updated and approved course."))
+            else:
+                messages.success(request, _("Successfully approved course."))
         else:
             messages.success(request, _("Successfully updated course."))
 

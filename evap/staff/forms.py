@@ -134,19 +134,13 @@ class CourseForm(forms.ModelForm):
         label=_("General questions")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-
-    # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
-    # uneditable and so it can't be displayed in the model form
-    # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
-    # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
+    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
                   'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time_2', 'last_modified_user_2', 'semester')
+                  'last_modified_time', 'last_modified_user_name', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -163,9 +157,9 @@ class CourseForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
+        self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
+            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
@@ -206,11 +200,10 @@ class CourseForm(forms.ModelForm):
                 self.add_error("vote_start_datetime", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
-    def save(self, user, *args, **kw):
-        self.instance.last_modified_user = user
-        super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
-        logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))
+    def save(self, *args, **kw):
+        course = super().save(*args, **kw)
+        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return course
 
 
 class SingleResultForm(forms.ModelForm):

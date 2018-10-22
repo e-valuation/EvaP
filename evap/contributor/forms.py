@@ -62,11 +62,9 @@ class CourseForm(forms.ModelForm):
         return vote_end_date
 
     def save(self, *args, **kw):
-        user = kw.pop("user")
-        self.instance.last_modified_user = user
-        super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
-        logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
+        course = super().save(*args, **kw)
+        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return course
 
 
 class EditorContributionForm(ContributionForm):

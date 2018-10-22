@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.http.request import QueryDict
+from django.utils import timezone
 
 from django_webtest import WebTest
 from model_mommy import mommy
@@ -62,10 +65,19 @@ def create_course_with_responsible_and_editor(course_id=None):
     contributor = mommy.make(UserProfile, username='responsible')
     editor = mommy.make(UserProfile, username='editor')
 
+    in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
+    tomorrow = (timezone.now() + timedelta(days=1)).date
+    course_params = dict(
+        state='prepared',
+        degrees=[mommy.make(Degree)],
+        vote_start_datetime=in_one_hour,
+        vote_end_date=tomorrow
+    )
+
     if course_id:
-        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)], id=course_id)
-    else:
-        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
+        course_params['id'] = course_id
+
+    course = mommy.make(Course, **course_params)
 
     mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], comment_visibility=Contribution.ALL_COMMENTS)
     mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])

@@ -916,6 +916,9 @@ class TestCourseEditView(WebTest):
         responsible = mommy.make(UserProfile)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
+    def setUp(self):
+        self.course = Course.objects.get(pk=self.course.pk)
+
     def test_edit_course(self):
         user = mommy.make(UserProfile)
         page = self.app.get(self.url, user="manager")
@@ -924,7 +927,7 @@ class TestCourseEditView(WebTest):
         form = page.forms["course-form"]
         form['contributions-0-contributor'] = user.pk
         form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
-        page = form.submit("operation", value="save")
+        form.submit("operation", value="save")
         self.assertEqual(list(self.course.responsible_contributors), [user])
 
     def test_remove_responsibility(self):
@@ -944,7 +947,7 @@ class TestCourseEditView(WebTest):
         student = mommy.make(UserProfile, email="foo@institution.example.com",
             courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove a single participant
         form = page.forms['course-form']
@@ -962,7 +965,7 @@ class TestCourseEditView(WebTest):
             mommy.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
                 courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove five participants
         form = page.forms['course-form']
@@ -982,7 +985,7 @@ class TestCourseEditView(WebTest):
                 courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
             RewardPointGranting.objects.create(user_profile=user, semester=self.course.semester, value=points_granted)
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove four participants
         form = page.forms['course-form']
@@ -1009,7 +1012,7 @@ class TestCourseEditView(WebTest):
         self.assertEqual(old_last_modified_user.username, self.user.username)
         self.assertEqual(old_state, "new")
 
-        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.username, status=200)
         form = page.forms["course-form"]
         # approve without changes
         form.submit(name="operation", value="approve")
@@ -1025,7 +1028,7 @@ class TestCourseEditView(WebTest):
         self.course.save()
         self.assertEqual(self.course.state, "new")
 
-        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.username, status=200)
         form = page.forms["course-form"]
         form["name_de"] = "Test name"
         # approve after changes
@@ -1037,6 +1040,53 @@ class TestCourseEditView(WebTest):
         self.assertEqual(self.course.name_de, "Test name")  # the name should have changed
         self.assertEqual(self.course.vote_start_datetime, old_vote_start_datetime)
         self.assertEqual(self.course.vote_end_date, old_vote_end_date)
+
+    def test_last_modified_on_formset_change(self):
+        """
+            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
+        """
+
+        self.assertEqual(self.course.last_modified_user, self.user)
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+        page = self.app.get(self.url, user=test_user.username, status=200)
+        form = page.forms["course-form"]
+
+        # Change label of the first contribution
+        form['contributions-0-label'] = 'test_label'
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'approved')
+        self.assertEqual(self.course.last_modified_user, test_user)
+        self.assertGreater(self.course.last_modified_time, last_modified_time_before)
+
+    def test_last_modified_unchanged(self):
+        """
+            Tests if last_modified_{user,time} stays the same when no values are changed in the form
+        """
+        last_modified_user_before = self.course.last_modified_user
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+
+        page = self.app.get(self.url, user=test_user, status=200)
+        form = page.forms["course-form"]
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'approved')
+        self.assertEqual(self.course.last_modified_user, last_modified_user_before)
+        self.assertEqual(self.course.last_modified_time, last_modified_time_before)
 
 
 class TestSingleResultEditView(WebTestWith200Check):
