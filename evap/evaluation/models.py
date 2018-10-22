@@ -292,7 +292,7 @@ class Course(models.Model):
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
-    last_modified_time = models.DateTimeField(default=timezone.now)
+    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
     course_evaluated = Signal(providing_args=['request', 'semester'])
@@ -325,6 +325,11 @@ class Course(models.Model):
             assert self.vote_end_date == self.vote_start_datetime.date()
         else:
             assert self.vote_end_date >= self.vote_start_datetime.date()
+
+    def set_last_modified(self, modifying_user):
+        self.last_modified_user = modifying_user
+        self.last_modified_time = timezone.now()
+        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
 
     @property
     def is_fully_reviewed(self):

@@ -101,7 +101,9 @@ def render_preview(request, formset, course_form, course):
     # open transaction to not let any other requests see anything of what we're doing here
     try:
         with transaction.atomic():
-            course_form.save(user=request.user)
+            course = course_form.save()
+            course.set_last_modified(request.user)
+            course.save()
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
@@ -133,17 +135,20 @@ def course_edit(request, course_id):
         if post_operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if formset.has_changed():
-            formset.save()
-            # Save form, even if only formset has changed, to update last_modified_user
-            course_form.save(user=request.user)
-        elif course_form.has_changed():
-            course_form.save(user=request.user)
+        form_has_changed = course_form.has_changed() or formset.has_changed()
+
+        if form_has_changed:
+            course.set_last_modified(request.user)
+        course_form.save()
+        formset.save()
 
         if post_operation == 'approve':
             course.editor_approve()
             course.save()
-            messages.success(request, _("Successfully updated and approved course."))
+            if form_has_changed:
+                messages.success(request, _("Successfully updated and approved course."))
+            else:
+                messages.success(request, _("Successfully approved course."))
         else:
             messages.success(request, _("Successfully updated course."))
 

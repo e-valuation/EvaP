@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='last_modified_time',
-            field=models.DateTimeField(default=django.utils.timezone.now),
+            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Last modified'),
         ),
         migrations.RunPython(delete_cronjob_user, reverse_code=create_cronjob_user),
     ]

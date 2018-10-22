@@ -237,6 +237,7 @@ class TestContributorCourseEditView(WebTest):
         form.submit(name="operation", value="approve")
 
         self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'editor_approved')
         self.assertEqual(self.course.last_modified_user.username, 'responsible')
         self.assertGreater(self.course.last_modified_time, last_modified_time_before)
 
@@ -252,5 +253,6 @@ class TestContributorCourseEditView(WebTest):
         form.submit(name="operation", value="approve")
 
         self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'editor_approved')
         self.assertIsNone(self.course.last_modified_user)
         self.assertEqual(self.course.last_modified_time, last_modified_time_before)

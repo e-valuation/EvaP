@@ -7,7 +7,6 @@ from django.db.models import Q, Max
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
-from django.utils import timezone
 from django.utils.text import normalize_newlines
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
@@ -135,7 +134,7 @@ class CourseForm(forms.ModelForm):
         label=_("General questions")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-    last_modified_user_name = forms.CharField(disabled=True, required=False)
+    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Course
@@ -201,12 +200,10 @@ class CourseForm(forms.ModelForm):
                 self.add_error("vote_start_datetime", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
-    def save(self, user, *args, **kw):
-        self.instance.last_modified_user = user
-        self.instance.last_modified_time = timezone.now()
-        super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
-        logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))
+    def save(self, *args, **kw):
+        course = super().save(*args, **kw)
+        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return course
 
 
 class SingleResultForm(forms.ModelForm):

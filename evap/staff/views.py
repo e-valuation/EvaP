@@ -582,7 +582,9 @@ def course_create(request, semester_id):
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():
-        form.save(user=request.user)
+        course = form.save()
+        course.set_last_modified(request.user)
+        course.save()
         formset.save()
 
         messages.success(request, _("Successfully created course."))
@@ -652,18 +654,20 @@ def helper_course_edit(request, semester, course):
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
 
-        if formset.has_changed():
-            formset.save()
-            # Save form, even if only formset has changed, to update last_modified_user
-            form.save(user=request.user)
-        elif form.has_changed():
-            form.save(user=request.user)
+        form_has_changed = form.has_changed() or formset.has_changed()
+
+        if form_has_changed:
+            course.set_last_modified(request.user)
+        form.save()
+        formset.save()
 
         if operation == 'approve':
-            # approve course
             course.manager_approve()
             course.save()
-            messages.success(request, _("Successfully updated and approved course."))
+            if form_has_changed:
+                messages.success(request, _("Successfully updated and approved course."))
+            else:
+                messages.success(request, _("Successfully approved course."))
         else:
             messages.success(request, _("Successfully updated course."))
 
