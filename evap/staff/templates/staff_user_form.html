@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load evaluation_filters %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
@@ -49,9 +51,13 @@
                                     <ul>
                                         {% for course in courses %}
                                             <li>
-                                                <a href="{% url 'results:course_detail' semester.id course.id %}?view=export&contributor_id={{ form.instance.id }}">
+                                                {% if course|can_user_see_results_page:form.instance %}
+                                                    <a href="{% url 'results:course_detail' semester.id course.id %}?view=export&contributor_id={{ form.instance.id }}">
+                                                        {{ course.name }}
+                                                    </a>
+                                                {% else %}
                                                     {{ course.name }}
-                                                </a>
+                                                {% endif %}
                                             </li>
                                         {% endfor %}
                                     </ul>

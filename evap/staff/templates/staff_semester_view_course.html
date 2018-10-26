@@ -167,11 +167,11 @@
             <a href="{% url 'staff:course_preview' semester.id course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
                 <span class="fas fa-eye" aria-hidden="true"></span>
             </a>
-        {% elif state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' %}
+        {% elif state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' and course|can_user_see_results_page:request.user %}
             <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
-        {% elif state == 'published' %}
+        {% elif state == 'published' and course|can_user_see_results_page:request.user %}
             <a href="{% url 'results:course_detail' semester.id course.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
