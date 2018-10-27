@@ -111,6 +111,8 @@ def course_detail(request, semester_id, course_id):
         view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
     else:
         view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
+    if view not in ['public', 'full', 'export']:
+        view = 'public'
 
     view_as_user = request.user
     if view == 'export' and request.user.is_staff:
