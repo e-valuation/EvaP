@@ -230,15 +230,23 @@ def user_can_see_text_answer(user, represented_users, text_answer, view):
     if text_answer.is_private:
         return contributor == user
 
+    # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
+    # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if text_answer.is_published:
+        # text answers about responsible contributors can only be seen by the users themselves and by their delegates
+        # they can not be seen by other responsible contributors
         if text_answer.contribution.responsible:
-            return contributor == user or user in contributor.delegates.all()
+            return contributor in represented_users
 
+        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
+        # users can see textanswers if one of their represented users has comment visiblity ALL_COMMENTS for the course
         if text_answer.contribution.course.contributions.filter(
                 contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
             return True
+        # users can see textanswers from general contributions if one of their represented users has comment visibility
+        # GENERAL_COMMENTS for the course
         if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
                 contributor__in=represented_users, comment_visibility=Contribution.GENERAL_COMMENTS).exists():
             return True
