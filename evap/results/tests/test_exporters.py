@@ -113,3 +113,38 @@ class TestExporters(TestCase):
         workbook = xlrd.open_workbook(file_contents=content_en.read())
         self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Course2")
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Course1")
+
+    def test_course_type_ordering(self):
+        course_type_1 = mommy.make(CourseType, order=1)
+        course_type_2 = mommy.make(CourseType, order=2)
+        semester = mommy.make(Semester)
+        course_1 = mommy.make(Course, semester=semester, type=course_type_1, state='published', _participant_count=2, _voter_count=2)
+        course_2 = mommy.make(Course, semester=semester, type=course_type_2, state='published', _participant_count=2, _voter_count=2)
+
+        questionnaire = mommy.make(Questionnaire)
+        question = mommy.make(Question, type="L", questionnaire=questionnaire)
+
+        course_1.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(RatingAnswerCounter, question=question, contribution=course_1.general_contribution, answer=3, count=2)
+
+        course_2.general_contribution.questionnaires.set([questionnaire])
+        mommy.make(RatingAnswerCounter, question=question, contribution=course_2.general_contribution, answer=3, count=2)
+
+        binary_content = BytesIO()
+        ExcelExporter(semester).export(binary_content, [[course_type_1.id, course_type_2.id]], True, True)
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], course_1.name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], course_2.name)
+
+        course_type_2.order = 0
+        course_type_2.save()
+
+        binary_content = BytesIO()
+        ExcelExporter(semester).export(binary_content, [[course_type_1.id, course_type_2.id]], True, True)
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], course_2.name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], course_1.name)
