@@ -14,7 +14,7 @@
         <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
         <div class="btn-switch btn-switch-light my-auto d-print-none">
             <div class="btn-switch-label">{% trans 'View' %}</div>
-            <div class="btn-group">
+            <div class="btn-switch btn-group">
                 <a href="{% url 'staff:course_comments' semester.id course.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
                     {% trans 'Quick' %}
                 </a>
