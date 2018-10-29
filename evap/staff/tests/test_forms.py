@@ -222,7 +222,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
             'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-0-comment_visibility': Contribution.GENERAL_COMMENTS,
         })
         # no contributor and no responsible
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
@@ -235,7 +235,7 @@ class ContributionFormsetTests(TestCase):
         data['contributions-1-course'] = course.pk
         data['contributions-1-questionnaires'] = questionnaire.pk
         data['contributions-1-order'] = 1
-        data['contributions-1-comment_visibility'] = Contribution.ALL_COMMENTS
+        data['contributions-1-comment_visibility'] = Contribution.GENERAL_COMMENTS
         self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
         # two responsibles
         data['contributions-1-contributor'] = user2.pk
@@ -265,13 +265,13 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
             'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-0-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-1-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-1-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-1-contributor': user2.pk,
             'contributions-2-course': course.pk,
             'contributions-2-questionnaires': "",
@@ -312,7 +312,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
             'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-0-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-course': course.pk,
             'contributions-1-questionnaires': "",
@@ -344,7 +344,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True,
-                                   comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire])
+                                   comment_visibility=Contribution.GENERAL_COMMENTS, questionnaires=[questionnaire])
 
         contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -357,7 +357,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
             'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-0-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
             'contributions-1-course': course.pk,
@@ -365,7 +365,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-order': 0,
             'contributions-1-id': '',
             'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-1-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-1-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-1-contributor': user1.pk,
         })
 
@@ -416,7 +416,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
 
         cls.contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -431,7 +431,7 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
             'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
-            'contributions-0-comment_visibility': Contribution.ALL_COMMENTS,
+            'contributions-0-comment_visibility': Contribution.GENERAL_COMMENTS,
             'contributions-0-contributor': self.user1.pk,
             'contributions-1-id': str(self.contribution2.pk),
             'contributions-1-course': self.course.pk,

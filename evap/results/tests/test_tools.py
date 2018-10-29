@@ -173,7 +173,7 @@ class TestCalculateAverageDistribution(TestCase):
     def test_get_single_result_rating_result(self):
         single_result_course = mommy.make(Course, state='published', is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=single_result_course, questionnaires=[questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         mommy.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
         distribution = calculate_average_distribution(single_result_course)
@@ -200,9 +200,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.delegate1 = mommy.make(UserProfile, username="delegate1")
         cls.delegate2 = mommy.make(UserProfile, username="delegate2")
         cls.contributor_own = mommy.make(UserProfile, username="contributor_own", delegates=[cls.delegate1])
-        cls.contributor_course = mommy.make(UserProfile, username="contributor_course", delegates=[cls.delegate2])
-        cls.contributor_all = mommy.make(UserProfile, username="contributor_all")
-        cls.responsible1 = mommy.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_course])
+        cls.contributor_general = mommy.make(UserProfile, username="contributor_general", delegates=[cls.delegate2])
+        cls.responsible1 = mommy.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_general])
         cls.responsible2 = mommy.make(UserProfile, username="responsible2")
         cls.other_user = mommy.make(UserProfile, username="other_user")
 
@@ -212,26 +211,23 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.general_contribution = cls.course.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = mommy.make(Contribution, contributor=cls.responsible1, course=cls.course,
-            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         cls.responsible2_contribution = mommy.make(Contribution, contributor=cls.responsible2, course=cls.course,
-            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         cls.contributor_own_contribution = mommy.make(Contribution, contributor=cls.contributor_own, course=cls.course,
             questionnaires=[cls.questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
-        cls.contributor_course_contribution = mommy.make(Contribution, contributor=cls.contributor_course, course=cls.course,
+        cls.contributor_general_contribution = mommy.make(Contribution, contributor=cls.contributor_general, course=cls.course,
             questionnaires=[cls.questionnaire], comment_visibility=Contribution.GENERAL_COMMENTS)
-        cls.contributor_all_contribution = mommy.make(Contribution, contributor=cls.contributor_all, course=cls.course,
-            questionnaires=[cls.questionnaire], comment_visibility=Contribution.ALL_COMMENTS)
         cls.general_contribution_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.PUBLISHED)
         cls.responsible1_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.responsible1_contribution, state=TextAnswer.PUBLISHED)
         cls.responsible2_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.PUBLISHED)
         cls.contributor_own_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_own_contribution, state=TextAnswer.PUBLISHED)
-        cls.contributor_course_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_course_contribution, state=TextAnswer.PUBLISHED)
-        cls.contributor_all_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_all_contribution, state=TextAnswer.PUBLISHED)
+        cls.contributor_general_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_general_contribution, state=TextAnswer.PUBLISHED)
 
     def test_correct_contributors_and_delegate_count_are_shown_in_textanswer_visibility_info(self):
         textanswers = [
             self.general_contribution_textanswer, self.responsible1_textanswer, self.responsible2_textanswer,
-            self.contributor_own_textanswer, self.contributor_course_textanswer, self.contributor_all_textanswer
+            self.contributor_own_textanswer, self.contributor_general_textanswer
         ]
         visible_to = [textanswers_visible_to(textanswer.contribution) for textanswer in textanswers]
         users_seeing_contribution = [(set(), set()) for _ in range(len(textanswers))]
@@ -250,11 +246,10 @@ class TestTextAnswerVisibilityInfo(TestCase):
 
         expected_delegate_counts = [
             2,  # delegate1, delegate2
-            2,  # delegate1, contributor_course
+            2,  # delegate1, contributor_general
             0,
-            2,  # delegate1, contributor_course
-            2,  # delegate1, delegate2
-            2,  # delegate1, contributor_course
+            1,  # delegate1
+            1,  # delegate2
         ]
 
         for i in range(len(textanswers)):

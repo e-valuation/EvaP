@@ -79,7 +79,7 @@ def create_course_with_responsible_and_editor(course_id=None):
 
     course = mommy.make(Course, **course_params)
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], comment_visibility=Contribution.ALL_COMMENTS)
+    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], comment_visibility=Contribution.GENERAL_COMMENTS)
     mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
     course.general_contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.TOP)])
 
