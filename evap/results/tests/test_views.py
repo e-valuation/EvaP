@@ -147,7 +147,7 @@ class TestResultsSemesterCourseDetailView(WebTestWith200Check):
         random.seed(42)
         page_with_get_parameter = self.app.get(self.url + '?view=public', user='manager')
         random.seed(42)
-        page_with_random_get_parameter = self.app.get(self.url + '?public_view=asdf', user='manager')
+        page_with_random_get_parameter = self.app.get(self.url + '?view=asdf', user='manager')
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 

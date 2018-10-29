@@ -120,7 +120,7 @@
                 </div>
             </div>
         {% endif %}
-        {% if small_course_size_warning and course.num_voters == 0 %}
+        {% if small_course_size_warning and not preview and course.num_voters == 0 %}
             <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}

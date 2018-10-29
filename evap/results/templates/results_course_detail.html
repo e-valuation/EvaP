@@ -32,7 +32,7 @@
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
-                <div class="btn-group">
+                <div class="btn-switch btn-group">
                     {% if user.is_staff and view == 'export' or is_contributor %}
                         <a href="{% if is_contributor %}{% url 'results:course_detail' course.semester.id course.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                         title="{% blocktrans %}Shows filtered view meant for personal export. Only your personal results and those about the course. Other contributors' results and private answers are hidden.{% endblocktrans %}">

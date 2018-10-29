@@ -505,7 +505,7 @@ def semester_grade_reminder(request, semester_id):
 
     responsibles = (contributor for course in courses for contributor in course.responsible_contributors)
     responsibles = list(set(responsibles))
-    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
 
     responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors])
                         for responsible in responsibles]
