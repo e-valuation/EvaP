@@ -71,7 +71,7 @@
                     {% for course in semester.courses %}
                         <tr {% if course|is_user_editor_or_delegate:user and course.state == 'prepared' %}
                                 class="hover-edit" data-url="{% url 'contributor:course_edit' course.id %}"
-                            {% elif course.state == 'published' %}
+                            {% elif course.state == 'published' and course|can_user_see_results_page:user %}
                                 class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                             {% else %}
                                 class="nohover"
