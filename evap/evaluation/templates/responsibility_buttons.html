@@ -3,7 +3,7 @@
 <div class="btn-group btn-group-toggle" data-toggle="buttons">
     {% for choice in form.responsibility %}
         {% if choice.data.value == 'RESPONSIBLE' %}
-            {% trans 'Name will be shown next to course. Able to see all comments about the contributors of this course. This can only be set by the evaluation team.' as tooltip %}
+            {% trans 'Name will be shown next to course and is able to edit the course to prepare the evaluation. This can only be set by the evaluation team.' as tooltip %}
         {% elif choice.data.value == 'EDITOR' %}
             {% trans 'Able to edit the course to prepare the evaluation.' as tooltip %}
         {% elif choice.data.value == 'CONTRIBUTOR' %}

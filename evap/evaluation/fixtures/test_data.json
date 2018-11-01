@@ -123163,7 +123163,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123267,7 +123267,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123304,7 +123304,7 @@
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123374,7 +123374,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123445,7 +123445,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123480,7 +123480,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123620,7 +123620,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123657,7 +123657,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123695,7 +123695,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123730,7 +123730,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123766,7 +123766,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123801,7 +123801,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123838,7 +123838,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123873,7 +123873,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123933,7 +123933,7 @@
     "contributor": 1,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124018,7 +124018,7 @@
     "contributor": 318,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124134,7 +124134,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124287,7 +124287,7 @@
     "contributor": 395,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124336,7 +124336,7 @@
     "contributor": 267,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124387,7 +124387,7 @@
     "contributor": 409,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124404,7 +124404,7 @@
     "contributor": 993,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124438,7 +124438,7 @@
     "contributor": 995,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124585,7 +124585,7 @@
     "contributor": 1009,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124639,7 +124639,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124656,7 +124656,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124714,7 +124714,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124749,7 +124749,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124784,7 +124784,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124818,7 +124818,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124853,7 +124853,7 @@
     "contributor": 936,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124889,7 +124889,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124924,7 +124924,7 @@
     "contributor": 1072,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124959,7 +124959,7 @@
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124996,7 +124996,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125032,7 +125032,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125067,7 +125067,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125101,7 +125101,7 @@
     "contributor": 300,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125155,7 +125155,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125194,7 +125194,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125229,7 +125229,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125264,7 +125264,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125299,7 +125299,7 @@
     "contributor": 326,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126001,7 +126001,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126052,7 +126052,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126273,7 +126273,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126311,7 +126311,7 @@
     "contributor": 643,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126345,7 +126345,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126379,7 +126379,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126413,7 +126413,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126450,7 +126450,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126487,7 +126487,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126522,7 +126522,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126560,7 +126560,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126594,7 +126594,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126630,7 +126630,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126667,7 +126667,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126718,7 +126718,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126750,7 +126750,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126784,7 +126784,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126817,7 +126817,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126852,7 +126852,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126887,7 +126887,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126919,7 +126919,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126949,7 +126949,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126983,7 +126983,7 @@
     "contributor": 1075,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127018,7 +127018,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127055,7 +127055,7 @@
     "contributor": 994,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127092,7 +127092,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127125,7 +127125,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127158,7 +127158,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127193,7 +127193,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127227,7 +127227,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127557,7 +127557,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127984,7 +127984,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -128139,7 +128139,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128175,7 +128175,7 @@
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128210,7 +128210,7 @@
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128248,7 +128248,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128282,7 +128282,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128351,7 +128351,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128385,7 +128385,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128418,7 +128418,7 @@
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128456,7 +128456,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128491,7 +128491,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128529,7 +128529,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128564,7 +128564,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128601,7 +128601,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128636,7 +128636,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128672,7 +128672,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128709,7 +128709,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128745,7 +128745,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128779,7 +128779,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128815,7 +128815,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128850,7 +128850,7 @@
     "contributor": 2186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -128886,7 +128886,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128923,7 +128923,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128995,7 +128995,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129030,7 +129030,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129065,7 +129065,7 @@
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129100,7 +129100,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129136,7 +129136,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129171,7 +129171,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129205,7 +129205,7 @@
     "contributor": 635,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129256,7 +129256,7 @@
     "contributor": 33,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129647,7 +129647,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130092,7 +130092,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130127,7 +130127,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130163,7 +130163,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130201,7 +130201,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130236,7 +130236,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130271,7 +130271,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130303,7 +130303,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130335,7 +130335,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130374,7 +130374,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130410,7 +130410,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130446,7 +130446,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130476,7 +130476,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130508,7 +130508,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130544,7 +130544,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130580,7 +130580,7 @@
     "contributor": 959,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130619,7 +130619,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130656,7 +130656,7 @@
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130686,7 +130686,7 @@
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130718,7 +130718,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -130756,7 +130756,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130792,7 +130792,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -130825,7 +130825,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130857,7 +130857,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130894,7 +130894,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130931,7 +130931,7 @@
     "contributor": 815,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130966,7 +130966,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131003,7 +131003,7 @@
     "contributor": 310,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131039,7 +131039,7 @@
     "contributor": 650,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131077,7 +131077,7 @@
     "contributor": 2324,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131110,7 +131110,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131147,7 +131147,7 @@
     "contributor": 2326,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131185,7 +131185,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131219,7 +131219,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131408,7 +131408,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131973,7 +131973,7 @@
     "contributor": 601,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -132075,7 +132075,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -132091,7 +132091,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
-    "comment_visibility": "ALL",
+    "comment_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [

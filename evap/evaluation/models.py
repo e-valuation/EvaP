@@ -645,11 +645,9 @@ class Contribution(models.Model):
 
     OWN_COMMENTS = 'OWN'
     GENERAL_COMMENTS = 'GENERAL'
-    ALL_COMMENTS = 'ALL'
     COMMENT_VISIBILITY_CHOICES = (
         (OWN_COMMENTS, _('Own')),
-        (GENERAL_COMMENTS, _('General')),
-        (ALL_COMMENTS, _('All')),
+        (GENERAL_COMMENTS, _('Own and general')),
     )
     IS_CONTRIBUTOR = 'CONTRIBUTOR'
     IS_EDITOR = 'EDITOR'
@@ -679,7 +677,7 @@ class Contribution(models.Model):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         if self.responsible and not self.course.is_single_result:
-            assert self.can_edit and self.comment_visibility == self.ALL_COMMENTS
+            assert self.can_edit and self.comment_visibility == self.GENERAL_COMMENTS
 
     @property
     def is_general(self):

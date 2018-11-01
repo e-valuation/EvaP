@@ -464,10 +464,10 @@ class TestSemesterAssignView(WebTest):
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         course1 = mommy.make(Course, semester=cls.semester, type=seminar_type)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course1,
-                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                   responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         course2 = mommy.make(Course, semester=cls.semester, type=lecture_type)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course2,
-                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                   responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
     def test_assign_questionnaires(self):
         page = self.app.get(self.url, user="manager")
@@ -493,7 +493,7 @@ class TestSemesterTodoView(WebTestWith200Check):
     def test_todo(self):
         course = mommy.make(Course, semester=self.semester, state='prepared', name_en='name_to_find', name_de='name_to_find')
         user = mommy.make(UserProfile, username='user_to_find')
-        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
@@ -509,7 +509,7 @@ class TestSendReminderView(WebTest):
         cls.semester = mommy.make(Semester, pk=1)
         course = mommy.make(Course, semester=cls.semester, state='prepared')
         responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
     def test_form(self):
         page = self.app.get(self.url, user='manager')
@@ -726,8 +726,8 @@ class TestSemesterParticipationDataExportView(WebTest):
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_rewarded=True)
         cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Course 2", is_rewarded=False)
-        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
@@ -882,7 +882,7 @@ class TestCourseCreateView(WebTest):
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
         form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
-        form['contributions-0-comment_visibility'] = Contribution.ALL_COMMENTS
+        form['contributions-0-comment_visibility'] = Contribution.GENERAL_COMMENTS
 
         form.submit()
         self.assertFalse(Course.objects.exists())
@@ -914,7 +914,7 @@ class TestCourseEditView(WebTest):
 
         # This is necessary so that the call to is_single_result does not fail.
         responsible = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
     def setUp(self):
         self.course = Course.objects.get(pk=self.course.pk)
@@ -1101,7 +1101,7 @@ class TestSingleResultEditView(WebTestWith200Check):
         course = mommy.make(Course, semester=semester, pk=1)
         responsible = mommy.make(UserProfile)
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True,
-                                  comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
+                                  comment_visibility=Contribution.GENERAL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
         question = Questionnaire.single_result_questionnaire().questions.get()
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
@@ -1808,8 +1808,8 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.questionnaire_responsible = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         cls.course_1 = mommy.make(Course, semester=cls.semester, type=cls.course_type_1)
         cls.course_2 = mommy.make(Course, semester=cls.semester, type=cls.course_type_2)
-        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user="manager", status=200)

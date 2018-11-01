@@ -96,7 +96,7 @@ class CourseData(CommonEqualityMixin):
         course.save()
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         for degree_name in self.degree_names:
             course.degrees.add(Degree.objects.get(name_de=degree_name))
 

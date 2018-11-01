@@ -243,10 +243,6 @@ def user_can_see_text_answer(user, represented_users, text_answer, view):
         # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
-        # users can see textanswers if one of their represented users has comment visiblity ALL_COMMENTS for the course
-        if text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
-            return True
         # users can see textanswers from general contributions if one of their represented users has comment visibility
         # GENERAL_COMMENTS for the course
         if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(

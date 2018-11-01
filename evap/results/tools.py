@@ -5,7 +5,6 @@ import itertools
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q
 
 from evap.evaluation.models import Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
@@ -240,14 +239,10 @@ def get_grade_color(grade):
 def textanswers_visible_to(contribution):
     if contribution.is_general:
         contributors = UserProfile.objects.filter(
-            Q(contributions__course=contribution.course) & (
-                Q(contributions__comment_visibility=Contribution.ALL_COMMENTS) |
-                Q(contributions__comment_visibility=Contribution.GENERAL_COMMENTS)
-            )
+            contributions__course=contribution.course,
+            contributions__comment_visibility=Contribution.GENERAL_COMMENTS
         ).distinct().order_by('contributions__comment_visibility')
     else:
         contributors = [contribution.contributor]
-        if not contribution.responsible:
-            contributors.extend(UserProfile.objects.filter(contributions__course=contribution.course, contributions__comment_visibility=Contribution.ALL_COMMENTS).exclude(id=contribution.contributor.id))
     num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)

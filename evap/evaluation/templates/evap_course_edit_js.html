@@ -41,8 +41,8 @@
                 uncheckButtons("input[name=contributions-" + i + "-comment_visibility]");
                 uncheckButtons("input[name=contributions-" + i + "-responsibility]");
 
-                // check "all comments" and disable comment buttons
-                checkButtons("input[name=contributions-" + i + "-comment_visibility][value=ALL]");
+                // check "general comments" and disable comment buttons
+                checkButtons("input[name=contributions-" + i + "-comment_visibility][value=GENERAL]");
                 disableButtons("input[name=contributions-" + i + "-comment_visibility]");
             }
             // if the responsible button is deselected

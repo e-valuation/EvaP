@@ -126,7 +126,7 @@ class TestCourses(WebTest):
 
         responsible_contribution = mommy.make(
                 Contribution, course=course, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         course = Course.objects.get()
         self.assertFalse(course.general_contribution_has_questionnaires)
         self.assertFalse(course.all_contributions_have_questionnaires)
@@ -155,8 +155,8 @@ class TestCourses(WebTest):
         course = mommy.make(Course)
         responsible1 = mommy.make(UserProfile)
         responsible2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
-        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
+        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, order=0)
+        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, order=1)
 
         self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
 
@@ -170,7 +170,7 @@ class TestCourses(WebTest):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester), is_single_result=True)
         contribution = mommy.make(Contribution,
-            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -195,7 +195,7 @@ class TestCourses(WebTest):
             semester=mommy.make(Semester), is_single_result=True, _participant_count=5, _voter_count=5
         )
         contribution = mommy.make(Contribution,
-            course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -439,7 +439,7 @@ class ParticipationArchivingTests(TestCase):
         course = mommy.make(Course,
             state="published", is_single_result=True, _participant_count=5, _voter_count=5
         )
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         course.semester.archive_participations()
@@ -457,7 +457,7 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.course = mommy.make(Course)
-        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 
@@ -512,7 +512,7 @@ class TestEmailRecipientList(TestCase):
         responsible = mommy.make(UserProfile)
         editor = mommy.make(UserProfile)
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
         mommy.make(Contribution, course=course, contributor=contributor)
 

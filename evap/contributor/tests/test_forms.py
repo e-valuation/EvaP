@@ -67,7 +67,7 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user = mommy.make(UserProfile)
         contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
-                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                                  can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
@@ -95,8 +95,8 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
@@ -119,7 +119,7 @@ class ContributionFormsetTests(TestCase):
             "contributions-1-contributor": user2.pk,
             "contributions-1-does_not_contribute": "on",
             "contributions-1-responsibility": Contribution.IS_EDITOR,
-            "contributions-1-comment_visibility": Contribution.ALL_COMMENTS,
+            "contributions-1-comment_visibility": Contribution.GENERAL_COMMENTS,
             "contributions-1-label": "",
             "contributions-1-DELETE": "",
         }
@@ -134,7 +134,7 @@ class ContributionFormsetTests(TestCase):
         course = mommy.make(Course)
         user = mommy.make(UserProfile)
         contribution = mommy.make(Contribution, course=course, contributor=user, responsible=True,
-                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                                  can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
@@ -164,7 +164,7 @@ class ContributionFormsetTests(TestCase):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         contribution = mommy.make(Contribution, course=course, contributor=user1, responsible=True,
-                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                                  can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
         InlineContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
 
         data = {
@@ -215,8 +215,8 @@ class ContributionFormsetWebTests(WebTest):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[questionnaire], order=2)
+        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, course=course, contributor=user2, responsible=False, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors
