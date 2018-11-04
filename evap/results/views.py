@@ -129,7 +129,7 @@ def course_detail(request, semester_id, course_id):
     for questionnaire_result in course_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if user_can_see_text_answer(view_as_user, represented_users, answer, view)]
+                question_result.answers = [answer for answer in question_result.answers if user_can_see_textanswer(view_as_user, represented_users, answer, view)]
         # remove empty TextResults
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
@@ -215,38 +215,38 @@ def add_warnings(course, course_result):
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
-def user_can_see_text_answer(user, represented_users, text_answer, view):
-    assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
-    contributor = text_answer.contribution.contributor
+def user_can_see_textanswer(user, represented_users, textanswer, view):
+    assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+    contributor = textanswer.contribution.contributor
 
     if view == 'public':
         return False
     elif view == 'export':
-        if text_answer.is_private:
+        if textanswer.is_private:
             return False
-        if not text_answer.contribution.is_general and contributor != user:
+        if not textanswer.contribution.is_general and contributor != user:
             return False
     elif user.is_reviewer:
         return True
 
-    if text_answer.is_private:
+    if textanswer.is_private:
         return contributor == user
 
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if text_answer.is_published:
+    if textanswer.is_published:
         # text answers about responsible contributors can only be seen by the users themselves and by their delegates
         # they can not be seen by other responsible contributors
-        if text_answer.contribution.responsible:
+        if textanswer.contribution.responsible:
             return contributor in represented_users
 
         # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
-        # users can see textanswers from general contributions if one of their represented users has comment visibility
-        # GENERAL_COMMENTS for the course
-        if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.GENERAL_COMMENTS).exists():
+        # users can see text answers from general contributions if one of their represented users has text answer
+        # visibility GENERAL_TEXTANSWERS for the course
+        if textanswer.contribution.is_general and textanswer.contribution.course.contributions.filter(
+                contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
             return True
 
     return False

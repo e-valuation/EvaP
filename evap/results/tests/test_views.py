@@ -89,7 +89,7 @@ class TestResultsSemesterCourseDetailView(WebTestWith200Check):
         # Normal course with responsible and contributor.
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
 
-        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
     def test_questionnaire_ordering(self):
@@ -242,8 +242,8 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         degree = mommy.make(Degree)
         private_course = mommy.make(Course, state='published', is_private=True, semester=semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
         private_course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS)
-        mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
         url = '/results/'
@@ -430,8 +430,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
-    def test_textanswer_visibility_for_contributor_general_comments(self):
-        page = self.app.get("/results/semester/1/course/1", user='contributor_general_comments')
+    def test_textanswer_visibility_for_contributor_general_textanswers(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor_general_textanswers')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -492,11 +492,11 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.course.general_contribution.questionnaires.set([questionnaire])
 
         responsible = mommy.make(UserProfile, username='responsible')
-        mommy.make(Contribution, course=cls.course, contributor=responsible, questionnaires=[questionnaire], can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=responsible, questionnaires=[questionnaire], can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.other_contributor_1 = mommy.make(UserProfile, username='other contributor 1')
-        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_1, questionnaires=[questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
         cls.other_contributor_2 = mommy.make(UserProfile, username='other contributor 2')
-        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_2, questionnaires=[questionnaire], comment_visibility=Contribution.OWN_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
 
     def test_contributor_list(self):
         url = '/results/semester/{}/course/{}?view=export'.format(self.semester.id, self.course.id)
@@ -579,8 +579,8 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
-    def test_textanswer_visibility_for_contributor_general_comments(self):
-        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor_general_comments')
+    def test_textanswer_visibility_for_contributor_general_textanswers(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor_general_textanswers')
 
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
@@ -685,7 +685,7 @@ class TestArchivedResults(WebTest):
 
         cls.course = mommy.make(Course, state='published', semester=cls.semester, participants=[student, student_external], voters=[student, student_external], degrees=[mommy.make(Degree)])
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS, contributor=responsible)
+        cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))

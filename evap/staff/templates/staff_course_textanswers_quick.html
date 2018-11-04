@@ -1,4 +1,4 @@
-{% extends 'staff_course_comments.html' %}
+{% extends 'staff_course_textanswers.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -31,16 +31,16 @@
 
     <div class="card card-outline-primary slider">
         <div class="card-header">
-            {% trans 'Comments' %}
+            {% trans 'Text answers' %}
             <span class="hotkey-btn" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="{% trans 'Hotkeys' %}">
                 <span class="far fa-keyboard" data-toggle="modal" data-target="#hotkeys-modal"></span>
             </span>
         </div>
         <div class="card-body slider-inner px-0">
             <div class="slider-side slider-side-left">
-                <span class="badge badge-pill badge-primary" data-counter="reviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Reviewed comments' %}"></span>
+                <span class="badge badge-pill badge-primary" data-counter="reviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
                 <span class="fas fa-angle-left" data-slide="left"></span>
-                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Unreviewed comments' %}"></span>
+                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
             <div class="slider-items">
                 {% for questionnaire, contributor, label, is_responsible, results in sections %}
@@ -55,9 +55,9 @@
                             <div class="slider-item" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
                                 {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}
                             >
-                            <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                            <a class="textanswer-link" href="{% url 'staff:course_textanswer_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
                             {% if answer.original_answer %}
-                                <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                             {% endif %}
                             </div>
                         {% endfor %}
@@ -66,14 +66,14 @@
                 <div class="slider-item alert text-center">
                     {% if sections %}
                         <span data-content="unreviewed">
-                            {% trans 'Some comments for this course are still unreviewed.' %}
+                            {% trans 'Some text answers for this course are still unreviewed.' %}
                         </span>
                         <span data-content="reviewed">
-                            {% trans 'You have reviewed all comments for this course.' %}
+                            {% trans 'You have reviewed all text answers for this course.' %}
                         </span>
                     {% else %}
                         <span>
-                            {% trans 'There are no comments for this course.' %}
+                            {% trans 'There are no text answers for this course.' %}
                         </span>
                     {% endif %}
                     {% if next_course %}
@@ -84,9 +84,9 @@
                 </div>
             </div>
             <div class="slider-side slider-side-right">
-                <span class="badge badge-pill badge-primary" data-counter="reviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Reviewed comments' %}"></span>
+                <span class="badge badge-pill badge-primary" data-counter="reviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
                 <span class="fas fa-angle-right" data-slide="right" title=""></span>
-                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Unreviewed comments' %}"></span>
+                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
         </div>
         <div class="card-footer d-flex">
@@ -105,7 +105,7 @@
             </div>
             <div class="lcr-center d-none" data-action-set="summary">
                 {% if next_course %}
-                    <a href="{% url 'staff:course_comments' next_course.semester.id next_course.id %}" data-url="next-course" class="btn btn-sm btn-primary">
+                    <a href="{% url 'staff:course_textanswers' next_course.semester.id next_course.id %}" data-url="next-course" class="btn btn-sm btn-primary">
                         {% trans 'Review next course' %}
                     </a>
                 {% endif %}

@@ -1,34 +1,34 @@
-{% extends 'staff_course_comments.html' %}
+{% extends 'staff_course_textanswers.html' %}
 
 {% block content %}
     {{ block.super }}
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header">
-            {% trans 'General comments' %}
+            {% trans 'General text answers' %}
         </div>
         <div class="card-body">
             {% if course_sections %}
                 {% with course_sections as sections %}
-                    {% include 'staff_course_comments_section.html' %}
+                    {% include 'staff_course_textanswers_section.html' %}
                 {% endwith %}
             {% else %}
-                <i>{% trans 'No comments' %}</i>
+                <i>{% trans 'No text answers' %}</i>
             {% endif %}
         </div>
     </div>
 
     <div class="card card-outline-primary">
         <div class="card-header">
-            {% trans 'Comments about the Contributors' %}
+            {% trans 'Text answers about the contributors' %}
         </div>
         <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
-                    {% include 'staff_course_comments_section.html' %}
+                    {% include 'staff_course_textanswers_section.html' %}
                 {% endwith %}
             {% else %}
-                <i>{% trans 'No comments' %}</i>
+                <i>{% trans 'No text answers' %}</i>
             {% endif %}
         </div>
     </div>
@@ -44,7 +44,7 @@
             var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
             $.ajax({
                 type: "POST",
-                url: "{% url 'staff:course_comments_update_publish' %}",
+                url: "{% url 'staff:course_textanswers_update_publish' %}",
                 data: parameters,
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });

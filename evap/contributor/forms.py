@@ -74,7 +74,7 @@ class EditorContributionForm(ContributionForm):
         if self.instance.responsible:
             self.fields['responsibility'].disabled = True
             self.fields['contributor'].disabled = True
-            self.fields['comment_visibility'].disabled = True
+            self.fields['textanswer_visibility'].disabled = True
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()

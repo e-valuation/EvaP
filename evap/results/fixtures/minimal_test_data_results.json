@@ -358,12 +358,12 @@
   "pk": 7,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "contributor_general_comments",
-    "first_name": "contributor_general_comments",
+    "username": "contributor_general_textanswers",
+    "first_name": "contributor_general_textanswers",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "contributor_course_comments@institution.example.com",
+    "email": "contributor_course_textanswers@institution.example.com",
     "title": "",
     "cc_users": [],
     "delegates": [],
@@ -416,7 +416,7 @@
       2
     ],
     "can_edit": false,
-    "comment_visibility": "OWN"
+    "textanswer_visibility": "OWN"
   }
 },
 {
@@ -430,7 +430,7 @@
       1
     ],
     "can_edit": true,
-    "comment_visibility": "GENERAL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {
@@ -444,7 +444,7 @@
       1
     ],
     "can_edit": false,
-    "comment_visibility": "OWN"
+    "textanswer_visibility": "OWN"
   }
 },
 {
@@ -458,7 +458,7 @@
       1
     ],
     "can_edit": false,
-    "comment_visibility": "GENERAL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {
@@ -472,7 +472,7 @@
       1
     ],
     "can_edit": true,
-    "comment_visibility": "GENERAL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {

@@ -240,8 +240,8 @@ def textanswers_visible_to(contribution):
     if contribution.is_general:
         contributors = UserProfile.objects.filter(
             contributions__course=contribution.course,
-            contributions__comment_visibility=Contribution.GENERAL_COMMENTS
-        ).distinct().order_by('contributions__comment_visibility')
+            contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS
+        ).distinct().order_by('contributions__textanswer_visibility')
     else:
         contributors = [contribution.contributor]
     num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))

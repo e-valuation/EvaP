@@ -643,11 +643,11 @@ def log_state_transition(instance, name, source, target, **_kwargs):
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
-    OWN_COMMENTS = 'OWN'
-    GENERAL_COMMENTS = 'GENERAL'
-    COMMENT_VISIBILITY_CHOICES = (
-        (OWN_COMMENTS, _('Own')),
-        (GENERAL_COMMENTS, _('Own and general')),
+    OWN_TEXTANSWERS = 'OWN'
+    GENERAL_TEXTANSWERS = 'GENERAL'
+    TEXTANSWER_VISIBILITY_CHOICES = (
+        (OWN_TEXTANSWERS, _('Own')),
+        (GENERAL_TEXTANSWERS, _('Own and general')),
     )
     IS_CONTRIBUTOR = 'CONTRIBUTOR'
     IS_EDITOR = 'EDITOR'
@@ -663,7 +663,7 @@ class Contribution(models.Model):
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
-    comment_visibility = models.CharField(max_length=10, choices=COMMENT_VISIBILITY_CHOICES, verbose_name=_('comment visibility'), default=OWN_COMMENTS)
+    textanswer_visibility = models.CharField(max_length=10, choices=TEXTANSWER_VISIBILITY_CHOICES, verbose_name=_('text answer visibility'), default=OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
@@ -677,7 +677,7 @@ class Contribution(models.Model):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         if self.responsible and not self.course.is_single_result:
-            assert self.can_edit and self.comment_visibility == self.GENERAL_COMMENTS
+            assert self.can_edit and self.textanswer_visibility == self.GENERAL_TEXTANSWERS
 
     @property
     def is_general(self):
@@ -784,8 +784,7 @@ class RatingAnswerCounter(Answer):
 
 
 class TextAnswer(Answer):
-    """A free-form text answer to a question (usually a comment about a course
-    or a contributor)."""
+    """A free-form text answer to a question."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -796,13 +795,13 @@ class TextAnswer(Answer):
     PUBLISHED = 'PU'
     PRIVATE = 'PR'
     NOT_REVIEWED = 'NR'
-    TEXT_ANSWER_STATES = (
+    TEXTANSWER_STATES = (
         (HIDDEN, _('hidden')),
         (PUBLISHED, _('published')),
         (PRIVATE, _('private')),
         (NOT_REVIEWED, _('not reviewed')),
     )
-    state = models.CharField(max_length=2, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
+    state = models.CharField(max_length=2, choices=TEXTANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
         # Prevent ordering by date for privacy reasons

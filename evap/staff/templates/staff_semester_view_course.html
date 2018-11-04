@@ -104,7 +104,7 @@
                 </span>
             {% endif %}
             {% if course.num_textanswers > 0 and state != 'published' and not info_only %}
-                <a class="no-underline" href="{% url 'staff:course_comments' semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Click to review text answers' %}">
+                <a class="no-underline" href="{% url 'staff:course_textanswers' semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Click to review text answers' %}">
                     {% include 'progress_bar.html' with done=course.num_reviewed_textanswers total=course.num_textanswers icon='comment' %}
                 </a>
             {% elif info_only %}

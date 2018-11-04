@@ -11,7 +11,7 @@
                 <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
                     <thead>
                         <tr>
-                            <th style="width: 85%">{% trans 'Comment' %}</th>
+                            <th style="width: 85%">{% trans 'Text answer' %}</th>
                             <th style="width: 15%">{% trans 'Publish' %}</th>
                         </tr>
                     </thead>
@@ -19,10 +19,10 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
-                                    <a class="comment-link" href="{% url 'staff:course_comment_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                                    <a class="textanswer-link" href="{% url 'staff:course_textanswer_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
                                     {% if answer.original_answer %}
                                         <br />
-                                        <span class="comment-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                        <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                                     {% endif %}
                                 </td>
                                 <td>
