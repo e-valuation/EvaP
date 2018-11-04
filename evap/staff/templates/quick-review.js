@@ -129,7 +129,7 @@ $(document).ready(() => {
         let parameters = {"id": active.data("id"), "action": action, "course_id": {{ course.id }}};
         $.ajax({
             type: "POST",
-            url: "{% url 'staff:course_comments_update_publish' %}",
+            url: "{% url 'staff:course_textanswers_update_publish' %}",
             data: parameters,
             error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
         });

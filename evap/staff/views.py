@@ -99,8 +99,8 @@ def semester_view(request, semester_id):
             self.num_votes = 0
             self.num_courses_evaluated = 0
             self.num_courses = 0
-            self.num_comments = 0
-            self.num_comments_reviewed = 0
+            self.num_textanswers = 0
+            self.num_textanswers_reviewed = 0
             self.first_start = datetime(9999, 1, 1)
             self.last_end = date(2000, 1, 1)
 
@@ -116,8 +116,8 @@ def semester_view(request, semester_id):
             if course.state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
                 stats.num_enrollments_in_evaluation += course.num_participants
                 stats.num_votes += course.num_voters
-                stats.num_comments += course.num_textanswers
-                stats.num_comments_reviewed += course.num_reviewed_textanswers
+                stats.num_textanswers += course.num_textanswers
+                stats.num_textanswers_reviewed += course.num_reviewed_textanswers
             if course.state in ['evaluated', 'reviewed', 'published']:
                 stats.num_courses_evaluated += 1
             if course.state != 'new':
@@ -413,7 +413,7 @@ def semester_raw_export(request, semester_id):
 
     writer = csv.writer(response, delimiter=";")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
-        _('#Participants'), _('#Comments'), _('Average grade')])
+        _('#Participants'), _('#Text answers'), _('Average grade')])
     for course in semester.courses.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
         distribution = calculate_average_distribution(course)
@@ -795,7 +795,7 @@ def course_person_import(request, semester_id, course_id):
 
 
 @reviewer_required
-def course_comments(request, semester_id, course_id):
+def course_textanswers(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
@@ -805,9 +805,9 @@ def course_comments(request, semester_id, course_id):
         raise PermissionDenied
 
     view = request.GET.get('view', 'quick')
-    filter_comments = view == "unreviewed"
+    filter_textanswers = view == "unreviewed"
 
-    CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
+    TextAnswerSection = namedtuple('TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
     contributor_sections = []
     for contribution in course.contributions.all().prefetch_related("questionnaires"):
@@ -815,14 +815,14 @@ def course_comments(request, semester_id, course_id):
             text_results = []
             for question in questionnaire.text_questions:
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
-                if filter_comments:
+                if filter_textanswers:
                     answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
                 if answers:
                     text_results.append(TextResult(question=question, answers=answers))
             if not text_results:
                 continue
             section_list = course_sections if contribution.is_general else contributor_sections
-            section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
+            section_list.append(TextAnswerSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, view=view)
 
@@ -837,16 +837,16 @@ def course_comments(request, semester_id, course_id):
 
         sections = course_sections + contributor_sections
         template_data.update(dict(sections=sections, next_course=next_course))
-        return render(request, "staff_course_comments_quick.html", template_data)
+        return render(request, "staff_course_textanswers_quick.html", template_data)
     else:
         template_data.update(dict(course_sections=course_sections, contributor_sections=contributor_sections))
-        return render(request, "staff_course_comments_full.html", template_data)
+        return render(request, "staff_course_textanswers_full.html", template_data)
 
 
 @require_POST
 @reviewer_required
-def course_comments_update_publish(request):
-    comment_id = request.POST["id"]
+def course_textanswers_update_publish(request):
+    textanswer_id = request.POST["id"]
     action = request.POST["action"]
     course_id = request.POST["course_id"]
 
@@ -856,7 +856,7 @@ def course_comments_update_publish(request):
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    answer = TextAnswer.objects.get(pk=comment_id)
+    answer = TextAnswer.objects.get(pk=textanswer_id)
 
     if action == 'publish':
         answer.publish()
@@ -881,7 +881,7 @@ def course_comments_update_publish(request):
 
 
 @reviewer_required
-def course_comment_edit(request, semester_id, course_id, text_answer_id):
+def course_textanswer_edit(request, semester_id, course_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
@@ -890,17 +890,17 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
-    form = TextAnswerForm(request.POST or None, instance=text_answer)
+    textanswer = get_object_or_404(TextAnswer, id=textanswer_id, contribution__course=course)
+    form = TextAnswerForm(request.POST or None, instance=textanswer)
 
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse('staff:course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
+        url = reverse('staff:course_textanswers', args=[semester_id, course_id]) + '#' + str(textanswer.id)
         return HttpResponseRedirect(url)
 
-    template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
-    return render(request, "staff_course_comment_edit.html", template_data)
+    template_data = dict(semester=semester, course=course, form=form, textanswer=textanswer)
+    return render(request, "staff_course_textanswer_edit.html", template_data)
 
 
 @reviewer_required

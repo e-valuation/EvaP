@@ -70,7 +70,7 @@
                             <th style="width: 19%">{% trans 'Degree' %}</th>
                             <th style="width: 30%">{% trans 'Evaluation period' %}</th>
                             <th style="width: 17%">{% trans 'Evaluated courses' %}</th>
-                            <th style="width: 17%">{% trans 'Reviewed comments' %}</th>
+                            <th style="width: 17%">{% trans 'Reviewed text answers' %}</th>
                             <th style="width: 17%">{% trans 'Participation' %}</th>
                         </tr>
                     </thead>
@@ -89,7 +89,7 @@
                                 {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
                             </td>
                             <td>
-                                {% include 'progress_bar.html' with done=stats.num_comments_reviewed total=stats.num_comments %}
+                                {% include 'progress_bar.html' with done=stats.num_textanswers_reviewed total=stats.num_textanswers %}
                             </td>
                             <td>
                                 {% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}

@@ -42,7 +42,7 @@ class TestCourses(WebTest):
         self.assertEqual(course.state, 'evaluated')
 
     def test_in_evaluation_to_reviewed(self):
-        # Course is "fully reviewed" as no open text_answers are present by default,
+        # Course is "fully reviewed" as no open text answers are present by default.
         course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
@@ -126,7 +126,7 @@ class TestCourses(WebTest):
 
         responsible_contribution = mommy.make(
                 Contribution, course=course, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+                responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         course = Course.objects.get()
         self.assertFalse(course.general_contribution_has_questionnaires)
         self.assertFalse(course.all_contributions_have_questionnaires)
@@ -155,8 +155,8 @@ class TestCourses(WebTest):
         course = mommy.make(Course)
         responsible1 = mommy.make(UserProfile)
         responsible2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, order=0)
-        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS, order=1)
+        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=0)
+        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=1)
 
         self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
 
@@ -170,7 +170,7 @@ class TestCourses(WebTest):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester), is_single_result=True)
         contribution = mommy.make(Contribution,
-            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS,
+            course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -195,7 +195,7 @@ class TestCourses(WebTest):
             semester=mommy.make(Semester), is_single_result=True, _participant_count=5, _voter_count=5
         )
         contribution = mommy.make(Contribution,
-            course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS,
+            course=single_result, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -219,7 +219,7 @@ class TestCourses(WebTest):
 
         self.assertTrue(course.can_publish_text_results)
 
-    def test_text_answers_get_deleted_if_they_cannot_be_published(self):
+    def test_textanswers_get_deleted_if_they_cannot_be_published(self):
         student = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
@@ -231,7 +231,7 @@ class TestCourses(WebTest):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 0)
 
-    def test_text_answers_do_not_get_deleted_if_they_can_be_published(self):
+    def test_textanswers_do_not_get_deleted_if_they_can_be_published(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
@@ -244,7 +244,7 @@ class TestCourses(WebTest):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 1)
 
-    def test_hidden_text_answers_get_deleted_on_publish(self):
+    def test_hidden_textanswers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
@@ -260,7 +260,7 @@ class TestCourses(WebTest):
         self.assertEqual(course.textanswer_set.count(), 2)
         self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
 
-    def test_original_text_answers_get_deleted_on_publish(self):
+    def test_original_textanswers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
@@ -439,7 +439,7 @@ class ParticipationArchivingTests(TestCase):
         course = mommy.make(Course,
             state="published", is_single_result=True, _participant_count=5, _voter_count=5
         )
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         course.semester.archive_participations()
@@ -457,7 +457,7 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.course = mommy.make(Course)
-        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 
@@ -512,7 +512,7 @@ class TestEmailRecipientList(TestCase):
         responsible = mommy.make(UserProfile)
         editor = mommy.make(UserProfile)
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
         mommy.make(Contribution, course=course, contributor=contributor)
 

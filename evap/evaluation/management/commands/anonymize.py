@@ -55,7 +55,7 @@ class Command(BaseCommand):
         try:
             with transaction.atomic():
                 self.stdout.write("Replacing text answers with lorem ipsum...")
-                self.randomize_text_answers(lorem_ipsum)
+                self.randomize_textanswers(lorem_ipsum)
 
                 # do this ahead of time to avoid the same name being chosen twice
                 self.stdout.write("Generating random usernames...")
@@ -76,12 +76,12 @@ class Command(BaseCommand):
             self.stdout.write("")
             raise
 
-    def randomize_text_answers(self, lorem_ipsum):
-        for text_answer in TextAnswer.objects.all():
-            text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
-            if text_answer.original_answer:
-                text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
-            text_answer.save()
+    def randomize_textanswers(self, lorem_ipsum):
+        for textanswer in TextAnswer.objects.all():
+            textanswer.answer = self.lorem(textanswer.answer, lorem_ipsum)
+            if textanswer.original_answer:
+                textanswer.original_answer = self.lorem(textanswer.original_answer, lorem_ipsum)
+            textanswer.save()
 
     @staticmethod
     def lorem(text, lorem_ipsum):

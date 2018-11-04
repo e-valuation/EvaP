@@ -233,13 +233,13 @@ class TestVoteView(WebTest):
         else:
             self.assertFalse(course.can_publish_text_results)
 
-    def test_user_checked_top_text_answer_publish_confirmation(self):
+    def test_user_checked_top_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_top")
 
-    def test_user_checked_bottom_text_answer_publish_confirmation(self):
+    def test_user_checked_bottom_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_bottom")
 
-    def test_user_did_not_check_text_answer_publish_confirmation(self):
+    def test_user_did_not_check_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation(None)
 
     def test_textanswer_visibility_is_shown(self):

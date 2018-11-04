@@ -18,7 +18,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         cls.responsible = mommy.make(UserProfile)
         cls.non_responsible = mommy.make(UserProfile, email="a@b.c")
-        mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, comment_visibility=Contribution.GENERAL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_responsible.id}
