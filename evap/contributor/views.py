@@ -203,7 +203,7 @@ def course_direct_delegation(request, course_id):
     messages.add_message(
         request,
         messages.SUCCESS,
-        '{} was added as a contributor for course "{}" and was sent an email with further information.'.format(str(delegate_user), str(course))
+        _('{} was added as a contributor for course "{}" and was sent an email with further information.').format(str(delegate_user), str(course))
     )
 
     return redirect('contributor:index')
