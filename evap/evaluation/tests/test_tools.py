@@ -57,3 +57,20 @@ class TestLogExceptionsDecorator(TestCase):
             pass
         self.assertTrue(mock_logger.called)
         self.assertIn("failed. Traceback follows:", mock_logger.call_args[0][0])
+
+
+class TestPythonVersion(TestCase):
+    def test_dict_unpacking(self):
+        """ python >= 3.5 """
+        d = {'a': 1, 'b': 2}
+        self.assertEqual({**d, 'b': 3, 'c': 4}, {'a': 1, 'b': 3, 'c': 4})
+
+    def test_format_strings(self):
+        """ python >= 3.6 """
+        world = 'World'
+        self.assertEqual(f'Hello {world}', 'Hello World')
+
+    def test_breakpoint_available(self):
+        """ python >= 3.7 """
+        import builtins
+        self.assertTrue(hasattr(builtins, 'breakpoint'))
