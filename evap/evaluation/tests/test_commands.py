@@ -10,13 +10,38 @@ from django.test.utils import override_settings
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Evaluation, UserProfile
+from evap.evaluation.models import Evaluation, EmailTemplate, Semester, UserProfile
 
 
 class TestAnonymizeCommand(TestCase):
     @patch('builtins.input')
     def test_anonymize_does_not_crash(self, mock_input):
-        mommy.make(Evaluation)
+        mommy.make(EmailTemplate, name="name", subject="Subject", body="Body.")
+        mommy.make(UserProfile,
+          username="secret.username",
+          email="secret.email@hpi.de",
+          title="Prof.",
+          first_name="Secret",
+          last_name="User",
+          login_key=1234567890,
+          login_key_valid_until=date.today())
+        semester1 = mommy.make(Semester, name_de="S1", name_en="S1")
+        semester2 = mommy.make(Semester, name_de="S2", name_en="S2")
+        mommy.make(Course,
+          semester=semester1,
+          name_de="Wie man Software testet",
+          name_en="Testing your software")
+        mommy.make(Course,
+          semester=semester2,
+          name_de="Einführung in Python",
+          name_en="Introduction to Python",
+          is_private=True)
+        mommy.make(Course,
+          semester=semester2,
+          name_de="Die Entstehung von Unicode 😄",
+          name_en="History of Unicode 😄",
+          is_private=True)
+
         mock_input.return_value = 'yes'
 
         management.call_command('anonymize', stdout=StringIO())
