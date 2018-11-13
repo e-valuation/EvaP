@@ -9,37 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
-LIKERT_NAMES = {
-    # Translators: This includes a non breaking space in German ("Stimme voll~zu")
-    1: _("Strongly agree"),
-    2: _("Agree"),
-    3: _("Neutral"),
-    # Translators: This includes a non breaking space in German ("Stimme nicht~zu")
-    4: _("Disagree"),
-    5: _("Strongly disagree"),
-    6: _("no answer"),
-}
-
-GRADE_NAMES = {
-    1: _("1"),
-    2: _("2"),
-    3: _("3"),
-    4: _("4"),
-    5: _("5"),
-    6: _("no answer"),
-}
-
-POSITIVE_YES_NO_NAMES = {
-    1: _("Yes"),
-    5: _("No"),
-    6: _("no answer"),
-}
-
-NEGATIVE_YES_NO_NAMES = {
-    1: _("No"),
-    5: _("Yes"),
-    6: _("no answer"),
-}
 
 # the names used for contributors and staff
 STATES_ORDERED = OrderedDict((

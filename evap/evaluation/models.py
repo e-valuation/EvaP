@@ -1,3 +1,4 @@
+from collections import namedtuple
 from datetime import datetime, date, timedelta
 import logging
 import random
@@ -776,6 +777,63 @@ class Question(models.Model):
         return self.type == self.HEADING
 
 
+Choices = namedtuple('Choices', ('values', 'colors', 'grades', 'names'))
+
+NO_ANSWER = 6
+BASE_UNIPOLAR_CHOICES = {
+    'values': (1, 2, 3, 4, 5, NO_ANSWER),
+    'colors': ('green', 'lime', 'yellow', 'orange', 'red', 'gray'),
+    'grades': (1, 2, 3, 4, 5)
+}
+
+BASE_YES_NO_CHOICES = {
+    'values': (1, 5, NO_ANSWER),
+    'colors': ('green', 'red', 'gray'),
+    'grades': (1, 5)
+}
+
+CHOICES = {
+    Question.LIKERT: Choices(
+        names=[
+            _("Strongly\nagree"),
+            _("Agree"),
+            _("Neutral"),
+            _("Disagree"),
+            _("Strongly\ndisagree"),
+            _("no answer")
+        ],
+        **BASE_UNIPOLAR_CHOICES
+    ),
+    Question.GRADE: Choices(
+        names=[
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            _("no answer")
+        ],
+        **BASE_UNIPOLAR_CHOICES
+    ),
+    Question.POSITIVE_YES_NO: Choices(
+        names=[
+            _("Yes"),
+            _("No"),
+            _("no answer")
+        ],
+        **BASE_YES_NO_CHOICES
+    ),
+    Question.NEGATIVE_YES_NO: Choices(
+        names=[
+            _("No"),
+            _("Yes"),
+            _("no answer")
+        ],
+        **BASE_YES_NO_CHOICES
+    )
+}
+
+
 class Answer(models.Model):
     """An abstract answer to a question. For anonymity purposes, the answering
     user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
@@ -791,7 +849,10 @@ class Answer(models.Model):
 
 
 class RatingAnswerCounter(Answer):
-    """A rating answer counter to a question. A lower answer is better or indicates more agreement."""
+    """A rating answer counter to a question.
+    The interpretation depends on the type of question:
+    unipolar: 1, 2, 3, 4, 5; where lower value means more agreement
+    yes / no: 1, 5; for 1 being the good answer"""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)

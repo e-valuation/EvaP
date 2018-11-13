@@ -1,6 +1,9 @@
 from django.template import Library
-from evap.evaluation.tools import POSITIVE_YES_NO_NAMES, NEGATIVE_YES_NO_NAMES, LIKERT_NAMES, STATE_DESCRIPTIONS, STATES_ORDERED
+
+from evap.evaluation.models import CHOICES
+from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
 from evap.rewards.tools import can_user_use_reward_points
+
 
 register = Library()
 
@@ -53,14 +56,12 @@ def percentage_value(fraction, population):
 
 @register.filter
 def get_answer_name(question, grade):
-    if question.is_likert_question:
-        return LIKERT_NAMES.get(grade)
-    elif question.is_positive_yes_no_question:
-        return POSITIVE_YES_NO_NAMES.get(grade)
-    elif question.is_negative_yes_no_question:
-        return NEGATIVE_YES_NO_NAMES.get(grade)
-    else:
-        return grade
+    choices = CHOICES[question.type]
+    try:
+        idx = choices.grades.index(grade)
+        return choices.names[idx]
+    except (IndexError, ValueError):
+        return None
 
 
 @register.filter
