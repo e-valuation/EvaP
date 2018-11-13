@@ -692,13 +692,29 @@ class Contribution(models.Model):
 class Question(models.Model):
     """A question including a type."""
 
+    TEXT = 0
+    LIKERT = 1
+    GRADE = 2
+    POSITIVE_YES_NO = 3
+    NEGATIVE_YES_NO = 4
+    HEADING = 5
     QUESTION_TYPES = (
-        ("T", _("Text Question")),
-        ("L", _("Likert Question")),
-        ("G", _("Grade Question")),
-        ("P", _("Positive Yes-No Question")),
-        ("N", _("Negative Yes-No Question")),
-        ("H", _("Heading")),
+        (_("Text"), (
+            (TEXT, _("Text question")),
+        )),
+        (_("Unipolar Likert"), (
+            (LIKERT, _("Agreement question")),
+        )),
+        (_("Grade"), (
+            (GRADE, _("Grade question")),
+        )),
+        (_("Yes-no"), (
+            (POSITIVE_YES_NO, _("Positive yes-no question")),
+            (NEGATIVE_YES_NO, _("Negative yes-no question")),
+        )),
+        (_("Layout"), (
+            (HEADING, _("Heading")),
+        ))
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
@@ -707,7 +723,7 @@ class Question(models.Model):
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en='text_en', de='text_de')
 
-    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
+    type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     class Meta:
         ordering = ['order', ]
@@ -725,23 +741,23 @@ class Question(models.Model):
 
     @property
     def is_likert_question(self):
-        return self.type == "L"
+        return self.type == self.LIKERT
 
     @property
     def is_text_question(self):
-        return self.type == "T"
+        return self.type == self.TEXT
 
     @property
     def is_grade_question(self):
-        return self.type == "G"
+        return self.type == self.GRADE
 
     @property
     def is_positive_yes_no_question(self):
-        return self.type == "P"
+        return self.type == self.POSITIVE_YES_NO
 
     @property
     def is_negative_yes_no_question(self):
-        return self.type == "N"
+        return self.type == self.NEGATIVE_YES_NO
 
     @property
     def is_yes_no_question(self):
@@ -757,7 +773,7 @@ class Question(models.Model):
 
     @property
     def is_heading_question(self):
-        return self.type == "H"
+        return self.type == self.HEADING
 
 
 class Answer(models.Model):

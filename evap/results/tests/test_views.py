@@ -56,7 +56,7 @@ class TestResultsViewContributionWarning(WebTest):
         questionnaire = mommy.make(Questionnaire)
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.contribution = mommy.make(Contribution, course=cls.course, questionnaires=[questionnaire], contributor=contributor)
-        cls.likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+        cls.likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = '/results/semester/%s/course/%s' % (cls.semester.id, cls.course.id)
 
     def test_many_answers_course_no_warning(self):
@@ -97,13 +97,13 @@ class TestResultsSemesterCourseDetailView(WebTestWith200Check):
         contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         bottom_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
 
-        top_heading_question = mommy.make(Question, type="H", questionnaire=top_questionnaire, order=0)
-        top_likert_question = mommy.make(Question, type="L", questionnaire=top_questionnaire, order=1)
+        top_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
+        top_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
 
-        contributor_likert_question = mommy.make(Question, type="L", questionnaire=contributor_questionnaire)
+        contributor_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
-        bottom_heading_question = mommy.make(Question, type="H", questionnaire=bottom_questionnaire, order=0)
-        bottom_likert_question = mommy.make(Question, type="L", questionnaire=bottom_questionnaire, order=1)
+        bottom_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0)
+        bottom_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
 
         self.course.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
@@ -126,10 +126,10 @@ class TestResultsSemesterCourseDetailView(WebTestWith200Check):
         contributor = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire)
 
-        heading_question_0 = mommy.make(Question, type="H", questionnaire=questionnaire, order=0)
-        heading_question_1 = mommy.make(Question, type="H", questionnaire=questionnaire, order=1)
-        likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
-        heading_question_2 = mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
+        heading_question_0 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
+        heading_question_1 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        heading_question_2 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
@@ -170,8 +170,8 @@ class TestResultsSemesterCourseDetailViewFewVoters(WebTest):
 
         cls.course = mommy.make(Course, id=22, state='in_evaluation', semester=cls.semester, participants=students)
         questionnaire = mommy.make(Questionnaire)
-        cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
-        mommy.make(Question, questionnaire=questionnaire, type="L")
+        cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = mommy.make(Contribution, contributor=responsible, course=cls.course, questionnaires=[questionnaire])
 
@@ -488,7 +488,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
 
         questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type="L")
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([questionnaire])
 
         responsible = mommy.make(UserProfile, username='responsible')

@@ -61,7 +61,7 @@
     "questionnaire": 1,
     "text_en": "how?",
     "text_de": "how?",
-    "type": "T"
+    "type": 0
   }
 },
 {
@@ -71,7 +71,7 @@
     "questionnaire": 1,
     "text_en": "how much?",
     "text_de": "how much?",
-    "type": "L"
+    "type": 1
   }
 },
 {
@@ -81,7 +81,7 @@
     "questionnaire": 2,
     "text_en": "how?",
     "text_de": "how?",
-    "type": "T"
+    "type": 0
   }
 },
 {
@@ -91,7 +91,7 @@
     "questionnaire": 2,
     "text_en": "how much?",
     "text_de": "how much?",
-    "type": "L"
+    "type": 1
   }
 },
 {
@@ -101,7 +101,7 @@
     "questionnaire": 2,
     "text_en": "your grade",
     "text_de": "your grade",
-    "type": "G"
+    "type": 2
   }
 },
 {

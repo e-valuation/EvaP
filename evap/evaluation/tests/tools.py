@@ -39,9 +39,9 @@ def let_user_vote_for_course(app, user, course):
     for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         for questionnaire in contribution.questionnaires.all():
             for question in questionnaire.questions.all():
-                if question.type == "T":
+                if question.is_text_question:
                     form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
-                elif question.type in ["L", "G", "P", "N"]:
+                elif question.is_rating_question:
                     form[question_id(contribution, questionnaire, question)] = 1
     form.submit()
 

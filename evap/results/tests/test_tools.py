@@ -36,7 +36,7 @@ class TestCalculateResults(TestCase):
 
         course = mommy.make(Course, state='published', participants=[student, contributor1], voters=[student, contributor1])
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, questionnaire=questionnaire, type="G")
+        question = mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         contribution1 = mommy.make(Contribution, contributor=contributor1, course=course, questionnaires=[questionnaire])
 
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=1, count=5)
@@ -64,7 +64,7 @@ class TestCalculateResults(TestCase):
 
         course = mommy.make(Course, state='published', participants=[student])
         questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type="G")
+        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         mommy.make(Contribution, contributor=contributor, course=course, questionnaires=[questionnaire])
 
         collect_results(course)
@@ -85,9 +85,9 @@ class TestCalculateAverageDistribution(TestCase):
 
         cls.course = mommy.make(Course, state='published', participants=[cls.student1, cls.student2], voters=[cls.student1, cls.student2])
         cls.questionnaire = mommy.make(Questionnaire)
-        cls.question_grade = mommy.make(Question, questionnaire=cls.questionnaire, type="G")
-        cls.question_likert = mommy.make(Question, questionnaire=cls.questionnaire, type="L")
-        cls.question_likert_2 = mommy.make(Question, questionnaire=cls.questionnaire, type="L")
+        cls.question_grade = mommy.make(Question, questionnaire=cls.questionnaire, type=Question.GRADE)
+        cls.question_likert = mommy.make(Question, questionnaire=cls.questionnaire, type=Question.LIKERT)
+        cls.question_likert_2 = mommy.make(Question, questionnaire=cls.questionnaire, type=Question.LIKERT)
         cls.general_contribution = cls.course.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = mommy.make(Contribution, contributor=mommy.make(UserProfile), course=cls.course, questionnaires=[cls.questionnaire])
@@ -95,7 +95,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     @override_settings(CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT=4, CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT=6, CONTRIBUTIONS_WEIGHT=3, GENERAL_GRADE_QUESTIONS_WEIGHT=2, GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5)
     def test_average_grade(self):
-        question_grade2 = mommy.make(Question, questionnaire=self.questionnaire, type="G")
+        question_grade2 = mommy.make(Question, questionnaire=self.questionnaire, type=Question.GRADE)
 
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=2, count=1)
         mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2)
@@ -184,7 +184,7 @@ class TestCalculateAverageDistribution(TestCase):
     def test_result_calculation_with_no_contributor_rating_question_does_not_fail(self):
         course = mommy.make(Course, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2])
         questionnaire_text = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire_text, type="T")
+        mommy.make(Question, questionnaire=questionnaire_text, type=Question.TEXT)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course, questionnaires=[questionnaire_text])
 
         course.general_contribution.questionnaires.set([self.questionnaire])
@@ -207,7 +207,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
 
         cls.course = mommy.make(Course, state='published', can_publish_text_results=True)
         cls.questionnaire = mommy.make(Questionnaire)
-        cls.question = mommy.make(Question, questionnaire=cls.questionnaire, type="T")
+        cls.question = mommy.make(Question, questionnaire=cls.questionnaire, type=Question.TEXT)
         cls.general_contribution = cls.course.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = mommy.make(Contribution, contributor=cls.responsible1, course=cls.course,

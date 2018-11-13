@@ -24,7 +24,7 @@ class TestGrantRewardPoints(WebTest):
         cls.course = mommy.make(Course, state='in_evaluation', participants=[cls.student])
 
         questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type="G")
+        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         cls.course.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
