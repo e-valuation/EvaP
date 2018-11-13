@@ -1,0 +1,143 @@
+td.vote-question-text {
+    vertical-align: top;
+}
+
+.vote-question-choice {
+    flex-grow: 1;
+    word-break: break-word;
+}
+
+.vote-text-answer {
+    flex-grow: 1;
+}
+
+.vote-bg-1 { background: $evap-green; }
+.vote-bg-2 { background: $evap-lime; }
+.vote-bg-3 { background: $evap-yellow; }
+.vote-bg-4 { background: $evap-orange; }
+.vote-bg-5 { background: $evap-red; }
+
+td.vote-row {
+    width: 100%;
+}
+
+td.vote-question {
+    width: 40%;
+    padding: 0.5rem 0.75rem;
+}
+
+td.vote-question.choice-error {
+    font-weight: bold;
+    color: $evap-dark-red;
+}
+
+.vote-btn {
+    height: 38px;
+    font-size: 10pt;
+    white-space: normal;
+    line-height: 1.1;
+    width: 90px;
+    border-color: $medium-gray;
+    background-color: $lighter-gray;
+}
+.vote-btn.active {
+    color: $black;
+    box-shadow: inset 0 0 5px $dark-gray;
+}
+.vote-btn:hover {
+    background-color: lighten($light-gray, 5%);
+}
+td.vote-answer-buttons {
+    padding: 0.5rem 0.75rem;;
+}
+.vote-btn-text {
+    position: relative;
+    top: -1px;
+}
+
+div.vote-inputs {
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+div.vote-inputs label.choice-error {
+    border-color: $evap-red;
+}
+
+.vote-btn-1 { color: $evap-dark-green; }
+.vote-btn-2 { color: $evap-dark-lime; }
+.vote-btn-3 { color: $evap-dark-yellow; }
+.vote-btn-4 { color: $evap-dark-orange; }
+.vote-btn-5 { color: $evap-dark-red; }
+.vote-btn-6 { color: $darker-gray; }
+
+.vote-btn-1.active { background-color: $evap-green; }
+.vote-btn-2.active { background-color: $evap-lime; }
+.vote-btn-3.active { background-color: $evap-yellow; }
+.vote-btn-4.active { background-color: $evap-orange; }
+.vote-btn-5.active { background-color: $evap-red; }
+.vote-btn-6.active { background-color: $light-gray; }
+
+div.vote-inputs > textarea {
+    width: 100%;
+    height: 100px;
+}
+
+div.preview > textarea {
+    height: 60px;
+}
+
+.distribution-bar {
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 3px;
+    flex-grow: 1;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.distribution-bar div {
+    display: inline-block;
+}
+
+.distribution-bar div:last-child { width: 100% !important; }
+
+.distribution-bar-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}
+
+.grade-bg {
+    display: inline-block;
+    border-radius: 3px;
+    width: 45px;
+}
+.grade-bg-with-distribution {
+    float: left;
+    margin-right: 5px;
+}
+
+.grade-bg-result-bar {
+    float: right;
+    border-radius: 3px;
+    width: 42px;
+    margin-left: 10px;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: $evap-dark-blue;
+    color: white;
+}
+
+.grade-bg-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}
+
+.grade-bg.vertically-aligned {
+    vertical-align: middle;
+}
