@@ -448,7 +448,7 @@ class TestSemesterDeleteView(WebTest):
         semester = mommy.make(Semester)
         self.assertTrue(semester.can_manager_delete)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
 
