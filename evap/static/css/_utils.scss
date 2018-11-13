@@ -1,3 +1,8 @@
 @mixin bar-shadow($color) {
     text-shadow: 0 0 4px $color, 0 0 4px $color, 0 0 2px $color;
 }
+
+@mixin no-user-select {
+    user-select: none;
+    -moz-user-select: none;
+}

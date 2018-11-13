@@ -282,6 +282,9 @@ a.btn:not([href]):not(.disabled).btn-dark {
 .table-striped tr.d-flex td {
     border-width: 0;
 }
+.table-striped tr:nth-child(odd), .container-striped .row:nth-child(odd) {
+    background-color: darken($lighter-gray, 3%);
+}
 
 #results-table.table th {
     border-top: none;
@@ -505,6 +508,12 @@ button:not(:disabled) {
     border-color: $darker-gray transparent transparent transparent;
 }
 
+@include media-breakpoint-only(lg) {
+    .container {
+        max-width: 1040px;
+    }
+}
+
 
 /* evap styling */
 body {
@@ -564,6 +573,7 @@ body {
     position: fixed;
     right: 10px;
     bottom: 8px;
+    z-index: $zindex-fixed;
     a.btn:not([href]):not(.disabled).btn-dark {
         padding: 0 0.2rem;
         color: $light-gray;

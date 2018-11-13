@@ -190,7 +190,7 @@
             }
             function updateTextareaWarning(textarea) {
                 let showWarning = isTextareaInvalid(textarea);
-                textarea.parents('tr').find('.warning-label').toggleClass('d-none', !showWarning);
+                textarea.parents('.row').find('.warning-label').toggleClass('d-none', !showWarning);
                 textarea.toggleClass('warning-border', showWarning);
             }
             var warningdelayTimer;

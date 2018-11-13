@@ -4,12 +4,14 @@
 {% spaceless %}
 {% if average is not None %}
     <div class="d-flex">
-        <div class="distribution-bar">
-            {% for value in distribution %}
-                {% if value != 0 %}
-                    <div class="vote-bg-{{ forloop.counter }}" style="width: {% widthratio value 1 100 %}%;">&nbsp;</div>
-                {% endif %}
-            {% endfor %}
+        <div class="distribution-bar {{ question_result.choices.cssClass }}">
+            {% with colors=question_result.choices|to_colors %}
+                {% for value, color in distribution|zip:colors %}
+                    {% if value != 0 %}
+                        <div class="vote-bg-{{ color }}" style="width: {{ value|percentage_one_decimal:1 }};">&nbsp;</div>
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
         </div>
         <div class="grade-bg-result-bar text-center" style="background-color: {{ average|gradecolor }}">
             {% if question_result.question.is_yes_no_question %}

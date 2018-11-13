@@ -777,16 +777,18 @@ class Question(models.Model):
         return self.type == self.HEADING
 
 
-Choices = namedtuple('Choices', ('values', 'colors', 'grades', 'names'))
+Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
+    'cssClass': 'vote-type-unipolar',
     'values': (1, 2, 3, 4, 5, NO_ANSWER),
     'colors': ('green', 'lime', 'yellow', 'orange', 'red', 'gray'),
     'grades': (1, 2, 3, 4, 5)
 }
 
 BASE_YES_NO_CHOICES = {
+    'cssClass': 'vote-type-yes-no',
     'values': (1, 5, NO_ANSWER),
     'colors': ('green', 'red', 'gray'),
     'grades': (1, 5)

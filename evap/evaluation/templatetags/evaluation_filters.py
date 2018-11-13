@@ -1,7 +1,7 @@
 from django.forms import TypedChoiceField
 from django.template import Library
 
-from evap.evaluation.models import CHOICES
+from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
 from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
 from evap.rewards.tools import can_user_use_reward_points
 from evap.student.forms import HeadingField
@@ -57,13 +57,12 @@ def percentage_value(fraction, population):
 
 
 @register.filter
-def get_answer_name(question, grade):
-    choices = CHOICES[question.type]
-    try:
-        idx = choices.grades.index(grade)
-        return choices.names[idx]
-    except (IndexError, ValueError):
-        return None
+def to_colors(choices):
+    if not choices:
+        # When displaying the course distribution, there are no associated voting choices.
+        # In that case, we just use the colors of a unipolar scale.
+        return BASE_UNIPOLAR_CHOICES['colors']
+    return choices.colors
 
 
 @register.filter
