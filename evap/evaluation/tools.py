@@ -1,13 +1,11 @@
-from collections import OrderedDict, defaultdict
 import datetime
 import operator
-
+from collections import OrderedDict, defaultdict
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
-from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
+from django.utils.translation import LANGUAGE_SESSION_KEY, get_language, ugettext_lazy as _
 
 
 # the names used for contributors and staff

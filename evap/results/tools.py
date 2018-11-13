@@ -1,12 +1,11 @@
-from collections import namedtuple, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 from functools import partial
 from math import ceil
-import itertools
 
 from django.conf import settings
 from django.core.cache import caches
 
-from evap.evaluation.models import Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
+from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
 
 GRADE_COLORS = {
@@ -50,10 +49,17 @@ class QuestionnaireResult:
 
 
 class RatingResult:
-    def __init__(self, question, counts):
+    def __init__(self, question, answer_counters):
         assert question.is_rating_question
         self.question = question
-        self.counts = counts
+        counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
+        for answer_counter in answer_counters:
+            counts[answer_counter.answer] = answer_counter.count
+        self.counts = tuple(counts.values())
+
+    @property
+    def choices(self):
+        return CHOICES[self.question.type]
 
     @property
     def count_sum(self):
@@ -66,13 +72,13 @@ class RatingResult:
         assert self.question.is_yes_no_question
         if not self.is_published:
             return None
-        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[4]
+        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[1]
 
     @property
     def average(self):
         if not self.has_answers:
             return None
-        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.count_sum
+        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
 
     @property
     def has_answers(self):
@@ -95,22 +101,14 @@ HeadingResult = namedtuple('HeadingResult', ('question'))
 TextAnswerVisibility = namedtuple('TextAnswerVisibility', ('visible_by_contribution', 'visible_by_delegation_count'))
 
 
-def get_counts(answer_counters):
-    counts = [0, 0, 0, 0, 0]
-    for answer_counter in answer_counters:
-        counts[answer_counter.answer - 1] = answer_counter.count
-    return tuple(counts)
-
-
 def get_single_result_rating_result(course):
     assert course.is_single_result
 
     answer_counters = RatingAnswerCounter.objects.filter(contribution__course__pk=course.pk)
     assert 1 <= len(answer_counters) <= 5
 
-    counts = get_counts(answer_counters)
     question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return RatingResult(question, counts)
+    return RatingResult(question, answer_counters)
 
 
 def get_collect_results_cache_key(course):
@@ -135,8 +133,8 @@ def _collect_results_impl(course):
             results = []
             for question in questionnaire.questions.all():
                 if question.is_rating_question:
-                    counts = get_counts(RatingAnswerCounter.objects.filter(contribution=contribution, question=question)) if course.can_publish_rating_results else None
-                    results.append(RatingResult(question, counts))
+                    answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if course.can_publish_rating_results else ()
+                    results.append(RatingResult(question, answer_counters))
                 elif question.is_text_question and course.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                     results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))

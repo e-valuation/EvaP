@@ -1,9 +1,7 @@
-
-from django.test.testcases import TestCase
-from django.core.cache import caches
 from django.conf import settings
+from django.core.cache import caches
 from django.test import override_settings
-
+from django.test.testcases import TestCase
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile

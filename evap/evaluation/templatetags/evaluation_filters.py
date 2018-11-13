@@ -1,8 +1,10 @@
+from django.forms import TypedChoiceField
 from django.template import Library
 
 from evap.evaluation.models import CHOICES
 from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
 from evap.rewards.tools import can_user_use_reward_points
+from evap.student.forms import HeadingField
 
 
 register = Library()
@@ -86,12 +88,12 @@ def _can_user_use_reward_points(user):
 
 @register.filter
 def is_choice_field(field):
-    return field.field.__class__.__name__ == "TypedChoiceField"
+    return isinstance(field.field, TypedChoiceField)
 
 
 @register.filter
 def is_heading_field(field):
-    return field.field.__class__.__name__ == "HeadingField"
+    return isinstance(field.field, HeadingField)
 
 
 @register.filter
