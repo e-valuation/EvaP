@@ -329,7 +329,7 @@ def semester_delete(request):
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
     delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
-    return HttpResponse()  # 200 OK
+    return redirect('staff:index')
 
 
 @manager_required
