@@ -367,7 +367,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
+    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -382,9 +382,6 @@ class ContributionForm(forms.ModelForm):
         model = Contribution
         fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
-        field_classes = {
-            'contributor': UserModelChoiceField,
-        }
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
