@@ -53,10 +53,12 @@ def warm_up_template_cache(courses):
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
 
-def update_template_cache(course):
-    assert course.state == 'published'
-    delete_template_cache_impl(course)
-    warm_up_template_cache([course])
+def _update_template_cache(courses):
+    for course in courses:
+        assert course.state == "published"
+
+        delete_template_cache_impl(course)
+        warm_up_template_cache([course])
 
 
 def get_courses_with_prefetched_data(courses):
