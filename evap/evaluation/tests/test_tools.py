@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.conf import settings
 from django.core import management
 from django.urls import reverse
 from django.test.testcases import TestCase
@@ -8,24 +9,21 @@ from django.utils import translation
 from model_mommy import mommy
 
 from evap.evaluation.tests.tools import WebTest
-from evap.evaluation.tools import set_or_get_language
 from evap.evaluation.models import UserProfile
 
 
 class TestLanguageSignalReceiver(WebTest):
     def test_signal_sets_language_if_none(self):
         """
-        Activate 'de' as language and check that user gets this as initial language as he has None.
+        Check that a user gets the default language set if they have none
         """
-        translation.activate('de')
-
         user = mommy.make(UserProfile, language=None, email="user@institution.example.com")
         user.ensure_valid_login_key()
 
-        set_or_get_language(user=user, request=None)
+        self.app.get("/", user=user)
 
         user.refresh_from_db()
-        self.assertEqual(user.language, 'de')
+        self.assertEqual(user.language, settings.LANGUAGE_CODE)
 
     def test_signal_doesnt_set_language(self):
         """

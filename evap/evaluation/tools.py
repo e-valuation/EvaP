@@ -80,11 +80,11 @@ def date_to_datetime(date):
 @receiver(user_logged_in)
 def set_or_get_language(user, request, **_kwargs):
     if user.language:
-        request.session[LANGUAGE_SESSION_KEY] = user.language
         translation.activate(user.language)
     else:
         user.language = get_language()
         user.save()
+    request.session[LANGUAGE_SESSION_KEY] = user.language
 
 
 def get_due_evaluations_for_user(user):
