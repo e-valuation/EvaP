@@ -696,6 +696,11 @@ class Question(models.Model):
     TEXT = 0
     LIKERT = 1
     GRADE = 2
+    EASY_DIFFICULT = 6
+    FEW_MANY = 7
+    LITTLE_MUCH = 8
+    SMALL_LARGE = 9
+    SLOW_FAST = 10
     POSITIVE_YES_NO = 3
     NEGATIVE_YES_NO = 4
     HEADING = 5
@@ -708,6 +713,13 @@ class Question(models.Model):
         )),
         (_("Grade"), (
             (GRADE, _("Grade question")),
+        )),
+        (_("Bipolar Likert"), (
+            (EASY_DIFFICULT, _("Easy-difficult question")),
+            (FEW_MANY, _("Few-many question")),
+            (LITTLE_MUCH, _("Little-much question")),
+            (SMALL_LARGE, _("Small-large question")),
+            (SLOW_FAST, _("Slow-fast question")),
         )),
         (_("Yes-no"), (
             (POSITIVE_YES_NO, _("Positive yes-no question")),
@@ -745,6 +757,10 @@ class Question(models.Model):
         return self.type == self.LIKERT
 
     @property
+    def is_bipolar_likert_question(self):
+        return self.type in (self.EASY_DIFFICULT, self.FEW_MANY, self.LITTLE_MUCH, self.SLOW_FAST, self.SMALL_LARGE)
+
+    @property
     def is_text_question(self):
         return self.type == self.TEXT
 
@@ -766,7 +782,7 @@ class Question(models.Model):
 
     @property
     def is_rating_question(self):
-        return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
+        return self.is_grade_question or self.is_bipolar_likert_question or self.is_likert_question or self.is_yes_no_question
 
     @property
     def is_non_grade_rating_question(self):
@@ -778,6 +794,7 @@ class Question(models.Model):
 
 
 Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
+BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -785,6 +802,13 @@ BASE_UNIPOLAR_CHOICES = {
     'values': (1, 2, 3, 4, 5, NO_ANSWER),
     'colors': ('green', 'lime', 'yellow', 'orange', 'red', 'gray'),
     'grades': (1, 2, 3, 4, 5)
+}
+
+BASE_BIPOLAR_CHOICES = {
+    'cssClass': 'vote-type-bipolar',
+    'values': (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
+    'colors': ('red', 'orange', 'lime', 'green', 'lime', 'orange', 'red', 'gray'),
+    'grades': (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5)
 }
 
 BASE_YES_NO_CHOICES = {
@@ -816,6 +840,81 @@ CHOICES = {
             _("no answer")
         ],
         **BASE_UNIPOLAR_CHOICES
+    ),
+    Question.EASY_DIFFICULT: BipolarChoices(
+        minus_name=_("Easy"),
+        plus_name=_("Difficult"),
+        names=[
+            _("Way too\neasy"),
+            _("Too\neasy"),
+            _("Slightly too\neasy"),
+            _("Ideal"),
+            _("Slightly too\ndifficult"),
+            _("Too\ndifficult"),
+            _("Way too\ndifficult"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.FEW_MANY: BipolarChoices(
+        minus_name=_("Few"),
+        plus_name=_("Many"),
+        names=[
+            _("Way too\nfew"),
+            _("Too\nfew"),
+            _("Slightly too\nfew"),
+            _("Ideal"),
+            _("Slightly too\nmany"),
+            _("Too\nmany"),
+            _("Way too\nmany"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.LITTLE_MUCH: BipolarChoices(
+        minus_name=_("Little"),
+        plus_name=_("Much"),
+        names=[
+            _("Way too\nlittle"),
+            _("Too\nlittle"),
+            _("Slightly too\nlittle"),
+            _("Ideal"),
+            _("Slightly too\nmuch"),
+            _("Too\nmuch"),
+            _("Way too\nmuch"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.SMALL_LARGE: BipolarChoices(
+        minus_name=_("Small"),
+        plus_name=_("Large"),
+        names=[
+            _("Way too\nsmall"),
+            _("Too\nsmall"),
+            _("Slightly too\nsmall"),
+            _("Ideal"),
+            _("Slightly too\nlarge"),
+            _("Too\nlarge"),
+            _("Way too\nlarge"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.SLOW_FAST: BipolarChoices(
+        minus_name=_("Slow"),
+        plus_name=_("Fast"),
+        names=[
+            _("Way too\nslow"),
+            _("Too\nslow"),
+            _("Slightly too\nslow"),
+            _("Ideal"),
+            _("Slightly too\nfast"),
+            _("Too\nfast"),
+            _("Way too\nfast"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
     ),
     Question.POSITIVE_YES_NO: Choices(
         names=[
@@ -854,6 +953,7 @@ class RatingAnswerCounter(Answer):
     """A rating answer counter to a question.
     The interpretation depends on the type of question:
     unipolar: 1, 2, 3, 4, 5; where lower value means more agreement
+    bipolar: -3, -2, -1, 0, 1, 2, 3; where a lower absolute means more agreement and the sign shows the pole
     yes / no: 1, 5; for 1 being the good answer"""
 
     answer = models.IntegerField(verbose_name=_("answer"))

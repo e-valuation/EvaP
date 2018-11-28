@@ -35,6 +35,10 @@ $vote-colors: (
     &:last-child {
         width: 3.5rem;
     }
+    .vote-type-bipolar &:not(:last-child) {
+        width: 5rem;
+        font-size: 0.8rem;
+    }
 }
 
 .vote-answer-buttons {
@@ -50,7 +54,9 @@ $vote-colors: (
     .vote-btn {
         margin-top: 0;
     }
-    .vote-type-unipolar > .vote-btn:not(:last-child) {
+    .vote-type-unipolar > .vote-btn:not(:last-child),
+    .vote-type-bipolar > .vote-btn:not(:last-child) {
+        width: 0;
         flex: auto;
     }
 }
@@ -102,6 +108,50 @@ div.preview > textarea {
     height: 60px;
 }
 
+.distribution-bar-container {
+    position: relative;
+    border-radius: 3px;
+    flex-grow: 1;
+    background: $lighter-gray;
+    box-shadow: inset 0 0 0 1px $light-gray;
+    @include no-user-select;
+
+    .middle {
+        background: $lighter-gray;
+        position: absolute;
+        height: 100%;
+        $width: 2px;
+        width: $width;
+        top: 0;
+        left: calc(50% - #{$width / 2});
+        border-radius: 3px;
+        box-shadow: 0px 0px 1px $dark-gray;
+    }
+
+    $distance: 0.5rem;
+    .left {
+        left: $distance;
+    }
+    .right {
+        right: $distance;
+    }
+    .left, .right {
+        position: absolute;
+        top: 0;
+        line-height: 1.5rem;
+        color: $darker-gray;
+        font-size: 0.9rem;
+        @include bar-shadow($white);
+    }
+    .fas {
+        color: $white;
+        @include bar-shadow($medium-gray);
+    }
+    &:not(:hover) .adjective, &:hover .fas {
+        display: none;
+    }
+}
+
 .distribution-bar {
     @include no-user-select;
     overflow: hidden;
@@ -110,6 +160,10 @@ div.preview > textarea {
     flex-grow: 1;
     transition: box-shadow 0.15s ease-in-out;
     position: relative;
+
+    &.vote-type-bipolar {
+        width: 50%;
+    }
 
     div {
         display: inline-block;

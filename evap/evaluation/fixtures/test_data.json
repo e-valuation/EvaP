@@ -997,9 +997,20 @@
   "fields": {
     "order": 330,
     "questionnaire": 50,
-    "text_de": "Wie bewertest du die \u00dcbung im Hinblick auf Schwierigkeit, Umfang und Nutzen?",
-    "text_en": "How do you evaluate the exercise concerning difficulty, amount and usefulness?",
+    "text_de": "Wie bewertest du die \u00dcbung im Hinblick auf Umfang und Nutzen?",
+    "text_en": "How do you evaluate the exercise concerning amount and usefulness?",
     "type": 0
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 331,
+  "fields": {
+    "order": 331,
+    "questionnaire": 50,
+    "text_de": "Wie bewertest du die Schwierigkeit der \u00dcbung?",
+    "text_en": "How do you evaluate the difficulty of the exercises?",
+    "type": 6
   }
 },
 {
@@ -1074,9 +1085,9 @@
   "fields": {
     "order": 339,
     "questionnaire": 86,
-    "text_de": "Ich empfand den Aufwand f\u00fcr das Seminar als angemessen.",
-    "text_en": "I think the expenditure of time for the seminar was appropriate.",
-    "type": 1
+    "text_de": "Wie bewertest du den Aufwand des Seminars?",
+    "text_en": "How do you evaluate the expenditure of time for the course?",
+    "type": 8
   }
 },
 {
@@ -1105,7 +1116,7 @@
   "model": "evaluation.question",
   "pk": 342,
   "fields": {
-    "order": 342,
+    "order": 343,
     "questionnaire": 86,
     "text_de": "Was hat das Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the seminar?",
@@ -1547,9 +1558,9 @@
   "fields": {
     "order": 382,
     "questionnaire": 95,
-    "text_de": "Der Zeitaufwand war angemessen.",
-    "text_en": "The expenditure of time was appropriate.",
-    "type": 1
+    "text_de": "Wie bewertest du den Zeitaufwand f\u00fcr das Projekt?",
+    "text_en": "How do you evaluate the expenditure of time for the project?",
+    "type": 8
   }
 },
 {
@@ -1866,9 +1877,9 @@
   "fields": {
     "order": 412,
     "questionnaire": 100,
-    "text_de": "Der Zeitaufwand war angemessen.",
-    "text_en": "The expenditure of time was appropriate.",
-    "type": 1
+    "text_de": "Wie bewertest du den Zeitaufwand?",
+    "text_en": "How do you evaluate the expenditure of time?",
+    "type": 8
   }
 },
 {
@@ -2484,7 +2495,40 @@
     "questionnaire": 110,
     "text_de": "Fanden Sie den Kurs zu schwer?",
     "text_en": "Was the course too difficult?",
-    "type": 4
+    "type": 6
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 475,
+  "fields": {
+    "order": 342,
+    "questionnaire": 86,
+    "text_de": "Wie empfandest du die Gr\u00f6\u00dfe des Seminars?",
+    "text_en": "How do you feel about the size of the seminar?",
+    "type": 9
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 476,
+  "fields": {
+    "order": 332,
+    "questionnaire": 50,
+    "text_de": "Es gab gen\u00fcgend \u00dcbungen.",
+    "text_en": "There were sufficient exercises.",
+    "type": 7
+  }
+},
+{
+  "model": "evaluation.question",
+  "pk": 477,
+  "fields": {
+    "order": 477,
+    "questionnaire": 84,
+    "text_de": "... ist in einem angenehmen Tempo vorangeschritten.",
+    "text_en": "... had a comfortable pace.",
+    "type": 10
   }
 },
 {

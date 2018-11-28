@@ -1,6 +1,6 @@
 from collections import OrderedDict, defaultdict, namedtuple
 from functools import partial
-from math import ceil
+from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
@@ -66,6 +66,12 @@ class RatingResult:
         if not self.is_published:
             return None
         return sum(self.counts)
+
+    @property
+    def minus_balance_count(self):
+        assert self.question.is_bipolar_likert_question
+        portion_left = sum(self.counts[:3]) + self.counts[3] / 2
+        return (self.count_sum - portion_left) / 2
 
     @property
     def approval_count(self):
@@ -158,6 +164,19 @@ def normalized_distribution(distribution):
     return tuple((value / distribution_sum) for value in distribution)
 
 
+def unipolarized_distribution(result):
+    summed_distribution = [0, 0, 0, 0, 0]
+
+    for counts, grade in zip(result.counts, result.choices.grades):
+        grade_fraction, grade = modf(grade)
+        grade = int(grade)
+        summed_distribution[grade - 1] += (1 - grade_fraction) * counts
+        if grade < 5:
+            summed_distribution[grade] += grade_fraction * counts
+
+    return normalized_distribution(summed_distribution)
+
+
 def avg_distribution(weighted_distributions):
     if all(distribution is None for distribution, __ in weighted_distributions):
         return None
@@ -172,13 +191,13 @@ def avg_distribution(weighted_distributions):
 
 def average_grade_questions_distribution(results):
     return avg_distribution(
-        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_grade_question]
+        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_grade_question]
     )
 
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
+        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
     )
 
 
