@@ -463,12 +463,13 @@ class TestLoginUrlEmail(TestCase):
 
         EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
 
+    @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
-        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
+        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -476,8 +477,8 @@ class TestLoginUrlEmail(TestCase):
         self.user.cc_users.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
-        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
+        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -485,14 +486,14 @@ class TestLoginUrlEmail(TestCase):
         # message is not sent to others in cc
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
 
 class TestEmailTemplate(TestCase):

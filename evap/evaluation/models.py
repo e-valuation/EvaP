@@ -17,6 +17,7 @@ from django.template.base import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
@@ -1096,7 +1097,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def login_url(self):
         if not self.needs_login_key:
             return ""
-        return settings.PAGE_URL + "?loginkey=" + str(self.login_key)
+        return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
 
     def get_sorted_contributions(self):
         return self.contributions.order_by('course__semester__created_at', 'course__name_de')

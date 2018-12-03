@@ -35,7 +35,7 @@ class TestLanguageSignalReceiver(WebTest):
         user = mommy.make(UserProfile, language='de', email="user@institution.example.com")
         user.ensure_valid_login_key()
 
-        self.app.get(reverse("results:index") + "?loginkey=%s" % user.login_key)
+        self.app.get(reverse("evaluation:login_key_authentication", args=[user.login_key]))
 
         user.refresh_from_db()
         self.assertEqual(user.language, 'de')
