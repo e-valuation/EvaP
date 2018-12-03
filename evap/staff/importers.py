@@ -47,8 +47,6 @@ class UserData(CommonEqualityMixin):
                                                                  'email': self.email,
                                                                  'title': self.title,
                                                                  'is_active': True})
-        if user.needs_login_key:
-            user.refresh_login_key()
         return user, created
 
     def user_already_exists(self):

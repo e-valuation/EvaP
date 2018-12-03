@@ -9,7 +9,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group,
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.db.models import Count, Q, Manager
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
@@ -1079,17 +1079,20 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def ensure_valid_login_key(self):
         if self.login_key and self.login_key_valid_until > date.today():
+            self.reset_login_key_validity()
             return
 
         while True:
             key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
-            if not UserProfile.objects.filter(login_key=key).exists():
-                # key not yet used
+            try:
                 self.login_key = key
+                self.reset_login_key_validity()
                 break
-        self.refresh_login_key()
+            except IntegrityError:
+                # unique constraint failed, the login key was already in use. Generate another one.
+                continue
 
-    def refresh_login_key(self):
+    def reset_login_key_validity(self):
         self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
