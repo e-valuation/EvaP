@@ -617,6 +617,10 @@ class Course(models.Model):
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
+    @property
+    def has_external_participant(self):
+        return any(participant.is_external for participant in self.participants.all())
+
 
 @receiver(post_transition, sender=Course)
 def warmup_cache_on_publish(instance, target, **_kwargs):
@@ -851,7 +855,6 @@ class FaqSection(models.Model):
     title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
     title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
     title = translate(en='title_en', de='title_de')
-
 
     class Meta:
         ordering = ['order', ]

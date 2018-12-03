@@ -741,6 +741,33 @@ class TestSemesterParticipationDataExportView(WebTest):
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
+class TestLoginKeyExportView(WebTest):
+    url = '/staff/semester/1/course/1/login_key_export'
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+
+        cls.external_user = mommy.make(UserProfile, email="user@external.com")
+        cls.internal_user = mommy.make(UserProfile, email="user@institution.example.com")
+
+        semester = mommy.make(Semester, pk=1)
+        mommy.make(Course, pk=1, semester=semester, participants=[cls.external_user, cls.internal_user], voters=[cls.external_user, cls.internal_user])
+
+    def test_login_key_export_works_as_expected(self):
+        self.assertEqual(self.external_user.login_key, None)
+        self.assertEqual(self.internal_user.login_key, None)
+
+        response = self.app.get(self.url, user='manager')
+
+        self.external_user.refresh_from_db()
+        self.assertNotEqual(self.external_user.login_key, None)
+        self.assertEqual(self.internal_user.login_key, None)
+
+        expected_string = "Last name;First name;Email;Login key\n;;user@external.com;localhost:8000/key/{}\n".format(self.external_user.login_key)
+        self.assertEqual(response.body.decode(), expected_string)
+
+
 class TestCourseOperationView(WebTest):
     url = '/staff/semester/1/courseoperation'
 
@@ -1124,7 +1151,7 @@ class TestCoursePreviewView(WebTestWith200Check):
 
 
 class TestCourseImportPersonsView(WebTest):
-    url = "/staff/semester/1/course/1/person_import"
+    url = "/staff/semester/1/course/1/person_management"
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")

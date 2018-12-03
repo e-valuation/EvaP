@@ -404,7 +404,7 @@ def semester_export(request, semester_id):
 
 
 @manager_required
-def semester_raw_export(request, semester_id):
+def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
@@ -428,7 +428,7 @@ def semester_raw_export(request, semester_id):
 
 
 @manager_required
-def semester_participation_export(request, semester_id):
+def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     participants = UserProfile.objects.filter(courses_participating_in__semester=semester).distinct().order_by("username")
 
@@ -733,7 +733,7 @@ def course_email(request, semester_id, course_id):
 
 
 @manager_required
-def course_person_import(request, semester_id, course_id):
+def course_person_management(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
     if course.participations_are_archived:
@@ -787,11 +787,32 @@ def course_person_import(request, semester_id, course_id):
     participant_test_passed = import_file_exists(request.user.id, 'participant')
     contributor_test_passed = import_file_exists(request.user.id, 'contributor')
     # casting warnings to a normal dict is necessary for the template to iterate over it.
-    return render(request, "staff_course_person_import.html", dict(semester=semester, course=course,
+    return render(request, "staff_course_person_management.html", dict(semester=semester, course=course,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
         success_messages=success_messages, warnings=dict(warnings), errors=errors,
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
+
+
+@manager_required
+def course_login_key_export(_request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, semester=semester, id=course_id)
+
+    filename = "Login_keys-{course.name}-{semester.short_name}.csv".format(course=course, semester=semester)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow([_('Last name'), _('First name'), _('Email'), _('Login key')])
+
+    external_participants = (participant for participant in course.participants.all() if participant.is_external)
+    for participant in external_participants:
+        participant.ensure_valid_login_key()
+        writer.writerow([participant.last_name, participant.first_name, participant.email, participant.login_url])
+
+    return response
 
 
 @reviewer_required
@@ -1392,7 +1413,7 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def download_sample_xls(request, filename):
+def download_sample_xls(_request, filename):
     email_placeholder = "institution.com"
 
     if filename not in ["sample.xls", "sample_user.xls"]:
