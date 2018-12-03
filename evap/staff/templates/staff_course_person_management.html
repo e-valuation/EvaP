@@ -1,0 +1,112 @@
+{% extends 'staff_course_base.html' %}
+
+{% load static %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% include 'staff_message_rendering_template.html' with errors=errors warnings=warnings success_messages=success_messages %}
+
+    <div class="row mb-3">
+        <div class="col">
+            <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body import-card h-100">
+                        <h4 class="card-title">{% trans 'Import participants' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
+                        <p class="card-text">{% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
+                        {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
+                    </div>
+                    <div class="card-footer text-center">
+                        {% if not participant_test_passed %}
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                        {% else %}
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <div class="form-submit-btn-divider"></div>
+                            <button name="operation" value="import-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col">
+            <form id="participant-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+                {% csrf_token %}
+                <div class="card h-100">
+                    <div class="card-body import-card">
+                        <h4 class="card-title">{% trans 'Copy participants' %}</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other course' %}</h6>
+                        <p class="card-text">{% trans 'Copy participants from another course.' %}</p>
+                        {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
+                    </div>
+                    <div class="card-footer text-center">
+                        <button name="operation" value="copy-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <form id="contributor-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+                {% csrf_token %}
+                <div class="card h-100">
+                    <div class="card-body import-card">
+                        <h4 class="card-title">{% trans 'Import contributors' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
+                        <p class="card-text">{% trans 'Upload Excel file with contributor data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
+                        {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
+                    </div>
+                    <div class="card-footer text-center">
+                        {% if not contributor_test_passed %}
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                        {% else %}
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <div class="form-submit-btn-divider"></div>
+                            <button name="operation" value="import-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col">
+            <form id="contributor-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
+                {% csrf_token %}
+                <div class="card h-100">
+                    <div class="card-body import-card">
+                        <h4 class="card-title">{% trans 'Copy contributors' %}</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other course' %}</h6>
+                        <p class="card-text">{% trans 'Copy contributors from another course.' %}</p>
+                        {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
+                    </div>
+                    <div class="card-footer text-center">
+                        <button name="operation" value="copy-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <form id="login-key-export-form" method="POST" class="form-vertical" action="{% url 'staff:course_login_key_export' semester.id course.id %}">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body import-card">
+                        <h4 class="card-title">{% trans 'Export login keys' %}</h4>
+                        <h6 class="card-subtitle mb-2 text-muted">{% trans 'To CSV file' %}</h6>
+                        <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external users.' %}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
+                        {% if not course.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This course has no external users." %}"{% endif %}>
+                            {% trans 'Export login keys' %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

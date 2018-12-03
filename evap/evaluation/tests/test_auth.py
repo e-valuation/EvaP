@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.core import mail
+from django.test import override_settings
 
 from model_mommy import mommy
 
@@ -20,29 +21,38 @@ class LoginTests(WebTest):
         mommy.make(Contribution, course=course, contributor=cls.external_user, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, course=course, contributor=cls.inactive_external_user, can_edit=True, responsible=False, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
+    @override_settings(PAGE_URL='https://example.com')
+    def test_login_url_generation(self):
+        generated_url = self.external_user.login_url
+        self.assertEqual(generated_url, 'https://example.com/key/{}'.format(self.external_user.login_key))
+
+        reversed_url = reverse('evaluation:login_key_authentication', args=[self.external_user.login_key])
+        self.assertEqual(reversed_url, '/key/{}'.format(self.external_user.login_key))
+
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
 
-        url_with_key = reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key
-        self.app.get(url_with_key)
+        url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
+        page = self.app.get(url_with_key).follow().follow()
+        self.assertContains(page, 'Logout')
 
     def test_login_key_valid_only_once(self):
-        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key)
+        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])).follow().follow()
         self.assertContains(page, self.external_user.full_name)
 
         page = self.app.get(reverse("django-auth-logout")).follow()
         self.assertNotContains(page, 'Logout')
 
-        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.external_user.login_key).follow()
+        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])).follow()
         self.assertContains(page, 'The login URL is not valid anymore.')
         self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
 
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
-        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % new_key)
+        page = self.app.get(reverse("evaluation:login_key_authentication", args=[new_key])).follow().follow()
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
-        page = self.app.get(reverse("contributor:index") + "?loginkey=%s" % self.inactive_external_user.login_key).follow()
+        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertNotContains(page, "Logout")
 

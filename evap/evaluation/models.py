@@ -9,7 +9,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group,
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.db.models import Count, Q, Manager
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
@@ -17,6 +17,7 @@ from django.template.base import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
@@ -616,6 +617,10 @@ class Course(models.Model):
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
 
+    @property
+    def has_external_participant(self):
+        return any(participant.is_external for participant in self.participants.all())
+
 
 @receiver(post_transition, sender=Course)
 def warmup_cache_on_publish(instance, target, **_kwargs):
@@ -851,7 +856,6 @@ class FaqSection(models.Model):
     title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
     title = translate(en='title_en', de='title_de')
 
-
     class Meta:
         ordering = ['order', ]
         verbose_name = _("section")
@@ -1078,17 +1082,20 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def ensure_valid_login_key(self):
         if self.login_key and self.login_key_valid_until > date.today():
+            self.reset_login_key_validity()
             return
 
         while True:
             key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
-            if not UserProfile.objects.filter(login_key=key).exists():
-                # key not yet used
+            try:
                 self.login_key = key
+                self.reset_login_key_validity()
                 break
-        self.refresh_login_key()
+            except IntegrityError:
+                # unique constraint failed, the login key was already in use. Generate another one.
+                continue
 
-    def refresh_login_key(self):
+    def reset_login_key_validity(self):
         self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
@@ -1096,7 +1103,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def login_url(self):
         if not self.needs_login_key:
             return ""
-        return settings.PAGE_URL + "?loginkey=" + str(self.login_key)
+        return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
 
     def get_sorted_contributions(self):
         return self.contributions.order_by('course__semester__created_at', 'course__name_de')

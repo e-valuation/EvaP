@@ -71,7 +71,7 @@
                 ({{ course.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </span>
         {% else %}
-            <a class="small no-underline" href="{% url 'staff:course_person_import' semester.id course.id %}" data-toggle="tooltip" data-placement="right" title="{% trans 'Click to add contributors' %}">
+            <a class="small no-underline" href="{% url 'staff:course_person_management' semester.id course.id %}" data-toggle="tooltip" data-placement="right" title="{% trans 'Click to add contributors' %}">
                 ({{ course.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </a>
         {% endif %}
@@ -151,7 +151,7 @@
     </td>
 {% else %}
     <td style="width: 20%">
-        <a class="no-underline" href="{% url 'staff:course_person_import' semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Click to add participants' %}">
+        <a class="no-underline" href="{% url 'staff:course_person_management' semester.id course.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Manage participants' %}">
             <span class="fas fa-user"></span> {{ course.num_participants }}
         </a>
     </td>

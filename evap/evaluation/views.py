@@ -1,4 +1,5 @@
 import logging
+from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib import messages, auth
@@ -78,6 +79,39 @@ def index(request):
             return redirect('contributor:index')
         else:
             return redirect('results:index')
+
+
+def login_key_authentication(request, key):
+    user = auth.authenticate(request, key=key)
+
+    if user and not user.is_active:
+        messages.error(request, _("Inactive users are not allowed to login."))
+        return redirect('evaluation:index')
+
+    # If we already have an authenticated user don't try to login a new user. Show an error message if another user
+    # tries to login with a URL in this situation.
+    if request.user.is_authenticated:
+        if user != request.user:
+            messages.error(request, _("Another user is currently logged in. Please logout first and then use the login URL again."))
+        return redirect('evaluation:index')
+
+    if user and user.login_key_valid_until >= date.today():
+        # User is valid. Set request.user and persist user in the session by logging the user in.
+        request.user = user
+        auth.login(request, user)
+        messages.success(request, _("Logged in as %s.") % user.full_name)
+        # Invalidate the login key, but keep it stored so we can later identify the user that is trying to login and send a new link
+        user.login_key_valid_until = date.today() - timedelta(1)
+        user.save()
+    elif user:
+        # A user exists, but the login key is not valid anymore. Send the user a new one.
+        user.ensure_valid_login_key()
+        EmailTemplate.send_login_url_to_user(user)
+        messages.warning(request, _("The login URL is not valid anymore. We sent you a new one to your email address."))
+    else:
+        messages.warning(request, _("Invalid login URL. Please request a new one below."))
+
+    return redirect('evaluation:index')
 
 
 def faq(request):

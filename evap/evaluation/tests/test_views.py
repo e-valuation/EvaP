@@ -22,7 +22,7 @@ class TestIndexView(WebTest):
         password_form['password'] = 'evap'
         self.assertEqual(password_form.submit().status_code, 302)
 
-    def test_send_new_loginkey(self):
+    def test_send_new_login_key(self):
         """ Tests whether requesting a new login key is only possible for existing users,
             shows the expected success message and sends only one email to the requesting
             user without people in cc even if the user has delegates and cc users. """
