@@ -13,6 +13,7 @@ from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceF
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import date_to_datetime
+from evap.results.views import update_template_cache
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,12 @@ class SemesterForm(forms.ModelForm):
         model = Semester
         fields = ("name_de", "name_en", "short_name_de", "short_name_en")
 
+    def save(self, *args, **kwargs):
+        semester = super().save(*args, **kwargs)
+        if 'short_name_en' in self.changed_data or 'short_name_de' in self.changed_data:
+            update_template_cache(semester.courses.filter(state="published"))
+        return semester
+
 
 class DegreeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -100,6 +107,12 @@ class DegreeForm(forms.ModelForm):
         if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting degree not allowed")
 
+    def save(self, *args, **kwargs):
+        degree = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(degree.courses.filter(state="published"))
+        return degree
+
 
 class CourseTypeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -115,6 +128,12 @@ class CourseTypeForm(forms.ModelForm):
         super().clean()
         if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting course type not allowed")
+
+    def save(self, *args, **kwargs):
+        course_type = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(course_type.courses.filter(state="published"))
+        return course_type
 
 
 class CourseTypeMergeSelectionForm(forms.Form):

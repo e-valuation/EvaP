@@ -23,6 +23,10 @@ def get_course_result_template_fragment_cache_key(course_id, language, can_user_
 
 def delete_template_cache(course):
     assert course.state != 'published'
+    _delete_template_cache_impl(course)
+
+
+def _delete_template_cache_impl(course):
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', True))
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', False))
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', True))
@@ -47,6 +51,13 @@ def warm_up_template_cache(courses):
             assert get_course_result_template_fragment_cache_key(course.id, 'de', False) in caches['results']
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
+
+
+def update_template_cache(courses):
+    for course in courses:
+        assert course.state == "published"
+        _delete_template_cache_impl(course)
+        warm_up_template_cache([course])
 
 
 def get_courses_with_prefetched_data(courses):
