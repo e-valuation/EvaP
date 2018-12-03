@@ -694,9 +694,9 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
-            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\r\n"
-            "Course 1;;Type;False;new;1;1;0;\r\n"
-            "Course 2;;Type;False;new;0;1;0;\r\n"
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
+            "Course 1;;Type;False;new;1;1;0;\n"
+            "Course 2;;Type;False;new;0;1;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -706,8 +706,8 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
-            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\r\n"
-            "Single Result;;Type;True;new;5;5;0;\r\n"
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
+            "Single Result;;Type;True;new;5;5;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -735,9 +735,9 @@ class TestSemesterParticipationDataExportView(WebTest):
         response = self.app.get(self.url, user='manager')
         expected_content = (
             "Username;Can use reward points;#Required courses voted for;#Required courses;#Optional courses voted for;"
-            "#Optional courses;Earned reward points\r\n"
-            "student;False;1;1;0;1;65\r\n"
-            "student2;False;0;0;0;1;0\r\n")
+            "#Optional courses;Earned reward points\n"
+            "student;False;1;1;0;1;65\n"
+            "student2;False;0;0;0;1;0\n")
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 

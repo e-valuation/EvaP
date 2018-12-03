@@ -411,7 +411,7 @@ def semester_raw_export(request, semester_id):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
 
-    writer = csv.writer(response, delimiter=";")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
         _('#Participants'), _('#Text answers'), _('Average grade')])
     for course in semester.courses.all():
@@ -436,7 +436,7 @@ def semester_participation_export(request, semester_id):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
 
-    writer = csv.writer(response, delimiter=";")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required courses voted for'),
         _('#Required courses'), _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
     for participant in participants:
