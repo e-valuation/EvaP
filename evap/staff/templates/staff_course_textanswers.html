@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Comments' %}</li>
+    <li class="breadcrumb-item">{% trans 'Text answers' %}</li>
 {% endblock %}
 
 {% block content %}
@@ -14,14 +14,14 @@
         <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
         <div class="btn-switch btn-switch-light my-auto d-print-none">
             <div class="btn-switch-label">{% trans 'View' %}</div>
-            <div class="btn-group">
-                <a href="{% url 'staff:course_comments' semester.id course.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
+            <div class="btn-switch btn-group">
+                <a href="{% url 'staff:course_textanswers' semester.id course.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
                     {% trans 'Quick' %}
                 </a>
-                <a href="{% url 'staff:course_comments' semester.id course.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
+                <a href="{% url 'staff:course_textanswers' semester.id course.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
                     {% trans 'Full' %}
                 </a>
-                <a href="{% url 'staff:course_comments' semester.id course.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
+                <a href="{% url 'staff:course_textanswers' semester.id course.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
                     {% trans 'Unreviewed' %}
                 </a>
             </div>

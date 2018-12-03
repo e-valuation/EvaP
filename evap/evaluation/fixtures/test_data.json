@@ -338,8 +338,8 @@
     "type": 20,
     "name_de": "Kommentare zur Person",
     "name_en": "Personal Feedback",
-    "description_de": "Dieser Fragebogen kann f\u00fcr alle Mitwirkenden genutzt werden, die sichtbar f\u00fcr Studenten an einer Lehrveranstaltung beteiligt waren. Er enth\u00e4lt eine Kommentar-Frage.",
-    "description_en": "This questionnaire can be used for all kinds of contributors who actively participated in a course. It contains one comment question for general remarks on that person.",
+    "description_de": "Dieser Fragebogen kann f\u00fcr alle Mitwirkenden genutzt werden, die sichtbar f\u00fcr Studenten an einer Lehrveranstaltung beteiligt waren. Er enth\u00e4lt eine Textfrage.",
+    "description_en": "This questionnaire can be used for all kinds of contributors who actively participated in a course. It contains one text question for general remarks on that person.",
     "public_name_de": "Kommentare zur Person",
     "public_name_en": "Personal Feedback",
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
@@ -356,8 +356,8 @@
     "type": 10,
     "name_de": "Kommentare zu weiteren Mitwirkenden",
     "name_en": "Remarks on additional contributors",
-    "description_de": "Dieser Fragebogen kann f\u00fcr Lehrveranstaltungen genutzt werden, bei denen zus\u00e4tzliche Personen mitgewirkt haben, die nicht gesondert aufgef\u00fchrt sind.\r\nEr enth\u00e4lt lediglich eine Kommentarfrage.",
-    "description_en": "This questionnaire can be used for all courses that have additional contributors who weren't explicitly named.\r\nIt contains just one comment question.",
+    "description_de": "Dieser Fragebogen kann f\u00fcr Lehrveranstaltungen genutzt werden, bei denen zus\u00e4tzliche Personen mitgewirkt haben, die nicht gesondert aufgef\u00fchrt sind.\r\nEr enth\u00e4lt lediglich eine Textfrage.",
+    "description_en": "This questionnaire can be used for all courses that have additional contributors who weren't explicitly named.\r\nIt contains just one text question.",
     "public_name_de": "Kommentare zu weiteren Mitwirkenden",
     "public_name_en": "Remarks on additional contributors",
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
@@ -84190,7 +84190,7 @@
   "fields": {
     "question": 440,
     "contribution": 4090,
-    "answer": "Comment",
+    "answer": "Text answer",
     "original_answer": null,
     "state": "PU"
   }
@@ -99942,7 +99942,7 @@
   "pk": 1,
   "fields": {
     "section": 1,
-    "order": 0,
+    "order": 1,
     "question_de": "Was ist EvaP?",
     "question_en": "What is EvaP?",
     "answer_de": "EvaP ist eine Evaluierungsplattform f\u00fcr Lehrveranstaltungen an Universit\u00e4ten.<br />Entwickelt wurde sie urspr\u00fcnglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universit\u00e4t Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/fsr-itse/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ \u2013 eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung \u2013 im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufw\u00e4ndig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
@@ -99954,11 +99954,11 @@
   "pk": 2,
   "fields": {
     "section": 1,
-    "order": 1,
+    "order": 2,
     "question_de": "Wer betreibt die Plattform?",
     "question_en": "Who runs the platform?",
-    "answer_de": "F\u00fcr den Betrieb der Plattform und den Ablauf der Evaluierung ist der Fachschaftsrat verantwortlich.",
-    "answer_en": "The student representatives run the platform and are responsible for the evaluation process."
+    "answer_de": "F\u00fcr den Betrieb der Plattform und den Ablauf der Evaluierung ist das Evaluierungsteam verantwortlich.",
+    "answer_en": "The evaluation team is running the platform and is responsible for the evaluation process."
   }
 },
 {
@@ -99966,11 +99966,11 @@
   "pk": 3,
   "fields": {
     "section": 1,
-    "order": 2,
+    "order": 3,
     "question_de": "Wie melde ich mich auf der Plattform an?",
     "question_en": "How do I login on the platform?",
-    "answer_de": "F\u00fcr die Anmeldung gibt es zwei M\u00f6glichkeiten:<ul><li>Als HPI-Dozent oder -Student mit dem HPI-Login.</li><li>Als externer Nutzer mit einem Anmeldeschl\u00fcssel, der per E\u2011Mail versendet wird.</li></ul>",
-    "answer_en": "There are two options to login:<ul><li>Lecturers and Students from HPI can use their HPI login credentials.</li><li>External users have to use a login key, which they can get via email.</li></ul>"
+    "answer_de": "F\u00fcr die Anmeldung gibt es zwei M\u00f6glichkeiten:<ul><li>Als Dozent oder Student mit dem Login.</li><li>Als externer Nutzer mit einem Anmeldeschl\u00fcssel, der per E\u2011Mail versendet wird.</li></ul>",
+    "answer_en": "There are two options to login:<ul><li>Lecturers and Students can use their login credentials.</li><li>External users have to use a login key, which they can get via email.</li></ul>"
   }
 },
 {
@@ -99978,11 +99978,11 @@
   "pk": 4,
   "fields": {
     "section": 1,
-    "order": 3,
+    "order": 4,
     "question_de": "Warum braucht man als externer Nutzer einen Anmeldeschl\u00fcssel und wie funktioniert dieser?",
     "question_en": "Why do external users need a login key and how does it work?",
-    "answer_de": "Externe Dozenten und Studenten besitzen keinen HPI-Login. Dennoch muss sichergestellt werden, dass sie sich als der richtige Nutzer auf der Plattform anmelden k\u00f6nnen.<br />Um sich einen Anmeldeschl\u00fcssel generieren zu lassen, m\u00fcssen Sie Ihre E-Mail-Adresse angeben. Verwenden Sie dazu bitte die Adresse, die auch dem Studienreferat bekannt ist, da nur diese an den Fachschaftsrat weitergegeben und somit auf der Plattform hinterlegt wird.<br />Sie erhalten Ihren Schl\u00fcssel anschlie\u00dfend per E-Mail zugeschickt und k\u00f6nnen sich mit diesem anmelden. Da der Schl\u00fcssel eindeutig Ihrer E-Mail-Adresse zugeordnet werden kann, wei\u00df die Plattform, welcher Nutzer sich gerade anmeldet.",
-    "answer_en": "External lecturers and students don't have HPI login credentials. But the platform still needs to make sure that they can login as the correct user.<br />If you want to get a login key for yourself, you need to enter your email address on the login page. This must be the address already registered on the platform. During the data import the student representatives are getting this email address from the \"Studienreferat\". Please make sure to use the email address already known to them.<br />You will immediately get your key via email. This key is linked to your email address, so the platform can identify you when using the key to login."
+    "answer_de": "Externe Dozenten und Studenten besitzen keinen Login. Dennoch muss sichergestellt werden, dass sie sich als der richtige Nutzer auf der Plattform anmelden k\u00f6nnen.<br />Um sich einen Anmeldeschl\u00fcssel generieren zu lassen, m\u00fcssen Sie Ihre E-Mail-Adresse angeben. Verwenden Sie dazu bitte die Adresse, die bei der Anmeldung f\u00fcr die Veranstaltung verwendet wurde, da nur diese an das Evaluierungsteam weitergegeben und somit auf der Plattform hinterlegt wird.<br />Sie erhalten Ihren Schl\u00fcssel anschlie\u00dfend per E-Mail zugeschickt und k\u00f6nnen sich mit diesem anmelden. Da der Schl\u00fcssel eindeutig Ihrer E-Mail-Adresse zugeordnet werden kann, wei\u00df die Plattform, welcher Nutzer sich gerade anmeldet.",
+    "answer_en": "External lecturers and students don't have login credentials. But the platform still needs to make sure that they can login as the correct user.<br />If you want to get a login key for yourself, you need to enter your email address on the login page. Please make sure to use the email address which was used during enrolment for the course, as that one is given to the evaluation team and is already registered on the platform.<br />You will immediately get your key via email. This key is linked to your email address, so the platform can identify you when using the key to login."
   }
 },
 {
@@ -99990,11 +99990,11 @@
   "pk": 5,
   "fields": {
     "section": 1,
-    "order": 4,
+    "order": 5,
     "question_de": "Wie kann ich mich registrieren?",
     "question_en": "How can I register?",
-    "answer_de": "Nutzer werden f\u00fcr neue Studierende und Dozenten automatisch angelegt. Zus\u00e4tzlich kann der Fachschaftsrat weitere Nutzer anlegen, falls dies notwendig ist.<br />Eine selbstst\u00e4ndige Registrierung ist nicht m\u00f6glich.",
-    "answer_en": "Users are created automatically for new students and lecturers. Additional users can be added by the student representatives if necessary.<br />An autonomous registration is not possible."
+    "answer_de": "Nutzer werden f\u00fcr neue Studierende und Dozenten automatisch angelegt. Zus\u00e4tzlich kann das Evaluierungsteam weitere Nutzer anlegen, falls dies notwendig ist.<br />Eine selbstst\u00e4ndige Registrierung ist nicht m\u00f6glich.",
+    "answer_en": "Users are created automatically for new students and lecturers. Additional users can be added by the evaluation team if necessary.<br />An autonomous registration is not possible."
   }
 },
 {
@@ -100002,11 +100002,11 @@
   "pk": 6,
   "fields": {
     "section": 2,
-    "order": 0,
+    "order": 1,
     "question_de": "Was ist die Evaluierung?",
     "question_en": "What is the evaluation?",
-    "answer_de": "Die Evaluierung ist die Beurteilung von Lehrveranstaltungen. Ziel ist es, die Qualit\u00e4t der Lehre zu verbessern, indem Dozenten, Gesch\u00e4ftsleitung und Studierende Feedback zu den einzelnen Veranstaltungen erhalten.<br />Die Studierenden k\u00f6nnen auf dieser Online-Plattform anonym Frageb\u00f6gen f\u00fcr ihre belegten Lehrveranstaltungen ausf\u00fcllen. Die Auswertung der Frageb\u00f6gen wird anschlie\u00dfend ver\u00f6ffentlicht und ist ebenfalls online zug\u00e4nglich.",
-    "answer_en": "Evaluation is the process of getting feedback for courses. It aims at helping to improve the quality of teaching by providing this feedback to lecturers, students and HPI management.<br />This online platform allows students to anonymously complete questionnaires for all the courses they are enrolled in. Afterwards the results will be published online."
+    "answer_de": "Die Evaluierung ist die Beurteilung von Lehrveranstaltungen. Ziel ist es, die Qualit\u00e4t der Lehre zu verbessern, indem Dozenten, Studierende und Verwaltung Feedback zu den einzelnen Veranstaltungen erhalten.<br />Die Studierenden k\u00f6nnen auf dieser Online-Plattform anonym Frageb\u00f6gen f\u00fcr ihre belegten Lehrveranstaltungen ausf\u00fcllen. Die Auswertung der Frageb\u00f6gen wird anschlie\u00dfend ver\u00f6ffentlicht und ist ebenfalls online zug\u00e4nglich.",
+    "answer_en": "Evaluation is the process of getting feedback for courses. It aims at helping to improve the quality of teaching by providing this feedback to lecturers, students and management.<br />This online platform allows students to anonymously complete questionnaires for all the courses they are enrolled in. Afterwards the results will be published online."
   }
 },
 {
@@ -100014,11 +100014,11 @@
   "pk": 7,
   "fields": {
     "section": 2,
-    "order": 1,
+    "order": 2,
     "question_de": "Woher kommen die Daten?",
     "question_en": "Where does the data come from?",
-    "answer_de": "In jedem Semester erh\u00e4lt der Fachschaftsrat vom Studienreferat die Belegungsdaten. Diese Informationen enthalten alle Lehrveranstaltungen, den jeweiligen verantwortlichen Dozenten und die Belegungen der Studierenden. Somit ist sichergestellt, dass in EvaP alle Lehrveranstaltungen eingetragen sind und die Studierenden nur Veranstaltungen bewerten k\u00f6nnen, die sie auch tats\u00e4chlich belegt haben. Sollten Sie Fehler in den Daten bemerken, wenden Sie sich bitte an den Fachschaftsrat.",
-    "answer_en": "Every semester the student representatives are getting the enrolment data by the \"Studienreferat\". This includes all courses, their responsible lecturers and the enrolment information of all students. In this way it's ensured that all courses are available for evaluation and that students can only vote for the courses they are enrolled in. If you should find any mistake, please send a message to the student representatives."
+    "answer_de": "In jedem Semester erh\u00e4lt das Evaluierungsteam vom Studienreferat die Belegungsdaten. Diese Informationen enthalten alle Lehrveranstaltungen, den jeweiligen verantwortlichen Dozenten und die Belegungen der Studierenden. Somit ist sichergestellt, dass in EvaP alle Lehrveranstaltungen eingetragen sind und die Studierenden nur Veranstaltungen bewerten k\u00f6nnen, die sie auch tats\u00e4chlich belegt haben. Sollten Sie Fehler in den Daten bemerken, wenden Sie sich bitte an das Evaluierungsteam.",
+    "answer_en": "Every semester the evaluation team is getting the enrolment data by the by the office of student affairs. This includes all courses, their responsible lecturers and the enrolment information of all students. In this way it's ensured that all courses are available for evaluation and that students can only vote for the courses they are enrolled in. If you should find any mistake, please send a message to the evaluation team."
   }
 },
 {
@@ -100026,7 +100026,7 @@
   "pk": 8,
   "fields": {
     "section": 2,
-    "order": 2,
+    "order": 3,
     "question_de": "Wie sind Frageb\u00f6gen aufgebaut?",
     "question_en": "How are the questionnaires created?",
     "answer_de": "Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Frageb\u00f6gen, z.B. Fragen zu Lehrmitteln, einem \u00dcbungsleiter oder dem Inhalt der Veranstaltung. Jeder dieser Frageb\u00f6gen wiederum besteht aus einer oder mehreren Fragen.",
@@ -100038,10 +100038,10 @@
   "pk": 9,
   "fields": {
     "section": 2,
-    "order": 3,
+    "order": 4,
     "question_de": "Welche Arten von Fragen gibt es?",
     "question_en": "What types of questions are asked?",
-    "answer_de": "Grunds\u00e4tzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer f\u00fcnfstufigen Skala ermitteln. Es ist auch m\u00f6glich, mit \u201ekeine Angabe\u201c zu stimmen.</li><li>Kommentar-Fragen, auf die man in einem Textfeld antworten kann.</li></ul>",
+    "answer_de": "Grunds\u00e4tzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer f\u00fcnfstufigen Skala ermitteln. Es ist auch m\u00f6glich, mit \u201ekeine Angabe\u201c zu stimmen.</li><li>Textfragen, auf die man in einem Textfeld antworten kann.</li></ul>",
     "answer_en": "There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"no answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
   }
 },
@@ -100050,11 +100050,11 @@
   "pk": 10,
   "fields": {
     "section": 2,
-    "order": 4,
+    "order": 5,
     "question_de": "Wie werden Frageb\u00f6gen einer Lehrveranstaltung zugeordnet?",
     "question_en": "How are the questionnaires for a course selected?",
-    "answer_de": "Zu Beginn nimmt der Fachschaftsrat die Zuordnung passender Frageb\u00f6gen vor. Au\u00dferdem k\u00f6nnen Dozenten weitere Frageb\u00f6gen erg\u00e4nzen, falls Sie zus\u00e4tzliche Fragen stellen wollen.",
-    "answer_en": "The initial selection is done by the student representatives. In addition lecturers can add more questionnaires if they would like to ask further questions."
+    "answer_de": "Zu Beginn nimmt das Evaluierungsteam die Zuordnung passender Frageb\u00f6gen vor. Au\u00dferdem k\u00f6nnen Dozenten weitere Frageb\u00f6gen erg\u00e4nzen, falls Sie zus\u00e4tzliche Fragen stellen wollen.",
+    "answer_en": "The initial selection is done by the evaluation team. In addition lecturers can add more questionnaires if they would like to ask further questions."
   }
 },
 {
@@ -100062,7 +100062,7 @@
   "pk": 11,
   "fields": {
     "section": 3,
-    "order": 0,
+    "order": 1,
     "question_de": "Wann sind die Ergebnisse verf\u00fcgbar?",
     "question_en": "When are the results published?",
     "answer_de": "Die Ergebnisse der Evaluierung werden ver\u00f6ffentlicht, nachdem der Evaluierungszeitraum abgelaufen ist und alle Noten der Veranstaltung bekanntgegeben wurden.",
@@ -100074,11 +100074,11 @@
   "pk": 12,
   "fields": {
     "section": 3,
-    "order": 1,
+    "order": 2,
     "question_de": "In welcher Form werden die Ergebnisse ver\u00f6ffentlicht?",
     "question_en": "In which form will the results be published?",
-    "answer_de": "Die Plattform bietet jedem angemeldeten Nutzer die M\u00f6glichkeit, die Ergebnisse der vergangenen Semester einzusehen. F\u00fcr jede Lehrveranstaltung werden eine Gesamtnote und eine Note pro gestellte Likert-Frage angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen zudem die Kommentare sehen, die \u00fcber sie selbst abgegeben wurden. Der Verantwortliche einer Lehrveranstaltung kann alle Kommentare einsehen.<br />Der Fachschaftsrat h\u00e4ngt zus\u00e4tzlich einen Aushang aller Lehrveranstaltungen aus, auf dem die Noten und ihre jeweilige Standardabweichung angegeben sind. Kommentare werden hier nicht ver\u00f6ffentlicht.",
-    "answer_en": "Every logged-in user can see the results of past semesters on the platform. There are total grades per course and per Likert question.<br />Contributors of a course can also see the remarks that were given to them. The responsible lecturer can see all remarks.<br />Additionally the student representatives hang out an overview of all courses on which the grades and their standard deviation are shown. Remarks are not published on this post."
+    "answer_de": "Die Plattform bietet jedem angemeldeten Nutzer die M\u00f6glichkeit, die Ergebnisse der vergangenen Semester einzusehen. F\u00fcr jede Lehrveranstaltung werden eine Gesamtnote und eine Note pro gestellte Likert-Frage angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen zudem die Textantworten sehen, die \u00fcber sie selbst abgegeben wurden. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.",
+    "answer_en": "Every logged-in user can see the results of past semesters on the platform. There are total grades per course and per Likert question.<br />Contributors of a course can also see the text answers that were given to them. The responsible lecturer can see all text answers about the course."
   }
 },
 {
@@ -100086,7 +100086,7 @@
   "pk": 13,
   "fields": {
     "section": 3,
-    "order": 2,
+    "order": 3,
     "question_de": "Wie werden die Noten berechnet?",
     "question_en": "How are the grades calculated?",
     "answer_de": "Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden \u00fcber den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Volle Zustimmung entspricht einer 1, volle Ablehnung einer 5. Alle Personennoten werden zusammen mit 50% gewichtet und die Noten der Sachfragen ergeben zusammen die restlichen 50%.",
@@ -100098,7 +100098,7 @@
   "pk": 14,
   "fields": {
     "section": 3,
-    "order": 3,
+    "order": 4,
     "question_de": "Warum sind manche Noten nicht sichtbar?",
     "question_en": "Why are not all grades visible?",
     "answer_de": "Um zumindest eine grundlegende Aussagekraft zu haben, werden Noten erst dann angezeigt, wenn 20% der Teilnehmer der Lehrveranstaltung \u2013 mindestens aber zwei Teilnehmer \u2013 die entsprechende Frage beantwortet haben (\u201ekeine Angabe\u201c z\u00e4hlt dabei nicht als Stimme). Eine Gesamtnote wird ebenfalls erst ab dieser Grenze angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen unabh\u00e4ngig von der Grenze alle Noten sehen, die sie selbst betreffen. Der Verantwortliche einer Lehrveranstaltung kann alle Noten einsehen.",
@@ -100110,7 +100110,7 @@
   "pk": 15,
   "fields": {
     "section": 4,
-    "order": 0,
+    "order": 1,
     "question_de": "Was sind Stellvertreter?",
     "question_en": "What are delegates?",
     "answer_de": "F\u00fcr die Vorbereitung der Evaluierung werden bestimmte Informationen von den Dozenten ben\u00f6tigt. EvaP bietet Ihnen in Ihrem Profil die M\u00f6glichkeit, einen oder mehrere Stellvertreter zu definieren. Diese erhalten die gleichen Bearbeitungsrechte wie Sie selbst und k\u00f6nnen die ben\u00f6tigten Informationen stellvertretend eintragen.",
@@ -100122,11 +100122,11 @@
   "pk": 16,
   "fields": {
     "section": 4,
-    "order": 1,
+    "order": 2,
     "question_de": "Welche Informationen muss ich f\u00fcr eine Lehrveranstaltung angeben und warum?",
     "question_en": "What information do I have to provide for my courses and why?",
-    "answer_de": "<ul><li>Den <em>Evaluierungszeitraum</em>: Dieser bestimmt, in welchem Zeitraum der Fragebogen f\u00fcr die an der Lehrveranstaltung teilnehmenden Studierenden zur Evaluierung bereitsteht. Der Fachschaftsrat legt beim Anlegen der Veranstaltung einen Standardzeitraum fest, der f\u00fcr viele Veranstaltungen individuell angepasst werden muss.<br />Mehr Informationen dazu finden Sie in der n\u00e4chsten Frage.</li><li>Die <em>passenden Frageb\u00f6gen</em>: Auch hier w\u00e4hlt der Fachschaftsrat bereits Standard-Frageb\u00f6gen aus, die sich nach der Art der Lehrveranstaltung (Vorlesung, Seminar, Projekt etc.) richten. Bitte stellen Sie sicher, dass die Auswahl auf Ihre Veranstaltung zutrifft.</li><li>Alle <em>Mitwirkenden</em>: Die Belegungsdaten, anhand derer der Fachschaftsrat die Veranstaltung anlegt, beinhalten die Information \u00fcber den Verantwortlichen der Lehrveranstaltung, nicht aber \u00fcber die eventuell zus\u00e4tzlich beteiligten Dozenten, \u00dcbungsleiter, Seminarbetreuer etc. F\u00fcgen Sie bitte alle weiteren Personen hinzu und legen Sie die passenden Frageb\u00f6gen fest.</li></ul>Alle weiteren Daten sollten bereits korrekt eingetragen sein. Wenn Sie dennoch Fehler feststellen, wenden Sie sich bitte an den Fachschaftsrat.",
-    "answer_en": "<ul><li>The <em>evaluation period</em>: This is the timeframe in which participating students can evaluate your course. An initial period is set by the student representatives, but this needs to be individually redefined for many courses.<br />You can find more information on the evaluation period in the next question.</li><li><em>Adequate questionnaires</em>: These are also preselected by the student representatives based on the type of the course (Lecture, Seminar, Project, etc.). Please make sure that the selection is appropriate for your course.</li><li>All <em>contributors</em>: The enrolment data imported into the system contains the responsible lecturer for each course. In many cases there are more people involved in the course (lecturers, teaching assistants, etc.). Please add all additional persons with their appropriate questionnaires.</li></ul>All other information about your courses should already have been entered correctly. If you find any mistakes, please contact the student representatives."
+    "answer_de": "<ul><li>Den <em>Evaluierungszeitraum</em>: Dieser bestimmt, in welchem Zeitraum der Fragebogen f\u00fcr die an der Lehrveranstaltung teilnehmenden Studierenden zur Evaluierung bereitsteht. Das Evaluierungsteam legt beim Anlegen der Veranstaltung einen Standardzeitraum fest, der f\u00fcr viele Veranstaltungen individuell angepasst werden muss.<br />Mehr Informationen dazu finden Sie in der n\u00e4chsten Frage.</li><li>Die <em>passenden Frageb\u00f6gen</em>: Auch hier w\u00e4hlt das Evaluierungsteam bereits Standard-Frageb\u00f6gen aus, die sich nach der Art der Lehrveranstaltung (Vorlesung, Seminar, Projekt etc.) richten. Bitte stellen Sie sicher, dass die Auswahl auf Ihre Veranstaltung zutrifft.</li><li>Alle <em>Mitwirkenden</em>: Die Belegungsdaten, anhand derer das Evaluierungsteam die Veranstaltung anlegt, beinhalten die Information \u00fcber den Verantwortlichen der Lehrveranstaltung, nicht aber \u00fcber die eventuell zus\u00e4tzlich beteiligten Dozenten, \u00dcbungsleiter, Seminarbetreuer etc. F\u00fcgen Sie bitte alle weiteren Personen hinzu und legen Sie die passenden Frageb\u00f6gen fest.</li></ul>Alle weiteren Daten sollten bereits korrekt eingetragen sein. Wenn Sie dennoch Fehler feststellen, wenden Sie sich bitte an das Evaluierungsteam.",
+    "answer_en": "<ul><li>The <em>evaluation period</em>: This is the timeframe in which participating students can evaluate your course. An initial period is set by the evaluation team, but this needs to be individually redefined for many courses.<br />You can find more information on the evaluation period in the next question.</li><li><em>Adequate questionnaires</em>: These are also preselected by the evaluation team based on the type of the course (Lecture, Seminar, Project, etc.). Please make sure that the selection is appropriate for your course.</li><li>All <em>contributors</em>: The enrolment data imported into the system contains the responsible lecturer for each course. In many cases there are more people involved in the course (lecturers, teaching assistants, etc.). Please add all additional persons with their appropriate questionnaires.</li></ul>All other information about your courses should already have been entered correctly. If you find any mistakes, please contact the evaluation team."
   }
 },
 {
@@ -100134,7 +100134,7 @@
   "pk": 17,
   "fields": {
     "section": 4,
-    "order": 2,
+    "order": 3,
     "question_de": "Wie sollte der Evaluierungszeitraum festgelegt werden?",
     "question_en": "How should the evaluation period be defined?",
     "answer_de": "Die Evaluierung darf die Notengebung nicht beeinflussen und umgekehrt. Dies soll dadurch gew\u00e4hrleistet werden, indem die Evaluierung vor der letzten Pr\u00fcfungsleistung abgeschlossen wird und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten ver\u00f6ffentlicht werden. Der Evaluierungszeitraum sollte mindestens eine Woche umfassen und wird standardm\u00e4\u00dfig auf die letzten Wochen der Vorlesungszeit gesetzt. Im Folgenden werden ein paar Beispiele gegeben:<ul><li><em>Vorlesung mit oder ohne Zwischenklausur</em>: Die Evaluierung sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die Studierenden einen umfassenden \u00dcberblick \u00fcber die Lehrveranstaltung erhalten haben und der Hauptteil der Pr\u00fcfungsleistung noch nicht erbracht ist. In diesem Fall kann der Standard belassen werden, sofern die Klausur nicht vor Ende der Vorlesungszeit angesetzt ist.</li><li><em>Blockseminar mit mehreren Terminen</em>: Die Evaluierung kann direkt vor dem letzten Pr\u00fcfungsblock abgeschlossen werden. Der Evaluierungszeitraum sollte aber nur bis dahin verschoben werden, falls es im letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die Evaluierung auch nach der Pr\u00fcfung stattfinden.</li><li><em>Blockseminar in der vorlesungsfreien Zeit</em>: Hier sollte der Evaluierungszeitraum unbedingt nach hinten verschoben werden. Gibt es zwischen Lehrinhalt und Pr\u00fcfung keine ausreichende Zeit, so sollte die Evaluierung nach der Pr\u00fcfung durchgef\u00fchrt werden.</li><li><em>Paper-/Projektseminar</em>: Nach dem letzten regelm\u00e4\u00dfigen Treffen oder Vortrag w\u00e4re ein geeigneter Termin. Sollten die Noten nicht schon vor dem regul\u00e4ren Evaluierungszeitraum ver\u00f6ffentlicht werden, wird dazu geraten, den Standardtermin zu belassen, damit die Studierenden nicht zu viele verschiedene Evaluierungszeitr\u00e4ume haben.</li></ul>",
@@ -100146,11 +100146,11 @@
   "pk": 18,
   "fields": {
     "section": 4,
-    "order": 3,
+    "order": 4,
     "question_de": "Was bedeuten die Zust\u00e4nde einer Lehrveranstaltung?",
     "question_en": "What do the states of a course mean?",
-    "answer_de": "Es gibt acht verschiedene Zust\u00e4nde, die eine Lehrveranstaltung durchlaufen kann:<ol><li><em>Neu</em><br />Direkt nach dem Import oder dem manuellen Anlegen einer Lehrveranstaltung befindet sie sich in diesem Zustand. Der Fachschaftsrat kontrolliert die Daten und l\u00e4sst die Lehrveranstaltungen in den n\u00e4chsten Zustand \u00fcbergehen. Wenn dies passiert, wird von der Plattform eine E-Mail an die Dozenten und ihre Stellvertreter verschickt.</li><li><em>Vorbereitet</em><br />In diesem Zustand k\u00f6nnen die Dozenten und ihre Stellvertreter ihre Lehrveranstaltungen bearbeiten und anschlie\u00dfend best\u00e4tigen.</li><li><em>Vom Dozenten best\u00e4tigt</em><br />Nachdem ein Dozent eine Lehrveranstaltung best\u00e4tigt hat, \u00fcberpr\u00fcft der Fachschaftsrat die Daten erneut und best\u00e4tigt schlie\u00dflich den Kurs.</li><li><em>Best\u00e4tigt</em><br />Nachdem ein Kurs vom Fachschaftsrat best\u00e4tigt wurde, befindet er in diesem Zustand. Die Evaluierung beginnt automatisch, sobald der Evaluierungszeitraum erreicht ist.</li><li><em>In Evaluierung</em><br />In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li><li><em>Evaluiert</em><br />Nach Ablauf des Evaluierungszeitraumes gehen evaluierte Lehrveranstaltungen automatisch in diesen Zustand \u00fcber. Vom Fachschaftsrat werden alle Kommentare durchgesehen und Beleidigungen entfernt.</li><li><em>\u00fcberpr\u00fcft</em><br />Sobald alle Kommentare \u00fcberpr\u00fcft wurden, verbleibt die Lehrveranstaltung bis zu ihrer Ver\u00f6ffentlichung in diesem Zustand.</li><li><em>Ver\u00f6ffentlicht</em><br />Der Fachschaftsrat ver\u00f6ffentlicht die Ergebnisse der Lehrveranstaltungen manuell. Bei benoteten Veranstaltungen geschieht dies erst nach Ver\u00f6ffentlichung der Noten. Sie, Ihre Stellvertreter und alle Mitwirkenden der Lehrveranstaltung werden per E-Mail dar\u00fcber benachrichtigt.<br />Alle ver\u00f6ffentlichten Veranstaltungen k\u00f6nnen auf der Plattform eingesehen werden.</li></ol>",
-    "answer_en": "There are eight different states in which a course can be:<ol><li><em>new</em><br />After importing or manually creating a course it has this state. The student representatives check the data and let the course switch to the next state. Once this happens the lecturers and their delegates will get an email from the platform.</li><li><em>prepared</em><br />This is the state where lecturers and their delegates can edit and approve the course.</li><li><em>lecturer approved</em><br />After a lecturer approved a course it will be again checked by the student representatives who will do the final approval.</li><li><em>approved</em><br />After the student representatives approved a course it will stay in this state until the evaluation period is reached.</li><li><em>in evaluation</em><br />When the course is in this state its participants can do the evaluation.</li><li><em>evaluated</em><br />After the evaluation period ended the course switches to this state. The student representatives will now check all comments and remove personal affronts if necessary.</li><li><em>reviewed</em><br />After reviewing all comments the course stays in this state until it's published.</li><li><em>published</em><br />The student representatives publish the results of the evaluation manually after the grades for the course have been published (in case there are some). The responsible lecturer, defined delegates and all contributors of a course will be notified once the results are published.<br />They can then be seen on the platform.</li></ol>"
+    "answer_de": "Es gibt acht verschiedene Zust\u00e4nde, die eine Lehrveranstaltung durchlaufen kann:<ol><li><em>Neu</em><br />Direkt nach dem Import oder dem manuellen Anlegen einer Lehrveranstaltung befindet sie sich in diesem Zustand. Das Evaluierungsteam kontrolliert die Daten und l\u00e4sst die Lehrveranstaltungen in den n\u00e4chsten Zustand \u00fcbergehen. Wenn dies passiert, wird von der Plattform eine E-Mail an die Dozenten und ihre Stellvertreter verschickt.</li><li><em>Vorbereitet</em><br />In diesem Zustand k\u00f6nnen die Dozenten und ihre Stellvertreter ihre Lehrveranstaltungen bearbeiten und anschlie\u00dfend best\u00e4tigen.</li><li><em>Vom Dozenten best\u00e4tigt</em><br />Nachdem ein Dozent eine Lehrveranstaltung best\u00e4tigt hat, \u00fcberpr\u00fcft das Evaluierungsteam die Daten erneut und best\u00e4tigt schlie\u00dflich den Kurs.</li><li><em>Best\u00e4tigt</em><br />Nachdem ein Kurs vom Evaluierungsteam best\u00e4tigt wurde, befindet er in diesem Zustand. Die Evaluierung beginnt automatisch, sobald der Evaluierungszeitraum erreicht ist.</li><li><em>In Evaluierung</em><br />In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li><li><em>Evaluiert</em><br />Nach Ablauf des Evaluierungszeitraumes gehen evaluierte Lehrveranstaltungen automatisch in diesen Zustand \u00fcber. Vom Evaluierungsteam werden alle Textantworten durchgesehen und Beleidigungen entfernt.</li><li><em>\u00fcberpr\u00fcft</em><br />Sobald alle Textantworten \u00fcberpr\u00fcft wurden, verbleibt die Lehrveranstaltung bis zu ihrer Ver\u00f6ffentlichung in diesem Zustand.</li><li><em>Ver\u00f6ffentlicht</em><br />Das Evaluierungsteam ver\u00f6ffentlicht die Ergebnisse der Lehrveranstaltungen manuell. Bei benoteten Veranstaltungen geschieht dies erst nach Ver\u00f6ffentlichung der Noten. Sie, Ihre Stellvertreter und alle Mitwirkenden der Lehrveranstaltung werden per E-Mail dar\u00fcber benachrichtigt.<br />Alle ver\u00f6ffentlichten Veranstaltungen k\u00f6nnen auf der Plattform eingesehen werden.</li></ol>",
+    "answer_en": "There are eight different states in which a course can be:<ol><li><em>new</em><br />After importing or manually creating a course it has this state. The evaluation team checks the data and let the course switch to the next state. Once this happens the lecturers and their delegates will get an email from the platform.</li><li><em>prepared</em><br />This is the state where lecturers and their delegates can edit and approve the course.</li><li><em>lecturer approved</em><br />After a lecturer approved a course it will be again checked by the evaluation team who will do the final approval.</li><li><em>approved</em><br />After the evaluation team approved a course it will stay in this state until the evaluation period is reached.</li><li><em>in evaluation</em><br />When the course is in this state its participants can do the evaluation.</li><li><em>evaluated</em><br />After the evaluation period ended the course switches to this state. The evaluation team will now check all text answers and remove personal affronts if necessary.</li><li><em>reviewed</em><br />After reviewing all text answers the course stays in this state until it's published.</li><li><em>published</em><br />The evaluation team publishes the results of the evaluation manually after the grades for the course have been published (in case there are some). The responsible lecturer, defined delegates and all contributors of a course will be notified once the results are published.<br />They can then be seen on the platform.</li></ol>"
   }
 },
 {
@@ -100158,11 +100158,11 @@
   "pk": 19,
   "fields": {
     "section": 4,
-    "order": 4,
+    "order": 5,
     "question_de": "Welche E\u2011Mail-Benachrichtigungen erhalte ich wann?",
     "question_en": "When do I get which emails?",
-    "answer_de": "W\u00e4hrend der Fachschaftsrat die Evaluierung vorbereitet, erhalten Sie und Ihre Stellvertreter eine E-Mail mit einem Link zur Evaluierungsplattform. Darin werden Sie gebeten, die oben aufgef\u00fchrten Informationen f\u00fcr alle Ihre Lehrveranstaltungen anzupassen und zu erg\u00e4nzen.<br />Sobald die Evaluierungsergebnisse Ihrer Lehrveranstaltungen ver\u00f6ffentlicht werden, erhalten Sie, Ihre Stellvertreter und alle Mitwirkenden der Veranstaltung eine E-Mail, die Sie dar\u00fcber benachrichtigt.",
-    "answer_en": "After the student representatives prepared your courses, you and your delegates will receive an email with a link to the evaluation platform. In this email you will be asked to complete the above mentioned information about your courses.<br />After the evaluation results of your courses have been published, you, your delegates and all contributors of this course will get another email informing about the publication."
+    "answer_de": "W\u00e4hrend das Evaluierungsteam die Evaluierung vorbereitet, erhalten Sie und Ihre Stellvertreter eine E-Mail mit einem Link zur Evaluierungsplattform. Darin werden Sie gebeten, die oben aufgef\u00fchrten Informationen f\u00fcr alle Ihre Lehrveranstaltungen anzupassen und zu erg\u00e4nzen.<br />Sobald die Evaluierungsergebnisse Ihrer Lehrveranstaltungen ver\u00f6ffentlicht werden, erhalten Sie, Ihre Stellvertreter und alle Mitwirkenden der Veranstaltung eine E-Mail, die Sie dar\u00fcber benachrichtigt.",
+    "answer_en": "After the evaluation team prepared your courses, you and your delegates will receive an email with a link to the evaluation platform. In this email you will be asked to complete the above mentioned information about your courses.<br />After the evaluation results of your courses have been published, you, your delegates and all contributors of this course will get another email informing about the publication."
   }
 },
 {
@@ -100170,11 +100170,11 @@
   "pk": 20,
   "fields": {
     "section": 4,
-    "order": 5,
+    "order": 6,
     "question_de": "Welche Informationen sehe ich auf den Ergebnisseiten?",
     "question_en": "Which information can I see on the result pages?",
-    "answer_de": "Sie sehen f\u00fcr alle Likert-Fragen die jeweiligen Durchschnittsnoten, eine prozentuale Verteilung und die Zahl der abgegebenen Stimmen. Au\u00dferdem k\u00f6nnen Sie die Antworten auf Kommentarfragen sehen, wenn diese Sie pers\u00f6nlich betreffen oder sie verantwortlich f\u00fcr die Lehrveranstaltung sind. Beleidigungen in Kommentaren werden vom Fachschaftsrat entfernt, zus\u00e4tzliche Filter gibt es nicht.",
-    "answer_en": "You can see the average grades, percentages of the distribution and the number of total votes for all Likert questions. Furthermore you can see the answers to comments on your own person. The responsible lecturer of a course can see the answers to everyone. Personal affronts in the comments are removed by the student representatives. Other than that there are no filters."
+    "answer_de": "Sie sehen f\u00fcr alle Likert-Fragen die jeweiligen Durchschnittsnoten, eine prozentuale Verteilung und die Zahl der abgegebenen Stimmen. Au\u00dferdem k\u00f6nnen Sie die Antworten auf Textfragen sehen, wenn diese Sie pers\u00f6nlich betreffen oder sie verantwortlich f\u00fcr die Lehrveranstaltung sind. Beleidigungen in Textantworten werden vom Evaluierungsteam entfernt, zus\u00e4tzliche Filter gibt es nicht.",
+    "answer_en": "You can see the average grades, percentages of the distribution and the number of total votes for all Likert questions. Furthermore you can see the answers to text answers on your own person. The responsible lecturer of a course can see the answers to everyone. Personal affronts in the text answers are removed by the evaluation team. Other than that there are no filters."
   }
 },
 {
@@ -100182,11 +100182,11 @@
   "pk": 21,
   "fields": {
     "section": 5,
-    "order": 0,
+    "order": 1,
     "question_de": "Ist meine Bewertung anonym?",
     "question_en": "Is the evaluation anonymous?",
-    "answer_de": "Ja. Die Plattform stellt sicher, dass die erfassten Stimmen keinem Nutzer zugeordnet werden k\u00f6nnen. Es wird gespeichert, wer eine Stimme f\u00fcr eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausf\u00fcllt. Wenn du also nicht gerade der einzige abstimmende Teilnehmer bist, ist es technisch nicht mehr nachvollziehbar, welche Noten oder Kommentare von dir stammen.<br />Bei Kommentar-Fragen gibt es jedoch nur eine technische Anonymit\u00e4t. Durch den gew\u00e4hlten Schreibstil und den Inhalt er Antwort kann es dem Dozenten gerade bei kleinen Veranstaltungen m\u00f6glich sein, die Kommentare einzelnen Personen zuzuschreiben. Beim Formulieren der Kommentare sollte dir das bewusst sein.",
-    "answer_en": "Yes. The platform ensures that votes can't be related to a user. It saves who participated in a course's evaluation but not who voted how. As long as you are not the only participant in a course's evaluation no relation can be made.<br />When giving comments there is only a technical anonymity. Your style of writing and the content of the answer might allow lecturers to guess who wrote the comment, especially in small courses. When writing your answer you should be aware of that."
+    "answer_de": "Ja. Die Plattform stellt sicher, dass die erfassten Stimmen keinem Nutzer zugeordnet werden k\u00f6nnen. Es wird gespeichert, wer eine Stimme f\u00fcr eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausf\u00fcllt. Wenn du also nicht gerade der einzige abstimmende Teilnehmer bist, ist es technisch nicht mehr nachvollziehbar, welche Noten oder Textantworten von dir stammen.<br />Bei Textfragen gibt es jedoch nur eine technische Anonymit\u00e4t. Durch den gew\u00e4hlten Schreibstil und den Inhalt er Antwort kann es dem Dozenten gerade bei kleinen Veranstaltungen m\u00f6glich sein, die Textantworten einzelnen Personen zuzuschreiben. Beim Formulieren der Textantworten sollte dir das bewusst sein.",
+    "answer_en": "Yes. The platform ensures that votes can't be related to a user. It saves who participated in a course's evaluation but not who voted how. As long as you are not the only participant in a course's evaluation no relation can be made.<br />When giving text answers there is only a technical anonymity. Your style of writing and the content of the answer might allow lecturers to guess who wrote the text answer, especially in small courses. When writing your answer you should be aware of that."
   }
 },
 {
@@ -100194,11 +100194,11 @@
   "pk": 22,
   "fields": {
     "section": 5,
-    "order": 1,
+    "order": 2,
     "question_de": "Wie (vollst\u00e4ndig) muss ich den Fragebogen ausf\u00fcllen?",
     "question_en": "How complete should my answers be?",
-    "answer_de": "So vollst\u00e4ndig wie m\u00f6glich. Bitte gib eine Stimme f\u00fcr jede Frage ab, die du beurteilen kannst. Nur bei einer hohen Teilnahmequote sind die Ergebnisse aussagekr\u00e4ftig und geben den Dozenten und dem Fachschaftsrat hilfreiches Feedback. Textkommentare ben\u00f6tigen zwar mehr Zeit zum Eintippen, sind daf\u00fcr aber besonders wertvolle R\u00fcckmeldungen.",
-    "answer_en": "As complete as possible. Please vote for everything that you can evaluate. Only high participation rates result in significant values that can help the lecturers and student representatives. Textual comments take more time to write but are very important feedback."
+    "answer_de": "So vollst\u00e4ndig wie m\u00f6glich. Bitte gib eine Stimme f\u00fcr jede Frage ab, die du beurteilen kannst. Nur bei einer hohen Teilnahmequote sind die Ergebnisse aussagekr\u00e4ftig und geben den Dozenten und dem Evaluierungsteam hilfreiches Feedback. Textantworten ben\u00f6tigen zwar mehr Zeit zum Eintippen, sind daf\u00fcr aber besonders wertvolle R\u00fcckmeldungen.",
+    "answer_en": "As complete as possible. Please vote for everything that you can evaluate. Only high participation rates result in significant values that can help the lecturers and evaluation team. Text answers take more time to write but are very important feedback."
   }
 },
 {
@@ -100206,11 +100206,11 @@
   "pk": 23,
   "fields": {
     "section": 5,
-    "order": 2,
-    "question_de": "Was passiert mit meinen Kommentaren?",
-    "question_en": "What happens to my comments?",
-    "answer_de": "Alle Kommentare zu Mitwirkenden der Lehrveranstaltung werden f\u00fcr die jeweilige Person ver\u00f6ffentlicht. Der Verantwortliche einer Lehrveranstaltung kann alle Kommentare einsehen.<br />Bevor die Kommentare ver\u00f6ffentlicht werden, entfernt der Fachschaftsrat Beleidigungen und angreifende \u00c4u\u00dferungen. Bitte halte deine Kritik also freundlich und konstruktiv \u2013 sonst hilft sie keinem weiter.",
-    "answer_en": "All comments on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all comments.<br />Before comments are published, the student representatives will remove personal affronts if necessary. Please provide constructive and polite feedback \u2013 only this can lead to positive changes."
+    "order": 3,
+    "question_de": "Was passiert mit meinen Textantworten?",
+    "question_en": "What happens to my text answers?",
+    "answer_de": "Alle Textantworten zu Mitwirkenden der Lehrveranstaltung werden f\u00fcr die jeweilige Person ver\u00f6ffentlicht. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.<br />Bevor die Textantworten ver\u00f6ffentlicht werden, entfernt das Evaluierungsteam Beleidigungen und angreifende \u00c4u\u00dferungen. Bitte halte deine Kritik also freundlich und konstruktiv \u2013 sonst hilft sie keinem weiter.",
+    "answer_en": "All text answers on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all text answers about the course.<br />Before text answers are published, the evaluation team will remove personal affronts if necessary. Please provide constructive and polite feedback \u2013 only this can lead to positive changes."
   }
 },
 {
@@ -100218,11 +100218,11 @@
   "pk": 24,
   "fields": {
     "section": 5,
-    "order": 3,
+    "order": 4,
     "question_de": "Kann ich auf bereits zuvor gegebene Antworten verweisen?",
     "question_en": "Can I refer to other answers?",
-    "answer_de": "Nein. Es nicht m\u00f6glich, sich komplette ausgef\u00fcllte Frageb\u00f6gen anzusehen. Die Stimmen und Kommentare werden pro Frage aggregiert angezeigt. Wenn du in einem Kommentar schreibst \u201ewie oben schon erw\u00e4hnt\u201c, kann der Dozent die zugeh\u00f6rige Antwort nicht finden.",
-    "answer_en": "No. The questionnaires are not stored as a whole. Votes and comments will be aggregated per question. If you would write \"see above\", the lecturer can't find the respective answer."
+    "answer_de": "Nein. Es nicht m\u00f6glich, sich komplette ausgef\u00fcllte Frageb\u00f6gen anzusehen. Die Stimmen und Textantworten werden pro Frage aggregiert angezeigt. Wenn du in einer Textantwort schreibst \u201ewie oben schon erw\u00e4hnt\u201c, kann der Dozent die zugeh\u00f6rige Antwort nicht finden.",
+    "answer_en": "No. The questionnaires are not stored as a whole. Votes and text answers will be aggregated per question. If you would write \"see above\", the lecturer can't find the respective answer."
   }
 },
 {
@@ -110218,7 +110218,7 @@
   "pk": 815,
   "fields": {
     "password": "pbkdf2_sha256$100000$85ZeSerVM5mq$dt/svaAHtppUjGUjKMmmJCDCwJj8QxR0NyBdtJJCSak=",
-    "last_login": "2018-09-03T18:25:34.425",
+    "last_login": "2018-10-21T03:30:45.428",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@institution.example.com",
@@ -121187,7 +121187,7 @@
   "fields": {
     "name": "Editor Review Notice",
     "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New courses ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen am HPI anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre HPI-Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an den Fachschaftsrat wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching at HPI during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your HPI credentials to login.{% endif %}\r\n\r\nTo prepare your courses for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the student representatives (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your courses for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -121196,7 +121196,7 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your courses will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your courses will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -121205,7 +121205,7 @@
   "fields": {
     "name": "Publishing Notice",
     "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following courses have just been published:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following courses have just been published:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -121214,7 +121214,7 @@
   "fields": {
     "name": "Login Key Created",
     "subject": "[EvaP] Ihr Anmeldelink / Your login url",
-    "body": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link k\u00f6nnen Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform des HPIs anmelden:\r\nWith the following one-time URL you can login to HPI's evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\nIf you have any questions or feedback, please contact the Evaluation Team (evaluierung@hpi.de)."
+    "body": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link k\u00f6nnen Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:\r\nWith the following one-time URL you can login to the evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de)."
   }
 },
 {
@@ -121223,7 +121223,7 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following courses just started:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}These courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following courses just started:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}These courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -121232,7 +121232,7 @@
   "fields": {
     "name": "Editor Review Reminder",
     "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Course ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre HPI-Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an den Fachschaftsrat wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your HPI credentials to login.{% endif %}\r\n\r\nTo prepare your courses for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the student representatives (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your courses for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -123146,7 +123146,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123163,7 +123163,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123179,7 +123179,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123198,7 +123198,7 @@
     "contributor": 207,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123215,7 +123215,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123232,7 +123232,7 @@
     "contributor": 207,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123248,7 +123248,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123267,7 +123267,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123283,7 +123283,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123304,7 +123304,7 @@
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123320,7 +123320,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123339,7 +123339,7 @@
     "contributor": 127,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123355,7 +123355,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123374,7 +123374,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123390,7 +123390,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123408,7 +123408,7 @@
     "contributor": 234,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123424,7 +123424,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123445,7 +123445,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123462,7 +123462,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123480,7 +123480,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123497,7 +123497,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123515,7 +123515,7 @@
     "contributor": 249,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123531,7 +123531,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123551,7 +123551,7 @@
     "contributor": 641,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123567,7 +123567,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123586,7 +123586,7 @@
     "contributor": 641,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123602,7 +123602,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123620,7 +123620,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123636,7 +123636,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123657,7 +123657,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123674,7 +123674,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123695,7 +123695,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123712,7 +123712,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123730,7 +123730,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123747,7 +123747,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123766,7 +123766,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123782,7 +123782,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123801,7 +123801,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123818,7 +123818,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123838,7 +123838,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123855,7 +123855,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123873,7 +123873,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123889,7 +123889,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123912,7 +123912,7 @@
     "contributor": 181,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -123933,7 +123933,7 @@
     "contributor": 1,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -123949,7 +123949,7 @@
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123966,7 +123966,7 @@
     "contributor": 408,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -123984,7 +123984,7 @@
     "contributor": 392,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124001,7 +124001,7 @@
     "contributor": 423,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124018,7 +124018,7 @@
     "contributor": 318,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124035,7 +124035,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124051,7 +124051,7 @@
     "contributor": 883,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124067,7 +124067,7 @@
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124083,7 +124083,7 @@
     "contributor": 900,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -124099,7 +124099,7 @@
     "contributor": 975,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124116,7 +124116,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124134,7 +124134,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124151,7 +124151,7 @@
     "contributor": 13,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124168,7 +124168,7 @@
     "contributor": 593,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -124185,7 +124185,7 @@
     "contributor": 4,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -124202,7 +124202,7 @@
     "contributor": 30,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -124219,7 +124219,7 @@
     "contributor": 596,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -124236,7 +124236,7 @@
     "contributor": 605,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
     "questionnaires": [
@@ -124253,7 +124253,7 @@
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124270,7 +124270,7 @@
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124287,7 +124287,7 @@
     "contributor": 395,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124304,7 +124304,7 @@
     "contributor": 675,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124320,7 +124320,7 @@
     "contributor": 71,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124336,7 +124336,7 @@
     "contributor": 267,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124353,7 +124353,7 @@
     "contributor": 991,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124370,7 +124370,7 @@
     "contributor": 990,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124387,7 +124387,7 @@
     "contributor": 409,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124404,7 +124404,7 @@
     "contributor": 993,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124421,7 +124421,7 @@
     "contributor": 44,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124438,7 +124438,7 @@
     "contributor": 995,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124454,7 +124454,7 @@
     "contributor": 996,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124470,7 +124470,7 @@
     "contributor": 997,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124486,7 +124486,7 @@
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124503,7 +124503,7 @@
     "contributor": 980,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124519,7 +124519,7 @@
     "contributor": 977,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124535,7 +124535,7 @@
     "contributor": 1001,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -124551,7 +124551,7 @@
     "contributor": 994,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124568,7 +124568,7 @@
     "contributor": 1005,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124585,7 +124585,7 @@
     "contributor": 1009,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124602,7 +124602,7 @@
     "contributor": 1010,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124619,7 +124619,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124639,7 +124639,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124656,7 +124656,7 @@
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124673,7 +124673,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124693,7 +124693,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124714,7 +124714,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124731,7 +124731,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124749,7 +124749,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124766,7 +124766,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124784,7 +124784,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124800,7 +124800,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124818,7 +124818,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124835,7 +124835,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124853,7 +124853,7 @@
     "contributor": 936,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124869,7 +124869,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124889,7 +124889,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124906,7 +124906,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124924,7 +124924,7 @@
     "contributor": 1072,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124941,7 +124941,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124959,7 +124959,7 @@
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -124976,7 +124976,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -124996,7 +124996,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125013,7 +125013,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125032,7 +125032,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125049,7 +125049,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125067,7 +125067,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125083,7 +125083,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125101,7 +125101,7 @@
     "contributor": 300,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125117,7 +125117,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125134,7 +125134,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125155,7 +125155,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125173,7 +125173,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125194,7 +125194,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125211,7 +125211,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125229,7 +125229,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125246,7 +125246,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125264,7 +125264,7 @@
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125281,7 +125281,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125299,7 +125299,7 @@
     "contributor": 326,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125316,7 +125316,7 @@
     "contributor": 408,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125334,7 +125334,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125351,7 +125351,7 @@
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125368,7 +125368,7 @@
     "contributor": 942,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -125385,7 +125385,7 @@
     "contributor": 274,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -125402,7 +125402,7 @@
     "contributor": 578,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -125419,7 +125419,7 @@
     "contributor": 49,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -125436,7 +125436,7 @@
     "contributor": 1084,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
     "questionnaires": [
@@ -125453,7 +125453,7 @@
     "contributor": 883,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 8,
     "questionnaires": [
@@ -125470,7 +125470,7 @@
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 9,
     "questionnaires": [
@@ -125487,7 +125487,7 @@
     "contributor": 900,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 10,
     "questionnaires": [
@@ -125504,7 +125504,7 @@
     "contributor": 1103,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125521,7 +125521,7 @@
     "contributor": 690,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125538,7 +125538,7 @@
     "contributor": 1,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125555,7 +125555,7 @@
     "contributor": 945,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125572,7 +125572,7 @@
     "contributor": 844,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125589,7 +125589,7 @@
     "contributor": 701,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125606,7 +125606,7 @@
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -125623,7 +125623,7 @@
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -125640,7 +125640,7 @@
     "contributor": 970,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -125657,7 +125657,7 @@
     "contributor": 2322,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -125674,7 +125674,7 @@
     "contributor": 1105,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125691,7 +125691,7 @@
     "contributor": 973,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125708,7 +125708,7 @@
     "contributor": 1108,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125725,7 +125725,7 @@
     "contributor": 1109,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125743,7 +125743,7 @@
     "contributor": 99,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125760,7 +125760,7 @@
     "contributor": 1110,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125777,7 +125777,7 @@
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125794,7 +125794,7 @@
     "contributor": 200,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125811,7 +125811,7 @@
     "contributor": 539,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125828,7 +125828,7 @@
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125845,7 +125845,7 @@
     "contributor": 897,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125862,7 +125862,7 @@
     "contributor": 915,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125879,7 +125879,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125899,7 +125899,7 @@
     "contributor": 484,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -125916,7 +125916,7 @@
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -125933,7 +125933,7 @@
     "contributor": 61,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -125950,7 +125950,7 @@
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -125967,7 +125967,7 @@
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -125984,7 +125984,7 @@
     "contributor": 423,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126001,7 +126001,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126017,7 +126017,7 @@
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126035,7 +126035,7 @@
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126052,7 +126052,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126068,7 +126068,7 @@
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126085,7 +126085,7 @@
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126102,7 +126102,7 @@
     "contributor": 1119,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -126119,7 +126119,7 @@
     "contributor": 145,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -126136,7 +126136,7 @@
     "contributor": 984,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -126153,7 +126153,7 @@
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126170,7 +126170,7 @@
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126187,7 +126187,7 @@
     "contributor": 1120,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -126204,7 +126204,7 @@
     "contributor": 986,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126221,7 +126221,7 @@
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126238,7 +126238,7 @@
     "contributor": 419,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126255,7 +126255,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126273,7 +126273,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126290,7 +126290,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126311,7 +126311,7 @@
     "contributor": 643,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126328,7 +126328,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126345,7 +126345,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126362,7 +126362,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126379,7 +126379,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126396,7 +126396,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126413,7 +126413,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126430,7 +126430,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126450,7 +126450,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126467,7 +126467,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126487,7 +126487,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126505,7 +126505,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126522,7 +126522,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126538,7 +126538,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126560,7 +126560,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126577,7 +126577,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126594,7 +126594,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126610,7 +126610,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126630,7 +126630,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126647,7 +126647,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126667,7 +126667,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126684,7 +126684,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126702,7 +126702,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126718,7 +126718,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126732,7 +126732,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126750,7 +126750,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126767,7 +126767,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126784,7 +126784,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126801,7 +126801,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126817,7 +126817,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126834,7 +126834,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126852,7 +126852,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126869,7 +126869,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126887,7 +126887,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -126903,7 +126903,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126919,7 +126919,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126933,7 +126933,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126949,7 +126949,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -126963,7 +126963,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -126983,7 +126983,7 @@
     "contributor": 1075,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127000,7 +127000,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127018,7 +127018,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127036,7 +127036,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127055,7 +127055,7 @@
     "contributor": 994,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127072,7 +127072,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127092,7 +127092,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127108,7 +127108,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127125,7 +127125,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127141,7 +127141,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127158,7 +127158,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127175,7 +127175,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127193,7 +127193,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127210,7 +127210,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127227,7 +127227,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127244,7 +127244,7 @@
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127261,7 +127261,7 @@
     "contributor": 578,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127279,7 +127279,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127297,7 +127297,7 @@
     "contributor": 274,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127315,7 +127315,7 @@
     "contributor": 490,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127332,7 +127332,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127349,7 +127349,7 @@
     "contributor": 1084,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127366,7 +127366,7 @@
     "contributor": 217,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127384,7 +127384,7 @@
     "contributor": 14,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127401,7 +127401,7 @@
     "contributor": 217,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127419,7 +127419,7 @@
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127436,7 +127436,7 @@
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127454,7 +127454,7 @@
     "contributor": 326,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127472,7 +127472,7 @@
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127489,7 +127489,7 @@
     "contributor": 1117,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127506,7 +127506,7 @@
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127523,7 +127523,7 @@
     "contributor": 1120,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127540,7 +127540,7 @@
     "contributor": 2118,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127557,7 +127557,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127573,7 +127573,7 @@
     "contributor": 1125,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127590,7 +127590,7 @@
     "contributor": 650,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127607,7 +127607,7 @@
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127624,7 +127624,7 @@
     "contributor": 1840,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127641,7 +127641,7 @@
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127658,7 +127658,7 @@
     "contributor": 2322,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -127675,7 +127675,7 @@
     "contributor": 970,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -127692,7 +127692,7 @@
     "contributor": 2126,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -127709,7 +127709,7 @@
     "contributor": 2127,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -127726,7 +127726,7 @@
     "contributor": 990,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127742,7 +127742,7 @@
     "contributor": 991,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127758,7 +127758,7 @@
     "contributor": 950,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127777,7 +127777,7 @@
     "contributor": 395,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127796,7 +127796,7 @@
     "contributor": 675,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127814,7 +127814,7 @@
     "contributor": 60,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -127832,7 +127832,7 @@
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -127848,7 +127848,7 @@
     "contributor": 174,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127864,7 +127864,7 @@
     "contributor": 690,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127881,7 +127881,7 @@
     "contributor": 1103,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127898,7 +127898,7 @@
     "contributor": 464,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -127915,7 +127915,7 @@
     "contributor": 1149,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -127932,7 +127932,7 @@
     "contributor": 1104,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -127949,7 +127949,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -127966,7 +127966,7 @@
     "contributor": 300,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -127984,7 +127984,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -128001,7 +128001,7 @@
     "contributor": 323,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -128018,7 +128018,7 @@
     "contributor": 950,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -128035,7 +128035,7 @@
     "contributor": 61,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -128052,7 +128052,7 @@
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -128069,7 +128069,7 @@
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
     "questionnaires": [
@@ -128086,7 +128086,7 @@
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 8,
     "questionnaires": [
@@ -128103,7 +128103,7 @@
     "contributor": 395,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 9,
     "questionnaires": [
@@ -128120,7 +128120,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128139,7 +128139,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128156,7 +128156,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128175,7 +128175,7 @@
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128192,7 +128192,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128210,7 +128210,7 @@
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128227,7 +128227,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128248,7 +128248,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128265,7 +128265,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128282,7 +128282,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128298,7 +128298,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128316,7 +128316,7 @@
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128333,7 +128333,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128351,7 +128351,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128367,7 +128367,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128385,7 +128385,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128401,7 +128401,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128418,7 +128418,7 @@
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128435,7 +128435,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128456,7 +128456,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128473,7 +128473,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128491,7 +128491,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128508,7 +128508,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128529,7 +128529,7 @@
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128546,7 +128546,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128564,7 +128564,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128581,7 +128581,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128601,7 +128601,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128618,7 +128618,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128636,7 +128636,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128653,7 +128653,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128672,7 +128672,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128688,7 +128688,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128709,7 +128709,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128726,7 +128726,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128745,7 +128745,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128761,7 +128761,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128779,7 +128779,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128795,7 +128795,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128815,7 +128815,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128832,7 +128832,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128850,7 +128850,7 @@
     "contributor": 2186,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -128867,7 +128867,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128886,7 +128886,7 @@
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128903,7 +128903,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128923,7 +128923,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128940,7 +128940,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128960,7 +128960,7 @@
     "contributor": 74,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -128977,7 +128977,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -128995,7 +128995,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129012,7 +129012,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129030,7 +129030,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129047,7 +129047,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129065,7 +129065,7 @@
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129082,7 +129082,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129100,7 +129100,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129117,7 +129117,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129136,7 +129136,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129153,7 +129153,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129171,7 +129171,7 @@
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129188,7 +129188,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129205,7 +129205,7 @@
     "contributor": 635,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129222,7 +129222,7 @@
     "contributor": 2141,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129239,7 +129239,7 @@
     "contributor": 2140,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129256,7 +129256,7 @@
     "contributor": 33,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129273,7 +129273,7 @@
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129290,7 +129290,7 @@
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129307,7 +129307,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129324,7 +129324,7 @@
     "contributor": 1075,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129341,7 +129341,7 @@
     "contributor": 2192,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129358,7 +129358,7 @@
     "contributor": 993,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129375,7 +129375,7 @@
     "contributor": 1005,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129392,7 +129392,7 @@
     "contributor": 2194,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129409,7 +129409,7 @@
     "contributor": 2196,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129426,7 +129426,7 @@
     "contributor": 817,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129443,7 +129443,7 @@
     "contributor": 830,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129460,7 +129460,7 @@
     "contributor": 882,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -129477,7 +129477,7 @@
     "contributor": 731,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -129494,7 +129494,7 @@
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129511,7 +129511,7 @@
     "contributor": 1016,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129528,7 +129528,7 @@
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129545,7 +129545,7 @@
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129562,7 +129562,7 @@
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129579,7 +129579,7 @@
     "contributor": 200,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129596,7 +129596,7 @@
     "contributor": 975,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -129613,7 +129613,7 @@
     "contributor": 1001,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129630,7 +129630,7 @@
     "contributor": 1002,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129647,7 +129647,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129663,7 +129663,7 @@
     "contributor": 2139,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129680,7 +129680,7 @@
     "contributor": 2199,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129697,7 +129697,7 @@
     "contributor": 2200,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -129714,7 +129714,7 @@
     "contributor": 2201,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129731,7 +129731,7 @@
     "contributor": 2068,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129748,7 +129748,7 @@
     "contributor": 2202,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129765,7 +129765,7 @@
     "contributor": 708,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -129782,7 +129782,7 @@
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -129799,7 +129799,7 @@
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -129816,7 +129816,7 @@
     "contributor": 1154,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -129833,7 +129833,7 @@
     "contributor": 2126,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -129850,7 +129850,7 @@
     "contributor": 14,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129867,7 +129867,7 @@
     "contributor": 2205,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129884,7 +129884,7 @@
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129901,7 +129901,7 @@
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129918,7 +129918,7 @@
     "contributor": 1136,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -129935,7 +129935,7 @@
     "contributor": 2197,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129952,7 +129952,7 @@
     "contributor": 296,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129969,7 +129969,7 @@
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -129986,7 +129986,7 @@
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130003,7 +130003,7 @@
     "contributor": 1117,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -130020,7 +130020,7 @@
     "contributor": 2197,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -130037,7 +130037,7 @@
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130055,7 +130055,7 @@
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130072,7 +130072,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130092,7 +130092,7 @@
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130109,7 +130109,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130127,7 +130127,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130143,7 +130143,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130163,7 +130163,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130180,7 +130180,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130201,7 +130201,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130218,7 +130218,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130236,7 +130236,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130253,7 +130253,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130271,7 +130271,7 @@
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130287,7 +130287,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130303,7 +130303,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130317,7 +130317,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130335,7 +130335,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130352,7 +130352,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130374,7 +130374,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130391,7 +130391,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130410,7 +130410,7 @@
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130427,7 +130427,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130446,7 +130446,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130462,7 +130462,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": []
@@ -130476,7 +130476,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130490,7 +130490,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130508,7 +130508,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130524,7 +130524,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130544,7 +130544,7 @@
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130561,7 +130561,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130580,7 +130580,7 @@
     "contributor": 959,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130597,7 +130597,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130619,7 +130619,7 @@
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130636,7 +130636,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130656,7 +130656,7 @@
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130672,7 +130672,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": []
@@ -130686,7 +130686,7 @@
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130700,7 +130700,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130718,7 +130718,7 @@
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -130735,7 +130735,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130756,7 +130756,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130773,7 +130773,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130792,7 +130792,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
     "questionnaires": [
@@ -130809,7 +130809,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130825,7 +130825,7 @@
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": []
@@ -130839,7 +130839,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130857,7 +130857,7 @@
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130874,7 +130874,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130894,7 +130894,7 @@
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130911,7 +130911,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130931,7 +130931,7 @@
     "contributor": 815,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130948,7 +130948,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -130966,7 +130966,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -130983,7 +130983,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131003,7 +131003,7 @@
     "contributor": 310,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131020,7 +131020,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131039,7 +131039,7 @@
     "contributor": 650,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131056,7 +131056,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131077,7 +131077,7 @@
     "contributor": 2324,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131093,7 +131093,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131110,7 +131110,7 @@
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131127,7 +131127,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131147,7 +131147,7 @@
     "contributor": 2326,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131164,7 +131164,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131185,7 +131185,7 @@
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131201,7 +131201,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131219,7 +131219,7 @@
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131236,7 +131236,7 @@
     "contributor": 546,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131253,7 +131253,7 @@
     "contributor": 2330,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131270,7 +131270,7 @@
     "contributor": 49,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131288,7 +131288,7 @@
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131305,7 +131305,7 @@
     "contributor": 621,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -131322,7 +131322,7 @@
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -131339,7 +131339,7 @@
     "contributor": 915,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -131356,7 +131356,7 @@
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131373,7 +131373,7 @@
     "contributor": 994,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131390,7 +131390,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131408,7 +131408,7 @@
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131424,7 +131424,7 @@
     "contributor": 586,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -131441,7 +131441,7 @@
     "contributor": 857,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -131458,7 +131458,7 @@
     "contributor": 1141,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -131475,7 +131475,7 @@
     "contributor": 731,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -131492,7 +131492,7 @@
     "contributor": 2095,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -131509,7 +131509,7 @@
     "contributor": 808,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
     "questionnaires": [
@@ -131526,7 +131526,7 @@
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131543,7 +131543,7 @@
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131560,7 +131560,7 @@
     "contributor": 2205,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -131577,7 +131577,7 @@
     "contributor": 191,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131595,7 +131595,7 @@
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131612,7 +131612,7 @@
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131629,7 +131629,7 @@
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131646,7 +131646,7 @@
     "contributor": 2194,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131662,7 +131662,7 @@
     "contributor": 2143,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131679,7 +131679,7 @@
     "contributor": 18,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131696,7 +131696,7 @@
     "contributor": 169,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131713,7 +131713,7 @@
     "contributor": 169,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131731,7 +131731,7 @@
     "contributor": 1125,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131748,7 +131748,7 @@
     "contributor": 33,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131765,7 +131765,7 @@
     "contributor": 74,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131782,7 +131782,7 @@
     "contributor": 16,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -131799,7 +131799,7 @@
     "contributor": 120,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
     "questionnaires": [
@@ -131816,7 +131816,7 @@
     "contributor": 651,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
     "questionnaires": [
@@ -131833,7 +131833,7 @@
     "contributor": 267,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
     "questionnaires": [
@@ -131850,7 +131850,7 @@
     "contributor": 69,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
     "questionnaires": [
@@ -131867,7 +131867,7 @@
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
     "questionnaires": [
@@ -131884,7 +131884,7 @@
     "contributor": 2141,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131901,7 +131901,7 @@
     "contributor": 2140,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131918,7 +131918,7 @@
     "contributor": 991,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131935,7 +131935,7 @@
     "contributor": 990,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131952,7 +131952,7 @@
     "contributor": null,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -131973,7 +131973,7 @@
     "contributor": 601,
     "responsible": true,
     "can_edit": true,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
     "questionnaires": [
@@ -131990,7 +131990,7 @@
     "contributor": 611,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
     "questionnaires": [
@@ -132007,7 +132007,7 @@
     "contributor": 714,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -132024,7 +132024,7 @@
     "contributor": 815,
     "responsible": false,
     "can_edit": true,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -132041,7 +132041,7 @@
     "contributor": 91,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": "Guest lecturer",
     "order": 0,
     "questionnaires": [
@@ -132058,7 +132058,7 @@
     "contributor": 490,
     "responsible": false,
     "can_edit": false,
-    "comment_visibility": "OWN",
+    "textanswer_visibility": "OWN",
     "label": "Assistant",
     "order": 0,
     "questionnaires": [
@@ -132075,7 +132075,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -132091,7 +132091,7 @@
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
-    "comment_visibility": "ALL",
+    "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
     "questionnaires": [

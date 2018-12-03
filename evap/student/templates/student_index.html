@@ -15,7 +15,7 @@
         </div>
         <div class="infobox-content">
             <b>{% trans 'Anonymity' %}</b><br />
-            {% blocktrans %}Your votes and comments can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the comment, especially in small courses.{% endblocktrans %}<br />
+            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
             <br />
             <b>{% trans 'References to other answers' %}</b><br />
@@ -23,7 +23,7 @@
             <em>{% trans 'More details:' %} <a href="/faq#24-q">{% trans 'FAQ/Reference' %}</a></em><br />
             <br />
             <b>{% trans 'Evaluation Results' %}</b><br />
-            {% blocktrans %}Your comments will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. In addition all average grades will then be published for all users of the platform if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            {% blocktrans %}Your text answers will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. At the same time voting answers will be published for all users of the platform if at least two students participated in the evaluation. The average grade is calculated if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#3-s">{% trans 'FAQ/Results' %}</a></em>
         </div>
     </div>
@@ -55,7 +55,7 @@
                                 <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
                                         class="hover-vote" data-url="{% url 'student:vote' course.id %}"
                                     {# staff users should be able to access courses through the student index only if it actually has published results #}
-                                    {% elif course.state == 'published' and course.can_publish_rating_results and not semester.results_are_archived %}
+                                    {% elif course.state == 'published' and course.can_publish_rating_results and not semester.results_are_archived and course|can_user_see_results_page:request.user %}
                                         class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
                                     {% else %}
                                         class="nohover"

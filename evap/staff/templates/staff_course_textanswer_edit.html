@@ -2,14 +2,14 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:course_comments' semester.id course.id %}#{{ text_answer.id }}">{% trans 'Comments' %}</a></li>
-    <li class="breadcrumb-item">{{ text_answer.id }}</li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:course_textanswers' semester.id course.id %}#{{ textanswer.id }}">{% trans 'Text answers' %}</a></li>
+    <li class="breadcrumb-item">{{ textanswer.id }}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
-    <h3>{% trans 'Comment' %}</h3>
-    <form id="comment-edit-form" method="POST" class="form-horizontal">
+    <h3>{% trans 'Text answer' %}</h3>
+    <form id="textanswer-edit-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
@@ -18,7 +18,7 @@
         </div>
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
-                <button type="submit" class="btn btn-primary">{% trans 'Save comment' %}</button>
+                <button type="submit" class="btn btn-primary">{% trans 'Save text answer' %}</button>
             </div>
         </div>
     </form>

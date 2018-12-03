@@ -278,7 +278,7 @@ class SingleResultForm(forms.ModelForm):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.contributor = self.cleaned_data['responsible']
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
@@ -314,8 +314,8 @@ class ContributionForm(forms.ModelForm):
 
     class Meta:
         model = Contribution
-        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
+        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
+        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
         field_classes = {
             'contributor': UserModelChoiceField,
         }
@@ -360,7 +360,7 @@ class ContributionForm(forms.ModelForm):
         self.instance.responsible = is_responsible
         self.instance.can_edit = is_responsible or is_editor
         if is_responsible:
-            self.instance.comment_visibility = Contribution.ALL_COMMENTS
+            self.instance.textanswer_visibility = Contribution.GENERAL_TEXTANSWERS
         return super().save(*args, **kwargs)
 
 

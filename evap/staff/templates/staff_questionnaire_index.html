@@ -6,7 +6,7 @@
         <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mr-auto">{% trans 'Create new questionnaire' %}</a>
         <div class="btn-switch btn-switch-light">
             <div class="btn-switch-label">{% trans 'Obsolete questionnaires' %}</div>
-            <div class="btn-group">
+            <div class="btn-switch btn-group">
                 <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
                 {% trans 'Show' %}
                 </a>

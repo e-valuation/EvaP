@@ -74,7 +74,7 @@ class EditorContributionForm(ContributionForm):
         if self.instance.responsible:
             self.fields['responsibility'].disabled = True
             self.fields['contributor'].disabled = True
-            self.fields['comment_visibility'].disabled = True
+            self.fields['textanswer_visibility'].disabled = True
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
@@ -99,4 +99,4 @@ class DelegatesForm(forms.ModelForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_to = UserModelChoiceField(UserProfile.objects.exclude_inactive_users())
+    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.exclude_inactive_users())
