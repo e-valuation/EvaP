@@ -254,7 +254,7 @@ class ExcelImporter(object):
 
 
 class EnrollmentImporter(ExcelImporter):
-    W_MANY = 'too many enrollments'  # extension of ExcelImporter.warnings keys
+    W_MANY = 'too_many_enrollments'  # extension of ExcelImporter.warnings keys
 
     def __init__(self):
         super().__init__()
