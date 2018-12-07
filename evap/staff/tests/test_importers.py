@@ -205,6 +205,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 7: Email address is missing.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 10: Email address is missing.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
         self.assertIn('The imported data contains two email addresses with the same username (\'678@external.example.com\' and \'678@internal.example.com\').', errors_test)
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
