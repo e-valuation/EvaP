@@ -4,7 +4,7 @@ from django.urls import reverse
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
+from evap.evaluation.models import UserProfile, Evaluation, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
 from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.student.tools import question_id
 from evap.student.views import SUCCESS_MAGIC_STRING
@@ -15,9 +15,9 @@ class TestStudentIndexView(WebTestWith200Check):
     url = '/student/'
 
     def setUp(self):
-        # View is only visible to users participating in at least one course.
+        # View is only visible to users participating in at least one evaluation.
         user = mommy.make(UserProfile, username='student')
-        mommy.make(Course, participants=[user])
+        mommy.make(Evaluation, participants=[user])
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -31,7 +31,7 @@ class TestVoteView(WebTest):
         cls.contributor1 = mommy.make(UserProfile)
         cls.contributor2 = mommy.make(UserProfile)
 
-        cls.course = mommy.make(Course, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
+        cls.evaluation = mommy.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
         cls.top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         cls.bottom_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
@@ -52,11 +52,11 @@ class TestVoteView(WebTest):
         cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE)
 
         cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
-                                       course=cls.course)
+                                       evaluation=cls.evaluation)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, questionnaires=[cls.contributor_questionnaire],
-                                       course=cls.course)
+                                       evaluation=cls.evaluation)
 
-        cls.course.general_contribution.questionnaires.set([cls.top_general_questionnaire, cls.bottom_general_questionnaire])
+        cls.evaluation.general_contribution.questionnaires.set([cls.top_general_questionnaire, cls.bottom_general_questionnaire])
 
     def test_question_ordering(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
@@ -73,13 +73,13 @@ class TestVoteView(WebTest):
         self.assertTrue(top_heading_index < top_text_index < contributor_heading_index < contributor_likert_index < bottom_heading_index < bottom_grade_index)
 
     def fill_form(self, form, fill_complete):
-        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_text_question)] = "some text"
-        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 3
-        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_likert_question)] = 1
+        form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)] = "some text"
+        form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 3
+        form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)] = 1
 
-        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)] = "some bottom text"
-        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)] = 4
-        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)] = 2
+        form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)] = "some bottom text"
+        form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)] = 4
+        form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)] = 2
 
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)] = "some other text"
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
@@ -105,13 +105,13 @@ class TestVoteView(WebTest):
 
         form = page.forms["student-vote-form"]
 
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
 
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)].value, "2")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)].value, "4")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)].value, "2")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)].value, "4")
 
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value, "some other text")
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value, "4")
@@ -154,8 +154,8 @@ class TestVoteView(WebTest):
         self.assertEqual(TextAnswer.objects.filter(question=self.bottom_text_question).count(), 2)
         self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question).count(), 4)
 
-        self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[0].contribution, self.course.general_contribution)
-        self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[1].contribution, self.course.general_contribution)
+        self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[0].contribution, self.evaluation.general_contribution)
+        self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[1].contribution, self.evaluation.general_contribution)
 
         answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution1).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some other text"] * 2)
@@ -163,10 +163,10 @@ class TestVoteView(WebTest):
         answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution2).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some more text"] * 2)
 
-        answers = TextAnswer.objects.filter(question=self.top_text_question, contribution=self.course.general_contribution).values_list('answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.top_text_question, contribution=self.evaluation.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some text"] * 2)
 
-        answers = TextAnswer.objects.filter(question=self.bottom_text_question, contribution=self.course.general_contribution).values_list('answer', flat=True)
+        answers = TextAnswer.objects.filter(question=self.bottom_text_question, contribution=self.evaluation.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
 
     def test_user_cannot_vote_multiple_times(self):
@@ -201,23 +201,23 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         self.assertNotIn(evaluation_warning, page)
 
-        self.course.is_midterm_evaluation = True
-        self.course.save()
+        self.evaluation.is_midterm_evaluation = True
+        self.evaluation.save()
 
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         self.assertIn(evaluation_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=5)
-    def test_small_course_size_warning_shown(self):
-        small_course_size_warning = "Only a small number of people can take part in this evaluation."
+    def test_small_evaluation_size_warning_shown(self):
+        small_evaluation_size_warning = "Only a small number of people can take part in this evaluation."
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
-        self.assertIn(small_course_size_warning, page)
+        self.assertIn(small_evaluation_size_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=2)
-    def test_small_course_size_warning_not_shown(self):
-        small_course_size_warning = "Only a small number of people can take part in this evaluation."
+    def test_small_evaluation_size_warning_not_shown(self):
+        small_evaluation_size_warning = "Only a small number of people can take part in this evaluation."
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
-        self.assertNotIn(small_course_size_warning, page)
+        self.assertNotIn(small_evaluation_size_warning, page)
 
     def helper_test_answer_publish_confirmation(self, form_element):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
@@ -227,11 +227,11 @@ class TestVoteView(WebTest):
             form[form_element] = True
         response = form.submit()
         self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
-        course = Course.objects.get(pk=self.course.pk)
+        evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         if form_element:
-            self.assertTrue(course.can_publish_text_results)
+            self.assertTrue(evaluation.can_publish_text_results)
         else:
-            self.assertFalse(course.can_publish_text_results)
+            self.assertFalse(evaluation.can_publish_text_results)
 
     def test_user_checked_top_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_top")

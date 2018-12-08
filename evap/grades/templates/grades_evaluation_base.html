@@ -1,0 +1,14 @@
+{% extends 'grades_semester_base.html' %}
+
+{% block title %}{{ evaluation.name }} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    {% if evaluation %}
+        {% if disable_breadcrumb_evaluation %}
+            <li class="breadcrumb-item">{{ evaluation.name }}</li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{% url 'grades:evaluation_view' semester.id evaluation.id %}">{{ evaluation.name }}</a></li>
+        {% endif %}
+    {% endif %}
+{% endblock %}

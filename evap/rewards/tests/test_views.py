@@ -6,7 +6,7 @@ from django.urls import reverse
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Semester
+from evap.evaluation.models import UserProfile, Evaluation, Semester
 from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
@@ -43,7 +43,7 @@ class TestIndexView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
-        mommy.make(Course, participants=[cls.student])
+        mommy.make(Evaluation, participants=[cls.student])
         mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
         mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
         mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))

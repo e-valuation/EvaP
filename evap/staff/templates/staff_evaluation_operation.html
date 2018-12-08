@@ -3,10 +3,10 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="course-operation-form" method="POST" class="form-horizontal">
+    <form id="evaluation-operation-form" method="POST" class="form-horizontal">
         {% csrf_token %}
-        {% for course in courses %}
-            <input type="hidden" name="course" value="{{ course.id }}" />
+        {% for evaluation in evaluations %}
+            <input type="hidden" name="evaluation" value="{{ evaluation.id }}" />
         {% endfor %}
 
         <div class="card mb-3">
@@ -14,9 +14,9 @@
                 <p>{{ confirmation_message }}</p>
                 <table class="table table-striped vertically-aligned">
                     <tbody>
-                    {% for course in courses %}
+                    {% for evaluation in evaluations %}
                         <tr>
-                            {% include 'staff_semester_view_course.html' with semester=semester course=course info_only=True %}
+                            {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=True %}
                         </tr>
                     {% endfor %}
                     </tbody>

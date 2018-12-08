@@ -10,7 +10,7 @@ class GradeDocumentFileWidget(forms.widgets.ClearableFileInput):
 
 
 class GradeDocumentForm(forms.ModelForm):
-    # see CourseForm (staff/forms.py) for details, why the following two fields are needed
+    # see EvaluationForm (staff/forms.py) for details, why the following two fields are needed
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
 
@@ -31,14 +31,14 @@ class GradeDocumentForm(forms.ModelForm):
 
     def clean_description_de(self):
         description_de = self.cleaned_data.get('description_de')
-        if GradeDocument.objects.filter(course=self.instance.course, description_de=description_de).exclude(id=self.instance.id).exists():
-            raise ValidationError(_("This description for a grade document was already used for this course."))
+        if GradeDocument.objects.filter(evaluation=self.instance.evaluation, description_de=description_de).exclude(id=self.instance.id).exists():
+            raise ValidationError(_("This description for a grade document was already used for this evaluation."))
         return description_de
 
     def clean_description_en(self):
         description_en = self.cleaned_data.get('description_en')
-        if GradeDocument.objects.filter(course=self.instance.course, description_en=description_en).exclude(id=self.instance.id).exists():
-            raise ValidationError(_("This description for a grade document was already used for this course."))
+        if GradeDocument.objects.filter(evaluation=self.instance.evaluation, description_en=description_en).exclude(id=self.instance.id).exists():
+            raise ValidationError(_("This description for a grade document was already used for this evaluation."))
         return description_en
 
     def save(self, modifying_user, *args, **kwargs):

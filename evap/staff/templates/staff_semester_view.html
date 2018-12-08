@@ -69,7 +69,7 @@
                         <tr>
                             <th style="width: 19%">{% trans 'Degree' %}</th>
                             <th style="width: 30%">{% trans 'Evaluation period' %}</th>
-                            <th style="width: 17%">{% trans 'Evaluated courses' %}</th>
+                            <th style="width: 17%">{% trans 'Evaluated evaluations' %}</th>
                             <th style="width: 17%">{% trans 'Reviewed text answers' %}</th>
                             <th style="width: 17%">{% trans 'Participation' %}</th>
                         </tr>
@@ -81,12 +81,12 @@
                                 {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
                             </td>
                             <td>
-                                {% if stats.num_courses != 0 %}
+                                {% if stats.num_evaluations != 0 %}
                                     {{ stats.first_start }} &ndash; {{ stats.last_end }}
                                 {% endif %}
                             </td>
                             <td>
-                                {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
+                                {% include 'progress_bar.html' with done=stats.num_evaluations_evaluated total=stats.num_evaluations %}
                             </td>
                             <td>
                                 {% include 'progress_bar.html' with done=stats.num_textanswers_reviewed total=stats.num_textanswers %}
@@ -104,16 +104,16 @@
 
     <div class="card card-outline-primary">
         <div class="card-header d-flex">
-            {% trans 'Courses' %}
+            {% trans 'Evaluations' %}
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
                         <div class="btn-group" role="group">
                             <a id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</a>
                             <div class="dropdown-menu" aria-labelledby="btnAdd">
-                                <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}">{% trans 'Create course' %}</a>
+                                <a class="dropdown-item" href="{% url 'staff:evaluation_create' semester.id %}">{% trans 'Create evaluation' %}</a>
                                 <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}">{% trans 'Create single result' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}">{% trans 'Import courses' %}</a>
+                                <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}">{% trans 'Import evaluations' %}</a>
                             </div>
                         </div>
                     {% endif %}
@@ -121,7 +121,7 @@
                         <a id="btnExport" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</a>
                         <div class="dropdown-menu" aria-labelledby="btnExport">
                             <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw course data' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:semester_raw_export' semester.id %}">{% trans 'Export raw evaluation data' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:semester_participation_export' semester.id %}">{% trans 'Export participation data' %}</a>
                         </div>
                     </div>
@@ -132,7 +132,7 @@
             {% endif %}
         </div>
         <div class="card-body">
-            <div class="btn-switch mb-2" id="course-filter-buttons">
+            <div class="btn-switch mb-2" id="evaluation-filter-buttons">
                 <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
                 <div>
                     <div class="btn-switch btn-group icon-buttons">
@@ -201,9 +201,9 @@
                     </div>
                 </div>
             </div>
-            <form id="course_operation_form" method="GET" action="{% url 'staff:semester_course_operation' semester.id %}">
-                <table id="course-table" class="table table-striped table-narrow vertically-aligned">
-                    {% if num_courses > 0 %}
+            <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
+                <table id="evaluation-table" class="table table-striped table-narrow vertically-aligned">
+                    {% if num_evaluations > 0 %}
                         <thead>
                             <tr>
                                 <th data-orderable="false"></th>
@@ -219,12 +219,12 @@
                         </thead>
                     {% endif %}
                     <tbody>
-                    {% for course in courses %}
-                        <tr id="course-row-{{ course.id }}">
-                            {% include 'staff_semester_view_course.html' with semester=semester course=course info_only=False %}
+                    {% for evaluation in evaluations %}
+                        <tr id="evaluation-row-{{ evaluation.id }}">
+                            {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
                         </tr>
                     {% empty %}
-                        <tr><td><i>{% trans 'There are no courses in this semester.' %}</i><td></tr>
+                        <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i><td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
@@ -232,40 +232,40 @@
                 {% if request.user.is_manager and not semester.participations_are_archived %}
                     <div class="my-2">
                         <a role="button" class="btn btn-sm btn-secondary"
-                            onclick="$('#course_operation_form td').prev().find(':checkbox').prop('checked', true);">
+                            onclick="$('#evaluation_operation_form td').prev().find(':checkbox').prop('checked', true);">
                             {% trans 'Select all' %}
                         </a>
                         <a role="button" class="btn btn-sm btn-secondary"
-                            onclick="$('#course_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
+                            onclick="$('#evaluation_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
                         </a>
                     </div>
                     <div>
                         <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses in preparation or approved by editors' %}">
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
                             <span class="fas fa-circle icon-yellow"></span>
                             <span class="far fa-check-square icon-yellow"></span>
                             {% trans 'Ask for editor review' %}
                         </button>
                         <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses awaiting editor review, approved by editor or approved by manager' %}">
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
                             <span class="far fa-square icon-gray"></span>
                             <span class="far fa-check-square icon-yellow"></span>
                             <span class="far fa-check-square icon-green"></span>
                             {% trans 'Revert to preparation' %}
                         </button>
                         <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Courses waiting for evaluation period to start' %}">
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations waiting for evaluation period to start' %}">
                             <span class="fas fa-pause icon-gray"></span>
                             {% trans 'Start evaluation' %}
                         </button>
                         <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished courses' %}">
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished evaluations' %}">
                             <span class="fas fa-chart-bar icon-yellow"></span>
                             <span class="fas fa-chart-bar icon-red"></span>
                             {% trans 'Publish' %}
                         </button>
                         <button name="target_state" value="reviewed" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Published courses' %}">
+                            data-toggle="tooltip" data-placement="top" title="{% trans 'Published evaluations' %}">
                             <span class="fas fa-chart-bar icon-green"></span>
                             {% trans 'Unpublish' %}
                         </button>
@@ -294,7 +294,7 @@
         };
     </script>
     {% trans 'Archive participations' as title %}
-    {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong id="data-label"></strong>? Further changes to the courses won't be possible and you can't undo this action.{% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to archive all participations in the semester <strong id="data-label"></strong>? Further changes to the evaluations won't be possible and you can't undo this action.{% endblocktrans %}
     {% trans 'Archive participations' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='archiveParticipationsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
@@ -309,7 +309,7 @@
         };
     </script>
     {% trans 'Delete grade documents' as title %}
-    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's evaluations and will disable new uploads. You can't undo this action.{% endblocktrans %}
     {% trans 'Delete grade documents' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
@@ -324,7 +324,7 @@
         };
     </script>
     {% trans 'Archive results' as title %}
-    {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong id="data-label"></strong>? This will make the results of all courses inaccessible for all users except their contributors and managers. You can't undo this action.{% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to archive the results in the semester <strong id="data-label"></strong>? This will make the results of all evaluations inaccessible for all users except their contributors and managers. You can't undo this action.{% endblocktrans %}
     {% trans 'Archive results' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='archiveResultsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
@@ -338,17 +338,17 @@
             });
         };
     </script>
-    {% trans 'Delete course' as title %}
-    {% trans 'Do you really want to delete the course <strong id="data-label"></strong>?' as question %}
-    {% trans 'Delete course' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteCourseModal' title=title question=question action_text=action_text btn_type='danger' %}
+    {% trans 'Delete evaluation' as title %}
+    {% trans 'Do you really want to delete the evaluation <strong id="data-label"></strong>?' as question %}
+    {% trans 'Delete evaluation' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='deleteEvaluationModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
-        function deleteCourseModalAction(dataId) {
+        function deleteEvaluationModalAction(dataId) {
             $.ajax({
                 type: "POST",
-                url: "{% url 'staff:course_delete' %}",
-                data: {"course_id": dataId},
-                success: function(){ $('#course-row-'+dataId).hide('slow', function(){ $('#course-row-'+dataId).remove(); }); },
+                url: "{% url 'staff:evaluation_delete' %}",
+                data: {"evaluation_id": dataId},
+                success: function(){ $('#evaluation-row-'+dataId).hide('slow', function(){ $('#evaluation-row-'+dataId).remove(); }); },
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });
         };
@@ -379,7 +379,7 @@
         }
 
         $(window).bind("pageshow", function () {
-            $('#course_operation_form :checkbox').prop('checked', false); // prevent wrong autofills
+            $('#evaluation_operation_form :checkbox').prop('checked', false); // prevent wrong autofills
         });
     </script>
 
@@ -407,7 +407,7 @@
         );
 
         $(document).ready(function() {
-            var table = $('#course-table').DataTable({
+            var table = $('#evaluation-table').DataTable({
                 "paging": false,
                 "info": false,
                 "stateSave": true,
@@ -418,7 +418,7 @@
                 "dom": 'frt',
                 fnInitComplete: function() {
                     // add counts to each filter button
-                    $("#course-filter-buttons [data-filter]").each(function(i, obj) {
+                    $("#evaluation-filter-buttons [data-filter]").each(function(i, obj) {
                         var iconCount = 0;
                         [1,2,3,4].forEach(i => {
                             iconCount += table.column(i).data().filter((value, index) => value.includes(obj.dataset.filter)).count();
@@ -427,7 +427,7 @@
                     });
 
                     // add click events for filter buttons
-                    $('#course-filter-buttons [data-filter]').click(function(e) {
+                    $('#evaluation-filter-buttons [data-filter]').click(function(e) {
                         // toggle active states and refresh table
                         var button = $(e.target).closest("a");
                         button.toggleClass("active");
@@ -435,14 +435,14 @@
                         table.draw();
 
                         // store which button was selected
-                        localStorage.removeItem('course-filter_{{ semester.id }}');
+                        localStorage.removeItem('evaluation-filter_{{ semester.id }}');
                         if($("[data-filter].active").length) {
-                            localStorage['course-filter_{{ semester.id }}'] = $("[data-filter].active")[0].dataset.filter;
+                            localStorage['evaluation-filter_{{ semester.id }}'] = $("[data-filter].active")[0].dataset.filter;
                         }
                     });
 
                     // activate previously stored active button after page reload
-                    $('#course-filter-buttons [data-filter="' + localStorage['course-filter_{{ semester.id }}'] + '"]').addClass("active");
+                    $('#evaluation-filter-buttons [data-filter="' + localStorage['evaluation-filter_{{ semester.id }}'] + '"]').addClass("active");
                     table.draw();
                 }
             });

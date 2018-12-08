@@ -22,14 +22,14 @@ STATES_ORDERED = OrderedDict((
 
 # the descriptions used in tooltips for contributors
 STATE_DESCRIPTIONS = OrderedDict((
-    ('new', _('The course was newly created and will be prepared by the evaluation team.')),
-    ('prepared', _('The course was prepared by the evaluation team and is now available for editing to the responsible person.')),
-    ('editor_approved', _('The course was approved by a lecturer and will now be checked by the evaluation team.')),
+    ('new', _('The evaluation was newly created and will be prepared by the evaluation team.')),
+    ('prepared', _('The evaluation was prepared by the evaluation team and is now available for editing to the responsible person.')),
+    ('editor_approved', _('The evaluation was approved by a lecturer and will now be checked by the evaluation team.')),
     ('approved', _('All preparations are finished. The evaluation will begin once the defined start date is reached.')),
-    ('in_evaluation', _('The course is currently in evaluation until the defined end date is reached.')),
-    ('evaluated', _('The course was fully evaluated and will now be reviewed by the evaluation team.')),
-    ('reviewed', _('The course was fully evaluated and reviewed by the evaluation team. You will receive an email when its results are published.')),
-    ('published', _('The results for this course have been published.'))
+    ('in_evaluation', _('The evaluation is currently running until the defined end date is reached.')),
+    ('evaluated', _('The evaluation has finished and will now be reviewed by the evaluation team.')),
+    ('reviewed', _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.')),
+    ('published', _('The results for this evaluation have been published.'))
 ))
 
 
@@ -37,33 +37,33 @@ def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 
 
-def send_publish_notifications(courses, template=None):
+def send_publish_notifications(evaluations, template=None):
     from evap.evaluation.models import EmailTemplate
     publish_notifications = defaultdict(set)
 
     if not template:
         template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
 
-    for course in courses:
-        # for courses with published averaged grade, all contributors and participants get a notification
+    for evaluation in evaluations:
+        # for evaluations with published averaged grade, all contributors and participants get a notification
         # we don't send a notification if the significance threshold isn't met
-        if course.can_publish_average_grade:
-            for participant in course.participants.all():
-                publish_notifications[participant].add(course)
-            for contribution in course.contributions.all():
+        if evaluation.can_publish_average_grade:
+            for participant in evaluation.participants.all():
+                publish_notifications[participant].add(evaluation)
+            for contribution in evaluation.contributions.all():
                 if contribution.contributor:
-                    publish_notifications[contribution.contributor].add(course)
+                    publish_notifications[contribution.contributor].add(evaluation)
         # if the average grade was not published, notifications are only sent for contributors who can see text answers
-        elif course.textanswer_set:
-            for textanswer in course.textanswer_set:
+        elif evaluation.textanswer_set:
+            for textanswer in evaluation.textanswer_set:
                 if textanswer.contribution.contributor:
-                    publish_notifications[textanswer.contribution.contributor].add(course)
+                    publish_notifications[textanswer.contribution.contributor].add(evaluation)
 
-            for contributor in course.responsible_contributors:
-                publish_notifications[contributor].add(course)
+            for contributor in evaluation.responsible_contributors:
+                publish_notifications[contributor].add(evaluation)
 
-    for user, course_set in publish_notifications.items():
-        body_params = {'user': user, 'courses': list(course_set)}
+    for user, evaluation_set in publish_notifications.items():
+        body_params = {'user': user, 'evaluations': list(evaluation_set)}
         EmailTemplate.send_to_user(user, template, {}, body_params, use_cc=True)
 
 
@@ -74,8 +74,8 @@ def sort_formset(request, formset):
 
 
 def course_types_in_semester(semester):
-    from evap.evaluation.models import Course
-    return Course.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
+    from evap.evaluation.models import Evaluation
+    return Evaluation.objects.filter(semester=semester).values_list('type', flat=True).order_by().distinct()
 
 
 def date_to_datetime(date):
@@ -92,15 +92,15 @@ def set_or_get_language(user, request, **_kwargs):
         user.save()
 
 
-def get_due_courses_for_user(user):
-    from evap.evaluation.models import Course
-    due_courses = dict()
-    for course in Course.objects.filter(participants=user, state='in_evaluation').exclude(voters=user):
-        due_courses[course] = (course.vote_end_date - datetime.date.today()).days
+def get_due_evaluations_for_user(user):
+    from evap.evaluation.models import Evaluation
+    due_evaluations = dict()
+    for evaluation in Evaluation.objects.filter(participants=user, state='in_evaluation').exclude(voters=user):
+        due_evaluations[evaluation] = (evaluation.vote_end_date - datetime.date.today()).days
 
-    # Sort courses by number of days left for evaluation and bring them to following format:
-    # [(course, due_in_days), ...]
-    return sorted(due_courses.items(), key=operator.itemgetter(1))
+    # Sort evaluations by number of days left for evaluation and bring them to following format:
+    # [(evaluation, due_in_days), ...]
+    return sorted(due_evaluations.items(), key=operator.itemgetter(1))
 
 
 def get_parameter_from_url_or_session(request, parameter, default=False):

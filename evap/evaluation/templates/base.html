@@ -31,7 +31,7 @@
 {% block modals %}
     {% if user.is_authenticated %}
         {% trans 'Feedback' as title %}
-        {% trans 'You are welcome to submit feedback regarding the evaluation platform or the evaluation of specific courses. Please let us know how we can improve your experience on EvaP.' as teaser %}
+        {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
         {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
     {% endif %}
 {% endblock %}

@@ -1,9 +1,9 @@
-{% extends 'grades_course_base.html' %}
+{% extends 'grades_evaluation_base.html' %}
 
 {% block content %}
     {{ block.super }}
 
-    <h3 class="mb-3">{{ course.name }} ({{ semester.name }})</h3>
+    <h3 class="mb-3">{{ evaluation.name }} ({{ semester.name }})</h3>
 
     <div class="card mb-3">
         <div class="card-header">
@@ -29,7 +29,7 @@
                                 <td>
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
-                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
+                                        <a href="{% url 'grades:edit_grades' semester.id evaluation.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                                         <a role="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
                                     {% endif %}
                                 </td>
@@ -43,8 +43,8 @@
         </div>
     </div>
     {% if user.is_grade_publisher %}
-        <a href="{% url 'grades:upload_grades' semester.id course.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new midterm grades' %}</a>
-        <a href="{% url 'grades:upload_grades' semester.id course.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new final grades' %}</a>
+        <a href="{% url 'grades:upload_grades' semester.id evaluation.id %}" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new midterm grades' %}</a>
+        <a href="{% url 'grades:upload_grades' semester.id evaluation.id %}?final=true" class="btn btn-dark {{ disable_if_archived }}">{% trans 'Upload new final grades' %}</a>
     {% endif %}
 {% endblock %}
 

@@ -128750,8 +128750,8 @@
   "pk": 1,
   "fields": {
     "name": "Editor Review Notice",
-    "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New courses ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your courses for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New evaluations ready for approval",
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128760,7 +128760,7 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your courses will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128769,7 +128769,7 @@
   "fields": {
     "name": "Publishing Notice",
     "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following courses have just been published:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following evaluations have just been published:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128787,7 +128787,7 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following courses just started:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_courses|length > 1%}These courses are waiting for your evaluation:\r\n{% for course, due_in_days in due_courses %}    - {{ course.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128795,8 +128795,8 @@
   "pk": 6,
   "fields": {
     "name": "Editor Review Reminder",
-    "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Course ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for course in courses %}    - {{ course.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single course you can also add persons and assign edit rights for this course to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your courses for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n- Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese courses need your approval:\r\n{% for course in courses %}    - {{ course.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Evaluation ready for approval",
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -130667,7 +130667,7 @@
   "model": "grades.gradedocument",
   "pk": 2,
   "fields": {
-    "course": 1577,
+    "evaluation": 1577,
     "file": "grades/1577/test_results_03.txt",
     "type": "FIN",
     "description_de": "Final grades",
@@ -130680,7 +130680,7 @@
   "model": "grades.gradedocument",
   "pk": 3,
   "fields": {
-    "course": 1525,
+    "evaluation": 1525,
     "file": "grades/1525/test_results_01.txt",
     "type": "MID",
     "description_de": "Midterm grades",
@@ -130693,7 +130693,7 @@
   "model": "grades.gradedocument",
   "pk": 4,
   "fields": {
-    "course": 1694,
+    "evaluation": 1694,
     "file": "grades/1694/test_results_02.txt",
     "type": "MID",
     "description_de": "Midterm grades",
@@ -130706,7 +130706,7 @@
   "model": "evaluation.contribution",
   "pk": 89,
   "fields": {
-    "course": 34,
+    "evaluation": 34,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130723,7 +130723,7 @@
   "model": "evaluation.contribution",
   "pk": 90,
   "fields": {
-    "course": 34,
+    "evaluation": 34,
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
@@ -130739,7 +130739,7 @@
   "model": "evaluation.contribution",
   "pk": 788,
   "fields": {
-    "course": 310,
+    "evaluation": 310,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130758,7 +130758,7 @@
   "model": "evaluation.contribution",
   "pk": 789,
   "fields": {
-    "course": 310,
+    "evaluation": 310,
     "contributor": 207,
     "responsible": false,
     "can_edit": false,
@@ -130775,7 +130775,7 @@
   "model": "evaluation.contribution",
   "pk": 790,
   "fields": {
-    "course": 311,
+    "evaluation": 311,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130792,7 +130792,7 @@
   "model": "evaluation.contribution",
   "pk": 791,
   "fields": {
-    "course": 311,
+    "evaluation": 311,
     "contributor": 207,
     "responsible": false,
     "can_edit": false,
@@ -130808,7 +130808,7 @@
   "model": "evaluation.contribution",
   "pk": 804,
   "fields": {
-    "course": 318,
+    "evaluation": 318,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130827,7 +130827,7 @@
   "model": "evaluation.contribution",
   "pk": 805,
   "fields": {
-    "course": 318,
+    "evaluation": 318,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -130843,7 +130843,7 @@
   "model": "evaluation.contribution",
   "pk": 822,
   "fields": {
-    "course": 327,
+    "evaluation": 327,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130864,7 +130864,7 @@
   "model": "evaluation.contribution",
   "pk": 823,
   "fields": {
-    "course": 327,
+    "evaluation": 327,
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
@@ -130880,7 +130880,7 @@
   "model": "evaluation.contribution",
   "pk": 826,
   "fields": {
-    "course": 329,
+    "evaluation": 329,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130899,7 +130899,7 @@
   "model": "evaluation.contribution",
   "pk": 827,
   "fields": {
-    "course": 329,
+    "evaluation": 329,
     "contributor": 127,
     "responsible": false,
     "can_edit": false,
@@ -130915,7 +130915,7 @@
   "model": "evaluation.contribution",
   "pk": 832,
   "fields": {
-    "course": 332,
+    "evaluation": 332,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130934,7 +130934,7 @@
   "model": "evaluation.contribution",
   "pk": 833,
   "fields": {
-    "course": 332,
+    "evaluation": 332,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -130950,7 +130950,7 @@
   "model": "evaluation.contribution",
   "pk": 834,
   "fields": {
-    "course": 333,
+    "evaluation": 333,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -130968,7 +130968,7 @@
   "model": "evaluation.contribution",
   "pk": 835,
   "fields": {
-    "course": 333,
+    "evaluation": 333,
     "contributor": 234,
     "responsible": false,
     "can_edit": false,
@@ -130984,7 +130984,7 @@
   "model": "evaluation.contribution",
   "pk": 836,
   "fields": {
-    "course": 334,
+    "evaluation": 334,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131005,7 +131005,7 @@
   "model": "evaluation.contribution",
   "pk": 837,
   "fields": {
-    "course": 334,
+    "evaluation": 334,
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
@@ -131022,7 +131022,7 @@
   "model": "evaluation.contribution",
   "pk": 840,
   "fields": {
-    "course": 336,
+    "evaluation": 336,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131040,7 +131040,7 @@
   "model": "evaluation.contribution",
   "pk": 841,
   "fields": {
-    "course": 336,
+    "evaluation": 336,
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
@@ -131057,7 +131057,7 @@
   "model": "evaluation.contribution",
   "pk": 858,
   "fields": {
-    "course": 345,
+    "evaluation": 345,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131075,7 +131075,7 @@
   "model": "evaluation.contribution",
   "pk": 859,
   "fields": {
-    "course": 345,
+    "evaluation": 345,
     "contributor": 249,
     "responsible": false,
     "can_edit": false,
@@ -131091,7 +131091,7 @@
   "model": "evaluation.contribution",
   "pk": 862,
   "fields": {
-    "course": 347,
+    "evaluation": 347,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131111,7 +131111,7 @@
   "model": "evaluation.contribution",
   "pk": 863,
   "fields": {
-    "course": 347,
+    "evaluation": 347,
     "contributor": 641,
     "responsible": false,
     "can_edit": false,
@@ -131127,7 +131127,7 @@
   "model": "evaluation.contribution",
   "pk": 864,
   "fields": {
-    "course": 348,
+    "evaluation": 348,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131146,7 +131146,7 @@
   "model": "evaluation.contribution",
   "pk": 865,
   "fields": {
-    "course": 348,
+    "evaluation": 348,
     "contributor": 641,
     "responsible": false,
     "can_edit": false,
@@ -131162,7 +131162,7 @@
   "model": "evaluation.contribution",
   "pk": 868,
   "fields": {
-    "course": 350,
+    "evaluation": 350,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131180,7 +131180,7 @@
   "model": "evaluation.contribution",
   "pk": 869,
   "fields": {
-    "course": 350,
+    "evaluation": 350,
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
@@ -131196,7 +131196,7 @@
   "model": "evaluation.contribution",
   "pk": 880,
   "fields": {
-    "course": 356,
+    "evaluation": 356,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131217,7 +131217,7 @@
   "model": "evaluation.contribution",
   "pk": 881,
   "fields": {
-    "course": 356,
+    "evaluation": 356,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -131234,7 +131234,7 @@
   "model": "evaluation.contribution",
   "pk": 884,
   "fields": {
-    "course": 358,
+    "evaluation": 358,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131255,7 +131255,7 @@
   "model": "evaluation.contribution",
   "pk": 885,
   "fields": {
-    "course": 358,
+    "evaluation": 358,
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
@@ -131272,7 +131272,7 @@
   "model": "evaluation.contribution",
   "pk": 886,
   "fields": {
-    "course": 359,
+    "evaluation": 359,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131290,7 +131290,7 @@
   "model": "evaluation.contribution",
   "pk": 887,
   "fields": {
-    "course": 359,
+    "evaluation": 359,
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
@@ -131307,7 +131307,7 @@
   "model": "evaluation.contribution",
   "pk": 894,
   "fields": {
-    "course": 363,
+    "evaluation": 363,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131326,7 +131326,7 @@
   "model": "evaluation.contribution",
   "pk": 895,
   "fields": {
-    "course": 363,
+    "evaluation": 363,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -131342,7 +131342,7 @@
   "model": "evaluation.contribution",
   "pk": 908,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131361,7 +131361,7 @@
   "model": "evaluation.contribution",
   "pk": 909,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -131378,7 +131378,7 @@
   "model": "evaluation.contribution",
   "pk": 912,
   "fields": {
-    "course": 372,
+    "evaluation": 372,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131398,7 +131398,7 @@
   "model": "evaluation.contribution",
   "pk": 913,
   "fields": {
-    "course": 372,
+    "evaluation": 372,
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
@@ -131415,7 +131415,7 @@
   "model": "evaluation.contribution",
   "pk": 918,
   "fields": {
-    "course": 375,
+    "evaluation": 375,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131433,7 +131433,7 @@
   "model": "evaluation.contribution",
   "pk": 919,
   "fields": {
-    "course": 375,
+    "evaluation": 375,
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
@@ -131449,7 +131449,7 @@
   "model": "evaluation.contribution",
   "pk": 1144,
   "fields": {
-    "course": 478,
+    "evaluation": 478,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131472,7 +131472,7 @@
   "model": "evaluation.contribution",
   "pk": 1145,
   "fields": {
-    "course": 478,
+    "evaluation": 478,
     "contributor": 181,
     "responsible": false,
     "can_edit": false,
@@ -131493,7 +131493,7 @@
   "model": "evaluation.contribution",
   "pk": 1146,
   "fields": {
-    "course": 478,
+    "evaluation": 478,
     "contributor": 1,
     "responsible": true,
     "can_edit": true,
@@ -131509,7 +131509,7 @@
   "model": "evaluation.contribution",
   "pk": 1151,
   "fields": {
-    "course": 332,
+    "evaluation": 332,
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
@@ -131526,7 +131526,7 @@
   "model": "evaluation.contribution",
   "pk": 1154,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 408,
     "responsible": false,
     "can_edit": false,
@@ -131544,7 +131544,7 @@
   "model": "evaluation.contribution",
   "pk": 1156,
   "fields": {
-    "course": 363,
+    "evaluation": 363,
     "contributor": 392,
     "responsible": false,
     "can_edit": false,
@@ -131561,7 +131561,7 @@
   "model": "evaluation.contribution",
   "pk": 1157,
   "fields": {
-    "course": 363,
+    "evaluation": 363,
     "contributor": 423,
     "responsible": false,
     "can_edit": false,
@@ -131578,7 +131578,7 @@
   "model": "evaluation.contribution",
   "pk": 1165,
   "fields": {
-    "course": 333,
+    "evaluation": 333,
     "contributor": 318,
     "responsible": true,
     "can_edit": true,
@@ -131595,7 +131595,7 @@
   "model": "evaluation.contribution",
   "pk": 1186,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -131611,7 +131611,7 @@
   "model": "evaluation.contribution",
   "pk": 1187,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 883,
     "responsible": false,
     "can_edit": false,
@@ -131627,7 +131627,7 @@
   "model": "evaluation.contribution",
   "pk": 1188,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
@@ -131643,7 +131643,7 @@
   "model": "evaluation.contribution",
   "pk": 1189,
   "fields": {
-    "course": 370,
+    "evaluation": 370,
     "contributor": 900,
     "responsible": false,
     "can_edit": false,
@@ -131659,7 +131659,7 @@
   "model": "evaluation.contribution",
   "pk": 1194,
   "fields": {
-    "course": 363,
+    "evaluation": 363,
     "contributor": 975,
     "responsible": false,
     "can_edit": false,
@@ -131676,7 +131676,7 @@
   "model": "evaluation.contribution",
   "pk": 1200,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -131694,7 +131694,7 @@
   "model": "evaluation.contribution",
   "pk": 1201,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
@@ -131711,7 +131711,7 @@
   "model": "evaluation.contribution",
   "pk": 1202,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 13,
     "responsible": false,
     "can_edit": false,
@@ -131728,7 +131728,7 @@
   "model": "evaluation.contribution",
   "pk": 1203,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 593,
     "responsible": false,
     "can_edit": false,
@@ -131745,7 +131745,7 @@
   "model": "evaluation.contribution",
   "pk": 1204,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 4,
     "responsible": false,
     "can_edit": false,
@@ -131762,7 +131762,7 @@
   "model": "evaluation.contribution",
   "pk": 1205,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 30,
     "responsible": false,
     "can_edit": false,
@@ -131779,7 +131779,7 @@
   "model": "evaluation.contribution",
   "pk": 1206,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 596,
     "responsible": false,
     "can_edit": false,
@@ -131796,7 +131796,7 @@
   "model": "evaluation.contribution",
   "pk": 1207,
   "fields": {
-    "course": 482,
+    "evaluation": 482,
     "contributor": 605,
     "responsible": false,
     "can_edit": false,
@@ -131813,7 +131813,7 @@
   "model": "evaluation.contribution",
   "pk": 1217,
   "fields": {
-    "course": 356,
+    "evaluation": 356,
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
@@ -131830,7 +131830,7 @@
   "model": "evaluation.contribution",
   "pk": 1228,
   "fields": {
-    "course": 318,
+    "evaluation": 318,
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
@@ -131847,7 +131847,7 @@
   "model": "evaluation.contribution",
   "pk": 1235,
   "fields": {
-    "course": 310,
+    "evaluation": 310,
     "contributor": 395,
     "responsible": true,
     "can_edit": true,
@@ -131864,7 +131864,7 @@
   "model": "evaluation.contribution",
   "pk": 1242,
   "fields": {
-    "course": 310,
+    "evaluation": 310,
     "contributor": 675,
     "responsible": false,
     "can_edit": false,
@@ -131880,7 +131880,7 @@
   "model": "evaluation.contribution",
   "pk": 1243,
   "fields": {
-    "course": 310,
+    "evaluation": 310,
     "contributor": 71,
     "responsible": false,
     "can_edit": false,
@@ -131896,7 +131896,7 @@
   "model": "evaluation.contribution",
   "pk": 1244,
   "fields": {
-    "course": 311,
+    "evaluation": 311,
     "contributor": 267,
     "responsible": true,
     "can_edit": true,
@@ -131913,7 +131913,7 @@
   "model": "evaluation.contribution",
   "pk": 1246,
   "fields": {
-    "course": 359,
+    "evaluation": 359,
     "contributor": 991,
     "responsible": false,
     "can_edit": false,
@@ -131930,7 +131930,7 @@
   "model": "evaluation.contribution",
   "pk": 1247,
   "fields": {
-    "course": 359,
+    "evaluation": 359,
     "contributor": 990,
     "responsible": false,
     "can_edit": false,
@@ -131947,7 +131947,7 @@
   "model": "evaluation.contribution",
   "pk": 1249,
   "fields": {
-    "course": 329,
+    "evaluation": 329,
     "contributor": 409,
     "responsible": true,
     "can_edit": true,
@@ -131964,7 +131964,7 @@
   "model": "evaluation.contribution",
   "pk": 1250,
   "fields": {
-    "course": 345,
+    "evaluation": 345,
     "contributor": 993,
     "responsible": true,
     "can_edit": true,
@@ -131981,7 +131981,7 @@
   "model": "evaluation.contribution",
   "pk": 1253,
   "fields": {
-    "course": 329,
+    "evaluation": 329,
     "contributor": 44,
     "responsible": false,
     "can_edit": false,
@@ -131998,7 +131998,7 @@
   "model": "evaluation.contribution",
   "pk": 1256,
   "fields": {
-    "course": 348,
+    "evaluation": 348,
     "contributor": 995,
     "responsible": true,
     "can_edit": true,
@@ -132014,7 +132014,7 @@
   "model": "evaluation.contribution",
   "pk": 1257,
   "fields": {
-    "course": 348,
+    "evaluation": 348,
     "contributor": 996,
     "responsible": false,
     "can_edit": false,
@@ -132030,7 +132030,7 @@
   "model": "evaluation.contribution",
   "pk": 1258,
   "fields": {
-    "course": 348,
+    "evaluation": 348,
     "contributor": 997,
     "responsible": false,
     "can_edit": false,
@@ -132046,7 +132046,7 @@
   "model": "evaluation.contribution",
   "pk": 1266,
   "fields": {
-    "course": 311,
+    "evaluation": 311,
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
@@ -132063,7 +132063,7 @@
   "model": "evaluation.contribution",
   "pk": 1282,
   "fields": {
-    "course": 327,
+    "evaluation": 327,
     "contributor": 980,
     "responsible": false,
     "can_edit": false,
@@ -132079,7 +132079,7 @@
   "model": "evaluation.contribution",
   "pk": 1283,
   "fields": {
-    "course": 327,
+    "evaluation": 327,
     "contributor": 977,
     "responsible": false,
     "can_edit": false,
@@ -132095,7 +132095,7 @@
   "model": "evaluation.contribution",
   "pk": 1284,
   "fields": {
-    "course": 327,
+    "evaluation": 327,
     "contributor": 1001,
     "responsible": false,
     "can_edit": false,
@@ -132111,7 +132111,7 @@
   "model": "evaluation.contribution",
   "pk": 1287,
   "fields": {
-    "course": 372,
+    "evaluation": 372,
     "contributor": 994,
     "responsible": false,
     "can_edit": false,
@@ -132128,7 +132128,7 @@
   "model": "evaluation.contribution",
   "pk": 1288,
   "fields": {
-    "course": 372,
+    "evaluation": 372,
     "contributor": 1005,
     "responsible": false,
     "can_edit": false,
@@ -132145,7 +132145,7 @@
   "model": "evaluation.contribution",
   "pk": 1297,
   "fields": {
-    "course": 347,
+    "evaluation": 347,
     "contributor": 1009,
     "responsible": true,
     "can_edit": true,
@@ -132162,7 +132162,7 @@
   "model": "evaluation.contribution",
   "pk": 1298,
   "fields": {
-    "course": 347,
+    "evaluation": 347,
     "contributor": 1010,
     "responsible": false,
     "can_edit": false,
@@ -132179,7 +132179,7 @@
   "model": "evaluation.contribution",
   "pk": 1612,
   "fields": {
-    "course": 641,
+    "evaluation": 641,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132199,7 +132199,7 @@
   "model": "evaluation.contribution",
   "pk": 1613,
   "fields": {
-    "course": 641,
+    "evaluation": 641,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -132216,7 +132216,7 @@
   "model": "evaluation.contribution",
   "pk": 1617,
   "fields": {
-    "course": 643,
+    "evaluation": 643,
     "contributor": 93,
     "responsible": true,
     "can_edit": true,
@@ -132233,7 +132233,7 @@
   "model": "evaluation.contribution",
   "pk": 1626,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132253,7 +132253,7 @@
   "model": "evaluation.contribution",
   "pk": 1634,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132274,7 +132274,7 @@
   "model": "evaluation.contribution",
   "pk": 1635,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -132291,7 +132291,7 @@
   "model": "evaluation.contribution",
   "pk": 1638,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132309,7 +132309,7 @@
   "model": "evaluation.contribution",
   "pk": 1639,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -132326,7 +132326,7 @@
   "model": "evaluation.contribution",
   "pk": 1640,
   "fields": {
-    "course": 655,
+    "evaluation": 655,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132344,7 +132344,7 @@
   "model": "evaluation.contribution",
   "pk": 1641,
   "fields": {
-    "course": 655,
+    "evaluation": 655,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -132360,7 +132360,7 @@
   "model": "evaluation.contribution",
   "pk": 1644,
   "fields": {
-    "course": 657,
+    "evaluation": 657,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132378,7 +132378,7 @@
   "model": "evaluation.contribution",
   "pk": 1645,
   "fields": {
-    "course": 657,
+    "evaluation": 657,
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
@@ -132395,7 +132395,7 @@
   "model": "evaluation.contribution",
   "pk": 1656,
   "fields": {
-    "course": 663,
+    "evaluation": 663,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132413,7 +132413,7 @@
   "model": "evaluation.contribution",
   "pk": 1657,
   "fields": {
-    "course": 663,
+    "evaluation": 663,
     "contributor": 936,
     "responsible": true,
     "can_edit": true,
@@ -132429,7 +132429,7 @@
   "model": "evaluation.contribution",
   "pk": 1658,
   "fields": {
-    "course": 664,
+    "evaluation": 664,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132449,7 +132449,7 @@
   "model": "evaluation.contribution",
   "pk": 1659,
   "fields": {
-    "course": 664,
+    "evaluation": 664,
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
@@ -132466,7 +132466,7 @@
   "model": "evaluation.contribution",
   "pk": 1660,
   "fields": {
-    "course": 665,
+    "evaluation": 665,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132484,7 +132484,7 @@
   "model": "evaluation.contribution",
   "pk": 1661,
   "fields": {
-    "course": 665,
+    "evaluation": 665,
     "contributor": 1072,
     "responsible": true,
     "can_edit": true,
@@ -132501,7 +132501,7 @@
   "model": "evaluation.contribution",
   "pk": 1662,
   "fields": {
-    "course": 666,
+    "evaluation": 666,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132519,7 +132519,7 @@
   "model": "evaluation.contribution",
   "pk": 1663,
   "fields": {
-    "course": 666,
+    "evaluation": 666,
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
@@ -132536,7 +132536,7 @@
   "model": "evaluation.contribution",
   "pk": 1668,
   "fields": {
-    "course": 669,
+    "evaluation": 669,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132556,7 +132556,7 @@
   "model": "evaluation.contribution",
   "pk": 1669,
   "fields": {
-    "course": 669,
+    "evaluation": 669,
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
@@ -132573,7 +132573,7 @@
   "model": "evaluation.contribution",
   "pk": 1680,
   "fields": {
-    "course": 675,
+    "evaluation": 675,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132592,7 +132592,7 @@
   "model": "evaluation.contribution",
   "pk": 1681,
   "fields": {
-    "course": 675,
+    "evaluation": 675,
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
@@ -132609,7 +132609,7 @@
   "model": "evaluation.contribution",
   "pk": 1694,
   "fields": {
-    "course": 682,
+    "evaluation": 682,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132627,7 +132627,7 @@
   "model": "evaluation.contribution",
   "pk": 1695,
   "fields": {
-    "course": 682,
+    "evaluation": 682,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -132643,7 +132643,7 @@
   "model": "evaluation.contribution",
   "pk": 1702,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132661,7 +132661,7 @@
   "model": "evaluation.contribution",
   "pk": 1703,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 300,
     "responsible": true,
     "can_edit": true,
@@ -132677,7 +132677,7 @@
   "model": "evaluation.contribution",
   "pk": 1710,
   "fields": {
-    "course": 690,
+    "evaluation": 690,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132694,7 +132694,7 @@
   "model": "evaluation.contribution",
   "pk": 1720,
   "fields": {
-    "course": 695,
+    "evaluation": 695,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132715,7 +132715,7 @@
   "model": "evaluation.contribution",
   "pk": 1721,
   "fields": {
-    "course": 695,
+    "evaluation": 695,
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
@@ -132733,7 +132733,7 @@
   "model": "evaluation.contribution",
   "pk": 1724,
   "fields": {
-    "course": 697,
+    "evaluation": 697,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132754,7 +132754,7 @@
   "model": "evaluation.contribution",
   "pk": 1725,
   "fields": {
-    "course": 697,
+    "evaluation": 697,
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
@@ -132771,7 +132771,7 @@
   "model": "evaluation.contribution",
   "pk": 1726,
   "fields": {
-    "course": 698,
+    "evaluation": 698,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132789,7 +132789,7 @@
   "model": "evaluation.contribution",
   "pk": 1727,
   "fields": {
-    "course": 698,
+    "evaluation": 698,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -132806,7 +132806,7 @@
   "model": "evaluation.contribution",
   "pk": 1734,
   "fields": {
-    "course": 702,
+    "evaluation": 702,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132824,7 +132824,7 @@
   "model": "evaluation.contribution",
   "pk": 1735,
   "fields": {
-    "course": 702,
+    "evaluation": 702,
     "contributor": 186,
     "responsible": true,
     "can_edit": true,
@@ -132841,7 +132841,7 @@
   "model": "evaluation.contribution",
   "pk": 1748,
   "fields": {
-    "course": 709,
+    "evaluation": 709,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -132859,7 +132859,7 @@
   "model": "evaluation.contribution",
   "pk": 1749,
   "fields": {
-    "course": 709,
+    "evaluation": 709,
     "contributor": 326,
     "responsible": true,
     "can_edit": true,
@@ -132876,7 +132876,7 @@
   "model": "evaluation.contribution",
   "pk": 1776,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 408,
     "responsible": false,
     "can_edit": false,
@@ -132894,7 +132894,7 @@
   "model": "evaluation.contribution",
   "pk": 1777,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -132911,7 +132911,7 @@
   "model": "evaluation.contribution",
   "pk": 1778,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
@@ -132928,7 +132928,7 @@
   "model": "evaluation.contribution",
   "pk": 1779,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 942,
     "responsible": false,
     "can_edit": false,
@@ -132945,7 +132945,7 @@
   "model": "evaluation.contribution",
   "pk": 1780,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 274,
     "responsible": false,
     "can_edit": false,
@@ -132962,7 +132962,7 @@
   "model": "evaluation.contribution",
   "pk": 1781,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 578,
     "responsible": false,
     "can_edit": false,
@@ -132979,7 +132979,7 @@
   "model": "evaluation.contribution",
   "pk": 1782,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 49,
     "responsible": false,
     "can_edit": false,
@@ -132996,7 +132996,7 @@
   "model": "evaluation.contribution",
   "pk": 1783,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 1084,
     "responsible": false,
     "can_edit": false,
@@ -133013,7 +133013,7 @@
   "model": "evaluation.contribution",
   "pk": 1784,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 883,
     "responsible": false,
     "can_edit": false,
@@ -133030,7 +133030,7 @@
   "model": "evaluation.contribution",
   "pk": 1785,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
@@ -133047,7 +133047,7 @@
   "model": "evaluation.contribution",
   "pk": 1786,
   "fields": {
-    "course": 652,
+    "evaluation": 652,
     "contributor": 900,
     "responsible": false,
     "can_edit": false,
@@ -133064,7 +133064,7 @@
   "model": "evaluation.contribution",
   "pk": 1797,
   "fields": {
-    "course": 675,
+    "evaluation": 675,
     "contributor": 1103,
     "responsible": false,
     "can_edit": false,
@@ -133081,7 +133081,7 @@
   "model": "evaluation.contribution",
   "pk": 1798,
   "fields": {
-    "course": 675,
+    "evaluation": 675,
     "contributor": 690,
     "responsible": false,
     "can_edit": false,
@@ -133098,7 +133098,7 @@
   "model": "evaluation.contribution",
   "pk": 1799,
   "fields": {
-    "course": 675,
+    "evaluation": 675,
     "contributor": 1,
     "responsible": false,
     "can_edit": false,
@@ -133115,7 +133115,7 @@
   "model": "evaluation.contribution",
   "pk": 1802,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 945,
     "responsible": false,
     "can_edit": false,
@@ -133132,7 +133132,7 @@
   "model": "evaluation.contribution",
   "pk": 1803,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 844,
     "responsible": false,
     "can_edit": false,
@@ -133149,7 +133149,7 @@
   "model": "evaluation.contribution",
   "pk": 1804,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 701,
     "responsible": false,
     "can_edit": false,
@@ -133166,7 +133166,7 @@
   "model": "evaluation.contribution",
   "pk": 1805,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
@@ -133183,7 +133183,7 @@
   "model": "evaluation.contribution",
   "pk": 1806,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
@@ -133200,7 +133200,7 @@
   "model": "evaluation.contribution",
   "pk": 1807,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 970,
     "responsible": false,
     "can_edit": false,
@@ -133217,7 +133217,7 @@
   "model": "evaluation.contribution",
   "pk": 1808,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 2322,
     "responsible": false,
     "can_edit": false,
@@ -133234,7 +133234,7 @@
   "model": "evaluation.contribution",
   "pk": 1809,
   "fields": {
-    "course": 663,
+    "evaluation": 663,
     "contributor": 1105,
     "responsible": false,
     "can_edit": false,
@@ -133251,7 +133251,7 @@
   "model": "evaluation.contribution",
   "pk": 1810,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 973,
     "responsible": false,
     "can_edit": false,
@@ -133268,7 +133268,7 @@
   "model": "evaluation.contribution",
   "pk": 1811,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 1108,
     "responsible": false,
     "can_edit": false,
@@ -133285,7 +133285,7 @@
   "model": "evaluation.contribution",
   "pk": 1812,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 1109,
     "responsible": false,
     "can_edit": false,
@@ -133303,7 +133303,7 @@
   "model": "evaluation.contribution",
   "pk": 1822,
   "fields": {
-    "course": 665,
+    "evaluation": 665,
     "contributor": 99,
     "responsible": false,
     "can_edit": false,
@@ -133320,7 +133320,7 @@
   "model": "evaluation.contribution",
   "pk": 1824,
   "fields": {
-    "course": 665,
+    "evaluation": 665,
     "contributor": 1110,
     "responsible": false,
     "can_edit": false,
@@ -133337,7 +133337,7 @@
   "model": "evaluation.contribution",
   "pk": 1825,
   "fields": {
-    "course": 641,
+    "evaluation": 641,
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
@@ -133354,7 +133354,7 @@
   "model": "evaluation.contribution",
   "pk": 1826,
   "fields": {
-    "course": 641,
+    "evaluation": 641,
     "contributor": 200,
     "responsible": false,
     "can_edit": false,
@@ -133371,7 +133371,7 @@
   "model": "evaluation.contribution",
   "pk": 1827,
   "fields": {
-    "course": 641,
+    "evaluation": 641,
     "contributor": 539,
     "responsible": false,
     "can_edit": false,
@@ -133388,7 +133388,7 @@
   "model": "evaluation.contribution",
   "pk": 1828,
   "fields": {
-    "course": 698,
+    "evaluation": 698,
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
@@ -133405,7 +133405,7 @@
   "model": "evaluation.contribution",
   "pk": 1835,
   "fields": {
-    "course": 643,
+    "evaluation": 643,
     "contributor": 897,
     "responsible": false,
     "can_edit": false,
@@ -133422,7 +133422,7 @@
   "model": "evaluation.contribution",
   "pk": 1836,
   "fields": {
-    "course": 643,
+    "evaluation": 643,
     "contributor": 915,
     "responsible": false,
     "can_edit": false,
@@ -133439,7 +133439,7 @@
   "model": "evaluation.contribution",
   "pk": 1837,
   "fields": {
-    "course": 643,
+    "evaluation": 643,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133459,7 +133459,7 @@
   "model": "evaluation.contribution",
   "pk": 1842,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 484,
     "responsible": false,
     "can_edit": false,
@@ -133476,7 +133476,7 @@
   "model": "evaluation.contribution",
   "pk": 1843,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
@@ -133493,7 +133493,7 @@
   "model": "evaluation.contribution",
   "pk": 1844,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 61,
     "responsible": false,
     "can_edit": false,
@@ -133510,7 +133510,7 @@
   "model": "evaluation.contribution",
   "pk": 1845,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
@@ -133527,7 +133527,7 @@
   "model": "evaluation.contribution",
   "pk": 1849,
   "fields": {
-    "course": 686,
+    "evaluation": 686,
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
@@ -133544,7 +133544,7 @@
   "model": "evaluation.contribution",
   "pk": 1851,
   "fields": {
-    "course": 698,
+    "evaluation": 698,
     "contributor": 423,
     "responsible": false,
     "can_edit": false,
@@ -133561,7 +133561,7 @@
   "model": "evaluation.contribution",
   "pk": 1852,
   "fields": {
-    "course": 648,
+    "evaluation": 648,
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
@@ -133577,7 +133577,7 @@
   "model": "evaluation.contribution",
   "pk": 1860,
   "fields": {
-    "course": 690,
+    "evaluation": 690,
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
@@ -133595,7 +133595,7 @@
   "model": "evaluation.contribution",
   "pk": 1863,
   "fields": {
-    "course": 709,
+    "evaluation": 709,
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
@@ -133612,7 +133612,7 @@
   "model": "evaluation.contribution",
   "pk": 1866,
   "fields": {
-    "course": 690,
+    "evaluation": 690,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -133628,7 +133628,7 @@
   "model": "evaluation.contribution",
   "pk": 1867,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
@@ -133645,7 +133645,7 @@
   "model": "evaluation.contribution",
   "pk": 1868,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
@@ -133662,7 +133662,7 @@
   "model": "evaluation.contribution",
   "pk": 1869,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 1119,
     "responsible": false,
     "can_edit": false,
@@ -133679,7 +133679,7 @@
   "model": "evaluation.contribution",
   "pk": 1870,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 145,
     "responsible": false,
     "can_edit": false,
@@ -133696,7 +133696,7 @@
   "model": "evaluation.contribution",
   "pk": 1871,
   "fields": {
-    "course": 654,
+    "evaluation": 654,
     "contributor": 984,
     "responsible": false,
     "can_edit": false,
@@ -133713,7 +133713,7 @@
   "model": "evaluation.contribution",
   "pk": 1872,
   "fields": {
-    "course": 655,
+    "evaluation": 655,
     "contributor": 482,
     "responsible": false,
     "can_edit": false,
@@ -133730,7 +133730,7 @@
   "model": "evaluation.contribution",
   "pk": 1873,
   "fields": {
-    "course": 655,
+    "evaluation": 655,
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
@@ -133747,7 +133747,7 @@
   "model": "evaluation.contribution",
   "pk": 1874,
   "fields": {
-    "course": 655,
+    "evaluation": 655,
     "contributor": 1120,
     "responsible": false,
     "can_edit": false,
@@ -133764,7 +133764,7 @@
   "model": "evaluation.contribution",
   "pk": 1880,
   "fields": {
-    "course": 682,
+    "evaluation": 682,
     "contributor": 986,
     "responsible": false,
     "can_edit": false,
@@ -133781,7 +133781,7 @@
   "model": "evaluation.contribution",
   "pk": 1881,
   "fields": {
-    "course": 682,
+    "evaluation": 682,
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
@@ -133798,7 +133798,7 @@
   "model": "evaluation.contribution",
   "pk": 1884,
   "fields": {
-    "course": 697,
+    "evaluation": 697,
     "contributor": 419,
     "responsible": false,
     "can_edit": false,
@@ -133815,7 +133815,7 @@
   "model": "evaluation.contribution",
   "pk": 1921,
   "fields": {
-    "course": 730,
+    "evaluation": 730,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133833,7 +133833,7 @@
   "model": "evaluation.contribution",
   "pk": 1922,
   "fields": {
-    "course": 730,
+    "evaluation": 730,
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
@@ -133850,7 +133850,7 @@
   "model": "evaluation.contribution",
   "pk": 3354,
   "fields": {
-    "course": 1454,
+    "evaluation": 1454,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133871,7 +133871,7 @@
   "model": "evaluation.contribution",
   "pk": 3355,
   "fields": {
-    "course": 1454,
+    "evaluation": 1454,
     "contributor": 643,
     "responsible": true,
     "can_edit": true,
@@ -133888,7 +133888,7 @@
   "model": "evaluation.contribution",
   "pk": 3366,
   "fields": {
-    "course": 1460,
+    "evaluation": 1460,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133905,7 +133905,7 @@
   "model": "evaluation.contribution",
   "pk": 3367,
   "fields": {
-    "course": 1460,
+    "evaluation": 1460,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -133922,7 +133922,7 @@
   "model": "evaluation.contribution",
   "pk": 3372,
   "fields": {
-    "course": 1463,
+    "evaluation": 1463,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133939,7 +133939,7 @@
   "model": "evaluation.contribution",
   "pk": 3373,
   "fields": {
-    "course": 1463,
+    "evaluation": 1463,
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
@@ -133956,7 +133956,7 @@
   "model": "evaluation.contribution",
   "pk": 3382,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -133973,7 +133973,7 @@
   "model": "evaluation.contribution",
   "pk": 3383,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
@@ -133990,7 +133990,7 @@
   "model": "evaluation.contribution",
   "pk": 3390,
   "fields": {
-    "course": 1472,
+    "evaluation": 1472,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134010,7 +134010,7 @@
   "model": "evaluation.contribution",
   "pk": 3391,
   "fields": {
-    "course": 1472,
+    "evaluation": 1472,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -134027,7 +134027,7 @@
   "model": "evaluation.contribution",
   "pk": 3394,
   "fields": {
-    "course": 1474,
+    "evaluation": 1474,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134047,7 +134047,7 @@
   "model": "evaluation.contribution",
   "pk": 3395,
   "fields": {
-    "course": 1474,
+    "evaluation": 1474,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -134065,7 +134065,7 @@
   "model": "evaluation.contribution",
   "pk": 3404,
   "fields": {
-    "course": 1479,
+    "evaluation": 1479,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134082,7 +134082,7 @@
   "model": "evaluation.contribution",
   "pk": 3405,
   "fields": {
-    "course": 1479,
+    "evaluation": 1479,
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
@@ -134098,7 +134098,7 @@
   "model": "evaluation.contribution",
   "pk": 3406,
   "fields": {
-    "course": 1480,
+    "evaluation": 1480,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134120,7 +134120,7 @@
   "model": "evaluation.contribution",
   "pk": 3407,
   "fields": {
-    "course": 1480,
+    "evaluation": 1480,
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
@@ -134137,7 +134137,7 @@
   "model": "evaluation.contribution",
   "pk": 3416,
   "fields": {
-    "course": 1485,
+    "evaluation": 1485,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134154,7 +134154,7 @@
   "model": "evaluation.contribution",
   "pk": 3417,
   "fields": {
-    "course": 1485,
+    "evaluation": 1485,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -134170,7 +134170,7 @@
   "model": "evaluation.contribution",
   "pk": 3422,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134190,7 +134190,7 @@
   "model": "evaluation.contribution",
   "pk": 3423,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
@@ -134207,7 +134207,7 @@
   "model": "evaluation.contribution",
   "pk": 3434,
   "fields": {
-    "course": 1494,
+    "evaluation": 1494,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134227,7 +134227,7 @@
   "model": "evaluation.contribution",
   "pk": 3435,
   "fields": {
-    "course": 1494,
+    "evaluation": 1494,
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
@@ -134244,7 +134244,7 @@
   "model": "evaluation.contribution",
   "pk": 3440,
   "fields": {
-    "course": 1497,
+    "evaluation": 1497,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134262,7 +134262,7 @@
   "model": "evaluation.contribution",
   "pk": 3442,
   "fields": {
-    "course": 1498,
+    "evaluation": 1498,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134278,7 +134278,7 @@
   "model": "evaluation.contribution",
   "pk": 3443,
   "fields": {
-    "course": 1498,
+    "evaluation": 1498,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -134292,7 +134292,7 @@
   "model": "evaluation.contribution",
   "pk": 3444,
   "fields": {
-    "course": 1499,
+    "evaluation": 1499,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134310,7 +134310,7 @@
   "model": "evaluation.contribution",
   "pk": 3445,
   "fields": {
-    "course": 1499,
+    "evaluation": 1499,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -134327,7 +134327,7 @@
   "model": "evaluation.contribution",
   "pk": 3446,
   "fields": {
-    "course": 1500,
+    "evaluation": 1500,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134344,7 +134344,7 @@
   "model": "evaluation.contribution",
   "pk": 3447,
   "fields": {
-    "course": 1500,
+    "evaluation": 1500,
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
@@ -134361,7 +134361,7 @@
   "model": "evaluation.contribution",
   "pk": 3450,
   "fields": {
-    "course": 1502,
+    "evaluation": 1502,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134377,7 +134377,7 @@
   "model": "evaluation.contribution",
   "pk": 3451,
   "fields": {
-    "course": 1502,
+    "evaluation": 1502,
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
@@ -134394,7 +134394,7 @@
   "model": "evaluation.contribution",
   "pk": 3452,
   "fields": {
-    "course": 1503,
+    "evaluation": 1503,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134412,7 +134412,7 @@
   "model": "evaluation.contribution",
   "pk": 3453,
   "fields": {
-    "course": 1503,
+    "evaluation": 1503,
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
@@ -134429,7 +134429,7 @@
   "model": "evaluation.contribution",
   "pk": 3454,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134447,7 +134447,7 @@
   "model": "evaluation.contribution",
   "pk": 3455,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
@@ -134463,7 +134463,7 @@
   "model": "evaluation.contribution",
   "pk": 3458,
   "fields": {
-    "course": 1506,
+    "evaluation": 1506,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134479,7 +134479,7 @@
   "model": "evaluation.contribution",
   "pk": 3459,
   "fields": {
-    "course": 1506,
+    "evaluation": 1506,
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
@@ -134493,7 +134493,7 @@
   "model": "evaluation.contribution",
   "pk": 3460,
   "fields": {
-    "course": 1507,
+    "evaluation": 1507,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134509,7 +134509,7 @@
   "model": "evaluation.contribution",
   "pk": 3461,
   "fields": {
-    "course": 1507,
+    "evaluation": 1507,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -134523,7 +134523,7 @@
   "model": "evaluation.contribution",
   "pk": 3462,
   "fields": {
-    "course": 1508,
+    "evaluation": 1508,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134543,7 +134543,7 @@
   "model": "evaluation.contribution",
   "pk": 3463,
   "fields": {
-    "course": 1508,
+    "evaluation": 1508,
     "contributor": 1075,
     "responsible": true,
     "can_edit": true,
@@ -134560,7 +134560,7 @@
   "model": "evaluation.contribution",
   "pk": 3466,
   "fields": {
-    "course": 1510,
+    "evaluation": 1510,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134578,7 +134578,7 @@
   "model": "evaluation.contribution",
   "pk": 3467,
   "fields": {
-    "course": 1510,
+    "evaluation": 1510,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -134596,7 +134596,7 @@
   "model": "evaluation.contribution",
   "pk": 3472,
   "fields": {
-    "course": 1513,
+    "evaluation": 1513,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134615,7 +134615,7 @@
   "model": "evaluation.contribution",
   "pk": 3473,
   "fields": {
-    "course": 1513,
+    "evaluation": 1513,
     "contributor": 994,
     "responsible": true,
     "can_edit": true,
@@ -134632,7 +134632,7 @@
   "model": "evaluation.contribution",
   "pk": 3474,
   "fields": {
-    "course": 1514,
+    "evaluation": 1514,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134652,7 +134652,7 @@
   "model": "evaluation.contribution",
   "pk": 3475,
   "fields": {
-    "course": 1514,
+    "evaluation": 1514,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -134668,7 +134668,7 @@
   "model": "evaluation.contribution",
   "pk": 3482,
   "fields": {
-    "course": 1518,
+    "evaluation": 1518,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134685,7 +134685,7 @@
   "model": "evaluation.contribution",
   "pk": 3483,
   "fields": {
-    "course": 1518,
+    "evaluation": 1518,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -134701,7 +134701,7 @@
   "model": "evaluation.contribution",
   "pk": 3486,
   "fields": {
-    "course": 1520,
+    "evaluation": 1520,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134718,7 +134718,7 @@
   "model": "evaluation.contribution",
   "pk": 3487,
   "fields": {
-    "course": 1520,
+    "evaluation": 1520,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -134735,7 +134735,7 @@
   "model": "evaluation.contribution",
   "pk": 3496,
   "fields": {
-    "course": 1525,
+    "evaluation": 1525,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134753,7 +134753,7 @@
   "model": "evaluation.contribution",
   "pk": 3497,
   "fields": {
-    "course": 1525,
+    "evaluation": 1525,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -134770,7 +134770,7 @@
   "model": "evaluation.contribution",
   "pk": 3508,
   "fields": {
-    "course": 1531,
+    "evaluation": 1531,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -134787,7 +134787,7 @@
   "model": "evaluation.contribution",
   "pk": 3509,
   "fields": {
-    "course": 1531,
+    "evaluation": 1531,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -134804,7 +134804,7 @@
   "model": "evaluation.contribution",
   "pk": 3515,
   "fields": {
-    "course": 1531,
+    "evaluation": 1531,
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
@@ -134821,7 +134821,7 @@
   "model": "evaluation.contribution",
   "pk": 3516,
   "fields": {
-    "course": 1520,
+    "evaluation": 1520,
     "contributor": 578,
     "responsible": false,
     "can_edit": false,
@@ -134839,7 +134839,7 @@
   "model": "evaluation.contribution",
   "pk": 3517,
   "fields": {
-    "course": 1520,
+    "evaluation": 1520,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -134857,7 +134857,7 @@
   "model": "evaluation.contribution",
   "pk": 3518,
   "fields": {
-    "course": 1520,
+    "evaluation": 1520,
     "contributor": 274,
     "responsible": false,
     "can_edit": false,
@@ -134875,7 +134875,7 @@
   "model": "evaluation.contribution",
   "pk": 3519,
   "fields": {
-    "course": 1514,
+    "evaluation": 1514,
     "contributor": 490,
     "responsible": false,
     "can_edit": false,
@@ -134892,7 +134892,7 @@
   "model": "evaluation.contribution",
   "pk": 3525,
   "fields": {
-    "course": 1460,
+    "evaluation": 1460,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -134909,7 +134909,7 @@
   "model": "evaluation.contribution",
   "pk": 3526,
   "fields": {
-    "course": 1460,
+    "evaluation": 1460,
     "contributor": 1084,
     "responsible": false,
     "can_edit": false,
@@ -134926,7 +134926,7 @@
   "model": "evaluation.contribution",
   "pk": 3528,
   "fields": {
-    "course": 1510,
+    "evaluation": 1510,
     "contributor": 217,
     "responsible": false,
     "can_edit": false,
@@ -134944,7 +134944,7 @@
   "model": "evaluation.contribution",
   "pk": 3529,
   "fields": {
-    "course": 1474,
+    "evaluation": 1474,
     "contributor": 14,
     "responsible": false,
     "can_edit": false,
@@ -134961,7 +134961,7 @@
   "model": "evaluation.contribution",
   "pk": 3530,
   "fields": {
-    "course": 1474,
+    "evaluation": 1474,
     "contributor": 217,
     "responsible": false,
     "can_edit": false,
@@ -134979,7 +134979,7 @@
   "model": "evaluation.contribution",
   "pk": 3536,
   "fields": {
-    "course": 1518,
+    "evaluation": 1518,
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
@@ -134996,7 +134996,7 @@
   "model": "evaluation.contribution",
   "pk": 3545,
   "fields": {
-    "course": 1497,
+    "evaluation": 1497,
     "contributor": 985,
     "responsible": false,
     "can_edit": false,
@@ -135014,7 +135014,7 @@
   "model": "evaluation.contribution",
   "pk": 3546,
   "fields": {
-    "course": 1497,
+    "evaluation": 1497,
     "contributor": 326,
     "responsible": false,
     "can_edit": false,
@@ -135032,7 +135032,7 @@
   "model": "evaluation.contribution",
   "pk": 3551,
   "fields": {
-    "course": 1472,
+    "evaluation": 1472,
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
@@ -135049,7 +135049,7 @@
   "model": "evaluation.contribution",
   "pk": 3552,
   "fields": {
-    "course": 1472,
+    "evaluation": 1472,
     "contributor": 1117,
     "responsible": false,
     "can_edit": false,
@@ -135066,7 +135066,7 @@
   "model": "evaluation.contribution",
   "pk": 3553,
   "fields": {
-    "course": 1472,
+    "evaluation": 1472,
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
@@ -135083,7 +135083,7 @@
   "model": "evaluation.contribution",
   "pk": 3555,
   "fields": {
-    "course": 1485,
+    "evaluation": 1485,
     "contributor": 1120,
     "responsible": false,
     "can_edit": false,
@@ -135100,7 +135100,7 @@
   "model": "evaluation.contribution",
   "pk": 3556,
   "fields": {
-    "course": 1514,
+    "evaluation": 1514,
     "contributor": 2118,
     "responsible": false,
     "can_edit": false,
@@ -135117,7 +135117,7 @@
   "model": "evaluation.contribution",
   "pk": 3560,
   "fields": {
-    "course": 1497,
+    "evaluation": 1497,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -135133,7 +135133,7 @@
   "model": "evaluation.contribution",
   "pk": 3566,
   "fields": {
-    "course": 1480,
+    "evaluation": 1480,
     "contributor": 1125,
     "responsible": false,
     "can_edit": false,
@@ -135150,7 +135150,7 @@
   "model": "evaluation.contribution",
   "pk": 3589,
   "fields": {
-    "course": 1513,
+    "evaluation": 1513,
     "contributor": 650,
     "responsible": false,
     "can_edit": false,
@@ -135167,7 +135167,7 @@
   "model": "evaluation.contribution",
   "pk": 3592,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
@@ -135184,7 +135184,7 @@
   "model": "evaluation.contribution",
   "pk": 3593,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 1840,
     "responsible": false,
     "can_edit": false,
@@ -135201,7 +135201,7 @@
   "model": "evaluation.contribution",
   "pk": 3594,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
@@ -135218,7 +135218,7 @@
   "model": "evaluation.contribution",
   "pk": 3595,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 2322,
     "responsible": false,
     "can_edit": false,
@@ -135235,7 +135235,7 @@
   "model": "evaluation.contribution",
   "pk": 3596,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 970,
     "responsible": false,
     "can_edit": false,
@@ -135252,7 +135252,7 @@
   "model": "evaluation.contribution",
   "pk": 3597,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 2126,
     "responsible": false,
     "can_edit": false,
@@ -135269,7 +135269,7 @@
   "model": "evaluation.contribution",
   "pk": 3598,
   "fields": {
-    "course": 1488,
+    "evaluation": 1488,
     "contributor": 2127,
     "responsible": false,
     "can_edit": false,
@@ -135286,7 +135286,7 @@
   "model": "evaluation.contribution",
   "pk": 3603,
   "fields": {
-    "course": 1479,
+    "evaluation": 1479,
     "contributor": 990,
     "responsible": false,
     "can_edit": false,
@@ -135302,7 +135302,7 @@
   "model": "evaluation.contribution",
   "pk": 3606,
   "fields": {
-    "course": 1479,
+    "evaluation": 1479,
     "contributor": 991,
     "responsible": false,
     "can_edit": false,
@@ -135318,7 +135318,7 @@
   "model": "evaluation.contribution",
   "pk": 3607,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 950,
     "responsible": false,
     "can_edit": false,
@@ -135337,7 +135337,7 @@
   "model": "evaluation.contribution",
   "pk": 3608,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 395,
     "responsible": false,
     "can_edit": false,
@@ -135356,7 +135356,7 @@
   "model": "evaluation.contribution",
   "pk": 3609,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 675,
     "responsible": false,
     "can_edit": false,
@@ -135374,7 +135374,7 @@
   "model": "evaluation.contribution",
   "pk": 3610,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 60,
     "responsible": false,
     "can_edit": false,
@@ -135392,7 +135392,7 @@
   "model": "evaluation.contribution",
   "pk": 3620,
   "fields": {
-    "course": 1504,
+    "evaluation": 1504,
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
@@ -135408,7 +135408,7 @@
   "model": "evaluation.contribution",
   "pk": 3631,
   "fields": {
-    "course": 1454,
+    "evaluation": 1454,
     "contributor": 174,
     "responsible": false,
     "can_edit": false,
@@ -135424,7 +135424,7 @@
   "model": "evaluation.contribution",
   "pk": 3634,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 690,
     "responsible": false,
     "can_edit": false,
@@ -135441,7 +135441,7 @@
   "model": "evaluation.contribution",
   "pk": 3635,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 1103,
     "responsible": false,
     "can_edit": false,
@@ -135458,7 +135458,7 @@
   "model": "evaluation.contribution",
   "pk": 3636,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 464,
     "responsible": false,
     "can_edit": false,
@@ -135475,7 +135475,7 @@
   "model": "evaluation.contribution",
   "pk": 3637,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 1149,
     "responsible": false,
     "can_edit": false,
@@ -135492,7 +135492,7 @@
   "model": "evaluation.contribution",
   "pk": 3638,
   "fields": {
-    "course": 1468,
+    "evaluation": 1468,
     "contributor": 1104,
     "responsible": false,
     "can_edit": false,
@@ -135509,7 +135509,7 @@
   "model": "evaluation.contribution",
   "pk": 3645,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135526,7 +135526,7 @@
   "model": "evaluation.contribution",
   "pk": 3646,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 300,
     "responsible": false,
     "can_edit": false,
@@ -135544,7 +135544,7 @@
   "model": "evaluation.contribution",
   "pk": 3647,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
@@ -135561,7 +135561,7 @@
   "model": "evaluation.contribution",
   "pk": 3648,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 323,
     "responsible": false,
     "can_edit": false,
@@ -135578,7 +135578,7 @@
   "model": "evaluation.contribution",
   "pk": 3649,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 950,
     "responsible": false,
     "can_edit": false,
@@ -135595,7 +135595,7 @@
   "model": "evaluation.contribution",
   "pk": 3650,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 61,
     "responsible": false,
     "can_edit": false,
@@ -135612,7 +135612,7 @@
   "model": "evaluation.contribution",
   "pk": 3651,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
@@ -135629,7 +135629,7 @@
   "model": "evaluation.contribution",
   "pk": 3652,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
@@ -135646,7 +135646,7 @@
   "model": "evaluation.contribution",
   "pk": 3653,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
@@ -135663,7 +135663,7 @@
   "model": "evaluation.contribution",
   "pk": 3654,
   "fields": {
-    "course": 1534,
+    "evaluation": 1534,
     "contributor": 395,
     "responsible": false,
     "can_edit": false,
@@ -135680,7 +135680,7 @@
   "model": "evaluation.contribution",
   "pk": 3665,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135699,7 +135699,7 @@
   "model": "evaluation.contribution",
   "pk": 3666,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
@@ -135716,7 +135716,7 @@
   "model": "evaluation.contribution",
   "pk": 3673,
   "fields": {
-    "course": 1544,
+    "evaluation": 1544,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135735,7 +135735,7 @@
   "model": "evaluation.contribution",
   "pk": 3674,
   "fields": {
-    "course": 1544,
+    "evaluation": 1544,
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
@@ -135752,7 +135752,7 @@
   "model": "evaluation.contribution",
   "pk": 3675,
   "fields": {
-    "course": 1545,
+    "evaluation": 1545,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135770,7 +135770,7 @@
   "model": "evaluation.contribution",
   "pk": 3676,
   "fields": {
-    "course": 1545,
+    "evaluation": 1545,
     "contributor": 1105,
     "responsible": true,
     "can_edit": true,
@@ -135787,7 +135787,7 @@
   "model": "evaluation.contribution",
   "pk": 3679,
   "fields": {
-    "course": 1547,
+    "evaluation": 1547,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135808,7 +135808,7 @@
   "model": "evaluation.contribution",
   "pk": 3680,
   "fields": {
-    "course": 1547,
+    "evaluation": 1547,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -135825,7 +135825,7 @@
   "model": "evaluation.contribution",
   "pk": 3681,
   "fields": {
-    "course": 1548,
+    "evaluation": 1548,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135842,7 +135842,7 @@
   "model": "evaluation.contribution",
   "pk": 3682,
   "fields": {
-    "course": 1548,
+    "evaluation": 1548,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -135858,7 +135858,7 @@
   "model": "evaluation.contribution",
   "pk": 3683,
   "fields": {
-    "course": 1549,
+    "evaluation": 1549,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135876,7 +135876,7 @@
   "model": "evaluation.contribution",
   "pk": 3684,
   "fields": {
-    "course": 1549,
+    "evaluation": 1549,
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
@@ -135893,7 +135893,7 @@
   "model": "evaluation.contribution",
   "pk": 3685,
   "fields": {
-    "course": 1550,
+    "evaluation": 1550,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135911,7 +135911,7 @@
   "model": "evaluation.contribution",
   "pk": 3686,
   "fields": {
-    "course": 1550,
+    "evaluation": 1550,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -135927,7 +135927,7 @@
   "model": "evaluation.contribution",
   "pk": 3693,
   "fields": {
-    "course": 1554,
+    "evaluation": 1554,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135945,7 +135945,7 @@
   "model": "evaluation.contribution",
   "pk": 3694,
   "fields": {
-    "course": 1554,
+    "evaluation": 1554,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -135961,7 +135961,7 @@
   "model": "evaluation.contribution",
   "pk": 3703,
   "fields": {
-    "course": 1559,
+    "evaluation": 1559,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -135978,7 +135978,7 @@
   "model": "evaluation.contribution",
   "pk": 3704,
   "fields": {
-    "course": 1559,
+    "evaluation": 1559,
     "contributor": 283,
     "responsible": true,
     "can_edit": true,
@@ -135995,7 +135995,7 @@
   "model": "evaluation.contribution",
   "pk": 3711,
   "fields": {
-    "course": 1563,
+    "evaluation": 1563,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136016,7 +136016,7 @@
   "model": "evaluation.contribution",
   "pk": 3712,
   "fields": {
-    "course": 1563,
+    "evaluation": 1563,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -136033,7 +136033,7 @@
   "model": "evaluation.contribution",
   "pk": 3713,
   "fields": {
-    "course": 1564,
+    "evaluation": 1564,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136051,7 +136051,7 @@
   "model": "evaluation.contribution",
   "pk": 3714,
   "fields": {
-    "course": 1564,
+    "evaluation": 1564,
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
@@ -136068,7 +136068,7 @@
   "model": "evaluation.contribution",
   "pk": 3721,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136089,7 +136089,7 @@
   "model": "evaluation.contribution",
   "pk": 3722,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 251,
     "responsible": true,
     "can_edit": true,
@@ -136106,7 +136106,7 @@
   "model": "evaluation.contribution",
   "pk": 3723,
   "fields": {
-    "course": 1569,
+    "evaluation": 1569,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136124,7 +136124,7 @@
   "model": "evaluation.contribution",
   "pk": 3724,
   "fields": {
-    "course": 1569,
+    "evaluation": 1569,
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
@@ -136141,7 +136141,7 @@
   "model": "evaluation.contribution",
   "pk": 3725,
   "fields": {
-    "course": 1570,
+    "evaluation": 1570,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136161,7 +136161,7 @@
   "model": "evaluation.contribution",
   "pk": 3726,
   "fields": {
-    "course": 1570,
+    "evaluation": 1570,
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
@@ -136178,7 +136178,7 @@
   "model": "evaluation.contribution",
   "pk": 3727,
   "fields": {
-    "course": 1571,
+    "evaluation": 1571,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136196,7 +136196,7 @@
   "model": "evaluation.contribution",
   "pk": 3728,
   "fields": {
-    "course": 1571,
+    "evaluation": 1571,
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
@@ -136213,7 +136213,7 @@
   "model": "evaluation.contribution",
   "pk": 3735,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136232,7 +136232,7 @@
   "model": "evaluation.contribution",
   "pk": 3736,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -136248,7 +136248,7 @@
   "model": "evaluation.contribution",
   "pk": 3739,
   "fields": {
-    "course": 1577,
+    "evaluation": 1577,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136269,7 +136269,7 @@
   "model": "evaluation.contribution",
   "pk": 3740,
   "fields": {
-    "course": 1577,
+    "evaluation": 1577,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -136286,7 +136286,7 @@
   "model": "evaluation.contribution",
   "pk": 3745,
   "fields": {
-    "course": 1580,
+    "evaluation": 1580,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136305,7 +136305,7 @@
   "model": "evaluation.contribution",
   "pk": 3746,
   "fields": {
-    "course": 1580,
+    "evaluation": 1580,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -136321,7 +136321,7 @@
   "model": "evaluation.contribution",
   "pk": 3751,
   "fields": {
-    "course": 1583,
+    "evaluation": 1583,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136339,7 +136339,7 @@
   "model": "evaluation.contribution",
   "pk": 3752,
   "fields": {
-    "course": 1583,
+    "evaluation": 1583,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -136355,7 +136355,7 @@
   "model": "evaluation.contribution",
   "pk": 3755,
   "fields": {
-    "course": 1585,
+    "evaluation": 1585,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136375,7 +136375,7 @@
   "model": "evaluation.contribution",
   "pk": 3756,
   "fields": {
-    "course": 1585,
+    "evaluation": 1585,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -136392,7 +136392,7 @@
   "model": "evaluation.contribution",
   "pk": 3757,
   "fields": {
-    "course": 1586,
+    "evaluation": 1586,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136410,7 +136410,7 @@
   "model": "evaluation.contribution",
   "pk": 3758,
   "fields": {
-    "course": 1586,
+    "evaluation": 1586,
     "contributor": 2186,
     "responsible": true,
     "can_edit": true,
@@ -136427,7 +136427,7 @@
   "model": "evaluation.contribution",
   "pk": 3759,
   "fields": {
-    "course": 1587,
+    "evaluation": 1587,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136446,7 +136446,7 @@
   "model": "evaluation.contribution",
   "pk": 3760,
   "fields": {
-    "course": 1587,
+    "evaluation": 1587,
     "contributor": 484,
     "responsible": true,
     "can_edit": true,
@@ -136463,7 +136463,7 @@
   "model": "evaluation.contribution",
   "pk": 3775,
   "fields": {
-    "course": 1595,
+    "evaluation": 1595,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136483,7 +136483,7 @@
   "model": "evaluation.contribution",
   "pk": 3776,
   "fields": {
-    "course": 1595,
+    "evaluation": 1595,
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
@@ -136500,7 +136500,7 @@
   "model": "evaluation.contribution",
   "pk": 3781,
   "fields": {
-    "course": 1598,
+    "evaluation": 1598,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136520,7 +136520,7 @@
   "model": "evaluation.contribution",
   "pk": 3782,
   "fields": {
-    "course": 1598,
+    "evaluation": 1598,
     "contributor": 74,
     "responsible": false,
     "can_edit": false,
@@ -136537,7 +136537,7 @@
   "model": "evaluation.contribution",
   "pk": 3785,
   "fields": {
-    "course": 1600,
+    "evaluation": 1600,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136555,7 +136555,7 @@
   "model": "evaluation.contribution",
   "pk": 3786,
   "fields": {
-    "course": 1600,
+    "evaluation": 1600,
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
@@ -136572,7 +136572,7 @@
   "model": "evaluation.contribution",
   "pk": 3791,
   "fields": {
-    "course": 1603,
+    "evaluation": 1603,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136590,7 +136590,7 @@
   "model": "evaluation.contribution",
   "pk": 3792,
   "fields": {
-    "course": 1603,
+    "evaluation": 1603,
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
@@ -136607,7 +136607,7 @@
   "model": "evaluation.contribution",
   "pk": 3795,
   "fields": {
-    "course": 1605,
+    "evaluation": 1605,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136625,7 +136625,7 @@
   "model": "evaluation.contribution",
   "pk": 3796,
   "fields": {
-    "course": 1605,
+    "evaluation": 1605,
     "contributor": 640,
     "responsible": true,
     "can_edit": true,
@@ -136642,7 +136642,7 @@
   "model": "evaluation.contribution",
   "pk": 3805,
   "fields": {
-    "course": 1610,
+    "evaluation": 1610,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136660,7 +136660,7 @@
   "model": "evaluation.contribution",
   "pk": 3806,
   "fields": {
-    "course": 1610,
+    "evaluation": 1610,
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
@@ -136677,7 +136677,7 @@
   "model": "evaluation.contribution",
   "pk": 3811,
   "fields": {
-    "course": 1613,
+    "evaluation": 1613,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136696,7 +136696,7 @@
   "model": "evaluation.contribution",
   "pk": 3812,
   "fields": {
-    "course": 1613,
+    "evaluation": 1613,
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
@@ -136713,7 +136713,7 @@
   "model": "evaluation.contribution",
   "pk": 3813,
   "fields": {
-    "course": 1614,
+    "evaluation": 1614,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136731,7 +136731,7 @@
   "model": "evaluation.contribution",
   "pk": 3814,
   "fields": {
-    "course": 1614,
+    "evaluation": 1614,
     "contributor": 641,
     "responsible": true,
     "can_edit": true,
@@ -136748,7 +136748,7 @@
   "model": "evaluation.contribution",
   "pk": 3821,
   "fields": {
-    "course": 1618,
+    "evaluation": 1618,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -136765,7 +136765,7 @@
   "model": "evaluation.contribution",
   "pk": 3822,
   "fields": {
-    "course": 1618,
+    "evaluation": 1618,
     "contributor": 635,
     "responsible": true,
     "can_edit": true,
@@ -136782,7 +136782,7 @@
   "model": "evaluation.contribution",
   "pk": 3831,
   "fields": {
-    "course": 1585,
+    "evaluation": 1585,
     "contributor": 2141,
     "responsible": false,
     "can_edit": false,
@@ -136799,7 +136799,7 @@
   "model": "evaluation.contribution",
   "pk": 3832,
   "fields": {
-    "course": 1585,
+    "evaluation": 1585,
     "contributor": 2140,
     "responsible": false,
     "can_edit": false,
@@ -136816,7 +136816,7 @@
   "model": "evaluation.contribution",
   "pk": 3834,
   "fields": {
-    "course": 1598,
+    "evaluation": 1598,
     "contributor": 33,
     "responsible": true,
     "can_edit": true,
@@ -136833,7 +136833,7 @@
   "model": "evaluation.contribution",
   "pk": 3835,
   "fields": {
-    "course": 1598,
+    "evaluation": 1598,
     "contributor": 208,
     "responsible": false,
     "can_edit": false,
@@ -136850,7 +136850,7 @@
   "model": "evaluation.contribution",
   "pk": 3847,
   "fields": {
-    "course": 1563,
+    "evaluation": 1563,
     "contributor": 495,
     "responsible": false,
     "can_edit": false,
@@ -136867,7 +136867,7 @@
   "model": "evaluation.contribution",
   "pk": 3848,
   "fields": {
-    "course": 1563,
+    "evaluation": 1563,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -136884,7 +136884,7 @@
   "model": "evaluation.contribution",
   "pk": 3849,
   "fields": {
-    "course": 1595,
+    "evaluation": 1595,
     "contributor": 1075,
     "responsible": false,
     "can_edit": false,
@@ -136901,7 +136901,7 @@
   "model": "evaluation.contribution",
   "pk": 3852,
   "fields": {
-    "course": 1595,
+    "evaluation": 1595,
     "contributor": 2192,
     "responsible": false,
     "can_edit": false,
@@ -136918,7 +136918,7 @@
   "model": "evaluation.contribution",
   "pk": 3855,
   "fields": {
-    "course": 1569,
+    "evaluation": 1569,
     "contributor": 993,
     "responsible": false,
     "can_edit": false,
@@ -136935,7 +136935,7 @@
   "model": "evaluation.contribution",
   "pk": 3859,
   "fields": {
-    "course": 1570,
+    "evaluation": 1570,
     "contributor": 1005,
     "responsible": false,
     "can_edit": false,
@@ -136952,7 +136952,7 @@
   "model": "evaluation.contribution",
   "pk": 3862,
   "fields": {
-    "course": 1600,
+    "evaluation": 1600,
     "contributor": 2194,
     "responsible": false,
     "can_edit": false,
@@ -136969,7 +136969,7 @@
   "model": "evaluation.contribution",
   "pk": 3879,
   "fields": {
-    "course": 1559,
+    "evaluation": 1559,
     "contributor": 2196,
     "responsible": false,
     "can_edit": false,
@@ -136986,7 +136986,7 @@
   "model": "evaluation.contribution",
   "pk": 3881,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": 817,
     "responsible": false,
     "can_edit": false,
@@ -137003,7 +137003,7 @@
   "model": "evaluation.contribution",
   "pk": 3882,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": 830,
     "responsible": false,
     "can_edit": false,
@@ -137020,7 +137020,7 @@
   "model": "evaluation.contribution",
   "pk": 3883,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": 882,
     "responsible": false,
     "can_edit": false,
@@ -137037,7 +137037,7 @@
   "model": "evaluation.contribution",
   "pk": 3884,
   "fields": {
-    "course": 1540,
+    "evaluation": 1540,
     "contributor": 731,
     "responsible": false,
     "can_edit": false,
@@ -137054,7 +137054,7 @@
   "model": "evaluation.contribution",
   "pk": 3885,
   "fields": {
-    "course": 1549,
+    "evaluation": 1549,
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
@@ -137071,7 +137071,7 @@
   "model": "evaluation.contribution",
   "pk": 3886,
   "fields": {
-    "course": 1549,
+    "evaluation": 1549,
     "contributor": 1016,
     "responsible": false,
     "can_edit": false,
@@ -137088,7 +137088,7 @@
   "model": "evaluation.contribution",
   "pk": 3890,
   "fields": {
-    "course": 1548,
+    "evaluation": 1548,
     "contributor": 318,
     "responsible": false,
     "can_edit": false,
@@ -137105,7 +137105,7 @@
   "model": "evaluation.contribution",
   "pk": 3893,
   "fields": {
-    "course": 1547,
+    "evaluation": 1547,
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
@@ -137122,7 +137122,7 @@
   "model": "evaluation.contribution",
   "pk": 3894,
   "fields": {
-    "course": 1550,
+    "evaluation": 1550,
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
@@ -137139,7 +137139,7 @@
   "model": "evaluation.contribution",
   "pk": 3895,
   "fields": {
-    "course": 1550,
+    "evaluation": 1550,
     "contributor": 200,
     "responsible": false,
     "can_edit": false,
@@ -137156,7 +137156,7 @@
   "model": "evaluation.contribution",
   "pk": 3896,
   "fields": {
-    "course": 1550,
+    "evaluation": 1550,
     "contributor": 975,
     "responsible": false,
     "can_edit": false,
@@ -137173,7 +137173,7 @@
   "model": "evaluation.contribution",
   "pk": 3899,
   "fields": {
-    "course": 1605,
+    "evaluation": 1605,
     "contributor": 1001,
     "responsible": false,
     "can_edit": false,
@@ -137190,7 +137190,7 @@
   "model": "evaluation.contribution",
   "pk": 3900,
   "fields": {
-    "course": 1605,
+    "evaluation": 1605,
     "contributor": 1002,
     "responsible": false,
     "can_edit": false,
@@ -137207,7 +137207,7 @@
   "model": "evaluation.contribution",
   "pk": 3909,
   "fields": {
-    "course": 1549,
+    "evaluation": 1549,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -137223,7 +137223,7 @@
   "model": "evaluation.contribution",
   "pk": 3912,
   "fields": {
-    "course": 1618,
+    "evaluation": 1618,
     "contributor": 2139,
     "responsible": false,
     "can_edit": false,
@@ -137240,7 +137240,7 @@
   "model": "evaluation.contribution",
   "pk": 3913,
   "fields": {
-    "course": 1618,
+    "evaluation": 1618,
     "contributor": 2199,
     "responsible": false,
     "can_edit": false,
@@ -137257,7 +137257,7 @@
   "model": "evaluation.contribution",
   "pk": 3914,
   "fields": {
-    "course": 1618,
+    "evaluation": 1618,
     "contributor": 2200,
     "responsible": false,
     "can_edit": false,
@@ -137274,7 +137274,7 @@
   "model": "evaluation.contribution",
   "pk": 3915,
   "fields": {
-    "course": 1564,
+    "evaluation": 1564,
     "contributor": 2201,
     "responsible": false,
     "can_edit": false,
@@ -137291,7 +137291,7 @@
   "model": "evaluation.contribution",
   "pk": 3916,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 2068,
     "responsible": false,
     "can_edit": false,
@@ -137308,7 +137308,7 @@
   "model": "evaluation.contribution",
   "pk": 3917,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 2202,
     "responsible": false,
     "can_edit": false,
@@ -137325,7 +137325,7 @@
   "model": "evaluation.contribution",
   "pk": 3918,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 708,
     "responsible": false,
     "can_edit": false,
@@ -137342,7 +137342,7 @@
   "model": "evaluation.contribution",
   "pk": 3919,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 974,
     "responsible": false,
     "can_edit": false,
@@ -137359,7 +137359,7 @@
   "model": "evaluation.contribution",
   "pk": 3920,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 972,
     "responsible": false,
     "can_edit": false,
@@ -137376,7 +137376,7 @@
   "model": "evaluation.contribution",
   "pk": 3921,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 1154,
     "responsible": false,
     "can_edit": false,
@@ -137393,7 +137393,7 @@
   "model": "evaluation.contribution",
   "pk": 3922,
   "fields": {
-    "course": 1568,
+    "evaluation": 1568,
     "contributor": 2126,
     "responsible": false,
     "can_edit": false,
@@ -137410,7 +137410,7 @@
   "model": "evaluation.contribution",
   "pk": 3923,
   "fields": {
-    "course": 1554,
+    "evaluation": 1554,
     "contributor": 14,
     "responsible": false,
     "can_edit": false,
@@ -137427,7 +137427,7 @@
   "model": "evaluation.contribution",
   "pk": 3929,
   "fields": {
-    "course": 1547,
+    "evaluation": 1547,
     "contributor": 2205,
     "responsible": false,
     "can_edit": false,
@@ -137444,7 +137444,7 @@
   "model": "evaluation.contribution",
   "pk": 3932,
   "fields": {
-    "course": 1577,
+    "evaluation": 1577,
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
@@ -137461,7 +137461,7 @@
   "model": "evaluation.contribution",
   "pk": 3934,
   "fields": {
-    "course": 1583,
+    "evaluation": 1583,
     "contributor": 982,
     "responsible": false,
     "can_edit": false,
@@ -137478,7 +137478,7 @@
   "model": "evaluation.contribution",
   "pk": 3935,
   "fields": {
-    "course": 1583,
+    "evaluation": 1583,
     "contributor": 1136,
     "responsible": false,
     "can_edit": false,
@@ -137495,7 +137495,7 @@
   "model": "evaluation.contribution",
   "pk": 3936,
   "fields": {
-    "course": 1577,
+    "evaluation": 1577,
     "contributor": 2197,
     "responsible": false,
     "can_edit": false,
@@ -137512,7 +137512,7 @@
   "model": "evaluation.contribution",
   "pk": 3939,
   "fields": {
-    "course": 1580,
+    "evaluation": 1580,
     "contributor": 296,
     "responsible": false,
     "can_edit": false,
@@ -137529,7 +137529,7 @@
   "model": "evaluation.contribution",
   "pk": 3941,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
@@ -137546,7 +137546,7 @@
   "model": "evaluation.contribution",
   "pk": 3942,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": 52,
     "responsible": false,
     "can_edit": false,
@@ -137563,7 +137563,7 @@
   "model": "evaluation.contribution",
   "pk": 3943,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": 1117,
     "responsible": false,
     "can_edit": false,
@@ -137580,7 +137580,7 @@
   "model": "evaluation.contribution",
   "pk": 3944,
   "fields": {
-    "course": 1575,
+    "evaluation": 1575,
     "contributor": 2197,
     "responsible": false,
     "can_edit": false,
@@ -137597,7 +137597,7 @@
   "model": "evaluation.contribution",
   "pk": 3960,
   "fields": {
-    "course": 1587,
+    "evaluation": 1587,
     "contributor": 191,
     "responsible": false,
     "can_edit": false,
@@ -137615,7 +137615,7 @@
   "model": "evaluation.contribution",
   "pk": 3961,
   "fields": {
-    "course": 1587,
+    "evaluation": 1587,
     "contributor": 1113,
     "responsible": false,
     "can_edit": false,
@@ -137632,7 +137632,7 @@
   "model": "evaluation.contribution",
   "pk": 3974,
   "fields": {
-    "course": 1624,
+    "evaluation": 1624,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137652,7 +137652,7 @@
   "model": "evaluation.contribution",
   "pk": 3975,
   "fields": {
-    "course": 1624,
+    "evaluation": 1624,
     "contributor": 173,
     "responsible": true,
     "can_edit": true,
@@ -137669,7 +137669,7 @@
   "model": "evaluation.contribution",
   "pk": 3976,
   "fields": {
-    "course": 1625,
+    "evaluation": 1625,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137687,7 +137687,7 @@
   "model": "evaluation.contribution",
   "pk": 3977,
   "fields": {
-    "course": 1625,
+    "evaluation": 1625,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -137703,7 +137703,7 @@
   "model": "evaluation.contribution",
   "pk": 3984,
   "fields": {
-    "course": 1629,
+    "evaluation": 1629,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137723,7 +137723,7 @@
   "model": "evaluation.contribution",
   "pk": 3985,
   "fields": {
-    "course": 1629,
+    "evaluation": 1629,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -137740,7 +137740,7 @@
   "model": "evaluation.contribution",
   "pk": 3994,
   "fields": {
-    "course": 1634,
+    "evaluation": 1634,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137761,7 +137761,7 @@
   "model": "evaluation.contribution",
   "pk": 3995,
   "fields": {
-    "course": 1634,
+    "evaluation": 1634,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -137778,7 +137778,7 @@
   "model": "evaluation.contribution",
   "pk": 4002,
   "fields": {
-    "course": 1638,
+    "evaluation": 1638,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137796,7 +137796,7 @@
   "model": "evaluation.contribution",
   "pk": 4003,
   "fields": {
-    "course": 1638,
+    "evaluation": 1638,
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
@@ -137813,7 +137813,7 @@
   "model": "evaluation.contribution",
   "pk": 4008,
   "fields": {
-    "course": 1641,
+    "evaluation": 1641,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137831,7 +137831,7 @@
   "model": "evaluation.contribution",
   "pk": 4009,
   "fields": {
-    "course": 1641,
+    "evaluation": 1641,
     "contributor": 204,
     "responsible": true,
     "can_edit": true,
@@ -137847,7 +137847,7 @@
   "model": "evaluation.contribution",
   "pk": 4018,
   "fields": {
-    "course": 1646,
+    "evaluation": 1646,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137863,7 +137863,7 @@
   "model": "evaluation.contribution",
   "pk": 4019,
   "fields": {
-    "course": 1646,
+    "evaluation": 1646,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -137877,7 +137877,7 @@
   "model": "evaluation.contribution",
   "pk": 4020,
   "fields": {
-    "course": 1647,
+    "evaluation": 1647,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137895,7 +137895,7 @@
   "model": "evaluation.contribution",
   "pk": 4021,
   "fields": {
-    "course": 1647,
+    "evaluation": 1647,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -137912,7 +137912,7 @@
   "model": "evaluation.contribution",
   "pk": 4022,
   "fields": {
-    "course": 1648,
+    "evaluation": 1648,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137934,7 +137934,7 @@
   "model": "evaluation.contribution",
   "pk": 4023,
   "fields": {
-    "course": 1648,
+    "evaluation": 1648,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -137951,7 +137951,7 @@
   "model": "evaluation.contribution",
   "pk": 4024,
   "fields": {
-    "course": 1649,
+    "evaluation": 1649,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -137970,7 +137970,7 @@
   "model": "evaluation.contribution",
   "pk": 4025,
   "fields": {
-    "course": 1649,
+    "evaluation": 1649,
     "contributor": 127,
     "responsible": true,
     "can_edit": true,
@@ -137987,7 +137987,7 @@
   "model": "evaluation.contribution",
   "pk": 4028,
   "fields": {
-    "course": 1651,
+    "evaluation": 1651,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138006,7 +138006,7 @@
   "model": "evaluation.contribution",
   "pk": 4029,
   "fields": {
-    "course": 1651,
+    "evaluation": 1651,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -138022,7 +138022,7 @@
   "model": "evaluation.contribution",
   "pk": 4032,
   "fields": {
-    "course": 1653,
+    "evaluation": 1653,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138036,7 +138036,7 @@
   "model": "evaluation.contribution",
   "pk": 4033,
   "fields": {
-    "course": 1653,
+    "evaluation": 1653,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -138050,7 +138050,7 @@
   "model": "evaluation.contribution",
   "pk": 4036,
   "fields": {
-    "course": 1655,
+    "evaluation": 1655,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138068,7 +138068,7 @@
   "model": "evaluation.contribution",
   "pk": 4037,
   "fields": {
-    "course": 1655,
+    "evaluation": 1655,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -138084,7 +138084,7 @@
   "model": "evaluation.contribution",
   "pk": 4038,
   "fields": {
-    "course": 1656,
+    "evaluation": 1656,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138104,7 +138104,7 @@
   "model": "evaluation.contribution",
   "pk": 4039,
   "fields": {
-    "course": 1656,
+    "evaluation": 1656,
     "contributor": 234,
     "responsible": true,
     "can_edit": true,
@@ -138121,7 +138121,7 @@
   "model": "evaluation.contribution",
   "pk": 4040,
   "fields": {
-    "course": 1657,
+    "evaluation": 1657,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138140,7 +138140,7 @@
   "model": "evaluation.contribution",
   "pk": 4041,
   "fields": {
-    "course": 1657,
+    "evaluation": 1657,
     "contributor": 959,
     "responsible": true,
     "can_edit": true,
@@ -138157,7 +138157,7 @@
   "model": "evaluation.contribution",
   "pk": 4046,
   "fields": {
-    "course": 1660,
+    "evaluation": 1660,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138179,7 +138179,7 @@
   "model": "evaluation.contribution",
   "pk": 4047,
   "fields": {
-    "course": 1660,
+    "evaluation": 1660,
     "contributor": 222,
     "responsible": true,
     "can_edit": true,
@@ -138196,7 +138196,7 @@
   "model": "evaluation.contribution",
   "pk": 4052,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138216,7 +138216,7 @@
   "model": "evaluation.contribution",
   "pk": 4053,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
@@ -138232,7 +138232,7 @@
   "model": "evaluation.contribution",
   "pk": 4062,
   "fields": {
-    "course": 1668,
+    "evaluation": 1668,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138246,7 +138246,7 @@
   "model": "evaluation.contribution",
   "pk": 4063,
   "fields": {
-    "course": 1668,
+    "evaluation": 1668,
     "contributor": 2319,
     "responsible": true,
     "can_edit": true,
@@ -138260,7 +138260,7 @@
   "model": "evaluation.contribution",
   "pk": 4072,
   "fields": {
-    "course": 1673,
+    "evaluation": 1673,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138278,7 +138278,7 @@
   "model": "evaluation.contribution",
   "pk": 4073,
   "fields": {
-    "course": 1673,
+    "evaluation": 1673,
     "contributor": 648,
     "responsible": true,
     "can_edit": true,
@@ -138295,7 +138295,7 @@
   "model": "evaluation.contribution",
   "pk": 4084,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138316,7 +138316,7 @@
   "model": "evaluation.contribution",
   "pk": 4085,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -138333,7 +138333,7 @@
   "model": "evaluation.contribution",
   "pk": 4090,
   "fields": {
-    "course": 1682,
+    "evaluation": 1682,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138352,7 +138352,7 @@
   "model": "evaluation.contribution",
   "pk": 4091,
   "fields": {
-    "course": 1682,
+    "evaluation": 1682,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -138369,7 +138369,7 @@
   "model": "evaluation.contribution",
   "pk": 4092,
   "fields": {
-    "course": 1683,
+    "evaluation": 1683,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138385,7 +138385,7 @@
   "model": "evaluation.contribution",
   "pk": 4093,
   "fields": {
-    "course": 1683,
+    "evaluation": 1683,
     "contributor": 236,
     "responsible": true,
     "can_edit": true,
@@ -138399,7 +138399,7 @@
   "model": "evaluation.contribution",
   "pk": 4094,
   "fields": {
-    "course": 1684,
+    "evaluation": 1684,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138417,7 +138417,7 @@
   "model": "evaluation.contribution",
   "pk": 4095,
   "fields": {
-    "course": 1684,
+    "evaluation": 1684,
     "contributor": 937,
     "responsible": true,
     "can_edit": true,
@@ -138434,7 +138434,7 @@
   "model": "evaluation.contribution",
   "pk": 4100,
   "fields": {
-    "course": 1687,
+    "evaluation": 1687,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138454,7 +138454,7 @@
   "model": "evaluation.contribution",
   "pk": 4101,
   "fields": {
-    "course": 1687,
+    "evaluation": 1687,
     "contributor": 249,
     "responsible": true,
     "can_edit": true,
@@ -138471,7 +138471,7 @@
   "model": "evaluation.contribution",
   "pk": 4112,
   "fields": {
-    "course": 1693,
+    "evaluation": 1693,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138491,7 +138491,7 @@
   "model": "evaluation.contribution",
   "pk": 4113,
   "fields": {
-    "course": 1693,
+    "evaluation": 1693,
     "contributor": 815,
     "responsible": true,
     "can_edit": true,
@@ -138508,7 +138508,7 @@
   "model": "evaluation.contribution",
   "pk": 4114,
   "fields": {
-    "course": 1694,
+    "evaluation": 1694,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138526,7 +138526,7 @@
   "model": "evaluation.contribution",
   "pk": 4115,
   "fields": {
-    "course": 1694,
+    "evaluation": 1694,
     "contributor": 255,
     "responsible": true,
     "can_edit": true,
@@ -138543,7 +138543,7 @@
   "model": "evaluation.contribution",
   "pk": 4116,
   "fields": {
-    "course": 1695,
+    "evaluation": 1695,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138563,7 +138563,7 @@
   "model": "evaluation.contribution",
   "pk": 4117,
   "fields": {
-    "course": 1695,
+    "evaluation": 1695,
     "contributor": 310,
     "responsible": true,
     "can_edit": true,
@@ -138580,7 +138580,7 @@
   "model": "evaluation.contribution",
   "pk": 4118,
   "fields": {
-    "course": 1696,
+    "evaluation": 1696,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138599,7 +138599,7 @@
   "model": "evaluation.contribution",
   "pk": 4119,
   "fields": {
-    "course": 1696,
+    "evaluation": 1696,
     "contributor": 650,
     "responsible": true,
     "can_edit": true,
@@ -138616,7 +138616,7 @@
   "model": "evaluation.contribution",
   "pk": 4120,
   "fields": {
-    "course": 1697,
+    "evaluation": 1697,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138637,7 +138637,7 @@
   "model": "evaluation.contribution",
   "pk": 4121,
   "fields": {
-    "course": 1697,
+    "evaluation": 1697,
     "contributor": 2324,
     "responsible": true,
     "can_edit": true,
@@ -138653,7 +138653,7 @@
   "model": "evaluation.contribution",
   "pk": 4122,
   "fields": {
-    "course": 1698,
+    "evaluation": 1698,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138670,7 +138670,7 @@
   "model": "evaluation.contribution",
   "pk": 4123,
   "fields": {
-    "course": 1698,
+    "evaluation": 1698,
     "contributor": 2325,
     "responsible": true,
     "can_edit": true,
@@ -138687,7 +138687,7 @@
   "model": "evaluation.contribution",
   "pk": 4128,
   "fields": {
-    "course": 1701,
+    "evaluation": 1701,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138707,7 +138707,7 @@
   "model": "evaluation.contribution",
   "pk": 4129,
   "fields": {
-    "course": 1701,
+    "evaluation": 1701,
     "contributor": 2326,
     "responsible": true,
     "can_edit": true,
@@ -138724,7 +138724,7 @@
   "model": "evaluation.contribution",
   "pk": 4138,
   "fields": {
-    "course": 1706,
+    "evaluation": 1706,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138745,7 +138745,7 @@
   "model": "evaluation.contribution",
   "pk": 4139,
   "fields": {
-    "course": 1706,
+    "evaluation": 1706,
     "contributor": 2086,
     "responsible": true,
     "can_edit": true,
@@ -138761,7 +138761,7 @@
   "model": "evaluation.contribution",
   "pk": 4140,
   "fields": {
-    "course": 1707,
+    "evaluation": 1707,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138779,7 +138779,7 @@
   "model": "evaluation.contribution",
   "pk": 4141,
   "fields": {
-    "course": 1707,
+    "evaluation": 1707,
     "contributor": 2341,
     "responsible": true,
     "can_edit": true,
@@ -138796,7 +138796,7 @@
   "model": "evaluation.contribution",
   "pk": 4146,
   "fields": {
-    "course": 1641,
+    "evaluation": 1641,
     "contributor": 546,
     "responsible": false,
     "can_edit": true,
@@ -138813,7 +138813,7 @@
   "model": "evaluation.contribution",
   "pk": 4148,
   "fields": {
-    "course": 1687,
+    "evaluation": 1687,
     "contributor": 2330,
     "responsible": false,
     "can_edit": false,
@@ -138830,7 +138830,7 @@
   "model": "evaluation.contribution",
   "pk": 4152,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 49,
     "responsible": false,
     "can_edit": true,
@@ -138848,7 +138848,7 @@
   "model": "evaluation.contribution",
   "pk": 4153,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 28,
     "responsible": false,
     "can_edit": false,
@@ -138865,7 +138865,7 @@
   "model": "evaluation.contribution",
   "pk": 4154,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 621,
     "responsible": false,
     "can_edit": false,
@@ -138882,7 +138882,7 @@
   "model": "evaluation.contribution",
   "pk": 4155,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 759,
     "responsible": false,
     "can_edit": false,
@@ -138899,7 +138899,7 @@
   "model": "evaluation.contribution",
   "pk": 4156,
   "fields": {
-    "course": 1679,
+    "evaluation": 1679,
     "contributor": 915,
     "responsible": false,
     "can_edit": false,
@@ -138916,7 +138916,7 @@
   "model": "evaluation.contribution",
   "pk": 4161,
   "fields": {
-    "course": 1625,
+    "evaluation": 1625,
     "contributor": 987,
     "responsible": false,
     "can_edit": false,
@@ -138933,7 +138933,7 @@
   "model": "evaluation.contribution",
   "pk": 4177,
   "fields": {
-    "course": 1696,
+    "evaluation": 1696,
     "contributor": 994,
     "responsible": false,
     "can_edit": true,
@@ -138950,7 +138950,7 @@
   "model": "evaluation.contribution",
   "pk": 4185,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -138968,7 +138968,7 @@
   "model": "evaluation.contribution",
   "pk": 4186,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 116,
     "responsible": true,
     "can_edit": true,
@@ -138984,7 +138984,7 @@
   "model": "evaluation.contribution",
   "pk": 4187,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 586,
     "responsible": false,
     "can_edit": false,
@@ -139001,7 +139001,7 @@
   "model": "evaluation.contribution",
   "pk": 4188,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 857,
     "responsible": false,
     "can_edit": false,
@@ -139018,7 +139018,7 @@
   "model": "evaluation.contribution",
   "pk": 4189,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 1141,
     "responsible": false,
     "can_edit": false,
@@ -139035,7 +139035,7 @@
   "model": "evaluation.contribution",
   "pk": 4190,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 731,
     "responsible": false,
     "can_edit": false,
@@ -139052,7 +139052,7 @@
   "model": "evaluation.contribution",
   "pk": 4191,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 2095,
     "responsible": false,
     "can_edit": false,
@@ -139069,7 +139069,7 @@
   "model": "evaluation.contribution",
   "pk": 4192,
   "fields": {
-    "course": 1710,
+    "evaluation": 1710,
     "contributor": 808,
     "responsible": false,
     "can_edit": false,
@@ -139086,7 +139086,7 @@
   "model": "evaluation.contribution",
   "pk": 4203,
   "fields": {
-    "course": 1651,
+    "evaluation": 1651,
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
@@ -139103,7 +139103,7 @@
   "model": "evaluation.contribution",
   "pk": 4204,
   "fields": {
-    "course": 1651,
+    "evaluation": 1651,
     "contributor": 2125,
     "responsible": false,
     "can_edit": false,
@@ -139120,7 +139120,7 @@
   "model": "evaluation.contribution",
   "pk": 4205,
   "fields": {
-    "course": 1651,
+    "evaluation": 1651,
     "contributor": 2205,
     "responsible": false,
     "can_edit": false,
@@ -139137,7 +139137,7 @@
   "model": "evaluation.contribution",
   "pk": 4223,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 191,
     "responsible": false,
     "can_edit": true,
@@ -139155,7 +139155,7 @@
   "model": "evaluation.contribution",
   "pk": 4227,
   "fields": {
-    "course": 1656,
+    "evaluation": 1656,
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
@@ -139172,7 +139172,7 @@
   "model": "evaluation.contribution",
   "pk": 4228,
   "fields": {
-    "course": 1656,
+    "evaluation": 1656,
     "contributor": 178,
     "responsible": false,
     "can_edit": false,
@@ -139189,7 +139189,7 @@
   "model": "evaluation.contribution",
   "pk": 4229,
   "fields": {
-    "course": 1655,
+    "evaluation": 1655,
     "contributor": 633,
     "responsible": false,
     "can_edit": false,
@@ -139206,7 +139206,7 @@
   "model": "evaluation.contribution",
   "pk": 4232,
   "fields": {
-    "course": 1624,
+    "evaluation": 1624,
     "contributor": 2194,
     "responsible": false,
     "can_edit": true,
@@ -139222,7 +139222,7 @@
   "model": "evaluation.contribution",
   "pk": 4233,
   "fields": {
-    "course": 1647,
+    "evaluation": 1647,
     "contributor": 2143,
     "responsible": false,
     "can_edit": true,
@@ -139239,7 +139239,7 @@
   "model": "evaluation.contribution",
   "pk": 4234,
   "fields": {
-    "course": 1647,
+    "evaluation": 1647,
     "contributor": 18,
     "responsible": false,
     "can_edit": true,
@@ -139256,7 +139256,7 @@
   "model": "evaluation.contribution",
   "pk": 4243,
   "fields": {
-    "course": 1649,
+    "evaluation": 1649,
     "contributor": 169,
     "responsible": false,
     "can_edit": false,
@@ -139273,7 +139273,7 @@
   "model": "evaluation.contribution",
   "pk": 4244,
   "fields": {
-    "course": 1648,
+    "evaluation": 1648,
     "contributor": 169,
     "responsible": false,
     "can_edit": false,
@@ -139291,7 +139291,7 @@
   "model": "evaluation.contribution",
   "pk": 4261,
   "fields": {
-    "course": 1660,
+    "evaluation": 1660,
     "contributor": 1125,
     "responsible": false,
     "can_edit": false,
@@ -139308,7 +139308,7 @@
   "model": "evaluation.contribution",
   "pk": 4265,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 33,
     "responsible": false,
     "can_edit": false,
@@ -139325,7 +139325,7 @@
   "model": "evaluation.contribution",
   "pk": 4266,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 74,
     "responsible": false,
     "can_edit": false,
@@ -139342,7 +139342,7 @@
   "model": "evaluation.contribution",
   "pk": 4267,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 16,
     "responsible": false,
     "can_edit": false,
@@ -139359,7 +139359,7 @@
   "model": "evaluation.contribution",
   "pk": 4268,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 120,
     "responsible": false,
     "can_edit": false,
@@ -139376,7 +139376,7 @@
   "model": "evaluation.contribution",
   "pk": 4269,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 651,
     "responsible": false,
     "can_edit": false,
@@ -139393,7 +139393,7 @@
   "model": "evaluation.contribution",
   "pk": 4270,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 267,
     "responsible": false,
     "can_edit": false,
@@ -139410,7 +139410,7 @@
   "model": "evaluation.contribution",
   "pk": 4271,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 69,
     "responsible": false,
     "can_edit": false,
@@ -139427,7 +139427,7 @@
   "model": "evaluation.contribution",
   "pk": 4272,
   "fields": {
-    "course": 1663,
+    "evaluation": 1663,
     "contributor": 998,
     "responsible": false,
     "can_edit": false,
@@ -139444,7 +139444,7 @@
   "model": "evaluation.contribution",
   "pk": 4278,
   "fields": {
-    "course": 1629,
+    "evaluation": 1629,
     "contributor": 2141,
     "responsible": false,
     "can_edit": false,
@@ -139461,7 +139461,7 @@
   "model": "evaluation.contribution",
   "pk": 4279,
   "fields": {
-    "course": 1629,
+    "evaluation": 1629,
     "contributor": 2140,
     "responsible": false,
     "can_edit": false,
@@ -139478,7 +139478,7 @@
   "model": "evaluation.contribution",
   "pk": 4283,
   "fields": {
-    "course": 1707,
+    "evaluation": 1707,
     "contributor": 991,
     "responsible": false,
     "can_edit": true,
@@ -139495,7 +139495,7 @@
   "model": "evaluation.contribution",
   "pk": 4284,
   "fields": {
-    "course": 1707,
+    "evaluation": 1707,
     "contributor": 990,
     "responsible": false,
     "can_edit": true,
@@ -139512,7 +139512,7 @@
   "model": "evaluation.contribution",
   "pk": 4292,
   "fields": {
-    "course": 1712,
+    "evaluation": 1712,
     "contributor": null,
     "responsible": false,
     "can_edit": false,
@@ -139533,7 +139533,7 @@
   "model": "evaluation.contribution",
   "pk": 4293,
   "fields": {
-    "course": 1712,
+    "evaluation": 1712,
     "contributor": 601,
     "responsible": true,
     "can_edit": true,
@@ -139550,7 +139550,7 @@
   "model": "evaluation.contribution",
   "pk": 4294,
   "fields": {
-    "course": 1712,
+    "evaluation": 1712,
     "contributor": 611,
     "responsible": false,
     "can_edit": true,
@@ -139567,7 +139567,7 @@
   "model": "evaluation.contribution",
   "pk": 4295,
   "fields": {
-    "course": 1693,
+    "evaluation": 1693,
     "contributor": 714,
     "responsible": false,
     "can_edit": false,
@@ -139584,7 +139584,7 @@
   "model": "evaluation.contribution",
   "pk": 4296,
   "fields": {
-    "course": 1499,
+    "evaluation": 1499,
     "contributor": 815,
     "responsible": false,
     "can_edit": true,
@@ -139601,7 +139601,7 @@
   "model": "evaluation.contribution",
   "pk": 4297,
   "fields": {
-    "course": 1586,
+    "evaluation": 1586,
     "contributor": 91,
     "responsible": false,
     "can_edit": false,
@@ -139618,7 +139618,7 @@
   "model": "evaluation.contribution",
   "pk": 4298,
   "fields": {
-    "course": 1673,
+    "evaluation": 1673,
     "contributor": 490,
     "responsible": false,
     "can_edit": false,
@@ -139635,7 +139635,7 @@
   "model": "evaluation.contribution",
   "pk": 4300,
   "fields": {
-    "course": 1713,
+    "evaluation": 1713,
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
@@ -139651,7 +139651,7 @@
   "model": "evaluation.contribution",
   "pk": 4302,
   "fields": {
-    "course": 1714,
+    "evaluation": 1714,
     "contributor": 255,
     "responsible": true,
     "can_edit": false,
@@ -139664,7 +139664,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 34,
   "fields": {
     "state": "published",
@@ -139707,7 +139707,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 310,
   "fields": {
     "state": "reviewed",
@@ -139752,7 +139752,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 311,
   "fields": {
     "state": "reviewed",
@@ -139791,7 +139791,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 318,
   "fields": {
     "state": "published",
@@ -139841,7 +139841,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 327,
   "fields": {
     "state": "published",
@@ -139900,7 +139900,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 329,
   "fields": {
     "state": "reviewed",
@@ -139947,7 +139947,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 332,
   "fields": {
     "state": "published",
@@ -139993,7 +139993,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 333,
   "fields": {
     "state": "reviewed",
@@ -140028,7 +140028,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 334,
   "fields": {
     "state": "reviewed",
@@ -140130,7 +140130,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 336,
   "fields": {
     "state": "published",
@@ -140176,7 +140176,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 345,
   "fields": {
     "state": "published",
@@ -140235,7 +140235,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 347,
   "fields": {
     "state": "reviewed",
@@ -140287,7 +140287,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 348,
   "fields": {
     "state": "reviewed",
@@ -140335,7 +140335,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 350,
   "fields": {
     "state": "published",
@@ -140380,7 +140380,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 356,
   "fields": {
     "state": "published",
@@ -140507,7 +140507,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 358,
   "fields": {
     "state": "published",
@@ -140652,7 +140652,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 359,
   "fields": {
     "state": "published",
@@ -140733,7 +140733,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 363,
   "fields": {
     "state": "published",
@@ -140776,7 +140776,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 370,
   "fields": {
     "state": "published",
@@ -140927,7 +140927,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 372,
   "fields": {
     "state": "published",
@@ -141086,7 +141086,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 375,
   "fields": {
     "state": "published",
@@ -141143,7 +141143,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 478,
   "fields": {
     "state": "reviewed",
@@ -141184,7 +141184,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 482,
   "fields": {
     "state": "published",
@@ -141333,7 +141333,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 641,
   "fields": {
     "state": "published",
@@ -141465,7 +141465,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 643,
   "fields": {
     "state": "published",
@@ -141610,7 +141610,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 648,
   "fields": {
     "state": "published",
@@ -141781,7 +141781,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 652,
   "fields": {
     "state": "published",
@@ -141922,7 +141922,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 654,
   "fields": {
     "state": "published",
@@ -141989,7 +141989,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 655,
   "fields": {
     "state": "published",
@@ -142040,7 +142040,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 657,
   "fields": {
     "state": "published",
@@ -142085,7 +142085,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 663,
   "fields": {
     "state": "published",
@@ -142147,7 +142147,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 664,
   "fields": {
     "state": "published",
@@ -142219,7 +142219,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 665,
   "fields": {
     "state": "published",
@@ -142272,7 +142272,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 666,
   "fields": {
     "state": "published",
@@ -142331,7 +142331,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 669,
   "fields": {
     "state": "published",
@@ -142400,7 +142400,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 675,
   "fields": {
     "state": "published",
@@ -142441,7 +142441,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 682,
   "fields": {
     "state": "published",
@@ -142490,7 +142490,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 686,
   "fields": {
     "state": "published",
@@ -142551,7 +142551,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 690,
   "fields": {
     "state": "published",
@@ -142596,7 +142596,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 695,
   "fields": {
     "state": "published",
@@ -142629,7 +142629,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 697,
   "fields": {
     "state": "published",
@@ -142672,7 +142672,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 698,
   "fields": {
     "state": "published",
@@ -142709,7 +142709,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 702,
   "fields": {
     "state": "published",
@@ -142751,7 +142751,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 709,
   "fields": {
     "state": "published",
@@ -142791,7 +142791,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 730,
   "fields": {
     "state": "published",
@@ -142841,7 +142841,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1454,
   "fields": {
     "state": "published",
@@ -142967,7 +142967,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1460,
   "fields": {
     "state": "published",
@@ -143001,7 +143001,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1463,
   "fields": {
     "state": "published",
@@ -143053,7 +143053,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1468,
   "fields": {
     "state": "published",
@@ -143091,7 +143091,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1472,
   "fields": {
     "state": "published",
@@ -143207,7 +143207,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1474,
   "fields": {
     "state": "published",
@@ -143247,7 +143247,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1479,
   "fields": {
     "state": "published",
@@ -143315,7 +143315,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1480,
   "fields": {
     "state": "published",
@@ -143374,7 +143374,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1485,
   "fields": {
     "state": "published",
@@ -143424,7 +143424,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1488,
   "fields": {
     "state": "published",
@@ -143562,7 +143562,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1494,
   "fields": {
     "state": "published",
@@ -143713,7 +143713,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1497,
   "fields": {
     "state": "published",
@@ -143770,7 +143770,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1498,
   "fields": {
     "state": "new",
@@ -143807,7 +143807,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1499,
   "fields": {
     "state": "prepared",
@@ -143845,7 +143845,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1500,
   "fields": {
     "state": "new",
@@ -143886,7 +143886,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1502,
   "fields": {
     "state": "published",
@@ -143934,7 +143934,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1503,
   "fields": {
     "state": "evaluated",
@@ -143971,7 +143971,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1504,
   "fields": {
     "state": "published",
@@ -144018,7 +144018,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1506,
   "fields": {
     "state": "new",
@@ -144052,7 +144052,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1507,
   "fields": {
     "state": "new",
@@ -144088,7 +144088,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1508,
   "fields": {
     "state": "published",
@@ -144154,7 +144154,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1510,
   "fields": {
     "state": "published",
@@ -144199,7 +144199,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1513,
   "fields": {
     "state": "published",
@@ -144265,7 +144265,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1514,
   "fields": {
     "state": "published",
@@ -144376,7 +144376,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1518,
   "fields": {
     "state": "published",
@@ -144428,7 +144428,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1520,
   "fields": {
     "state": "published",
@@ -144514,7 +144514,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1525,
   "fields": {
     "state": "approved",
@@ -144549,7 +144549,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1531,
   "fields": {
     "state": "published",
@@ -144618,7 +144618,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1534,
   "fields": {
     "state": "published",
@@ -144695,7 +144695,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1540,
   "fields": {
     "state": "published",
@@ -144755,7 +144755,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1544,
   "fields": {
     "state": "editor_approved",
@@ -144797,7 +144797,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1545,
   "fields": {
     "state": "editor_approved",
@@ -144839,7 +144839,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1547,
   "fields": {
     "state": "published",
@@ -144990,7 +144990,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1548,
   "fields": {
     "state": "published",
@@ -145028,7 +145028,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1549,
   "fields": {
     "state": "published",
@@ -145083,7 +145083,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1550,
   "fields": {
     "state": "published",
@@ -145132,7 +145132,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1554,
   "fields": {
     "state": "published",
@@ -145167,7 +145167,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1559,
   "fields": {
     "state": "published",
@@ -145235,7 +145235,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1563,
   "fields": {
     "state": "published",
@@ -145275,7 +145275,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1564,
   "fields": {
     "state": "published",
@@ -145309,7 +145309,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1568,
   "fields": {
     "state": "published",
@@ -145473,7 +145473,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1569,
   "fields": {
     "state": "published",
@@ -145525,7 +145525,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1570,
   "fields": {
     "state": "published",
@@ -145667,7 +145667,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1571,
   "fields": {
     "state": "published",
@@ -145736,7 +145736,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1575,
   "fields": {
     "state": "published",
@@ -145780,7 +145780,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1577,
   "fields": {
     "state": "published",
@@ -145846,7 +145846,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1580,
   "fields": {
     "state": "published",
@@ -145892,7 +145892,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1583,
   "fields": {
     "state": "published",
@@ -145934,7 +145934,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1585,
   "fields": {
     "state": "published",
@@ -145970,7 +145970,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1586,
   "fields": {
     "state": "new",
@@ -146004,7 +146004,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1587,
   "fields": {
     "state": "published",
@@ -146046,7 +146046,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1595,
   "fields": {
     "state": "published",
@@ -146089,7 +146089,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1598,
   "fields": {
     "state": "published",
@@ -146128,7 +146128,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1600,
   "fields": {
     "state": "evaluated",
@@ -146172,7 +146172,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1603,
   "fields": {
     "state": "new",
@@ -146203,7 +146203,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1605,
   "fields": {
     "state": "published",
@@ -146243,7 +146243,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1610,
   "fields": {
     "state": "new",
@@ -146296,7 +146296,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1613,
   "fields": {
     "state": "new",
@@ -146328,7 +146328,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1614,
   "fields": {
     "state": "approved",
@@ -146360,7 +146360,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1618,
   "fields": {
     "state": "published",
@@ -146404,7 +146404,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1624,
   "fields": {
     "state": "published",
@@ -146440,7 +146440,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1625,
   "fields": {
     "state": "published",
@@ -146476,7 +146476,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1629,
   "fields": {
     "state": "reviewed",
@@ -146513,7 +146513,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1634,
   "fields": {
     "state": "new",
@@ -146548,7 +146548,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1638,
   "fields": {
     "state": "published",
@@ -146596,7 +146596,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1641,
   "fields": {
     "state": "published",
@@ -146636,7 +146636,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1646,
   "fields": {
     "state": "new",
@@ -146670,7 +146670,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1647,
   "fields": {
     "state": "published",
@@ -146710,7 +146710,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1648,
   "fields": {
     "state": "published",
@@ -146752,7 +146752,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1649,
   "fields": {
     "state": "published",
@@ -146787,7 +146787,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1651,
   "fields": {
     "state": "published",
@@ -146873,7 +146873,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1653,
   "fields": {
     "state": "new",
@@ -146907,7 +146907,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1655,
   "fields": {
     "state": "published",
@@ -146943,7 +146943,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1656,
   "fields": {
     "state": "published",
@@ -146983,7 +146983,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1657,
   "fields": {
     "state": "published",
@@ -147025,7 +147025,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1660,
   "fields": {
     "state": "published",
@@ -147087,7 +147087,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1663,
   "fields": {
     "state": "published",
@@ -147149,7 +147149,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1668,
   "fields": {
     "state": "new",
@@ -147185,7 +147185,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1673,
   "fields": {
     "state": "in_evaluation",
@@ -147228,7 +147228,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1679,
   "fields": {
     "state": "published",
@@ -147394,7 +147394,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1682,
   "fields": {
     "state": "in_evaluation",
@@ -147432,7 +147432,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1683,
   "fields": {
     "state": "new",
@@ -147467,7 +147467,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1684,
   "fields": {
     "state": "published",
@@ -147527,7 +147527,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1687,
   "fields": {
     "state": "published",
@@ -147667,7 +147667,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1693,
   "fields": {
     "state": "prepared",
@@ -147704,7 +147704,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1694,
   "fields": {
     "state": "in_evaluation",
@@ -147740,7 +147740,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1695,
   "fields": {
     "state": "published",
@@ -147836,7 +147836,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1696,
   "fields": {
     "state": "published",
@@ -147893,7 +147893,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1697,
   "fields": {
     "state": "published",
@@ -148032,7 +148032,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1698,
   "fields": {
     "state": "published",
@@ -148080,7 +148080,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1701,
   "fields": {
     "state": "published",
@@ -148155,7 +148155,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1706,
   "fields": {
     "state": "published",
@@ -148306,7 +148306,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1707,
   "fields": {
     "state": "published",
@@ -148394,7 +148394,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1710,
   "fields": {
     "state": "published",
@@ -148547,7 +148547,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1712,
   "fields": {
     "state": "prepared",
@@ -148584,7 +148584,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1713,
   "fields": {
     "state": "published",
@@ -148613,7 +148613,7 @@
   }
 },
 {
-  "model": "evaluation.course",
+  "model": "evaluation.evaluation",
   "pk": 1714,
   "fields": {
     "state": "reviewed",

@@ -1,10 +1,10 @@
-{% extends 'staff_course_base.html' %}
+{% extends 'staff_evaluation_base.html' %}
 
 {% block content %}
     {{ block.super }}
     <h3>
         {% if form.instance.id %}
-            {{ course.name }} ({{ course.semester.name }})
+            {{ evaluation.name }} ({{ evaluation.semester.name }})
         {% else %}
             {% trans 'Create single result' %}
         {% endif %}

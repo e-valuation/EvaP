@@ -19,7 +19,7 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
-                                    <a class="textanswer-link" href="{% url 'staff:course_textanswer_edit' semester.id course.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                                    <a class="textanswer-link" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
                                     {% if answer.original_answer %}
                                         <br />
                                         <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>

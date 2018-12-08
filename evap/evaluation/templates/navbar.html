@@ -16,7 +16,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'student:index' %}">{% trans 'Evaluate' %}</a></li>
                 {% endif %}
                 {% if user.is_contributor_or_delegate %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans 'Own courses' %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans 'Own evaluations' %}</a></li>
                 {% endif %}
                 {% if user|can_user_use_reward_points %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'rewards:index' %}">{% trans 'Rewards' %}</a></li>

@@ -16,7 +16,7 @@
     <form id="semester-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Upload Excel file (' %}<a href="{% url 'staff:download_sample_xls' 'sample.xls' %}">{% trans 'Sample File' %}</a>{% trans '). This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all courses.' %}</p>
+                <p>{% trans 'Upload Excel file (' %}<a href="{% url 'staff:download_sample_xls' 'sample.xls' %}">{% trans 'Sample File' %}</a>{% trans '). This will create all containing students, teachers and evaluations and connect them. It will also set the entered values as default for all evaluations.' %}</p>
                 {% csrf_token %}
                 {% include 'bootstrap_form.html' with form=excel_form %}
             </div>

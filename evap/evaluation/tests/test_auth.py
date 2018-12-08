@@ -4,7 +4,7 @@ from django.test import override_settings
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, Course, UserProfile
+from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
 
@@ -17,9 +17,9 @@ class LoginTests(WebTest):
         cls.external_user.ensure_valid_login_key()
         cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
-        course = mommy.make(Course, state='published')
-        mommy.make(Contribution, course=course, contributor=cls.external_user, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, course=course, contributor=cls.inactive_external_user, can_edit=True, responsible=False, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation = mommy.make(Evaluation, state='published')
+        mommy.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, responsible=False, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     @override_settings(PAGE_URL='https://example.com')
     def test_login_url_generation(self):

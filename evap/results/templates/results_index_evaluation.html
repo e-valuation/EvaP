@@ -1,0 +1,63 @@
+{% load cache %}
+{% load i18n %}
+
+{% load evaluation_filters %}
+{% load results_templatetags %}
+
+{% get_current_language as LANGUAGE_CODE %}
+
+{% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE can_user_see_results_page using="results" %}
+
+<tr class="hover-results {% if not can_user_see_results_page %}nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
+        {% if can_user_see_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.semester.id evaluation.id %}"{% endif %}>
+    <td data-order="{{ evaluation.name }}">
+        {% if evaluation.state == 'in_evaluation' %}
+            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This evaluation is still running.' %}"></span>
+        {% elif evaluation.state == 'evaluated' %}
+            <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+        {% elif evaluation.state == 'reviewed' %}
+            {% if evaluation.is_single_result or evaluation.final_grade_documents or evaluation.gets_no_grade_documents or not evaluation.is_graded %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+            {% else %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+            {% endif %}
+        {% endif %}
+        <span class="evaluation-name">{{ evaluation.name }}{% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}</span>
+        <div>
+            {% for degree in evaluation.degrees.all %}
+                <span class="badge badge-primary badge-degree">{{ degree }}</span>
+            {% endfor %}
+            <span class="badge badge-secondary badge-course-type">{{ evaluation.type }}</span>
+            {% if evaluation.is_single_result %}
+                <span class="badge badge-success">{% trans 'Single result' %}</span>
+            {% endif %}
+        </div>
+    </td>
+    <td data-order="{{ evaluation.semester.id }}" class="text-center semester-short-name">
+        <span class="semester-name">{{ evaluation.semester.short_name }}</span>
+    </td>
+    <td data-order="{{ evaluation.responsible_contributors.0.last_name }}">
+        <span class="contributor-name">
+            {% for contributor in evaluation.responsible_contributors %}
+                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </span>
+    </td>
+    {% if evaluation.is_single_result %}
+        <td class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</td>
+    {% else %}
+        {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
+            <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
+        {% endwith %}
+    {% endif %}
+
+    <td data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
+        {% if evaluation.is_single_result %}
+            {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True %}
+        {% else %}
+            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}
+        {% endif %}
+    </td>
+</tr>
+
+{% endcache %}

@@ -15,7 +15,7 @@
         </div>
         <div class="infobox-content">
             <b>{% trans 'Anonymity' %}</b><br />
-            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
+            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small evaluations.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
             <br />
             <b>{% trans 'References to other answers' %}</b><br />
@@ -23,13 +23,13 @@
             <em>{% trans 'More details:' %} <a href="/faq#24-q">{% trans 'FAQ/Reference' %}</a></em><br />
             <br />
             <b>{% trans 'Evaluation Results' %}</b><br />
-            {% blocktrans %}Your text answers will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. At the same time voting answers will be published for all users of the platform if at least two students participated in the evaluation. The average grade is calculated if at least 20 percent of the course's students participated in the evaluation.{% endblocktrans %}<br />
+            {% blocktrans %}Your text answers will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the evaluation's exams have been published. At the same time voting answers will be published for all users of the platform if at least two students participated in the evaluation. The average grade is calculated if at least 20 percent of the evaluation's students participated in the evaluation.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#3-s">{% trans 'FAQ/Results' %}</a></em>
         </div>
     </div>
 
     {% for semester in semester_list %}
-        {% if semester.courses %}
+        {% if semester.evaluations %}
             <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.is_active_semester %} card-outline-primary{% endif %}">
                 <div class="card-header">
                     {{ semester.semester_name }}
@@ -51,61 +51,61 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for course in semester.courses %}
-                                <tr{% if course.state == 'in_evaluation' and course not in voted_courses %}
-                                        class="hover-vote" data-url="{% url 'student:vote' course.id %}"
-                                    {# staff users should be able to access courses through the student index only if it actually has published results #}
-                                    {% elif course.state == 'published' and course.can_publish_rating_results and not semester.results_are_archived and course|can_user_see_results_page:request.user %}
-                                        class="hover-results" data-url="{% url 'results:course_detail' semester.id course.id %}"
+                            {% for evaluation in semester.evaluations %}
+                                <tr{% if evaluation.state == 'in_evaluation' and evaluation not in voted_evaluations %}
+                                        class="hover-vote" data-url="{% url 'student:vote' evaluation.id %}"
+                                    {# staff users should be able to access evaluations through the student index only if it actually has published results #}
+                                    {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_user_see_results_page:request.user %}
+                                        class="hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
                                         class="nohover"
                                     {% endif %}>
                                     <td>
                                         <div>
-                                            {{ course.name }}
+                                            {{ evaluation.name }}
                                         </div>
-                                        {% include 'course_badges.html' with mode='student' %}
-                                        {% if course in voted_courses %}
-                                            <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already evaluated this course.' %}"><span class="far fa-smile" aria-hidden="true"></span></span>
-                                        {% elif course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
-                                            <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not evaluate this course.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
+                                        {% include 'evaluation_badges.html' with mode='student' %}
+                                        {% if evaluation in voted_evaluations %}
+                                            <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already took part in this evaluation.' %}"><span class="far fa-smile" aria-hidden="true"></span></span>
+                                        {% elif evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
+                                            <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not take part this evaluation.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {{ course.vote_start_datetime }} &ndash;<br />
-                                        {{ course.vote_end_date }}<br />
-                                        {% if course.state == 'prepared' or course.state == 'editor_approved' or course.state == 'approved' %}
-                                            {% if course.days_until_evaluation == 0 %}
+                                        {{ evaluation.vote_start_datetime }} &ndash;<br />
+                                        {{ evaluation.vote_end_date }}<br />
+                                        {% if evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' %}
+                                            {% if evaluation.days_until_evaluation == 0 %}
                                                 <span class="badge badge-primary">{% trans 'starts today' %}</span>
-                                            {% elif course.days_until_evaluation == 1 %}
+                                            {% elif evaluation.days_until_evaluation == 1 %}
                                                 <span class="badge badge-primary">{% trans 'starts tomorrow' %}</span>
-                                            {% elif course.days_until_evaluation > 1 and course.days_until_evaluation < 8 %}
-                                                <span class="badge badge-info">{% blocktrans with days=course.days_until_evaluation %}starts in {{ days }} days{% endblocktrans %}</span>
+                                            {% elif evaluation.days_until_evaluation > 1 and evaluation.days_until_evaluation < 8 %}
+                                                <span class="badge badge-info">{% blocktrans with days=evaluation.days_until_evaluation %}starts in {{ days }} days{% endblocktrans %}</span>
                                             {% endif %}
-                                        {% elif course.state == 'in_evaluation' %}
-                                            {% if course.days_left_for_evaluation < 0 %}
+                                        {% elif evaluation.state == 'in_evaluation' %}
+                                            {% if evaluation.days_left_for_evaluation < 0 %}
                                                 <span class="badge badge-danger">
-                                                    {% blocktrans with time_string=course.time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}
+                                                    {% blocktrans with time_string=evaluation.time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}
                                                 </span>
-                                            {% elif course.days_left_for_evaluation == 0 %}
+                                            {% elif evaluation.days_left_for_evaluation == 0 %}
                                                 <span class="badge badge-danger">{% trans 'ends today' %}</span>
-                                            {% elif course.days_left_for_evaluation == 1 %}
+                                            {% elif evaluation.days_left_for_evaluation == 1 %}
                                                 <span class="badge badge-danger">{% trans 'ends tomorrow' %}</span>
-                                            {% elif course.days_left_for_evaluation < 8 %}
-                                                <span class="badge badge-warning">{% blocktrans with days=course.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
+                                            {% elif evaluation.days_left_for_evaluation < 8 %}
+                                                <span class="badge badge-warning">{% blocktrans with days=evaluation.days_left_for_evaluation %}{{ days }} days left{% endblocktrans %}</span>
                                             {% endif %}
                                         {% endif %}
                                     </td>
                                     {% if can_download_grades and not semester.grade_documents_are_deleted %}
                                         <td class="text-center">
-                                            {% if course.grade_documents.count == 1 %}
-                                                <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' course.grade_documents.first.id %}" role="button"
-                                                    data-toggle="tooltip" data-placement="top" title="{{ course.grade_documents.first.description }}">
+                                            {% if evaluation.grade_documents.count == 1 %}
+                                                <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' evaluation.grade_documents.first.id %}" role="button"
+                                                    data-toggle="tooltip" data-placement="top" title="{{ evaluation.grade_documents.first.description }}">
                                                     <span class="far fa-file"></span>
                                                 </a>
-                                            {% elif course.grade_documents.count > 1 %}
+                                            {% elif evaluation.grade_documents.count > 1 %}
                                                 <div class="btn-group" role="group">
-                                                    {% for grade_document in course.grade_documents.all %}
+                                                    {% for grade_document in evaluation.grade_documents.all %}
                                                         <a class="btn btn-sm btn-sm-narrow btn-light" href="{% url 'grades:download_grades' grade_document.id %}" role="button"
                                                             data-toggle="tooltip" data-placement="top" title="{{ grade_document.description }}">
                                                             <span class="far fa-file"></span>
@@ -115,34 +115,34 @@
                                             {% endif %}
                                         </td>
                                     {% endif %}
-                                    {% if course.state == 'evaluated' or course.state == 'reviewed' or course.state == 'published' %}
+                                    {% if evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
                                         <td>
-                                            {% include 'progress_bar.html' with done=course.num_voters total=course.num_participants %}
+                                            {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}
                                         </td>
                                     {% else %}
                                         <td class="text-center">
-                                            <span class="fas fa-user"></span> {{ course.num_participants }}
+                                            <span class="fas fa-user"></span> {{ evaluation.num_participants }}
                                         </td>
                                     {% endif %}
                                     <td class="text-right">
-                                        {% if course.state == 'prepared' or course.state == 'editor_approved' or course.state == 'approved' %}
+                                        {% if evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' %}
                                             <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the evaluation period begins.' %}">
                                                 <a class="btn btn-sm btn-primary btn-vote disabled">{% trans 'Evaluate' %}</a>
                                             </div>
-                                        {% elif course.state == 'in_evaluation' and course not in voted_courses %}
-                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' course.id %}">{% trans 'Evaluate' %}</a>
-                                        {% elif course.state == 'in_evaluation' or course.state == 'evaluated' or course.state == 'reviewed' %}
+                                        {% elif evaluation.state == 'in_evaluation' and evaluation not in voted_evaluations %}
+                                            <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
+                                        {% elif evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-hourglass-half"></span></div>
                                                 <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-hourglass-half"></span></div>
                                             </div>
-                                        {% elif course.state == 'published' and semester.results_are_archived %}
+                                        {% elif evaluation.state == 'published' and semester.results_are_archived %}
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
                                                 <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-archive"></span></div>
                                                 <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-archive"></span></div>
                                             </div>
-                                        {% elif course.state == 'published' %}
-                                            {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+                                        {% elif evaluation.state == 'published' %}
+                                            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}
                                         {% endif %}
                                     </td>
                                 </tr>

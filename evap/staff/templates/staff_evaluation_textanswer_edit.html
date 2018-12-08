@@ -1,8 +1,8 @@
-{% extends 'staff_course_base.html' %}
+{% extends 'staff_evaluation_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:course_textanswers' semester.id course.id %}#{{ textanswer.id }}">{% trans 'Text answers' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}#{{ textanswer.id }}">{% trans 'Text answers' %}</a></li>
     <li class="breadcrumb-item">{{ textanswer.id }}</li>
 {% endblock %}
 

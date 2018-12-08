@@ -21,7 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
+from evap.evaluation.tools import date_to_datetime, get_due_evaluations_for_user, translate
 
 logger = logging.getLogger(__name__)
 
@@ -58,11 +58,11 @@ class Semester(models.Model):
 
     @property
     def can_manager_delete(self):
-        return all(course.can_manager_delete for course in self.courses.all())
+        return all(evaluation.can_manager_delete for evaluation in self.evaluations.all())
 
     @property
     def participations_can_be_archived(self):
-        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.courses.all())
+        return not self.participations_are_archived and all(evaluation.participations_can_be_archived for evaluation in self.evaluations.all())
 
     @property
     def grade_documents_can_be_deleted(self):
@@ -76,8 +76,8 @@ class Semester(models.Model):
     def archive_participations(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
-        for course in self.courses.all():
-            course._archive_participations()
+        for evaluation in self.evaluations.all():
+            evaluation._archive_participations()
         self.participations_are_archived = True
         self.save()
 
@@ -87,7 +87,7 @@ class Semester(models.Model):
 
         if not self.grade_documents_can_be_deleted:
             raise NotArchiveable()
-        GradeDocument.objects.filter(course__semester=self).delete()
+        GradeDocument.objects.filter(evaluation__semester=self).delete()
         self.grade_documents_are_deleted = True
         self.save()
 
@@ -103,7 +103,7 @@ class Semester(models.Model):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(courses__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(evaluations__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -182,7 +182,7 @@ class Questionnaire(models.Model):
 
     @property
     def can_manager_edit(self):
-        return not self.contributions.exclude(course__state='new').exists()
+        return not self.contributions.exclude(evaluation__state='new').exists()
 
     @property
     def can_manager_delete(self):
@@ -219,7 +219,7 @@ class Degree(models.Model):
     def can_manager_delete(self):
         if self.pk is None:
             return True
-        return not self.courses.all().exists()
+        return not self.evaluations.all().exists()
 
 
 class CourseType(models.Model):
@@ -240,27 +240,27 @@ class CourseType(models.Model):
     def can_manager_delete(self):
         if not self.pk:
             return True
-        return not self.courses.all().exists()
+        return not self.evaluations.all().exists()
 
 
-class Course(models.Model):
-    """Models a single course, e.g. the Math 101 course of 2002."""
+class Evaluation(models.Model):
+    """Models a single evaluation, e.g. the Math 101 evaluation of 2002."""
 
     state = FSMField(default='new', protected=True)
 
-    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
+    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="evaluations")
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
     name = translate(en='name_en', de='name_de')
 
     # type of course: lecture, seminar, project
-    type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
+    type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="evaluations")
 
     is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
     # e.g. Bachelor, Master
-    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
+    degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="evaluations")
 
     # default is True as that's the more restrictive option
     is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
@@ -268,7 +268,7 @@ class Course(models.Model):
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
 
-    # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
+    # grade publishers can set this to True, then the evaluation will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     # whether participants must vote to qualify for reward points
@@ -277,27 +277,27 @@ class Course(models.Model):
     # whether the evaluation does take place during the semester, stating that evaluation results will be published while the course is still running
     is_midterm_evaluation = models.BooleanField(verbose_name=_("is midterm evaluation"), default=False)
 
-    # True, if the course has at least two voters or if the first voter explicitly confirmed that given text answers
-    # can be published even if no other person evaluates the course
+    # True, if the evaluation has at least two voters or if the first voter explicitly confirmed that given text answers
+    # can be published even if no other person evaluates the evaluation
     can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
 
     # students that are allowed to vote
-    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='courses_participating_in')
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='evaluations_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
     # students that already voted
-    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='courses_voted_for')
+    voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='evaluations_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
-    # who last modified this course
+    # who last modified this evaluation
     last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
+    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
 
-    course_evaluated = Signal(providing_args=['request', 'semester'])
+    evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
         ordering = ('name_de',)
@@ -305,8 +305,8 @@ class Course(models.Model):
             ('semester', 'name_de'),
             ('semester', 'name_en'),
         )
-        verbose_name = _("course")
-        verbose_name_plural = _("courses")
+        verbose_name = _("evaluation")
+        verbose_name_plural = _("evaluations")
 
     def __str__(self):
         return self.name
@@ -321,9 +321,9 @@ class Course(models.Model):
             del self.general_contribution  # invalidate cached property
 
         if self.is_single_result:
-            # adding m2ms such as contributions/questionnaires requires saving the course first,
+            # adding m2ms such as contributions/questionnaires requires saving the evaluation first,
             # therefore we must allow the single result questionnaire to not exist on first save
-            assert first_save or Questionnaire.objects.get(contributions__course=self).name_en == Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
+            assert first_save or Questionnaire.objects.get(contributions__evaluation=self).name_en == Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
             assert self.vote_end_date == self.vote_start_datetime.date()
         else:
             assert self.vote_end_date >= self.vote_start_datetime.date()
@@ -331,7 +331,7 @@ class Course(models.Model):
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
-        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+        logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
 
     @property
     def is_fully_reviewed(self):
@@ -357,13 +357,13 @@ class Course(models.Model):
         return self.general_contribution and (self.is_single_result or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
-        """Returns whether the user is allowed to vote on this course."""
+        """Returns whether the user is allowed to vote on this evaluation."""
         return (self.state == "in_evaluation"
             and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
 
-    def can_user_see_course(self, user):
+    def can_user_see_evaluation(self, user):
         if user.is_manager:
             return True
         if user.is_reviewer and not self.semester.results_are_archived:
@@ -383,7 +383,7 @@ class Course(models.Model):
             return False
         if not self.can_publish_rating_results or self.semester.results_are_archived:
             return self.is_user_contributor_or_delegate(user)
-        return self.can_user_see_course(user)
+        return self.can_user_see_evaluation(user)
 
     @property
     def can_manager_edit(self):
@@ -492,11 +492,11 @@ class Course(models.Model):
 
     @cached_property
     def responsible_contributors(self):
-        return UserProfile.objects.filter(contributions__course=self, contributions__responsible=True).order_by('contributions__order')
+        return UserProfile.objects.filter(contributions__evaluation=self, contributions__responsible=True).order_by('contributions__order')
 
     @cached_property
     def num_contributors(self):
-        return UserProfile.objects.filter(contributions__course=self).count()
+        return UserProfile.objects.filter(contributions__evaluation=self).count()
 
     @property
     def days_left_for_evaluation(self):
@@ -530,7 +530,7 @@ class Course(models.Model):
 
     @property
     def textanswer_set(self):
-        return TextAnswer.objects.filter(contribution__course=self)
+        return TextAnswer.objects.filter(contribution__evaluation=self)
 
     @cached_property
     def num_textanswers(self):
@@ -552,7 +552,7 @@ class Course(models.Model):
 
     @property
     def ratinganswer_counters(self):
-        return RatingAnswerCounter.objects.filter(contribution__course=self)
+        return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 
     def _archive_participations(self):
         """Should be called only via Semester.archive_participations"""
@@ -589,41 +589,41 @@ class Course(models.Model):
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
 
     @classmethod
-    def update_courses(cls):
-        logger.info("update_courses called. Processing courses now.")
+    def update_evaluations(cls):
+        logger.info("update_evaluations called. Processing evaluations now.")
         from evap.evaluation.tools import send_publish_notifications
 
-        courses_new_in_evaluation = []
-        evaluation_results_courses = []
+        evaluations_new_in_evaluation = []
+        evaluation_results_evaluations = []
 
-        for course in cls.objects.all():
+        for evaluation in cls.objects.all():
             try:
-                if course.state == "approved" and course.vote_start_datetime <= datetime.now():
-                    course.evaluation_begin()
-                    course.save()
-                    courses_new_in_evaluation.append(course)
-                elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
-                    course.evaluation_end()
-                    if course.is_fully_reviewed:
-                        course.review_finished()
-                        if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
-                            course.publish()
-                            evaluation_results_courses.append(course)
-                    course.save()
+                if evaluation.state == "approved" and evaluation.vote_start_datetime <= datetime.now():
+                    evaluation.evaluation_begin()
+                    evaluation.save()
+                    evaluations_new_in_evaluation.append(evaluation)
+                elif evaluation.state == "in_evaluation" and datetime.now() >= evaluation.vote_end_datetime:
+                    evaluation.evaluation_end()
+                    if evaluation.is_fully_reviewed:
+                        evaluation.review_finished()
+                        if not evaluation.is_graded or evaluation.final_grade_documents.exists() or evaluation.gets_no_grade_documents:
+                            evaluation.publish()
+                            evaluation_results_evaluations.append(evaluation)
+                    evaluation.save()
             except Exception:
-                logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
+                logger.exception('An error occured when updating the state of evaluation "{}" (id {}).'.format(evaluation, evaluation.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
-        send_publish_notifications(evaluation_results_courses)
-        logger.info("update_courses finished.")
+        EmailTemplate.send_to_users_in_evaluations(template, evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
+        send_publish_notifications(evaluation_results_evaluations)
+        logger.info("update_evaluations finished.")
 
     @property
     def has_external_participant(self):
         return any(participant.is_external for participant in self.participants.all())
 
 
-@receiver(post_transition, sender=Course)
+@receiver(post_transition, sender=Evaluation)
 def warmup_cache_on_publish(instance, target, **_kwargs):
     if target == 'published':
         from evap.results.tools import collect_results
@@ -632,7 +632,7 @@ def warmup_cache_on_publish(instance, target, **_kwargs):
         warm_up_template_cache([instance])
 
 
-@receiver(post_transition, sender=Course)
+@receiver(post_transition, sender=Evaluation)
 def delete_cache_on_unpublish(instance, source, **_kwargs):
     if source == 'published':
         from evap.results.tools import get_collect_results_cache_key
@@ -641,13 +641,13 @@ def delete_cache_on_unpublish(instance, source, **_kwargs):
         delete_template_cache(instance)
 
 
-@receiver(post_transition, sender=Course)
+@receiver(post_transition, sender=Evaluation)
 def log_state_transition(instance, name, source, target, **_kwargs):
-    logger.info('Course "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
+    logger.info('Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
 class Contribution(models.Model):
-    """A contributor who is assigned to a course and his questionnaires."""
+    """A contributor who is assigned to an evaluation and his questionnaires."""
 
     OWN_TEXTANSWERS = 'OWN'
     GENERAL_TEXTANSWERS = 'GENERAL'
@@ -664,7 +664,7 @@ class Contribution(models.Model):
         (IS_RESPONSIBLE, _('Responsible')),
     )
 
-    course = models.ForeignKey(Course, models.CASCADE, verbose_name=_("course"), related_name='contributions')
+    evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
@@ -676,13 +676,13 @@ class Contribution(models.Model):
 
     class Meta:
         unique_together = (
-            ('course', 'contributor'),
+            ('evaluation', 'contributor'),
         )
         ordering = ['order', ]
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        if self.responsible and not self.course.is_single_result:
+        if self.responsible and not self.evaluation.is_single_result:
             assert self.can_edit and self.textanswer_visibility == self.GENERAL_TEXTANSWERS
 
     @property
@@ -1107,7 +1107,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
 
-    # delegates of the user, which can also manage their courses
+    # delegates of the user, which can also manage their evaluations
     delegates = models.ManyToManyField("UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
@@ -1173,9 +1173,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_manager_mark_inactive(self):
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
-        if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
+        if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
-        if any(not contribution.course.participations_are_archived for contribution in self.contributions.all()):
+        if any(not contribution.evaluation.participations_are_archived for contribution in self.contributions.all()):
             return False
         return True
 
@@ -1183,7 +1183,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_manager_delete(self):
         if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
-        if any(not course.participations_are_archived for course in self.courses_participating_in.all()):
+        if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
         if any(not user.can_manager_delete for user in self.represented_users.all()):
             return False
@@ -1193,7 +1193,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_participant(self):
-        return self.courses_participating_in.exists()
+        return self.evaluations_participating_in.exists()
 
     @property
     def is_student(self):
@@ -1207,8 +1207,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor:
             return True
 
-        last_semester_participated = Semester.objects.filter(courses__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(courses__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_participated = Semester.objects.filter(evaluations__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(evaluations__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
@@ -1285,13 +1285,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
 
     def get_sorted_contributions(self):
-        return self.contributions.order_by('course__semester__created_at', 'course__name_de')
+        return self.contributions.order_by('evaluation__semester__created_at', 'evaluation__name_de')
 
-    def get_sorted_courses_participating_in(self):
-        return self.courses_participating_in.order_by('semester__created_at', 'name_de')
+    def get_sorted_evaluations_participating_in(self):
+        return self.evaluations_participating_in.order_by('semester__created_at', 'name_de')
 
-    def get_sorted_courses_voted_for(self):
-        return self.courses_voted_for.order_by('semester__created_at', 'name_de')
+    def get_sorted_evaluations_voted_for(self):
+        return self.evaluations_voted_for.order_by('semester__created_at', 'name_de')
 
 
 def validate_template(value):
@@ -1332,20 +1332,20 @@ class EmailTemplate(models.Model):
     )
 
     @classmethod
-    def recipient_list_for_course(cls, course, recipient_groups, filter_users_in_cc):
+    def recipient_list_for_evaluation(cls, evaluation, recipient_groups, filter_users_in_cc):
         recipients = []
 
         if cls.CONTRIBUTORS in recipient_groups:
-            recipients += UserProfile.objects.filter(contributions__course=course)
+            recipients += UserProfile.objects.filter(contributions__evaluation=evaluation)
         elif cls.EDITORS in recipient_groups:
-            recipients += UserProfile.objects.filter(contributions__course=course, contributions__can_edit=True)
+            recipients += UserProfile.objects.filter(contributions__evaluation=evaluation, contributions__can_edit=True)
         elif cls.RESPONSIBLE in recipient_groups:
-            recipients += course.responsible_contributors
+            recipients += evaluation.responsible_contributors
 
         if cls.ALL_PARTICIPANTS in recipient_groups:
-            recipients += course.participants.all()
+            recipients += evaluation.participants.all()
         elif cls.DUE_PARTICIPANTS in recipient_groups:
-            recipients += course.due_participants
+            recipients += evaluation.due_participants
 
         if filter_users_in_cc:
             # remove delegates and CC users of recipients from the recipient list
@@ -1365,23 +1365,23 @@ class EmailTemplate(models.Model):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     @classmethod
-    def send_to_users_in_courses(cls, template, courses, recipient_groups, use_cc, request):
-        user_course_map = {}
-        for course in courses:
-            recipients = cls.recipient_list_for_course(course, recipient_groups, filter_users_in_cc=use_cc)
+    def send_to_users_in_evaluations(cls, template, evaluations, recipient_groups, use_cc, request):
+        user_evaluation_map = {}
+        for evaluation in evaluations:
+            recipients = cls.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
-                user_course_map.setdefault(user, []).append(course)
+                user_evaluation_map.setdefault(user, []).append(evaluation)
 
-        for user, courses in user_course_map.items():
+        for user, evaluations in user_evaluation_map.items():
             subject_params = {}
-            body_params = {'user': user, 'courses': courses, 'due_courses': get_due_courses_for_user(user)}
+            body_params = {'user': user, 'evaluations': evaluations, 'due_evaluations': get_due_evaluations_for_user(user)}
             cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
     def send_to_user(cls, user, template, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
-            # If this method is triggered by a cronjob changing course states, the request is None.
+            # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
             # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
             if request is not None:
@@ -1433,10 +1433,10 @@ class EmailTemplate(models.Model):
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
     @classmethod
-    def send_reminder_to_user(cls, user, first_due_in_days, due_courses):
+    def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
-        body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_courses': due_courses}
+        body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_evaluations': due_evaluations}
 
         cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
 

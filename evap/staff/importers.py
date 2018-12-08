@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Course, UserProfile, Degree, Contribution, CourseType
+from evap.evaluation.models import Evaluation, UserProfile, Degree, Contribution, CourseType
 from evap.evaluation.tools import is_external_email
 
 
@@ -66,9 +66,9 @@ class UserData(CommonEqualityMixin):
         user.clean_fields()
 
 
-class CourseData(CommonEqualityMixin):
+class EvaluationData(CommonEqualityMixin):
     """
-        Holds information about a course, retrieved from the Excel file.
+        Holds information about an evaluation, retrieved from the Excel file.
     """
     def __init__(self, name_de, name_en, type_name, degree_names, is_graded, responsible_email):
         self.name_de = name_de.strip()
@@ -84,19 +84,19 @@ class CourseData(CommonEqualityMixin):
 
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
-        course = Course(name_de=self.name_de,
+        evaluation = Evaluation(name_de=self.name_de,
                         name_en=self.name_en,
                         type=course_type,
                         is_graded=self.is_graded,
                         vote_start_datetime=vote_start_datetime,
                         vote_end_date=vote_end_date,
                         semester=semester)
-        course.save()
+        evaluation.save()
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        course.contributions.create(contributor=responsible_dbobj, course=course, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         for degree_name in self.degree_names:
-            course.degrees.add(Degree.objects.get(name_de=degree_name))
+            evaluation.degrees.add(Degree.objects.get(name_de=degree_name))
 
 
 class ExcelImporter(object):
@@ -259,63 +259,63 @@ class EnrollmentImporter(ExcelImporter):
     def __init__(self):
         super().__init__()
         # this is a dictionary to not let this become O(n^2)
-        self.courses = {}
+        self.evaluations = {}
         self.enrollments = []
         self.names_de = set()
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
         responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
-        course_data = CourseData(name_de=data[7], name_en=data[8], type_name=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
-        return (student_data, responsible_data, course_data)
+        evaluation_data = EvaluationData(name_de=data[7], name_en=data[8], type_name=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
+        return (student_data, responsible_data, evaluation_data)
 
-    def process_course(self, course_data, sheet, row):
-        course_id = course_data.name_en
-        if course_id not in self.courses:
-            if course_data.name_de in self.names_de:
-                self.errors.append(_('Sheet "{}", row {}: The German name for course "{}" already exists for another course.').format(sheet, row + 1, course_data.name_en))
+    def process_evaluation(self, evaluation_data, sheet, row):
+        evaluation_id = evaluation_data.name_en
+        if evaluation_id not in self.evaluations:
+            if evaluation_data.name_de in self.names_de:
+                self.errors.append(_('Sheet "{}", row {}: The German name for evaluation "{}" already exists for another evaluation.').format(sheet, row + 1, evaluation_data.name_en))
             else:
-                self.courses[course_id] = course_data
-                self.names_de.add(course_data.name_de)
+                self.evaluations[evaluation_id] = evaluation_data
+                self.names_de.add(evaluation_data.name_de)
         else:
-            if not course_data == self.courses[course_id]:
-                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, course_data.name_en))
+            if not evaluation_data == self.evaluations[evaluation_id]:
+                self.errors.append(_('Sheet "{}", row {}: The evaluation\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, evaluation_data.name_en))
 
     def consolidate_enrollment_data(self):
-        for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
+        for (sheet, row), (student_data, responsible_data, evaluation_data) in self.associations.items():
             self.process_user(student_data, sheet, row)
             self.process_user(responsible_data, sheet, row)
-            self.process_course(course_data, sheet, row)
-            self.enrollments.append((course_data, student_data))
+            self.process_evaluation(evaluation_data, sheet, row)
+            self.enrollments.append((evaluation_data, student_data))
 
-    def check_course_data_correctness(self, semester):
-        for course_data in self.courses.values():
-            already_exists = Course.objects.filter(semester=semester, name_de=course_data.name_de).exists()
+    def check_evaluation_data_correctness(self, semester):
+        for evaluation_data in self.evaluations.values():
+            already_exists = Evaluation.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists()
             if already_exists:
-                self.errors.append(_("Course {} does already exist in this semester.").format(course_data.name_en))
+                self.errors.append(_("Evaluation {} does already exist in this semester.").format(evaluation_data.name_en))
 
         degree_names = set()
-        for course_data in self.courses.values():
-            degree_names.update(course_data.degree_names)
+        for evaluation_data in self.evaluations.values():
+            degree_names.update(evaluation_data.degree_names)
         for degree_name in degree_names:
             if not Degree.objects.filter(name_de=degree_name).exists():
                 self.errors.append(_("Error: The degree \"{}\" does not exist yet. Please manually create it first.").format(degree_name))
 
-        course_type_names = set(course_data.type_name for course_data in self.courses.values())
+        course_type_names = set(evaluation_data.type_name for evaluation_data in self.evaluations.values())
         for course_type_name in course_type_names:
             if not CourseType.objects.filter(name_de=course_type_name).exists():
                 self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))
 
     def process_graded_column(self):
-        for course_data in self.courses.values():
-            if course_data.is_graded == settings.IMPORTER_GRADED_YES:
-                course_data.is_graded = True
-            elif course_data.is_graded == settings.IMPORTER_GRADED_NO:
-                course_data.is_graded = False
+        for evaluation_data in self.evaluations.values():
+            if evaluation_data.is_graded == settings.IMPORTER_GRADED_YES:
+                evaluation_data.is_graded = True
+            elif evaluation_data.is_graded == settings.IMPORTER_GRADED_NO:
+                evaluation_data.is_graded = False
             else:
-                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(
-                    course_data.name_en, course_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
-                course_data.is_graded = True
+                self.errors.append(_('"is_graded" of evaluation {} is {}, but must be {} or {}').format(
+                    evaluation_data.name_en, evaluation_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
+                evaluation_data.is_graded = True
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -340,17 +340,17 @@ class EnrollmentImporter(ExcelImporter):
                         responsibles_created.append(user_data)
                     else:
                         students_created.append(user_data)
-            for course_data in self.courses.values():
-                course_data.store_in_database(vote_start_datetime, vote_end_date, semester)
+            for evaluation_data in self.evaluations.values():
+                evaluation_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
-            for course_data, student_data in self.enrollments:
-                course = Course.objects.get(semester=semester, name_de=course_data.name_de)
+            for evaluation_data, student_data in self.enrollments:
+                evaluation = Evaluation.objects.get(semester=semester, name_de=evaluation_data.name_de)
                 # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
-                course.participants.add(student)
+                evaluation.participants.add(student)
 
-        msg = _("Successfully created {} course(s), {} student(s) and {} contributor(s):").format(
-            len(self.courses), len(students_created), len(responsibles_created))
+        msg = _("Successfully created {} evaluation(s), {} student(s) and {} contributor(s):").format(
+            len(self.evaluations), len(students_created), len(responsibles_created))
         msg += create_user_list_string_for_message(students_created + responsibles_created)
         self.success_messages.append(mark_safe(msg))
 
@@ -358,7 +358,7 @@ class EnrollmentImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        msg = _("The import run will create {} courses and {} users:").format(len(self.courses), len(filtered_users))
+        msg = _("The import run will create {} evaluations and {} users:").format(len(self.evaluations), len(filtered_users))
         msg += create_user_list_string_for_message(filtered_users)
         self.success_messages.append(mark_safe(msg))
 
@@ -384,7 +384,7 @@ class EnrollmentImporter(ExcelImporter):
             importer.generate_external_usernames_if_external()
             importer.process_graded_column()
             importer.check_user_data_correctness()
-            importer.check_course_data_correctness(semester)
+            importer.check_evaluation_data_correctness(semester)
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity(test_run)
 
@@ -501,30 +501,30 @@ class PersonImporter:
         self.warnings = defaultdict(list)
         self.errors = []
 
-    def process_participants(self, course, test_run, user_list):
-        course_participants = course.participants.all()
-        already_related = [user for user in user_list if user in course_participants]
-        users_to_add = [user for user in user_list if user not in course_participants]
+    def process_participants(self, evaluation, test_run, user_list):
+        evaluation_participants = evaluation.participants.all()
+        already_related = [user for user in user_list if user in evaluation_participants]
+        users_to_add = [user for user in user_list if user not in evaluation_participants]
 
         if already_related:
-            msg = _("The following {} user(s) are already course participants in course {}:").format(len(already_related), course.name)
+            msg = _("The following {} user(s) are already participants in evaluation {}:").format(len(already_related), evaluation.name)
             msg += create_user_list_string_for_message(already_related)
             self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
         if not test_run:
-            course.participants.add(*users_to_add)
-            msg = _("{} participants added to the course {}:").format(len(users_to_add), course.name)
+            evaluation.participants.add(*users_to_add)
+            msg = _("{} participants added to the evaluation {}:").format(len(users_to_add), evaluation.name)
         else:
-            msg = _("{} participants would be added to the course {}:").format(len(users_to_add), course.name)
+            msg = _("{} participants would be added to the evaluation {}:").format(len(users_to_add), evaluation.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
 
-    def process_contributors(self, course, test_run, user_list):
-        already_related_contributions = Contribution.objects.filter(course=course, contributor__in=user_list).all()
+    def process_contributors(self, evaluation, test_run, user_list):
+        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list).all()
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
-            msg = _("The following {} user(s) are already contributing to course {}:").format(len(already_related), course.name)
+            msg = _("The following {} user(s) are already contributing to evaluation {}:").format(len(already_related), evaluation.name)
             msg += create_user_list_string_for_message(already_related)
             self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
@@ -534,38 +534,38 @@ class PersonImporter:
 
         if not test_run:
             for user in users_to_add:
-                order = Contribution.objects.filter(course=course).count()
-                Contribution.objects.create(course=course, contributor=user, order=order)
-            msg = _("{} contributors added to the course {}:").format(len(users_to_add), course.name)
+                order = Contribution.objects.filter(evaluation=evaluation).count()
+                Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
+            msg = _("{} contributors added to the evaluation {}:").format(len(users_to_add), evaluation.name)
         else:
-            msg = _("{} contributors would be added to the course {}:").format(len(users_to_add), course.name)
+            msg = _("{} contributors would be added to the evaluation {}:").format(len(users_to_add), evaluation.name)
         msg += create_user_list_string_for_message(users_to_add)
 
         self.success_messages.append(mark_safe(msg))
 
     @classmethod
-    def process_file_content(cls, import_type, course, test_run, file_content):
+    def process_file_content(cls, import_type, evaluation, test_run, file_content):
         importer = cls()
 
         # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
         if import_type == 'participant':
-            importer.process_participants(course, test_run, user_list)
+            importer.process_participants(evaluation, test_run, user_list)
         else:  # import_type == 'contributor'
-            importer.process_contributors(course, test_run, user_list)
+            importer.process_contributors(evaluation, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
 
     @classmethod
-    def process_source_course(cls, import_type, course, test_run, source_course):
+    def process_source_evaluation(cls, import_type, evaluation, test_run, source_evaluation):
         importer = cls()
 
         if import_type == 'participant':
-            user_list = list(source_course.participants.all())
-            importer.process_participants(course, test_run, user_list)
+            user_list = list(source_evaluation.participants.all())
+            importer.process_participants(evaluation, test_run, user_list)
         else:  # import_type == 'contributor'
-            user_list = list(UserProfile.objects.filter(contributions__course=source_course))
-            importer.process_contributors(course, test_run, user_list)
+            user_list = list(UserProfile.objects.filter(contributions__evaluation=source_evaluation))
+            importer.process_contributors(evaluation, test_run, user_list)
 
         cls.make_users_active(user_list)
 

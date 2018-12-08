@@ -1,4 +1,4 @@
-{% extends 'staff_course_textanswers.html' %}
+{% extends 'staff_evaluation_textanswers.html' %}
 
 {% block content %}
     {{ block.super }}
@@ -8,9 +8,9 @@
             {% trans 'General text answers' %}
         </div>
         <div class="card-body">
-            {% if course_sections %}
-                {% with course_sections as sections %}
-                    {% include 'staff_course_textanswers_section.html' %}
+            {% if evaluation_sections %}
+                {% with evaluation_sections as sections %}
+                    {% include 'staff_evaluation_textanswers_section.html' %}
                 {% endwith %}
             {% else %}
                 <i>{% trans 'No text answers' %}</i>
@@ -25,7 +25,7 @@
         <div class="card-body">
             {% if contributor_sections %}
                 {% with contributor_sections as sections %}
-                    {% include 'staff_course_textanswers_section.html' %}
+                    {% include 'staff_evaluation_textanswers_section.html' %}
                 {% endwith %}
             {% else %}
                 <i>{% trans 'No text answers' %}</i>
@@ -41,10 +41,10 @@
                 action = "unreview";
             }
             updateState(id, action);
-            var parameters = {"id": id, "action": action, "course_id": {{ course.id }}};
+            var parameters = {"id": id, "action": action, "evaluation_id": {{ evaluation.id }}};
             $.ajax({
                 type: "POST",
-                url: "{% url 'staff:course_textanswers_update_publish' %}",
+                url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
                 data: parameters,
                 error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
             });

@@ -1,4 +1,4 @@
-{% extends 'grades_course_base.html' %}
+{% extends 'grades_evaluation_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -11,15 +11,15 @@
     {% if show_automated_publishing_info %}
         <div class="bs-callout bs-callout-info">
             <b>{% trans 'Automated publishing' %}</b><br />
-            {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation for this course has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
+            {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
         </div>
     {% endif %}
 
     <h3 class="mb-3">
         {% if final_grades %}
-            {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
+            {% blocktrans with evaluation=evaluation.name semester=semester.name %}Upload final grades for {{ evaluation }} ({{ semester }}){% endblocktrans %}
         {% else %}
-            {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
+            {% blocktrans with evaluation=evaluation.name semester=semester.name %}Upload midterm grades for {{ evaluation }} ({{ semester }}){% endblocktrans %}
         {% endif %}
     </h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
