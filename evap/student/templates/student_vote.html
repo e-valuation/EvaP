@@ -10,7 +10,7 @@
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
             <li class="breadcrumb-item">{{ evaluation.name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
@@ -36,7 +36,7 @@
         </div>
     </small>
     {% endif %}
-    <h3 class="mb-3">{{ evaluation.name }} ({{ evaluation.semester.name }})</h3>
+    <h3 class="mb-3">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 

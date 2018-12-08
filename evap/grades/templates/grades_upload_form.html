@@ -1,4 +1,4 @@
-{% extends 'grades_evaluation_base.html' %}
+{% extends 'grades_course_base.html' %}
 
 {% block breadcrumb %}
     {{ block.super }}
@@ -17,9 +17,9 @@
 
     <h3 class="mb-3">
         {% if final_grades %}
-            {% blocktrans with evaluation=evaluation.name semester=semester.name %}Upload final grades for {{ evaluation }} ({{ semester }}){% endblocktrans %}
+            {% blocktrans with course=course.name semester=semester.name %}Upload final grades for {{ course }} ({{ semester }}){% endblocktrans %}
         {% else %}
-            {% blocktrans with evaluation=evaluation.name semester=semester.name %}Upload midterm grades for {{ evaluation }} ({{ semester }}){% endblocktrans %}
+            {% blocktrans with course=course.name semester=semester.name %}Upload midterm grades for {{ course }} ({{ semester }}){% endblocktrans %}
         {% endif %}
     </h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">

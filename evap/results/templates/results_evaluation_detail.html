@@ -2,12 +2,12 @@
 
 {% load results_templatetags %}
 
-{% block title %}{{ evaluation.name }} - {{ evaluation.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
             <li class="breadcrumb-item">{{ evaluation.name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
@@ -22,30 +22,30 @@
     {% endif %}
 
     {% if is_reviewer or is_contributor_or_delegate %}
-        {% if evaluation.is_private %}
+        {% if evaluation.course.is_private %}
             <div class="alert alert-info d-print-none">
                 <span class="fas fa-lock"></span> {% trans 'This evaluation is private. Only contributors and participants can see the results.' %}
             </div>
         {% endif %}
         <div class="d-flex">
-            <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.semester.name }})</h3>
+            <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
                 <div class="btn-switch btn-group">
                     {% if user.is_staff and view == 'export' or is_contributor %}
-                        <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                         title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}">
                         {% trans 'Export' context 'view mode' %}
                     {% endif %}
-                    <a href="{% url 'results:evaluation_detail' evaluation.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                    <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Full' %}
                     </a>
                     {% if not evaluation.can_publish_rating_results %}
                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="bottom" title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}">
                             <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
-                                {% if evaluation.is_private %}
+                                {% if evaluation.course.is_private %}
                                     {% trans 'Participant' %}
                                 {% else %}
                                     {% trans 'Public' %}
@@ -53,9 +53,9 @@
                             </a>
                         </div>
                     {% else %}
-                        <a href="{% url 'results:evaluation_detail' evaluation.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                            title="
-                        {% if evaluation.is_private %}
+                        {% if evaluation.course.is_private %}
                             {% trans 'Shows results available for the participants.' %}">
                                 {% trans 'Participant' %}
                         {% else %}
@@ -68,7 +68,7 @@
             </div>
         </div>
     {% else %}
-        <h3>{{ evaluation.name }} ({{ evaluation.semester.name }})</h3>
+        <h3>{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
     {% endif %}
 
     <div class="card card-outline-primary mb-3">
@@ -101,11 +101,11 @@
                 <tbody>
                     <tr>
                         <td>
-                            {% for degree in evaluation.degrees.all %}
+                            {% for degree in evaluation.course.degrees.all %}
                                 {{ degree }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
-                        <td>{{ evaluation.type }}</td>
+                        <td>{{ evaluation.course.type }}</td>
                         <td>
                             {% for contributor in evaluation.responsible_contributors %}
                                 {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}

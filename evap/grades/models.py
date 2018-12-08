@@ -6,17 +6,17 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
 
-from evap.evaluation.models import Evaluation
+from evap.evaluation.models import Course
 from evap.evaluation.tools import translate
 
 
 def helper_upload_path(instance, filename):
-    return "grades/{}/{}".format(instance.evaluation.id, filename)
+    return "grades/{}/{}".format(instance.course.id, filename)
 
 
 class GradeDocument(models.Model):
-    evaluation = models.ForeignKey(Evaluation, models.PROTECT, related_name='grade_documents', verbose_name=_("Evaluation"))
-    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(evaluation.id),
+    course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("course"))
+    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
 
     MIDTERM_GRADES = 'MID'
     FINAL_GRADES = 'FIN'
@@ -37,8 +37,8 @@ class GradeDocument(models.Model):
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
         unique_together = (
-            ('evaluation', 'description_de'),
-            ('evaluation', 'description_en')
+            ('course', 'description_de'),
+            ('course', 'description_en')
         )
 
     def __str__(self):

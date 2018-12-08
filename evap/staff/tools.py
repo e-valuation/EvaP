@@ -14,7 +14,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from evap.evaluation.models import UserProfile, Evaluation, Contribution, TextAnswer
+from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
 
@@ -135,9 +135,9 @@ def merge_users(main_user, other_user, preview=False):
     if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
         warnings.append('rewards')
 
-    merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('evaluation__semester__created_at', 'evaluation__name_de')
-    merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
-    merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
+    merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('evaluation__course__semester__created_at', 'evaluation__name_de')
+    merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
+    merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
 
     merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() if main_user.reward_point_grantings.all().exists() else other_user.reward_point_grantings.all()
     merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() if main_user.reward_point_redemptions.all().exists() else other_user.reward_point_redemptions.all()
@@ -146,6 +146,7 @@ def merge_users(main_user, other_user, preview=False):
         return merged_user, errors, warnings
 
     # update last_modified_user for evaluations and grade documents
+    Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     Evaluation.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 

@@ -15,14 +15,14 @@
     <div class="card mb-3">
         <div class="card-body">
             <p>
-                {% blocktrans %}The following evaluations currently have the course type <strong>{{ other_type }}</strong> and will
+                {% blocktrans %}The following courses currently have the course type <strong>{{ other_type }}</strong> and will
                 get the type <strong>{{ main_type }}</strong> once you merge the course types. The course type <strong>
                 {{ other_type }}</strong> will be deleted after that.{% endblocktrans %}
             </p>
 
             <ul>
-                {% for evaluation in evaluations_with_other_type %}
-                    <li>{{ evaluation }} ({{ evaluation.semester }})</li>
+                {% for course in courses_with_other_type %}
+                    <li>{{ course }} ({{ course.semester }})</li>
                 {% endfor %}
             </ul>
         </div>

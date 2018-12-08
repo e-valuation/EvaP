@@ -6,7 +6,7 @@ from django.utils import timezone
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, Evaluation, UserProfile, Questionnaire, Degree
+from evap.evaluation.models import Contribution, Course, Degree, Evaluation, Questionnaire, UserProfile
 from evap.student.tools import question_id
 
 
@@ -69,7 +69,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
     tomorrow = (timezone.now() + timedelta(days=1)).date
     evaluation_params = dict(
         state='prepared',
-        degrees=[mommy.make(Degree)],
+        course=mommy.make(Course, degrees=[mommy.make(Degree)]),
         vote_start_datetime=in_one_hour,
         vote_end_date=tomorrow
     )

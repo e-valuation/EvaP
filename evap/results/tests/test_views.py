@@ -6,8 +6,8 @@ from django.test.testcases import TestCase
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, Evaluation, Degree, Question, Questionnaire, RatingAnswerCounter, \
-    Semester, UserProfile
+from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire, RatingAnswerCounter,
+                                    Semester, UserProfile)
 from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
 from evap.results.views import get_evaluations_with_prefetched_data
 
@@ -52,7 +52,7 @@ class TestResultsViewContributionWarning(WebTest):
         # Set up an evaluation with one question but no answers
         student1 = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', semester=cls.semester, participants=[student1, student2], voters=[student1, student2])
+        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester), participants=[student1, student2], voters=[student1, student2])
         questionnaire = mommy.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
         cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, questionnaires=[questionnaire], contributor=contributor)
@@ -87,7 +87,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         responsible = mommy.make(UserProfile, username='responsible')
 
         # Normal evaluation with responsible and contributor.
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', semester=cls.semester)
+        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester))
 
         mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=contributor, can_edit=True)
@@ -152,7 +152,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
     def test_wrong_state(self):
-        evaluation = mommy.make(Evaluation, state='reviewed', semester=self.semester)
+        evaluation = mommy.make(Evaluation, state='reviewed', course=mommy.make(Course, semester=self.semester))
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user='student', status=403)
 
@@ -168,7 +168,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         students = mommy.make(UserProfile, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
-        cls.evaluation = mommy.make(Evaluation, id=22, state='in_evaluation', semester=cls.semester, participants=students)
+        cls.evaluation = mommy.make(Evaluation, id=22, state='in_evaluation', course=mommy.make(Course, semester=cls.semester), participants=students)
         questionnaire = mommy.make(Questionnaire)
         cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
@@ -240,7 +240,8 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         test2 = mommy.make(UserProfile, username="test2")
         mommy.make(UserProfile, username="random", email="random@institution.example.com")
         degree = mommy.make(Degree)
-        private_evaluation = mommy.make(Evaluation, state='published', is_private=True, semester=semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
+        course = mommy.make(Course, semester=semester, degrees=[degree], is_private=True)
+        private_evaluation = mommy.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
         private_evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         mommy.make(Contribution, evaluation=private_evaluation, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, evaluation=private_evaluation, contributor=other_responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
@@ -485,7 +486,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', semester=cls.semester)
+        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester))
 
         questionnaire = mommy.make(Questionnaire)
         mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
@@ -683,7 +684,8 @@ class TestArchivedResults(WebTest):
         contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
-        cls.evaluation = mommy.make(Evaluation, state='published', semester=cls.semester, participants=[student, student_external], voters=[student, student_external], degrees=[mommy.make(Degree)])
+        course = mommy.make(Course, semester=cls.semester, degrees=[mommy.make(Degree)])
+        cls.evaluation = mommy.make(Evaluation, course=course, state='published', participants=[student, student_external], voters=[student, student_external])
         cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
         cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
         cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=contributor)

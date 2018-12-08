@@ -7,7 +7,7 @@
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
             <li class="breadcrumb-item">{{ evaluation.name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
@@ -25,9 +25,15 @@
         {% endif %}
     </div>
 
+    <h3>
+        {{ evaluation.name }} ({{ evaluation.course.semester.name }})
+    </h3>
+    <div class="mb-2">
+        {% include 'evaluation_badges.html' with mode='contributor' %}
+    </div>
+
     <form method="POST" class="form-horizontal multiselect-form select2form" id="evaluation-form">
         {% csrf_token %}
-
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'evaluation_form_general_questionnaires.html' with evaluation=evaluation evaluation_form=form %}

@@ -8,8 +8,8 @@ from django.core import mail
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import (Contribution, Evaluation, CourseType, EmailTemplate, NotArchiveable, Question,
-                                    Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
+                                    Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
@@ -53,9 +53,9 @@ class TestEvaluations(WebTest):
 
     def test_in_evaluation_to_published(self):
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
-        evaluation = mommy.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1),
-                            is_graded=False)
+        course = mommy.make(Course, is_graded=False)
+        evaluation = mommy.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+                            vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
             Evaluation.update_evaluations()
@@ -93,11 +93,13 @@ class TestEvaluations(WebTest):
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
-        mommy.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today() - timedelta(days=1), is_graded=False)
+        course_1 = mommy.make(Course, is_graded=False)
+        course_2 = mommy.make(Course, is_graded=False)
+        mommy.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+                   vote_end_date=date.today() - timedelta(days=1))
         # This evaluation is not.
-        mommy.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today(), is_graded=False)
+        mommy.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+                   vote_end_date=date.today())
 
         with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
             Evaluation.update_evaluations()
@@ -118,7 +120,8 @@ class TestEvaluations(WebTest):
     def test_has_enough_questionnaires(self):
         # manually circumvent Evaluation's save() method to have a Evaluation without a general contribution
         # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
-        Evaluation.objects.bulk_create([mommy.prepare(Evaluation, semester=mommy.make(Semester), type=mommy.make(CourseType))])
+        course = mommy.make(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))
+        Evaluation.objects.bulk_create([mommy.prepare(Evaluation, course=course)])
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.contributions.count(), 0)
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
@@ -168,7 +171,7 @@ class TestEvaluations(WebTest):
 
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, semester=mommy.make(Semester), is_single_result=True)
+        evaluation = mommy.make(Evaluation, is_single_result=True)
         contribution = mommy.make(Contribution,
             evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
@@ -192,7 +195,7 @@ class TestEvaluations(WebTest):
         """ Regression test for #1238 """
         responsible = mommy.make(UserProfile)
         single_result = mommy.make(Evaluation,
-            semester=mommy.make(Semester), is_single_result=True, _participant_count=5, _voter_count=5
+            is_single_result=True, _participant_count=5, _voter_count=5
         )
         contribution = mommy.make(Contribution,
             evaluation=single_result, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
@@ -313,8 +316,10 @@ class TestUserProfile(TestCase):
 
         semester_contributed_to = mommy.make(Semester, created_at=date.today())
         semester_participated_in = mommy.make(Semester, created_at=date.today())
-        evaluation_contributed_to = mommy.make(Evaluation, semester=semester_contributed_to)
-        evaluation_participated_in = mommy.make(Evaluation, semester=semester_participated_in)
+        course_contributed_to = mommy.make(Course, semester=semester_contributed_to)
+        course_participated_in = mommy.make(Course, semester=semester_participated_in)
+        evaluation_contributed_to = mommy.make(Evaluation, course=course_contributed_to)
+        evaluation_participated_in = mommy.make(Evaluation, course=course_participated_in)
         contribution = mommy.make(Contribution, evaluation=evaluation_contributed_to)
         user = mommy.make(UserProfile, contributions=[contribution], evaluations_participating_in=[evaluation_participated_in])
 
@@ -363,7 +368,7 @@ class ParticipationArchivingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
-        cls.evaluation = mommy.make(Evaluation, state="published", semester=cls.semester)
+        cls.evaluation = mommy.make(Evaluation, state="published", course=mommy.make(Course, semester=cls.semester))
         cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         users = mommy.make(UserProfile, _quantity=3)
@@ -427,7 +432,7 @@ class ParticipationArchivingTests(TestCase):
         with self.assertRaises(NotArchiveable):
             self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.evaluations.first()._archive_participations()
+            self.semester.courses.first().evaluation._archive_participations()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
         evaluation = mommy.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
@@ -442,7 +447,7 @@ class ParticipationArchivingTests(TestCase):
         contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
-        evaluation.semester.archive_participations()
+        evaluation.course.semester.archive_participations()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation._participant_count, 5)
         self.assertEqual(evaluation._voter_count, 5)

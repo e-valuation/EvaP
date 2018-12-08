@@ -4,7 +4,7 @@
     {{ block.super }}
     <h3>
         {% if form.instance.id %}
-            {{ evaluation.name }} ({{ evaluation.semester.name }})
+            {{ evaluation.name }} ({{ evaluation.course.semester.name }})
         {% else %}
             {% trans 'Create single result' %}
         {% endif %}

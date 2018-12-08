@@ -65,10 +65,10 @@ def get_evaluations_with_prefetched_data(evaluations):
         participant_counts = evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
         voter_counts = evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
         evaluations = (evaluations
-            .select_related("type")
+            .select_related("course__type")
             .prefetch_related(
-                "degrees",
-                "semester",
+                "course__degrees",
+                "course__semester",
                 Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions")
             )
         )
@@ -89,16 +89,16 @@ def get_evaluations_with_prefetched_data(evaluations):
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-    evaluations = Evaluation.objects.filter(semester__in=semesters, state='published')
+    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_user_see_evaluation(request.user)]
 
     if request.user.is_reviewer:
-        additional_evaluations = Evaluation.objects.filter(semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
+        additional_evaluations = Evaluation.objects.filter(course__semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
         evaluations += get_evaluations_with_prefetched_data(additional_evaluations)
 
     evaluation_pks = [evaluation.pk for evaluation in evaluations]
-    degrees = Degree.objects.filter(evaluations__pk__in=evaluation_pks).distinct()
-    course_types = CourseType.objects.filter(evaluations__pk__in=evaluation_pks).distinct()
+    degrees = Degree.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
+    course_types = CourseType.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
     template_data = dict(
         evaluations=evaluations,
         degrees=degrees,
@@ -111,7 +111,7 @@ def index(request):
 @login_required
 def evaluation_detail(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
 
     if not evaluation.can_user_see_results_page(request.user):
         raise PermissionDenied

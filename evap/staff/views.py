@@ -19,18 +19,21 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, manager_required
-from evap.evaluation.models import (Contribution, Evaluation, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
-                                    RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
+                                    FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
+                                    UserProfile)
 from evap.evaluation.tools import get_parameter_from_url_or_session, send_publish_notifications, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, EvaluationEmailForm, EvaluationForm, EvaluationParticipantCopyForm,
-                              CourseTypeForm, CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm, RemindResponsibleForm,
-                              SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm, UserForm, UserImportForm, UserMergeSelectionForm)
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
+                              CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
+                              EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
+                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm,
+                              UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
 from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
@@ -50,17 +53,17 @@ def index(request):
 
 def get_evaluations_with_prefetched_data(semester):
     evaluations = (semester.evaluations
-        .select_related('type')
+        .select_related('course__type')
         .prefetch_related(
             Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
             Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
-            "degrees"
+            "course__degrees"
         ).annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
-            midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-            final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+            midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+            final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
         )
     )
 
@@ -109,7 +112,7 @@ def semester_view(request, semester_id):
     for evaluation in evaluations:
         if evaluation.is_single_result:
             continue
-        degrees = evaluation.degrees.all()
+        degrees = evaluation.course.degrees.all()
         stats_objects = [degree_stats[degree] for degree in degrees]
         stats_objects += [total_stats]
         for stats in stats_objects:
@@ -150,8 +153,8 @@ def semester_evaluation_operation(request, semester_id):
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
     evaluations = Evaluation.objects.filter(id__in=evaluation_ids).annotate(
-        midterm_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-        final_grade_documents_count=Count("grade_documents", filter=Q(grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
     )
 
     if request.method == 'POST':
@@ -415,13 +418,13 @@ def semester_raw_export(_request, semester_id):
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
         _('#Participants'), _('#Text answers'), _('Average grade')])
     for evaluation in semester.evaluations.all():
-        degrees = ", ".join([degree.name for degree in evaluation.degrees.all()])
+        degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
         distribution = calculate_average_distribution(evaluation)
         if evaluation.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
             avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         else:
             avg_grade = ""
-        writer.writerow([evaluation.name, degrees, evaluation.type.name, evaluation.is_single_result, evaluation.state,
+        writer.writerow([evaluation.name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
             evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
 
     return response
@@ -430,7 +433,7 @@ def semester_raw_export(_request, semester_id):
 @manager_required
 def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    participants = UserProfile.objects.filter(evaluations_participating_in__semester=semester).distinct().order_by("username")
+    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("username")
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
     response = HttpResponse(content_type="text/csv")
@@ -460,13 +463,13 @@ def semester_questionnaire_assign(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
     evaluations = semester.evaluations.filter(state='new')
-    course_types = CourseType.objects.filter(evaluations__in=evaluations)
+    course_types = CourseType.objects.filter(courses__evaluation__in=evaluations)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
     if form.is_valid():
         for evaluation in evaluations:
-            if form.cleaned_data[evaluation.type.name]:
-                evaluation.general_contribution.questionnaires.set(form.cleaned_data[evaluation.type.name])
+            if form.cleaned_data[evaluation.course.type.name]:
+                evaluation.general_contribution.questionnaires.set(form.cleaned_data[evaluation.course.type.name])
             if form.cleaned_data['Responsible contributor']:
                 for contribution in evaluation.contributions.filter(responsible=True):
                     contribution.questionnaires.set(form.cleaned_data['Responsible contributor'])
@@ -482,7 +485,7 @@ def semester_questionnaire_assign(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
+    evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("course__degrees")
 
     prepared_evaluations = semester.evaluations.filter(state__in=['prepared']).all()
     responsibles = (contributor for evaluation in prepared_evaluations for contributor in evaluation.responsible_contributors)
@@ -500,8 +503,8 @@ def semester_todo(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    evaluations = semester.evaluations.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
-    evaluations = [evaluation for evaluation in evaluations if not evaluation.final_grade_documents.exists()]
+    evaluations = semester.evaluations.filter(state__in=['evaluated', 'reviewed', 'published'], course__is_graded=True, course__gets_no_grade_documents=False).all()
+    evaluations = [evaluation for evaluation in evaluations if not evaluation.course.final_grade_documents.exists()]
 
     responsibles = (contributor for evaluation in evaluations for contributor in evaluation.responsible_contributors)
     responsibles = list(set(responsibles))
@@ -575,14 +578,19 @@ def evaluation_create(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
 
-    evaluation = Evaluation(semester=semester)
+    course = Course(semester=semester)
+    evaluation = Evaluation(course=course)
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
-    form = EvaluationForm(request.POST or None, instance=evaluation)
+    course_form = CourseForm(request.POST or None, instance=evaluation.course)
+    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
 
-    if form.is_valid() and formset.is_valid():
-        evaluation = form.save()
+    if course_form.is_valid() and evaluation_form.is_valid() and formset.is_valid():
+        course = course_form.save()
+        course.set_last_modified(request.user)
+        course.save()
+        evaluation = evaluation_form.save()
         evaluation.set_last_modified(request.user)
         evaluation.save()
         formset.save()
@@ -590,7 +598,10 @@ def evaluation_create(request, semester_id):
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
     else:
-        return render(request, "staff_evaluation_form.html", dict(semester=semester, form=form, formset=formset, manager=True, editable=True, state=""))
+        return render(request, "staff_evaluation_form.html", dict(
+            semester=semester, course_form=course_form, evaluation_form=evaluation_form, formset=formset, manager=True,
+            editable=True, state=""
+        ))
 
 
 @manager_required
@@ -599,7 +610,8 @@ def single_result_create(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
 
-    evaluation = Evaluation(semester=semester)
+    course = Course(semester=semester)
+    evaluation = Evaluation(course=course)
 
     form = SingleResultForm(request.POST or None, instance=evaluation)
 
@@ -615,7 +627,7 @@ def single_result_create(request, semester_id):
 @manager_required
 def evaluation_edit(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     if evaluation.is_single_result:
         return helper_single_result_edit(request, semester, evaluation)
@@ -638,13 +650,14 @@ def helper_evaluation_edit(request, semester, evaluation):
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
 
-    form = EvaluationForm(request.POST or None, instance=evaluation)
+    course_form = CourseForm(request.POST or None, instance=evaluation.course)
+    evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
     editable = evaluation.can_manager_edit
 
     operation = request.POST.get('operation')
 
-    if form.is_valid() and formset.is_valid():
+    if course_form.is_valid() and evaluation_form.is_valid() and formset.is_valid():
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
@@ -654,17 +667,21 @@ def helper_evaluation_edit(request, semester, evaluation):
         if evaluation.state in ['evaluated', 'reviewed'] and evaluation.is_in_evaluation_period:
             evaluation.reopen_evaluation()
 
-        form_has_changed = form.has_changed() or formset.has_changed()
+        course_form_has_changed = course_form.has_changed()
+        evaluation_form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        if form_has_changed:
+        if course_form_has_changed:
+            evaluation.course.set_last_modified(request.user)
+        if evaluation_form_has_changed:
             evaluation.set_last_modified(request.user)
-        form.save()
+        course_form.save()
+        evaluation_form.save()
         formset.save()
 
         if operation == 'approve':
             evaluation.manager_approve()
             evaluation.save()
-            if form_has_changed:
+            if course_form_has_changed or evaluation_form_has_changed:
                 messages.success(request, _("Successfully updated and approved evaluation."))
             else:
                 messages.success(request, _("Successfully approved evaluation."))
@@ -676,10 +693,13 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         return custom_redirect('staff:semester_view', semester.id)
     else:
-        if form.errors or formset.errors:
+        if course_form.errors or evaluation_form.errors or formset.errors:
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
         sort_formset(request, formset)
-        template_data = dict(evaluation=evaluation, semester=semester, form=form, formset=formset, manager=True, state=evaluation.state, editable=editable)
+        template_data = dict(
+            evaluation=evaluation, semester=semester, course_form=course_form, evaluation_form=evaluation_form,
+            formset=formset, manager=True, state=evaluation.state, editable=editable
+        )
         return render(request, "staff_evaluation_form.html", template_data)
 
 
@@ -709,14 +729,16 @@ def evaluation_delete(request):
         raise SuspiciousOperation("Deleting evaluation not allowed")
     if evaluation.is_single_result:
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
+    course = evaluation.course
     evaluation.delete()
+    course.delete()
     return HttpResponse()  # 200 OK
 
 
 @manager_required
 def evaluation_email(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     export = 'export' in request.POST
     form = EvaluationEmailForm(request.POST or None, evaluation=evaluation, export=export)
 
@@ -735,7 +757,7 @@ def evaluation_email(request, semester_id, evaluation_id):
 @manager_required
 def evaluation_person_management(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
         raise PermissionDenied
 
@@ -797,7 +819,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 @manager_required
 def evaluation_login_key_export(_request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    evaluation = get_object_or_404(Evaluation, semester=semester, id=evaluation_id)
+    evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
     filename = "Login_keys-{evaluation.name}-{semester.short_name}.csv".format(evaluation=evaluation, semester=semester)
 
@@ -820,7 +842,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
@@ -872,7 +894,7 @@ def evaluation_textanswers_update_publish(request):
     evaluation_id = request.POST["evaluation_id"]
 
     evaluation = Evaluation.objects.get(pk=evaluation_id)
-    if evaluation.semester.results_are_archived and not request.user.is_manager:
+    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
@@ -906,7 +928,7 @@ def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_i
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
@@ -929,7 +951,7 @@ def evaluation_preview(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id, semester=semester)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
     return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
 
@@ -1193,14 +1215,14 @@ def course_type_merge(request, main_type_id, other_type_id):
     other_type = get_object_or_404(CourseType, id=other_type_id)
 
     if request.method == 'POST':
-        Evaluation.objects.filter(type=other_type).update(type=main_type)
+        Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()
         messages.success(request, _("Successfully merged course types."))
         return redirect('staff:course_type_index')
     else:
-        evaluations_with_other_type = Evaluation.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
+        courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
         return render(request, "staff_course_type_merge.html",
-            dict(main_type=main_type, other_type=other_type, evaluations_with_other_type=evaluations_with_other_type))
+            dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
 
 
 @manager_required
@@ -1220,7 +1242,7 @@ def user_index(request):
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__semester', 'represented_users', 'ccing_users'))
+        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
@@ -1291,8 +1313,8 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    semesters_with_evaluations = Semester.objects.filter(evaluations__contributions__contributor=user).distinct()
-    evaluations_contributing_to = [(semester, Evaluation.objects.filter(semester=semester, contributions__contributor=user)) for semester in semesters_with_evaluations]
+    semesters_with_evaluations = Semester.objects.filter(courses__evaluation__contributions__contributor=user).distinct()
+    evaluations_contributing_to = [(semester, Evaluation.objects.filter(course__semester=semester, contributions__contributor=user)) for semester in semesters_with_evaluations]
 
     if form.is_valid():
         form.save()

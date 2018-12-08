@@ -4,7 +4,8 @@ from model_mommy import mommy
 from django.test import TestCase
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Evaluation, Contribution, UserProfile, Question, Questionnaire, RatingAnswerCounter, CourseType
+from evap.evaluation.models import (Contribution, Course, CourseType, Evaluation, Question, Questionnaire,
+                                    RatingAnswerCounter, Semester, UserProfile)
 from evap.results.exporters import ExcelExporter
 
 
@@ -45,7 +46,7 @@ class TestExporters(TestCase):
         mommy.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.semester).export(binary_content, [[evaluation.type.id]], True, True)
+        ExcelExporter(evaluation.course.semester).export(binary_content, [[evaluation.course.type.id]], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -76,7 +77,7 @@ class TestExporters(TestCase):
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.semester).export(binary_content, [[evaluation.type.id]], True, True)
+        ExcelExporter(evaluation.course.semester).export(binary_content, [[evaluation.course.type.id]], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -88,11 +89,11 @@ class TestExporters(TestCase):
     def test_view_excel_file_sorted(self):
         semester = mommy.make(Semester)
         course_type = mommy.make(CourseType)
-        evaluation1 = mommy.make(Evaluation, state='published', type=course_type,
-                             name_de='A - Evaluation1', name_en='B - Evaluation1', semester=semester)
+        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester),
+                   name_de='A - Evaluation1', name_en='B - Evaluation1')
 
-        evaluation2 = mommy.make(Evaluation, state='published', type=course_type,
-                             name_de='B - Evaluation2', name_en='A - Evaluation2', semester=semester)
+        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester),
+                   name_de='B - Evaluation2', name_en='A - Evaluation2')
 
         content_de = BytesIO()
         with translation.override("de"):
@@ -118,8 +119,8 @@ class TestExporters(TestCase):
         course_type_1 = mommy.make(CourseType, order=1)
         course_type_2 = mommy.make(CourseType, order=2)
         semester = mommy.make(Semester)
-        evaluation_1 = mommy.make(Evaluation, semester=semester, type=course_type_1, state='published', _participant_count=2, _voter_count=2)
-        evaluation_2 = mommy.make(Evaluation, semester=semester, type=course_type_2, state='published', _participant_count=2, _voter_count=2)
+        evaluation_1 = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, type=course_type_1), state='published', _participant_count=2, _voter_count=2)
+        evaluation_2 = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, type=course_type_2), state='published', _participant_count=2, _voter_count=2)
 
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire)

@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
-from evap.evaluation.models import Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
 
@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
-    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Evaluation
-        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'type', 'degrees', 'general_questionnaires', 'semester')
+        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'general_questionnaires', 'course')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,8 +30,6 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['degrees'].disabled = True
-        self.fields['degrees'].help_text = ""
 
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]

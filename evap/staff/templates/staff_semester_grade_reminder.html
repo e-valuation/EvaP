@@ -15,7 +15,7 @@
             {% for responsible, evaluations in responsible_list %}
                 <b>{{ responsible.full_name }}</b><br />
                 {% for evaluation in evaluations %}
-                    - {{ evaluation.name }} (<i>{{ evaluation.type }}</i>)<br />
+                    - {{ evaluation.name }} (<i>{{ evaluation.course.type }}</i>)<br />
                 {% endfor %}
                 {% if not forloop.last %}
                     <br />

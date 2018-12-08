@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Evaluation, Questionnaire, Contribution, Semester
+from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
 
 
 class GradeUploadTest(WebTest):
@@ -21,10 +21,11 @@ class GradeUploadTest(WebTest):
         responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
         cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
+        cls.course = mommy.make(Course, semester=cls.semester)
         cls.evaluation = mommy.make(
             Evaluation,
             name_en="Test",
-            semester=cls.semester,
+            course=cls.course,
             vote_start_datetime=datetime.now() - timedelta(days=10),
             vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
@@ -41,16 +42,16 @@ class GradeUploadTest(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
     def tearDown(self):
-        for evaluation in Evaluation.objects.all():
-            for grade_document in evaluation.grade_documents.all():
+        for course in Course.objects.all():
+            for grade_document in course.grade_documents.all():
                 grade_document.file.delete()
 
-    def helper_upload_grades(self, evaluation, final_grades):
+    def helper_upload_grades(self, course, final_grades):
         upload_files = [('file', 'grades.txt', b"Some content")]
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
-            "/grades/semester/{}/evaluation/{}/upload{}".format(evaluation.semester.id, evaluation.id, final),
+            "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
             params={"description_en": "Grades", "description_de": "Grades"},
             user="grade_publisher",
             content_type='multipart/form-data',
@@ -58,71 +59,71 @@ class GradeUploadTest(WebTest):
         ).follow()
         return response
 
-    def helper_check_final_grade_upload(self, evaluation, expected_number_of_emails):
-        response = self.helper_upload_grades(evaluation, final_grades=True)
+    def helper_check_final_grade_upload(self, course, expected_number_of_emails):
+        response = self.helper_upload_grades(course, final_grades=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
-        self.assertEqual(evaluation.final_grade_documents.count(), 1)
+        self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        response = self.app.get("/grades/download/{}".format(evaluation.final_grade_documents.first().id), user="student")
+        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user="student")
         self.assertEqual(response.status_code, 200)
 
         # tear down
-        evaluation.final_grade_documents.first().file.delete()
-        evaluation.final_grade_documents.first().delete()
+        course.final_grade_documents.first().file.delete()
+        course.final_grade_documents.first().delete()
         mail.outbox.clear()
 
     def test_upload_midterm_grades(self):
-        self.assertEqual(self.evaluation.midterm_grade_documents.count(), 0)
+        self.assertEqual(self.course.midterm_grade_documents.count(), 0)
 
-        response = self.helper_upload_grades(self.evaluation, final_grades=False)
+        response = self.helper_upload_grades(self.course, final_grades=False)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
-        self.assertEqual(self.evaluation.midterm_grade_documents.count(), 1)
+        self.assertEqual(self.course.midterm_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), 0)
 
     def test_upload_final_grades(self):
-        evaluation = self.evaluation
-        self.assertEqual(evaluation.final_grade_documents.count(), 0)
+        course = self.course
+        self.assertEqual(course.final_grade_documents.count(), 0)
 
         # state: new
-        self.helper_check_final_grade_upload(evaluation, 0)
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: prepared
-        evaluation.ready_for_editors()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.ready_for_editors()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: editor_approved
-        evaluation.editor_approve()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.editor_approve()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
-        evaluation.manager_approve()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.manager_approve()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: in_evaluation
-        evaluation.evaluation_begin()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.evaluation_begin()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: evaluated
-        evaluation.evaluation_end()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.evaluation_end()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
         # state: reviewed
-        evaluation.review_finished()
-        evaluation.save()
+        course.evaluation.review_finished()
+        course.evaluation.save()
         self.helper_check_final_grade_upload(
-            evaluation, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
+            course, course.evaluation.num_participants + course.evaluation.contributions.exclude(contributor=None).count())
 
         # state: published
-        evaluation.publish()
-        evaluation.save()
-        self.helper_check_final_grade_upload(evaluation, 0)
+        course.evaluation.publish()
+        course.evaluation.save()
+        self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
         evaluation = mommy.make(
@@ -140,27 +141,27 @@ class GradeUploadTest(WebTest):
 
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
-        self.assertFalse(evaluation.gets_no_grade_documents)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post("/grades/toggle_no_grades", params={"evaluation_id": evaluation.id}, user="grade_publisher")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
-        self.assertTrue(evaluation.gets_no_grade_documents)
+        self.assertTrue(evaluation.course.gets_no_grade_documents)
         # evaluation should get published here
         self.assertEqual(evaluation.state, "published")
         self.assertEqual(len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
 
-        response = self.app.post("/grades/toggle_no_grades", params={"evaluation_id": evaluation.id}, user="grade_publisher")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
-        self.assertFalse(evaluation.gets_no_grade_documents)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
 
     def test_grade_document_download_after_archiving(self):
         # upload grade document
-        self.helper_upload_grades(self.evaluation, final_grades=False)
-        self.assertGreater(self.evaluation.midterm_grade_documents.count(), 0)
+        self.helper_upload_grades(self.course, final_grades=False)
+        self.assertGreater(self.course.midterm_grade_documents.count(), 0)
 
-        url = "/grades/download/" + str(self.evaluation.midterm_grade_documents.first().id)
+        url = "/grades/download/" + str(self.course.midterm_grade_documents.first().id)
         self.app.get(url, user="student", status=200)  # grades should be downloadable
 
         self.semester.delete_grade_documents()
@@ -191,17 +192,18 @@ class GradeSemesterViewTest(WebTest):
 
     def test_does_not_crash(self):
         semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        semester_evaluation = mommy.make(Evaluation, semester=semester, state="prepared")
+        course = mommy.make(Course, semester=semester)
+        mommy.make(Evaluation, course=course, state="prepared")
         page = self.app.get(self.url, user="grade_publisher", status=200)
-        self.assertIn(semester_evaluation.name, page)
+        self.assertIn(course.name, page)
 
     def test_403_on_deleted(self):
         mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
         self.app.get('/grades/semester/1', user="grade_publisher", status=403)
 
 
-class GradeEvaluationViewTest(WebTest):
-    url = '/grades/semester/1/evaluation/1'
+class GradeCourseViewTest(WebTest):
+    url = '/grades/semester/1/course/1'
 
     @classmethod
     def setUpTestData(cls):
@@ -209,10 +211,10 @@ class GradeEvaluationViewTest(WebTest):
 
     def test_does_not_crash(self):
         semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        mommy.make(Evaluation, pk=1, semester=semester, state="prepared")
-        self.app.get('/grades/semester/1/evaluation/1', user="grade_publisher", status=200)
+        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=semester), state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=200)
 
     def test_403_on_archived_semester(self):
         archived_semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
-        mommy.make(Evaluation, pk=1, semester=archived_semester, state="prepared")
-        self.app.get('/grades/semester/1/evaluation/1', user="grade_publisher", status=403)
+        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=archived_semester), state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=403)

@@ -49,7 +49,7 @@ def index(request):
         is_active_semester=semester.is_active_semester,
         results_are_archived=semester.results_are_archived,
         grade_documents_are_deleted=semester.grade_documents_are_deleted,
-        evaluations=[evaluation for evaluation in evaluations if evaluation.semester_id == semester.id]
+        evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
     template_data = dict(
@@ -147,7 +147,7 @@ def vote(request, evaluation_id):
                 evaluation.can_publish_text_results = True
                 evaluation.save()
 
-        evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.semester)
+        evaluation.evaluation_evaluated.send(sender=Evaluation, request=request, semester=evaluation.course.semester)
 
     messages.success(request, _("Your vote was recorded."))
     return HttpResponse(SUCCESS_MAGIC_STRING)

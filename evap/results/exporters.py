@@ -88,7 +88,7 @@ class ExcelExporter(object):
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for evaluation in self.semester.evaluations.filter(state__in=evaluation_states, type__in=course_types).all():
+            for evaluation in self.semester.evaluations.filter(state__in=evaluation_states, course__type__in=course_types).all():
                 if evaluation.is_single_result:
                     continue
                 if not evaluation.can_publish_rating_results and not include_not_enough_voters:
@@ -101,7 +101,7 @@ class ExcelExporter(object):
                     used_questionnaires.add(questionnaire_result.questionnaire)
                 evaluations_with_results.append((evaluation, results))
 
-            evaluations_with_results.sort(key=lambda cr: (cr[0].type.order, cr[0].name))
+            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].name))
             used_questionnaires = sorted(used_questionnaires)
 
             course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]

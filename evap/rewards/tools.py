@@ -68,7 +68,7 @@ def grant_reward_points_if_eligible(user, semester):
     if not is_semester_activated(semester):
         return None, False
     # does the user have at least one required evaluation in this semester?
-    required_evaluations = Evaluation.objects.filter(participants=user, semester=semester, is_rewarded=True)
+    required_evaluations = Evaluation.objects.filter(participants=user, course__semester=semester, is_rewarded=True)
     if not required_evaluations.exists():
         return None, False
 
@@ -95,7 +95,7 @@ def grant_reward_points_after_evaluate(request, semester, **_kwargs):
 
         if completed_evaluation:
             message += " " + _("You now received all possible reward points for this semester. Great!")
-        elif Evaluation.objects.filter(participants=request.user, semester=semester, is_rewarded=True).exclude(state__in=['evaluated', 'reviewed', 'published'], voters=request.user).exists():
+        elif Evaluation.objects.filter(participants=request.user, course__semester=semester, is_rewarded=True).exclude(state__in=['evaluated', 'reviewed', 'published'], voters=request.user).exists():
             # at least one evaluation exists that the user hasn't evaluated and is not past its evaluation period
             message += " " + _("We're looking forward to receiving feedback for your other evaluations as well.")
 
@@ -112,7 +112,7 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
             # an evaluation got removed from a participant
             user = instance
 
-            for semester in Semester.objects.filter(evaluations__pk__in=pk_set):
+            for semester in Semester.objects.filter(courses__evaluation__pk__in=pk_set):
                 granting, __ = grant_reward_points_if_eligible(user, semester)
                 if granting:
                     grantings = [granting]
@@ -121,7 +121,7 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
             evaluation = instance
 
             for user in UserProfile.objects.filter(pk__in=pk_set):
-                granting, __ = grant_reward_points_if_eligible(user, evaluation.semester)
+                granting, __ = grant_reward_points_if_eligible(user, evaluation.course.semester)
                 if granting:
                     grantings.append(granting)
 

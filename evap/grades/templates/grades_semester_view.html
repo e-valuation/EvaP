@@ -9,11 +9,11 @@
 
     <div class="card">
         <div class="card-header">
-            {% trans 'Evaluations' %}
+            {% trans 'Courses' %}
         </div>
         <div class="card-body">
-            {% if evaluations %}
-                <table class="table table-striped grade-evaluation-table vertically-aligned">
+            {% if courses %}
+                <table class="table table-striped grade-course-table vertically-aligned">
                     <thead>
                         <tr>
                             <th style="width: 35%">{% trans 'Name' %}</th>
@@ -25,19 +25,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for evaluation, num_midterm_grades, num_final_grades in evaluations %}
+                        {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'grades:evaluation_view' semester.id evaluation.id %}">{{ evaluation.name }}</a>
+                                    <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
                                     {% include 'evaluation_badges.html' with mode='grades' %}
                                 </td>
                                 <td>
-                                    {% for contributor in evaluation.responsible_contributors %}
+                                    {% for contributor in course.evaluation.responsible_contributors %}
                                         {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
-                                <td class="text-center">{% if evaluation.state == 'evaluationFinished' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}<span class="fas fa-check"></span>{% endif %}
+                                <td class="text-center">{% if course.evaluation.state == 'evaluationFinished' or course.evaluation.state == 'reviewed' or course.evaluation.state == 'published' %}<span class="fas fa-check"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_midterm_grades }}
@@ -46,25 +46,25 @@
                                 <td class="text-center">
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
-                                    {% elif evaluation.gets_no_grade_documents %}
-                                       <a href="#" onclick="confirmLateruploadModalShow({{ evaluation.id }}, '{{ evaluation.name|escapejs }}');">
-                                            <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this evaluation will not be uploaded. Click to change.' %}"></span>
+                                    {% elif course.gets_no_grade_documents %}
+                                       <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
+                                            <span class="fas fa-times light-link" data-toggle="tooltip" data-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                         </a>
                                     {% endif %}
                                 </td>
                                 <td class="text-right" style="min-width:72px">
-                                    {% if not evaluation.gets_no_grade_documents %}
+                                    {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <a onclick="confirmNouploadModalShow({{ evaluation.id }}, '{{ evaluation.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fas fa-times"></span></a>
+                                            <a onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fas fa-times"></span></a>
                                             <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
-                                                <a id="btnUpload{{ evaluation.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
-                                                <div class="dropdown-menu" aria-labelledby="btnUpload{{ evaluation.id }}">
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id evaluation.id %}">{% trans 'Midterm grades' %}</a>
-                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id evaluation.id %}?final=true">{% trans 'Final grades' %}</a>
+                                                <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
+                                                <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
+                                                    <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <a href="{% url 'grades:evaluation_view' semester.id evaluation.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil-alt"></span></a>
+                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil-alt"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -73,7 +73,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <i>{% trans 'No evaluations have been created yet' %}</i>
+                <i>{% trans 'No courses have been created yet' %}</i>
             {% endif %}
         </div>
     </div>
@@ -82,7 +82,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Have final grades been submitted?' as title %}
-    {% trans 'Please confirm that the final grades for the evaluation <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
+    {% trans 'Please confirm that the final grades for the course <strong id="data-label"></strong> have been submitted but will not be uploaded.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmNouploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
@@ -90,14 +90,14 @@
             $.ajax({
                 type: "POST",
                 url: "{% url 'grades:toggle_no_grades' %}",
-                data: {"evaluation_id": dataId},
+                data: {"course_id": dataId},
                 success: function(){ location.reload(); },
                 error: function(){}
             });
         };
     </script>
     {% trans 'Will final grades be uploaded?' as title %}
-    {% trans 'Please confirm that a grade document for the evaluation <strong id="data-label"></strong> will be uploaded later on.' as question %}
+    {% trans 'Please confirm that a grade document for the course <strong id="data-label"></strong> will be uploaded later on.' as question %}
     {% trans 'Confirm' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='confirmLateruploadModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
@@ -108,5 +108,5 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'datatables.html' with table_selector='.grade-evaluation-table' %}
+    {% include 'datatables.html' with table_selector='.grade-course-table' %}
 {% endblock %}

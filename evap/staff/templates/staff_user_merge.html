@@ -145,7 +145,7 @@
                     </tr>
                     <tr{% if 'contributions' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Contributions' %}</strong></td>
-                        {% regroup main_user.get_sorted_contributions by evaluation.semester as contribution_list %}
+                        {% regroup main_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
                             {% for contributions in contribution_list %}
                                 {{ contributions.grouper }}
@@ -156,7 +156,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup other_user.get_sorted_contributions by evaluation.semester as contribution_list %}
+                        {% regroup other_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
                             {% for contributions in contribution_list %}
                                 {{ contributions.grouper }}
@@ -167,7 +167,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup merged_user.contributions by evaluation.semester as contribution_list %}
+                        {% regroup merged_user.contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="success"{% endif %}>
                             {% for contributions in contribution_list %}
                                 {{ contributions.grouper }}
@@ -181,7 +181,7 @@
                     </tr>
                     <tr{% if 'evaluations_participating_in' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Participated in' %}</strong></td>
-                        {% regroup main_user.get_sorted_evaluations_participating_in by semester as participation_list %}
+                        {% regroup main_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="info"{% endif %}>
                             {% for semester in participation_list %}
                                 {{ semester.grouper }}
@@ -192,7 +192,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup other_user.get_sorted_evaluations_participating_in by semester as participation_list %}
+                        {% regroup other_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="info"{% endif %}>
                             {% for semester in participation_list %}
                                 {{ semester.grouper }}
@@ -203,7 +203,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup merged_user.evaluations_participating_in by semester as participation_list %}
+                        {% regroup merged_user.evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="success"{% endif %}>
                             {% for semester in participation_list %}
                                 {{ semester.grouper }}
@@ -217,7 +217,7 @@
                     </tr>
                     <tr{% if 'evaluations_voted_for' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Voted for' %}</strong></td>
-                        {% regroup main_user.get_sorted_evaluations_voted_for by semester as voting_list %}
+                        {% regroup main_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="info"{% endif %}>
                             {% for semester in voting_list %}
                                 {{ semester.grouper }}
@@ -228,7 +228,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup other_user.get_sorted_evaluations_voted_for by semester as voting_list %}
+                        {% regroup other_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="info"{% endif %}>
                             {% for semester in voting_list %}
                                 {{ semester.grouper }}
@@ -239,7 +239,7 @@
                                 </ul>
                             {% endfor %}
                         </td>
-                        {% regroup merged_user.evaluations_voted_for by semester as voting_list %}
+                        {% regroup merged_user.evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="success"{% endif %}>
                             {% for semester in voting_list %}
                                 {{ semester.grouper }}

@@ -118,7 +118,8 @@ class MergeUsersTest(TestCase):
         # add attributes here only if you're actually dealing with them in merge_users().
         additional_handled_attrs = {
             'grades_last_modified_user+',
-            'evaluation_last_modified_user+',
+            'courses_last_modified+',
+            'evaluations_last_modified+',
         }
 
         actual_attrs = handled_attrs | additional_handled_attrs

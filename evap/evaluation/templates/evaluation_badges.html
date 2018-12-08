@@ -1,15 +1,15 @@
 {% if not mode == 'student' %}
-    {% for degree in evaluation.degrees.all %}
+    {% for degree in evaluation.course.degrees.all %}
         <span class="badge badge-primary">{{ degree }}</span>
     {% endfor %}
 {% endif %}
-<span class="badge badge-secondary">{{ evaluation.type }}</span>
+<span class="badge badge-secondary">{{ evaluation.course.type }}</span>
 {% if evaluation.is_single_result %}
     <span class="badge badge-info">{% trans 'Single result' %}</span>
 {% endif %}
 {% if evaluation.is_midterm_evaluation %}<span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
 {% if mode == 'manager' and not evaluation.is_single_result %}
-    {% if not evaluation.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
+    {% if not evaluation.course.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
     {% if not evaluation.is_rewarded %}<span class="badge badge-dark">{% trans 'not rewarded' %}</span>{% endif %}
-    {% if evaluation.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}
+    {% if evaluation.course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}
 {% endif %}

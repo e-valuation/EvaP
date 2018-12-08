@@ -117,12 +117,12 @@ class Command(BaseCommand):
     def shuffle_evaluations():
         # do this per semester to avoid problems e.g. with archived semesters
         for semester in Semester.objects.all():
-            shuffled_evaluations = list(semester.evaluations.all())
+            shuffled_evaluations = list(semester.evaluations)
             random.shuffle(shuffled_evaluations)
 
-            for i, evaluation in enumerate(semester.evaluations.all()):
-                evaluation.degrees.set(shuffled_evaluations[i].degrees.all())
-                evaluation.semester = shuffled_evaluations[i].semester
+            for i, evaluation in enumerate(semester.evaluations):
+                evaluation.course.degrees.set(shuffled_evaluations[i].course.degrees.all())
+                evaluation.course.semester = shuffled_evaluations[i].course.semester
                 evaluation.name_de = shuffled_evaluations[i].name_de + " "  # add a space to avoid name collisions
                 evaluation.name_en = shuffled_evaluations[i].name_en + " "
                 evaluation.save()

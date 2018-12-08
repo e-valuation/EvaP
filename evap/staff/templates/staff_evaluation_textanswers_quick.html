@@ -105,7 +105,7 @@
             </div>
             <div class="lcr-center d-none" data-action-set="summary">
                 {% if next_evaluation %}
-                    <a href="{% url 'staff:evaluation_textanswers' next_evaluation.semester.id next_evaluation.id %}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                    <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-url="next-evaluation" class="btn btn-sm btn-primary">
                         {% trans 'Review next evaluation' %}
                     </a>
                 {% endif %}

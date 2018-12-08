@@ -43,7 +43,7 @@ def index(request):
         semester_name=semester.name,
         id=semester.id,
         is_active_semester=semester.is_active_semester,
-        evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.semester_id == semester.id]
+        evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
     template_data = dict(

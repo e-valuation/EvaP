@@ -2,11 +2,12 @@ from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, CourseType, Evaluation, Questionnaire, \
-    Contribution, Semester, Degree, EmailTemplate, Question
-from evap.evaluation.tests.tools import get_form_data_from_instance, create_evaluation_with_responsible_and_editor, to_querydict
-from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, EvaluationForm, \
-    EvaluationEmailForm, QuestionnaireForm
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, Question,
+                                    Questionnaire, Semester, UserProfile)
+from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_editor, get_form_data_from_instance,
+                                         to_querydict)
+from evap.staff.forms import (ContributionForm, ContributionFormSet, CourseForm, EvaluationEmailForm, EvaluationForm,
+                              QuestionnaireForm, SingleResultForm, UserForm)
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
@@ -144,7 +145,7 @@ class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        evaluation = Evaluation(semester=mommy.make(Semester), is_single_result=True)
+        evaluation = Evaluation(course=mommy.make(Course), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -157,7 +158,7 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
-            "semester": evaluation.semester.pk
+            "semester": evaluation.course.semester.pk
         }
         form = SingleResultForm(form_data, instance=evaluation)
         self.assertTrue(form.is_valid())
@@ -171,7 +172,7 @@ class SingleResultFormTests(TestCase):
     def test_single_result_form_can_change_responsible(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        evaluation = Evaluation(semester=mommy.make(Semester), is_single_result=True)
+        evaluation = Evaluation(course=mommy.make(Course), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -184,7 +185,7 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
-            "semester": evaluation.semester.pk
+            "semester": evaluation.course.semester.pk
         }
         form = SingleResultForm(form_data, instance=evaluation)
         self.assertTrue(form.is_valid())
@@ -505,31 +506,66 @@ class ContributionFormset775RegressionTests(TestCase):
         self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
 
 
-class EvaluationFormTests(TestCase):
-    def helper_test_evaluation_form_same_name(self, EvaluationFormClass):
-        evaluations = Evaluation.objects.all()
+class CourseFormTests(TestCase):
+    def helper_test_course_form_same_name(self, CourseFormClass):
+        courses = Course.objects.all()
 
-        form_data = get_form_data_from_instance(EvaluationForm, evaluations[0])
-        form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
-        form_data["vote_end_date"] = "2099-01-01"  # needed to fix the form
-
-        form = EvaluationFormClass(form_data, instance=evaluations[0])
+        form_data = get_form_data_from_instance(CourseForm, courses[0])
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
-        form_data['name_de'] = evaluations[1].name_de
-        form = EvaluationFormClass(form_data, instance=evaluations[0])
+        form_data['course-name_de'] = courses[1].name_de
+        form = CourseFormClass(form_data, instance=courses[0])
         self.assertFalse(form.is_valid())
 
-    def test_evaluation_form_same_name(self):
+    def test_course_form_same_name(self):
         """
-            Test whether giving an evaluation the same name as another evaluation
-            in the same semester in the evaluation edit form is invalid.
+            Test whether giving a course the same name as another course
+            in the same semester in the course edit form is invalid.
         """
-        evaluations = mommy.make(Evaluation, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
-        evaluations[0].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        evaluations[1].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+        self.helper_test_course_form_same_name(CourseForm)
 
-        self.helper_test_evaluation_form_same_name(EvaluationForm)
-        self.helper_test_evaluation_form_same_name(ContributorEvaluationForm)
+    def test_uniqueness_constraint_error_shown(self):
+        """
+            Tests whether errors being caused by a uniqueness constraint are shown in the form
+        """
+        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+
+        form_data = get_form_data_from_instance(CourseForm, courses[1])
+        form_data["course-name_de"] = courses[0].name_de
+        form = CourseForm(form_data, instance=courses[1])
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('name_de', form.errors)
+        self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])
+
+
+class EvaluationFormTests(TestCase):
+    # TODO (#1047): add this helper method and test once a Course can have multiple Evaluations
+    # def helper_test_evaluation_form_same_name(self, EvaluationFormClass):
+    #     evaluations = Evaluation.objects.all()
+
+    #     form_data = get_form_data_from_instance(EvaluationForm, evaluations[0])
+    #     form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
+    #     form_data["vote_end_date"] = "2099-01-01"  # needed to fix the form
+
+    #     form = EvaluationFormClass(form_data, instance=evaluations[0])
+    #     self.assertTrue(form.is_valid())
+    #     form_data['name_de'] = evaluations[1].name_de
+    #     form = EvaluationFormClass(form_data, instance=evaluations[0])
+    #     self.assertFalse(form.is_valid())
+
+    # def test_evaluation_form_same_name(self):
+    #     """
+    #         Test whether giving an evaluation the same name as another evaluation
+    #         in the same course in the evaluation edit form is invalid.
+    #     """
+    #     evaluations = mommy.make(Evaluation, course=mommy.make(Course, degrees=[mommy.make(Degree)]), _quantity=2)
+    #     evaluations[0].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+    #     evaluations[1].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+    #     self.helper_test_evaluation_form_same_name(EvaluationForm)
+    #     self.helper_test_evaluation_form_same_name(ContributorEvaluationForm)
 
     def helper_date_validation(self, EvaluationFormClass, start_date, end_date, expected_result):
         evaluation = Evaluation.objects.get()
@@ -546,7 +582,7 @@ class EvaluationFormTests(TestCase):
             Tests validity of various start/end date combinations in
             the two evaluation edit forms.
         """
-        evaluation = mommy.make(Evaluation, degrees=[mommy.make(Degree)])
+        evaluation = mommy.make(Evaluation)
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # contributors: start date must be in the future
@@ -570,25 +606,26 @@ class EvaluationFormTests(TestCase):
         # staff: but start date must be < end date
         self.helper_date_validation(EvaluationForm, "1999-01-01", "1998-01-01", False)
 
-    def test_uniqueness_constraint_error_shown(self):
-        """
-            Tests whether errors being caused by a uniqueness constraint are shown in the form
-        """
-        semester = mommy.make(Semester)
-        evaluation1 = mommy.make(Evaluation, semester=semester)
-        evaluation2 = mommy.make(Evaluation, semester=semester)
+    # TODO (#1047): add this test once a Course can have multiple Evaluations
+    # def test_uniqueness_constraint_error_shown(self):
+    #     """
+    #         Tests whether errors being caused by a uniqueness constraint are shown in the form
+    #     """
+    #     course = mommy.make(Course)
+    #     evaluation1 = mommy.make(Evaluation, course=course)
+    #     evaluation2 = mommy.make(Evaluation, course=course)
 
-        form_data = get_form_data_from_instance(EvaluationForm, evaluation2)
-        form_data["name_de"] = evaluation1.name_de
-        form = EvaluationForm(form_data, instance=evaluation2)
+    #     form_data = get_form_data_from_instance(EvaluationForm, evaluation2)
+    #     form_data["name_de"] = evaluation1.name_de
+    #     form = EvaluationForm(form_data, instance=evaluation2)
 
-        self.assertFalse(form.is_valid())
-        self.assertIn('name_de', form.errors)
-        self.assertEqual(form.errors['name_de'], ['Evaluation with this Semester and Name (german) already exists.'])
+    #     self.assertFalse(form.is_valid())
+    #     self.assertIn('name_de', form.errors)
+    #     self.assertEqual(form.errors['name_de'], ['Evaluation with this Course and Name (german) already exists.'])
 
     def test_voter_cannot_be_removed_from_evaluation(self):
         student = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, degrees=[mommy.make(Degree)], participants=[student], voters=[student])
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, degrees=[mommy.make(Degree)]), participants=[student], voters=[student])
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)

@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
-from evap.evaluation.models import Evaluation, UserProfile, Degree, Contribution, CourseType
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import is_external_email
 
 
@@ -84,19 +84,27 @@ class EvaluationData(CommonEqualityMixin):
 
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
-        evaluation = Evaluation(name_de=self.name_de,
-                        name_en=self.name_en,
-                        type=course_type,
-                        is_graded=self.is_graded,
-                        vote_start_datetime=vote_start_datetime,
-                        vote_end_date=vote_end_date,
-                        semester=semester)
+        course = Course(
+            name_de=self.name_de,
+            name_en=self.name_en,
+            type=course_type,
+            is_graded=self.is_graded,
+            semester=semester,
+        )
+        course.save()
+        evaluation = Evaluation(
+            name_de=self.name_de,
+            name_en=self.name_en,
+            vote_start_datetime=vote_start_datetime,
+            vote_end_date=vote_end_date,
+            course=course,
+        )
         evaluation.save()
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         for degree_name in self.degree_names:
-            evaluation.degrees.add(Degree.objects.get(name_de=degree_name))
+            evaluation.course.degrees.add(Degree.objects.get(name_de=degree_name))
 
 
 class ExcelImporter(object):
@@ -290,7 +298,7 @@ class EnrollmentImporter(ExcelImporter):
 
     def check_evaluation_data_correctness(self, semester):
         for evaluation_data in self.evaluations.values():
-            already_exists = Evaluation.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists()
+            already_exists = Evaluation.objects.filter(course__semester=semester, name_de=evaluation_data.name_de).exists()
             if already_exists:
                 self.errors.append(_("Evaluation {} does already exist in this semester.").format(evaluation_data.name_en))
 
@@ -344,7 +352,7 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
             for evaluation_data, student_data in self.enrollments:
-                evaluation = Evaluation.objects.get(semester=semester, name_de=evaluation_data.name_de)
+                evaluation = Evaluation.objects.get(course__semester=semester, name_de=evaluation_data.name_de)
                 # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 evaluation.participants.add(student)
