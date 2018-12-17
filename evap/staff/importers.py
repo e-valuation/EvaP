@@ -149,13 +149,13 @@ class ExcelImporter(object):
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
         if curr_email == "":
-            self.errors.append(_('Sheet "{}", row {}: Email address is missing.').format(sheet, row+1))
+            self.errors.append(_('Sheet "{}", row {}: Email address is missing.').format(sheet, row + 1))
             return
         if curr_email not in self.users:
             self.users[curr_email] = user_data
         else:
             if not user_data == self.users[curr_email]:
-                self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row+1, curr_email))
+                self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row + 1, curr_email))
 
     def generate_external_usernames_if_external(self):
         for user_data in self.users.values():
@@ -254,13 +254,14 @@ class ExcelImporter(object):
 
 
 class EnrollmentImporter(ExcelImporter):
-    W_MANY = 'too many enrollments'  # extension of ExcelImporter.warnings keys
+    W_MANY = 'too_many_enrollments'  # extension of ExcelImporter.warnings keys
 
     def __init__(self):
         super().__init__()
         # this is a dictionary to not let this become O(n^2)
         self.courses = {}
         self.enrollments = []
+        self.names_de = set()
 
     def read_one_enrollment(self, data):
         student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
@@ -271,10 +272,14 @@ class EnrollmentImporter(ExcelImporter):
     def process_course(self, course_data, sheet, row):
         course_id = course_data.name_en
         if course_id not in self.courses:
-            self.courses[course_id] = course_data
+            if course_data.name_de in self.names_de:
+                self.errors.append(_('Sheet "{}", row {}: The German name for course "{}" already exists for another course.').format(sheet, row + 1, course_data.name_en))
+            else:
+                self.courses[course_id] = course_data
+                self.names_de.add(course_data.name_de)
         else:
             if not course_data == self.courses[course_id]:
-                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row+1, course_data.name_en))
+                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, course_data.name_en))
 
     def consolidate_enrollment_data(self):
         for (sheet, row), (student_data, responsible_data, course_data) in self.associations.items():
@@ -425,7 +430,7 @@ class UserImporter(ExcelImporter):
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
                                          " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                         " The error message has been: '%(error)s'") % dict(row=row+1, sheet=sheet, error=e))
+                                         " The error message has been: '%(error)s'") % dict(row=row + 1, sheet=sheet, error=e))
                     raise
 
         msg = _("Successfully created {} user(s):").format(len(created_users))
