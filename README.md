@@ -1,9 +1,9 @@
 # EvaP - Evaluation Platform
 
-[![build status](https://travis-ci.org/fsr-itse/EvaP.svg)](https://travis-ci.org/fsr-itse/EvaP)
-[![Requirements Status](https://requires.io/github/fsr-itse/EvaP/requirements.svg?branch=master)](https://requires.io/github/fsr-itse/EvaP/requirements/?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fsr-itse/EvaP&amp;utm_campaign=Badge_Grade)
-[![Code Coverage](https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-itse/EvaP?branch=master)
+[![Build Status](https://travis-ci.org/fsr-de/EvaP.svg?branch=master)](https://travis-ci.org/fsr-de/EvaP)
+[![Requirements Status](https://requires.io/github/fsr-de/EvaP/requirements.svg?branch=master)](https://requires.io/github/fsr-de/EvaP/requirements/?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
+[![Coverage Status](https://coveralls.io/repos/github/fsr-de/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-de/EvaP?branch=master)
 
 
 ## What is EvaP?
