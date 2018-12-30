@@ -187,7 +187,6 @@ LOGGING = {
 AUTH_USER_MODEL = 'evaluation.UserProfile'
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
