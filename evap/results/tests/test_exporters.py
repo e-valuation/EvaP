@@ -32,10 +32,10 @@ class TestExporters(TestCase):
         questionnaire_3 = mommy.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
         questionnaire_4 = mommy.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
 
-        question_1 = mommy.make(Question, type="L", questionnaire=questionnaire_1)
-        question_2 = mommy.make(Question, type="L", questionnaire=questionnaire_2)
-        question_3 = mommy.make(Question, type="L", questionnaire=questionnaire_3)
-        question_4 = mommy.make(Question, type="L", questionnaire=questionnaire_4)
+        question_1 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_1)
+        question_2 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_2)
+        question_3 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_3)
+        question_4 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_4)
 
         course.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4])
 
@@ -67,10 +67,10 @@ class TestExporters(TestCase):
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, type="H", questionnaire=questionnaire, order=0)
-        heading_question = mommy.make(Question, type="H", questionnaire=questionnaire, order=1)
-        likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
-        mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
+        mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
+        heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = mommy.make(Contribution, course=course, questionnaires=[questionnaire], contributor=contributor)
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
@@ -122,7 +122,7 @@ class TestExporters(TestCase):
         course_2 = mommy.make(Course, semester=semester, type=course_type_2, state='published', _participant_count=2, _voter_count=2)
 
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, type="L", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
 
         course_1.general_contribution.questionnaires.set([questionnaire])
         mommy.make(RatingAnswerCounter, question=question, contribution=course_1.general_contribution, answer=3, count=2)

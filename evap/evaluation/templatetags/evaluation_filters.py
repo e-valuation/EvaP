@@ -1,6 +1,11 @@
+from django.forms import TypedChoiceField
 from django.template import Library
-from evap.evaluation.tools import POSITIVE_YES_NO_NAMES, NEGATIVE_YES_NO_NAMES, LIKERT_NAMES, STATE_DESCRIPTIONS, STATES_ORDERED
+
+from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
+from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
 from evap.rewards.tools import can_user_use_reward_points
+from evap.student.forms import HeadingField
+
 
 register = Library()
 
@@ -52,15 +57,12 @@ def percentage_value(fraction, population):
 
 
 @register.filter
-def get_answer_name(question, grade):
-    if question.is_likert_question:
-        return LIKERT_NAMES.get(grade)
-    elif question.is_positive_yes_no_question:
-        return POSITIVE_YES_NO_NAMES.get(grade)
-    elif question.is_negative_yes_no_question:
-        return NEGATIVE_YES_NO_NAMES.get(grade)
-    else:
-        return grade
+def to_colors(choices):
+    if not choices:
+        # When displaying the course distribution, there are no associated voting choices.
+        # In that case, we just use the colors of a unipolar scale.
+        return BASE_UNIPOLAR_CHOICES['colors']
+    return choices.colors
 
 
 @register.filter
@@ -85,12 +87,12 @@ def _can_user_use_reward_points(user):
 
 @register.filter
 def is_choice_field(field):
-    return field.field.__class__.__name__ == "TypedChoiceField"
+    return isinstance(field.field, TypedChoiceField)
 
 
 @register.filter
 def is_heading_field(field):
-    return field.field.__class__.__name__ == "HeadingField"
+    return isinstance(field.field, HeadingField)
 
 
 @register.filter

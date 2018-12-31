@@ -209,7 +209,7 @@ class TestCourses(WebTest):
         course = mommy.make(Course, participants=[student1, student2], voters=[student1], state="in_evaluation")
         course.save()
         top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         course.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(course.can_publish_text_results)
@@ -223,7 +223,7 @@ class TestCourses(WebTest):
         student = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
 
@@ -236,7 +236,7 @@ class TestCourses(WebTest):
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
 
@@ -249,7 +249,7 @@ class TestCourses(WebTest):
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
@@ -265,7 +265,7 @@ class TestCourses(WebTest):
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
 

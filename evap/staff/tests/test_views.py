@@ -1373,10 +1373,10 @@ class TestCourseTextAnswerView(WebTest):
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
         top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        question = mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         cls.answer = 'should show up'
         mommy.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
@@ -1413,10 +1413,10 @@ class TestCourseTextAnswerEditView(WebTest):
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
         top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        question = mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         mommy.make(TextAnswer, contribution=contribution, question=question, answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
@@ -1496,7 +1496,7 @@ class TestQuestionnaireCreateView(WebTest):
         questionnaire_form['public_name_en'] = "Public Test Questionnaire"
         questionnaire_form['questions-0-text_de'] = "Frage 1"
         questionnaire_form['questions-0-text_en'] = "Question 1"
-        questionnaire_form['questions-0-type'] = "T"
+        questionnaire_form['questions-0-type'] = Question.TEXT
         questionnaire_form['order'] = 0
         questionnaire_form['type'] = Questionnaire.TOP
         questionnaire_form.submit().follow()
@@ -1586,9 +1586,9 @@ class TestQuestionnaireViewView(WebTestWith200Check):
     @classmethod
     def setUpTestData(cls):
         questionnaire = mommy.make(Questionnaire, id=2)
-        mommy.make(Question, questionnaire=questionnaire, type='T')
-        mommy.make(Question, questionnaire=questionnaire, type='G')
-        mommy.make(Question, questionnaire=questionnaire, type='L')
+        mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         mommy.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
 
@@ -1728,7 +1728,7 @@ class TestCourseTextAnswersUpdatePublishView(WebTest):
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
         top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_general_questionnaire, type="L")
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):

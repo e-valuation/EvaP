@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Course, Semester
+from evap.evaluation.models import NO_ANSWER, Course, Semester
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
@@ -136,7 +136,7 @@ def vote(request, course_id):
                         if value:
                             question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
                     else:
-                        if value != 6:
+                        if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.count += 1
                             answer_counter.save()

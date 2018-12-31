@@ -37,19 +37,19 @@ class TestVoteView(WebTest):
         cls.bottom_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
         cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type="H")
-        cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type="T")
-        cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type="L")
+        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING)
+        cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT)
+        cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT)
 
-        cls.top_heading_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=0, type="H")
-        cls.top_text_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=1, type="T")
-        cls.top_likert_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=2, type="L")
-        cls.top_grade_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=3, type="G")
+        cls.top_heading_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING)
+        cls.top_text_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT)
+        cls.top_likert_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.top_grade_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE)
 
-        cls.bottom_heading_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=0, type="H")
-        cls.bottom_text_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=1, type="T")
-        cls.bottom_likert_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=2, type="L")
-        cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type="G")
+        cls.bottom_heading_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING)
+        cls.bottom_text_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT)
+        cls.bottom_likert_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE)
 
         cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
                                        course=cls.course)
