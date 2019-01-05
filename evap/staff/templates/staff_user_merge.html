@@ -143,6 +143,42 @@
                             {% endfor %}
                         </td>
                     </tr>
+                    <tr{% if 'courses_responsible_for' in errors %} class="table-danger"{% endif %}>
+                        <td><strong>{% trans 'Courses responsible for' %}</strong></td>
+                        {% regroup main_user.get_sorted_courses_responsible_for by semester as course_list %}
+                        <td{% if course_list|length > 0 %} class="info"{% endif %}>
+                            {% for courses in course_list %}
+                                {{ courses.grouper }}
+                                <ul>
+                                    {% for course in courses.list %}
+                                        <li>{{ course.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </td>
+                        {% regroup other_user.get_sorted_courses_responsible_for by semester as course_list %}
+                        <td{% if course_list|length > 0 %} class="info"{% endif %}>
+                            {% for courses in course_list %}
+                                {{ courses.grouper }}
+                                <ul>
+                                    {% for course in courses.list %}
+                                        <li>{{ course.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </td>
+                        {% regroup merged_user.courses_responsible_for by semester as course_list %}
+                        <td{% if course_list|length > 0 %} class="success"{% endif %}>
+                            {% for courses in course_list %}
+                                {{ courses.grouper }}
+                                <ul>
+                                    {% for course in courses.list %}
+                                        <li>{{ course.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </td>
+                    </tr>
                     <tr{% if 'contributions' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Contributions' %}</strong></td>
                         {% regroup main_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
@@ -322,7 +358,7 @@
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">
                 {% if errors %}
-                    {% blocktrans %}The users can't be merged, because either contributions or participations for the same evaluation exist.{% endblocktrans %}
+                    {% blocktrans %}The users can't be merged, because either contributions or participations for the same evaluation exist or the users are responsible for the same courses.{% endblocktrans %}
                 {% elif warnings %}
                     <button type="submit" class="btn btn-warning"><span class="fas fa-exclamation-triangle"></span> {% trans 'Merge users' %}</button>
                 {% else %}

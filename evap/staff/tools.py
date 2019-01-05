@@ -125,6 +125,8 @@ def merge_users(main_user, other_user, preview=False):
 
     errors = []
     warnings = []
+    if any(course in main_user.get_sorted_courses_responsible_for() for course in other_user.get_sorted_courses_responsible_for()):
+        errors.append('courses_responsible_for')
     if any(contribution.evaluation in [contribution.evaluation for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
         errors.append('contributions')
     if any(evaluation in main_user.get_sorted_evaluations_participating_in() for evaluation in other_user.get_sorted_evaluations_participating_in()):
@@ -135,6 +137,7 @@ def merge_users(main_user, other_user, preview=False):
     if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
         warnings.append('rewards')
 
+    merged_user['courses_responsible_for'] = Course.objects.filter(responsibles__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
     merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('evaluation__course__semester__created_at', 'evaluation__name_de')
     merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
     merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
@@ -144,6 +147,13 @@ def merge_users(main_user, other_user, preview=False):
 
     if preview or errors:
         return merged_user, errors, warnings
+
+    # update responsibility
+    for course in Course.objects.filter(responsibles__in=[other_user]):
+        responsibles = list(course.responsibles.all())
+        responsibles.remove(other_user)
+        responsibles.append(main_user)
+        course.responsibles.set(responsibles)
 
     # update last_modified_user for evaluations and grade documents
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)

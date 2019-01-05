@@ -4,6 +4,7 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
+from django.db.models import Q
 
 from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
@@ -256,9 +257,9 @@ def get_grade_color(grade):
 def textanswers_visible_to(contribution):
     if contribution.is_general:
         contributors = UserProfile.objects.filter(
-            contributions__evaluation=contribution.evaluation,
-            contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS
-        ).distinct().order_by('contributions__textanswer_visibility')
+            Q(contributions__evaluation=contribution.evaluation, contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS) |
+            Q(courses_responsible_for__in=[contribution.evaluation.course])
+        ).distinct().order_by('last_name', 'first_name')
     else:
         contributors = [contribution.contributor]
     num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))

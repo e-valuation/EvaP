@@ -69,14 +69,13 @@ def get_evaluations_with_prefetched_data(evaluations):
             .prefetch_related(
                 "course__degrees",
                 "course__semester",
-                Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions")
+                "course__responsibles",
             )
         )
         for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
             if evaluation._participant_count is None:
                 evaluation.num_participants = participant_count
                 evaluation.num_voters = voter_count
-            evaluation.responsible_contributors = [contribution.contributor for contribution in evaluation.responsible_contributions]
     for evaluation in evaluations:
         if not evaluation.is_single_result:
             evaluation.distribution = calculate_average_distribution(evaluation)
@@ -194,7 +193,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
         contributor_contribution_results=contributor_contribution_results,
         is_reviewer=view_as_user.is_reviewer,
         is_contributor=evaluation.is_user_contributor(view_as_user),
-        is_contributor_or_delegate=evaluation.is_user_contributor_or_delegate(view_as_user),
+        is_responsible_or_contributor_or_delegate=evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user),
         can_download_grades=view_as_user.can_download_grades,
         view=view,
         view_as_user=view_as_user,
@@ -246,11 +245,6 @@ def user_can_see_textanswer(user, represented_users, textanswer, view):
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if textanswer.is_published:
-        # text answers about responsible contributors can only be seen by the users themselves and by their delegates
-        # they can not be seen by other responsible contributors
-        if textanswer.contribution.responsible:
-            return contributor in represented_users
-
         # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
@@ -258,6 +252,9 @@ def user_can_see_textanswer(user, represented_users, textanswer, view):
         # visibility GENERAL_TEXTANSWERS for the evaluation
         if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
                 contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
+            return True
+        # the people responsible for a course can see all general text answers for all its evaluations
+        if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):
             return True
 
     return False

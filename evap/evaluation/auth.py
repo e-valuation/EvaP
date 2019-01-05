@@ -100,14 +100,13 @@ def grade_downloader_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
-def contributor_or_delegate_required(view_func):
+def responsible_or_contributor_or_delegate_required(view_func):
     """
-    Decorator for views that checks that the user is logged in, has edit rights
-    for at least one evaluation or is a delegate for such a person or is a
-    contributor.
+    Decorator for views that checks that the user is logged in, is responsible for a course, or is a contributor, or is
+    a delegate.
     """
     def check_user(user):
-        return user.is_contributor_or_delegate
+        return user.is_responsible_or_contributor_or_delegate
     return user_passes_test(check_user)(view_func)
 
 

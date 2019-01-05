@@ -51,7 +51,7 @@
                     </td>
                     <td>
                         {% trans 'Responsibility' %}:<br />
-                        {% include 'responsibility_buttons.html' with form=form can_change_responsible=manager %}
+                        {% include 'responsibility_buttons.html' with form=form %}
                         <br /><br />
                         {% trans 'Text answer visibility' %}:<br />
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
@@ -62,9 +62,7 @@
                     </td>
                     <td>
                     {% if editable %}
-                        {% if manager or form.responsibility.value != 'RESPONSIBLE' %}
-                            {{ form.DELETE }}
-                        {% endif %}
+                        {{ form.DELETE }}
                     {% endif %}
                     </td>
                 </tr>

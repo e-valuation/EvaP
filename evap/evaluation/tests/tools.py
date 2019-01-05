@@ -62,14 +62,14 @@ def get_form_data_from_instance(FormClass, instance):
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    contributor = mommy.make(UserProfile, username='responsible')
+    responsible = mommy.make(UserProfile, username='responsible')
     editor = mommy.make(UserProfile, username='editor')
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
     evaluation_params = dict(
         state='prepared',
-        course=mommy.make(Course, degrees=[mommy.make(Degree)]),
+        course=mommy.make(Course, degrees=[mommy.make(Degree)], responsibles=[responsible]),
         vote_start_datetime=in_one_hour,
         vote_end_date=tomorrow
     )
@@ -78,8 +78,6 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = mommy.make(Evaluation, **evaluation_params)
-
-    mommy.make(Contribution, evaluation=evaluation, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
     mommy.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
     evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.TOP)])
 

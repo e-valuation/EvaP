@@ -191,7 +191,7 @@ class SingleResultFormTests(TestCase):
         self.assertTrue(form.is_valid())
 
         form.save(user=mommy.make(UserProfile))
-        self.assertEqual(evaluation.responsible_contributors[0], responsible)
+        self.assertEqual(evaluation.course.responsibles.first(), responsible)
 
         new_responsible = mommy.make(UserProfile)
         form_data["responsible"] = new_responsible.pk
@@ -199,7 +199,7 @@ class SingleResultFormTests(TestCase):
         self.assertTrue(form.is_valid())
 
         form.save(user=mommy.make(UserProfile))
-        self.assertEqual(evaluation.responsible_contributors[0], new_responsible)
+        self.assertEqual(evaluation.course.responsibles.first(), new_responsible)
 
 
 class ContributionFormsetTests(TestCase):
@@ -222,10 +222,10 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
         })
-        # no contributor and no responsible
+        # no contributor
         self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data.copy()).is_valid())
         # valid
         data['contributions-0-contributor'] = user1.pk
@@ -238,9 +238,9 @@ class ContributionFormsetTests(TestCase):
         data['contributions-1-order'] = 1
         data['contributions-1-textanswer_visibility'] = Contribution.GENERAL_TEXTANSWERS
         self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
-        # two responsibles
+        # two contributors
         data['contributions-1-contributor'] = user2.pk
-        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
+        data['contributions-1-responsibility'] = Contribution.IS_EDITOR
         self.assertTrue(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
 
     def test_dont_validate_deleted_contributions(self):
@@ -256,7 +256,7 @@ class ContributionFormsetTests(TestCase):
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        # Here we have two responsibles (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
+        # Here we have two editors (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
 
         data = to_querydict({
             'contributions-TOTAL_FORMS': 3,
@@ -265,13 +265,13 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
-            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-responsibility': Contribution.IS_EDITOR,
             'contributions-1-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user2.pk,
             'contributions-2-evaluation': evaluation.pk,
@@ -312,7 +312,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-evaluation': evaluation.pk,
@@ -331,7 +331,7 @@ class ContributionFormsetTests(TestCase):
 
         # delete first, change data in extra formset
         data['contributions-0-DELETE'] = 'on'
-        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
+        data['contributions-1-responsibility'] = Contribution.IS_EDITOR
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         formset.is_valid()
 
@@ -344,7 +344,7 @@ class ContributionFormsetTests(TestCase):
         evaluation = mommy.make(Evaluation)
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, responsible=True, can_edit=True,
+        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True,
                                    textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire])
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -357,7 +357,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
@@ -365,7 +365,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-id': '',
-            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-responsibility': Contribution.IS_EDITOR,
             'contributions-1-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user1.pk,
         })
@@ -417,7 +417,7 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
         cls.contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -431,7 +431,7 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-0-evaluation': self.evaluation.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': self.user1.pk,
             'contributions-1-id': str(self.contribution2.pk),
@@ -522,14 +522,14 @@ class CourseFormTests(TestCase):
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
-        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+        mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
         self.helper_test_course_form_same_name(CourseForm)
 
     def test_uniqueness_constraint_error_shown(self):
         """
             Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
-        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
+        courses = mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
 
         form_data = get_form_data_from_instance(CourseForm, courses[1])
         form_data["course-name_de"] = courses[0].name_de

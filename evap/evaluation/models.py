@@ -118,7 +118,6 @@ class Semester(models.Model):
         return Evaluation.objects.filter(course__semester=self)
 
 
-
 class QuestionnaireManager(Manager):
     def general_questionnaires(self):
         return super().get_queryset().exclude(type=Questionnaire.CONTRIBUTOR)
@@ -268,6 +267,9 @@ class Course(models.Model):
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
 
+    # persons responsible for the course; their names will be shown next to course, they can edit the course and see general text answers
+    responsibles = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("responsibles"), related_name="courses_responsible_for")
+
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
@@ -305,6 +307,10 @@ class Course(models.Model):
     def midterm_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
+
+    @cached_property
+    def responsibles_names(self):
+        return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
 
 
 class Evaluation(models.Model):
@@ -418,7 +424,7 @@ class Evaluation(models.Model):
         if user.is_reviewer and not self.course.semester.results_are_archived:
             return True
         if self.course.is_private or user.is_external:
-            return self.is_user_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
+            return self.is_user_responsible_or_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
         return True
 
     def can_user_see_results_page(self, user):
@@ -431,7 +437,7 @@ class Evaluation(models.Model):
         if self.state != 'published':
             return False
         if not self.can_publish_rating_results or self.course.semester.results_are_archived:
-            return self.is_user_contributor_or_delegate(user)
+            return self.is_user_responsible_or_contributor_or_delegate(user)
         return self.can_user_see_evaluation(user)
 
     @property
@@ -568,10 +574,6 @@ class Evaluation(models.Model):
         return self.participants.exclude(pk__in=self.voters.all())
 
     @cached_property
-    def responsible_contributors(self):
-        return UserProfile.objects.filter(contributions__evaluation=self, contributions__responsible=True).order_by('contributions__order')
-
-    @cached_property
     def num_contributors(self):
         return UserProfile.objects.filter(contributions__evaluation=self).count()
 
@@ -594,13 +596,17 @@ class Evaluation(models.Model):
         return days_left
 
     def is_user_editor_or_delegate(self, user):
-        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all()), can_edit=True).exists()
+        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
+        represented_user_pks.append(user.pk)
+        return self.contributions.filter(contributor__pk__in=represented_user_pks, can_edit=True).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
 
-    def is_user_contributor_or_delegate(self, user):
-        # early out that saves database hits since is_contributor_or_delegate is a cached_property
-        if not user.is_contributor_or_delegate:
+    def is_user_responsible_or_contributor_or_delegate(self, user):
+        # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
+        if not user.is_responsible_or_contributor_or_delegate:
             return False
-        return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
+        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
+        represented_user_pks.append(user.pk)
+        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
@@ -696,17 +702,14 @@ class Contribution(models.Model):
     )
     IS_CONTRIBUTOR = 'CONTRIBUTOR'
     IS_EDITOR = 'EDITOR'
-    IS_RESPONSIBLE = 'RESPONSIBLE'
     RESPONSIBILITY_CHOICES = (
         (IS_CONTRIBUTOR, _('Contributor')),
         (IS_EDITOR, _('Editor')),
-        (IS_RESPONSIBLE, _('Responsible')),
     )
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
-    responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
     textanswer_visibility = models.CharField(max_length=10, choices=TEXTANSWER_VISIBILITY_CHOICES, verbose_name=_('text answer visibility'), default=OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
@@ -718,11 +721,6 @@ class Contribution(models.Model):
             ('evaluation', 'contributor'),
         )
         ordering = ['order', ]
-
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
-        if self.responsible and not self.evaluation.is_single_result:
-            assert self.can_edit and self.textanswer_visibility == self.GENERAL_TEXTANSWERS
 
     @property
     def is_general(self):
@@ -1220,7 +1218,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def can_manager_delete(self):
-        if self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
+        if self.is_responsible or self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
@@ -1243,7 +1241,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_participant:
             return False
 
-        if not self.is_contributor:
+        if not self.is_contributor or self.is_responsible:
             return True
 
         last_semester_participated = Semester.objects.filter(courses__evaluation__participants=self).order_by("-created_at").first()
@@ -1257,12 +1255,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_editor(self):
-        return self.contributions.filter(can_edit=True).exists()
+        return self.contributions.filter(can_edit=True).exists() or self.is_responsible
 
     @property
     def is_responsible(self):
-        # in the user list, self.user.contributions is prefetched, therefore use it directly and don't filter it
-        return any(contribution.responsible for contribution in self.contributions.all())
+        return self.courses_responsible_for.exists()
 
     @property
     def is_delegate(self):
@@ -1273,8 +1270,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.is_editor or self.is_delegate
 
     @cached_property
-    def is_contributor_or_delegate(self):
-        return self.is_contributor or self.is_delegate
+    def is_responsible_or_contributor_or_delegate(self):
+        return self.is_responsible or self.is_contributor or self.is_delegate
 
     @property
     def is_external(self):
@@ -1322,6 +1319,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.needs_login_key:
             return ""
         return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
+
+    def get_sorted_courses_responsible_for(self):
+        return self.courses_responsible_for.order_by('semester__created_at', 'name_de')
 
     def get_sorted_contributions(self):
         return self.contributions.order_by('evaluation__course__semester__created_at', 'evaluation__name_de')
@@ -1372,19 +1372,19 @@ class EmailTemplate(models.Model):
 
     @classmethod
     def recipient_list_for_evaluation(cls, evaluation, recipient_groups, filter_users_in_cc):
-        recipients = []
+        recipients = set()
 
-        if cls.CONTRIBUTORS in recipient_groups:
-            recipients += UserProfile.objects.filter(contributions__evaluation=evaluation)
-        elif cls.EDITORS in recipient_groups:
-            recipients += UserProfile.objects.filter(contributions__evaluation=evaluation, contributions__can_edit=True)
-        elif cls.RESPONSIBLE in recipient_groups:
-            recipients += evaluation.responsible_contributors
+        if cls.CONTRIBUTORS in recipient_groups or cls.EDITORS in recipient_groups or cls.RESPONSIBLE in recipient_groups:
+            recipients.update(evaluation.course.responsibles.all())
+            if cls.CONTRIBUTORS in recipient_groups:
+                recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation))
+            elif cls.EDITORS in recipient_groups:
+                recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation, contributions__can_edit=True))
 
         if cls.ALL_PARTICIPANTS in recipient_groups:
-            recipients += evaluation.participants.all()
+            recipients.update(evaluation.participants.all())
         elif cls.DUE_PARTICIPANTS in recipient_groups:
-            recipients += evaluation.due_participants
+            recipients.update(evaluation.due_participants)
 
         if filter_users_in_cc:
             # remove delegates and CC users of recipients from the recipient list
@@ -1395,9 +1395,9 @@ class EmailTemplate(models.Model):
             # will get the email twice, but there is no satisfying way around that.
             users_excluded = users_excluded.filter(delegates=None, cc_users=None)
 
-            recipients = list(set(recipients) - set(users_excluded))
+            recipients = recipients - set(users_excluded)
 
-        return recipients
+        return list(recipients)
 
     @classmethod
     def render_string(cls, text, dictionary):

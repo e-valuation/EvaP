@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST, require_GET
 from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
-from evap.evaluation.models import Contribution, Course, Semester
+from evap.evaluation.models import Course, Semester
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
@@ -26,13 +26,10 @@ def index(request):
 
 
 def prefetch_data(courses):
-    courses = courses.prefetch_related(
-        Prefetch("evaluation__contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
-        "degrees")
+    courses = courses.prefetch_related("degrees", "responsibles")
 
     course_data = []
     for course in courses:
-        course.evaluation.responsible_contributors = [contribution.contributor for contribution in course.evaluation.responsible_contributions]
         course_data.append((
             course,
             course.midterm_grade_documents.count(),

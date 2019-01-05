@@ -154,11 +154,18 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'last_modified_time',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_graded', 'is_private', 'last_modified_time',
                   'last_modified_user_name', 'semester')
+        field_classes = {
+            'responsibles': UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['responsibles'].queryset = UserProfile.objects.exclude_inactive_users()
+        if self.instance.pk:
+            self.fields['responsibles'].queryset |= UserProfile.objects.filter(pk__in=[user.pk for user in self.instance.responsibles.all()])
 
         self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
@@ -292,7 +299,7 @@ class SingleResultForm(forms.ModelForm):
             disable_all_fields(self)
 
         if self.instance.pk:
-            responsible = self.instance.responsible_contributors[0]
+            responsible = self.instance.course.responsibles.first()
             self.fields['responsible'].queryset |= UserProfile.objects.filter(pk=responsible.pk)
             self.fields['responsible'].initial = responsible
             answer_counts = dict()
@@ -337,14 +344,17 @@ class SingleResultForm(forms.ModelForm):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.contributor = self.cleaned_data['responsible']
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
 
+        self.instance.course.responsibles.set([contribution.contributor])
+        self.instance.course.save()
+
         # set answers
-        contribution = Contribution.objects.get(evaluation=self.instance, responsible=True)
+        contribution = Contribution.objects.get(evaluation=self.instance)
         total_votes = 0
         for i in range(1, 6):
             count = self.cleaned_data['answer_' + str(i)]
@@ -388,9 +398,7 @@ class ContributionForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if self.instance.responsible:
-            self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
-        elif self.instance.can_edit:
+        if self.instance.can_edit:
             self.fields['responsibility'].initial = Contribution.IS_EDITOR
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
@@ -414,12 +422,8 @@ class ContributionForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
-        is_responsible = responsibility == Contribution.IS_RESPONSIBLE
         is_editor = responsibility == Contribution.IS_EDITOR
-        self.instance.responsible = is_responsible
-        self.instance.can_edit = is_responsible or is_editor
-        if is_responsible:
-            self.instance.textanswer_visibility = Contribution.GENERAL_TEXTANSWERS
+        self.instance.can_edit = is_editor
         return super().save(*args, **kwargs)
 
 
@@ -513,11 +517,10 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
+    def __init__(self, data=None, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
-        self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -586,7 +589,6 @@ class ContributionFormSet(AtLeastOneFormSet):
         super().clean()
 
         found_contributor = set()
-        responsible_users = []
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                 continue
@@ -597,15 +599,6 @@ class ContributionFormSet(AtLeastOneFormSet):
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             elif contributor:
                 found_contributor.add(contributor)
-
-            if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
-                responsible_users.append(form.cleaned_data.get('contributor'))
-
-        if len(responsible_users) < 1:
-            raise forms.ValidationError(_('No responsible contributors found.'))
-
-        if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
-            raise ValidationError(_("You are not allowed to change responsible contributors."))
 
 
 class QuestionForm(forms.ModelForm):
@@ -625,7 +618,7 @@ class QuestionnairesAssignForm(forms.Form):
         for course_type in course_types:
             self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().filter(obsolete=False))
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
-        self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
+        self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm):

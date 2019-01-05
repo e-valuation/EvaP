@@ -7,7 +7,7 @@ from django.db import IntegrityError, transaction
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
-from evap.evaluation.auth import contributor_or_delegate_required, editor_or_delegate_required, editor_required
+from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Evaluation, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
 from evap.results.tools import calculate_average_distribution, distribution_to_grade
@@ -15,7 +15,7 @@ from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
-@contributor_or_delegate_required
+@responsible_or_contributor_or_delegate_required
 def index(request):
     user = request.user
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
@@ -92,8 +92,7 @@ def evaluation_view(request, evaluation_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(form=form, formset=formset, evaluation=evaluation, editable=False,
-                         responsibles=[contributor.username for contributor in evaluation.responsible_contributors])
+    template_data = dict(form=form, formset=formset, evaluation=evaluation, editable=False)
     return render(request, "contributor_evaluation_form.html", template_data)
 
 
@@ -128,7 +127,7 @@ def evaluation_edit(request, evaluation_id):
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
-    formset = InlineContributionFormset(request.POST or None, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
+    formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
 
     forms_are_valid = evaluation_form.is_valid() and formset.is_valid()
     if forms_are_valid and not preview:
@@ -165,18 +164,17 @@ def evaluation_edit(request, evaluation_id):
                 messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
 
         sort_formset(request, formset)
-        template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html,
-                             responsibles=[contributor.username for contributor in evaluation.responsible_contributors])
+        template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html)
         return render(request, "contributor_evaluation_form.html", template_data)
 
 
-@contributor_or_delegate_required
+@responsible_or_contributor_or_delegate_required
 def evaluation_preview(request, evaluation_id):
     user = request.user
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not (evaluation.is_user_contributor_or_delegate(user) and evaluation.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
+    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and evaluation.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]

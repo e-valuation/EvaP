@@ -16,42 +16,40 @@ class TestContributorDirectDelegationView(WebTest):
     def setUpTestData(cls):
         cls.evaluation = mommy.make(Evaluation, state='prepared')
 
-        cls.responsible = mommy.make(UserProfile)
-        cls.non_responsible = mommy.make(UserProfile, email="a@b.c")
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.editor = mommy.make(UserProfile)
+        cls.non_editor = mommy.make(UserProfile, email="a@b.c")
+        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_direct_delegation_request(self):
-        data = {"delegate_to": self.non_responsible.id}
-        page = self.app.post('/contributor/evaluation/{}/direct_delegation'.format(self.evaluation.id), params=data, user=self.responsible).follow()
+        data = {"delegate_to": self.non_editor.id}
+        page = self.app.post('/contributor/evaluation/{}/direct_delegation'.format(self.evaluation.id), params=data, user=self.editor).follow()
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.evaluation))
+            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
         )
 
-        contribution = Contribution.objects.get(contributor=self.non_responsible)
+        contribution = Contribution.objects.get(contributor=self.non_editor)
         self.assertTrue(contribution.can_edit)
-        self.assertFalse(contribution.responsible)
 
         self.assertEqual(len(mail.outbox), 1)
 
     def test_direct_delegation_request_with_existing_contribution(self):
-        contribution = mommy.make(Contribution, evaluation=self.evaluation, contributor=self.non_responsible, can_edit=False, responsible=False)
+        contribution = mommy.make(Contribution, evaluation=self.evaluation, contributor=self.non_editor, can_edit=False)
         old_contribution_count = Contribution.objects.count()
 
-        data = {"delegate_to": self.non_responsible.id}
-        page = self.app.post('/contributor/evaluation/{}/direct_delegation'.format(self.evaluation.id), params=data, user=self.responsible).follow()
+        data = {"delegate_to": self.non_editor.id}
+        page = self.app.post('/contributor/evaluation/{}/direct_delegation'.format(self.evaluation.id), params=data, user=self.editor).follow()
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.evaluation))
+            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
 
         contribution.refresh_from_db()
         self.assertTrue(contribution.can_edit)
-        self.assertFalse(contribution.responsible)
 
         self.assertEqual(len(mail.outbox), 1)
 

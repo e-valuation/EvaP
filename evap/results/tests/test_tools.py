@@ -4,9 +4,11 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import Contribution, Evaluation, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
-from evap.results.tools import RatingResult, calculate_average_distribution, collect_results, distribution_to_grade, \
-    get_collect_results_cache_key, get_single_result_rating_result, normalized_distribution, textanswers_visible_to, unipolarized_distribution
+from evap.evaluation.models import (Contribution, Course, Evaluation, Question, Questionnaire, RatingAnswerCounter,
+                                    TextAnswer, UserProfile)
+from evap.results.tools import (calculate_average_distribution, collect_results, distribution_to_grade,
+                                get_collect_results_cache_key, get_single_result_rating_result, normalized_distribution,
+                                RatingResult, textanswers_visible_to, unipolarized_distribution)
 from evap.results.views import user_can_see_textanswer
 from evap.staff.tools import merge_users
 
@@ -212,7 +214,7 @@ class TestCalculateAverageDistribution(TestCase):
     def test_get_single_result_rating_result(self):
         single_result_evaluation = mommy.make(Evaluation, state='published', is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), evaluation=single_result_evaluation, questionnaires=[questionnaire], responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = mommy.make(Contribution, contributor=mommy.make(UserProfile), evaluation=single_result_evaluation, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
         mommy.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
         distribution = calculate_average_distribution(single_result_evaluation)
@@ -290,17 +292,18 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.contributor_general = mommy.make(UserProfile, username="contributor_general", delegates=[cls.delegate2])
         cls.responsible1 = mommy.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_general])
         cls.responsible2 = mommy.make(UserProfile, username="responsible2")
+        cls.responsible_without_contribution = mommy.make(UserProfile, username="responsible_without_contribution")
         cls.other_user = mommy.make(UserProfile, username="other_user")
 
-        cls.evaluation = mommy.make(Evaluation, state='published', can_publish_text_results=True)
+        cls.evaluation = mommy.make(Evaluation, course=mommy.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state='published', can_publish_text_results=True)
         cls.questionnaire = mommy.make(Questionnaire)
         cls.question = mommy.make(Question, questionnaire=cls.questionnaire, type=Question.TEXT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = mommy.make(Contribution, contributor=cls.responsible1, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+            questionnaires=[cls.questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.responsible2_contribution = mommy.make(Contribution, contributor=cls.responsible2, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+            questionnaires=[cls.questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.contributor_own_contribution = mommy.make(Contribution, contributor=cls.contributor_own, evaluation=cls.evaluation,
             questionnaires=[cls.questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
         cls.contributor_general_contribution = mommy.make(Contribution, contributor=cls.contributor_general, evaluation=cls.evaluation,
@@ -310,6 +313,9 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.responsible2_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.PUBLISHED)
         cls.contributor_own_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_own_contribution, state=TextAnswer.PUBLISHED)
         cls.contributor_general_textanswer = mommy.make(TextAnswer, question=cls.question, contribution=cls.contributor_general_contribution, state=TextAnswer.PUBLISHED)
+
+    def test_text_answer_visible_to_non_contributing_responsible(self):
+        self.assertIn(self.responsible_without_contribution, textanswers_visible_to(self.general_contribution_textanswer.contribution)[0])
 
     def test_correct_contributors_and_delegate_count_are_shown_in_textanswer_visibility_info(self):
         textanswers = [

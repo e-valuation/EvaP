@@ -63,143 +63,6 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
-    def test_editors_cannot_degrade_responsibles(self):
-        evaluation = mommy.make(Evaluation)
-        user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=user, responsible=True,
-                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
-
-        data = {
-            "contributions-TOTAL_FORMS": 1,
-            "contributions-INITIAL_FORMS": 1,
-            "contributions-MIN_NUM_FORMS": 0,
-            "contributions-MAX_NUM_FORMS": 1000,
-            "contributions-0-evaluation": evaluation.pk,
-            "contributions-0-order": 1,
-            "contributions-0-id": contribution.pk,
-            "contributions-0-contributor": user.pk,
-            "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": Contribution.IS_EDITOR,
-            "contributions-0-textanswer_visibility": Contribution.OWN_TEXTANSWERS,
-            "contributions-0-label": "",
-            "contributions-0-DELETE": "",
-        }
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        # Django guarantees that disabled fields can not be manipulated by the client
-        # see https://docs.djangoproject.com/en/1.11/ref/forms/fields/#disabled
-        # the form is still valid though.
-        self.assertTrue(formset.forms[0].fields["responsibility"].disabled)
-
-    def test_editors_cannot_elevate_editors(self):
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        contribution2 = mommy.make(Contribution, evaluation=evaluation, contributor=user2, responsible=False, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
-
-        data = {
-            "contributions-TOTAL_FORMS": 2,
-            "contributions-INITIAL_FORMS": 2,
-            "contributions-MIN_NUM_FORMS": 0,
-            "contributions-MAX_NUM_FORMS": 1000,
-            "contributions-0-evaluation": evaluation.pk,
-            "contributions-0-order": 1,
-            "contributions-0-id": contribution1.pk,
-            "contributions-0-contributor": user1.pk,
-            "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
-            "contributions-0-textanswer_visibility": Contribution.OWN_TEXTANSWERS,
-            "contributions-0-label": "",
-            "contributions-0-DELETE": "",
-            "contributions-1-evaluation": evaluation.pk,
-            "contributions-1-order": 1,
-            "contributions-1-id": contribution2.pk,
-            "contributions-1-contributor": user2.pk,
-            "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": Contribution.IS_EDITOR,
-            "contributions-1-textanswer_visibility": Contribution.GENERAL_TEXTANSWERS,
-            "contributions-1-label": "",
-            "contributions-1-DELETE": "",
-        }
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertTrue(formset.is_valid())
-
-        data["contributions-1-responsibility"] = Contribution.IS_RESPONSIBLE
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertFalse(formset.is_valid())
-
-    def test_editors_cannot_delete_responsibles(self):
-        evaluation = mommy.make(Evaluation)
-        user = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=user, responsible=True,
-                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
-
-        data = {
-            "contributions-TOTAL_FORMS": 1,
-            "contributions-INITIAL_FORMS": 1,
-            "contributions-MIN_NUM_FORMS": 0,
-            "contributions-MAX_NUM_FORMS": 1000,
-            "contributions-0-evaluation": evaluation.pk,
-            "contributions-0-order": 1,
-            "contributions-0-id": contribution.pk,
-            "contributions-0-contributor": user.pk,
-            "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
-            "contributions-0-textanswer_visibility": Contribution.OWN_TEXTANSWERS,
-            "contributions-0-label": "",
-            "contributions-0-DELETE": "",
-        }
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertTrue(formset.is_valid())
-
-        data["contributions-0-DELETE"] = 1
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertFalse(formset.is_valid())
-
-    def test_editors_cannot_add_responsibles(self):
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=user1, responsible=True,
-                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
-
-        data = {
-            "contributions-TOTAL_FORMS": 1,
-            "contributions-INITIAL_FORMS": 1,
-            "contributions-MIN_NUM_FORMS": 0,
-            "contributions-MAX_NUM_FORMS": 1000,
-            "contributions-0-DELETE": "",
-            "contributions-0-evaluation": evaluation.pk,
-            "contributions-0-order": 1,
-            "contributions-0-id": contribution.pk,
-            "contributions-0-contributor": user1.pk,
-            "contributions-0-does_not_contribute": "on",
-            "contributions-0-responsibility": Contribution.IS_RESPONSIBLE,
-            "contributions-0-textanswer_visibility": Contribution.OWN_TEXTANSWERS,
-            "contributions-0-label": "",
-        }
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertTrue(formset.is_valid())
-
-        data.update({
-            "contributions-TOTAL_FORMS": 2,
-            "contributions-1-DELETE": "",
-            "contributions-1-evaluation": evaluation.pk,
-            "contributions-1-order": 1,
-            "contributions-1-id": "",
-            "contributions-1-contributor": user2.pk,
-            "contributions-1-does_not_contribute": "on",
-            "contributions-1-responsibility": Contribution.IS_RESPONSIBLE,
-            "contributions-1-textanswer_visibility": Contribution.OWN_TEXTANSWERS,
-            "contributions-1-label": "",
-        })
-        formset = InlineContributionFormset(data, instance=evaluation, can_change_responsible=False, form_kwargs={'evaluation': evaluation})
-        self.assertFalse(formset.is_valid())
-
 
 class ContributionFormsetWebTests(WebTest):
     csrf_checks = False
@@ -215,8 +78,8 @@ class ContributionFormsetWebTests(WebTest):
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = mommy.make(Contribution, evaluation=evaluation, contributor=user2, responsible=False, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
+        contribution2 = mommy.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

@@ -13,7 +13,7 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Select the questionnaires which shall be assigned each of these course types and the responsible contributors. This will only change evaluations in preparation. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed.' %}</p>
+                <p>{% trans 'Select the questionnaires which shall be assigned each of these course types and the contributors. This will only change evaluations in preparation. If you do select nothing, the currently applied questionnaires for the corresponding course type or contributor will not be changed.' %}</p>
                 <fieldset>
                     {% include 'bootstrap_form.html' with form=form %}
                 </fieldset>

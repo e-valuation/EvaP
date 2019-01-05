@@ -21,7 +21,7 @@
         <div class="alert alert-warning">{% trans 'This is a preview. The results have not been published yet.' %}</div>
     {% endif %}
 
-    {% if is_reviewer or is_contributor_or_delegate %}
+    {% if is_reviewer or is_responsible_or_contributor_or_delegate %}
         {% if evaluation.course.is_private %}
             <div class="alert alert-info d-print-none">
                 <span class="fas fa-lock"></span> {% trans 'This evaluation is private. Only contributors and participants can see the results.' %}
@@ -107,9 +107,7 @@
                         </td>
                         <td>{{ evaluation.course.type }}</td>
                         <td>
-                            {% for contributor in evaluation.responsible_contributors %}
-                                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
+                            {{ evaluation.course.responsibles_names }}
                         </td>
                         <td>{% if not evaluation.is_single_result %}{% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}{% endif %}</td>
                         <td>{% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}</td>

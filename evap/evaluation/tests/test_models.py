@@ -127,9 +127,9 @@ class TestEvaluations(WebTest):
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
-        responsible_contribution = mommy.make(
+        editor_contribution = mommy.make(
                 Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
@@ -144,7 +144,7 @@ class TestEvaluations(WebTest):
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
-        responsible_contribution.questionnaires.add(questionnaire)
+        editor_contribution.questionnaires.add(questionnaire)
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertTrue(evaluation.all_contributions_have_questionnaires)
 
@@ -154,26 +154,11 @@ class TestEvaluations(WebTest):
         user.delete()
         self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
 
-    def test_responsible_contributors_ordering(self):
-        evaluation = mommy.make(Evaluation)
-        responsible1 = mommy.make(UserProfile)
-        responsible2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=responsible1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=0)
-        mommy.make(Contribution, evaluation=evaluation, contributor=responsible2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=1)
-
-        self.assertEqual(list(evaluation.responsible_contributors), [responsible1, responsible2])
-
-        contribution1.order = 2
-        contribution1.save()
-
-        evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(list(evaluation.responsible_contributors), [responsible2, responsible1])
-
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = mommy.make(UserProfile)
         evaluation = mommy.make(Evaluation, is_single_result=True)
         contribution = mommy.make(Contribution,
-            evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
+            evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -198,7 +183,7 @@ class TestEvaluations(WebTest):
             is_single_result=True, _participant_count=5, _voter_count=5
         )
         contribution = mommy.make(Contribution,
-            evaluation=single_result, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
+            evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -444,7 +429,7 @@ class ParticipationArchivingTests(TestCase):
         evaluation = mommy.make(Evaluation,
             state="published", is_single_result=True, _participant_count=5, _voter_count=5
         )
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         evaluation.course.semester.archive_participations()
@@ -462,7 +447,7 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.evaluation = mommy.make(Evaluation)
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 
@@ -518,7 +503,7 @@ class TestEmailRecipientList(TestCase):
         responsible = mommy.make(UserProfile)
         editor = mommy.make(UserProfile)
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.course.responsibles.set([responsible])
         mommy.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True)
         mommy.make(Contribution, evaluation=evaluation, contributor=contributor)
 

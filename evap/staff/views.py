@@ -55,9 +55,9 @@ def get_evaluations_with_prefetched_data(semester):
     evaluations = (semester.evaluations
         .select_related('course__type')
         .prefetch_related(
-            Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
             Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
-            "course__degrees"
+            "course__degrees",
+            "course__responsibles"
         ).annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
@@ -77,7 +77,6 @@ def get_evaluations_with_prefetched_data(semester):
     for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
         if not evaluation.is_single_result:
             evaluation.general_contribution = evaluation.general_contribution[0]
-        evaluation.responsible_contributors = [contribution.contributor for contribution in evaluation.responsible_contributions]
         if evaluation._participant_count is None:
             evaluation.num_participants = participant_count
             evaluation.num_voters = voter_count
@@ -470,9 +469,9 @@ def semester_questionnaire_assign(request, semester_id):
         for evaluation in evaluations:
             if form.cleaned_data[evaluation.course.type.name]:
                 evaluation.general_contribution.questionnaires.set(form.cleaned_data[evaluation.course.type.name])
-            if form.cleaned_data['Responsible contributor']:
-                for contribution in evaluation.contributions.filter(responsible=True):
-                    contribution.questionnaires.set(form.cleaned_data['Responsible contributor'])
+            if form.cleaned_data['All contributors']:
+                for contribution in evaluation.contributions.exclude(contributor=None):
+                    contribution.questionnaires.set(form.cleaned_data['All contributors'])
             evaluation.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
@@ -488,11 +487,10 @@ def semester_todo(request, semester_id):
     evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("course__degrees")
 
     prepared_evaluations = semester.evaluations.filter(state__in=['prepared']).all()
-    responsibles = (contributor for evaluation in prepared_evaluations for contributor in evaluation.responsible_contributors)
-    responsibles = list(set(responsibles))
+    responsibles = list(set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
-    responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.responsible_contributors],
+    responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.course.responsibles.all()],
                          responsible.delegates.all()) for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
@@ -506,11 +504,10 @@ def semester_grade_reminder(request, semester_id):
     evaluations = semester.evaluations.filter(state__in=['evaluated', 'reviewed', 'published'], course__is_graded=True, course__gets_no_grade_documents=False).all()
     evaluations = [evaluation for evaluation in evaluations if not evaluation.course.final_grade_documents.exists()]
 
-    responsibles = (contributor for evaluation in evaluations for contributor in evaluation.responsible_contributors)
-    responsibles = list(set(responsibles))
+    responsibles = list(set(responsible for evaluation in evaluations for responsible in evaluation.course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
 
-    responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.responsible_contributors])
+    responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.course.responsibles.all()])
                         for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
@@ -524,7 +521,7 @@ def send_reminder(request, semester_id, responsible_id):
 
     form = RemindResponsibleForm(request.POST or None, responsible=responsible)
 
-    evaluations = Evaluation.objects.filter(state='prepared', contributions__responsible=True, contributions__contributor=responsible.pk)
+    evaluations = Evaluation.objects.filter(state='prepared', course__responsibles__in=[responsible])
 
     if form.is_valid():
         form.send(request, evaluations)
@@ -865,7 +862,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
             if not text_results:
                 continue
             section_list = evaluation_sections if contribution.is_general else contributor_sections
-            section_list.append(TextAnswerSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
+            section_list.append(TextAnswerSection(questionnaire, contribution.contributor, contribution.label, contribution.contributor in evaluation.course.responsibles.all(), text_results))
 
     template_data = dict(semester=semester, evaluation=evaluation, view=view)
 
@@ -1242,7 +1239,7 @@ def user_index(request):
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users'))
+        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 

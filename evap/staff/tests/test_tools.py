@@ -6,7 +6,7 @@ from django.core.cache.utils import make_template_fragment_key
 from model_mommy import mommy
 
 from evap.evaluation.tests.tools import WebTest
-from evap.evaluation.models import UserProfile, Evaluation, Contribution
+from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import merge_users, delete_navbar_cache_for_users
 
@@ -69,9 +69,12 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.evaluation1 = mommy.make(Evaluation, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.evaluation2 = mommy.make(Evaluation, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.evaluation3 = mommy.make(Evaluation, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.course1 = mommy.make(Course, responsibles=[cls.main_user])
+        cls.course2 = mommy.make(Course, responsibles=[cls.main_user])
+        cls.course3 = mommy.make(Course, responsibles=[cls.other_user])
+        cls.evaluation1 = mommy.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.evaluation2 = mommy.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.evaluation3 = mommy.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
         cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
         cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
@@ -120,6 +123,7 @@ class MergeUsersTest(TestCase):
             'grades_last_modified_user+',
             'courses_last_modified+',
             'evaluations_last_modified+',
+            'Course_responsibles+'
         }
 
         actual_attrs = handled_attrs | additional_handled_attrs
@@ -157,6 +161,10 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.other_user.represented_users.all(), [self.user1])
         self.assertSequenceEqual(self.other_user.cc_users.all(), [])
         self.assertSequenceEqual(self.other_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.responsibles.all(), [self.other_user])
+        self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
         self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
         self.assertSequenceEqual(self.evaluation2.participants.all(), [self.main_user])
         self.assertSequenceEqual(self.evaluation2.voters.all(), [self.main_user])
@@ -184,6 +192,9 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user1, self.user3])
         self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
         self.assertSequenceEqual(self.main_user.ccing_users.all(), [self.user1, self.user2])
+        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
         self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user])
         self.assertSequenceEqual(self.evaluation2.participants.all(), [self.main_user])
         self.assertSequenceEqual(self.evaluation2.voters.all(), [self.main_user])

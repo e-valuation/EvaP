@@ -120,4 +120,4 @@ def hours_and_minutes(time_left_for_evaluation):
 
 @register.filter
 def has_nonresponsible_editor(evaluation):
-    return evaluation.contributions.filter(responsible=False, can_edit=True).exists()
+    return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()

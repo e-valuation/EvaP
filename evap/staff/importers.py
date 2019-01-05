@@ -84,6 +84,8 @@ class EvaluationData(CommonEqualityMixin):
 
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
+        # This is safe because the user's email address is checked before in the importer (see #953)
+        responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course = Course(
             name_de=self.name_de,
             name_en=self.name_en,
@@ -92,6 +94,7 @@ class EvaluationData(CommonEqualityMixin):
             semester=semester,
         )
         course.save()
+        course.responsibles.set([responsible_dbobj])
         evaluation = Evaluation(
             name_de=self.name_de,
             name_en=self.name_en,
@@ -100,9 +103,7 @@ class EvaluationData(CommonEqualityMixin):
             course=course,
         )
         evaluation.save()
-        # This is safe because the user's email address is checked before in the importer (see #953)
-        responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         for degree_name in self.degree_names:
             evaluation.course.degrees.add(Degree.objects.get(name_de=degree_name))
 

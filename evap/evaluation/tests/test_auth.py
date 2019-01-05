@@ -18,8 +18,8 @@ class LoginTests(WebTest):
         cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
         evaluation = mommy.make(Evaluation, state='published')
-        mommy.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, responsible=False, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     @override_settings(PAGE_URL='https://example.com')
     def test_login_url_generation(self):

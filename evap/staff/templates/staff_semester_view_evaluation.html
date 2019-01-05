@@ -63,9 +63,7 @@
     {% endif %}
     </div>
     <div class="evaluation-contributor">
-        {% for contributor in evaluation.responsible_contributors %}
-            {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-        {% endfor %}
+        {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
             <span class="small" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)

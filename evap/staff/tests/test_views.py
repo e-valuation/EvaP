@@ -464,10 +464,10 @@ class TestSemesterAssignView(WebTest):
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         evaluation1 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=seminar_type))
         mommy.make(Contribution, contributor=mommy.make(UserProfile), evaluation=evaluation1,
-                   responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                   can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         evaluation2 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=lecture_type))
         mommy.make(Contribution, contributor=mommy.make(UserProfile), evaluation=evaluation2,
-                   responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                   can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_assign_questionnaires(self):
         page = self.app.get(self.url, user="manager")
@@ -491,9 +491,9 @@ class TestSemesterTodoView(WebTestWith200Check):
         cls.semester = mommy.make(Semester, pk=1)
 
     def test_todo(self):
-        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester), state='prepared', name_en='name_to_find', name_de='name_to_find')
         user = mommy.make(UserProfile, username='user_to_find')
-        mommy.make(Contribution, evaluation=evaluation, contributor=user, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester, responsibles=[user]), state='prepared', name_en='name_to_find', name_de='name_to_find')
+        mommy.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
@@ -507,9 +507,9 @@ class TestSendReminderView(WebTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
-        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester), state='prepared')
         responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
-        mommy.make(Contribution, evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, responsibles=[responsible]), state='prepared')
+        mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_form(self):
         page = self.app.get(self.url, user='manager')
@@ -558,8 +558,7 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(len(evaluations), 23)
 
         for evaluation in evaluations:
-            responsibles_count = Contribution.objects.filter(evaluation=evaluation, responsible=True).count()
-            self.assertEqual(responsibles_count, 1)
+            self.assertEqual(evaluation.course.responsibles.count(), 1)
 
         check_student = UserProfile.objects.get(username="diam.synephebos")
         self.assertEqual(check_student.first_name, "Diam")
@@ -726,8 +725,8 @@ class TestSemesterParticipationDataExportView(WebTest):
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Evaluation 1", is_rewarded=True)
         cls.evaluation2 = mommy.make(Evaluation, course=mommy.make(Course, type=cls.course_type, semester=cls.semester), participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Evaluation 2", is_rewarded=False)
-        mommy.make(Contribution, evaluation=cls.evaluation1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, evaluation=cls.evaluation2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=cls.evaluation1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=cls.evaluation2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
@@ -900,6 +899,7 @@ class TestEvaluationCreateView(WebTest):
         form["name_en"] = "asdf"
         form["course-type"] = self.course_type.pk
         form["course-degrees"] = [1]
+        form["course-responsibles"] = [self.manager_user.pk]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questionnaires"] = [self.q1.pk]
@@ -911,7 +911,7 @@ class TestEvaluationCreateView(WebTest):
         form['contributions-0-contributor'] = self.manager_user.pk
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
+        form['contributions-0-responsibility'] = Contribution.IS_EDITOR
         form['contributions-0-textanswer_visibility'] = Contribution.GENERAL_TEXTANSWERS
 
         form.submit()
@@ -937,14 +937,14 @@ class TestEvaluationEditView(WebTest):
         cls.user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         semester = mommy.make(Semester, pk=1)
         degree = mommy.make(Degree)
-        cls.evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, degrees=[degree]), pk=1, last_modified_user=cls.user,
+        responsible = mommy.make(UserProfile)
+        cls.editor = mommy.make(UserProfile)
+        cls.evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, degrees=[degree], responsibles=[responsible]), pk=1, last_modified_user=cls.user,
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
         mommy.make(Questionnaire, questions=[mommy.make(Question)])
         cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-
-        # This is necessary so that the call to is_single_result does not fail.
-        responsible = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, order=0, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, order=1, can_edit=True)
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -953,25 +953,14 @@ class TestEvaluationEditView(WebTest):
         user = mommy.make(UserProfile)
         page = self.app.get(self.url, user="manager")
 
-        # remove responsibility
+        # remove editor rights
         form = page.forms["evaluation-form"]
-        form['contributions-0-contributor'] = user.pk
-        form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
+        form['contributions-1-responsibility'] = Contribution.IS_CONTRIBUTOR
         form.submit("operation", value="save")
-        self.assertEqual(list(self.evaluation.responsible_contributors), [user])
-
-    def test_remove_responsibility(self):
-        page = self.app.get(self.url, user="manager")
-
-        # remove responsibility
-        form = page.forms["evaluation-form"]
-        form['contributions-0-responsibility'] = "CONTRIBUTOR"
-        page = form.submit("operation", value="save")
-
-        self.assertIn("No responsible contributors found", page)
+        self.assertFalse(self.evaluation.contributions.get(contributor=self.editor).can_edit)
 
     def test_participant_removal_reward_point_granting_message(self):
-        already_evaluated = mommy.make(Evaluation, course=mommy.make(Course, semester=self.evaluation.course.semester))
+        already_evaluated = mommy.make(Evaluation, pk=2, course=mommy.make(Course, semester=self.evaluation.course.semester))
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         other = mommy.make(UserProfile, evaluations_participating_in=[self.evaluation])
         student = mommy.make(UserProfile, email="foo@institution.example.com",
@@ -987,7 +976,7 @@ class TestEvaluationEditView(WebTest):
         self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(student.username), page)
 
     def test_remove_participants(self):
-        already_evaluated = mommy.make(Evaluation, course=mommy.make(Course, semester=self.evaluation.course.semester))
+        already_evaluated = mommy.make(Evaluation, pk=2, course=mommy.make(Course, semester=self.evaluation.course.semester))
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         student = mommy.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
@@ -1006,7 +995,7 @@ class TestEvaluationEditView(WebTest):
             self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(name), page)
 
     def test_remove_participants_proportional_reward_points(self):
-        already_evaluated = mommy.make(Evaluation, course=mommy.make(Course, semester=self.evaluation.course.semester))
+        already_evaluated = mommy.make(Evaluation, pk=2, course=mommy.make(Course, semester=self.evaluation.course.semester))
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         student = mommy.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
@@ -1128,9 +1117,9 @@ class TestSingleResultEditView(WebTestWith200Check):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         semester = mommy.make(Semester, pk=1)
 
-        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=semester), pk=1)
         responsible = mommy.make(UserProfile)
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, responsible=True, can_edit=True,
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, responsibles=[responsible]), pk=1)
+        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True,
                                   textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
         question = Questionnaire.single_result_questionnaire().questions.get()
@@ -1836,17 +1825,17 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.questionnaire_1 = mommy.make(Questionnaire, type=Questionnaire.TOP)
         cls.questionnaire_2 = mommy.make(Questionnaire, type=Questionnaire.TOP)
         cls.questionnaire_responsible = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.evaluation_1 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=cls.course_type_1))
-        cls.evaluation_2 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=cls.course_type_2))
-        mommy.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.evaluation_1 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]))
+        cls.evaluation_2 = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]))
+        mommy.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user="manager", status=200)
         form = page.forms["questionnaire-assign-form"]
         form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
         form[self.course_type_2.name] = [self.questionnaire_2.pk]
-        form["Responsible contributor"] = [self.questionnaire_responsible.pk]
+        form["All contributors"] = [self.questionnaire_responsible.pk]
 
         response = form.submit()
         self.assertIn("Successfully", str(response))

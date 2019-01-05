@@ -36,11 +36,9 @@
     <td data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
         <span class="semester-name">{{ evaluation.course.semester.short_name }}</span>
     </td>
-    <td data-order="{{ evaluation.responsible_contributors.0.last_name }}">
+    <td data-order="{{ evaluation.course.responsibles.first.last_name }}">
         <span class="contributor-name">
-            {% for contributor in evaluation.responsible_contributors %}
-                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-            {% endfor %}
+            {{ evaluation.course.responsibles_names }}
         </span>
     </td>
     {% if evaluation.is_single_result %}

@@ -59,7 +59,7 @@ def send_publish_notifications(evaluations, template=None):
                 if textanswer.contribution.contributor:
                     publish_notifications[textanswer.contribution.contributor].add(evaluation)
 
-            for contributor in evaluation.responsible_contributors:
+            for contributor in evaluation.course.responsibles.all():
                 publish_notifications[contributor].add(evaluation)
 
     for user, evaluation_set in publish_notifications.items():

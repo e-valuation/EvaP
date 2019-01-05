@@ -18,7 +18,7 @@ class GradeUploadTest(WebTest):
         cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
         cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
-        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+        editor = mommy.make(UserProfile, username="editor", email="editor@institution.example.com")
 
         cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
         cls.course = mommy.make(Course, semester=cls.semester)
@@ -32,8 +32,8 @@ class GradeUploadTest(WebTest):
             voters=[cls.student, cls.student2],
         )
 
-        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, responsible=True,
-                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
+                                  textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
         cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
@@ -134,8 +134,8 @@ class GradeUploadTest(WebTest):
             participants=[self.student, self.student2, self.student3],
             voters=[self.student, self.student2]
         )
-        contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(username="responsible"),
-                                    responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(username="editor"),
+                                    can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 

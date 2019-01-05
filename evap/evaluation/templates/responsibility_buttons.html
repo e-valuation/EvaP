@@ -2,17 +2,11 @@
 
 <div class="btn-group btn-group-toggle" data-toggle="buttons">
     {% for choice in form.responsibility %}
-        {% if choice.data.value == 'RESPONSIBLE' %}
-            {% trans 'Name will be shown next to evaluation and is able to edit the evaluation for preparation. This can only be set by the evaluation team.' as tooltip %}
-        {% elif choice.data.value == 'EDITOR' %}
+        {% if choice.data.value == 'EDITOR' %}
             {% trans 'Able to edit the evaluation for preparation.' as tooltip %}
         {% elif choice.data.value == 'CONTRIBUTOR' %}
             {% trans 'Default value. No special rights.' as tooltip %}
         {% endif %}
-        {% if choice.data.value == 'RESPONSIBLE' and not can_change_responsible %}
-            {% include 'choice_button.html' with formelement=form.responsibility choice=choice tooltip=tooltip disabled=True %}
-        {% else %}
-            {% include 'choice_button.html' with formelement=form.responsibility choice=choice tooltip=tooltip disabled=False %}
-        {% endif %}
+        {% include 'choice_button.html' with formelement=form.responsibility choice=choice tooltip=tooltip %}
     {% endfor %}
 </div>

@@ -33,9 +33,7 @@
                                     {% include 'evaluation_badges.html' with mode='grades' %}
                                 </td>
                                 <td>
-                                    {% for contributor in course.evaluation.responsible_contributors %}
-                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
+                                    {{ course.responsibles_names }}
                                 </td>
                                 <td class="text-center">{% if course.evaluation.state == 'evaluationFinished' or course.evaluation.state == 'reviewed' or course.evaluation.state == 'published' %}<span class="fas fa-check"></span>{% endif %}
                                 <td class="text-center">
