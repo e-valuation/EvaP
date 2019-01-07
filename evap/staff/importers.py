@@ -402,12 +402,13 @@ class EnrollmentImporter(ExcelImporter):
             else:
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
-            return importer.success_messages, importer.warnings, importer.errors
         except Exception as e:
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+
+        return importer.success_messages, importer.warnings, importer.errors
 
 
 class UserImporter(ExcelImporter):
