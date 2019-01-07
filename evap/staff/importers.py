@@ -218,9 +218,9 @@ class ExcelImporter(object):
             msg = _("The existing user would be overwritten with the following data:")
         else:
             msg = _("The existing user was overwritten with the following data:")
-        return (mark_safe(msg +
-            "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)") +
-            "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
+        return (mark_safe(msg
+            + "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)")
+            + "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
     @staticmethod
     def _create_user_inactive_warning(user, test_run):
@@ -261,7 +261,9 @@ class ExcelImporter(object):
 
 
 class EnrollmentImporter(ExcelImporter):
-    W_MANY = 'too_many_enrollments'  # extension of ExcelImporter.warnings keys
+    # extension of ExcelImporter.warnings keys
+    W_DEGREE = 'degree'
+    W_MANY = 'too_many_enrollments'
 
     def __init__(self):
         super().__init__()
@@ -285,7 +287,18 @@ class EnrollmentImporter(ExcelImporter):
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if not evaluation_data == self.evaluations[evaluation_id]:
+            if (set(evaluation_data.degree_names) != set(self.evaluations[evaluation_id].degree_names)
+                    and evaluation_data.name_de == self.evaluations[evaluation_id].name_de
+                    and evaluation_data.name_en == self.evaluations[evaluation_id].name_en
+                    and evaluation_data.type_name == self.evaluations[evaluation_id].type_name
+                    and evaluation_data.is_graded == self.evaluations[evaluation_id].is_graded
+                    and evaluation_data.responsible_email == self.evaluations[evaluation_id].responsible_email):
+                self.warnings[self.W_DEGREE].append(
+                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been added to the course.')
+                    .format(sheet, row + 1, evaluation_data.name_en)
+                )
+                self.evaluations[evaluation_id].degree_names.extend(evaluation_data.degree_names)
+            elif evaluation_data != self.evaluations[evaluation_id]:
                 self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, evaluation_data.name_en))
 
     def consolidate_enrollment_data(self):
@@ -594,5 +607,6 @@ WARNING_DESCRIPTIONS = {
     ExcelImporter.W_EMAIL: ugettext_lazy("Email mismatches"),
     ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
     ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
+    EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
     EnrollmentImporter.W_MANY: ugettext_lazy("Unusually high number of enrollments")
 }
