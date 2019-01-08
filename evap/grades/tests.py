@@ -3,13 +3,13 @@ from datetime import date, datetime, timedelta
 from django.core import mail
 from django.contrib.auth.models import Group
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
-from evap.evaluation.tests.tools import ViewTest, WebTest
 
 
-class GradeUploadTests(WebTest):
+class GradeUploadTest(WebTest):
     csrf_checks = False
 
     @classmethod
@@ -32,7 +32,7 @@ class GradeUploadTests(WebTest):
         )
 
         contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
-                                  can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
@@ -134,7 +134,7 @@ class GradeUploadTests(WebTest):
             voters=[self.student, self.student2]
         )
         contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
-                                    responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                                    responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
@@ -167,9 +167,8 @@ class GradeUploadTests(WebTest):
         self.app.get(url, user="student", status=404)  # grades should not be downloadable anymore
 
 
-class GradeDocumentIndexTest(ViewTest):
+class GradeDocumentIndexTest(WebTest):
     url = '/grades/'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):
@@ -183,34 +182,37 @@ class GradeDocumentIndexTest(ViewTest):
         self.assertNotIn(self.archived_semester.name, page)
 
 
-class GradeDocumentSemesterViewTest(ViewTest):
+class GradeSemesterViewTest(WebTest):
     url = '/grades/semester/1'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
-        cls.semester_course = mommy.make(Course, semester=semester, state="prepared")
 
-    def test_semester_pages(self):
+    def test_does_not_crash(self):
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        semester_course = mommy.make(Course, semester=semester, state="prepared")
         page = self.app.get(self.url, user="grade_publisher", status=200)
-        self.assertIn(self.semester_course.name, page)
-        self.app.get('/grades/semester/2', user="grade_publisher", status=403)
+        self.assertIn(semester_course.name, page)
+
+    def test_403_on_deleted(self):
+        mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
+        self.app.get('/grades/semester/1', user="grade_publisher", status=403)
 
 
-class GradeDocumentCourseViewTest(ViewTest):
+class GradeCourseViewTest(WebTest):
     url = '/grades/semester/1/course/1'
-    test_users = ['grade_publisher']
 
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        archived_semester = mommy.make(Semester, pk=2, grade_documents_are_deleted=True)
-        mommy.make(Course, pk=1, semester=semester, state="prepared")
-        mommy.make(Course, pk=2, semester=archived_semester, state="prepared")
 
-    def test_course_page(self):
-        self.app.get('/grades/semester/2/course/2', user="grade_publisher", status=403)
+    def test_does_not_crash(self):
+        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
+        mommy.make(Course, pk=1, semester=semester, state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=200)
+
+    def test_403_on_archived_semester(self):
+        archived_semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
+        mommy.make(Course, pk=1, semester=archived_semester, state="prepared")
+        self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=403)

@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load evaluation_filters %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
@@ -38,22 +40,33 @@
                     {% include 'user_list_with_links.html' with users=form.instance.ccing_users.all %}
                 </div>
             </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">{% trans 'Courses contributing to (active semester)' %}</h5>
-                    {% if courses_contributing_to %}
+            {% if courses_contributing_to %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans 'Export result pages' %}</h5>
                         <ul>
-                            {% for course in courses_contributing_to %}
-                                <li>{{ course.name }}</li>
+                            {% for semester, courses in courses_contributing_to %}
+                                {% if courses %}
+                                    <li>{{ semester.name }}</li>
+                                    <ul>
+                                        {% for course in courses %}
+                                            <li>
+                                                {% if course|can_user_see_results_page:form.instance %}
+                                                    <a href="{% url 'results:course_detail' semester.id course.id %}?view=export&contributor_id={{ form.instance.id }}">
+                                                        {{ course.name }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ course.name }}
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             {% endfor %}
                         </ul>
-                    {% else %}
-                        <p>
-                            <i>{% trans 'No courses' %}</i>
-                        </p>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         {% endif %}
         <div class="card card-submit-area text-center mb-3">
             <div class="card-body">

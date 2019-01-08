@@ -7,13 +7,9 @@
             class="participants-warning"
         {% endif %}
         data-toggle="tooltip" data-placement="left" title="{% if question_result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
-        {% for count in question_result.counts %}
-            {% with answer_name=question_result.question|get_answer_name:forloop.counter %}
-                {% if answer_name %}
-                    {{ answer_name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
-                    {% if not forloop.last %}</br>{% endif %}
-                {% endif %}
-            {% endwith %}
+        {% for count, name in question_result.counts|zip:question_result.choices.names %}
+            {{ name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
+            {% if not forloop.last %}</br>{% endif %}
         {% endfor %}"
     {% else %}
         data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"

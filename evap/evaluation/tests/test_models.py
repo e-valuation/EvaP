@@ -5,11 +5,12 @@ from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
 
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, NotArchiveable, Question,
                                     Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
-from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tests.tools import let_user_vote_for_course
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_course_result_template_fragment_cache_key
 
@@ -41,7 +42,7 @@ class TestCourses(WebTest):
         self.assertEqual(course.state, 'evaluated')
 
     def test_in_evaluation_to_reviewed(self):
-        # Course is "fully reviewed" as no open text_answers are present by default,
+        # Course is "fully reviewed" as no open text answers are present by default.
         course = mommy.make(Course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
@@ -125,7 +126,7 @@ class TestCourses(WebTest):
 
         responsible_contribution = mommy.make(
                 Contribution, course=course, contributor=mommy.make(UserProfile),
-                responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         course = Course.objects.get()
         self.assertFalse(course.general_contribution_has_questionnaires)
         self.assertFalse(course.all_contributions_have_questionnaires)
@@ -154,8 +155,8 @@ class TestCourses(WebTest):
         course = mommy.make(Course)
         responsible1 = mommy.make(UserProfile)
         responsible2 = mommy.make(UserProfile)
-        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=0)
-        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS, order=1)
+        contribution1 = mommy.make(Contribution, course=course, contributor=responsible1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=0)
+        mommy.make(Contribution, course=course, contributor=responsible2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, order=1)
 
         self.assertEqual(list(course.responsible_contributors), [responsible1, responsible2])
 
@@ -169,10 +170,10 @@ class TestCourses(WebTest):
         responsible = mommy.make(UserProfile)
         course = mommy.make(Course, semester=mommy.make(Semester), is_single_result=True)
         contribution = mommy.make(Contribution,
-            course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
         course.single_result_created()
         course.publish()
         course.save()
@@ -194,10 +195,10 @@ class TestCourses(WebTest):
             semester=mommy.make(Semester), is_single_result=True, _participant_count=5, _voter_count=5
         )
         contribution = mommy.make(Contribution,
-            course=single_result, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS,
+            course=single_result, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().question_set.first(), contribution=contribution)
+        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
         single_result.single_result_created()
         single_result.publish()  # used to crash
@@ -207,22 +208,22 @@ class TestCourses(WebTest):
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, participants=[student1, student2], voters=[student1], state="in_evaluation")
         course.save()
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        course.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(course.can_publish_text_results)
 
-        self.let_user_vote_for_course(student2, course)
+        let_user_vote_for_course(self.app, student2, course)
         course = Course.objects.get(pk=course.pk)
 
         self.assertTrue(course.can_publish_text_results)
 
-    def test_text_answers_get_deleted_if_they_cannot_be_published(self):
+    def test_textanswers_get_deleted_if_they_cannot_be_published(self):
         student = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
 
@@ -230,12 +231,12 @@ class TestCourses(WebTest):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 0)
 
-    def test_text_answers_do_not_get_deleted_if_they_can_be_published(self):
+    def test_textanswers_do_not_get_deleted_if_they_can_be_published(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution)
 
@@ -243,12 +244,12 @@ class TestCourses(WebTest):
         course.publish()
         self.assertEqual(course.textanswer_set.count(), 1)
 
-    def test_hidden_text_answers_get_deleted_on_publish(self):
+    def test_hidden_textanswers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
@@ -259,12 +260,12 @@ class TestCourses(WebTest):
         self.assertEqual(course.textanswer_set.count(), 2)
         self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
 
-    def test_original_text_answers_get_deleted_on_publish(self):
+    def test_original_textanswers_get_deleted_on_publish(self):
         student = mommy.make(UserProfile)
         student2 = mommy.make(UserProfile)
         course = mommy.make(Course, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type="T", questionnaire=questionnaire)
+        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         course.general_contribution.questionnaires.set([questionnaire])
         mommy.make(TextAnswer, question=question, contribution=course.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
 
@@ -371,7 +372,7 @@ class ParticipationArchivingTests(TestCase):
 
     def refresh_course(self):
         """ refresh_from_db does not work with courses"""
-        self.course = self.semester.course_set.first()
+        self.course = self.semester.courses.first()
 
     def setUp(self):
         self.semester.refresh_from_db()
@@ -426,7 +427,7 @@ class ParticipationArchivingTests(TestCase):
         with self.assertRaises(NotArchiveable):
             self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.course_set.first()._archive_participations()
+            self.semester.courses.first()._archive_participations()
 
     def test_course_participations_are_not_archived_if_participant_count_is_set(self):
         course = mommy.make(Course, state="published", _participant_count=1, _voter_count=1)
@@ -438,7 +439,7 @@ class ParticipationArchivingTests(TestCase):
         course = mommy.make(Course,
             state="published", is_single_result=True, _participant_count=5, _voter_count=5
         )
-        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         course.semester.archive_participations()
@@ -456,18 +457,19 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.course = mommy.make(Course)
-        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=cls.user, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
         cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
 
         EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
 
+    @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
-        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
+        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -475,8 +477,8 @@ class TestLoginUrlEmail(TestCase):
         self.user.cc_users.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertFalse("loginkey" in mail.outbox[0].body)  # message does not contain the login url
-        self.assertTrue("loginkey" in mail.outbox[1].body)  # separate email with login url was sent
+        self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
+        self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
         self.assertEqual(len(mail.outbox[1].cc), 0)
         self.assertEqual(mail.outbox[1].to, [self.user.email])
 
@@ -484,14 +486,14 @@ class TestLoginUrlEmail(TestCase):
         # message is not sent to others in cc
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
         EmailTemplate.send_to_users_in_courses(self.template, [self.course], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue("loginkey" in mail.outbox[0].body)  # message does contain the login url
+        self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
 
 class TestEmailTemplate(TestCase):
@@ -511,7 +513,7 @@ class TestEmailRecipientList(TestCase):
         responsible = mommy.make(UserProfile)
         editor = mommy.make(UserProfile)
         contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, course=course, contributor=editor, can_edit=True)
         mommy.make(Contribution, course=course, contributor=contributor)
 

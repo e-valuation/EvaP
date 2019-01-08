@@ -3,8 +3,7 @@ from django.urls import reverse
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, Questionnaire, Question
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import NO_ANSWER, Course, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.rewards.tools import reward_points_of_user
@@ -24,7 +23,7 @@ class TestGrantRewardPoints(WebTest):
         cls.course = mommy.make(Course, state='in_evaluation', participants=[cls.student])
 
         questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type="G")
+        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         cls.course.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
@@ -33,7 +32,7 @@ class TestGrantRewardPoints(WebTest):
         self.form = response.forms["student-vote-form"]
         for key in self.form.fields.keys():
             if key is not None and "question" in key:
-                self.form.set(key, 6)
+                self.form.set(key, NO_ANSWER)
 
     def test_semester_not_activated(self):
         self.form.submit()

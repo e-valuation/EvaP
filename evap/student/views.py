@@ -10,12 +10,12 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Course, Semester
+from evap.evaluation.models import NO_ANSWER, Course, Semester
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
-from evap.results.tools import calculate_average_distribution, distribution_to_grade
+from evap.results.tools import calculate_average_distribution, distribution_to_grade, textanswers_visible_to
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -79,7 +79,7 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
 
     course_form_group = form_groups.pop(course.general_contribution)
 
-    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group)) for contribution, form_group in form_groups.items()]
+    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group), textanswers_visible_to(contribution)) for contribution, form_group in form_groups.items()]
     course_form_group_top = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_above_contributors]
     course_form_group_bottom = [questions_form for questions_form in course_form_group if questions_form.questionnaire.is_below_contributors]
     if not contributor_form_groups:
@@ -100,7 +100,9 @@ def get_valid_form_groups_or_render_vote_page(request, course, preview, for_rend
         success_magic_string=SUCCESS_MAGIC_STRING,
         success_redirect_url=reverse('student:index'),
         evaluation_ends_soon=course.evaluation_ends_soon(),
-        for_rendering_in_modal=for_rendering_in_modal)
+        for_rendering_in_modal=for_rendering_in_modal,
+        general_contribution_textanswers_visible_to=textanswers_visible_to(course.general_contribution),
+    )
     return None, render(request, "student_vote.html", template_data)
 
 
@@ -123,7 +125,7 @@ def vote(request, course_id):
         for contribution, form_group in form_groups.items():
             for questionnaire_form in form_group:
                 questionnaire = questionnaire_form.questionnaire
-                for question in questionnaire.question_set.all():
+                for question in questionnaire.questions.all():
                     if question.is_heading_question:
                         continue
 
@@ -134,7 +136,7 @@ def vote(request, course_id):
                         if value:
                             question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
                     else:
-                        if value != 6:
+                        if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.count += 1
                             answer_counter.save()

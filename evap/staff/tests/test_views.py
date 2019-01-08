@@ -7,15 +7,19 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
 from django.test import override_settings
+from django.test.testcases import TestCase
+
+from django_webtest import WebTest
 from model_mommy import mommy
 import xlrd
 
 from evap.evaluation.models import Semester, UserProfile, Course, CourseType, TextAnswer, Contribution, \
                                    Questionnaire, Question, EmailTemplate, Degree, FaqSection, FaqQuestion, \
                                    RatingAnswerCounter
-from evap.evaluation.tests.tools import FuzzyInt, WebTest, ViewTest
+from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_course, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename
+from evap.staff.views import get_courses_with_prefetched_data
 
 
 def helper_delete_all_import_files(user_id):
@@ -25,8 +29,7 @@ def helper_delete_all_import_files(user_id):
 
 
 # Staff - Sample Files View
-class TestDownloadSampleXlsView(ViewTest):
-    test_users = ['manager']
+class TestDownloadSampleXlsView(WebTest):
     url = '/staff/download_sample_xls/sample.xls'
     email_placeholder = "institution.com"
 
@@ -51,7 +54,7 @@ class TestDownloadSampleXlsView(ViewTest):
 
 
 # Staff - Root View
-class TestStaffIndexView(ViewTest):
+class TestStaffIndexView(WebTestWith200Check):
     test_users = ['manager']
     url = '/staff/'
 
@@ -61,7 +64,7 @@ class TestStaffIndexView(ViewTest):
 
 
 # Staff - FAQ View
-class TestStaffFAQView(ViewTest):
+class TestStaffFAQView(WebTestWith200Check):
     url = '/staff/faq/'
     test_users = ['manager']
 
@@ -70,7 +73,7 @@ class TestStaffFAQView(ViewTest):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
 
-class TestStaffFAQEditView(ViewTest):
+class TestStaffFAQEditView(WebTestWith200Check):
     url = '/staff/faq/1'
     test_users = ['manager']
 
@@ -82,9 +85,8 @@ class TestStaffFAQEditView(ViewTest):
 
 
 # Staff - User Views
-class TestUserIndexView(ViewTest):
+class TestUserIndexView(WebTest):
     url = '/staff/user/'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -104,9 +106,8 @@ class TestUserIndexView(ViewTest):
             self.app.get(self.url, user="manager")
 
 
-class TestUserCreateView(ViewTest):
+class TestUserCreateView(WebTest):
     url = "/staff/user/create"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -130,9 +131,8 @@ class TestUserCreateView(ViewTest):
     (2 / 3, 2),
     (3 / 3, 3),
 ])
-class TestUserEditView(ViewTest):
+class TestUserEditView(WebTest):
     url = "/staff/user/3/edit"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -165,7 +165,7 @@ class TestUserEditView(ViewTest):
         self.assertIn("The removal of courses has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
 
 
-class TestUserMergeSelectionView(ViewTest):
+class TestUserMergeSelectionView(WebTestWith200Check):
     url = "/staff/user/merge"
     test_users = ['manager']
 
@@ -175,7 +175,7 @@ class TestUserMergeSelectionView(ViewTest):
         mommy.make(UserProfile)
 
 
-class TestUserMergeView(ViewTest):
+class TestUserMergeView(WebTestWith200Check):
     url = "/staff/user/3/merge/4"
     test_users = ['manager']
 
@@ -186,9 +186,8 @@ class TestUserMergeView(ViewTest):
         mommy.make(UserProfile, pk=4)
 
 
-class TestUserBulkDeleteView(ViewTest):
+class TestUserBulkDeleteView(WebTest):
     url = '/staff/user/bulk_delete'
-    test_users = ['manager']
     filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
 
     @classmethod
@@ -247,9 +246,8 @@ class TestUserBulkDeleteView(ViewTest):
         self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
 
 
-class TestUserImportView(ViewTest):
+class TestUserImportView(WebTest):
     url = "/staff/user/import"
-    test_users = ["manager"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -343,9 +341,8 @@ class TestUserImportView(ViewTest):
 
 
 # Staff - Semester Views
-class TestSemesterView(ViewTest):
+class TestSemesterView(WebTest):
     url = '/staff/semester/1'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -353,8 +350,6 @@ class TestSemesterView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         cls.course1 = mommy.make(Course, name_de="A - Course 1", name_en="B - Course 1", semester=cls.semester)
         cls.course2 = mommy.make(Course, name_de="B - Course 2", name_en="A - Course 2", semester=cls.semester)
-        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
     def test_view_list_sorting(self):
         page = self.app.get(self.url, user='manager', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
@@ -378,9 +373,14 @@ class TestSemesterView(ViewTest):
         self.app.get('/staff/semester/2', user='manager', status=200)
 
 
-class TestSemesterCreateView(ViewTest):
+class TestGetCoursesWithPrefetchedData(TestCase):
+    def test_get_courses_with_prefetched_data(self):
+        course = mommy.make(Course, is_single_result=True)
+        get_courses_with_prefetched_data(course.semester)
+
+
+class TestSemesterCreateView(WebTest):
     url = '/staff/semester/create'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -403,9 +403,8 @@ class TestSemesterCreateView(ViewTest):
         self.assertEqual(Semester.objects.filter(name_de=name_de, name_en=name_en, short_name_de=short_name_de, short_name_en=short_name_en).count(), 1)
 
 
-class TestSemesterEditView(ViewTest):
+class TestSemesterEditView(WebTest):
     url = '/staff/semester/1/edit'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -429,7 +428,7 @@ class TestSemesterEditView(ViewTest):
         self.assertEqual(self.semester.name_en, new_name_en)
 
 
-class TestSemesterDeleteView(ViewTest):
+class TestSemesterDeleteView(WebTest):
     url = '/staff/semester/delete'
     csrf_checks = False
 
@@ -449,13 +448,12 @@ class TestSemesterDeleteView(ViewTest):
         semester = mommy.make(Semester)
         self.assertTrue(semester.can_manager_delete)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
 
-class TestSemesterAssignView(ViewTest):
+class TestSemesterAssignView(WebTest):
     url = '/staff/semester/1/assign'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -466,10 +464,10 @@ class TestSemesterAssignView(ViewTest):
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
         course1 = mommy.make(Course, semester=cls.semester, type=seminar_type)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course1,
-                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                   responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         course2 = mommy.make(Course, semester=cls.semester, type=lecture_type)
         mommy.make(Contribution, contributor=mommy.make(UserProfile), course=course2,
-                   responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+                   responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_assign_questionnaires(self):
         page = self.app.get(self.url, user="manager")
@@ -478,12 +476,12 @@ class TestSemesterAssignView(ViewTest):
         assign_form['Lecture'] = [self.questionnaire.pk]
         page = assign_form.submit().follow()
 
-        for course in self.semester.course_set.all():
+        for course in self.semester.courses.all():
             self.assertEqual(course.general_contribution.questionnaires.count(), 1)
             self.assertEqual(course.general_contribution.questionnaires.get(), self.questionnaire)
 
 
-class TestSemesterTodoView(ViewTest):
+class TestSemesterTodoView(WebTestWith200Check):
     url = '/staff/semester/1/todo'
     test_users = ['manager']
 
@@ -495,16 +493,15 @@ class TestSemesterTodoView(ViewTest):
     def test_todo(self):
         course = mommy.make(Course, semester=self.semester, state='prepared', name_en='name_to_find', name_de='name_to_find')
         user = mommy.make(UserProfile, username='user_to_find')
-        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=user, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
         self.assertContains(response, 'name_to_find')
 
 
-class TestSendReminderView(ViewTest):
+class TestSendReminderView(WebTest):
     url = '/staff/semester/1/responsible/3/send_reminder'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -512,7 +509,7 @@ class TestSendReminderView(ViewTest):
         cls.semester = mommy.make(Semester, pk=1)
         course = mommy.make(Course, semester=cls.semester, state='prepared')
         responsible = mommy.make(UserProfile, pk=3, email='a.b@example.com')
-        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_form(self):
         page = self.app.get(self.url, user='manager')
@@ -525,9 +522,8 @@ class TestSendReminderView(ViewTest):
         self.assertIn("uiae", mail.outbox[0].body)
 
 
-class TestSemesterImportView(ViewTest):
+class TestSemesterImportView(WebTest):
     url = "/staff/semester/1/import"
-    test_users = ["manager"]
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -654,9 +650,8 @@ class TestSemesterImportView(ViewTest):
         self.assertContains(page, 'Import previously uploaded file')
 
 
-class TestSemesterExportView(ViewTest):
+class TestSemesterExportView(WebTest):
     url = '/staff/semester/1/export'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -680,7 +675,7 @@ class TestSemesterExportView(ViewTest):
                          'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
 
 
-class TestSemesterRawDataExportView(ViewTest):
+class TestSemesterRawDataExportView(WebTestWith200Check):
     url = '/staff/semester/1/raw_export'
     test_users = ['manager']
 
@@ -692,18 +687,16 @@ class TestSemesterRawDataExportView(ViewTest):
 
     def test_view_downloads_csv_file(self):
         student_user = mommy.make(UserProfile, username='student')
-        course1 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+        mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
             voters=[student_user], name_de="1", name_en="Course 1")
-        course2 = mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
+        mommy.make(Course, type=self.course_type, semester=self.semester, participants=[student_user],
             name_de="2", name_en="Course 2")
-        mommy.make(Contribution, course=course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
-            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average grade\r\n"
-            "Course 1;;Type;False;new;1;1;0;\r\n"
-            "Course 2;;Type;False;new;0;1;0;\r\n"
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
+            "Course 1;;Type;False;new;1;1;0;\n"
+            "Course 2;;Type;False;new;0;1;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
@@ -713,15 +706,14 @@ class TestSemesterRawDataExportView(ViewTest):
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
-            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Comments;Average grade\r\n"
-            "Single Result;;Type;True;new;5;5;0;\r\n"
+            "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
+            "Single Result;;Type;True;new;5;5;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
-class TestSemesterParticipationDataExportView(ViewTest):
+class TestSemesterParticipationDataExportView(WebTest):
     url = '/staff/semester/1/participation_export'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -734,8 +726,8 @@ class TestSemesterParticipationDataExportView(ViewTest):
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Course 1", is_rewarded=True)
         cls.course2 = mommy.make(Course, type=cls.course_type, semester=cls.semester, participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Course 2", is_rewarded=False)
-        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, course=cls.course2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         mommy.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
@@ -743,13 +735,40 @@ class TestSemesterParticipationDataExportView(ViewTest):
         response = self.app.get(self.url, user='manager')
         expected_content = (
             "Username;Can use reward points;#Required courses voted for;#Required courses;#Optional courses voted for;"
-            "#Optional courses;Earned reward points\r\n"
-            "student;False;1;1;0;1;65\r\n"
-            "student2;False;0;0;0;1;0\r\n")
+            "#Optional courses;Earned reward points\n"
+            "student;False;1;1;0;1;65\n"
+            "student2;False;0;0;0;1;0\n")
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
-class TestCourseOperationView(ViewTest):
+class TestLoginKeyExportView(WebTest):
+    url = '/staff/semester/1/course/1/login_key_export'
+
+    @classmethod
+    def setUpTestData(cls):
+        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+
+        cls.external_user = mommy.make(UserProfile, email="user@external.com")
+        cls.internal_user = mommy.make(UserProfile, email="user@institution.example.com")
+
+        semester = mommy.make(Semester, pk=1)
+        mommy.make(Course, pk=1, semester=semester, participants=[cls.external_user, cls.internal_user], voters=[cls.external_user, cls.internal_user])
+
+    def test_login_key_export_works_as_expected(self):
+        self.assertEqual(self.external_user.login_key, None)
+        self.assertEqual(self.internal_user.login_key, None)
+
+        response = self.app.get(self.url, user='manager')
+
+        self.external_user.refresh_from_db()
+        self.assertNotEqual(self.external_user.login_key, None)
+        self.assertEqual(self.internal_user.login_key, None)
+
+        expected_string = "Last name;First name;Email;Login key\n;;user@external.com;localhost:8000/key/{}\n".format(self.external_user.login_key)
+        self.assertEqual(response.body.decode(), expected_string)
+
+
+class TestCourseOperationView(WebTest):
     url = '/staff/semester/1/courseoperation'
 
     @classmethod
@@ -823,9 +842,8 @@ class TestCourseOperationView(ViewTest):
         self.assertEqual(course.state, 'prepared')
 
 
-class TestSingleResultCreateView(ViewTest):
+class TestSingleResultCreateView(WebTest):
     url = '/staff/semester/1/singleresult/create'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -858,9 +876,8 @@ class TestSingleResultCreateView(ViewTest):
 
 
 # Staff - Semester - Course Views
-class TestCourseCreateView(ViewTest):
+class TestCourseCreateView(WebTest):
     url = '/staff/semester/1/course/create'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -874,7 +891,7 @@ class TestCourseCreateView(ViewTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get("/staff/semester/1/course/create", user="manager", status=200)
+        response = self.app.get(self.url, user="manager", status=200)
         form = response.forms["course-form"]
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
@@ -882,7 +899,7 @@ class TestCourseCreateView(ViewTest):
         form["degrees"] = [1]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
-        form["general_questions"] = [self.q1.pk]
+        form["general_questionnaires"] = [self.q1.pk]
 
         form['contributions-TOTAL_FORMS'] = 1
         form['contributions-INITIAL_FORMS'] = 0
@@ -892,7 +909,7 @@ class TestCourseCreateView(ViewTest):
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
         form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
-        form['contributions-0-comment_visibility'] = Contribution.ALL_COMMENTS
+        form['contributions-0-textanswer_visibility'] = Contribution.GENERAL_TEXTANSWERS
 
         form.submit()
         self.assertFalse(Course.objects.exists())
@@ -909,9 +926,8 @@ class TestCourseCreateView(ViewTest):
     (2 / 3, 2),
     (3 / 3, 3),
 ])
-class TestCourseEditView(ViewTest):
+class TestCourseEditView(WebTest):
     url = '/staff/semester/1/course/1/edit'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -920,12 +936,15 @@ class TestCourseEditView(ViewTest):
         degree = mommy.make(Degree)
         cls.course = mommy.make(Course, semester=semester, pk=1, degrees=[degree], last_modified_user=cls.user,
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
-        mommy.make(Questionnaire, question_set=[mommy.make(Question)])
+        mommy.make(Questionnaire, questions=[mommy.make(Question)])
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # This is necessary so that the call to is_single_result does not fail.
         responsible = mommy.make(UserProfile)
-        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        cls.contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+
+    def setUp(self):
+        self.course = Course.objects.get(pk=self.course.pk)
 
     def test_edit_course(self):
         user = mommy.make(UserProfile)
@@ -935,7 +954,7 @@ class TestCourseEditView(ViewTest):
         form = page.forms["course-form"]
         form['contributions-0-contributor'] = user.pk
         form['contributions-0-responsibility'] = Contribution.IS_RESPONSIBLE
-        page = form.submit("operation", value="save")
+        form.submit("operation", value="save")
         self.assertEqual(list(self.course.responsible_contributors), [user])
 
     def test_remove_responsibility(self):
@@ -955,7 +974,7 @@ class TestCourseEditView(ViewTest):
         student = mommy.make(UserProfile, email="foo@institution.example.com",
             courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove a single participant
         form = page.forms['course-form']
@@ -973,7 +992,7 @@ class TestCourseEditView(ViewTest):
             mommy.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
                 courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove five participants
         form = page.forms['course-form']
@@ -993,7 +1012,7 @@ class TestCourseEditView(ViewTest):
                 courses_participating_in=[self.course, already_evaluated], courses_voted_for=[already_evaluated])
             RewardPointGranting.objects.create(user_profile=user, semester=self.course.semester, value=points_granted)
 
-        page = self.app.get(reverse('staff:course_edit', args=[self.course.semester.pk, self.course.pk]), user='manager')
+        page = self.app.get(self.url, user='manager')
 
         # remove four participants
         form = page.forms['course-form']
@@ -1020,7 +1039,7 @@ class TestCourseEditView(ViewTest):
         self.assertEqual(old_last_modified_user.username, self.user.username)
         self.assertEqual(old_state, "new")
 
-        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.username, status=200)
         form = page.forms["course-form"]
         # approve without changes
         form.submit(name="operation", value="approve")
@@ -1036,7 +1055,7 @@ class TestCourseEditView(ViewTest):
         self.course.save()
         self.assertEqual(self.course.state, "new")
 
-        page = self.app.get('/staff/semester/{}/course/{}/edit'.format(self.course.semester.pk, self.course.pk), user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.username, status=200)
         form = page.forms["course-form"]
         form["name_de"] = "Test name"
         # approve after changes
@@ -1049,8 +1068,55 @@ class TestCourseEditView(ViewTest):
         self.assertEqual(self.course.vote_start_datetime, old_vote_start_datetime)
         self.assertEqual(self.course.vote_end_date, old_vote_end_date)
 
+    def test_last_modified_on_formset_change(self):
+        """
+            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
+        """
 
-class TestSingleResultEditView(ViewTest):
+        self.assertEqual(self.course.last_modified_user, self.user)
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+        page = self.app.get(self.url, user=test_user.username, status=200)
+        form = page.forms["course-form"]
+
+        # Change label of the first contribution
+        form['contributions-0-label'] = 'test_label'
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'approved')
+        self.assertEqual(self.course.last_modified_user, test_user)
+        self.assertGreater(self.course.last_modified_time, last_modified_time_before)
+
+    def test_last_modified_unchanged(self):
+        """
+            Tests if last_modified_{user,time} stays the same when no values are changed in the form
+        """
+        last_modified_user_before = self.course.last_modified_user
+        last_modified_time_before = self.course.last_modified_time
+
+        test_user = mommy.make(
+            UserProfile,
+            username='approve_test_user',
+            groups=[Group.objects.get(name='Manager')]
+        )
+
+        page = self.app.get(self.url, user=test_user, status=200)
+        form = page.forms["course-form"]
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'approved')
+        self.assertEqual(self.course.last_modified_user, last_modified_user_before)
+        self.assertEqual(self.course.last_modified_time, last_modified_time_before)
+
+
+class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/edit'
     test_users = ['manager']
 
@@ -1062,9 +1128,9 @@ class TestSingleResultEditView(ViewTest):
         course = mommy.make(Course, semester=semester, pk=1)
         responsible = mommy.make(UserProfile)
         contribution = mommy.make(Contribution, course=course, contributor=responsible, responsible=True, can_edit=True,
-                                  comment_visibility=Contribution.ALL_COMMENTS, questionnaires=[Questionnaire.single_result_questionnaire()])
+                                  textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
-        question = Questionnaire.single_result_questionnaire().question_set.get()
+        question = Questionnaire.single_result_questionnaire().questions.get()
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=2, count=15)
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=3, count=40)
@@ -1072,7 +1138,7 @@ class TestSingleResultEditView(ViewTest):
         mommy.make(RatingAnswerCounter, question=question, contribution=contribution, answer=5, count=30)
 
 
-class TestCoursePreviewView(ViewTest):
+class TestCoursePreviewView(WebTestWith200Check):
     url = '/staff/semester/1/course/1/preview'
     test_users = ['manager']
 
@@ -1084,9 +1150,8 @@ class TestCoursePreviewView(ViewTest):
         course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
 
-class TestCourseImportPersonsView(ViewTest):
-    url = "/staff/semester/1/course/1/person_import"
-    test_users = ["manager"]
+class TestCourseImportPersonsView(WebTest):
+    url = "/staff/semester/1/course/1/person_management"
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -1275,9 +1340,8 @@ class TestCourseImportPersonsView(ViewTest):
         self.assertEqual(reply.status_code, 400)
 
 
-class TestCourseEmailView(ViewTest):
+class TestCourseEmailView(WebTest):
     url = '/staff/semester/1/course/1/email'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1298,8 +1362,8 @@ class TestCourseEmailView(ViewTest):
         self.assertEqual(len(mail.outbox), 2)
 
 
-class TestCourseCommentView(ViewTest):
-    url = '/staff/semester/1/course/1/comments'
+class TestCourseTextAnswerView(WebTest):
+    url = '/staff/semester/1/course/1/textanswers'
 
     @classmethod
     def setUpTestData(cls):
@@ -1308,38 +1372,38 @@ class TestCourseCommentView(ViewTest):
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        question = mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         cls.answer = 'should show up'
         mommy.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
 
-    def test_comments_showing_up(self):
+    def test_textanswers_showing_up(self):
         # in a course with only one voter the view should not be available
         self.app.get(self.url, user='manager', status=403)
 
         # add additional voter
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now it should work
         self.app.get(self.url, user='manager', status=200)
 
-    def test_comments_quick_view(self):
-        self.let_user_vote_for_course(self.student2, self.course)
+    def test_textanswers_quick_view(self):
+        let_user_vote_for_course(self.app, self.student2, self.course)
         page = self.app.get(self.url, user='manager', status=200)
         self.assertContains(page, self.answer)
 
-    def test_comments_full_view(self):
-        self.let_user_vote_for_course(self.student2, self.course)
+    def test_textanswers_full_view(self):
+        let_user_vote_for_course(self.app, self.student2, self.course)
         page = self.app.get(self.url + '?view=full', user='manager', status=200)
         self.assertContains(page, self.answer)
 
 
-class TestCourseCommentEditView(ViewTest):
-    url = '/staff/semester/1/course/1/comment/00000000-0000-0000-0000-000000000001/edit'
+class TestCourseTextAnswerEditView(WebTest):
+    url = '/staff/semester/1/course/1/textanswer/00000000-0000-0000-0000-000000000001/edit'
 
     @classmethod
     def setUpTestData(cls):
@@ -1348,25 +1412,25 @@ class TestCourseCommentEditView(ViewTest):
         student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, pk=1, semester=semester, participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, questionnaire=questionnaire, type='T')
+        question = mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         contribution = mommy.make(Contribution, course=cls.course, contributor=mommy.make(UserProfile), questionnaires=[questionnaire])
         mommy.make(TextAnswer, contribution=contribution, question=question, answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
 
-    def test_comments_showing_up(self):
+    def test_textanswers_showing_up(self):
         # in a course with only one voter the view should not be available
         self.app.get(self.url, user='manager', status=403)
 
         # add additional voter
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now it should work
         response = self.app.get(self.url, user='manager')
 
-        form = response.forms['comment-edit-form']
+        form = response.forms['textanswer-edit-form']
         self.assertEqual(form['answer'].value, 'test answer text')
         form['answer'] = 'edited answer text'
         form.submit()
@@ -1376,9 +1440,8 @@ class TestCourseCommentEditView(ViewTest):
 
 
 # Staff Questionnaire Views
-class TestQuestionnaireNewVersionView(ViewTest):
+class TestQuestionnaireNewVersionView(WebTest):
     url = '/staff/questionnaire/2/new_version'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1416,9 +1479,8 @@ class TestQuestionnaireNewVersionView(ViewTest):
         self.assertEqual(page.location, '/staff/questionnaire/')
 
 
-class TestQuestionnaireCreateView(ViewTest):
+class TestQuestionnaireCreateView(WebTest):
     url = "/staff/questionnaire/create"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1432,16 +1494,16 @@ class TestQuestionnaireCreateView(ViewTest):
         questionnaire_form['name_en'] = "test questionnaire"
         questionnaire_form['public_name_de'] = "Oeffentlicher Test Fragebogen"
         questionnaire_form['public_name_en'] = "Public Test Questionnaire"
-        questionnaire_form['question_set-0-text_de'] = "Frage 1"
-        questionnaire_form['question_set-0-text_en'] = "Question 1"
-        questionnaire_form['question_set-0-type'] = "T"
+        questionnaire_form['questions-0-text_de'] = "Frage 1"
+        questionnaire_form['questions-0-text_en'] = "Question 1"
+        questionnaire_form['questions-0-type'] = Question.TEXT
         questionnaire_form['order'] = 0
         questionnaire_form['type'] = Questionnaire.TOP
         questionnaire_form.submit().follow()
 
         # retrieve new questionnaire
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen", name_en="test questionnaire")
-        self.assertEqual(questionnaire.question_set.count(), 1)
+        self.assertEqual(questionnaire.questions.count(), 1)
 
     def test_create_empty_questionnaire(self):
         page = self.app.get(self.url, user="manager")
@@ -1459,9 +1521,8 @@ class TestQuestionnaireCreateView(ViewTest):
         self.assertFalse(Questionnaire.objects.filter(name_de="Test Fragebogen", name_en="test questionnaire").exists())
 
 
-class TestQuestionnaireIndexView(ViewTest):
+class TestQuestionnaireIndexView(WebTest):
     url = "/staff/questionnaire/"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1479,7 +1540,7 @@ class TestQuestionnaireIndexView(ViewTest):
         self.assertTrue(top_index < contributor_index < bottom_index)
 
 
-class TestQuestionnaireEditView(ViewTest):
+class TestQuestionnaireEditView(WebTestWith200Check):
     url = '/staff/questionnaire/2/edit'
     test_users = ['manager']
 
@@ -1518,22 +1579,21 @@ class TestQuestionnaireEditView(ViewTest):
         self.assertEqual(form['type'].options, [('20', True, 'Contributor questionnaire')])
 
 
-class TestQuestionnaireViewView(ViewTest):
+class TestQuestionnaireViewView(WebTestWith200Check):
     url = '/staff/questionnaire/2'
     test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
         questionnaire = mommy.make(Questionnaire, id=2)
-        mommy.make(Question, questionnaire=questionnaire, type='T')
-        mommy.make(Question, questionnaire=questionnaire, type='G')
-        mommy.make(Question, questionnaire=questionnaire, type='L')
+        mommy.make(Question, questionnaire=questionnaire, type=Question.TEXT)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         mommy.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
 
-class TestQuestionnaireCopyView(ViewTest):
+class TestQuestionnaireCopyView(WebTest):
     url = '/staff/questionnaire/2/copy'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1557,7 +1617,7 @@ class TestQuestionnaireCopyView(ViewTest):
         page = questionnaire_form.submit().follow()
 
         questionnaire = Questionnaire.objects.get(name_de="Test Fragebogen (kopiert)", name_en="test questionnaire (copied)")
-        self.assertEqual(questionnaire.question_set.count(), 1)
+        self.assertEqual(questionnaire.questions.count(), 1)
 
 
 class TestQuestionnaireDeletionView(WebTest):
@@ -1588,9 +1648,8 @@ class TestQuestionnaireDeletionView(WebTest):
 
 
 # Staff Course Types Views
-class TestCourseTypeView(ViewTest):
+class TestCourseTypeView(WebTest):
     url = "/staff/course_types/"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1616,9 +1675,8 @@ class TestCourseTypeView(ViewTest):
         self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
 
 
-class TestCourseTypeMergeSelectionView(ViewTest):
+class TestCourseTypeMergeSelectionView(WebTest):
     url = "/staff/course_types/merge"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1635,9 +1693,8 @@ class TestCourseTypeMergeSelectionView(ViewTest):
         self.assertIn("You must select two different course types", str(response))
 
 
-class TestCourseTypeMergeView(ViewTest):
+class TestCourseTypeMergeView(WebTest):
     url = "/staff/course_types/1/merge/2"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1660,8 +1717,8 @@ class TestCourseTypeMergeView(ViewTest):
 
 
 # Other Views
-class TestCourseCommentsUpdatePublishView(WebTest):
-    url = reverse("staff:course_comments_update_publish")
+class TestCourseTextAnswersUpdatePublishView(WebTest):
+    url = reverse("staff:course_textanswers_update_publish")
     csrf_checks = False
 
     @classmethod
@@ -1670,9 +1727,9 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         cls.student1 = mommy.make(UserProfile)
         cls.student2 = mommy.make(UserProfile)
         cls.course = mommy.make(Course, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
-        top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_course_questionnaire, type="L")
-        cls.course.general_contribution.questionnaires.set([top_course_questionnaire])
+        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        cls.course.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):
         textanswer = mommy.make(TextAnswer, state=old_state)
@@ -1688,7 +1745,7 @@ class TestCourseCommentsUpdatePublishView(WebTest):
         # in a course with only one voter reviewing should fail
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish", expect_errors=True)
 
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
 
         # now reviewing should work
         self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
@@ -1717,9 +1774,8 @@ class ParticipationArchivingTests(WebTest):
         self.app.get(semester_url + "courseoperation", user="manager", status=403)
 
 
-class TestTemplateEditView(ViewTest):
+class TestTemplateEditView(WebTest):
     url = "/staff/template/1"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1742,9 +1798,8 @@ class TestTemplateEditView(ViewTest):
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
 
 
-class TestDegreeView(ViewTest):
+class TestDegreeView(WebTest):
     url = "/staff/degrees/"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1765,9 +1820,8 @@ class TestDegreeView(ViewTest):
         self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
 
 
-class TestSemesterQuestionnaireAssignment(ViewTest):
+class TestSemesterQuestionnaireAssignment(WebTest):
     url = "/staff/semester/1/assign"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
@@ -1781,8 +1835,8 @@ class TestSemesterQuestionnaireAssignment(ViewTest):
         cls.questionnaire_responsible = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         cls.course_1 = mommy.make(Course, semester=cls.semester, type=cls.course_type_1)
         cls.course_2 = mommy.make(Course, semester=cls.semester, type=cls.course_type_2)
-        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_1, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_1, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, contributor=cls.responsible, course=cls.course_2, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user="manager", status=200)

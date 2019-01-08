@@ -33,7 +33,7 @@
 
                 row.find("select").each(function(){
                     $(this).find('option:selected').removeAttr("selected");
-                    $(this).find('option:first-child').attr("selected", "selected");
+                    $(this).find('option').first().attr("selected", "selected");
                 });
 
                 //Check the first item in every button group

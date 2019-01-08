@@ -1,9 +1,9 @@
 # EvaP - Evaluation Platform
 
-[![build status](https://travis-ci.org/fsr-itse/EvaP.svg)](https://travis-ci.org/fsr-itse/EvaP)
-[![Requirements Status](https://requires.io/github/fsr-itse/EvaP/requirements.svg?branch=master)](https://requires.io/github/fsr-itse/EvaP/requirements/?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fsr-itse/EvaP&amp;utm_campaign=Badge_Grade)
-[![Code Coverage](https://coveralls.io/repos/github/fsr-itse/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-itse/EvaP?branch=master)
+[![Build Status](https://travis-ci.org/fsr-de/EvaP.svg?branch=master)](https://travis-ci.org/fsr-de/EvaP)
+[![Requirements Status](https://requires.io/github/fsr-de/EvaP/requirements.svg?branch=master)](https://requires.io/github/fsr-de/EvaP/requirements/?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
+[![Coverage Status](https://coveralls.io/repos/github/fsr-de/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-de/EvaP?branch=master)
 
 
 ## What is EvaP?
@@ -21,7 +21,11 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
-2. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
+2. If you're using Windows, you want to change git's autocrlf setting to "input" so git will not change line endings when checking out files, using this command:
+
+        git config --global core.autocrlf input
+
+3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
 
         git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
         cd EvaP
@@ -29,7 +33,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
         vagrant ssh
         ./manage.py run
 
-3. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
+4. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
 
 
 That's it!

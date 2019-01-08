@@ -11,7 +11,7 @@ from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType
+from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
     TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
@@ -23,6 +23,10 @@ def get_course_result_template_fragment_cache_key(course_id, language, can_user_
 
 def delete_template_cache(course):
     assert course.state != 'published'
+    _delete_template_cache_impl(course)
+
+
+def _delete_template_cache_impl(course):
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', True))
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', False))
     caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', True))
@@ -47,6 +51,13 @@ def warm_up_template_cache(courses):
             assert get_course_result_template_fragment_cache_key(course.id, 'de', False) in caches['results']
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
+
+
+def update_template_cache(courses):
+    for course in courses:
+        assert course.state == "published"
+        _delete_template_cache_impl(course)
+        warm_up_template_cache([course])
 
 
 def get_courses_with_prefetched_data(courses):
@@ -100,7 +111,7 @@ def index(request):
 @login_required
 def course_detail(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.course_set, id=course_id, semester=semester)
+    course = get_object_or_404(semester.courses, id=course_id, semester=semester)
 
     if not course.can_user_see_results_page(request.user):
         raise PermissionDenied
@@ -108,21 +119,28 @@ def course_detail(request, semester_id, course_id):
     course_result = collect_results(course)
 
     if request.user.is_reviewer:
-        public_view = request.GET.get('public_view') != 'false'  # if parameter is not given, show public view.
+        view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
     else:
-        public_view = request.GET.get('public_view') == 'true'  # if parameter is not given, show own view.
+        view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
+    if view not in ['public', 'full', 'export']:
+        view = 'public'
 
+    view_as_user = request.user
+    if view == 'export' and request.user.is_staff:
+        view_as_user = UserProfile.objects.get(id=int(request.GET.get('contributor_id', request.user.id)))
+
+    represented_users = [view_as_user]
+    if view != 'export':
+        represented_users += list(view_as_user.represented_users.all())
     # redirect to non-public view if there is none because the results have not been published
-    if not course.can_publish_rating_results:
-        public_view = False
-
-    represented_users = list(request.user.represented_users.all()) + [request.user]
+    if not course.can_publish_rating_results and view == 'public':
+        view = 'full'
 
     # remove text answers if the user may not see them
     for questionnaire_result in course_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if user_can_see_text_answer(request.user, represented_users, answer, public_view)]
+                question_result.answers = [answer for answer in question_result.answers if user_can_see_textanswer(view_as_user, represented_users, answer, view)]
         # remove empty TextResults
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
@@ -145,35 +163,43 @@ def course_detail(request, semester_id, course_id):
     add_warnings(course, course_result)
 
     # split course_result into different lists
-    course_questionnaire_results_top = []
-    course_questionnaire_results_bottom = []
+    general_questionnaire_results_top = []
+    general_questionnaire_results_bottom = []
     contributor_contribution_results = []
     for contribution_result in course_result.contribution_results:
         if contribution_result.contributor is None:
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
-                    course_questionnaire_results_bottom.append(questionnaire_result)
+                    general_questionnaire_results_bottom.append(questionnaire_result)
                 else:
-                    course_questionnaire_results_top.append(questionnaire_result)
-        else:
+                    general_questionnaire_results_top.append(questionnaire_result)
+        elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
             contributor_contribution_results.append(contribution_result)
 
     if not contributor_contribution_results:
-        course_questionnaire_results_top += course_questionnaire_results_bottom
-        course_questionnaire_results_bottom = []
+        general_questionnaire_results_top += general_questionnaire_results_bottom
+        general_questionnaire_results_bottom = []
 
     course.distribution = calculate_average_distribution(course)
     course.avg_grade = distribution_to_grade(course.distribution)
 
+    other_contributors = []
+    if view == 'export':
+        other_contributors = [contribution_result.contributor for contribution_result in course_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
+
     template_data = dict(
-            course=course,
-            course_questionnaire_results_top=course_questionnaire_results_top,
-            course_questionnaire_results_bottom=course_questionnaire_results_bottom,
-            contributor_contribution_results=contributor_contribution_results,
-            reviewer=request.user.is_reviewer,
-            contributor=course.is_user_contributor_or_delegate(request.user),
-            can_download_grades=request.user.can_download_grades,
-            public_view=public_view)
+        course=course,
+        general_questionnaire_results_top=general_questionnaire_results_top,
+        general_questionnaire_results_bottom=general_questionnaire_results_bottom,
+        contributor_contribution_results=contributor_contribution_results,
+        is_reviewer=view_as_user.is_reviewer,
+        is_contributor=course.is_user_contributor(view_as_user),
+        is_contributor_or_delegate=course.is_user_contributor_or_delegate(view_as_user),
+        can_download_grades=view_as_user.can_download_grades,
+        view=view,
+        view_as_user=view_as_user,
+        other_contributors=other_contributors,
+    )
     return render(request, "results_course_detail.html", template_data)
 
 
@@ -200,30 +226,38 @@ def add_warnings(course, course_result):
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
-def user_can_see_text_answer(user, represented_users, text_answer, public_view=False):
-    assert text_answer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+def user_can_see_textanswer(user, represented_users, textanswer, view):
+    assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+    contributor = textanswer.contribution.contributor
 
-    if public_view:
+    if view == 'public':
         return False
-    if user.is_reviewer:
+    elif view == 'export':
+        if textanswer.is_private:
+            return False
+        if not textanswer.contribution.is_general and contributor != user:
+            return False
+    elif user.is_reviewer:
         return True
 
-    contributor = text_answer.contribution.contributor
-
-    if text_answer.is_private:
+    if textanswer.is_private:
         return contributor == user
 
-    if text_answer.is_published:
-        if text_answer.contribution.responsible:
-            return contributor == user or user in contributor.delegates.all()
+    # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
+    # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
+    if textanswer.is_published:
+        # text answers about responsible contributors can only be seen by the users themselves and by their delegates
+        # they can not be seen by other responsible contributors
+        if textanswer.contribution.responsible:
+            return contributor in represented_users
 
+        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
-        if text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.ALL_COMMENTS).exists():
-            return True
-        if text_answer.contribution.is_general and text_answer.contribution.course.contributions.filter(
-                contributor__in=represented_users, comment_visibility=Contribution.COURSE_COMMENTS).exists():
+        # users can see text answers from general contributions if one of their represented users has text answer
+        # visibility GENERAL_TEXTANSWERS for the course
+        if textanswer.contribution.is_general and textanswer.contribution.course.contributions.filter(
+                contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
             return True
 
     return False

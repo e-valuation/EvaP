@@ -112,7 +112,7 @@ def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwarg
             # a course got removed from a participant
             user = instance
 
-            for semester in Semester.objects.filter(course__pk__in=pk_set):
+            for semester in Semester.objects.filter(courses__pk__in=pk_set):
                 granting, __ = grant_reward_points_if_eligible(user, semester)
                 if granting:
                     grantings = [granting]

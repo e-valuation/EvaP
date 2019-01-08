@@ -1,15 +1,20 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import Semester, UserProfile, Course, Contribution, Questionnaire, Degree, Question, RatingAnswerCounter
-from evap.evaluation.tests.tools import ViewTest, WebTest
+from evap.evaluation.models import Contribution, Course, Degree, Question, Questionnaire, RatingAnswerCounter, \
+    Semester, UserProfile
+from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_course
 from evap.results.views import get_courses_with_prefetched_data
 
 import random
 
 
-class TestResultsView(ViewTest):
+class TestResultsView(WebTestWith200Check):
     url = '/results/'
     test_users = ['manager']
 
@@ -51,7 +56,7 @@ class TestResultsViewContributionWarning(WebTest):
         questionnaire = mommy.make(Questionnaire)
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.contribution = mommy.make(Contribution, course=cls.course, questionnaires=[questionnaire], contributor=contributor)
-        cls.likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
+        cls.likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = '/results/semester/%s/course/%s' % (cls.semester.id, cls.course.id)
 
     def test_many_answers_course_no_warning(self):
@@ -69,7 +74,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertIn("Only a few participants answered these questions.", page)
 
 
-class TestResultsSemesterCourseDetailView(ViewTest):
+class TestResultsSemesterCourseDetailView(WebTestWith200Check):
     url = '/results/semester/2/course/21'
     test_users = ['manager', 'contributor', 'responsible']
 
@@ -84,7 +89,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         # Normal course with responsible and contributor.
         cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
 
-        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=cls.course, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor, can_edit=True)
 
     def test_questionnaire_ordering(self):
@@ -92,13 +97,13 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         bottom_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
 
-        top_heading_question = mommy.make(Question, type="H", questionnaire=top_questionnaire, order=0)
-        top_likert_question = mommy.make(Question, type="L", questionnaire=top_questionnaire, order=1)
+        top_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
+        top_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
 
-        contributor_likert_question = mommy.make(Question, type="L", questionnaire=contributor_questionnaire)
+        contributor_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
-        bottom_heading_question = mommy.make(Question, type="H", questionnaire=bottom_questionnaire, order=0)
-        bottom_likert_question = mommy.make(Question, type="L", questionnaire=bottom_questionnaire, order=1)
+        bottom_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0)
+        bottom_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
 
         self.course.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
@@ -107,7 +112,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         mommy.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         mommy.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.course.general_contribution, answer=3, count=100)
 
-        content = self.app.get("/results/semester/2/course/21", user='manager').body.decode()
+        content = self.app.get(self.url, user='manager').body.decode()
 
         top_heading_index = content.index(top_heading_question.text)
         top_likert_index = content.index(top_likert_question.text)
@@ -121,15 +126,15 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         contributor = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire)
 
-        heading_question_0 = mommy.make(Question, type="H", questionnaire=questionnaire, order=0)
-        heading_question_1 = mommy.make(Question, type="H", questionnaire=questionnaire, order=1)
-        likert_question = mommy.make(Question, type="L", questionnaire=questionnaire, order=2)
-        heading_question_2 = mommy.make(Question, type="H", questionnaire=questionnaire, order=3)
+        heading_question_0 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
+        heading_question_1 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        heading_question_2 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
         contribution = mommy.make(Contribution, course=self.course, questionnaires=[questionnaire], contributor=contributor)
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
-        page = self.app.get("/results/semester/2/course/21", user='manager')
+        page = self.app.get(self.url, user='manager')
 
         self.assertNotIn(heading_question_0.text, page)
         self.assertIn(heading_question_1.text, page)
@@ -137,15 +142,12 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.assertNotIn(heading_question_2.text, page)
 
     def test_default_view_is_public(self):
-        url = '/results/semester/%s/course/%s' % (self.semester.id, self.course.id)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
-        page_without_get_parameter = self.app.get(url, user='manager')
-        url = '/results/semester/%s/course/%s?public_view=true' % (self.semester.id, self.course.id)
+        page_without_get_parameter = self.app.get(self.url, user='manager')
         random.seed(42)
-        page_with_get_parameter = self.app.get(url, user='manager')
-        url = '/results/semester/%s/course/%s?public_view=asdf' % (self.semester.id, self.course.id)
+        page_with_get_parameter = self.app.get(self.url + '?view=public', user='manager')
         random.seed(42)
-        page_with_random_get_parameter = self.app.get(url, user='manager')
+        page_with_random_get_parameter = self.app.get(self.url + '?view=asdf', user='manager')
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
@@ -155,7 +157,7 @@ class TestResultsSemesterCourseDetailView(ViewTest):
         self.app.get(url, user='student', status=403)
 
 
-class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
+class TestResultsSemesterCourseDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester, id=2)
@@ -168,8 +170,8 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
 
         cls.course = mommy.make(Course, id=22, state='in_evaluation', semester=cls.semester, participants=students)
         questionnaire = mommy.make(Questionnaire)
-        cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type="G")
-        mommy.make(Question, questionnaire=questionnaire, type="L")
+        cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.course.general_contribution.questionnaires.set([questionnaire])
         cls.responsible_contribution = mommy.make(Contribution, contributor=responsible, course=cls.course, questionnaires=[questionnaire])
 
@@ -199,7 +201,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
     def test_answer_visibility_one_voter(self):
-        self.let_user_vote_for_course(self.student1, self.course)
+        let_user_vote_for_course(self.app, self.student1, self.course)
         self.course.evaluation_end()
         self.course.review_finished()
         self.course.publish()
@@ -211,8 +213,8 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
         self.helper_test_answer_visibility_one_voter("student", expect_page_not_visible=True)
 
     def test_answer_visibility_two_voters(self):
-        self.let_user_vote_for_course(self.student1, self.course)
-        self.let_user_vote_for_course(self.student2, self.course)
+        let_user_vote_for_course(self.app, self.student1, self.course)
+        let_user_vote_for_course(self.app, self.student2, self.course)
         self.course.evaluation_end()
         self.course.review_finished()
         self.course.publish()
@@ -225,6 +227,7 @@ class TestResultsSemesterCourseDetailViewFewVoters(ViewTest):
 
 
 class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_course(self):
         semester = mommy.make(Semester)
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
@@ -239,8 +242,8 @@ class TestResultsSemesterCourseDetailViewPrivateCourse(WebTest):
         degree = mommy.make(Degree)
         private_course = mommy.make(Course, state='published', is_private=True, semester=semester, participants=[student, student_external, test1, test2], voters=[test1, test2], degrees=[degree])
         private_course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
-        mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS)
+        mommy.make(Contribution, course=private_course, contributor=responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        mommy.make(Contribution, course=private_course, contributor=other_responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         mommy.make(Contribution, course=private_course, contributor=contributor, can_edit=True)
 
         url = '/results/'
@@ -277,7 +280,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         course.unpublish()
         course.save()
 
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
+        page = self.app.get("/results/semester/1/course/1?view=full", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -298,7 +301,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager(self):
-        page = self.app.get("/results/semester/1/course/1?public_view=false", user='manager')
+        page = self.app.get("/results/semester/1/course/1?view=full", user='manager')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -334,8 +337,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertIn(".responsible_changed_published.", page)
         self.assertIn(".responsible_orig_private.", page)
         self.assertNotIn(".responsible_orig_notreviewed.", page)
-        self.assertIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)  # private comment not visible
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_published.", page)
         self.assertNotIn(".other_responsible_orig_hidden.", page)
         self.assertNotIn(".other_responsible_orig_published_changed.", page)
@@ -355,8 +358,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_changed_published.", page)
         self.assertNotIn(".responsible_orig_private.", page)
         self.assertNotIn(".responsible_orig_notreviewed.", page)
-        self.assertIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)  # private comment not visible
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
         self.assertIn(".other_responsible_orig_published.", page)
         self.assertNotIn(".other_responsible_orig_hidden.", page)
         self.assertNotIn(".other_responsible_orig_published_changed.", page)
@@ -374,10 +377,10 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_orig_hidden.", page)
         self.assertNotIn(".responsible_orig_published_changed.", page)
         self.assertIn(".responsible_changed_published.", page)
-        self.assertNotIn(".responsible_orig_private.", page)  # private comment not visible
+        self.assertNotIn(".responsible_orig_private.", page)
         self.assertNotIn(".responsible_orig_notreviewed.", page)
-        self.assertIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)  # private comment not visible
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_published.", page)
         self.assertNotIn(".other_responsible_orig_hidden.", page)
         self.assertNotIn(".other_responsible_orig_published_changed.", page)
@@ -427,8 +430,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".other_responsible_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_notreviewed.", page)
 
-    def test_textanswer_visibility_for_contributor_course_comments(self):
-        page = self.app.get("/results/semester/1/course/1", user='contributor_course_comments')
+    def test_textanswer_visibility_for_contributor_general_textanswers(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor_general_textanswers')
         self.assertIn(".course_orig_published.", page)
         self.assertNotIn(".course_orig_hidden.", page)
         self.assertNotIn(".course_orig_published_changed.", page)
@@ -440,27 +443,6 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_orig_private.", page)
         self.assertNotIn(".responsible_orig_notreviewed.", page)
         self.assertNotIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)
-        self.assertNotIn(".other_responsible_orig_published.", page)
-        self.assertNotIn(".other_responsible_orig_hidden.", page)
-        self.assertNotIn(".other_responsible_orig_published_changed.", page)
-        self.assertNotIn(".other_responsible_changed_published.", page)
-        self.assertNotIn(".other_responsible_orig_private.", page)
-        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
-
-    def test_textanswer_visibility_for_contributor_all_comments(self):
-        page = self.app.get("/results/semester/1/course/1", user='contributor_all_comments')
-        self.assertIn(".course_orig_published.", page)
-        self.assertNotIn(".course_orig_hidden.", page)
-        self.assertNotIn(".course_orig_published_changed.", page)
-        self.assertIn(".course_changed_published.", page)
-        self.assertNotIn(".responsible_orig_published.", page)
-        self.assertNotIn(".responsible_orig_hidden.", page)
-        self.assertNotIn(".responsible_orig_published_changed.", page)
-        self.assertNotIn(".responsible_changed_published.", page)
-        self.assertNotIn(".responsible_orig_private.", page)
-        self.assertNotIn(".responsible_orig_notreviewed.", page)
-        self.assertIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
         self.assertNotIn(".other_responsible_orig_published.", page)
         self.assertNotIn(".other_responsible_orig_hidden.", page)
@@ -494,6 +476,201 @@ class TestResultsTextanswerVisibility(WebTest):
         # the external user does not participate in or contribute to the course and therefore can't see the results
         self.app.get("/results/semester/1/course/1", user='student_external', status=403)
 
+    def test_textanswer_visibility_info_is_shown(self):
+        page = self.app.get("/results/semester/1/course/1", user='contributor')
+        self.assertIn("can be seen by: contributor user", page)
+
+
+class TestResultsOtherContributorsListOnExportView(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester, id=2)
+        cls.course = mommy.make(Course, id=21, state='published', semester=cls.semester)
+
+        questionnaire = mommy.make(Questionnaire)
+        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        cls.course.general_contribution.questionnaires.set([questionnaire])
+
+        responsible = mommy.make(UserProfile, username='responsible')
+        mommy.make(Contribution, course=cls.course, contributor=responsible, questionnaires=[questionnaire], can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.other_contributor_1 = mommy.make(UserProfile, username='other contributor 1')
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+        cls.other_contributor_2 = mommy.make(UserProfile, username='other contributor 2')
+        mommy.make(Contribution, course=cls.course, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+
+    def test_contributor_list(self):
+        url = '/results/semester/{}/course/{}?view=export'.format(self.semester.id, self.course.id)
+        page = self.app.get(url, user='responsible')
+        self.assertIn("<li>{}</li>".format(self.other_contributor_1.username), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_2.username), page)
+
+
+class TestResultsTextanswerVisibilityForExportView(WebTest):
+    fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        manager_group = Group.objects.get(name="Manager")
+        cls.manager = mommy.make(UserProfile, username="manager", groups=[manager_group])
+
+    def test_textanswer_visibility_for_responsible(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='responsible')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_other_responsible(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='other_responsible')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_contributor(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_contributor_general_textanswers(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='contributor_general_textanswers')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_student(self):
+        page = self.app.get("/results/semester/1/course/1?view=export", user='student')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_manager(self):
+        contributor_id = UserProfile.objects.get(username="responsible").id
+        page = self.app.get("/results/semester/1/course/1?view=export&contributor_id={}".format(contributor_id), user='manager')
+
+        self.assertIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertIn(".course_changed_published.", page)
+        self.assertIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertNotIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
+    def test_textanswer_visibility_for_manager_contributor(self):
+        manager_group = Group.objects.get(name="Manager")
+        contributor = UserProfile.objects.get(username="contributor")
+        contributor.groups.add(manager_group)
+        page = self.app.get("/results/semester/1/course/1?view=export&contributor_id={}".format(contributor.id), user='contributor')
+
+        self.assertNotIn(".course_orig_published.", page)
+        self.assertNotIn(".course_orig_hidden.", page)
+        self.assertNotIn(".course_orig_published_changed.", page)
+        self.assertNotIn(".course_changed_published.", page)
+        self.assertNotIn(".responsible_orig_published.", page)
+        self.assertNotIn(".responsible_orig_hidden.", page)
+        self.assertNotIn(".responsible_orig_published_changed.", page)
+        self.assertNotIn(".responsible_changed_published.", page)
+        self.assertNotIn(".responsible_orig_private.", page)
+        self.assertNotIn(".responsible_orig_notreviewed.", page)
+        self.assertIn(".contributor_orig_published.", page)
+        self.assertNotIn(".contributor_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_published.", page)
+        self.assertNotIn(".other_responsible_orig_hidden.", page)
+        self.assertNotIn(".other_responsible_orig_published_changed.", page)
+        self.assertNotIn(".other_responsible_changed_published.", page)
+        self.assertNotIn(".other_responsible_orig_private.", page)
+        self.assertNotIn(".other_responsible_orig_notreviewed.", page)
+
 
 class TestArchivedResults(WebTest):
     @classmethod
@@ -508,9 +685,10 @@ class TestArchivedResults(WebTest):
 
         cls.course = mommy.make(Course, state='published', semester=cls.semester, participants=[student, student_external], voters=[student, student_external], degrees=[mommy.make(Degree)])
         cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, comment_visibility=Contribution.ALL_COMMENTS, contributor=responsible)
+        cls.contribution = mommy.make(Contribution, course=cls.course, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
         cls.contribution = mommy.make(Contribution, course=cls.course, contributor=contributor)
 
+    @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = '/results/'
         self.assertIn(self.course.name, self.app.get(url, user='student'))

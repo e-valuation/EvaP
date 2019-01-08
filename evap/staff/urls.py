@@ -24,9 +24,10 @@ urlpatterns = [
     path("semester/<int:semester_id>/course/<int:course_id>/edit", views.course_edit, name="course_edit"),
     path("semester/<int:semester_id>/course/<int:course_id>/email", views.course_email, name="course_email"),
     path("semester/<int:semester_id>/course/<int:course_id>/preview", views.course_preview, name="course_preview"),
-    path("semester/<int:semester_id>/course/<int:course_id>/person_import", views.course_person_import, name="course_person_import"),
-    path("semester/<int:semester_id>/course/<int:course_id>/comments", views.course_comments, name="course_comments"),
-    path("semester/<int:semester_id>/course/<int:course_id>/comment/<uuid:text_answer_id>/edit", views.course_comment_edit, name="course_comment_edit"),
+    path("semester/<int:semester_id>/course/<int:course_id>/person_management", views.course_person_management, name="course_person_management"),
+    path("semester/<int:semester_id>/course/<int:course_id>/login_key_export", views.course_login_key_export, name="course_login_key_export"),
+    path("semester/<int:semester_id>/course/<int:course_id>/textanswers", views.course_textanswers, name="course_textanswers"),
+    path("semester/<int:semester_id>/course/<int:course_id>/textanswer/<uuid:textanswer_id>/edit", views.course_textanswer_edit, name="course_textanswer_edit"),
     path("semester/<int:semester_id>/courseoperation", views.semester_course_operation, name="semester_course_operation"),
     path("semester/<int:semester_id>/singleresult/create", views.single_result_create, name="single_result_create"),
     path("semester/<int:semester_id>/responsible/<int:responsible_id>/send_reminder", views.send_reminder, name="send_reminder"),
@@ -37,7 +38,7 @@ urlpatterns = [
     path("semester/archive_results", views.semester_archive_results, name="semester_archive_results"),
     path("semester/course_delete", views.course_delete, name="course_delete"),
 
-    path("comments/update_publish", views.course_comments_update_publish, name="course_comments_update_publish"),
+    path("textanswers/update_publish", views.course_textanswers_update_publish, name="course_textanswers_update_publish"),
 
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
     path("questionnaire/create", views.questionnaire_create, name="questionnaire_create"),

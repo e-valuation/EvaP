@@ -1,12 +1,11 @@
-from collections import namedtuple, defaultdict
+from collections import OrderedDict, defaultdict, namedtuple
 from functools import partial
-from math import ceil
-import itertools
+from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
 
-from evap.evaluation.models import TextAnswer, RatingAnswerCounter, Questionnaire, Question
+from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
 
 GRADE_COLORS = {
@@ -50,10 +49,17 @@ class QuestionnaireResult:
 
 
 class RatingResult:
-    def __init__(self, question, counts):
+    def __init__(self, question, answer_counters):
         assert question.is_rating_question
         self.question = question
-        self.counts = counts
+        counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
+        for answer_counter in answer_counters:
+            counts[answer_counter.answer] = answer_counter.count
+        self.counts = tuple(counts.values())
+
+    @property
+    def choices(self):
+        return CHOICES[self.question.type]
 
     @property
     def count_sum(self):
@@ -62,17 +68,23 @@ class RatingResult:
         return sum(self.counts)
 
     @property
+    def minus_balance_count(self):
+        assert self.question.is_bipolar_likert_question
+        portion_left = sum(self.counts[:3]) + self.counts[3] / 2
+        return (self.count_sum - portion_left) / 2
+
+    @property
     def approval_count(self):
         assert self.question.is_yes_no_question
         if not self.is_published:
             return None
-        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[4]
+        return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[1]
 
     @property
     def average(self):
         if not self.has_answers:
             return None
-        return sum(answer * count for answer, count in enumerate(self.counts, start=1)) / self.count_sum
+        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
 
     @property
     def has_answers(self):
@@ -84,20 +96,15 @@ class RatingResult:
 
 
 class TextResult:
-    def __init__(self, question, answers):
+    def __init__(self, question, answers, answers_visible_to=None):
         assert question.is_text_question
         self.question = question
         self.answers = answers
+        self.answers_visible_to = answers_visible_to
 
 
 HeadingResult = namedtuple('HeadingResult', ('question'))
-
-
-def get_counts(answer_counters):
-    counts = [0, 0, 0, 0, 0]
-    for answer_counter in answer_counters:
-        counts[answer_counter.answer - 1] = answer_counter.count
-    return tuple(counts)
+TextAnswerVisibility = namedtuple('TextAnswerVisibility', ('visible_by_contribution', 'visible_by_delegation_count'))
 
 
 def get_single_result_rating_result(course):
@@ -106,9 +113,8 @@ def get_single_result_rating_result(course):
     answer_counters = RatingAnswerCounter.objects.filter(contribution__course__pk=course.pk)
     assert 1 <= len(answer_counters) <= 5
 
-    counts = get_counts(answer_counters)
     question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-    return RatingResult(question, counts)
+    return RatingResult(question, answer_counters)
 
 
 def get_collect_results_cache_key(course):
@@ -127,17 +133,17 @@ def collect_results(course, force_recalculation=False):
 
 def _collect_results_impl(course):
     contributor_contribution_results = []
-    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results = []
-            for question in questionnaire.question_set.all():
+            for question in questionnaire.questions.all():
                 if question.is_rating_question:
-                    counts = get_counts(RatingAnswerCounter.objects.filter(contribution=contribution, question=question)) if course.can_publish_rating_results else None
-                    results.append(RatingResult(question, counts))
+                    answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if course.can_publish_rating_results else ()
+                    results.append(RatingResult(question, answer_counters))
                 elif question.is_text_question and course.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
-                    results.append(TextResult(question=question, answers=answers))
+                    results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
                 elif question.is_heading_question:
                     results.append(HeadingResult(question=question))
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
@@ -158,6 +164,19 @@ def normalized_distribution(distribution):
     return tuple((value / distribution_sum) for value in distribution)
 
 
+def unipolarized_distribution(result):
+    summed_distribution = [0, 0, 0, 0, 0]
+
+    for counts, grade in zip(result.counts, result.choices.grades):
+        grade_fraction, grade = modf(grade)
+        grade = int(grade)
+        summed_distribution[grade - 1] += (1 - grade_fraction) * counts
+        if grade < 5:
+            summed_distribution[grade] += grade_fraction * counts
+
+    return normalized_distribution(summed_distribution)
+
+
 def avg_distribution(weighted_distributions):
     if all(distribution is None for distribution, __ in weighted_distributions):
         return None
@@ -172,13 +191,13 @@ def avg_distribution(weighted_distributions):
 
 def average_grade_questions_distribution(results):
     return avg_distribution(
-        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_grade_question]
+        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_grade_question]
     )
 
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [(normalized_distribution(result.counts), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
+        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
     )
 
 
@@ -206,8 +225,8 @@ def calculate_average_distribution(course):
     ])
 
     return avg_distribution([
-        (average_grade_questions_distribution(course_results), settings.COURSE_GRADE_QUESTIONS_WEIGHT),
-        (average_non_grade_rating_questions_distribution(course_results), settings.COURSE_NON_GRADE_QUESTIONS_WEIGHT),
+        (average_grade_questions_distribution(course_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
+        (average_non_grade_rating_questions_distribution(course_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
         (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT)
     ])
 
@@ -232,3 +251,15 @@ def get_grade_color(grade):
     next_lower = int(grade)
     next_higher = int(ceil(grade))
     return color_mix(GRADE_COLORS[next_lower], GRADE_COLORS[next_higher], grade - next_lower)
+
+
+def textanswers_visible_to(contribution):
+    if contribution.is_general:
+        contributors = UserProfile.objects.filter(
+            contributions__course=contribution.course,
+            contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS
+        ).distinct().order_by('contributions__textanswer_visibility')
+    else:
+        contributors = [contribution.contributor]
+    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))
+    return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)

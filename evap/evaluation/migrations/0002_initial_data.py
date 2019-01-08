@@ -1,5 +1,4 @@
 from django.db import migrations
-from django.contrib.auth.models import Group
 
 
 def insert_emailtemplates(apps, _schema_editor):
@@ -16,6 +15,7 @@ def insert_emailtemplates(apps, _schema_editor):
         if not EmailTemplate.objects.filter(name=name).exists():
             EmailTemplate.objects.create(name=name, subject=subject, body="")
 
+    Group = apps.get_model("auth", "Group")
     Group.objects.create(name="Staff")
 
 

@@ -1,6 +1,9 @@
-from django.http.request import QueryDict
+from datetime import timedelta
 
-from django_webtest import WebTest as DjangoWebTest
+from django.http.request import QueryDict
+from django.utils import timezone
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import Contribution, Course, UserProfile, Questionnaire, Degree
@@ -29,22 +32,21 @@ class FuzzyInt(int):
         return "[%d..%d]" % (self.lowest, self.highest)
 
 
-class WebTest(DjangoWebTest):
-    def let_user_vote_for_course(self, user, course):
-        url = '/student/vote/{}'.format(course.id)
-        page = self.app.get(url, user=user, status=200)
-        form = page.forms["student-vote-form"]
-        for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__question_set"):
-            for questionnaire in contribution.questionnaires.all():
-                for question in questionnaire.question_set.all():
-                    if question.type == "T":
-                        form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
-                    elif question.type in ["L", "G", "P", "N"]:
-                        form[question_id(contribution, questionnaire, question)] = 1
-        form.submit()
+def let_user_vote_for_course(app, user, course):
+    url = '/student/vote/{}'.format(course.id)
+    page = app.get(url, user=user, status=200)
+    form = page.forms["student-vote-form"]
+    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+        for questionnaire in contribution.questionnaires.all():
+            for question in questionnaire.questions.all():
+                if question.is_text_question:
+                    form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
+                elif question.is_rating_question:
+                    form[question_id(contribution, questionnaire, question)] = 1
+    form.submit()
 
 
-class ViewTest(WebTest):
+class WebTestWith200Check(WebTest):
     url = "/"
     test_users = []
 
@@ -63,12 +65,21 @@ def create_course_with_responsible_and_editor(course_id=None):
     contributor = mommy.make(UserProfile, username='responsible')
     editor = mommy.make(UserProfile, username='editor')
 
-    if course_id:
-        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)], id=course_id)
-    else:
-        course = mommy.make(Course, state='prepared', degrees=[mommy.make(Degree)])
+    in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
+    tomorrow = (timezone.now() + timedelta(days=1)).date
+    course_params = dict(
+        state='prepared',
+        degrees=[mommy.make(Degree)],
+        vote_start_datetime=in_one_hour,
+        vote_end_date=tomorrow
+    )
 
-    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], comment_visibility=Contribution.ALL_COMMENTS)
+    if course_id:
+        course_params['id'] = course_id
+
+    course = mommy.make(Course, **course_params)
+
+    mommy.make(Contribution, course=course, contributor=contributor, can_edit=True, responsible=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)], textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
     mommy.make(Contribution, course=course, contributor=editor, can_edit=True, questionnaires=[mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
     course.general_contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.TOP)])
 

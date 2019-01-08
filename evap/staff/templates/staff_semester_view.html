@@ -10,7 +10,7 @@
         {% if request.user.is_manager %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_staff_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
+            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_manager_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
         {% endif %}
     </h3>
 
@@ -54,7 +54,7 @@
                     {% endif %}
                     <div class="btn-switch ml-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
-                        <div class="btn-group icon-buttons">
+                        <div class="btn-switch btn-group icon-buttons">
                             <a href="{% url 'rewards:semester_activation' semester.id 'on' %}" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></a>
                             <a href="{% url 'rewards:semester_activation' semester.id 'off' %}" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></a>
                         </div>
@@ -70,7 +70,7 @@
                             <th style="width: 19%">{% trans 'Degree' %}</th>
                             <th style="width: 30%">{% trans 'Evaluation period' %}</th>
                             <th style="width: 17%">{% trans 'Evaluated courses' %}</th>
-                            <th style="width: 17%">{% trans 'Reviewed comments' %}</th>
+                            <th style="width: 17%">{% trans 'Reviewed text answers' %}</th>
                             <th style="width: 17%">{% trans 'Participation' %}</th>
                         </tr>
                     </thead>
@@ -89,7 +89,7 @@
                                 {% include 'progress_bar.html' with done=stats.num_courses_evaluated total=stats.num_courses %}
                             </td>
                             <td>
-                                {% include 'progress_bar.html' with done=stats.num_comments_reviewed total=stats.num_comments %}
+                                {% include 'progress_bar.html' with done=stats.num_textanswers_reviewed total=stats.num_textanswers %}
                             </td>
                             <td>
                                 {% include 'progress_bar.html' with done=stats.num_votes total=stats.num_enrollments_in_evaluation %}
@@ -134,8 +134,8 @@
         <div class="card-body">
             <div class="btn-switch mb-2" id="course-filter-buttons">
                 <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
-                <div class="btn-toolbar">
-                    <div class="btn-group icon-buttons">
+                <div>
+                    <div class="btn-switch btn-group icon-buttons">
                         <a role="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
                             data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
                             <span class="fas fa-circle icon-yellow"></span>
@@ -153,7 +153,7 @@
                             <span class="far fa-check-square icon-green"></span>
                         </a>
                     </div>
-                    <div class="btn-group icon-buttons">
+                    <div class="btn-switch btn-group icon-buttons">
                         <a role="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
                             data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
                             <span class="fas fa-pause icon-gray"></span>
@@ -167,7 +167,7 @@
                             <span class="fas fa-stop icon-green"></span>
                         </a>
                     </div>
-                    <div class="btn-group icon-buttons">
+                    <div class="btn-switch btn-group icon-buttons">
                         <a role="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
                             data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
                             <span class="fas fa-comment icon-gray"></span>
@@ -181,7 +181,7 @@
                             <span class="fas fa-comment icon-green"></span>
                         </a>
                     </div>
-                    <div class="btn-group icon-buttons">
+                    <div class="btn-switch btn-group icon-buttons">
                         <a role="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
                             data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
                             <span class="fas fa-chart-bar icon-gray"></span>

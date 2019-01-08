@@ -13,6 +13,7 @@ from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceF
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.evaluation.tools import date_to_datetime
+from evap.results.views import update_template_cache
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,12 @@ class SemesterForm(forms.ModelForm):
         model = Semester
         fields = ("name_de", "name_en", "short_name_de", "short_name_en")
 
+    def save(self, *args, **kwargs):
+        semester = super().save(*args, **kwargs)
+        if 'short_name_en' in self.changed_data or 'short_name_de' in self.changed_data:
+            update_template_cache(semester.courses.filter(state="published"))
+        return semester
+
 
 class DegreeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -99,6 +106,12 @@ class DegreeForm(forms.ModelForm):
         super().clean()
         if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting degree not allowed")
+
+    def save(self, *args, **kwargs):
+        degree = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(degree.courses.filter(state="published"))
+        return degree
 
 
 class CourseTypeForm(forms.ModelForm):
@@ -116,6 +129,12 @@ class CourseTypeForm(forms.ModelForm):
         if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
             raise SuspiciousOperation("Deleting course type not allowed")
 
+    def save(self, *args, **kwargs):
+        course_type = super().save(*args, **kwargs)
+        if "name_en" in self.changed_data or "name_de" in self.changed_data:
+            update_template_cache(course_type.courses.filter(state="published"))
+        return course_type
+
 
 class CourseTypeMergeSelectionForm(forms.Form):
     main_type = forms.ModelChoiceField(CourseType.objects.all())
@@ -128,25 +147,19 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    general_questions = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.course_questionnaires().filter(obsolete=False),
+    general_questionnaires = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.general_questionnaires().filter(obsolete=False),
         widget=CheckboxSelectMultiple,
-        label=_("Questions about the course")
+        label=_("General questions")
     )
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-
-    # the following field is needed, because the auto_now=True for last_modified_time makes the corresponding field
-    # uneditable and so it can't be displayed in the model form
-    # see https://docs.djangoproject.com/en/dev/ref/models/fields/#datefield for details
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
-    # last_modified_user would usually get a select widget but should here be displayed as a readonly CharField instead
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
+    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Course
         fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
-                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questions',
-                  'last_modified_time_2', 'last_modified_user_2', 'semester')
+                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
+                  'last_modified_time', 'last_modified_user_name', 'semester')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -155,17 +168,17 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
 
         if self.instance.general_contribution:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
+        self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
+            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
@@ -206,11 +219,10 @@ class CourseForm(forms.ModelForm):
                 self.add_error("vote_start_datetime", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
-    def save(self, user, *args, **kw):
-        self.instance.last_modified_user = user
-        super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
-        logger.info('Course "{}" (id {}) was edited by manager {}.'.format(self.instance, self.instance.id, user.username))
+    def save(self, *args, **kw):
+        course = super().save(*args, **kw)
+        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return course
 
 
 class SingleResultForm(forms.ModelForm):
@@ -264,9 +276,9 @@ class SingleResultForm(forms.ModelForm):
         super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
-        single_result_question = single_result_questionnaire.question_set.first()
+        single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, comment_visibility=Contribution.ALL_COMMENTS)
+        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.contributor = self.cleaned_data['responsible']
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
@@ -302,8 +314,8 @@ class ContributionForm(forms.ModelForm):
 
     class Meta:
         model = Contribution
-        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'comment_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'comment_visibility': forms.RadioSelect(choices=Contribution.COMMENT_VISIBILITY_CHOICES)}
+        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
+        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
         field_classes = {
             'contributor': UserModelChoiceField,
         }
@@ -348,7 +360,7 @@ class ContributionForm(forms.ModelForm):
         self.instance.responsible = is_responsible
         self.instance.can_edit = is_responsible or is_editor
         if is_responsible:
-            self.instance.comment_visibility = Contribution.ALL_COMMENTS
+            self.instance.textanswer_visibility = Contribution.GENERAL_TEXTANSWERS
         return super().save(*args, **kwargs)
 
 
@@ -552,7 +564,7 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.course_questionnaires().filter(obsolete=False))
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().filter(obsolete=False))
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
         self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
 

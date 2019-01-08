@@ -1,12 +1,62 @@
+from django.core import mail
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import Course, UserProfile
-from evap.evaluation.tests.tools import ViewTest, create_course_with_responsible_and_editor
+from evap.evaluation.models import Course, UserProfile, Contribution
+from evap.evaluation.tests.tools import WebTestWith200Check, create_course_with_responsible_and_editor
 
 TESTING_COURSE_ID = 2
 
 
-class TestContributorView(ViewTest):
+class TestContributorDirectDelegationView(WebTest):
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.course = mommy.make(Course, state='prepared')
+
+        cls.responsible = mommy.make(UserProfile)
+        cls.non_responsible = mommy.make(UserProfile, email="a@b.c")
+        mommy.make(Contribution, course=cls.course, contributor=cls.responsible, can_edit=True, responsible=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+
+    def test_direct_delegation_request(self):
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            '{} was added as a contributor for course &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.course))
+        )
+
+        contribution = Contribution.objects.get(contributor=self.non_responsible)
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_direct_delegation_request_with_existing_contribution(self):
+        contribution = mommy.make(Contribution, course=self.course, contributor=self.non_responsible, can_edit=False, responsible=False)
+        old_contribution_count = Contribution.objects.count()
+
+        data = {"delegate_to": self.non_responsible.id}
+        page = self.app.post('/contributor/course/{}/direct_delegation'.format(self.course.id), params=data, user=self.responsible).follow()
+
+        self.assertContains(
+            page,
+            '{} was added as a contributor for course &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_responsible), str(self.course))
+        )
+
+        self.assertEqual(Contribution.objects.count(), old_contribution_count)
+
+        contribution.refresh_from_db()
+        self.assertTrue(contribution.can_edit)
+        self.assertFalse(contribution.responsible)
+
+        self.assertEqual(len(mail.outbox), 1)
+
+
+class TestContributorView(WebTestWith200Check):
     url = '/contributor/'
     test_users = ['editor', 'responsible']
 
@@ -15,9 +65,8 @@ class TestContributorView(ViewTest):
         create_course_with_responsible_and_editor()
 
 
-class TestContributorSettingsView(ViewTest):
+class TestContributorSettingsView(WebTest):
     url = '/contributor/settings'
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
@@ -33,7 +82,7 @@ class TestContributorSettingsView(ViewTest):
         self.assertEqual(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
 
 
-class TestContributorCourseView(ViewTest):
+class TestContributorCourseView(WebTestWith200Check):
     url = '/contributor/course/%s' % TESTING_COURSE_ID
     test_users = ['editor', 'responsible']
 
@@ -58,13 +107,13 @@ class TestContributorCourseView(ViewTest):
         self.assertNotContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
 
 
-class TestContributorCoursePreviewView(ViewTest):
+class TestContributorCoursePreviewView(WebTestWith200Check):
     url = '/contributor/course/%s/preview' % TESTING_COURSE_ID
     test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -75,13 +124,12 @@ class TestContributorCoursePreviewView(ViewTest):
         self.app.get(self.url, user='responsible', status=403)
 
 
-class TestContributorCourseEditView(ViewTest):
+class TestContributorCourseEditView(WebTest):
     url = '/contributor/course/%s/edit' % TESTING_COURSE_ID
-    test_users = ['editor', 'responsible']
 
     @classmethod
     def setUpTestData(cls):
-        cls.course = create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
+        create_course_with_responsible_and_editor(course_id=TESTING_COURSE_ID)
 
     def setUp(self):
         self.course = Course.objects.get(pk=TESTING_COURSE_ID)
@@ -172,3 +220,39 @@ class TestContributorCourseEditView(ViewTest):
         page = self.app.get(self.url, user='editor')
         self.assertNotContains(page, "You cannot edit this course because it has already been approved")
         self.assertContains(page, "Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.")
+
+    def test_last_modified_on_formset_change(self):
+        """
+            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
+        """
+
+        self.assertEqual(self.course.last_modified_user, None)
+        last_modified_time_before = self.course.last_modified_time
+
+        page = self.app.get(self.url, user='responsible', status=200)
+        form = page.forms["course-form"]
+
+        # Change label of the first contribution
+        form['contributions-0-label'] = 'test_label'
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'editor_approved')
+        self.assertEqual(self.course.last_modified_user.username, 'responsible')
+        self.assertGreater(self.course.last_modified_time, last_modified_time_before)
+
+    def test_last_modified_unchanged(self):
+        """
+            Tests if last_modified_{user,time} stays the same when no values are changed in the form
+        """
+        self.assertIsNone(self.course.last_modified_user)
+        last_modified_time_before = self.course.last_modified_time
+
+        page = self.app.get(self.url, user='responsible', status=200)
+        form = page.forms["course-form"]
+        form.submit(name="operation", value="approve")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.state, 'editor_approved')
+        self.assertIsNone(self.course.last_modified_user)
+        self.assertEqual(self.course.last_modified_time, last_modified_time_before)

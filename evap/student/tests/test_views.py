@@ -1,14 +1,16 @@
 from django.test.utils import override_settings
 from django.urls import reverse
+
+from django_webtest import WebTest
 from model_mommy import mommy
 
 from evap.evaluation.models import UserProfile, Course, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
-from evap.evaluation.tests.tools import ViewTest
+from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.student.tools import question_id
 from evap.student.views import SUCCESS_MAGIC_STRING
 
 
-class TestStudentIndexView(ViewTest):
+class TestStudentIndexView(WebTestWith200Check):
     test_users = ['student']
     url = '/student/'
 
@@ -19,7 +21,7 @@ class TestStudentIndexView(ViewTest):
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
-class TestVoteView(ViewTest):
+class TestVoteView(WebTest):
     url = '/student/vote/1'
 
     @classmethod
@@ -31,30 +33,30 @@ class TestVoteView(ViewTest):
 
         cls.course = mommy.make(Course, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
-        cls.top_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        cls.bottom_course_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
+        cls.top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.bottom_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
         cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type="H")
-        cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type="T")
-        cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type="L")
+        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING)
+        cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT)
+        cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT)
 
-        cls.top_heading_question = mommy.make(Question, questionnaire=cls.top_course_questionnaire, order=0, type="H")
-        cls.top_text_question = mommy.make(Question, questionnaire=cls.top_course_questionnaire, order=1, type="T")
-        cls.top_likert_question = mommy.make(Question, questionnaire=cls.top_course_questionnaire, order=2, type="L")
-        cls.top_grade_question = mommy.make(Question, questionnaire=cls.top_course_questionnaire, order=3, type="G")
+        cls.top_heading_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING)
+        cls.top_text_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT)
+        cls.top_likert_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.top_grade_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE)
 
-        cls.bottom_heading_question = mommy.make(Question, questionnaire=cls.bottom_course_questionnaire, order=0, type="H")
-        cls.bottom_text_question = mommy.make(Question, questionnaire=cls.bottom_course_questionnaire, order=1, type="T")
-        cls.bottom_likert_question = mommy.make(Question, questionnaire=cls.bottom_course_questionnaire, order=2, type="L")
-        cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_course_questionnaire, order=3, type="G")
+        cls.bottom_heading_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING)
+        cls.bottom_text_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT)
+        cls.bottom_likert_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE)
 
         cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
                                        course=cls.course)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, questionnaires=[cls.contributor_questionnaire],
                                        course=cls.course)
 
-        cls.course.general_contribution.questionnaires.set([cls.top_course_questionnaire, cls.bottom_course_questionnaire])
+        cls.course.general_contribution.questionnaires.set([cls.top_general_questionnaire, cls.bottom_general_questionnaire])
 
     def test_question_ordering(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
@@ -71,13 +73,13 @@ class TestVoteView(ViewTest):
         self.assertTrue(top_heading_index < top_text_index < contributor_heading_index < contributor_likert_index < bottom_heading_index < bottom_grade_index)
 
     def fill_form(self, form, fill_complete):
-        form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_text_question)] = "some text"
-        form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_grade_question)] = 3
-        form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_likert_question)] = 1
+        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_text_question)] = "some text"
+        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 3
+        form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_likert_question)] = 1
 
-        form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_text_question)] = "some bottom text"
-        form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_grade_question)] = 4
-        form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_likert_question)] = 2
+        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)] = "some bottom text"
+        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)] = 4
+        form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)] = 2
 
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)] = "some other text"
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
@@ -103,13 +105,13 @@ class TestVoteView(ViewTest):
 
         form = page.forms["student-vote-form"]
 
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_text_question)].value, "some text")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_likert_question)].value, "1")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.top_course_questionnaire, self.top_grade_question)].value, "3")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
 
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_text_question)].value, "some bottom text")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_likert_question)].value, "2")
-        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_course_questionnaire, self.bottom_grade_question)].value, "4")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)].value, "2")
+        self.assertEqual(form[question_id(self.course.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)].value, "4")
 
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value, "some other text")
         self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value, "4")
@@ -178,11 +180,11 @@ class TestVoteView(ViewTest):
     def test_user_cannot_vote_for_themselves(self):
         response = self.app.get(self.url, user=self.contributor1, status=200)
 
-        for contributor, _, _, _ in response.context['contributor_form_groups']:
+        for contributor, __, __, __, __ in response.context['contributor_form_groups']:
             self.assertNotEqual(contributor, self.contributor1, "Contributor should not see the questionnaire about themselves")
 
         response = self.app.get(self.url, user=self.voting_user1, status=200)
-        self.assertTrue(any(contributor == self.contributor1 for contributor, _, _, _ in response.context['contributor_form_groups']),
+        self.assertTrue(any(contributor == self.contributor1 for contributor, __, __, __, __ in response.context['contributor_form_groups']),
             "Regular students should see the questionnaire about a contributor")
 
     def test_user_logged_out(self):
@@ -231,11 +233,15 @@ class TestVoteView(ViewTest):
         else:
             self.assertFalse(course.can_publish_text_results)
 
-    def test_user_checked_top_text_answer_publish_confirmation(self):
+    def test_user_checked_top_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_top")
 
-    def test_user_checked_bottom_text_answer_publish_confirmation(self):
+    def test_user_checked_bottom_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation("text_results_publish_confirmation_bottom")
 
-    def test_user_did_not_check_text_answer_publish_confirmation(self):
+    def test_user_did_not_check_textanswer_publish_confirmation(self):
         self.helper_test_answer_publish_confirmation(None)
+
+    def test_textanswer_visibility_is_shown(self):
+        page = self.app.get(self.url, user=self.voting_user1.username, status=200)
+        self.assertIn("can be seen by: {}".format(self.contributor1.full_name), page)

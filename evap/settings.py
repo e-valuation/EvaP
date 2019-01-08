@@ -40,8 +40,8 @@ RESULTS_WARNING_PERCENTAGE = 0.5
 CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
 CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
 CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the course's average grade
-COURSE_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all grade questions about the course is weighted this much for the course's average grade
-COURSE_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all non-grade questions about the course is weighted this much for the course's average grade
+GENERAL_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general grade questions is weighted this much for the course's average grade
+GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general non-grade questions is weighted this much for the course's average grade
 
 # number of reward points a student should have for a semester after evaluating the given fraction of courses.
 REWARD_POINTS = [
@@ -214,7 +214,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'evap.evaluation.auth.RequestAuthMiddleware',
 ]
 
 TEMPLATES = [

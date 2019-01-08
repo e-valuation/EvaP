@@ -1,7 +1,7 @@
 <fieldset>
     <h5 class="card-title">{% trans 'Course data' %}</h5>
     {% for field in course_form %}
-        {% if field == course_form.general_questions %}
+        {% if field == course_form.general_questionnaires %}
             <div class="form-group d-flex">
                 {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3' %}
                 <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">

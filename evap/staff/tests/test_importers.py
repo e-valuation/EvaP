@@ -127,7 +127,7 @@ class TestUserImporter(TestCase):
 
 class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     def test_valid_file_import(self):
@@ -175,13 +175,14 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("Warning: User bastius.quid@external.example.com has 3 enrollments, which is a lot.", warnings_many)
 
     def test_random_file_error(self):
+        semester = mommy.make(Semester)
         original_user_count = UserProfile.objects.count()
 
         with open(self.filename_random, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
-        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+        __, __, errors_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
@@ -189,16 +190,24 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
+        semester = mommy.make(Semester)
+        mommy.make(CourseType, name_de="Seminar")
+        mommy.make(CourseType, name_de="Vorlesung")
         original_user_count = UserProfile.objects.count()
 
         with open(self.filename_invalid, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        __, __, __, errors_test = UserImporter.process(excel_content, test_run=True)
-        __, __, __, errors_no_test = UserImporter.process(excel_content, test_run=False)
+        __, __, errors_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
-        self.assertIn('Sheet "Sheet1", row 2: Email address is missing.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 7: Email address is missing.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 10: Email address is missing.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
+        self.assertIn('The imported data contains two email addresses with the same username (\'678@external.example.com\' and \'678@internal.example.com\').', errors_test)
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 

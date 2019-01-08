@@ -1,45 +1,12 @@
-from collections import OrderedDict, defaultdict
 import datetime
 import operator
-
+from collections import OrderedDict, defaultdict
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
-from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
+from django.utils.translation import LANGUAGE_SESSION_KEY, get_language, ugettext_lazy as _
 
-LIKERT_NAMES = {
-    # Translators: This includes a non breaking space in German ("Stimme voll~zu")
-    1: _("Strongly agree"),
-    2: _("Agree"),
-    3: _("Neutral"),
-    # Translators: This includes a non breaking space in German ("Stimme nicht~zu")
-    4: _("Disagree"),
-    5: _("Strongly disagree"),
-    6: _("no answer"),
-}
-
-GRADE_NAMES = {
-    1: _("1"),
-    2: _("2"),
-    3: _("3"),
-    4: _("4"),
-    5: _("5"),
-    6: _("no answer"),
-}
-
-POSITIVE_YES_NO_NAMES = {
-    1: _("Yes"),
-    5: _("No"),
-    6: _("no answer"),
-}
-
-NEGATIVE_YES_NO_NAMES = {
-    1: _("No"),
-    5: _("Yes"),
-    6: _("no answer"),
-}
 
 # the names used for contributors and staff
 STATES_ORDERED = OrderedDict((
@@ -144,3 +111,8 @@ def get_parameter_from_url_or_session(request, parameter, default=False):
         result = {'true': True, 'false': False}.get(result.lower())  # convert parameter to boolean
     request.session[parameter] = result  # store value for session
     return result
+
+
+def translate(**kwargs):
+    # get_language may return None if there is no session (e.g. during management commands)
+    return property(lambda self: getattr(self, kwargs[get_language() or 'en']))

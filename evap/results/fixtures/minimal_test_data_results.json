@@ -36,11 +36,11 @@
     "order": 0,
     "teaser_de": "answer questions regarding a course here",
     "public_name_en": "the course",
-    "description_en": "course_questionnaire description",
+    "description_en": "general_questionnaire description",
     "obsolete": false,
-    "name_de": "course_questionnaire",
-    "description_de": "course_questionnaire description",
-    "name_en": "course_questionnaire"
+    "name_de": "general_questionnaire",
+    "description_de": "general_questionnaire description",
+    "name_en": "general_questionnaire"
   }
 },
 {
@@ -61,7 +61,7 @@
     "questionnaire": 1,
     "text_en": "how?",
     "text_de": "how?",
-    "type": "T"
+    "type": 0
   }
 },
 {
@@ -71,7 +71,7 @@
     "questionnaire": 1,
     "text_en": "how much?",
     "text_de": "how much?",
-    "type": "L"
+    "type": 1
   }
 },
 {
@@ -81,7 +81,7 @@
     "questionnaire": 2,
     "text_en": "how?",
     "text_de": "how?",
-    "type": "T"
+    "type": 0
   }
 },
 {
@@ -91,7 +91,7 @@
     "questionnaire": 2,
     "text_en": "how much?",
     "text_de": "how much?",
-    "type": "L"
+    "type": 1
   }
 },
 {
@@ -101,7 +101,7 @@
     "questionnaire": 2,
     "text_en": "your grade",
     "text_de": "your grade",
-    "type": "G"
+    "type": 2
   }
 },
 {
@@ -358,29 +358,12 @@
   "pk": 7,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "contributor_course_comments",
-    "first_name": "contributor_course_comments",
+    "username": "contributor_general_textanswers",
+    "first_name": "contributor_general_textanswers",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "contributor_course_comments@institution.example.com",
-    "title": "",
-    "cc_users": [],
-    "delegates": [],
-    "login_key_valid_until": null,
-    "login_key": null
-  }
-},
-{
-  "pk": 8,
-  "model": "evaluation.userprofile",
-  "fields": {
-    "username": "contributor_all_comments",
-    "first_name": "contributor_all_comments",
-    "last_name": "user",
-    "last_login": "2014-09-16T22:53:02.506",
-    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "contributor_all_comments@institution.example.com",
+    "email": "contributor_course_textanswers@institution.example.com",
     "title": "",
     "cc_users": [],
     "delegates": [],
@@ -433,7 +416,7 @@
       2
     ],
     "can_edit": false,
-    "comment_visibility": "OWN"
+    "textanswer_visibility": "OWN"
   }
 },
 {
@@ -447,7 +430,7 @@
       1
     ],
     "can_edit": true,
-    "comment_visibility": "ALL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {
@@ -461,7 +444,7 @@
       1
     ],
     "can_edit": false,
-    "comment_visibility": "OWN"
+    "textanswer_visibility": "OWN"
   }
 },
 {
@@ -475,21 +458,7 @@
       1
     ],
     "can_edit": false,
-    "comment_visibility": "COURSE"
-  }
-},
-{
-  "pk": 5,
-  "model": "evaluation.contribution",
-  "fields": {
-    "contributor": 8,
-    "course": 1,
-    "responsible": false,
-    "questionnaires": [
-      1
-    ],
-    "can_edit": false,
-    "comment_visibility": "ALL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {
@@ -503,7 +472,7 @@
       1
     ],
     "can_edit": true,
-    "comment_visibility": "ALL"
+    "textanswer_visibility": "GENERAL"
   }
 },
 {

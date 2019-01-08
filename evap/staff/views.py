@@ -49,7 +49,7 @@ def index(request):
 
 
 def get_courses_with_prefetched_data(semester):
-    courses = (semester.course_set
+    courses = (semester.courses
         .select_related('type')
         .prefetch_related(
             Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
@@ -68,11 +68,12 @@ def get_courses_with_prefetched_data(semester):
     # num_voters_annotated=Count("voters", distinct=True), or more completely
     # courses.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
     # but that was prohibitively slow.
-    participant_counts = semester.course_set.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-    voter_counts = semester.course_set.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    participant_counts = semester.courses.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+    voter_counts = semester.courses.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
 
     for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
-        course.general_contribution = course.general_contribution[0]
+        if not course.is_single_result:
+            course.general_contribution = course.general_contribution[0]
         course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
         if course._participant_count is None:
             course.num_participants = participant_count
@@ -98,8 +99,8 @@ def semester_view(request, semester_id):
             self.num_votes = 0
             self.num_courses_evaluated = 0
             self.num_courses = 0
-            self.num_comments = 0
-            self.num_comments_reviewed = 0
+            self.num_textanswers = 0
+            self.num_textanswers_reviewed = 0
             self.first_start = datetime(9999, 1, 1)
             self.last_end = date(2000, 1, 1)
 
@@ -115,8 +116,8 @@ def semester_view(request, semester_id):
             if course.state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
                 stats.num_enrollments_in_evaluation += course.num_participants
                 stats.num_votes += course.num_voters
-                stats.num_comments += course.num_textanswers
-                stats.num_comments_reviewed += course.num_reviewed_textanswers
+                stats.num_textanswers += course.num_textanswers
+                stats.num_textanswers_reviewed += course.num_reviewed_textanswers
             if course.state in ['evaluated', 'reviewed', 'published']:
                 stats.num_courses_evaluated += 1
             if course.state != 'new':
@@ -328,7 +329,7 @@ def semester_delete(request):
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
     delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
-    return HttpResponse()  # 200 OK
+    return redirect('staff:index')
 
 
 @manager_required
@@ -403,17 +404,17 @@ def semester_export(request, semester_id):
 
 
 @manager_required
-def semester_raw_export(request, semester_id):
+def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
 
-    writer = csv.writer(response, delimiter=";")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
-        _('#Participants'), _('#Comments'), _('Average grade')])
-    for course in semester.course_set.all():
+        _('#Participants'), _('#Text answers'), _('Average grade')])
+    for course in semester.courses.all():
         degrees = ", ".join([degree.name for degree in course.degrees.all()])
         distribution = calculate_average_distribution(course)
         if course.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
@@ -427,7 +428,7 @@ def semester_raw_export(request, semester_id):
 
 
 @manager_required
-def semester_participation_export(request, semester_id):
+def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     participants = UserProfile.objects.filter(courses_participating_in__semester=semester).distinct().order_by("username")
 
@@ -435,14 +436,14 @@ def semester_participation_export(request, semester_id):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
 
-    writer = csv.writer(response, delimiter=";")
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required courses voted for'),
         _('#Required courses'), _('#Optional courses voted for'), _('#Optional courses'), _('Earned reward points')])
     for participant in participants:
-        number_of_required_courses = semester.course_set.filter(participants=participant, is_rewarded=True).count()
-        number_of_required_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=True).count()
-        number_of_optional_courses = semester.course_set.filter(participants=participant, is_rewarded=False).count()
-        number_of_optional_courses_voted_for = semester.course_set.filter(voters=participant, is_rewarded=False).count()
+        number_of_required_courses = semester.courses.filter(participants=participant, is_rewarded=True).count()
+        number_of_required_courses_voted_for = semester.courses.filter(voters=participant, is_rewarded=True).count()
+        number_of_optional_courses = semester.courses.filter(participants=participant, is_rewarded=False).count()
+        number_of_optional_courses_voted_for = semester.courses.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
             participant.username, can_user_use_reward_points(participant), number_of_required_courses_voted_for,
@@ -458,7 +459,7 @@ def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
-    courses = semester.course_set.filter(state='new')
+    courses = semester.courses.filter(state='new')
     course_types = CourseType.objects.filter(courses__in=courses)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
@@ -481,9 +482,9 @@ def semester_questionnaire_assign(request, semester_id):
 def semester_todo(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
+    courses = semester.courses.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("degrees")
 
-    prepared_courses = semester.course_set.filter(state__in=['prepared']).all()
+    prepared_courses = semester.courses.filter(state__in=['prepared']).all()
     responsibles = (contributor for course in prepared_courses for contributor in course.responsible_contributors)
     responsibles = list(set(responsibles))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
@@ -499,12 +500,12 @@ def semester_todo(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.course_set.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
+    courses = semester.courses.filter(state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
 
     responsibles = (contributor for course in courses for contributor in course.responsible_contributors)
     responsibles = list(set(responsibles))
-    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
 
     responsible_list = [(responsible, [course for course in courses if responsible in course.responsible_contributors])
                         for responsible in responsibles]
@@ -581,7 +582,9 @@ def course_create(request, semester_id):
     formset = InlineContributionFormset(request.POST or None, instance=course, form_kwargs={'course': course})
 
     if form.is_valid() and formset.is_valid():
-        form.save(user=request.user)
+        course = form.save()
+        course.set_last_modified(request.user)
+        course.save()
         formset.save()
 
         messages.success(request, _("Successfully created course."))
@@ -650,16 +653,21 @@ def helper_course_edit(request, semester, course):
 
         if course.state in ['evaluated', 'reviewed'] and course.is_in_evaluation_period:
             course.reopen_evaluation()
-        if form.has_changed():
-            form.save(user=request.user)
-        if formset.has_changed():
-            formset.save()
+
+        form_has_changed = form.has_changed() or formset.has_changed()
+
+        if form_has_changed:
+            course.set_last_modified(request.user)
+        form.save()
+        formset.save()
 
         if operation == 'approve':
-            # approve course
             course.manager_approve()
             course.save()
-            messages.success(request, _("Successfully updated and approved course."))
+            if form_has_changed:
+                messages.success(request, _("Successfully updated and approved course."))
+            else:
+                messages.success(request, _("Successfully approved course."))
         else:
             messages.success(request, _("Successfully updated course."))
 
@@ -725,7 +733,7 @@ def course_email(request, semester_id, course_id):
 
 
 @manager_required
-def course_person_import(request, semester_id, course_id):
+def course_person_management(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     course = get_object_or_404(Course, id=course_id, semester=semester)
     if course.participations_are_archived:
@@ -779,15 +787,36 @@ def course_person_import(request, semester_id, course_id):
     participant_test_passed = import_file_exists(request.user.id, 'participant')
     contributor_test_passed = import_file_exists(request.user.id, 'contributor')
     # casting warnings to a normal dict is necessary for the template to iterate over it.
-    return render(request, "staff_course_person_import.html", dict(semester=semester, course=course,
+    return render(request, "staff_course_person_management.html", dict(semester=semester, course=course,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
         success_messages=success_messages, warnings=dict(warnings), errors=errors,
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
 
 
+@manager_required
+def course_login_key_export(_request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, semester=semester, id=course_id)
+
+    filename = "Login_keys-{course.name}-{semester.short_name}.csv".format(course=course, semester=semester)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+
+    writer = csv.writer(response, delimiter=";", lineterminator="\n")
+    writer.writerow([_('Last name'), _('First name'), _('Email'), _('Login key')])
+
+    external_participants = (participant for participant in course.participants.all() if participant.is_external)
+    for participant in external_participants:
+        participant.ensure_valid_login_key()
+        writer.writerow([participant.last_name, participant.first_name, participant.email, participant.login_url])
+
+    return response
+
+
 @reviewer_required
-def course_comments(request, semester_id, course_id):
+def course_textanswers(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
@@ -797,9 +826,9 @@ def course_comments(request, semester_id, course_id):
         raise PermissionDenied
 
     view = request.GET.get('view', 'quick')
-    filter_comments = view == "unreviewed"
+    filter_textanswers = view == "unreviewed"
 
-    CommentSection = namedtuple('CommentSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
+    TextAnswerSection = namedtuple('TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
     course_sections = []
     contributor_sections = []
     for contribution in course.contributions.all().prefetch_related("questionnaires"):
@@ -807,14 +836,14 @@ def course_comments(request, semester_id, course_id):
             text_results = []
             for question in questionnaire.text_questions:
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
-                if filter_comments:
+                if filter_textanswers:
                     answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
                 if answers:
                     text_results.append(TextResult(question=question, answers=answers))
             if not text_results:
                 continue
             section_list = course_sections if contribution.is_general else contributor_sections
-            section_list.append(CommentSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
+            section_list.append(TextAnswerSection(questionnaire, contribution.contributor, contribution.label, contribution.responsible, text_results))
 
     template_data = dict(semester=semester, course=course, view=view)
 
@@ -829,16 +858,16 @@ def course_comments(request, semester_id, course_id):
 
         sections = course_sections + contributor_sections
         template_data.update(dict(sections=sections, next_course=next_course))
-        return render(request, "staff_course_comments_quick.html", template_data)
+        return render(request, "staff_course_textanswers_quick.html", template_data)
     else:
         template_data.update(dict(course_sections=course_sections, contributor_sections=contributor_sections))
-        return render(request, "staff_course_comments_full.html", template_data)
+        return render(request, "staff_course_textanswers_full.html", template_data)
 
 
 @require_POST
 @reviewer_required
-def course_comments_update_publish(request):
-    comment_id = request.POST["id"]
+def course_textanswers_update_publish(request):
+    textanswer_id = request.POST["id"]
     action = request.POST["action"]
     course_id = request.POST["course_id"]
 
@@ -848,7 +877,7 @@ def course_comments_update_publish(request):
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    answer = TextAnswer.objects.get(pk=comment_id)
+    answer = TextAnswer.objects.get(pk=textanswer_id)
 
     if action == 'publish':
         answer.publish()
@@ -873,7 +902,7 @@ def course_comments_update_publish(request):
 
 
 @reviewer_required
-def course_comment_edit(request, semester_id, course_id, text_answer_id):
+def course_textanswer_edit(request, semester_id, course_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived and not request.user.is_manager:
         raise PermissionDenied
@@ -882,17 +911,17 @@ def course_comment_edit(request, semester_id, course_id, text_answer_id):
     if not course.can_publish_text_results:
         raise PermissionDenied
 
-    text_answer = get_object_or_404(TextAnswer, id=text_answer_id, contribution__course=course)
-    form = TextAnswerForm(request.POST or None, instance=text_answer)
+    textanswer = get_object_or_404(TextAnswer, id=textanswer_id, contribution__course=course)
+    form = TextAnswerForm(request.POST or None, instance=textanswer)
 
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse('staff:course_comments', args=[semester_id, course_id]) + '#' + str(text_answer.id)
+        url = reverse('staff:course_textanswers', args=[semester_id, course_id]) + '#' + str(textanswer.id)
         return HttpResponseRedirect(url)
 
-    template_data = dict(semester=semester, course=course, form=form, text_answer=text_answer)
-    return render(request, "staff_course_comment_edit.html", template_data)
+    template_data = dict(semester=semester, course=course, form=form, textanswer=textanswer)
+    return render(request, "staff_course_textanswer_edit.html", template_data)
 
 
 @reviewer_required
@@ -909,19 +938,19 @@ def course_preview(request, semester_id, course_id):
 def questionnaire_index(request):
     filter_questionnaires = get_parameter_from_url_or_session(request, "filter_questionnaires")
 
-    course_questionnaires = Questionnaire.objects.course_questionnaires()
+    general_questionnaires = Questionnaire.objects.general_questionnaires()
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
 
     if filter_questionnaires:
-        course_questionnaires = course_questionnaires.filter(obsolete=False)
+        general_questionnaires = general_questionnaires.filter(obsolete=False)
         contributor_questionnaires = contributor_questionnaires.filter(obsolete=False)
 
-    course_questionnaires_top = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_above_contributors]
-    course_questionnaires_bottom = [questionnaire for questionnaire in course_questionnaires if questionnaire.is_below_contributors]
+    general_questionnaires_top = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors]
+    general_questionnaires_bottom = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors]
 
     template_data = dict(
-        course_questionnaires_top=course_questionnaires_top,
-        course_questionnaires_bottom=course_questionnaires_bottom,
+        general_questionnaires_top=general_questionnaires_top,
+        general_questionnaires_bottom=general_questionnaires_bottom,
         contributor_questionnaires=contributor_questionnaires,
         filter_questionnaires=filter_questionnaires,
     )
@@ -961,7 +990,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     if editable:
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
     else:
-        question_count = questionnaire.question_set.count()
+        question_count = questionnaire.questions.count()
         InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
                                                       can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
 
@@ -1017,7 +1046,7 @@ def get_identical_form_and_formset(questionnaire):
     inline_question_formset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
 
     form = QuestionnaireForm(instance=questionnaire)
-    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.question_set.all())
+    return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
 
 
 @manager_required
@@ -1262,7 +1291,8 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    courses_contributing_to = Course.objects.filter(semester=Semester.active_semester(), contributions__contributor=user)
+    semesters_with_courses = Semester.objects.filter(courses__contributions__contributor=user).distinct()
+    courses_contributing_to = [(semester, Course.objects.filter(semester=semester, contributions__contributor=user)) for semester in semesters_with_courses]
 
     if form.is_valid():
         form.save()
@@ -1383,7 +1413,7 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def download_sample_xls(request, filename):
+def download_sample_xls(_request, filename):
     email_placeholder = "institution.com"
 
     if filename not in ["sample.xls", "sample_user.xls"]:

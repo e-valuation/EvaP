@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
-from evap.evaluation.forms import UserModelMultipleChoiceField
+from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
 from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
@@ -15,17 +15,17 @@ logger = logging.getLogger(__name__)
 
 
 class CourseForm(forms.ModelForm):
-    general_questions = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("Questions about the course"))
+    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'type', 'degrees', 'general_questions', 'semester')
+        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'type', 'degrees', 'general_questionnaires', 'semester')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questions'].queryset = Questionnaire.objects.course_questionnaires().filter(
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.instance)).distinct()
 
         self.fields['vote_start_datetime'].localize = True
@@ -34,7 +34,7 @@ class CourseForm(forms.ModelForm):
         self.fields['degrees'].help_text = ""
 
         if self.instance.general_contribution:
-            self.fields['general_questions'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
     def clean(self):
         super().clean()
@@ -62,11 +62,9 @@ class CourseForm(forms.ModelForm):
         return vote_end_date
 
     def save(self, *args, **kw):
-        user = kw.pop("user")
-        self.instance.last_modified_user = user
-        super().save(*args, **kw)
-        self.instance.general_contribution.questionnaires.set(self.cleaned_data.get('general_questions'))
-        logger.info('Course "{}" (id {}) was edited by contributor {}.'.format(self.instance, self.instance.id, user.username))
+        course = super().save(*args, **kw)
+        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return course
 
 
 class EditorContributionForm(ContributionForm):
@@ -76,7 +74,7 @@ class EditorContributionForm(ContributionForm):
         if self.instance.responsible:
             self.fields['responsibility'].disabled = True
             self.fields['contributor'].disabled = True
-            self.fields['comment_visibility'].disabled = True
+            self.fields['textanswer_visibility'].disabled = True
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
@@ -98,3 +96,7 @@ class DelegatesForm(forms.ModelForm):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "{}" edited the settings.'.format(self.instance.username))
+
+
+class DelegateSelectionForm(forms.Form):
+    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.exclude_inactive_users())

@@ -1,12 +1,13 @@
-from django.contrib.auth.models import Group
 from django.db import migrations
 
 
-def add_group(_apps, _schema_editor):
+def add_group(apps, _schema_editor):
+    Group = apps.get_model("auth", "Group")
     Group.objects.create(name="Reviewer")
 
 
-def delete_group(_apps, _schema_editor):
+def delete_group(apps, _schema_editor):
+    Group = apps.get_model("auth", "Group")
     Group.objects.get(name="Reviewer").delete()
 
 

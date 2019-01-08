@@ -1,3 +1,4 @@
+from collections import namedtuple
 from datetime import datetime, date, timedelta
 import logging
 import random
@@ -9,18 +10,18 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group,
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models, transaction
+from django.db import models, transaction, IntegrityError
 from django.db.models import Count, Q, Manager
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-# see evaluation.meta for the use of Translate in this file
-from evap.evaluation.meta import LocalizeModelBase, Translate
-from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user
+from evap.evaluation.tools import date_to_datetime, get_due_courses_for_user, translate
 
 logger = logging.getLogger(__name__)
 
@@ -30,16 +31,16 @@ class NotArchiveable(Exception):
     pass
 
 
-class Semester(models.Model, metaclass=LocalizeModelBase):
+class Semester(models.Model):
     """Represents a semester, e.g. the winter term of 2011/2012."""
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     short_name_de = models.CharField(max_length=20, unique=True, verbose_name=_("short name (german)"))
     short_name_en = models.CharField(max_length=20, unique=True, verbose_name=_("short name (english)"))
-    short_name = Translate
+    short_name = translate(en='short_name_en', de='short_name_de')
 
     participations_are_archived = models.BooleanField(default=False, verbose_name=_("participations are archived"))
     grade_documents_are_deleted = models.BooleanField(default=False, verbose_name=_("grade documents are deleted"))
@@ -57,11 +58,11 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def can_manager_delete(self):
-        return all(course.can_manager_delete for course in self.course_set.all())
+        return all(course.can_manager_delete for course in self.courses.all())
 
     @property
     def participations_can_be_archived(self):
-        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.course_set.all())
+        return not self.participations_are_archived and all(course.participations_can_be_archived for course in self.courses.all())
 
     @property
     def grade_documents_can_be_deleted(self):
@@ -75,7 +76,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
     def archive_participations(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
-        for course in self.course_set.all():
+        for course in self.courses.all():
             course._archive_participations()
         self.participations_are_archived = True
         self.save()
@@ -102,7 +103,7 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(course__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(courses__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -114,14 +115,14 @@ class Semester(models.Model, metaclass=LocalizeModelBase):
 
 
 class QuestionnaireManager(Manager):
-    def course_questionnaires(self):
+    def general_questionnaires(self):
         return super().get_queryset().exclude(type=Questionnaire.CONTRIBUTOR)
 
     def contributor_questionnaires(self):
         return super().get_queryset().filter(type=Questionnaire.CONTRIBUTOR)
 
 
-class Questionnaire(models.Model, metaclass=LocalizeModelBase):
+class Questionnaire(models.Model):
     """A named collection of questions."""
 
     TOP = 10
@@ -136,19 +137,19 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     description_de = models.TextField(verbose_name=_("description (german)"), blank=True, null=True)
     description_en = models.TextField(verbose_name=_("description (english)"), blank=True, null=True)
-    description = Translate
+    description = translate(en='description_en', de='description_de')
 
     public_name_de = models.CharField(max_length=1024, verbose_name=_("display name (german)"))
     public_name_en = models.CharField(max_length=1024, verbose_name=_("display name (english)"))
-    public_name = Translate
+    public_name = translate(en='public_name_en', de='public_name_de')
 
     teaser_de = models.TextField(verbose_name=_("teaser (german)"), blank=True, null=True)
     teaser_en = models.TextField(verbose_name=_("teaser (english)"), blank=True, null=True)
-    teaser = Translate
+    teaser = translate(en='teaser_en', de='teaser_de')
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
@@ -189,11 +190,11 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def text_questions(self):
-        return [question for question in self.question_set.all() if question.is_text_question]
+        return [question for question in self.questions.all() if question.is_text_question]
 
     @property
     def rating_questions(self):
-        return [question for question in self.question_set.all() if question.is_rating_question]
+        return [question for question in self.questions.all() if question.is_rating_question]
 
     SINGLE_RESULT_QUESTIONNAIRE_NAME = "Single result"
 
@@ -202,10 +203,10 @@ class Questionnaire(models.Model, metaclass=LocalizeModelBase):
         return cls.objects.get(name_en=cls.SINGLE_RESULT_QUESTIONNAIRE_NAME)
 
 
-class Degree(models.Model, metaclass=LocalizeModelBase):
+class Degree(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
@@ -221,12 +222,12 @@ class Degree(models.Model, metaclass=LocalizeModelBase):
         return not self.courses.all().exists()
 
 
-class CourseType(models.Model, metaclass=LocalizeModelBase):
+class CourseType(models.Model):
     """Model for the type of a course, e.g. a lecture"""
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 
@@ -242,16 +243,16 @@ class CourseType(models.Model, metaclass=LocalizeModelBase):
         return not self.courses.all().exists()
 
 
-class Course(models.Model, metaclass=LocalizeModelBase):
+class Course(models.Model):
     """Models a single course, e.g. the Math 101 course of 2002."""
 
     state = FSMField(default='new', protected=True)
 
-    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"))
+    semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
 
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
-    name = Translate
+    name = translate(en='name_en', de='name_de')
 
     # type of course: lecture, seminar, project
     type = models.ForeignKey(CourseType, models.PROTECT, verbose_name=_("course type"), related_name="courses")
@@ -293,7 +294,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # who last modified this course
-    last_modified_time = models.DateTimeField(auto_now=True)
+    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="course_last_modified_user+")
 
     course_evaluated = Signal(providing_args=['request', 'semester'])
@@ -315,7 +316,7 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         super().save(*args, **kw)
 
         # make sure there is a general contribution
-        if not self.general_contribution:
+        if not self.general_contribution and not self.is_single_result:
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
@@ -326,6 +327,11 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             assert self.vote_end_date == self.vote_start_datetime.date()
         else:
             assert self.vote_end_date >= self.vote_start_datetime.date()
+
+    def set_last_modified(self, modifying_user):
+        self.last_modified_user = modifying_user
+        self.last_modified_time = timezone.now()
+        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
 
     @property
     def is_fully_reviewed(self):
@@ -375,9 +381,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return True
         if self.state != 'published':
             return False
-        if not self.can_publish_rating_results or self.semester.results_are_archived or not self.can_user_see_course(user):
+        if not self.can_publish_rating_results or self.semester.results_are_archived:
             return self.is_user_contributor_or_delegate(user)
-        return True
+        return self.can_user_see_course(user)
 
     @property
     def can_manager_edit(self):
@@ -519,6 +525,9 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             return False
         return self.contributions.filter(Q(contributor=user) | Q(contributor__in=user.represented_users.all())).exists()
 
+    def is_user_contributor(self, user):
+        return self.contributions.filter(contributor=user).exists()
+
     @property
     def textanswer_set(self):
         return TextAnswer.objects.filter(contribution__course=self)
@@ -591,7 +600,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
             try:
                 if course.state == "approved" and course.vote_start_datetime <= datetime.now():
                     course.evaluation_begin()
-                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
                     courses_new_in_evaluation.append(course)
                 elif course.state == "in_evaluation" and datetime.now() >= course.vote_end_datetime:
@@ -601,7 +609,6 @@ class Course(models.Model, metaclass=LocalizeModelBase):
                         if not course.is_graded or course.final_grade_documents.exists() or course.gets_no_grade_documents:
                             course.publish()
                             evaluation_results_courses.append(course)
-                    course.last_modified_user = UserProfile.objects.cronjob_user()
                     course.save()
             except Exception:
                 logger.exception('An error occured when updating the state of course "{}" (id {}).'.format(course, course.id))
@@ -610,6 +617,10 @@ class Course(models.Model, metaclass=LocalizeModelBase):
         EmailTemplate.send_to_users_in_courses(template, courses_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_courses)
         logger.info("update_courses finished.")
+
+    @property
+    def has_external_participant(self):
+        return any(participant.is_external for participant in self.participants.all())
 
 
 @receiver(post_transition, sender=Course)
@@ -638,13 +649,11 @@ def log_state_transition(instance, name, source, target, **_kwargs):
 class Contribution(models.Model):
     """A contributor who is assigned to a course and his questionnaires."""
 
-    OWN_COMMENTS = 'OWN'
-    COURSE_COMMENTS = 'COURSE'
-    ALL_COMMENTS = 'ALL'
-    COMMENT_VISIBILITY_CHOICES = (
-        (OWN_COMMENTS, _('Own')),
-        (COURSE_COMMENTS, _('Course')),
-        (ALL_COMMENTS, _('All')),
+    OWN_TEXTANSWERS = 'OWN'
+    GENERAL_TEXTANSWERS = 'GENERAL'
+    TEXTANSWER_VISIBILITY_CHOICES = (
+        (OWN_TEXTANSWERS, _('Own')),
+        (GENERAL_TEXTANSWERS, _('Own and general')),
     )
     IS_CONTRIBUTOR = 'CONTRIBUTOR'
     IS_EDITOR = 'EDITOR'
@@ -660,7 +669,7 @@ class Contribution(models.Model):
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     responsible = models.BooleanField(verbose_name=_("responsible"), default=False)
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
-    comment_visibility = models.CharField(max_length=10, choices=COMMENT_VISIBILITY_CHOICES, verbose_name=_('comment visibility'), default=OWN_COMMENTS)
+    textanswer_visibility = models.CharField(max_length=10, choices=TEXTANSWER_VISIBILITY_CHOICES, verbose_name=_('text answer visibility'), default=OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
@@ -674,32 +683,60 @@ class Contribution(models.Model):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         if self.responsible and not self.course.is_single_result:
-            assert self.can_edit and self.comment_visibility == self.ALL_COMMENTS
+            assert self.can_edit and self.textanswer_visibility == self.GENERAL_TEXTANSWERS
 
     @property
     def is_general(self):
         return self.contributor_id is None
 
 
-class Question(models.Model, metaclass=LocalizeModelBase):
+class Question(models.Model):
     """A question including a type."""
 
+    TEXT = 0
+    LIKERT = 1
+    GRADE = 2
+    EASY_DIFFICULT = 6
+    FEW_MANY = 7
+    LITTLE_MUCH = 8
+    SMALL_LARGE = 9
+    SLOW_FAST = 10
+    POSITIVE_YES_NO = 3
+    NEGATIVE_YES_NO = 4
+    HEADING = 5
     QUESTION_TYPES = (
-        ("T", _("Text Question")),
-        ("L", _("Likert Question")),
-        ("G", _("Grade Question")),
-        ("P", _("Positive Yes-No Question")),
-        ("N", _("Negative Yes-No Question")),
-        ("H", _("Heading")),
+        (_("Text"), (
+            (TEXT, _("Text question")),
+        )),
+        (_("Unipolar Likert"), (
+            (LIKERT, _("Agreement question")),
+        )),
+        (_("Grade"), (
+            (GRADE, _("Grade question")),
+        )),
+        (_("Bipolar Likert"), (
+            (EASY_DIFFICULT, _("Easy-difficult question")),
+            (FEW_MANY, _("Few-many question")),
+            (LITTLE_MUCH, _("Little-much question")),
+            (SMALL_LARGE, _("Small-large question")),
+            (SLOW_FAST, _("Slow-fast question")),
+        )),
+        (_("Yes-no"), (
+            (POSITIVE_YES_NO, _("Positive yes-no question")),
+            (NEGATIVE_YES_NO, _("Negative yes-no question")),
+        )),
+        (_("Layout"), (
+            (HEADING, _("Heading")),
+        ))
     )
 
     order = models.IntegerField(verbose_name=_("question order"), default=-1)
-    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE)
+    questionnaire = models.ForeignKey(Questionnaire, models.CASCADE, related_name="questions")
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
-    type = models.CharField(max_length=1, choices=QUESTION_TYPES, verbose_name=_("question type"))
+    text = translate(en='text_en', de='text_de')
 
-    text = Translate
+    type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     class Meta:
         ordering = ['order', ]
@@ -717,23 +754,27 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_likert_question(self):
-        return self.type == "L"
+        return self.type == self.LIKERT
+
+    @property
+    def is_bipolar_likert_question(self):
+        return self.type in (self.EASY_DIFFICULT, self.FEW_MANY, self.LITTLE_MUCH, self.SLOW_FAST, self.SMALL_LARGE)
 
     @property
     def is_text_question(self):
-        return self.type == "T"
+        return self.type == self.TEXT
 
     @property
     def is_grade_question(self):
-        return self.type == "G"
+        return self.type == self.GRADE
 
     @property
     def is_positive_yes_no_question(self):
-        return self.type == "P"
+        return self.type == self.POSITIVE_YES_NO
 
     @property
     def is_negative_yes_no_question(self):
-        return self.type == "N"
+        return self.type == self.NEGATIVE_YES_NO
 
     @property
     def is_yes_no_question(self):
@@ -741,7 +782,7 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_rating_question(self):
-        return self.is_grade_question or self.is_likert_question or self.is_yes_no_question
+        return self.is_grade_question or self.is_bipolar_likert_question or self.is_likert_question or self.is_yes_no_question
 
     @property
     def is_non_grade_rating_question(self):
@@ -749,7 +790,149 @@ class Question(models.Model, metaclass=LocalizeModelBase):
 
     @property
     def is_heading_question(self):
-        return self.type == "H"
+        return self.type == self.HEADING
+
+
+Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
+BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))
+
+NO_ANSWER = 6
+BASE_UNIPOLAR_CHOICES = {
+    'cssClass': 'vote-type-unipolar',
+    'values': (1, 2, 3, 4, 5, NO_ANSWER),
+    'colors': ('green', 'lime', 'yellow', 'orange', 'red', 'gray'),
+    'grades': (1, 2, 3, 4, 5)
+}
+
+BASE_BIPOLAR_CHOICES = {
+    'cssClass': 'vote-type-bipolar',
+    'values': (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
+    'colors': ('red', 'orange', 'lime', 'green', 'lime', 'orange', 'red', 'gray'),
+    'grades': (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5)
+}
+
+BASE_YES_NO_CHOICES = {
+    'cssClass': 'vote-type-yes-no',
+    'values': (1, 5, NO_ANSWER),
+    'colors': ('green', 'red', 'gray'),
+    'grades': (1, 5)
+}
+
+CHOICES = {
+    Question.LIKERT: Choices(
+        names=[
+            _("Strongly\nagree"),
+            _("Agree"),
+            _("Neutral"),
+            _("Disagree"),
+            _("Strongly\ndisagree"),
+            _("no answer")
+        ],
+        **BASE_UNIPOLAR_CHOICES
+    ),
+    Question.GRADE: Choices(
+        names=[
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            _("no answer")
+        ],
+        **BASE_UNIPOLAR_CHOICES
+    ),
+    Question.EASY_DIFFICULT: BipolarChoices(
+        minus_name=_("Easy"),
+        plus_name=_("Difficult"),
+        names=[
+            _("Way too\neasy"),
+            _("Too\neasy"),
+            _("Slightly too\neasy"),
+            _("Ideal"),
+            _("Slightly too\ndifficult"),
+            _("Too\ndifficult"),
+            _("Way too\ndifficult"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.FEW_MANY: BipolarChoices(
+        minus_name=_("Few"),
+        plus_name=_("Many"),
+        names=[
+            _("Way too\nfew"),
+            _("Too\nfew"),
+            _("Slightly too\nfew"),
+            _("Ideal"),
+            _("Slightly too\nmany"),
+            _("Too\nmany"),
+            _("Way too\nmany"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.LITTLE_MUCH: BipolarChoices(
+        minus_name=_("Little"),
+        plus_name=_("Much"),
+        names=[
+            _("Way too\nlittle"),
+            _("Too\nlittle"),
+            _("Slightly too\nlittle"),
+            _("Ideal"),
+            _("Slightly too\nmuch"),
+            _("Too\nmuch"),
+            _("Way too\nmuch"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.SMALL_LARGE: BipolarChoices(
+        minus_name=_("Small"),
+        plus_name=_("Large"),
+        names=[
+            _("Way too\nsmall"),
+            _("Too\nsmall"),
+            _("Slightly too\nsmall"),
+            _("Ideal"),
+            _("Slightly too\nlarge"),
+            _("Too\nlarge"),
+            _("Way too\nlarge"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.SLOW_FAST: BipolarChoices(
+        minus_name=_("Slow"),
+        plus_name=_("Fast"),
+        names=[
+            _("Way too\nslow"),
+            _("Too\nslow"),
+            _("Slightly too\nslow"),
+            _("Ideal"),
+            _("Slightly too\nfast"),
+            _("Too\nfast"),
+            _("Way too\nfast"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.POSITIVE_YES_NO: Choices(
+        names=[
+            _("Yes"),
+            _("No"),
+            _("no answer")
+        ],
+        **BASE_YES_NO_CHOICES
+    ),
+    Question.NEGATIVE_YES_NO: Choices(
+        names=[
+            _("No"),
+            _("Yes"),
+            _("no answer")
+        ],
+        **BASE_YES_NO_CHOICES
+    )
+}
 
 
 class Answer(models.Model):
@@ -767,7 +950,11 @@ class Answer(models.Model):
 
 
 class RatingAnswerCounter(Answer):
-    """A rating answer counter to a question. A lower answer is better or indicates more agreement."""
+    """A rating answer counter to a question.
+    The interpretation depends on the type of question:
+    unipolar: 1, 2, 3, 4, 5; where lower value means more agreement
+    bipolar: -3, -2, -1, 0, 1, 2, 3; where a lower absolute means more agreement and the sign shows the pole
+    yes / no: 1, 5; for 1 being the good answer"""
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
@@ -781,8 +968,7 @@ class RatingAnswerCounter(Answer):
 
 
 class TextAnswer(Answer):
-    """A free-form text answer to a question (usually a comment about a course
-    or a contributor)."""
+    """A free-form text answer to a question."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -793,13 +979,13 @@ class TextAnswer(Answer):
     PUBLISHED = 'PU'
     PRIVATE = 'PR'
     NOT_REVIEWED = 'NR'
-    TEXT_ANSWER_STATES = (
+    TEXTANSWER_STATES = (
         (HIDDEN, _('hidden')),
         (PUBLISHED, _('published')),
         (PRIVATE, _('private')),
         (NOT_REVIEWED, _('not reviewed')),
     )
-    state = models.CharField(max_length=2, choices=TEXT_ANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
+    state = models.CharField(max_length=2, choices=TEXTANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
         # Prevent ordering by date for privacy reasons
@@ -840,14 +1026,14 @@ class TextAnswer(Answer):
         self.state = self.NOT_REVIEWED
 
 
-class FaqSection(models.Model, metaclass=LocalizeModelBase):
+class FaqSection(models.Model):
     """Section in the frequently asked questions"""
 
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
     title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
     title_en = models.CharField(max_length=255, verbose_name=_("section title (english)"))
-    title = Translate
+    title = translate(en='title_en', de='title_de')
 
     class Meta:
         ordering = ['order', ]
@@ -855,7 +1041,7 @@ class FaqSection(models.Model, metaclass=LocalizeModelBase):
         verbose_name_plural = _("sections")
 
 
-class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
+class FaqQuestion(models.Model):
     """Question and answer in the frequently asked questions"""
 
     section = models.ForeignKey(FaqSection, models.CASCADE, related_name="questions")
@@ -864,11 +1050,11 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
     question_de = models.CharField(max_length=1024, verbose_name=_("question (german)"))
     question_en = models.CharField(max_length=1024, verbose_name=_("question (english)"))
-    question = Translate
+    question = translate(en='question_en', de='question_de')
 
     answer_de = models.TextField(verbose_name=_("answer (german)"))
-    answer_en = models.TextField(verbose_name=_("answer (german)"))
-    answer = Translate
+    answer_en = models.TextField(verbose_name=_("answer (english)"))
+    answer = translate(en='answer_en', de='answer_de')
 
     class Meta:
         ordering = ['order', ]
@@ -877,11 +1063,6 @@ class FaqQuestion(models.Model, metaclass=LocalizeModelBase):
 
 
 class UserProfileManager(BaseUserManager):
-    def get_queryset(self):
-        return super().get_queryset().exclude(username=UserProfile.CRONJOB_USER_USERNAME)
-
-    def cronjob_user(self):
-        return super().get_queryset().get(username=UserProfile.CRONJOB_USER_USERNAME)
 
     def exclude_inactive_users(self):
         return self.get_queryset().exclude(is_active=False)
@@ -988,8 +1169,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_grade_publisher(self):
         return self.groups.filter(name='Grade publisher').exists()
 
-    CRONJOB_USER_USERNAME = "cronjob"
-
     @property
     def can_manager_mark_inactive(self):
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
@@ -1028,8 +1207,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor:
             return True
 
-        last_semester_participated = Semester.objects.filter(course__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(course__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_participated = Semester.objects.filter(courses__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(courses__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
@@ -1082,17 +1261,20 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def ensure_valid_login_key(self):
         if self.login_key and self.login_key_valid_until > date.today():
+            self.reset_login_key_validity()
             return
 
         while True:
             key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
-            if not UserProfile.objects.filter(login_key=key).exists():
-                # key not yet used
+            try:
                 self.login_key = key
+                self.reset_login_key_validity()
                 break
-        self.refresh_login_key()
+            except IntegrityError:
+                # unique constraint failed, the login key was already in use. Generate another one.
+                continue
 
-    def refresh_login_key(self):
+    def reset_login_key_validity(self):
         self.login_key_valid_until = date.today() + timedelta(settings.LOGIN_KEY_VALIDITY)
         self.save()
 
@@ -1100,7 +1282,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def login_url(self):
         if not self.needs_login_key:
             return ""
-        return settings.PAGE_URL + "?loginkey=" + str(self.login_key)
+        return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
 
     def get_sorted_contributions(self):
         return self.contributions.order_by('course__semester__created_at', 'course__name_de')
@@ -1133,6 +1315,7 @@ class EmailTemplate(models.Model):
     PUBLISHING_NOTICE = "Publishing Notice"
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
+    DIRECT_DELEGATION = "Direct Delegation"
 
     ALL_PARTICIPANTS = 'all_participants'
     DUE_PARTICIPANTS = 'due_participants'
@@ -1195,7 +1378,7 @@ class EmailTemplate(models.Model):
             cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod
-    def send_to_user(cls, user, template, subject_params, body_params, use_cc, request=None):
+    def send_to_user(cls, user, template, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing course states, the request is None.
@@ -1208,11 +1391,18 @@ class EmailTemplate(models.Model):
                 logger.error(warning_message)
             return
 
+        cc_users = set()
+
+        if additional_cc_user:
+            cc_users.add(additional_cc_user)
+
         if use_cc:
-            cc_users = set(user.delegates.all() | user.cc_users.all())
-            cc_addresses = [p.email for p in cc_users if p.email]
-        else:
-            cc_addresses = []
+            cc_users |= set(user.delegates.all() | user.cc_users.all())
+
+            if additional_cc_user:
+                cc_users |= set(additional_cc_user.delegates.all() | additional_cc_user.cc_users.all())
+
+        cc_addresses = [p.email for p in cc_users if p.email]
 
         send_separate_login_url = False
         body_params['login_url'] = ""
