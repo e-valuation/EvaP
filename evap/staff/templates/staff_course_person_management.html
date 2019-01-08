@@ -97,11 +97,11 @@
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans 'Export login keys' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'To CSV file' %}</h6>
-                        <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external users.' %}</p>
+                        <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external participants.' %}</p>
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
-                        {% if not course.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This course has no external users." %}"{% endif %}>
+                        {% if not course.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This course has no external participants." %}"{% endif %}>
                             {% trans 'Export login keys' %}
                         </button>
                     </div>
