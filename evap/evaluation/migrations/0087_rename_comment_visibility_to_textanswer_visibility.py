@@ -10,11 +10,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
+        migrations.RenameField(
             model_name='contribution',
-            name='comment_visibility',
+            old_name='comment_visibility',
+            new_name='textanswer_visibility',
         ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='contribution',
             name='textanswer_visibility',
             field=models.CharField(choices=[('OWN', 'Own'), ('GENERAL', 'Own and general')], default='OWN', max_length=10, verbose_name='text answer visibility'),
