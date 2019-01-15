@@ -329,6 +329,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance.course.name_en = self.cleaned_data['name_en']
         self.instance.course.type = self.cleaned_data['type']
         self.instance.course.save()
+        self.instance.course.responsibles.set([self.cleaned_data['responsible']])
         self.instance.course.degrees.set(self.cleaned_data['degrees'])
         self.instance.course.save()
         self.instance.course = Course.objects.get(id=self.instance.course.id)
@@ -344,14 +345,10 @@ class SingleResultForm(forms.ModelForm):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        contribution.contributor = self.cleaned_data['responsible']
+        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, contributor=None)
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
-
-        self.instance.course.responsibles.set([contribution.contributor])
-        self.instance.course.save()
 
         # set answers
         contribution = Contribution.objects.get(evaluation=self.instance)

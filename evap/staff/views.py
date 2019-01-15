@@ -75,8 +75,7 @@ def get_evaluations_with_prefetched_data(semester):
     voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
 
     for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
-        if not evaluation.is_single_result:
-            evaluation.general_contribution = evaluation.general_contribution[0]
+        evaluation.general_contribution = evaluation.general_contribution[0]
         if evaluation._participant_count is None:
             evaluation.num_participants = participant_count
             evaluation.num_voters = voter_count

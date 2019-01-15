@@ -371,17 +371,11 @@ class Evaluation(models.Model):
         super().save(*args, **kw)
 
         # make sure there is a general contribution
-        if not self.general_contribution and not self.is_single_result:
+        if not self.general_contribution:
             self.contributions.create(contributor=None)
             del self.general_contribution  # invalidate cached property
 
-        if self.is_single_result:
-            # adding m2ms such as contributions/questionnaires requires saving the evaluation first,
-            # therefore we must allow the single result questionnaire to not exist on first save
-            assert first_save or Questionnaire.objects.get(contributions__evaluation=self).name_en == Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME
-            assert self.vote_end_date == self.vote_start_datetime.date()
-        else:
-            assert self.vote_end_date >= self.vote_start_datetime.date()
+        assert self.vote_end_date >= self.vote_start_datetime.date()
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -405,11 +399,11 @@ class Evaluation(models.Model):
 
     @property
     def general_contribution_has_questionnaires(self):
-        return self.general_contribution and (self.is_single_result or self.general_contribution.questionnaires.count() > 0)
+        return self.general_contribution and self.general_contribution.questionnaires.count() > 0
 
     @property
     def all_contributions_have_questionnaires(self):
-        return self.general_contribution and (self.is_single_result or all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and (all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
     def can_user_vote(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""

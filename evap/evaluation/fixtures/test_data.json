@@ -139122,9 +139122,9 @@
   "pk": 4300,
   "fields": {
     "evaluation": 1713,
-    "contributor": 255,
+    "contributor": null,
     "can_edit": false,
-    "textanswer_visibility": "GENERAL",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [
@@ -139137,9 +139137,9 @@
   "pk": 4302,
   "fields": {
     "evaluation": 1714,
-    "contributor": 255,
+    "contributor": null,
     "can_edit": false,
-    "textanswer_visibility": "GENERAL",
+    "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
     "questionnaires": [

@@ -125,7 +125,8 @@ def merge_users(main_user, other_user, preview=False):
 
     errors = []
     warnings = []
-    if any(course in main_user.get_sorted_courses_responsible_for() for course in other_user.get_sorted_courses_responsible_for()):
+    courses_main_user_is_responsible_for = main_user.get_sorted_courses_responsible_for()
+    if any(course in courses_main_user_is_responsible_for for course in other_user.get_sorted_courses_responsible_for()):
         errors.append('courses_responsible_for')
     if any(contribution.evaluation in [contribution.evaluation for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
         errors.append('contributions')
