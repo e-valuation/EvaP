@@ -53,10 +53,10 @@
                                             <li>
                                                 {% if evaluation|can_user_see_results_page:form.instance %}
                                                     <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
-                                                        {{ evaluation.name }}
+                                                        {{ evaluation.full_name }}
                                                     </a>
                                                 {% else %}
-                                                    {{ evaluation.name }}
+                                                    {{ evaluation.full_name }}
                                                 {% endif %}
                                             </li>
                                         {% endfor %}

@@ -89,11 +89,11 @@ class TestExporters(TestCase):
     def test_view_excel_file_sorted(self):
         semester = mommy.make(Semester)
         course_type = mommy.make(CourseType)
-        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester),
-                   name_de='A - Evaluation1', name_en='B - Evaluation1')
+        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester, name_de="A", name_en="B"),
+                   name_de='Evaluation1', name_en='Evaluation1')
 
-        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester),
-                   name_de='B - Evaluation2', name_en='A - Evaluation2')
+        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester, name_de="B", name_en="A"),
+                   name_de='Evaluation2', name_en='Evaluation2')
 
         content_de = BytesIO()
         with translation.override("de"):
@@ -108,12 +108,12 @@ class TestExporters(TestCase):
 
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=content_de.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Evaluation1")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Evaluation2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2")
 
         workbook = xlrd.open_workbook(file_contents=content_en.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A - Evaluation2")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B - Evaluation1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1")
 
     def test_course_type_ordering(self):
         course_type_1 = mommy.make(CourseType, order=1)
@@ -136,8 +136,8 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name)
 
         course_type_2.order = 0
         course_type_2.save()
@@ -147,5 +147,5 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name)

@@ -348,8 +348,10 @@ class TestSemesterView(WebTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
-        cls.evaluation1 = mommy.make(Evaluation, name_de="A - Evaluation 1", name_en="B - Evaluation 1", course=mommy.make(Course, semester=cls.semester))
-        cls.evaluation2 = mommy.make(Evaluation, name_de="B - Evaluation 2", name_en="A - Evaluation 2", course=mommy.make(Course, semester=cls.semester))
+        cls.evaluation1 = mommy.make(Evaluation, name_de="Evaluation 1", name_en="Evaluation 1",
+            course=mommy.make(Course, name_de="A", name_en="B", semester=cls.semester))
+        cls.evaluation2 = mommy.make(Evaluation, name_de="Evaluation 2", name_en="Evaluation 2",
+            course=mommy.make(Course, name_de="B", name_en="A", semester=cls.semester))
 
     def test_view_list_sorting(self):
         page = self.app.get(self.url, user='manager', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
@@ -686,22 +688,22 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
 
     def test_view_downloads_csv_file(self):
         student_user = mommy.make(UserProfile, username='student')
-        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester), participants=[student_user],
-            voters=[student_user], name_de="1", name_en="Evaluation 1")
-        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester), participants=[student_user],
-            name_de="2", name_en="Evaluation 2")
+        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester, name_de="1",
+            name_en="Course 1"), participants=[student_user], voters=[student_user], name_de="E1", name_en="E1")
+        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester, name_de="2",
+            name_en="Course 2"), participants=[student_user])
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
             "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
-            "Evaluation 1;;Type;False;new;1;1;0;\n"
-            "Evaluation 2;;Type;False;new;0;1;0;\n"
+            "Course 1 – E1;;Type;False;new;1;1;0;\n"
+            "Course 2;;Type;False;new;0;1;0;\n"
         )
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
     def test_single_result(self):
-        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester), _participant_count=5, _voter_count=5,
-            is_single_result=True, name_de="3", name_en="Single Result")
+        mommy.make(Evaluation, course=mommy.make(Course, type=self.course_type, semester=self.semester, name_de="3",
+            name_en="Single Result"), _participant_count=5, _voter_count=5, is_single_result=True)
 
         response = self.app.get(self.url, user='manager')
         expected_content = (
@@ -847,9 +849,7 @@ class TestSingleResultCreateView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager_user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        mommy.make(Semester, pk=1)
-        cls.course_type = mommy.make(CourseType)
-        cls.degree = mommy.make(Degree)
+        cls.course = mommy.make(Course, semester=mommy.make(Semester, pk=1))
 
     def test_single_result_create(self):
         """
@@ -857,19 +857,17 @@ class TestSingleResultCreateView(WebTest):
         """
         response = self.app.get(self.url, user="manager", status=200)
         form = response.forms["single-result-form"]
+        form["course"] = self.course.pk
         form["name_de"] = "qwertz"
         form["name_en"] = "qwertz"
-        form["type"] = self.course_type.pk
-        form["degrees"] = [self.degree.pk]
-        form["event_date"] = "2014-01-01"
         form["answer_1"] = 6
         form["answer_3"] = 2
-        # missing responsible to get a validation error
+        # missing event_date to get a validation error
 
         form.submit()
         self.assertFalse(Evaluation.objects.exists())
 
-        form["responsible"] = self.manager_user.pk  # now do it right
+        form["event_date"] = "2014-01-01"  # now do it right
 
         form.submit()
         self.assertEqual(Evaluation.objects.get().name_de, "qwertz")
@@ -882,7 +880,7 @@ class TestEvaluationCreateView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager_user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        mommy.make(Semester, pk=1)
+        cls.course = mommy.make(Course, semester=mommy.make(Semester, pk=1))
         cls.course_type = mommy.make(CourseType)
         cls.q1 = mommy.make(Questionnaire, type=Questionnaire.TOP)
         cls.q2 = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
@@ -893,13 +891,9 @@ class TestEvaluationCreateView(WebTest):
         """
         response = self.app.get(self.url, user="manager", status=200)
         form = response.forms["evaluation-form"]
-        form["course-name_de"] = "lfo9e7bmxp1xi"
-        form["course-name_en"] = "asdf"
+        form["course"] = self.course.pk
         form["name_de"] = "lfo9e7bmxp1xi"
         form["name_en"] = "asdf"
-        form["course-type"] = self.course_type.pk
-        form["course-degrees"] = [1]
-        form["course-responsibles"] = [self.manager_user.pk]
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questionnaires"] = [self.q1.pk]

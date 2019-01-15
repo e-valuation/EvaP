@@ -13,8 +13,9 @@ from django.utils import translation
 
 from evap.evaluation.models import Semester, Degree, Contribution, Evaluation, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
-from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
-    TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
+from evap.results.tools import (collect_results, calculate_average_distribution, calculate_average_course_distribution,
+                                distribution_to_grade, get_collect_results_cache_key, get_single_result_rating_result,
+                                HeadingResult, TextAnswer, TextResult)
 
 
 def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, can_user_see_results_page):
@@ -96,8 +97,8 @@ def index(request):
         evaluations += get_evaluations_with_prefetched_data(additional_evaluations)
 
     evaluation_pks = [evaluation.pk for evaluation in evaluations]
-    degrees = Degree.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
-    course_types = CourseType.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
+    degrees = Degree.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
+    course_types = CourseType.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
     template_data = dict(
         evaluations=evaluations,
         degrees=degrees,

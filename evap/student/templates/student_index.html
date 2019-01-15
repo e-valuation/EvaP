@@ -54,6 +54,10 @@
                             {% for evaluation in semester.evaluations %}
                                 <tr{% if evaluation.state == 'in_evaluation' and evaluation not in voted_evaluations %}
                                         class="hover-vote" data-url="{% url 'student:vote' evaluation.id %}"
+                                                <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
+                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-archive" %}
+                                                </div>
+                                            {% elif course.not_all_evaluations_are_published %}
                                     {# staff users should be able to access evaluations through the student index only if it actually has published results #}
                                     {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_user_see_results_page:request.user %}
                                         class="hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
@@ -62,7 +66,7 @@
                                     {% endif %}>
                                     <td>
                                         <div>
-                                            {{ evaluation.name }}
+                                            {{ evaluation.full_name }}
                                         </div>
                                         {% include 'evaluation_badges.html' with mode='student' %}
                                         {% if evaluation in voted_evaluations %}

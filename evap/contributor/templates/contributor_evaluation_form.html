@@ -8,7 +8,7 @@
     <div>
         <ul class="breadcrumb">
             <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -26,14 +26,42 @@
     </div>
 
     <h3>
-        {{ evaluation.name }} ({{ evaluation.course.semester.name }})
+        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
     </h3>
-    <div class="mb-2">
-        {% include 'evaluation_badges.html' with mode='contributor' %}
-    </div>
 
     <form method="POST" class="form-horizontal multiselect-form select2form" id="evaluation-form">
         {% csrf_token %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{% trans 'Course data' %}</h5>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Name (German)' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.name_de }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Name (English)' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.name_en }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Responsibles' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.responsibles_names }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Degrees' %}</label>
+                    <div class="col-md-7 form-static-text">
+                        {% for degree in evaluation.course.degrees.all %}
+                            <span class="badge badge-primary">{{ degree }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Course type' %}</label>
+                    <div class="col-md-7 form-static-text">
+                        <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'evaluation_form_general_questionnaires.html' with evaluation=evaluation evaluation_form=form %}
@@ -111,7 +139,7 @@
             $('#evaluation-form').submit();
         };
     </script>
-    {% blocktrans asvar title with evaluation_name=evaluation.name|safe %}Request participant changes for {{ evaluation_name }}{% endblocktrans %}
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request participant changes for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
     {% trans 'Request account creation' as title %}

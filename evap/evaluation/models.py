@@ -103,7 +103,7 @@ class Semester(models.Model):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(courses__evaluation__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(courses__evaluations__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -299,6 +299,10 @@ class Course(models.Model):
         return not self.semester.participations_are_archived
 
     @property
+    def can_manager_delete(self):
+        return not self.evaluations.exists()
+
+    @property
     def final_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
@@ -312,16 +316,21 @@ class Course(models.Model):
     def responsibles_names(self):
         return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
 
+    @property
+    def all_evaluations_finished(self):
+        return all(evaluation.state in ['evaluated', 'reviewed', 'published'] for evaluation in self.evaluations.all())
+
 
 class Evaluation(models.Model):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
     state = FSMField(default='new', protected=True)
 
-    course = models.OneToOneField(Course, models.CASCADE, verbose_name=_("course"), related_name="evaluation")
+    course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
-    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
-    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
+    # names can be empty, e.g., when there is just one evaluation in a course
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en='name_en', de='name_de')
 
     is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
@@ -355,7 +364,8 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('name_de',)
+        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
+        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
@@ -364,7 +374,7 @@ class Evaluation(models.Model):
         verbose_name_plural = _("evaluations")
 
     def __str__(self):
-        return self.name
+        return self.full_name
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
@@ -380,6 +390,24 @@ class Evaluation(models.Model):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
         logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+
+    @property
+    def full_name(self):
+        if self.name:
+            return "{} – {}".format(self.course.name, self.name)
+        return self.course.name
+
+    @property
+    def full_name_de(self):
+        if self.name_de:
+            return "{} – {}".format(self.course.name_de, self.name_de)
+        return self.course.name_de
+
+    @property
+    def full_name_en(self):
+        if self.name_en:
+            return "{} – {}".format(self.course.name_en, self.name_en)
+        return self.course.name_en
 
     @property
     def is_fully_reviewed(self):
@@ -1237,8 +1265,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor or self.is_responsible:
             return True
 
-        last_semester_participated = Semester.objects.filter(courses__evaluation__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(courses__evaluation__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_participated = Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 

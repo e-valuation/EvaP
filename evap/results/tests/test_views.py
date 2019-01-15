@@ -247,12 +247,12 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         mommy.make(Contribution, evaluation=private_evaluation, contributor=contributor, can_edit=True)
 
         url = '/results/'
-        self.assertNotIn(private_evaluation.name, self.app.get(url, user='random'))
-        self.assertIn(private_evaluation.name, self.app.get(url, user='student'))
-        self.assertIn(private_evaluation.name, self.app.get(url, user='responsible'))
-        self.assertIn(private_evaluation.name, self.app.get(url, user='responsible_contributor'))
-        self.assertIn(private_evaluation.name, self.app.get(url, user='contributor'))
-        self.assertIn(private_evaluation.name, self.app.get(url, user='manager'))
+        self.assertNotIn(private_evaluation.full_name, self.app.get(url, user='random'))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user='student'))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user='responsible'))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user='responsible_contributor'))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user='contributor'))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user='manager'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (semester.id, private_evaluation.id)
@@ -596,11 +596,11 @@ class TestArchivedResults(WebTest):
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = '/results/'
-        self.assertIn(self.evaluation.name, self.app.get(url, user='student'))
-        self.assertIn(self.evaluation.name, self.app.get(url, user='responsible'))
-        self.assertIn(self.evaluation.name, self.app.get(url, user='contributor'))
-        self.assertIn(self.evaluation.name, self.app.get(url, user='manager'))
-        self.assertIn(self.evaluation.name, self.app.get(url, user='reviewer'))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user='student'))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user='responsible'))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user='contributor'))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user='manager'))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user='reviewer'))
         self.app.get(url, user='student_external', status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, self.evaluation.id)

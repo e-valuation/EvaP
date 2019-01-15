@@ -39,7 +39,7 @@ def index(request):
             evaluation.state not in ['prepared', 'editor_approved', 'approved'],
             evaluation.state != 'in_evaluation',
             evaluation.state not in ['evaluated', 'reviewed'],
-            evaluation.name
+            evaluation.full_name
         )
     evaluations.sort(key=sorter)
 

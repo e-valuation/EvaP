@@ -1,0 +1,52 @@
+{% extends 'staff_course_base.html' %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>
+        {% if course_form.instance.id %}
+            {{ course.name }} ({{ course.semester.name }})
+        {% else %}
+            {% trans 'Create course' %}
+        {% endif %}
+    </h3>
+    <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
+        {% csrf_token %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'bootstrap_form.html' with form=course_form %}
+            </div>
+        </div>
+
+        {% if course_form.instance.id %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans 'Evaluations' %}</h5>
+                    {% if course.evaluations.count > 0 %}
+                        <ul>
+                            {% for evaluation in course.evaluations.all %}
+                                <li>
+                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">
+                                        {{ evaluation.full_name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <i>{% trans 'There are no evaluations for this course.' %}</i>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if editable %}
+            <div class="card card-submit-area card-submit-area-3 text-center mb-3">
+                <div class="card-body">
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">{% trans 'Save and create evaluation' %}</button>
+                    <button name="operation" value="save_create_single_result" type="submit" class="btn btn-dark">{% trans 'Save and create single result' %}</button>
+                </div>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}

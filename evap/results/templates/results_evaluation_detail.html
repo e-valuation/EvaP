@@ -2,13 +2,13 @@
 
 {% load results_templatetags %}
 
-{% block title %}{{ evaluation.name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.full_name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
             <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -28,7 +28,7 @@
             </div>
         {% endif %}
         <div class="d-flex">
-            <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
+            <h3 class="mr-auto">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
@@ -68,7 +68,7 @@
             </div>
         </div>
     {% else %}
-        <h3>{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
+        <h3>{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     {% endif %}
 
     <div class="card card-outline-primary mb-3">

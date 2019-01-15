@@ -78,7 +78,7 @@
                     {% endif %}
                     {% if next_evaluation %}
                         <span>
-                            {% blocktrans with name=next_evaluation.name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
+                            {% blocktrans with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
                         </span>
                     {% endif %}
                 </div>

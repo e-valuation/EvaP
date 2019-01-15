@@ -17,13 +17,18 @@ logger = logging.getLogger(__name__)
 class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
+    name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
 
     class Meta:
         model = Evaluation
-        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'general_questionnaires', 'course')
+        fields = ('name_de_field', 'name_en_field', 'vote_start_datetime', 'vote_end_date', 'general_questionnaires', 'course')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields['name_de_field'].initial = self.instance.full_name_de
+        self.fields['name_en_field'].initial = self.instance.full_name_en
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__evaluation=self.instance)).distinct()

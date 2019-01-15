@@ -95,17 +95,15 @@ class EvaluationData(CommonEqualityMixin):
         )
         course.save()
         course.responsibles.set([responsible_dbobj])
+        for degree_name in self.degree_names:
+            course.degrees.add(Degree.objects.get(name_de=degree_name))
         evaluation = Evaluation(
-            name_de=self.name_de,
-            name_en=self.name_en,
             vote_start_datetime=vote_start_datetime,
             vote_end_date=vote_end_date,
             course=course,
         )
         evaluation.save()
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        for degree_name in self.degree_names:
-            evaluation.course.degrees.add(Degree.objects.get(name_de=degree_name))
 
 
 class ExcelImporter(object):
@@ -353,7 +351,7 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
             for evaluation_data, student_data in self.enrollments:
-                evaluation = Evaluation.objects.get(course__semester=semester, name_de=evaluation_data.name_de)
+                evaluation = Evaluation.objects.get(course__semester=semester, course__name_de=evaluation_data.name_de)
                 # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 evaluation.participants.add(student)

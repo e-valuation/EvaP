@@ -751,6 +751,9 @@ select[multiple] {
     font-weight: bold;
     padding-top: 0.3rem;
 }
+.form-static-text {
+    padding-top: 0.3rem;
+}
 
 .evap-progress-bar-container {
     padding-right: 4px;
@@ -878,6 +881,9 @@ tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
 
+.course-responsible {
+    font-style: italic;
+}
 .evaluation-contributor {
     font-style: italic;
 }
@@ -959,6 +965,12 @@ td.icon {
 
 a.no-underline:hover {
     text-decoration: none;
+}
+
+.card-header .nav-pills {
+    .nav-link {
+        padding: 0.1rem 0.5rem;
+    }
 }
 
 /* Results index page */

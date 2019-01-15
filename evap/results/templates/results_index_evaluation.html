@@ -10,7 +10,7 @@
 
 <tr class="hover-results {% if not can_user_see_results_page %}nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
         {% if can_user_see_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
-    <td data-order="{{ evaluation.name }}">
+    <td data-order="{{ evaluation.full_name }}">
         {% if evaluation.state == 'in_evaluation' %}
             <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This evaluation is still running.' %}"></span>
         {% elif evaluation.state == 'evaluated' %}
@@ -22,7 +22,7 @@
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% endif %}
         {% endif %}
-        <span class="evaluation-name">{{ evaluation.name }}{% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}</span>
+        <span class="evaluation-name">{{ evaluation.full_name }}{% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}</span>
         <div>
             {% for degree in evaluation.course.degrees.all %}
                 <span class="badge badge-primary badge-degree">{{ degree }}</span>

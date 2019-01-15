@@ -101,14 +101,14 @@ class ExcelExporter(object):
                     used_questionnaires.add(questionnaire_result.questionnaire)
                 evaluations_with_results.append((evaluation, results))
 
-            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].name))
+            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].full_name))
             used_questionnaires = sorted(used_questionnaires)
 
             course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]
             writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_type_names)), "headline")
 
             for evaluation, results in evaluations_with_results:
-                writec(self, evaluation.name, "evaluation")
+                writec(self, evaluation.full_name, "evaluation")
 
             writen(self)
             for evaluation, results in evaluations_with_results:

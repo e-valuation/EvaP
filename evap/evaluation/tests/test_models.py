@@ -417,7 +417,7 @@ class ParticipationArchivingTests(TestCase):
         with self.assertRaises(NotArchiveable):
             self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.courses.first().evaluation._archive_participations()
+            self.semester.courses.first().evaluations.first()._archive_participations()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
         evaluation = mommy.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
