@@ -3,7 +3,7 @@ from django.db import migrations
 
 def add_group(apps, _schema_editor):
     Group = apps.get_model("auth", "Group")
-    Group.objects.create(name="Reviewer")
+    Group.objects.create(name="Reviewer", pk=2)
 
 
 def delete_group(apps, _schema_editor):

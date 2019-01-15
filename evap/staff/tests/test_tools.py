@@ -42,8 +42,8 @@ class MergeUsersTest(TestCase):
         cls.user1 = mommy.make(UserProfile, username="test1")
         cls.user2 = mommy.make(UserProfile, username="test2")
         cls.user3 = mommy.make(UserProfile, username="test3")
-        cls.group1 = mommy.make(Group, name="group1")
-        cls.group2 = mommy.make(Group, name="group2")
+        cls.group1 = mommy.make(Group, pk=4)
+        cls.group2 = mommy.make(Group, pk=5)
         cls.main_user = mommy.make(UserProfile,
             username="main_user",
             title="Dr.",
