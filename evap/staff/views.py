@@ -25,8 +25,10 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
 from evap.evaluation.tools import get_parameter_from_url_or_session, send_publish_notifications, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
-from evap.results.views import update_template_cache_of_published_evaluations_in_course
+from evap.results.tools import (calculate_average_distribution, collect_results, distribution_to_grade,
+                                get_collect_results_cache_key, TextResult)
+from evap.results.views import (delete_template_cache, update_template_cache_of_published_evaluations_in_course,
+                                warm_up_template_cache)
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
@@ -621,6 +623,7 @@ def course_edit(request, semester_id, course_id):
             course = course_form.save()
             course.set_last_modified(request.user)
             course.save()
+            update_template_cache_of_published_evaluations_in_course(course)
 
         messages.success(request, _("Successfully updated course."))
         if operation == 'save_create_evaluation':
@@ -666,6 +669,7 @@ def evaluation_create(request, semester_id, course_id=None):
         evaluation.set_last_modified(request.user)
         evaluation.save()
         formset.save()
+        update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
@@ -688,7 +692,8 @@ def single_result_create(request, semester_id, course_id=None):
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
     if form.is_valid():
-        form.save(user=request.user)
+        evaluation = form.save(user=request.user)
+        update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester_id)
@@ -801,6 +806,7 @@ def evaluation_delete(request):
     if evaluation.is_single_result:
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
     evaluation.delete()
+    update_template_cache_of_published_evaluations_in_course(evaluation.course)
     return HttpResponse()  # 200 OK
 
 

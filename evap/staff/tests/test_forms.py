@@ -148,6 +148,7 @@ class SingleResultFormTests(TestCase):
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
+            "weight": 1,
             "event_date": "2014-01-01",
             "answer_1": 6,
             "answer_2": 0,

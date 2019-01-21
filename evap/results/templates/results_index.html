@@ -76,13 +76,23 @@
                             <th style="width: 35%">{% trans 'Evaluation' %}</th>
                             <th style="width: 10%">{% trans 'Semester' %}</th>
                             <th style="width: 22%">{% trans 'Responsible' %}</th>
-                            <th style="width: 13%">{% trans 'Voters' %}</th>
+                            <th style="width: 13%" data-orderable="false">{% trans 'Voters' %}</th>
                             <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for evaluation in evaluations %}
-                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user %}
+                    {% regroup evaluations by course as course_evaluations %}
+                    {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
+                        {% if course.evaluations.count > 1 %}
+                            {% include 'results_index_course.html' %}
+                            {% for evaluation in evaluations|dictsort:"name" %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=True %}
+                            {% endfor %}
+                        {% else %}
+                            {% for evaluation in evaluations|dictsort:"name" %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=False %}
+                            {% endfor %}
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -116,15 +126,23 @@
             localStorage['results_selectedCourseTypes'] = JSON.stringify(courseTypes);
 
             // find which rows to show
-            $('#results-table tr:not(.table-header)').each(function() {
+            $('#results-table tr.heading-row:not(.table-header)').each(function() {
+                courseId = $(this).data("course-id");
+                var evaluationNames = $(this).find('.evaluation-name').html().toLowerCase();
+                if (courseId) {
+                    $(`#results-table tr:not(.heading-row)[data-course-id=${courseId}]`).each(function() {
+                       evaluationNames += $(this).find('.evaluation-name').html().toLowerCase();
+                    });
+                }
                 var showRow =
                     (semesters.length == 0 || semesters.includes($(this).find('.semester-name').text())) &&
                     (degrees.length == 0 || includesAny($(this).find('.badge-degree').text(), degrees)) &&
                     (courseTypes.length == 0 || courseTypes.includes($(this).find('.badge-course-type').text())) &&
                     (searchValue.length == 0 ||
-                        $(this).find('.evaluation-name').html().toLowerCase().includes(searchValue) ||
+                        evaluationNames.includes(searchValue) ||
                         $(this).find('.contributor-name').html().toLowerCase().includes(searchValue));
                 $(this).toggleClass("d-none", !showRow);
+                $(`#results-table tr[data-course-id=${courseId}]`).toggleClass("d-none", !showRow);
             });
         };
 

@@ -27,6 +27,7 @@ class TestCalculateResults(TestCase):
         evaluation = mommy.make(Evaluation, state='published', _voter_count=0, _participant_count=0)
         collect_results(evaluation)
         evaluation.unpublish()
+        evaluation.save()
 
         self.assertIsNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
 

@@ -318,7 +318,7 @@ class Course(models.Model):
 
     @property
     def all_evaluations_finished(self):
-        return all(evaluation.state in ['evaluated', 'reviewed', 'published'] for evaluation in self.evaluations.all())
+        return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
 
 
 class Evaluation(models.Model):
@@ -332,6 +332,9 @@ class Evaluation(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en='name_en', de='name_de')
+
+    # defines how large the influence of this evaluation's grade is on the total grade of its course
+    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
 
     is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
@@ -385,6 +388,19 @@ class Evaluation(models.Model):
             del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
+
+        if hasattr(self, 'state_change'):
+            if self.state_change == "published":
+                from evap.results.tools import collect_results
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                collect_results(self)
+                update_template_cache_of_published_evaluations_in_course(self.course)
+            elif self.state_change == "unpublished":
+                from evap.results.tools import get_collect_results_cache_key
+                from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
+                caches['results'].delete(get_collect_results_cache_key(self))
+                delete_template_cache(self)
+                update_template_cache_of_published_evaluations_in_course(self.course)
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -442,6 +458,8 @@ class Evaluation(models.Model):
     def can_user_see_evaluation(self, user):
         if user.is_manager:
             return True
+        if self.state == 'new':
+            return False
         if user.is_reviewer and not self.course.semester.results_are_archived:
             return True
         if self.course.is_private or user.is_external:
@@ -690,21 +708,17 @@ class Evaluation(models.Model):
 
 
 @receiver(post_transition, sender=Evaluation)
-def warmup_cache_on_publish(instance, target, **_kwargs):
+def course_was_published(instance, target, **_kwargs):
+    """ Evaluation.save checks whether caches must be updated based on this value """
     if target == 'published':
-        from evap.results.tools import collect_results
-        from evap.results.views import warm_up_template_cache
-        collect_results(instance)
-        warm_up_template_cache([instance])
+        instance.state_change = "published"
 
 
 @receiver(post_transition, sender=Evaluation)
-def delete_cache_on_unpublish(instance, source, **_kwargs):
+def course_was_unpublished(instance, source, **_kwargs):
+    """ Evaluation.save checks whether caches must be updated based on this value """
     if source == 'published':
-        from evap.results.tools import get_collect_results_cache_key
-        from evap.results.views import delete_template_cache
-        caches['results'].delete(get_collect_results_cache_key(instance))
-        delete_template_cache(instance)
+        instance.state_change = "unpublished"
 
 
 @receiver(post_transition, sender=Evaluation)

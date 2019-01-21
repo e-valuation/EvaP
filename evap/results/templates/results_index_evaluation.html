@@ -8,36 +8,50 @@
 
 {% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE can_user_see_results_page using="results" %}
 
-<tr class="hover-results {% if not can_user_see_results_page %}nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
+<tr class="hover-results{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if not can_user_see_results_page %} nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
+        {% if is_subentry %}data-course-id="{{ evaluation.course.id }}"{% endif%}
         {% if can_user_see_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
-    <td data-order="{{ evaluation.full_name }}">
-        {% if evaluation.state == 'in_evaluation' %}
-            <span data-toggle="tooltip" data-placement="top" class="fas fa-play" title="{% trans 'This evaluation is still running.' %}"></span>
-        {% elif evaluation.state == 'evaluated' %}
-            <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
-        {% elif evaluation.state == 'reviewed' %}
-            {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.course.is_graded %}
-                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+    <td data-order="{{ evaluation.course.name }}">
+        <span class="evaluation-name">
+            {% if is_subentry %}
+                {% if evaluation.name %}
+                    {{ evaluation.name }}
+                {% else %}
+                    {{ evaluation.course.name }}
+                {% endif %}
             {% else %}
-                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                {{ evaluation.full_name }}
             {% endif %}
-        {% endif %}
-        <span class="evaluation-name">{{ evaluation.full_name }}{% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}</span>
+            {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
+            {% if evaluation.state == 'in_evaluation' %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running.' %}"></span>
+            {% elif evaluation.state == 'evaluated' %}
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+            {% elif evaluation.state == 'reviewed' %}
+                {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.course.is_graded %}
+                    <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although they probably could be' %}"></span>
+                {% else %}
+                    <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                {% endif %}
+            {% endif %}
+        </span>
         <div>
-            {% for degree in evaluation.course.degrees.all %}
-                <span class="badge badge-primary badge-degree">{{ degree }}</span>
-            {% endfor %}
-            <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
+            {% if not is_subentry %}
+                {% for degree in evaluation.course.degrees.all %}
+                    <span class="badge badge-primary badge-degree">{{ degree }}</span>
+                {% endfor %}
+                <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
+            {% endif %}
             {% if evaluation.is_single_result %}
                 <span class="badge badge-success">{% trans 'Single result' %}</span>
             {% endif %}
         </div>
     </td>
     <td data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
-        <span class="semester-name">{{ evaluation.course.semester.short_name }}</span>
+        <span class="semester-name{% if is_subentry %} d-none{% endif %}">{{ evaluation.course.semester.short_name }}</span>
     </td>
     <td data-order="{{ evaluation.course.responsibles.first.last_name }}">
-        <span class="contributor-name">
+        <span class="contributor-name{% if is_subentry %} d-none{% endif %}">
             {{ evaluation.course.responsibles_names }}
         </span>
     </td>
@@ -49,11 +63,11 @@
         {% endwith %}
     {% endif %}
 
-    <td data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
+    <td data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
         {% if evaluation.is_single_result %}
-            {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True %}
+            {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% else %}
-            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}
+            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% endif %}
     </td>
 </tr>

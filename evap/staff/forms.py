@@ -14,7 +14,8 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
-from evap.results.views import update_template_cache
+from evap.results.views import (update_template_cache,
+                                update_template_cache_of_published_evaluations_in_course)
 
 logger = logging.getLogger(__name__)
 
@@ -196,9 +197,9 @@ class EvaluationForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ('course', 'name_de', 'name_en', 'is_rewarded', 'is_midterm_evaluation', 'vote_start_datetime',
-                  'vote_end_date', 'participants', 'general_questionnaires', 'last_modified_time',
-                  'last_modified_user_name')
+        fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
+                  'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
+                  'last_modified_time', 'last_modified_user_name')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -226,6 +227,9 @@ class EvaluationForm(forms.ModelForm):
 
         if self.instance.pk and not self.instance.can_manager_edit:
             disable_all_fields(self)
+
+        if self.instance.pk:
+            self.instance.old_course = self.instance.course
 
     def validate_unique(self):
         super().validate_unique()
@@ -269,6 +273,10 @@ class EvaluationForm(forms.ModelForm):
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
         evaluation.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        if hasattr(self.instance, 'old_course'):
+            if self.instance.old_course != evaluation.course:
+                update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
+                update_template_cache_of_published_evaluations_in_course(evaluation.course)
         return evaluation
 
 
@@ -284,8 +292,8 @@ class SingleResultForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ('course', 'name_de', 'name_en', 'event_date', 'answer_1', 'answer_2', 'answer_3', 'answer_4',
-                  'answer_5', 'last_modified_time_2', 'last_modified_user_2')
+        fields = ('course', 'name_de', 'name_en', 'weight', 'event_date', 'answer_1', 'answer_2', 'answer_3',
+                  'answer_4', 'answer_5', 'last_modified_time_2', 'last_modified_user_2')
 
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester', None)
@@ -305,6 +313,7 @@ class SingleResultForm(forms.ModelForm):
         if self.instance.pk:
             for answer_counter in self.instance.ratinganswer_counters:
                 self.fields['answer_{}'.format(answer_counter.answer)].initial = answer_counter.count
+            self.instance.old_course = self.instance.course
 
     def validate_unique(self):
         super().validate_unique()
@@ -325,30 +334,37 @@ class SingleResultForm(forms.ModelForm):
         self.instance.vote_start_datetime = date_to_datetime(event_date)
         self.instance.vote_end_date = event_date
         self.instance.is_single_result = True
-        super().save(*args, **kw)
+        evaluation = super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, contributor=None)
+        contribution, created = Contribution.objects.get_or_create(evaluation=evaluation, contributor=None)
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
 
         # set answers
-        contribution = Contribution.objects.get(evaluation=self.instance)
+        contribution = Contribution.objects.get(evaluation=evaluation)
         total_votes = 0
         for i in range(1, 6):
             count = self.cleaned_data['answer_' + str(i)]
             total_votes += count
             RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
-        self.instance._participant_count = total_votes
-        self.instance._voter_count = total_votes
+        evaluation._participant_count = total_votes
+        evaluation._voter_count = total_votes
 
         # change state to "reviewed"
         # works only for single_results so the evaluation and its contribution must be saved first
-        self.instance.single_result_created()
-        self.instance.save()
+        evaluation.single_result_created()
+        evaluation.save()
+
+        if hasattr(self.instance, 'old_course'):
+            if self.instance.old_course != evaluation.course:
+                update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
+                update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
+        return evaluation
 
 
 class ContributionForm(forms.ModelForm):
