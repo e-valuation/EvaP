@@ -21,8 +21,7 @@ def ordering_index(evaluation):
         return evaluation.days_until_evaluation
     elif evaluation.state == "in_evaluation":
         return 100000 + evaluation.days_left_for_evaluation
-    else:
-        return 200000 + evaluation.days_left_for_evaluation
+    return 200000 + evaluation.days_left_for_evaluation
 
 
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/

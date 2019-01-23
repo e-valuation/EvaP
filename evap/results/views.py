@@ -2,7 +2,7 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import QuerySet, Prefetch, Count
+from django.db.models import QuerySet, Count
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied

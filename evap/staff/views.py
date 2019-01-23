@@ -593,11 +593,10 @@ def evaluation_create(request, semester_id):
 
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_evaluation_form.html", dict(
-            semester=semester, course_form=course_form, evaluation_form=evaluation_form, formset=formset, manager=True,
-            editable=True, state=""
-        ))
+    return render(request, "staff_evaluation_form.html", dict(
+        semester=semester, course_form=course_form, evaluation_form=evaluation_form, formset=formset, manager=True,
+        editable=True, state=""
+    ))
 
 
 @manager_required
@@ -627,8 +626,7 @@ def evaluation_edit(request, semester_id, evaluation_id):
 
     if evaluation.is_single_result:
         return helper_single_result_edit(request, semester, evaluation)
-    else:
-        return helper_evaluation_edit(request, semester, evaluation)
+    return helper_evaluation_edit(request, semester, evaluation)
 
 
 @manager_required

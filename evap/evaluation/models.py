@@ -367,7 +367,6 @@ class Evaluation(models.Model):
         return self.name
 
     def save(self, *args, **kw):
-        first_save = self.pk is None
         super().save(*args, **kw)
 
         # make sure there is a general contribution

@@ -33,13 +33,14 @@ def index(request):
 
     # due evaluations come first, then everything else in chronological order
     # some states are handled as a group because they appear the same to students
-    sorter = lambda evaluation: (
-        evaluation not in due_evaluations,
-        evaluation.state not in ['prepared', 'editor_approved', 'approved'],
-        evaluation.state != 'in_evaluation',
-        evaluation.state not in ['evaluated', 'reviewed'],
-        evaluation.name
-    )
+    def sorter(evaluation):
+        return (
+            evaluation not in due_evaluations,
+            evaluation.state not in ['prepared', 'editor_approved', 'approved'],
+            evaluation.state != 'in_evaluation',
+            evaluation.state not in ['evaluated', 'reviewed'],
+            evaluation.name
+        )
     evaluations.sort(key=sorter)
 
     semesters = Semester.objects.all()
@@ -95,8 +96,8 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         small_evaluation_size_warning=evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         vote_end_datetime=evaluation.vote_end_datetime,
-        hours_left_for_evaluation=evaluation.time_left_for_evaluation.seconds//3600,
-        minutes_left_for_evaluation=(evaluation.time_left_for_evaluation.seconds//60)%60,
+        hours_left_for_evaluation=evaluation.time_left_for_evaluation.seconds // 3600,
+        minutes_left_for_evaluation=(evaluation.time_left_for_evaluation.seconds // 60) % 60,
         success_magic_string=SUCCESS_MAGIC_STRING,
         success_redirect_url=reverse('student:index'),
         evaluation_ends_soon=evaluation.evaluation_ends_soon(),

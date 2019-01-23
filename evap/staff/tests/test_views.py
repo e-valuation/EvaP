@@ -950,7 +950,6 @@ class TestEvaluationEditView(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
     def test_edit_evaluation(self):
-        user = mommy.make(UserProfile)
         page = self.app.get(self.url, user="manager")
 
         # remove editor rights
