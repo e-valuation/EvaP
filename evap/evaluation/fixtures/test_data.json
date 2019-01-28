@@ -86612,6 +86612,56 @@
   }
 },
 {
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8888,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 1,
+    "count": 6
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8889,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 2,
+    "count": 8
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8890,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 3,
+    "count": 5
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8891,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 4,
+    "count": 3
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8892,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 5,
+    "count": 1
+  }
+},
+{
   "model": "evaluation.textanswer",
   "pk": "00347b40-3f1e-4c56-92cd-4978c5f8c39f",
   "fields": {
@@ -117782,7 +117832,7 @@
   "pk": 815,
   "fields": {
     "password": "pbkdf2_sha256$100000$85ZeSerVM5mq$dt/svaAHtppUjGUjKMmmJCDCwJj8QxR0NyBdtJJCSak=",
-    "last_login": "2019-01-05T11:33:18.829",
+    "last_login": "2019-02-02T16:15:06.324",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@institution.example.com",
@@ -128751,7 +128801,7 @@
   "fields": {
     "name": "Editor Review Notice",
     "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New evaluations ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for evaluation we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128760,7 +128810,7 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128769,7 +128819,7 @@
   "fields": {
     "name": "Publishing Notice",
     "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following evaluations have just been published:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128787,7 +128837,7 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128796,7 +128846,7 @@
   "fields": {
     "name": "Editor Review Reminder",
     "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Evaluation ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128805,7 +128855,7 @@
   "fields": {
     "name": "Direct Delegation",
     "subject": "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation",
-    "body": ""
+    "body": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung f\u00fcr \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP (https://evap.hpi.de) vorzubereiten.\r\n\r\nBitte \u00fcberpr\u00fcfen Sie m\u00f6glichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP (https://evap.hpi.de).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -139148,6 +139198,19 @@
   }
 },
 {
+  "model": "evaluation.contribution",
+  "pk": 4303,
+  "fields": {
+    "evaluation": 1715,
+    "contributor": null,
+    "can_edit": false,
+    "textanswer_visibility": "OWN",
+    "label": null,
+    "order": -1,
+    "questionnaires": []
+  }
+},
+{
   "model": "evaluation.evaluation",
   "pk": 34,
   "fields": {
@@ -139702,21 +139765,21 @@
   "model": "evaluation.evaluation",
   "pk": 348,
   "fields": {
-    "state": "reviewed",
-    "course": 123,
-    "name_de": "",
-    "name_en": "",
-    "weight": 1,
+    "state": "published",
+    "course": 1,
+    "name_de": "Softwarearchitektur",
+    "name_en": "Software Architecture",
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 8,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2018-06-03T10:22:16.352",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:28:15.171",
+    "last_modified_user": 815,
     "participants": [
       809,
       836,
@@ -140159,7 +140222,7 @@
     "course": 26,
     "name_de": "",
     "name_en": "",
-    "weight": 1,
+    "weight": 3,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140168,8 +140231,8 @@
     "_voter_count": 41,
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2018-06-06T09:06:22.536",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:15:58.567",
+    "last_modified_user": 815,
     "participants": [
       696,
       713,
@@ -140301,9 +140364,9 @@
   "pk": 372,
   "fields": {
     "state": "published",
-    "course": 20,
-    "name_de": "",
-    "name_en": "",
+    "course": 26,
+    "name_de": "C\u00b3: Konsistente Fahrzeug Gruppierung",
+    "name_en": "C\u00b3: Consistent Car Clustering",
     "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
@@ -140313,8 +140376,8 @@
     "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-06T09:06:22.516",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:14:40.767",
+    "last_modified_user": 815,
     "participants": [
       696,
       713,
@@ -142491,9 +142554,9 @@
   "pk": 1480,
   "fields": {
     "state": "published",
-    "course": 6,
-    "name_de": "",
-    "name_en": "",
+    "course": 82,
+    "name_de": "Automated Analysis of Formal Models",
+    "name_en": "Automated Analysis of Formal Models",
     "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
@@ -142503,7 +142566,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2018-06-06T09:06:22.500",
+    "last_modified_time": "2019-01-28T10:21:35.449",
     "last_modified_user": 815,
     "participants": [
       929,
@@ -142950,7 +143013,7 @@
     "course": 1,
     "name_de": "",
     "name_en": "",
-    "weight": 1,
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142959,8 +143022,8 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2016-02-22T22:08:19.692",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:29:20.273",
+    "last_modified_user": 815,
     "participants": [
       51,
       841,
@@ -143829,9 +143892,9 @@
   "pk": 1545,
   "fields": {
     "state": "editor_approved",
-    "course": 62,
-    "name_de": "",
-    "name_en": "",
+    "course": 89,
+    "name_de": "IT-Recht",
+    "name_en": "Legal Aspects of Information Technology",
     "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
@@ -143839,10 +143902,10 @@
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
-    "vote_start_datetime": "2014-08-01T00:00:00",
-    "vote_end_date": "2014-08-31",
-    "last_modified_time": "2016-02-22T22:08:19.812",
-    "last_modified_user": null,
+    "vote_start_datetime": "2099-08-01T00:00:00",
+    "vote_end_date": "2099-08-31",
+    "last_modified_time": "2019-01-28T11:11:46.247",
+    "last_modified_user": 815,
     "participants": [
       859,
       586,
@@ -144627,10 +144690,10 @@
   "pk": 1571,
   "fields": {
     "state": "published",
-    "course": 13,
-    "name_de": "",
-    "name_en": "",
-    "weight": 1,
+    "course": 60,
+    "name_de": "Business Process Compliance",
+    "name_en": "Business Process Compliance",
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144639,7 +144702,7 @@
     "_voter_count": 12,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-06T09:06:22.514",
+    "last_modified_time": "2019-01-28T11:07:08.968",
     "last_modified_user": 815,
     "participants": [
       2024,
@@ -145292,9 +145355,9 @@
   "pk": 1625,
   "fields": {
     "state": "published",
-    "course": 95,
-    "name_de": "",
-    "name_en": "",
+    "course": 122,
+    "name_de": "Piggyback Profiling: Metadata for Query Results",
+    "name_en": "Piggyback Profiling: Metadata for Query Results",
     "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
@@ -145304,8 +145367,8 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-06T09:06:22.617",
-    "last_modified_user": 591,
+    "last_modified_time": "2019-01-28T11:15:24.373",
+    "last_modified_user": 815,
     "participants": [
       2247,
       825,
@@ -147274,6 +147337,29 @@
   }
 },
 {
+  "model": "evaluation.evaluation",
+  "pk": 1715,
+  "fields": {
+    "state": "published",
+    "course": 1,
+    "name_de": "CG quick",
+    "name_en": "CG quick",
+    "weight": 1,
+    "is_single_result": true,
+    "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
+    "_participant_count": 23,
+    "_voter_count": 23,
+    "vote_start_datetime": "2014-06-20T00:00:00",
+    "vote_end_date": "2014-06-20",
+    "last_modified_time": "2019-01-28T10:34:37.254",
+    "last_modified_user": 815,
+    "participants": [],
+    "voters": []
+  }
+},
+{
   "model": "evaluation.course",
   "pk": 1,
   "fields": {
@@ -147375,27 +147461,6 @@
     ],
     "responsibles": [
       2341
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 6,
-  "fields": {
-    "semester": 18,
-    "name_de": "Automated Analysis of Formal Models",
-    "name_en": "Automated Analysis of Formal Models",
-    "type": 2,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.479",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      222
     ]
   }
 },
@@ -147527,27 +147592,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 13,
-  "fields": {
-    "semester": 19,
-    "name_de": "Business Process Compliance",
-    "name_en": "Business Process Compliance",
-    "type": 3,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.582",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      2325
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 14,
   "fields": {
     "semester": 17,
@@ -147669,27 +147713,6 @@
     ],
     "responsibles": [
       127
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 20,
-  "fields": {
-    "semester": 19,
-    "name_de": "C\u00b3: Consistent Car Clustering",
-    "name_en": "C\u00b3: Konsistente Fahrzeug Gruppierung",
-    "type": 2,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.678",
-    "last_modified_user": null,
-    "degrees": [
-      1
-    ],
-    "responsibles": [
-      249
     ]
   }
 },
@@ -148556,27 +148579,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 62,
-  "fields": {
-    "semester": 21,
-    "name_de": "IT-Recht",
-    "name_en": "Legal Aspects of Information Technology",
-    "type": 3,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.265",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      1105
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 63,
   "fields": {
     "semester": 19,
@@ -149249,27 +149251,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 95,
-  "fields": {
-    "semester": 19,
-    "name_de": "Piggyback Profiling: Metadata for Query Results",
-    "name_en": "Piggyback Profiling: Metadata for Query Results",
-    "type": 1,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.716",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      255
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 96,
   "fields": {
     "semester": 19,
@@ -149832,27 +149813,6 @@
     ],
     "responsibles": [
       255
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 123,
-  "fields": {
-    "semester": 21,
-    "name_de": "Softwarearchitektur",
-    "name_en": "Software Architecture",
-    "type": 1,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.100",
-    "last_modified_user": null,
-    "degrees": [
-      1
-    ],
-    "responsibles": [
-      995
     ]
   }
 },
