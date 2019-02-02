@@ -14,7 +14,12 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |v, override|
     # disable logfile
-    v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+    if Vagrant::Util::Platform.windows?
+      v.customize [ "modifyvm", :id, "--uartmode1", "file", "nul" ]
+    else
+      v.customize [ "modifyvm", :id, "--uartmode1", "file", "/dev/null" ]
+    end
+
     # show virtualbox gui, uncomment this to debug startup problems
     #v.gui = true
   end
