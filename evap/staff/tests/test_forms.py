@@ -2,12 +2,13 @@ from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, CourseType, Course, Questionnaire, \
-    Contribution, Semester, Degree, EmailTemplate, Question
-from evap.evaluation.tests.tools import get_form_data_from_instance, create_course_with_responsible_and_editor, to_querydict
-from evap.staff.forms import UserForm, SingleResultForm, ContributionFormSet, ContributionForm, CourseForm, \
-    CourseEmailForm, QuestionnaireForm
-from evap.contributor.forms import CourseForm as ContributorCourseForm
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, Question,
+                                    Questionnaire, Semester, UserProfile)
+from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_editor, get_form_data_from_instance,
+                                         to_querydict)
+from evap.staff.forms import (ContributionForm, ContributionFormSet, CourseForm, EvaluationEmailForm, EvaluationForm,
+                              QuestionnaireForm, SingleResultForm, UserForm)
+from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
 class QuestionnaireFormTest(TestCase):
@@ -57,19 +58,19 @@ class QuestionnaireFormTest(TestCase):
         self.assertEqual(questionnaire.order, 73)
 
 
-class CourseEmailFormTests(TestCase):
-    def test_course_email_form(self):
+class EvaluationEmailFormTests(TestCase):
+    def test_evaluation_email_form(self):
         """
-            Tests the CourseEmailForm with one valid and one invalid input dataset.
+            Tests the EvaluationEmailForm with one valid and one invalid input dataset.
         """
-        course = create_course_with_responsible_and_editor()
+        evaluation = create_evaluation_with_responsible_and_editor()
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.DUE_PARTICIPANTS]}
-        form = CourseEmailForm(course=course, data=data)
+        form = EvaluationEmailForm(evaluation=evaluation, data=data)
         self.assertTrue(form.is_valid())
         form.send(None)
 
         data = {"body": "wat", "subject": "some subject"}
-        form = CourseEmailForm(course=course, data=data)
+        form = EvaluationEmailForm(evaluation=evaluation, data=data)
         self.assertFalse(form.is_valid())
 
 
@@ -127,24 +128,24 @@ class UserFormTests(TestCase):
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
-    def test_user_cannot_be_removed_from_course_already_voted_for(self):
+    def test_user_cannot_be_removed_from_evaluation_already_voted_for(self):
         student = mommy.make(UserProfile)
-        mommy.make(Course, participants=[student], voters=[student])
+        mommy.make(Evaluation, participants=[student], voters=[student])
 
         form_data = get_form_data_from_instance(UserForm, student)
-        form_data["courses_participating_in"] = []
+        form_data["evaluations_participating_in"] = []
         form = UserForm(form_data, instance=student)
 
         self.assertFalse(form.is_valid())
-        self.assertIn('courses_participating_in', form.errors)
-        self.assertIn("Courses for which the user already voted can't be removed", form.errors['courses_participating_in'][0])
+        self.assertIn('evaluations_participating_in', form.errors)
+        self.assertIn("Evaluations for which the user already voted can't be removed", form.errors['evaluations_participating_in'][0])
 
 
 class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        course = Course(semester=mommy.make(Semester), is_single_result=True)
+        evaluation = Evaluation(course=mommy.make(Course), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -157,21 +158,21 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
-            "semester": course.semester.pk
+            "semester": evaluation.course.semester.pk
         }
-        form = SingleResultForm(form_data, instance=course)
+        form = SingleResultForm(form_data, instance=evaluation)
         self.assertTrue(form.is_valid())
 
         form.save(user=mommy.make(UserProfile))
 
-        course = Course.objects.get()
-        self.assertEqual(course.num_participants, 10)
-        self.assertEqual(course.num_voters, 10)
+        evaluation = Evaluation.objects.get()
+        self.assertEqual(evaluation.num_participants, 10)
+        self.assertEqual(evaluation.num_voters, 10)
 
     def test_single_result_form_can_change_responsible(self):
         responsible = mommy.make(UserProfile)
         course_type = mommy.make(CourseType)
-        course = Course(semester=mommy.make(Semester), is_single_result=True)
+        evaluation = Evaluation(course=mommy.make(Course), is_single_result=True)
         form_data = {
             "name_de": "qwertz",
             "name_en": "qwertz",
@@ -184,21 +185,21 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
-            "semester": course.semester.pk
+            "semester": evaluation.course.semester.pk
         }
-        form = SingleResultForm(form_data, instance=course)
+        form = SingleResultForm(form_data, instance=evaluation)
         self.assertTrue(form.is_valid())
 
         form.save(user=mommy.make(UserProfile))
-        self.assertEqual(course.responsible_contributors[0], responsible)
+        self.assertEqual(evaluation.course.responsibles.first(), responsible)
 
         new_responsible = mommy.make(UserProfile)
         form_data["responsible"] = new_responsible.pk
-        form = SingleResultForm(form_data, instance=course)
+        form = SingleResultForm(form_data, instance=evaluation)
         self.assertTrue(form.is_valid())
 
         form.save(user=mommy.make(UserProfile))
-        self.assertEqual(course.responsible_contributors[0], new_responsible)
+        self.assertEqual(evaluation.course.responsibles.first(), new_responsible)
 
 
 class ContributionFormsetTests(TestCase):
@@ -206,74 +207,74 @@ class ContributionFormsetTests(TestCase):
         """
             Tests the ContributionFormset with various input data sets.
         """
-        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation)
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        ContributionFormset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        ContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = to_querydict({
             'contributions-TOTAL_FORMS': 1,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': course.pk,
+            'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
         })
-        # no contributor and no responsible
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
+        # no contributor
+        self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data.copy()).is_valid())
         # valid
         data['contributions-0-contributor'] = user1.pk
-        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data.copy()).is_valid())
+        self.assertTrue(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data.copy()).is_valid())
         # duplicate contributor
         data['contributions-TOTAL_FORMS'] = 2
         data['contributions-1-contributor'] = user1.pk
-        data['contributions-1-course'] = course.pk
+        data['contributions-1-evaluation'] = evaluation.pk
         data['contributions-1-questionnaires'] = questionnaire.pk
         data['contributions-1-order'] = 1
         data['contributions-1-textanswer_visibility'] = Contribution.GENERAL_TEXTANSWERS
-        self.assertFalse(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
-        # two responsibles
+        self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
+        # two contributors
         data['contributions-1-contributor'] = user2.pk
-        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
-        self.assertTrue(ContributionFormset(instance=course, form_kwargs={'course': course}, data=data).is_valid())
+        data['contributions-1-responsibility'] = Contribution.IS_EDITOR
+        self.assertTrue(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
 
     def test_dont_validate_deleted_contributions(self):
         """
             Tests whether contributions marked for deletion are validated.
             Regression test for #415 and #244
         """
-        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation)
         user1 = mommy.make(UserProfile)
         user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        # Here we have two responsibles (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
+        # Here we have two editors (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
 
         data = to_querydict({
             'contributions-TOTAL_FORMS': 3,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': course.pk,
+            'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
-            'contributions-1-course': course.pk,
+            'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
-            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-responsibility': Contribution.IS_EDITOR,
             'contributions-1-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user2.pk,
-            'contributions-2-course': course.pk,
+            'contributions-2-evaluation': evaluation.pk,
             'contributions-2-questionnaires': "",
             'contributions-2-order': 1,
             'contributions-2-responsibility': "CONTRIBUTOR",
@@ -282,14 +283,14 @@ class ContributionFormsetTests(TestCase):
         })
 
         # Without deletion, this form should be invalid
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertFalse(formset.is_valid())
 
         data['contributions-0-DELETE'] = 'on'
         data['contributions-2-DELETE'] = 'on'
 
         # With deletion, it should be valid
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_deleted_empty_contribution_does_not_crash(self):
@@ -298,23 +299,23 @@ class ContributionFormsetTests(TestCase):
             Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
             Regression test for #1057
         """
-        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation)
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = to_querydict({
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 0,
             'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-course': course.pk,
+            'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
-            'contributions-1-course': course.pk,
+            'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': "",
             'contributions-1-order': -1,
             'contributions-1-responsibility': "CONTRIBUTOR",
@@ -324,14 +325,14 @@ class ContributionFormsetTests(TestCase):
 
         # delete extra formset
         data['contributions-1-DELETE'] = 'on'
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         formset.is_valid()
         data['contributions-1-DELETE'] = ''
 
         # delete first, change data in extra formset
         data['contributions-0-DELETE'] = 'on'
-        data['contributions-1-responsibility'] = Contribution.IS_RESPONSIBLE
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        data['contributions-1-responsibility'] = Contribution.IS_EDITOR
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         formset.is_valid()
 
     def test_take_deleted_contributions_into_account(self):
@@ -340,55 +341,55 @@ class ContributionFormsetTests(TestCase):
             when the same contributor got added again in the same formset.
             Regression test for #415
         """
-        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation)
         user1 = mommy.make(UserProfile)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = mommy.make(Contribution, course=course, contributor=user1, responsible=True, can_edit=True,
+        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True,
                                    textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire])
 
-        contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = to_querydict({
             'contributions-TOTAL_FORMS': 2,
             'contributions-INITIAL_FORMS': 1,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-id': contribution1.pk,
-            'contributions-0-course': course.pk,
+            'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
-            'contributions-1-course': course.pk,
+            'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-id': '',
-            'contributions-1-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-1-responsibility': Contribution.IS_EDITOR,
             'contributions-1-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user1.pk,
         })
 
-        formset = contribution_formset(instance=course, form_kwargs={'course': course}, data=data)
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_obsolete_manager_only(self):
         """
             Asserts that obsolete questionnaires are shown to managers only if
-            they are already selected for a contribution of the Course, and
+            they are already selected for a contribution of the Evaluation, and
             that manager only questionnaires are always shown.
             Regression test for #593.
         """
-        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation)
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=False)
         questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, manager_only=False)
         questionnaire_manager_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=True)
 
         # The normal and manager_only questionnaire should be shown.
-        contribution1 = mommy.make(Contribution, course=course, contributor=mommy.make(UserProfile), questionnaires=[])
+        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile), questionnaires=[])
 
-        inline_contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
-        formset = inline_contribution_formset(instance=course, form_kwargs={'course': course})
+        inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_manager_only}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
@@ -397,8 +398,8 @@ class ContributionFormsetTests(TestCase):
         # Suppose we had an obsolete questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_obsolete])
 
-        inline_contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
-        formset = inline_contribution_formset(instance=course, form_kwargs={'course': course})
+        inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_manager_only, questionnaire_obsolete}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
@@ -411,15 +412,15 @@ class ContributionFormset775RegressionTests(TestCase):
     """
     @classmethod
     def setUpTestData(cls):
-        cls.course = mommy.make(Course, name_en="some course")
+        cls.evaluation = mommy.make(Evaluation, name_en="some evaluation")
         cls.user1 = mommy.make(UserProfile)
         cls.user2 = mommy.make(UserProfile)
         mommy.make(UserProfile)
         cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.contribution1 = mommy.make(Contribution, responsible=True, contributor=cls.user1, course=cls.course, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, course=cls.course)
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
-        cls.contribution_formset = inlineformset_factory(Course, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        cls.contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
     def setUp(self):
         self.data = to_querydict({
@@ -427,14 +428,14 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-INITIAL_FORMS': 2,
             'contributions-MAX_NUM_FORMS': 5,
             'contributions-0-id': str(self.contribution1.pk),  # browsers send strings so we should too
-            'contributions-0-course': self.course.pk,
+            'contributions-0-evaluation': self.evaluation.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.IS_RESPONSIBLE,
+            'contributions-0-responsibility': Contribution.IS_EDITOR,
             'contributions-0-textanswer_visibility': Contribution.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': self.user1.pk,
             'contributions-1-id': str(self.contribution2.pk),
-            'contributions-1-course': self.course.pk,
+            'contributions-1-evaluation': self.evaluation.pk,
             'contributions-1-questionnaires': self.questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-responsibility': "CONTRIBUTOR",
@@ -443,13 +444,13 @@ class ContributionFormset775RegressionTests(TestCase):
         })
 
     def test_swap_contributors(self):
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
 
         # swap contributors, should still be valid
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user1.pk
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
 
     def test_move_and_delete(self):
@@ -458,11 +459,11 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user2.pk
         self.data['contributions-1-DELETE'] = 'on'
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
         formset.save()
-        self.assertTrue(Contribution.objects.filter(contributor=self.user2, course=self.course).exists())
-        self.assertFalse(Contribution.objects.filter(contributor=self.user1, course=self.course).exists())
+        self.assertTrue(Contribution.objects.filter(contributor=self.user2, evaluation=self.evaluation).exists())
+        self.assertFalse(Contribution.objects.filter(contributor=self.user1, evaluation=self.evaluation).exists())
 
     def test_extra_form(self):
         # make sure nothing crashes when an extra form is present.
@@ -473,7 +474,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-2-order'] = -1
         self.data['contributions-2-responsibility'] = "CONTRIBUTOR"
         self.data['contributions-2-textanswer_visibility'] = Contribution.OWN_TEXTANSWERS
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
 
     def test_swap_contributors_with_extra_form(self):
@@ -489,7 +490,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-1-responsibility'] = "CONTRIBUTOR"
         self.data['contributions-1-textanswer_visibility'] = Contribution.OWN_TEXTANSWERS
 
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
 
     def test_handle_multivaluedicts(self):
@@ -500,7 +501,7 @@ class ContributionFormset775RegressionTests(TestCase):
 
         questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
-        formset = self.contribution_formset(instance=self.course, form_kwargs={'course': self.course}, data=self.data)
+        formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         formset.save()
         self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
 
@@ -510,12 +511,9 @@ class CourseFormTests(TestCase):
         courses = Course.objects.all()
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
-        form_data["vote_end_date"] = "2099-01-01"  # needed to fix the form
-
         form = CourseFormClass(form_data, instance=courses[0])
         self.assertTrue(form.is_valid())
-        form_data['name_de'] = courses[1].name_de
+        form_data['course-name_de'] = courses[1].name_de
         form = CourseFormClass(form_data, instance=courses[0])
         self.assertFalse(form.is_valid())
 
@@ -524,77 +522,116 @@ class CourseFormTests(TestCase):
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
-        courses = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)], _quantity=2)
-        courses[0].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        courses[1].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-
+        mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
         self.helper_test_course_form_same_name(CourseForm)
-        self.helper_test_course_form_same_name(ContributorCourseForm)
-
-    def helper_date_validation(self, CourseFormClass, start_date, end_date, expected_result):
-        course = Course.objects.get()
-
-        form_data = get_form_data_from_instance(CourseFormClass, course)
-        form_data["vote_start_datetime"] = start_date
-        form_data["vote_end_date"] = end_date
-
-        form = CourseFormClass(form_data, instance=course)
-        self.assertEqual(form.is_valid(), expected_result)
-
-    def test_contributor_course_form_date_validation(self):
-        """
-            Tests validity of various start/end date combinations in
-            the two course edit forms.
-        """
-        course = mommy.make(Course, degrees=[mommy.make(Degree)])
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-
-        # contributors: start date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "1999-01-01", "2099-01-01", False)
-
-        # contributors: end date must be in the future
-        self.helper_date_validation(ContributorCourseForm, "2099-01-01", "1999-01-01", False)
-
-        # contributors: start date must be < end date
-        self.helper_date_validation(ContributorCourseForm, "2099-01-01", "2098-01-01", False)
-
-        # contributors: valid data
-        self.helper_date_validation(ContributorCourseForm, "2098-01-01", "2099-01-01", True)
-
-        # staff: neither end nor start date must be in the future
-        self.helper_date_validation(CourseForm, "1998-01-01", "1999-01-01", True)
-
-        # staff: valid data in the future
-        self.helper_date_validation(CourseForm, "2098-01-01", "2099-01-01", True)
-
-        # staff: but start date must be < end date
-        self.helper_date_validation(CourseForm, "1999-01-01", "1998-01-01", False)
 
     def test_uniqueness_constraint_error_shown(self):
         """
             Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
-        semester = mommy.make(Semester)
-        course1 = mommy.make(Course, semester=semester)
-        course2 = mommy.make(Course, semester=semester)
+        courses = mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
 
-        form_data = get_form_data_from_instance(CourseForm, course2)
-        form_data["name_de"] = course1.name_de
-        form = CourseForm(form_data, instance=course2)
+        form_data = get_form_data_from_instance(CourseForm, courses[1])
+        form_data["course-name_de"] = courses[0].name_de
+        form = CourseForm(form_data, instance=courses[1])
 
         self.assertFalse(form.is_valid())
         self.assertIn('name_de', form.errors)
         self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])
 
-    def test_voter_cannot_be_removed_from_course(self):
-        student = mommy.make(UserProfile)
-        course = mommy.make(Course, degrees=[mommy.make(Degree)], participants=[student], voters=[student])
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
-        form_data = get_form_data_from_instance(CourseForm, course)
+class EvaluationFormTests(TestCase):
+    # TODO (#1047): add this helper method and test once a Course can have multiple Evaluations
+    # def helper_test_evaluation_form_same_name(self, EvaluationFormClass):
+    #     evaluations = Evaluation.objects.all()
+
+    #     form_data = get_form_data_from_instance(EvaluationForm, evaluations[0])
+    #     form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
+    #     form_data["vote_end_date"] = "2099-01-01"  # needed to fix the form
+
+    #     form = EvaluationFormClass(form_data, instance=evaluations[0])
+    #     self.assertTrue(form.is_valid())
+    #     form_data['name_de'] = evaluations[1].name_de
+    #     form = EvaluationFormClass(form_data, instance=evaluations[0])
+    #     self.assertFalse(form.is_valid())
+
+    # def test_evaluation_form_same_name(self):
+    #     """
+    #         Test whether giving an evaluation the same name as another evaluation
+    #         in the same course in the evaluation edit form is invalid.
+    #     """
+    #     evaluations = mommy.make(Evaluation, course=mommy.make(Course, degrees=[mommy.make(Degree)]), _quantity=2)
+    #     evaluations[0].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+    #     evaluations[1].general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+    #     self.helper_test_evaluation_form_same_name(EvaluationForm)
+    #     self.helper_test_evaluation_form_same_name(ContributorEvaluationForm)
+
+    def helper_date_validation(self, EvaluationFormClass, start_date, end_date, expected_result):
+        evaluation = Evaluation.objects.get()
+
+        form_data = get_form_data_from_instance(EvaluationFormClass, evaluation)
+        form_data["vote_start_datetime"] = start_date
+        form_data["vote_end_date"] = end_date
+
+        form = EvaluationFormClass(form_data, instance=evaluation)
+        self.assertEqual(form.is_valid(), expected_result)
+
+    def test_contributor_evaluation_form_date_validation(self):
+        """
+            Tests validity of various start/end date combinations in
+            the two evaluation edit forms.
+        """
+        evaluation = mommy.make(Evaluation)
+        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+        # contributors: start date must be in the future
+        self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", False)
+
+        # contributors: end date must be in the future
+        self.helper_date_validation(ContributorEvaluationForm, "2099-01-01", "1999-01-01", False)
+
+        # contributors: start date must be < end date
+        self.helper_date_validation(ContributorEvaluationForm, "2099-01-01", "2098-01-01", False)
+
+        # contributors: valid data
+        self.helper_date_validation(ContributorEvaluationForm, "2098-01-01", "2099-01-01", True)
+
+        # staff: neither end nor start date must be in the future
+        self.helper_date_validation(EvaluationForm, "1998-01-01", "1999-01-01", True)
+
+        # staff: valid data in the future
+        self.helper_date_validation(EvaluationForm, "2098-01-01", "2099-01-01", True)
+
+        # staff: but start date must be < end date
+        self.helper_date_validation(EvaluationForm, "1999-01-01", "1998-01-01", False)
+
+    # TODO (#1047): add this test once a Course can have multiple Evaluations
+    # def test_uniqueness_constraint_error_shown(self):
+    #     """
+    #         Tests whether errors being caused by a uniqueness constraint are shown in the form
+    #     """
+    #     course = mommy.make(Course)
+    #     evaluation1 = mommy.make(Evaluation, course=course)
+    #     evaluation2 = mommy.make(Evaluation, course=course)
+
+    #     form_data = get_form_data_from_instance(EvaluationForm, evaluation2)
+    #     form_data["name_de"] = evaluation1.name_de
+    #     form = EvaluationForm(form_data, instance=evaluation2)
+
+    #     self.assertFalse(form.is_valid())
+    #     self.assertIn('name_de', form.errors)
+    #     self.assertEqual(form.errors['name_de'], ['Evaluation with this Course and Name (german) already exists.'])
+
+    def test_voter_cannot_be_removed_from_evaluation(self):
+        student = mommy.make(UserProfile)
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, degrees=[mommy.make(Degree)]), participants=[student], voters=[student])
+        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form_data["participants"] = []
-        form = CourseForm(form_data, instance=course)
+        form = EvaluationForm(form_data, instance=evaluation)
 
         self.assertFalse(form.is_valid())
         self.assertIn('participants', form.errors)
-        self.assertIn("Participants who already voted for the course can't be removed", form.errors['participants'][0])
+        self.assertIn("Participants who already voted for the evaluation can't be removed", form.errors['participants'][0])

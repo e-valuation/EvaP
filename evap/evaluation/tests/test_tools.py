@@ -42,17 +42,17 @@ class TestLanguageSignalReceiver(WebTest):
 
 
 class TestLogExceptionsDecorator(TestCase):
-    @patch('evap.evaluation.models.Course.update_courses', side_effect=Exception())
+    @patch('evap.evaluation.models.Evaluation.update_evaluations', side_effect=Exception())
     @patch('evap.evaluation.management.commands.tools.logger.exception')
     def test_log_exceptions_decorator(self, mock_logger, __):
         """
             Test whether the log exceptions decorator does its thing correctly.
-            update_courses is just a random management command that uses the decorator.
+            update_evaluations is just a random management command that uses the decorator.
             One could create a mock management command and call its handle method manually,
             but to me it seemed safer to use a real one.
         """
         try:
-            management.call_command('update_course_states')
+            management.call_command('update_evaluation_states')
         except Exception:
             pass
         self.assertTrue(mock_logger.called)

@@ -15,7 +15,7 @@ def helper_upload_path(instance, filename):
 
 
 class GradeDocument(models.Model):
-    course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("Course"))
+    course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("course"))
     file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
 
     MIDTERM_GRADES = 'MID'

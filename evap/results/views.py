@@ -2,7 +2,7 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import QuerySet, Prefetch, Count
+from django.db.models import QuerySet, Count
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
@@ -11,96 +11,95 @@ from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Contribution, Course, CourseType, UserProfile
+from evap.evaluation.models import Semester, Degree, Contribution, Evaluation, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
 from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
     TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
 
 
-def get_course_result_template_fragment_cache_key(course_id, language, can_user_see_results_page):
-    return make_template_fragment_key('course_result_template_fragment', [course_id, language, can_user_see_results_page])
+def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, can_user_see_results_page):
+    return make_template_fragment_key('evaluation_result_template_fragment', [evaluation_id, language, can_user_see_results_page])
 
 
-def delete_template_cache(course):
-    assert course.state != 'published'
-    _delete_template_cache_impl(course)
+def delete_template_cache(evaluation):
+    assert evaluation.state != 'published'
+    _delete_template_cache_impl(evaluation)
 
 
-def _delete_template_cache_impl(course):
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', True))
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en', False))
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', True))
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de', False))
+def _delete_template_cache_impl(evaluation):
+    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True))
+    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False))
+    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True))
+    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', False))
 
 
-def warm_up_template_cache(courses):
-    courses = get_courses_with_prefetched_data(courses)
+def warm_up_template_cache(evaluations):
+    evaluations = get_evaluations_with_prefetched_data(evaluations)
     current_language = translation.get_language()
     try:
-        for course in courses:
-            assert course.state == 'published'
+        for evaluation in evaluations:
+            assert evaluation.state == 'published'
             translation.activate('en')
-            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=True))
-            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=False))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False))
             translation.activate('de')
-            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=True))
-            get_template('results_index_course.html').render(dict(course=course, can_user_see_results_page=False))
-            assert get_course_result_template_fragment_cache_key(course.id, 'en', True) in caches['results']
-            assert get_course_result_template_fragment_cache_key(course.id, 'en', False) in caches['results']
-            assert get_course_result_template_fragment_cache_key(course.id, 'de', True) in caches['results']
-            assert get_course_result_template_fragment_cache_key(course.id, 'de', False) in caches['results']
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False))
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True) in caches['results']
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False) in caches['results']
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True) in caches['results']
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', False) in caches['results']
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
 
-def update_template_cache(courses):
-    for course in courses:
-        assert course.state == "published"
-        _delete_template_cache_impl(course)
-        warm_up_template_cache([course])
+def update_template_cache(evaluations):
+    for evaluation in evaluations:
+        assert evaluation.state == "published"
+        _delete_template_cache_impl(evaluation)
+        warm_up_template_cache([evaluation])
 
 
-def get_courses_with_prefetched_data(courses):
-    if isinstance(courses, QuerySet):
-        participant_counts = courses.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-        voter_counts = courses.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
-        courses = (courses
-            .select_related("type")
+def get_evaluations_with_prefetched_data(evaluations):
+    if isinstance(evaluations, QuerySet):
+        participant_counts = evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
+        voter_counts = evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+        evaluations = (evaluations
+            .select_related("course__type")
             .prefetch_related(
-                "degrees",
-                "semester",
-                Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions")
+                "course__degrees",
+                "course__semester",
+                "course__responsibles",
             )
         )
-        for course, participant_count, voter_count in zip(courses, participant_counts, voter_counts):
-            if course._participant_count is None:
-                course.num_participants = participant_count
-                course.num_voters = voter_count
-            course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
-    for course in courses:
-        if not course.is_single_result:
-            course.distribution = calculate_average_distribution(course)
-            course.avg_grade = distribution_to_grade(course.distribution)
+        for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
+            if evaluation._participant_count is None:
+                evaluation.num_participants = participant_count
+                evaluation.num_voters = voter_count
+    for evaluation in evaluations:
+        if not evaluation.is_single_result:
+            evaluation.distribution = calculate_average_distribution(evaluation)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
         else:
-            course.single_result_rating_result = get_single_result_rating_result(course)
-    return courses
+            evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+    return evaluations
 
 
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-    courses = Course.objects.filter(semester__in=semesters, state='published')
-    courses = [course for course in courses if course.can_user_see_course(request.user)]
+    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
+    evaluations = [evaluation for evaluation in evaluations if evaluation.can_user_see_evaluation(request.user)]
 
     if request.user.is_reviewer:
-        additional_courses = Course.objects.filter(semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
-        courses += get_courses_with_prefetched_data(additional_courses)
+        additional_evaluations = Evaluation.objects.filter(course__semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
+        evaluations += get_evaluations_with_prefetched_data(additional_evaluations)
 
-    course_pks = [course.pk for course in courses]
-    degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
-    course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
+    evaluation_pks = [evaluation.pk for evaluation in evaluations]
+    degrees = Degree.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
+    course_types = CourseType.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
     template_data = dict(
-        courses=courses,
+        evaluations=evaluations,
         degrees=degrees,
         course_types=course_types,
         semesters=semesters,
@@ -109,14 +108,14 @@ def index(request):
 
 
 @login_required
-def course_detail(request, semester_id, course_id):
+def evaluation_detail(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    course = get_object_or_404(semester.courses, id=course_id, semester=semester)
+    evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
 
-    if not course.can_user_see_results_page(request.user):
+    if not evaluation.can_user_see_results_page(request.user):
         raise PermissionDenied
 
-    course_result = collect_results(course)
+    evaluation_result = collect_results(evaluation)
 
     if request.user.is_reviewer:
         view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
@@ -133,11 +132,11 @@ def course_detail(request, semester_id, course_id):
     if view != 'export':
         represented_users += list(view_as_user.represented_users.all())
     # redirect to non-public view if there is none because the results have not been published
-    if not course.can_publish_rating_results and view == 'public':
+    if not evaluation.can_publish_rating_results and view == 'public':
         view = 'full'
 
     # remove text answers if the user may not see them
-    for questionnaire_result in course_result.questionnaire_results:
+    for questionnaire_result in evaluation_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
                 question_result.answers = [answer for answer in question_result.answers if user_can_see_textanswer(view_as_user, represented_users, answer, view)]
@@ -145,7 +144,7 @@ def course_detail(request, semester_id, course_id):
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
     # filter empty headings
-    for questionnaire_result in course_result.questionnaire_results:
+    for questionnaire_result in evaluation_result.questionnaire_results:
         filtered_question_results = []
         for index, question_result in enumerate(questionnaire_result.question_results):
             # filter out if there are no more questions or the next question is also a heading question
@@ -156,17 +155,17 @@ def course_detail(request, semester_id, course_id):
         questionnaire_result.question_results = filtered_question_results
 
     # remove empty questionnaire_results and contribution_results
-    for contribution_result in course_result.contribution_results:
+    for contribution_result in evaluation_result.contribution_results:
         contribution_result.questionnaire_results = [questionnaire_result for questionnaire_result in contribution_result.questionnaire_results if questionnaire_result.question_results]
-    course_result.contribution_results = [contribution_result for contribution_result in course_result.contribution_results if contribution_result.questionnaire_results]
+    evaluation_result.contribution_results = [contribution_result for contribution_result in evaluation_result.contribution_results if contribution_result.questionnaire_results]
 
-    add_warnings(course, course_result)
+    add_warnings(evaluation, evaluation_result)
 
-    # split course_result into different lists
+    # split evaluation_result into different lists
     general_questionnaire_results_top = []
     general_questionnaire_results_bottom = []
     contributor_contribution_results = []
-    for contribution_result in course_result.contribution_results:
+    for contribution_result in evaluation_result.contribution_results:
         if contribution_result.contributor is None:
             for questionnaire_result in contribution_result.questionnaire_results:
                 if questionnaire_result.questionnaire.is_below_contributors:
@@ -180,36 +179,36 @@ def course_detail(request, semester_id, course_id):
         general_questionnaire_results_top += general_questionnaire_results_bottom
         general_questionnaire_results_bottom = []
 
-    course.distribution = calculate_average_distribution(course)
-    course.avg_grade = distribution_to_grade(course.distribution)
+    evaluation.distribution = calculate_average_distribution(evaluation)
+    evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
 
     other_contributors = []
     if view == 'export':
-        other_contributors = [contribution_result.contributor for contribution_result in course_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
+        other_contributors = [contribution_result.contributor for contribution_result in evaluation_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
 
     template_data = dict(
-        course=course,
+        evaluation=evaluation,
         general_questionnaire_results_top=general_questionnaire_results_top,
         general_questionnaire_results_bottom=general_questionnaire_results_bottom,
         contributor_contribution_results=contributor_contribution_results,
         is_reviewer=view_as_user.is_reviewer,
-        is_contributor=course.is_user_contributor(view_as_user),
-        is_contributor_or_delegate=course.is_user_contributor_or_delegate(view_as_user),
+        is_contributor=evaluation.is_user_contributor(view_as_user),
+        is_responsible_or_contributor_or_delegate=evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user),
         can_download_grades=view_as_user.can_download_grades,
         view=view,
         view_as_user=view_as_user,
         other_contributors=other_contributors,
     )
-    return render(request, "results_course_detail.html", template_data)
+    return render(request, "results_evaluation_detail.html", template_data)
 
 
-def add_warnings(course, course_result):
-    if not course.can_publish_rating_results:
+def add_warnings(evaluation, evaluation_result):
+    if not evaluation.can_publish_rating_results:
         return
 
     # calculate the median values of how many people answered a questionnaire across all contributions
     questionnaire_max_answers = defaultdict(list)
-    for questionnaire_result in course_result.questionnaire_results:
+    for questionnaire_result in evaluation_result.questionnaire_results:
         max_answers = max((question_result.count_sum for question_result in questionnaire_result.question_results if question_result.question.is_rating_question), default=0)
         questionnaire_max_answers[questionnaire_result.questionnaire].append(max_answers)
 
@@ -217,7 +216,7 @@ def add_warnings(course, course_result):
     for questionnaire, max_answers_list in questionnaire_max_answers.items():
         questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers_list), settings.RESULTS_WARNING_COUNT)
 
-    for questionnaire_result in course_result.questionnaire_results:
+    for questionnaire_result in evaluation_result.questionnaire_results:
         rating_results = [question_result for question_result in questionnaire_result.question_results if question_result.question.is_rating_question]
         max_answers = max((rating_result.count_sum for rating_result in rating_results), default=0)
         questionnaire_result.warning = 0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
@@ -246,18 +245,16 @@ def user_can_see_textanswer(user, represented_users, textanswer, view):
     # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
     # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
     if textanswer.is_published:
-        # text answers about responsible contributors can only be seen by the users themselves and by their delegates
-        # they can not be seen by other responsible contributors
-        if textanswer.contribution.responsible:
-            return contributor in represented_users
-
         # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
         if contributor in represented_users:
             return True
         # users can see text answers from general contributions if one of their represented users has text answer
-        # visibility GENERAL_TEXTANSWERS for the course
-        if textanswer.contribution.is_general and textanswer.contribution.course.contributions.filter(
+        # visibility GENERAL_TEXTANSWERS for the evaluation
+        if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
                 contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
+            return True
+        # the people responsible for a course can see all general text answers for all its evaluations
+        if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):
             return True
 
     return False

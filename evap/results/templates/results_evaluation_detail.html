@@ -2,13 +2,13 @@
 
 {% load results_templatetags %}
 
-{% block title %}{{ course.name }} - {{ course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ course.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -17,35 +17,35 @@
 {% block content %}
     {{ block.super }}
 
-    {% if course.state != 'published' %}
-        <div class="alert alert-warning">{% trans 'This is a preview. The course is still in the process of evaluation.' %}</div>
+    {% if evaluation.state != 'published' %}
+        <div class="alert alert-warning">{% trans 'This is a preview. The results have not been published yet.' %}</div>
     {% endif %}
 
-    {% if is_reviewer or is_contributor_or_delegate %}
-        {% if course.is_private %}
+    {% if is_reviewer or is_responsible_or_contributor_or_delegate %}
+        {% if evaluation.course.is_private %}
             <div class="alert alert-info d-print-none">
-                <span class="fas fa-lock"></span> {% trans 'This course is private. Only contributors and participants can see the results.' %}
+                <span class="fas fa-lock"></span> {% trans 'This evaluation is private. Only contributors and participants can see the results.' %}
             </div>
         {% endif %}
         <div class="d-flex">
-            <h3 class="mr-auto">{{ course.name }} ({{ course.semester.name }})</h3>
+            <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
                 <div class="btn-switch btn-group">
                     {% if user.is_staff and view == 'export' or is_contributor %}
-                        <a href="{% if is_contributor %}{% url 'results:course_detail' course.semester.id course.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
-                        title="{% blocktrans %}Shows filtered view meant for personal export. Only your personal results and those about the course. Other contributors' results and private answers are hidden.{% endblocktrans %}">
+                        <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}">
                         {% trans 'Export' context 'view mode' %}
                     {% endif %}
-                    <a href="{% url 'results:course_detail' course.semester.id course.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                    <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Full' %}
                     </a>
-                    {% if not course.can_publish_rating_results %}
-                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="bottom" title="{% blocktrans %}The results of this course have not been published because it didn't get enough votes.{% endblocktrans %}">
+                    {% if not evaluation.can_publish_rating_results %}
+                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="bottom" title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}">
                             <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
-                                {% if course.is_private %}
+                                {% if evaluation.course.is_private %}
                                     {% trans 'Participant' %}
                                 {% else %}
                                     {% trans 'Public' %}
@@ -53,9 +53,9 @@
                             </a>
                         </div>
                     {% else %}
-                        <a href="{% url 'results:course_detail' course.semester.id course.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                            title="
-                        {% if course.is_private %}
+                        {% if evaluation.course.is_private %}
                             {% trans 'Shows results available for the participants.' %}">
                                 {% trans 'Participant' %}
                         {% else %}
@@ -68,19 +68,19 @@
             </div>
         </div>
     {% else %}
-        <h3>{{ course.name }} ({{ course.semester.name }})</h3>
+        <h3>{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
     {% endif %}
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
-            {% if course.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' course.grade_documents.first.id %}">{{ course.grade_documents.first.description }}</a>
-            {% elif course.grade_documents.count > 1 and can_download_grades %}
+            {% if evaluation.grade_documents.count == 1 and can_download_grades %}
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.grade_documents.first.id %}">{{ evaluation.grade_documents.first.description }}</a>
+            {% elif evaluation.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
                     <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
-                        {% for grade_document in course.grade_documents.all %}
+                        {% for grade_document in evaluation.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
                         {% endfor %}
                     </div>
@@ -94,25 +94,23 @@
                         <th style="width: 10%">{% trans 'Degree' %}</th>
                         <th style="width: 15%">{% trans 'Type' %}</th>
                         <th style="width: 30%">{% trans 'Responsible' %}</th>
-                        <th style="width: 15%">{% if not course.is_single_result %}{% trans 'Voters' %}{% endif %}</th>
+                        <th style="width: 15%">{% if not evaluation.is_single_result %}{% trans 'Voters' %}{% endif %}</th>
                         <th style="width: 30%">{% trans 'Distribution and average grade' %}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            {% for degree in course.degrees.all %}
+                            {% for degree in evaluation.course.degrees.all %}
                                 {{ degree }}{% if not forloop.last %}, {% endif %}
                             {% endfor %}
                         </td>
-                        <td>{{ course.type }}</td>
+                        <td>{{ evaluation.course.type }}</td>
                         <td>
-                            {% for contributor in course.responsible_contributors %}
-                                {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
+                            {{ evaluation.course.responsibles_names }}
                         </td>
-                        <td>{% if not course.is_single_result %}{% include 'progress_bar.html' with done=course.num_voters total=course.num_participants %}{% endif %}</td>
-                        <td>{% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}</td>
+                        <td>{% if not evaluation.is_single_result %}{% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}{% endif %}</td>
+                        <td>{% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}</td>
                     </tr>
                 </tbody>
             </table>
@@ -126,7 +124,7 @@
             </div>
             <div class="card-body">
                 {% for questionnaire_result in general_questionnaire_results_top %}
-                    {% include 'results_course_detail_questionnaires.html' %}
+                    {% include 'results_evaluation_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
         </div>
@@ -161,7 +159,7 @@
                         <div class="collapse{% if contribution_result.has_answers %} show{% endif %}" id="contributor-{{ contribution_result.contributor.id }}">
                             <div class="card-body">
                                 {% for questionnaire_result in contribution_result.questionnaire_results %}
-                                    {% include 'results_course_detail_questionnaires.html' with last=forloop.last %}
+                                    {% include 'results_evaluation_detail_questionnaires.html' with last=forloop.last %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -192,7 +190,7 @@
             </div>
             <div class="card-body">
                 {% for questionnaire_result in general_questionnaire_results_bottom %}
-                    {% include 'results_course_detail_questionnaires.html' %}
+                    {% include 'results_evaluation_detail_questionnaires.html' %}
                 {% endfor %}
             </div>
         </div>

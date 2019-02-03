@@ -1,0 +1,41 @@
+{% extends 'staff_evaluation_base.html' %}
+
+{% load evaluation_filters %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Text answers' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div class="d-flex">
+        <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
+        <div class="btn-switch btn-switch-light my-auto d-print-none">
+            <div class="btn-switch-label">{% trans 'View' %}</div>
+            <div class="btn-switch btn-group">
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
+                    {% trans 'Quick' %}
+                </a>
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
+                    {% trans 'Full' %}
+                </a>
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
+                    {% trans 'Unreviewed' %}
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="mb-2">
+        {% if evaluation.state == 'in_evaluation' %}
+            <span class="badge badge-warning"><span class="fas fa-play icon-gray"></span> {% trans 'Still in evaluation' %}</span>
+        {% else %}
+            <span class="badge badge-light"><span class="fas fa-stop icon-green"></span> {% trans 'Evaluation finished' %}</span>
+        {% endif %}
+        {% include 'evaluation_badges.html' with mode='manager' %}
+    </div>
+    <div class="bs-callout bs-callout-warning">
+        {% blocktrans %}If you select "no" as publishing option for a text answer on this page, the respective answer will be deleted irrevocably when publishing the evaluation's results. If you should edit an answer, the original answer will also be deleted when publishing the evaluation's results.{% endblocktrans %}
+    </div>
+{% endblock %}

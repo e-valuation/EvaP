@@ -10,8 +10,9 @@ from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
-from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, FaqQuestion, FaqSection, Question, Questionnaire,
-                                    RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
+                                    FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
+                                    UserProfile)
 from evap.evaluation.tools import date_to_datetime
 from evap.results.views import update_template_cache
 
@@ -54,26 +55,26 @@ class UserImportForm(forms.Form):
             raise ValidationError(_("Please select an Excel file."))
 
 
-class CourseParticipantCopyForm(forms.Form):
-    course = forms.ModelChoiceField(Course.objects.all(), empty_label='<empty>', required=False, label=_("Course"))
+class EvaluationParticipantCopyForm(forms.Form):
+    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), empty_label='<empty>', required=False, label=_("Evaluation"))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.course_selection_required = False
+        self.evaluation_selection_required = False
 
-        # Here we split the courses by semester and create supergroups for them. We also make sure to include an empty option.
+        # Here we split the evaluations by semester and create supergroups for them. We also make sure to include an empty option.
         choices = [('', '<empty>')]
         for semester in Semester.objects.all():
-            course_choices = [(course.pk, course.name) for course in Course.objects.filter(semester=semester)]
-            if course_choices:
-                choices += [(semester.name, course_choices)]
+            evaluation_choices = [(evaluation.pk, evaluation.name) for evaluation in Evaluation.objects.filter(course__semester=semester)]
+            if evaluation_choices:
+                choices += [(semester.name, evaluation_choices)]
 
-        self.fields['course'].choices = choices
+        self.fields['evaluation'].choices = choices
 
     def clean(self):
-        if self.course_selection_required and self.cleaned_data['course'] is None:
-            raise ValidationError(_("Please select a course from the dropdown menu."))
+        if self.evaluation_selection_required and self.cleaned_data['evaluation'] is None:
+            raise ValidationError(_("Please select an evaluation from the dropdown menu."))
 
 
 class UserBulkDeleteForm(forms.Form):
@@ -88,7 +89,7 @@ class SemesterForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         semester = super().save(*args, **kwargs)
         if 'short_name_en' in self.changed_data or 'short_name_de' in self.changed_data:
-            update_template_cache(semester.courses.filter(state="published"))
+            update_template_cache(semester.evaluations.filter(state="published"))
         return semester
 
 
@@ -110,7 +111,7 @@ class DegreeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         degree = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(degree.courses.filter(state="published"))
+            update_template_cache(Evaluation.objects.filter(state="published", course__degrees__in=[degree]))
         return degree
 
 
@@ -132,7 +133,7 @@ class CourseTypeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         course_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(course_type.courses.filter(state="published"))
+            update_template_cache(Evaluation.objects.filter(state="published", course__type=course_type))
         return course_type
 
 
@@ -147,44 +148,30 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().filter(obsolete=False),
-        widget=CheckboxSelectMultiple,
-        label=_("General questions")
-    )
+    prefix = 'course'
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'is_graded', 'is_private', 'is_rewarded',
-                  'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time', 'last_modified_user_name', 'semester')
-        localized_fields = ('vote_start_datetime', 'vote_end_date')
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_graded', 'is_private', 'last_modified_time',
+                  'last_modified_user_name', 'semester')
         field_classes = {
-            'participants': UserModelMultipleChoiceField,
+            'responsibles': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(obsolete=False) | Q(contributions__course=self.instance)).distinct()
-
-        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
-
-        if self.instance.general_contribution:
-            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+        self.fields['responsibles'].queryset = UserProfile.objects.exclude_inactive_users()
+        if self.instance.pk:
+            self.fields['responsibles'].queryset |= UserProfile.objects.filter(pk__in=[user.pk for user in self.instance.responsibles.all()])
 
         self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
             self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
-        if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
-            self.fields['vote_start_datetime'].disabled = True
-
         if not self.instance.can_manager_edit:
-            # form is used as read-only course view
             disable_all_fields(self)
 
     def validate_unique(self):
@@ -199,6 +186,60 @@ class CourseForm(forms.ModelForm):
                     name_field = e.params["unique_check"][1]
                     self.add_error(name_field, e)
 
+
+class EvaluationForm(forms.ModelForm):
+    general_questionnaires = forms.ModelMultipleChoiceField(
+        Questionnaire.objects.general_questionnaires().filter(obsolete=False),
+        widget=CheckboxSelectMultiple,
+        label=_("General questions")
+    )
+    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
+
+    class Meta:
+        model = Evaluation
+        fields = ('name_de', 'name_en', 'is_rewarded', 'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date',
+                  'participants', 'general_questionnaires', 'last_modified_time', 'last_modified_user_name',
+                  'course')
+        localized_fields = ('vote_start_datetime', 'vote_end_date')
+        field_classes = {
+            'participants': UserModelMultipleChoiceField,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
+            Q(obsolete=False) | Q(contributions__evaluation=self.instance)).distinct()
+
+        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
+
+        if self.instance.general_contribution:
+            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+
+        self.fields['last_modified_time'].disabled = True
+        if self.instance.last_modified_user:
+            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
+
+        if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
+            self.fields['vote_start_datetime'].disabled = True
+
+        if not self.instance.can_manager_edit:
+            disable_all_fields(self)
+
+    # TODO (#1047): add this test once a Course can have multiple Evaluations
+    # def validate_unique(self):
+    #     super().validate_unique()
+    #     # name_xy and course are unique together. This will be treated as a non-field-error since two
+    #     # fields are involved. Since we only show the name_xy field to the user, assign that error to this
+    #     # field. This hack is not documented, so it might be broken when you are reading this.
+    #     for e in self.non_field_errors().as_data():
+    #         if e.code == "unique_together" and "unique_check" in e.params:
+    #             if "course" in e.params["unique_check"]:
+    #                 # The order of the fields is probably determined by the unique_together constraints in the Evaluation class.
+    #                 name_field = e.params["unique_check"][1]
+    #                 self.add_error(name_field, e)
+
     def clean_participants(self):
         participants = self.cleaned_data.get('participants')
         if self.instance.pk:
@@ -206,7 +247,7 @@ class CourseForm(forms.ModelForm):
             removed_voters = set(voters) - set(participants)
             if removed_voters:
                 names = [str(user) for user in removed_voters]
-                self.add_error("participants", _("Participants who already voted for the course can't be removed: %s") % ", ".join(names))
+                self.add_error("participants", _("Participants who already voted for the evaluation can't be removed: %s") % ", ".join(names))
 
         return participants
 
@@ -220,13 +261,13 @@ class CourseForm(forms.ModelForm):
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, *args, **kw):
-        course = super().save(*args, **kw)
-        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
-        return course
+        self.instance.course = Course.objects.get(id=self.instance.course.id)  # TODO (#1047): remove once course form is handled on separate page
+        evaluation = super().save(*args, **kw)
+        evaluation.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return evaluation
 
 
 class SingleResultForm(forms.ModelForm):
-    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
@@ -236,11 +277,13 @@ class SingleResultForm(forms.ModelForm):
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
     answer_4 = forms.IntegerField(label=_("# bad"), initial=0)
     answer_5 = forms.IntegerField(label=_("# very bad"), initial=0)
+    type = forms.ModelChoiceField(CourseType.objects.all())
+    degrees = forms.ModelMultipleChoiceField(Degree.objects.all())
 
     class Meta:
-        model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'event_date', 'responsible', 'answer_1', 'answer_2', 'answer_3', 'answer_4', 'answer_5',
-                 'last_modified_time_2', 'last_modified_user_2', 'semester')
+        model = Evaluation
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'event_date', 'responsible', 'answer_1', 'answer_2', 'answer_3', 'answer_4',
+                  'answer_5', 'last_modified_time_2', 'last_modified_user_2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -256,7 +299,7 @@ class SingleResultForm(forms.ModelForm):
             disable_all_fields(self)
 
         if self.instance.pk:
-            responsible = self.instance.responsible_contributors[0]
+            responsible = self.instance.course.responsibles.first()
             self.fields['responsible'].queryset |= UserProfile.objects.filter(pk=responsible.pk)
             self.fields['responsible'].initial = responsible
             answer_counts = dict()
@@ -264,28 +307,51 @@ class SingleResultForm(forms.ModelForm):
                 answer_counts[answer_counter.answer] = answer_counter.count
             for i in range(1, 6):
                 self.fields['answer_' + str(i)].initial = answer_counts[i]
+            self.fields['type'].initial = self.instance.course.type
+            self.fields['degrees'].initial = self.instance.course.degrees.all()
+
+    # TODO (#1047): add additional uniqueness check for Evaluation's names when a Course can have multiple Evaluations
+    def clean_name_de(self):
+        name_de = self.cleaned_data.get('name_de')
+        if Course.objects.filter(semester=self.instance.course.semester, name_de=name_de).exclude(id=self.instance.course.id).exists():
+            self.add_error("name_de", _("This name (German) was already used for a course in this semester."))
+        return name_de
+
+    def clean_name_en(self):
+        name_en = self.cleaned_data.get('name_en')
+        if Course.objects.filter(semester=self.instance.course.semester, name_en=name_en).exclude(id=self.instance.course.id).exists():
+            self.add_error("name_en", _("This name (English) was already used for a course in this semester."))
+        return name_en
 
     def save(self, *args, **kw):
+        self.instance.course.is_graded = False
+        self.instance.course.name_de = self.cleaned_data['name_de']
+        self.instance.course.name_en = self.cleaned_data['name_en']
+        self.instance.course.type = self.cleaned_data['type']
+        self.instance.course.save()
+        self.instance.course.responsibles.set([self.cleaned_data['responsible']])
+        self.instance.course.degrees.set(self.cleaned_data['degrees'])
+        self.instance.course.save()
+        self.instance.course = Course.objects.get(id=self.instance.course.id)
+
         user = kw.pop("user")
         self.instance.last_modified_user = user
         event_date = self.cleaned_data['event_date']
         self.instance.vote_start_datetime = date_to_datetime(event_date)
         self.instance.vote_end_date = event_date
-        self.instance.is_graded = False
         self.instance.is_single_result = True
         super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(course=self.instance, responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        contribution.contributor = self.cleaned_data['responsible']
+        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, contributor=None)
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
 
         # set answers
-        contribution = Contribution.objects.get(course=self.instance, responsible=True)
+        contribution = Contribution.objects.get(evaluation=self.instance)
         total_votes = 0
         for i in range(1, 6):
             count = self.cleaned_data['answer_' + str(i)]
@@ -295,7 +361,7 @@ class SingleResultForm(forms.ModelForm):
         self.instance._voter_count = total_votes
 
         # change state to "reviewed"
-        # works only for single_results so the course and its contribution must be saved first
+        # works only for single_results so the evaluation and its contribution must be saved first
         self.instance.single_result_created()
         self.instance.save()
 
@@ -303,35 +369,33 @@ class SingleResultForm(forms.ModelForm):
 class ContributionForm(forms.ModelForm):
     contributor = forms.ModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
-    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.contributor_questionnaires().filter(obsolete=False),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
     )
-    does_not_contribute = forms.BooleanField(required=False, label=_("Does not contribute to course"))
+    does_not_contribute = forms.BooleanField(required=False, label=_("Does not contribute to evaluation"))
 
     class Meta:
         model = Contribution
-        fields = ('course', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
+        fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
         widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
         field_classes = {
             'contributor': UserModelChoiceField,
         }
 
-    def __init__(self, *args, course=None, **kwargs):
-        self.course = course
+    def __init__(self, *args, evaluation=None, **kwargs):
+        self.evaluation = evaluation
         # work around https://code.djangoproject.com/ticket/25880
-        if self.course is None:
+        if self.evaluation is None:
             assert 'instance' in kwargs
-            self.course = kwargs['instance'].course
+            self.evaluation = kwargs['instance'].evaluation
 
         super().__init__(*args, **kwargs)
 
-        if self.instance.responsible:
-            self.fields['responsibility'].initial = Contribution.IS_RESPONSIBLE
-        elif self.instance.can_edit:
+        if self.instance.can_edit:
             self.fields['responsibility'].initial = Contribution.IS_EDITOR
         else:
             self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
@@ -340,13 +404,13 @@ class ContributionForm(forms.ModelForm):
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(obsolete=False) | Q(contributions__course=self.course)).distinct()
+            Q(obsolete=False) | Q(contributions__evaluation=self.evaluation)).distinct()
 
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
 
-        if not self.course.can_manager_edit:
-            # form is used as read-only course view
+        if not self.evaluation.can_manager_edit:
+            # form is used as read-only evaluation view
             disable_all_fields(self)
 
     def clean(self):
@@ -355,24 +419,20 @@ class ContributionForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
-        is_responsible = responsibility == Contribution.IS_RESPONSIBLE
         is_editor = responsibility == Contribution.IS_EDITOR
-        self.instance.responsible = is_responsible
-        self.instance.can_edit = is_responsible or is_editor
-        if is_responsible:
-            self.instance.textanswer_visibility = Contribution.GENERAL_TEXTANSWERS
+        self.instance.can_edit = is_editor
         return super().save(*args, **kwargs)
 
 
-class CourseEmailForm(forms.Form):
+class EvaluationEmailForm(forms.Form):
     recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.EMAIL_RECIPIENTS, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
-    def __init__(self, *args, course, export=False, **kwargs):
+    def __init__(self, *args, evaluation, export=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.template = EmailTemplate()
-        self.course = course
+        self.evaluation = evaluation
         self.fields['subject'].required = not export
         self.fields['body'].required = not export
 
@@ -385,13 +445,13 @@ class CourseEmailForm(forms.Form):
         return self.cleaned_data
 
     def email_addresses(self):
-        recipients = self.template.recipient_list_for_course(self.course, self.recipient_groups, filter_users_in_cc=False)
+        recipients = self.template.recipient_list_for_evaluation(self.evaluation, self.recipient_groups, filter_users_in_cc=False)
         return set(user.email for user in recipients if user.email)
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_courses(self.template, [self.course], self.recipient_groups, use_cc=True, request=request)
+        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], self.recipient_groups, use_cc=True, request=request)
 
 
 class RemindResponsibleForm(forms.Form):
@@ -412,12 +472,12 @@ class RemindResponsibleForm(forms.Form):
         self.fields['subject'].initial = self.template.subject
         self.fields['body'].initial = self.template.body
 
-    def send(self, request, courses):
+    def send(self, request, evaluations):
         recipient = self.cleaned_data.get('to')
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
         subject_params = {}
-        body_params = {'user': recipient, 'courses': courses}
+        body_params = {'user': recipient, 'evaluations': evaluations}
         EmailTemplate.send_to_user(recipient, self.template, subject_params, body_params, use_cc=True, request=request)
 
 
@@ -454,11 +514,10 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(AtLeastOneFormSet):
-    def __init__(self, data=None, can_change_responsible=True, *args, **kwargs):
+    def __init__(self, data=None, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
-        self.can_change_responsible = can_change_responsible
 
     def handle_deleted_and_added_contributions(self):
         """
@@ -489,7 +548,7 @@ class ContributionFormSet(AtLeastOneFormSet):
         if data is None or 'instance' not in kwargs:
             return data
 
-        course = kwargs['instance']
+        evaluation = kwargs['instance']
         total_forms = int(data['contributions-TOTAL_FORMS'])
         for i in range(0, total_forms):
             prefix = "contributions-" + str(i) + "-"
@@ -499,7 +558,7 @@ class ContributionFormSet(AtLeastOneFormSet):
                 continue
             # find the contribution that the contributor had before the user messed with it
             try:
-                previous_id = str(Contribution.objects.get(contributor=contributor, course=course).id)
+                previous_id = str(Contribution.objects.get(contributor=contributor, evaluation=evaluation).id)
             except Contribution.DoesNotExist:
                 continue
 
@@ -527,7 +586,6 @@ class ContributionFormSet(AtLeastOneFormSet):
         super().clean()
 
         found_contributor = set()
-        responsible_users = []
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
                 continue
@@ -538,15 +596,6 @@ class ContributionFormSet(AtLeastOneFormSet):
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             elif contributor:
                 found_contributor.add(contributor)
-
-            if form.cleaned_data.get('responsibility') == 'RESPONSIBLE':
-                responsible_users.append(form.cleaned_data.get('contributor'))
-
-        if len(responsible_users) < 1:
-            raise forms.ValidationError(_('No responsible contributors found.'))
-
-        if not self.can_change_responsible and set(self.instance.responsible_contributors) != set(responsible_users):
-            raise ValidationError(_("You are not allowed to change responsible contributors."))
 
 
 class QuestionForm(forms.ModelForm):
@@ -566,7 +615,7 @@ class QuestionnairesAssignForm(forms.Form):
         for course_type in course_types:
             self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().filter(obsolete=False))
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
-        self.fields['Responsible contributor'] = forms.ModelMultipleChoiceField(label=_('Responsible contributor'), required=False, queryset=contributor_questionnaires)
+        self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm):
@@ -574,7 +623,7 @@ class UserForm(forms.ModelForm):
     is_grade_publisher = forms.BooleanField(required=False, label=_("Grade publisher"))
     is_reviewer = forms.BooleanField(required=False, label=_("Reviewer"))
     is_inactive = forms.BooleanField(required=False, label=_("Inactive"))
-    courses_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Courses participating in (active semester)"))
+    evaluations_participating_in = forms.ModelMultipleChoiceField(None, required=False, label=_("Evaluations participating in (active semester)"))
 
     class Meta:
         model = UserProfile
@@ -586,12 +635,12 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        courses_in_active_semester = Course.objects.filter(semester=Semester.active_semester())
-        excludes = [x.id for x in courses_in_active_semester if x.is_single_result]
-        courses_in_active_semester = courses_in_active_semester.exclude(id__in=excludes)
-        self.fields['courses_participating_in'].queryset = courses_in_active_semester
+        evaluations_in_active_semester = Evaluation.objects.filter(course__semester=Semester.active_semester())
+        excludes = [x.id for x in evaluations_in_active_semester if x.is_single_result]
+        evaluations_in_active_semester = evaluations_in_active_semester.exclude(id__in=excludes)
+        self.fields['evaluations_participating_in'].queryset = evaluations_in_active_semester
         if self.instance.pk:
-            self.fields['courses_participating_in'].initial = courses_in_active_semester.filter(participants=self.instance)
+            self.fields['evaluations_participating_in'].initial = evaluations_in_active_semester.filter(participants=self.instance)
             self.fields['is_manager'].initial = self.instance.is_manager
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
@@ -609,16 +658,16 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
         return username.lower()
 
-    def clean_courses_participating_in(self):
-        courses_participating_in = self.cleaned_data.get('courses_participating_in')
+    def clean_evaluations_participating_in(self):
+        evaluations_participating_in = self.cleaned_data.get('evaluations_participating_in')
         if self.instance.pk:
-            courses_voted_for = self.instance.courses_voted_for.filter(semester=Semester.active_semester())
-            removed_courses_voted_for = set(courses_voted_for) - set(courses_participating_in)
-            if removed_courses_voted_for:
-                names = [str(course) for course in removed_courses_voted_for]
-                self.add_error("courses_participating_in", _("Courses for which the user already voted can't be removed: %s") % ", ".join(names))
+            evaluations_voted_for = self.instance.evaluations_voted_for.filter(course__semester=Semester.active_semester())
+            removed_evaluations_voted_for = set(evaluations_voted_for) - set(evaluations_participating_in)
+            if removed_evaluations_voted_for:
+                names = [str(evaluation) for evaluation in removed_evaluations_voted_for]
+                self.add_error("evaluations_participating_in", _("Evaluations for which the user already voted can't be removed: %s") % ", ".join(names))
 
-        return courses_participating_in
+        return evaluations_participating_in
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -637,8 +686,8 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        new_course_list = list(self.instance.courses_participating_in.exclude(semester=Semester.active_semester())) + list(self.cleaned_data.get('courses_participating_in'))
-        self.instance.courses_participating_in.set(new_course_list)
+        new_evaluation_list = list(self.instance.evaluations_participating_in.exclude(course__semester=Semester.active_semester())) + list(self.cleaned_data.get('evaluations_participating_in'))
+        self.instance.evaluations_participating_in.set(new_evaluation_list)
 
         manager_group = Group.objects.get(name="Manager")
         grade_publisher_group = Group.objects.get(name="Grade publisher")

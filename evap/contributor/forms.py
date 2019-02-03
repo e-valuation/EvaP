@@ -7,31 +7,29 @@ from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import ugettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
-from evap.evaluation.models import Course, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
 
 logger = logging.getLogger(__name__)
 
 
-class CourseForm(forms.ModelForm):
+class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
-    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
-        model = Course
-        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'type', 'degrees', 'general_questionnaires', 'semester')
+        model = Evaluation
+        fields = ('name_de', 'name_en', 'vote_start_datetime', 'vote_end_date', 'general_questionnaires', 'course')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.instance)).distinct()
+            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__evaluation=self.instance)).distinct()
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
-        self.fields['degrees'].disabled = True
-        self.fields['degrees'].help_text = ""
 
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
@@ -62,22 +60,17 @@ class CourseForm(forms.ModelForm):
         return vote_end_date
 
     def save(self, *args, **kw):
-        course = super().save(*args, **kw)
-        course.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
-        return course
+        evaluation = super().save(*args, **kw)
+        evaluation.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        return evaluation
 
 
 class EditorContributionForm(ContributionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance.responsible:
-            self.fields['responsibility'].disabled = True
-            self.fields['contributor'].disabled = True
-            self.fields['textanswer_visibility'].disabled = True
-
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__course=self.course)).distinct()
+            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__evaluation=self.evaluation)).distinct()
 
 
 class DelegatesForm(forms.ModelForm):

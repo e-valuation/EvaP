@@ -1,4 +1,4 @@
-{% extends 'staff_course_base.html' %}
+{% extends 'staff_evaluation_base.html' %}
 
 {% load evaluation_filters %}
 
@@ -7,7 +7,7 @@
     {% if form.errors %}
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}</div>
     {% endif %}
-    <form id="course-email-form" method="POST" class="form-horizontal">
+    <form id="evaluation-email-form" method="POST" class="form-horizontal">
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">

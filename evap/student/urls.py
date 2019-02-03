@@ -7,5 +7,5 @@ app_name = "student"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("vote/<int:course_id>", views.vote, name="vote"),
+    path("vote/<int:evaluation_id>", views.vote, name="vote"),
 ]

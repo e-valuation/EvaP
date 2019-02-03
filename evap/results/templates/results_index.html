@@ -54,7 +54,7 @@
                 <div class="col-sm d-flex separation-left flex-column">
                     <div class="reset-button" onclick="resetOrdering();">
                         <span class="fas fa-sort-amount-down"></span>
-                        {% trans 'Order by course and semester' %}
+                        {% trans 'Order by evaluation and semester' %}
                     </div>
                     <div class="mt-3 reset-button" onclick="clearFilters();">
                         <span class="fas fa-eraser"></span>
@@ -69,11 +69,11 @@
     </div>
     <div class="card card-noflex">
         <div class="card-body pt-0 pb-2">
-            {% if courses %}
+            {% if evaluations %}
                 <table id="results-table" class="table table-hover-evap vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
                     <thead>
                         <tr class="table-header">
-                            <th style="width: 35%">{% trans 'Course' %}</th>
+                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
                             <th style="width: 10%">{% trans 'Semester' %}</th>
                             <th style="width: 22%">{% trans 'Responsible' %}</th>
                             <th style="width: 13%">{% trans 'Voters' %}</th>
@@ -81,8 +81,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for course in courses %}
-                        {% include 'results_index_course.html' with can_user_see_results_page=course|can_user_see_results_page:request.user %}
+                    {% for evaluation in evaluations %}
+                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user %}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -122,7 +122,7 @@
                     (degrees.length == 0 || degrees.includes($(this).find('.badge-degree').text())) &&
                     (courseTypes.length == 0 || courseTypes.includes($(this).find('.badge-course-type').text())) &&
                     (searchValue.length == 0 ||
-                        $(this).find('.course-name').html().toLowerCase().includes(searchValue) ||
+                        $(this).find('.evaluation-name').html().toLowerCase().includes(searchValue) ||
                         $(this).find('.contributor-name').html().toLowerCase().includes(searchValue));
                 $(this).toggleClass("d-none", !showRow);
             });

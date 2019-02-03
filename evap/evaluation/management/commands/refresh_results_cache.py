@@ -2,32 +2,32 @@ from django.core.management.base import BaseCommand
 from django.core.serializers.base import ProgressBar
 from django.core.cache import caches
 
-from evap.evaluation.models import Course
+from evap.evaluation.models import Evaluation
 from evap.results.tools import collect_results
 from evap.results.views import warm_up_template_cache
 
 
 class Command(BaseCommand):
     args = ''
-    help = 'Clears the cache and pre-warms it with the results of all courses'
+    help = 'Clears the cache and pre-warms it with the results of all evaluations'
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
         self.stdout.write("Clearing results cache...")
         caches['results'].clear()
-        total_count = Course.objects.count()
+        total_count = Evaluation.objects.count()
 
-        self.stdout.write("Calculating results for all courses...")
+        self.stdout.write("Calculating results for all evaluations...")
 
         self.stdout.ending = None
         progress_bar = ProgressBar(self.stdout, total_count)
 
-        for counter, course in enumerate(Course.objects.all()):
+        for counter, evaluation in enumerate(Evaluation.objects.all()):
             progress_bar.update(counter + 1)
-            collect_results(course)
+            collect_results(evaluation)
 
         self.stdout.write("Prerendering result index page...\n")
 
-        warm_up_template_cache(Course.objects.filter(state='published'))
+        warm_up_template_cache(Evaluation.objects.filter(state='published'))
 
         self.stdout.write("Results cache has been refreshed.\n")

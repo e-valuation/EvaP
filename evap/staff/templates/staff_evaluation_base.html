@@ -1,15 +1,15 @@
 {% extends 'staff_semester_base.html' %}
 
 {% block title %}
-    {% if course %}
-        {{ course.name }} -
+    {% if evaluation %}
+        {{ evaluation.name }} -
     {% endif %}
     {{ block.super }}
 {% endblock %}
 
 {% block breadcrumb %}
     {{ block.super }}
-    {% if course %}
-        <li class="breadcrumb-item">{{ course.name }}</li>
+    {% if evaluation %}
+        <li class="breadcrumb-item">{{ evaluation.name }}</li>
     {% endif %}
 {% endblock %}

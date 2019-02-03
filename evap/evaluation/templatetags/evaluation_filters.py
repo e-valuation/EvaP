@@ -16,13 +16,12 @@ def _zip(a, b):
 
 
 @register.filter
-def ordering_index(course):
-    if course.state in ['new', 'prepared', 'editor_approved', 'approved']:
-        return course.days_until_evaluation
-    elif course.state == "in_evaluation":
-        return 100000 + course.days_left_for_evaluation
-    else:
-        return 200000 + course.days_left_for_evaluation
+def ordering_index(evaluation):
+    if evaluation.state in ['new', 'prepared', 'editor_approved', 'approved']:
+        return evaluation.days_until_evaluation
+    elif evaluation.state == "in_evaluation":
+        return 100000 + evaluation.days_left_for_evaluation
+    return 200000 + evaluation.days_left_for_evaluation
 
 
 # from http://www.jongales.com/blog/2009/10/19/percentage-django-template-tag/
@@ -76,8 +75,8 @@ def statedescription(state):
 
 
 @register.filter
-def can_user_see_results_page(course, user):
-    return course.can_user_see_results_page(user)
+def can_user_see_results_page(evaluation, user):
+    return evaluation.can_user_see_results_page(user)
 
 
 @register.filter(name='can_user_use_reward_points')
@@ -96,8 +95,8 @@ def is_heading_field(field):
 
 
 @register.filter
-def is_user_editor_or_delegate(course, user):
-    return course.is_user_editor_or_delegate(user)
+def is_user_editor_or_delegate(evaluation, user):
+    return evaluation.is_user_editor_or_delegate(user)
 
 
 @register.filter
@@ -119,5 +118,5 @@ def hours_and_minutes(time_left_for_evaluation):
 
 
 @register.filter
-def has_nonresponsible_editor(course):
-    return course.contributions.filter(responsible=False, can_edit=True).exists()
+def has_nonresponsible_editor(evaluation):
+    return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()
