@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_mommy import mommy
@@ -472,23 +473,19 @@ class ContributionFormset775RegressionTests(TestCase):
 
 
 class CourseFormTests(TestCase):
-    def helper_test_course_form_same_name(self, CourseFormClass):
-        courses = Course.objects.all()
-
-        form_data = get_form_data_from_instance(CourseForm, courses[0])
-        form = CourseFormClass(form_data, instance=courses[0])
-        self.assertTrue(form.is_valid())
-        form_data['name_de'] = courses[1].name_de
-        form = CourseFormClass(form_data, instance=courses[0])
-        self.assertFalse(form.is_valid())
-
     def test_course_form_same_name(self):
         """
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
-        mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
-        self.helper_test_course_form_same_name(CourseForm)
+        courses = mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
+
+        form_data = get_form_data_from_instance(CourseForm, courses[0])
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertTrue(form.is_valid())
+        form_data['name_de'] = courses[1].name_de
+        form = CourseForm(form_data, instance=courses[0])
+        self.assertFalse(form.is_valid())
 
     def test_uniqueness_constraint_error_shown(self):
         """
@@ -597,3 +594,30 @@ class EvaluationFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('participants', form.errors)
         self.assertIn("Participants who already voted for the evaluation can't be removed", form.errors['participants'][0])
+
+    def test_course_change_updates_cache(self):
+        semester = mommy.make(Semester)
+        course1 = mommy.make(Course, semester=semester)
+        course2 = mommy.make(Course, semester=semester)
+        evaluation = mommy.make(Evaluation, course=course1)
+        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation, semester=semester)
+        self.assertTrue(form.is_valid())
+        with patch('evap.results.views._delete_course_template_cache_impl') as delete_call, patch('evap.results.views.warm_up_template_cache') as warmup_call:
+            # save without changes
+            form.save()
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course1)
+            self.assertEqual(delete_call.call_count, 0)
+            self.assertEqual(warmup_call.call_count, 0)
+
+            # change course and save
+            form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+            form_data["course"] = course2.pk
+            form = EvaluationForm(form_data, instance=evaluation, semester=semester)
+            self.assertTrue(form.is_valid())
+            form.save()
+            self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course2)
+            self.assertEqual(delete_call.call_count, 2)
+            self.assertEqual(warmup_call.call_count, 2)

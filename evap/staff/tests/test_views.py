@@ -28,7 +28,6 @@ def helper_delete_all_import_files(user_id):
         os.remove(filename)
 
 
-# Staff - Sample Files View
 class TestDownloadSampleXlsView(WebTest):
     url = '/staff/download_sample_xls/sample.xls'
     email_placeholder = "institution.com"
@@ -53,7 +52,6 @@ class TestDownloadSampleXlsView(WebTest):
         self.assertEqual(found_institution_domains, 2)
 
 
-# Staff - Root View
 class TestStaffIndexView(WebTestWith200Check):
     test_users = ['manager']
     url = '/staff/'
@@ -63,7 +61,6 @@ class TestStaffIndexView(WebTestWith200Check):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
 
-# Staff - FAQ View
 class TestStaffFAQView(WebTestWith200Check):
     url = '/staff/faq/'
     test_users = ['manager']
@@ -84,7 +81,6 @@ class TestStaffFAQEditView(WebTestWith200Check):
         mommy.make(FaqQuestion, section=section)
 
 
-# Staff - User Views
 class TestUserIndexView(WebTest):
     url = '/staff/user/'
 
@@ -558,6 +554,7 @@ class TestSemesterImportView(WebTest):
 
         evaluations = Evaluation.objects.all()
         self.assertEqual(len(evaluations), 23)
+        self.assertEqual(Course.objects.count(), 23)
 
         for evaluation in evaluations:
             self.assertEqual(evaluation.course.responsibles.count(), 1)
@@ -570,6 +567,24 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
         self.assertEqual(check_contributor.email, "567@external.example.com")
+
+        check_course = Course.objects.get(name_en="Choose")
+        self.assertEqual(check_course.name_de, "Wählen")
+        self.assertEqual(check_course.responsibles.count(), 1)
+        self.assertEqual(check_course.responsibles.first().full_name, "Prof. Dr. Sit Dolor")
+        self.assertFalse(check_course.is_graded)
+        self.assertFalse(check_course.is_private)
+        self.assertEqual(check_course.type.name_de, "Vorlesung")
+        self.assertEqual(check_course.degrees.count(), 1)
+        self.assertEqual(check_course.degrees.first().name_en, "Master")
+
+        check_evaluation = check_course.evaluations.first()
+        self.assertEqual(check_evaluation.name_en, "")
+        self.assertEqual(check_evaluation.weight, 1)
+        self.assertFalse(check_evaluation.is_single_result)
+        self.assertTrue(check_evaluation.is_rewarded)
+        self.assertFalse(check_evaluation.is_midterm_evaluation)
+        self.assertEqual(check_evaluation.participants.count(), 2)
 
     def test_error_handling(self):
         """
@@ -843,6 +858,42 @@ class TestEvaluationOperationView(WebTest):
         self.assertEqual(evaluation.state, 'prepared')
 
 
+class TestCourseCreateView(WebTest):
+    url = '/staff/semester/1/course/create'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager_user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.semester = mommy.make(Semester, pk=1)
+        cls.course_type = mommy.make(CourseType)
+        cls.degree = mommy.make(Degree)
+        cls.responsible = mommy.make(UserProfile)
+
+    def test_course_create(self):
+        """
+            Tests the course creation view with one valid and one invalid input dataset.
+        """
+        response = self.app.get(self.url, user="manager", status=200)
+        form = response.forms["course-form"]
+        form["semester"] = self.semester.pk
+        form["name_de"] = "dskr4jre35m6"
+        form["name_en"] = ""  # empty name to get a validation error
+        form["type"] = self.course_type.pk
+        form["degrees"] = [self.degree.pk]
+        form["is_graded"] = True
+        form["is_private"] = False
+        form["responsibles"] = [self.responsible.pk]
+
+        response = form.submit("operation", value="save")
+        self.assertIn("This field is required", response)
+        self.assertFalse(Course.objects.exists())
+
+        form["name_en"] = "asdf"  # now do it right
+
+        form.submit("operation", value="save")
+        self.assertEqual(Course.objects.get().name_de, "dskr4jre35m6")
+
+
 class TestSingleResultCreateView(WebTest):
     url = '/staff/semester/1/singleresult/create'
 
@@ -873,7 +924,6 @@ class TestSingleResultCreateView(WebTest):
         self.assertEqual(Evaluation.objects.get().name_de, "qwertz")
 
 
-# Staff - Semester - Evaluation Views
 class TestEvaluationCreateView(WebTest):
     url = '/staff/semester/1/evaluation/create'
 
@@ -881,7 +931,6 @@ class TestEvaluationCreateView(WebTest):
     def setUpTestData(cls):
         cls.manager_user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.course = mommy.make(Course, semester=mommy.make(Semester, pk=1))
-        cls.course_type = mommy.make(CourseType)
         cls.q1 = mommy.make(Questionnaire, type=Questionnaire.TOP)
         cls.q2 = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
@@ -916,6 +965,65 @@ class TestEvaluationCreateView(WebTest):
 
         form.submit()
         self.assertEqual(Evaluation.objects.get().name_de, "lfo9e7bmxp1xi")
+
+
+class TestCourseEditView(WebTest):
+    url = '/staff/semester/1/course/1/edit'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        semester = mommy.make(Semester, pk=1)
+        degree = mommy.make(Degree)
+        responsible = mommy.make(UserProfile)
+        cls.course = mommy.make(Course, name_en="Some name", semester=semester, degrees=[degree],
+            responsibles=[responsible], pk=1, last_modified_user=cls.user, last_modified_time=datetime.datetime(2000, 1, 1, 0, 0))
+
+    def setUp(self):
+        self.course = Course.objects.get(pk=self.course.pk)
+
+    def test_edit_course(self):
+        page = self.app.get(self.url, user="manager")
+
+        form = page.forms["course-form"]
+        form['name_en'] = "A different name"
+        form.submit("operation", value="save")
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.name_en, "A different name")
+
+    def test_last_modified_user(self):
+        """
+            Tests whether saving only changes the last_modified_user if changes were made.
+        """
+        test_user = mommy.make(UserProfile, username='test_user', groups=[Group.objects.get(name='Manager')])
+
+        old_name_en = self.course.name_en
+        old_last_modified_user = self.course.last_modified_user
+        old_last_modified_time = self.course.last_modified_time
+        self.assertEqual(old_last_modified_user.username, self.user.username)
+        self.assertEqual(old_last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
+
+        page = self.app.get(self.url, user=test_user.username, status=200)
+        form = page.forms["course-form"]
+        # save without changes
+        form.submit(name="operation", value="save")
+
+        # no changes should have been made
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, old_last_modified_user)
+        self.assertEqual(self.course.last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
+        self.assertEqual(self.course.name_en, old_name_en)
+
+        page = self.app.get(self.url, user=test_user.username, status=200)
+        form = page.forms["course-form"]
+        form["name_en"] = "Test name"
+        # approve after changes
+        form.submit(name="operation", value="save")
+
+        self.course = Course.objects.get(pk=self.course.pk)
+        self.assertEqual(self.course.last_modified_user, test_user)
+        self.assertTrue(datetime.datetime.now() - self.course.last_modified_time < datetime.timedelta(0, 1, 0))
+        self.assertEqual(self.course.name_en, "Test name")
 
 
 @override_settings(REWARD_POINTS=[
@@ -1424,7 +1532,6 @@ class TestEvaluationTextAnswerEditView(WebTest):
         self.assertEqual(answer.answer, 'edited answer text')
 
 
-# Staff Questionnaire Views
 class TestQuestionnaireNewVersionView(WebTest):
     url = '/staff/questionnaire/2/new_version'
 
@@ -1632,7 +1739,6 @@ class TestQuestionnaireDeletionView(WebTest):
         self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
 
 
-# Staff Course Types Views
 class TestCourseTypeView(WebTest):
     url = "/staff/course_types/"
 
@@ -1701,7 +1807,6 @@ class TestCourseTypeMergeView(WebTest):
             self.assertTrue(course.type == self.main_type)
 
 
-# Other Views
 class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     url = reverse("staff:evaluation_textanswers_update_publish")
     csrf_checks = False
@@ -1740,7 +1845,6 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
 
 class ParticipationArchivingTests(WebTest):
-
     @classmethod
     def setUpTestData(cls):
         mommy.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
