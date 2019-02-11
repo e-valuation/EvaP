@@ -3,7 +3,7 @@ import xlrd
 
 from django.conf import settings
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext_lazy as _lazy
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
@@ -590,10 +590,10 @@ class PersonImporter:
 
 # Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
-    ExcelImporter.W_NAME: _("Name mismatches"),
-    ExcelImporter.W_INACTIVE: _("Inactive users"),
-    ExcelImporter.W_EMAIL: _("Email mismatches"),
-    ExcelImporter.W_DUPL: _("Possible duplicates"),
-    ExcelImporter.W_GENERAL: _("General warnings"),
-    EnrollmentImporter.W_MANY: _("Unusually high number of enrollments")
+    ExcelImporter.W_NAME: _lazy("Name mismatches"),
+    ExcelImporter.W_INACTIVE: _lazy("Inactive users"),
+    ExcelImporter.W_EMAIL: _lazy("Email mismatches"),
+    ExcelImporter.W_DUPL: _lazy("Possible duplicates"),
+    ExcelImporter.W_GENERAL: _lazy("General warnings"),
+    EnrollmentImporter.W_MANY: _lazy("Unusually high number of enrollments")
 }
