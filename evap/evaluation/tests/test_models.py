@@ -490,7 +490,7 @@ class TestEmailTemplate(TestCase):
     def test_missing_email_address(self):
         """
         Tests that __send_to_user behaves when the user has no email address.
-        Regression test to https://github.com/fsr-itse/EvaP/issues/825
+        Regression test to https://github.com/fsr-de/EvaP/issues/825
         """
         user = mommy.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
