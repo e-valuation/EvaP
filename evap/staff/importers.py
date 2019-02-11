@@ -590,10 +590,10 @@ class PersonImporter:
 
 # Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
-    ExcelImporter.W_NAME: _("Name mismatches"),
-    ExcelImporter.W_INACTIVE: _("Inactive users"),
-    ExcelImporter.W_EMAIL: _("Email mismatches"),
-    ExcelImporter.W_DUPL: _("Possible duplicates"),
-    ExcelImporter.W_GENERAL: _("General warnings"),
-    EnrollmentImporter.W_MANY: _("Unusually high number of enrollments")
+    ExcelImporter.W_NAME: "Name mismatches",
+    ExcelImporter.W_INACTIVE: "Inactive users",
+    ExcelImporter.W_EMAIL: "Email mismatches",
+    ExcelImporter.W_DUPL: "Possible duplicates",
+    ExcelImporter.W_GENERAL: "General warnings",
+    EnrollmentImporter.W_MANY: "Unusually high number of enrollments"
 }
