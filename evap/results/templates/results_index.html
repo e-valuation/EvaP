@@ -119,7 +119,7 @@
             $('#results-table tr:not(.table-header)').each(function() {
                 var showRow =
                     (semesters.length == 0 || semesters.includes($(this).find('.semester-name').text())) &&
-                    (degrees.length == 0 || degrees.includes($(this).find('.badge-degree').text())) &&
+                    (degrees.length == 0 || includesAny($(this).find('.badge-degree').text(), degrees)) &&
                     (courseTypes.length == 0 || courseTypes.includes($(this).find('.badge-course-type').text())) &&
                     (searchValue.length == 0 ||
                         $(this).find('.evaluation-name').html().toLowerCase().includes(searchValue) ||
@@ -127,6 +127,10 @@
                 $(this).toggleClass("d-none", !showRow);
             });
         };
+
+        function includesAny(string, array){
+            return array.some(s => string.includes(s))
+        }
 
         function clearFilters(){
             $('input[name=semester]').prop('checked', false);
