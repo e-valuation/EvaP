@@ -187,7 +187,6 @@ class RevertToNewOperation(EvaluationOperation):
         helper_semester_evaluation_operation_revert(request, evaluations)
 
 
-
 class RevertToPreparedOperation(EvaluationOperation):
 
     def applicable_to(self, evaluation):
@@ -207,25 +206,6 @@ class RevertToPreparedOperation(EvaluationOperation):
     def email_template_name(self):
         return EmailTemplate.EDITOR_REVIEW_NOTICE
 
-class StartEvaluationOperation(EvaluationOperation):
-
-    def applicable_to(self, evaluation):
-        return evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
-
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
-
-    def confirmation_message(self):
-        return _("Do you want to immediately start the following evaluations?")
-
-    def apply(self, request, evaluations, email_template=None):
-        return helper_semester_evaluation_operation_start(request, evaluations, email_template)
-
-    def email_template_name(self):
-        return EmailTemplate.EVALUATION_STARTED
-
 
 class RevertToReviewedOperation(EvaluationOperation):
 
@@ -242,6 +222,7 @@ class RevertToReviewedOperation(EvaluationOperation):
 
     def apply(self, request, evaluations, email_template=None):
         helper_semester_evaluation_operation_unpublish(request, evaluations)
+
 
 class PublishOperation(EvaluationOperation):
 
@@ -267,7 +248,6 @@ class PublishOperation(EvaluationOperation):
 EVALUATION_OPERATIONS = {
         'new': RevertToNewOperation,
         'prepared': RevertToPreparedOperation,
-        'in_evaluation': StartEvaluationOperation,
         'reviewed': RevertToReviewedOperation,
         'published': PublishOperation,
 }
