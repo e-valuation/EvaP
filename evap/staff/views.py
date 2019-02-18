@@ -25,10 +25,8 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
 from evap.evaluation.tools import get_parameter_from_url_or_session, send_publish_notifications, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
-from evap.results.tools import (calculate_average_distribution, collect_results, distribution_to_grade,
-                                get_collect_results_cache_key, TextResult)
-from evap.results.views import (delete_template_cache, update_template_cache_of_published_evaluations_in_course,
-                                warm_up_template_cache)
+from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
+from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
@@ -152,6 +150,8 @@ def semester_view(request, semester_id):
 
 class EvaluationOperation:
     email_template_name = None
+    email_template_contributor_name = None
+    email_template_participant_name = None
     confirmation_message = None
 
     @staticmethod
@@ -163,7 +163,7 @@ class EvaluationOperation:
         raise NotImplementedError
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
         raise NotImplementedError
 
 
@@ -180,7 +180,10 @@ class RevertToNewOperation(EvaluationOperation):
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+        assert(email_template_contributor is None)
+        assert(email_template_participant is None)
+
         for evaluation in evaluations:
             evaluation.revert_to_new()
             evaluation.save()
@@ -202,7 +205,10 @@ class MoveToPreparedOperation(EvaluationOperation):
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+        assert(email_template_contributor is None)
+        assert(email_template_participant is None)
+
         for evaluation in evaluations:
             evaluation.ready_for_editors()
             evaluation.save()
@@ -226,7 +232,10 @@ class StartEvaluationOperation(EvaluationOperation):
             "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+        assert(email_template_contributor is None)
+        assert(email_template_participant is None)
+
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
             evaluation.evaluation_begin()
@@ -250,7 +259,10 @@ class RevertToReviewedOperation(EvaluationOperation):
             "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+        assert(email_template_contributor is None)
+        assert(email_template_participant is None)
+
         for evaluation in evaluations:
             evaluation.unpublish()
             evaluation.save()
@@ -259,7 +271,8 @@ class RevertToReviewedOperation(EvaluationOperation):
 
 
 class PublishOperation(EvaluationOperation):
-    email_template_name = EmailTemplate.PUBLISHING_NOTICE
+    email_template_contributor_name = EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR
+    email_template_participant_name = EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT
     confirmation_message = ugettext_lazy("Do you want to publish the following evaluations?")
 
     @staticmethod
@@ -272,14 +285,18 @@ class PublishOperation(EvaluationOperation):
            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None):
+    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+        assert(email_template is None)
+
         for evaluation in evaluations:
             evaluation.publish()
             evaluation.save()
         messages.success(request, ungettext("Successfully published {} evaluation.",
             "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
-        if email_template:
-            send_publish_notifications(evaluations, email_template)
+        if email_template_contributor:
+            send_publish_notifications(evaluations, template_participant=None, template_contributor=email_template_contributor)
+        if email_template_participant:
+            send_publish_notifications(evaluations, template_participant=email_template_participant, template_contributor=None)
 
 
 EVALUATION_OPERATIONS = {
@@ -307,9 +324,16 @@ def semester_evaluation_operation(request, semester_id):
 
     if request.method == 'POST':
         email_template = None
+        email_template_contributor = None
+        email_template_participant = None
         if request.POST.get('send_email') == 'on':
             email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
-        operation.apply(request, evaluations, email_template)
+        if request.POST.get('send_email_contributor') == 'on':
+            email_template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], body=request.POST['email_body_contributor'])
+        if request.POST.get('send_email_participant') == 'on':
+            email_template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], body=request.POST['email_body_participant'])
+
+        operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
         return custom_redirect('staff:semester_view', semester_id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
@@ -321,8 +345,14 @@ def semester_evaluation_operation(request, semester_id):
         return custom_redirect('staff:semester_view', semester_id)
 
     email_template = None
+    email_template_contributor = None
+    email_template_participant = None
     if operation.email_template_name:
         email_template = EmailTemplate.objects.get(name=operation.email_template_name)
+    if operation.email_template_contributor_name:
+        email_template_contributor = EmailTemplate.objects.get(name=operation.email_template_contributor_name)
+    if operation.email_template_participant_name:
+        email_template_participant = EmailTemplate.objects.get(name=operation.email_template_participant_name)
 
     template_data = dict(
         semester=semester,
@@ -330,7 +360,9 @@ def semester_evaluation_operation(request, semester_id):
         target_state=target_state,
         confirmation_message=operation.confirmation_message,
         email_template=email_template,
-        show_email_checkbox=email_template is not None
+        email_template_contributor=email_template_contributor,
+        email_template_participant=email_template_participant,
+        show_email_checkbox=email_template is not None or email_template_contributor is not None or email_template_participant is not None
     )
 
     return render(request, "staff_evaluation_operation.html", template_data)

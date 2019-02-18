@@ -794,6 +794,53 @@ class TestEvaluationOperationView(WebTest):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
 
+    def helper_publish_evaluation_with_publish_notifications_for(self, evaluation, contributors=True, participants=True):
+        page = self.app.get("/staff/semester/1", user="manager")
+        form = page.forms["evaluation_operation_form"]
+        form['evaluation'] = evaluation.pk
+        response = form.submit('target_state', value="published")
+
+        form = response.forms["evaluation-operation-form"]
+        form['send_email_contributor'] = contributors
+        form['send_email_participant'] = participants
+        form.submit()
+
+        evaluation = evaluation.course.semester.evaluations.first()
+        evaluation.unpublish()
+        evaluation.save()
+
+    def test_publish_notifications(self):
+        participant1 = mommy.make(UserProfile, email="foo@example.com")
+        participant2 = mommy.make(UserProfile, email="bar@example.com")
+        contributor1 = mommy.make(UserProfile, email="contributor@example.com")
+
+        course = mommy.make(Course, semester=self.semester)
+        evaluation = mommy.make(Evaluation, course=course, state='reviewed',
+                                participants=[participant1, participant2], voters=[participant1, participant2])
+        mommy.make(Contribution, contributor=contributor1, evaluation=evaluation)
+
+        self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=False, participants=False)
+        self.assertEqual(len(mail.outbox), 0)
+        mail.outbox = []
+
+        self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=True, participants=False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [contributor1.email])
+        mail.outbox = []
+
+        self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=False, participants=True)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertIn([participant1.email], [mail.outbox[0].to, mail.outbox[1].to])
+        self.assertIn([participant2.email], [mail.outbox[0].to, mail.outbox[1].to])
+        mail.outbox = []
+
+        self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=True, participants=True)
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertIn([participant1.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
+        self.assertIn([participant2.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
+        self.assertIn([contributor1.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
+        mail.outbox = []
+
     def helper_semester_state_views(self, evaluation, old_state, new_state):
         page = self.app.get("/staff/semester/1", user="manager")
         form = page.forms["evaluation_operation_form"]
@@ -810,8 +857,14 @@ class TestEvaluationOperationView(WebTest):
         The following tests make sure the evaluation state transitions are triggerable via the UI.
     """
     def test_semester_publish(self):
-        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester), state='reviewed')
+        participant1 = mommy.make(UserProfile, email="foo@example.com")
+        participant2 = mommy.make(UserProfile, email="bar@example.com")
+        course = mommy.make(Course, semester=self.semester)
+        evaluation = mommy.make(Evaluation, course=course, state='reviewed',
+                                participants=[participant1, participant2], voters=[participant1, participant2])
+
         self.helper_semester_state_views(evaluation, "reviewed", "published")
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_semester_reset_1(self):
         evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester), state='prepared')

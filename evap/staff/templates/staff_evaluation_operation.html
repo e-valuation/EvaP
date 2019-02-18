@@ -25,26 +25,24 @@
         </div>
 
         {% if show_email_checkbox %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" id="send_email" type="checkbox" name="send_email" checked onclick="$('#email_form').toggle();" />
-                    <label class="form-check-label" for="send_email">{% trans 'Send email notifications' %}</label>
-                </div>
-                <div class="email-form" id="email_form">
-                    <div class="form-group d-flex">
-                        <div class="form-label">Email subject</div>
-                        <div class="form-field"><input class="form-control" name="email_subject" type="text" value="{{ email_template.subject }}" /></div>
+            <div class="row mb-3">
+                {% if email_template %}
+                    <div class="col">
+                        {% include "staff_email_preview_form.html" with email_template=email_template id_suffix="" heading="" %}
                     </div>
-                    <div class="form-group d-flex">
-                        <div class="form-label">Email body</div>
-                        <div class="form-field"><textarea class="form-control" cols="40" rows="10" name="email_body">{{ email_template.body }}</textarea></div>
+                {% else %}
+                    <div class="col">
+                        {% trans 'Notify Contributors' as heading %}
+                        {% include "staff_email_preview_form.html" with email_template=email_template_contributor id_suffix="_contributor" heading=heading %}
                     </div>
-                </div>
+                    <div class="col">
+                        {% trans 'Notify Participants' as heading %}
+                        {% include "staff_email_preview_form.html" with email_template=email_template_participant id_suffix="_participant" heading=heading %}
+                    </div>
+                {% endif %}
             </div>
-        </div>
         {% endif %}
-        <input type="hidden", name="target_state", value="{{ target_state }}" />
+        <input type="hidden" name="target_state" value="{{ target_state }}" />
 
         <div class="card card-submit-area card-submit-area-2 text-center mb-3">
             <div class="card-body">
