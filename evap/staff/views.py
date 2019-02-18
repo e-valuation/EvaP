@@ -54,6 +54,13 @@ def index(request):
     return render(request, "staff_index.html", template_data)
 
 
+def annotate_evaluations_with_grade_document_counts(evaluations):
+    return evaluations.annotate(
+            midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+            final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True))
+
+
+
 def get_evaluations_with_prefetched_data(semester):
     evaluations = (semester.evaluations
         .select_related('course__type')
@@ -65,10 +72,9 @@ def get_evaluations_with_prefetched_data(semester):
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
-            midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-            final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
         )
     )
+    evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
 
     # these could be done with an annotation like this:
     # num_voters_annotated=Count("voters", distinct=True), or more completely
@@ -144,6 +150,129 @@ def semester_view(request, semester_id):
     return render(request, "staff_semester_view.html", template_data)
 
 
+class EvaluationOperation:
+
+    def applicable_to(self, evaluation):
+        raise NotImplementedError
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be updated. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be updated. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to update the following evaluations?")
+
+    def apply(self, request, evaluations, email_template=None):
+        raise NotImplementedError
+
+    def email_template_name(self):
+        return None
+
+
+class RevertToNewOperation(EvaluationOperation):
+
+    def applicable_to(self, evaluation):
+        return evaluation.state in ['prepared', 'editor_approved', 'approved']
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be reverted, because it already started. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be reverted, because they already started. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to revert the following evaluations to preparation?")
+
+    def apply(self, request, evaluations, email_template=None):
+        helper_semester_evaluation_operation_revert(request, evaluations)
+
+
+
+class RevertToPreparedOperation(EvaluationOperation):
+
+    def applicable_to(self, evaluation):
+        return evaluation.state in ['new', 'editor_approved']
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be reverted, because it already started. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be reverted, because they already started. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to revert the following evaluations to preparation?")
+
+    def apply(self, request, evaluations, email_template=None):
+        return helper_semester_evaluation_operation_prepare(request, evaluations, email_template)
+
+    def email_template_name(self):
+        return EmailTemplate.EDITOR_REVIEW_NOTICE
+
+class StartEvaluationOperation(EvaluationOperation):
+
+    def applicable_to(self, evaluation):
+        return evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to immediately start the following evaluations?")
+
+    def apply(self, request, evaluations, email_template=None):
+        return helper_semester_evaluation_operation_start(request, evaluations, email_template)
+
+    def email_template_name(self):
+        return EmailTemplate.EVALUATION_STARTED
+
+
+class RevertToReviewedOperation(EvaluationOperation):
+
+    def applicable_to(self, evaluation):
+        return evaluation.state == 'published'
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to unpublish the following evaluations?")
+
+    def apply(self, request, evaluations, email_template=None):
+        helper_semester_evaluation_operation_unpublish(request, evaluations)
+
+class PublishOperation(EvaluationOperation):
+
+    def applicable_to(self, evaluation):
+        return evaluation.state == 'reviewed'
+
+    def warning_for_unapplicables(self, amount):
+        return ungettext("%(evaluations)d evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+                    "%(evaluations)d evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
+                    amount) % {'evaluations': amount}
+
+    def confirmation_message(self):
+        return _("Do you want to publish the following evaluations?")
+
+    def apply(self, request, evaluations, email_template=None):
+        helper_semester_evaluation_operation_publish(request, evaluations, email_template)
+
+    def email_template_name(self):
+        return EmailTemplate.PUBLISHING_NOTICE
+
+
+
+EVALUATION_OPERATIONS = {
+        'new': RevertToNewOperation,
+        'prepared': RevertToPreparedOperation,
+        'in_evaluation': StartEvaluationOperation,
+        'reviewed': RevertToReviewedOperation,
+        'published': PublishOperation,
+}
+
+
 @manager_required
 def semester_evaluation_operation(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -151,90 +280,32 @@ def semester_evaluation_operation(request, semester_id):
         raise PermissionDenied
 
     target_state = request.GET.get('target_state')
-    if target_state not in ['new', 'prepared', 'in_evaluation', 'reviewed', 'published']:
+    if target_state not in EVALUATION_OPERATIONS.keys():
         raise SuspiciousOperation("Unknown target state: " + target_state)
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
-    evaluations = Evaluation.objects.filter(id__in=evaluation_ids).annotate(
-        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
-    )
+    evaluations = annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
+    operation = EVALUATION_OPERATIONS[target_state]()
 
     if request.method == 'POST':
         template = None
         if request.POST.get('send_email') == 'on':
             template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
 
-        if target_state == 'new':
-            helper_semester_evaluation_operation_revert(request, evaluations)
-        elif target_state == 'prepared':
-            helper_semester_evaluation_operation_prepare(request, evaluations, template)
-        elif target_state == 'in_evaluation':
-            helper_semester_evaluation_operation_start(request, evaluations, template)
-        elif target_state == 'reviewed':
-            helper_semester_evaluation_operation_unpublish(request, evaluations)
-        elif target_state == 'published':
-            helper_semester_evaluation_operation_publish(request, evaluations, template)
-
+        operation.apply(request, evaluations, template)
         return custom_redirect('staff:semester_view', semester_id)
 
-    # If necessary, filter evaluations and set email template for possible editing
     email_template = None
-    if evaluations:
-        if target_state == 'new':
-            revertible_evaluations = [evaluation for evaluation in evaluations if evaluation.state in ['prepared', 'editor_approved', 'approved']]
-            difference = len(evaluations) - len(revertible_evaluations)
-            if difference:
-                evaluations = revertible_evaluations
-                messages.warning(request, ungettext("%(evaluations)d evaluation can not be reverted, because it already started. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be reverted, because they already started. They were removed from the selection.",
-                    difference) % {'evaluations': difference})
-            confirmation_message = _("Do you want to revert the following evaluations to preparation?")
+    applicable_evaluations = list(filter(operation.applicable_to, evaluations))
+    difference = len(evaluations) - len(applicable_evaluations)
+    if difference:
+        evaluations = applicable_evaluations
+        messages.warning(request, operation.warning_for_unapplicables(difference))
+    confirmation_message = operation.confirmation_message()
+    if operation.email_template_name():
+        email_template = EmailTemplate.objects.get(name=operation.email_template_name())
 
-        elif target_state == 'prepared':
-            reviewable_evaluations = [evaluation for evaluation in evaluations if evaluation.state in ['new', 'editor_approved']]
-            difference = len(evaluations) - len(reviewable_evaluations)
-            if difference:
-                evaluations = reviewable_evaluations
-                messages.warning(request, ungettext("%(evaluations)d evaluation can not be sent to editor review, because it was already approved by a manager or is currently under review. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be sent to editor review, because they were already approved by a manager or are currently under review. They were removed from the selection.",
-                    difference) % {'evaluations': difference})
-            email_template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
-            confirmation_message = _("Do you want to send the following evaluations to editor review?")
-
-        elif target_state == 'in_evaluation':
-            evaluations_ready_for_evaluation = [evaluation for evaluation in evaluations if evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()]
-            difference = len(evaluations) - len(evaluations_ready_for_evaluation)
-            if difference:
-                evaluations = evaluations_ready_for_evaluation
-                messages.warning(request, ungettext("%(evaluations)d evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
-                    difference) % {'evaluations': difference})
-            email_template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-            confirmation_message = _("Do you want to immediately start the following evaluations?")
-
-        elif target_state == 'reviewed':
-            unpublishable_evaluations = [evaluation for evaluation in evaluations if evaluation.state == 'published']
-            difference = len(evaluations) - len(unpublishable_evaluations)
-            if difference:
-                evaluations = unpublishable_evaluations
-                messages.warning(request, ungettext("%(evaluations)d evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
-                    difference) % {'evaluations': difference})
-            confirmation_message = _("Do you want to unpublish the following evaluations?")
-
-        elif target_state == 'published':
-            publishable_evaluations = [evaluation for evaluation in evaluations if evaluation.state == 'reviewed']
-            difference = len(evaluations) - len(publishable_evaluations)
-            if difference:
-                evaluations = publishable_evaluations
-                messages.warning(request, ungettext("%(evaluations)d evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
-                    difference) % {'evaluations': difference})
-            email_template = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE)
-            confirmation_message = _("Do you want to publish the following evaluations?")
-
-    if not evaluations:
+    if not evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
         return custom_redirect('staff:semester_view', semester_id)
 
