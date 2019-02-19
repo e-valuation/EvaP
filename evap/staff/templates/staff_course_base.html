@@ -3,6 +3,8 @@
 {% block title %}
     {% if course %}
         {{ course.name }} -
+    {% elif evaluation.course %}
+        {{ evaluation.course.name }} -
     {% endif %}
     {{ block.super }}
 {% endblock %}
@@ -10,6 +12,12 @@
 {% block breadcrumb %}
     {{ block.super }}
     {% if course %}
-        <li class="breadcrumb-item">{{ course.name }}</li>
+        {% if disable_breadcrumb_course %}
+            <li class="breadcrumb-item">{{ course.name }}</li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a></li>
+        {% endif %}
+    {% elif evaluation.course %}
+        <li class="breadcrumb-item"><a href="{% url 'staff:course_edit' semester.id evaluation.course.id %}">{{ evaluation.course.name }}</a></li>
     {% endif %}
 {% endblock %}

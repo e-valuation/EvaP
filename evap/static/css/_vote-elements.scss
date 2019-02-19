@@ -143,11 +143,14 @@ div.preview > textarea {
         font-size: 0.9rem;
         @include bar-shadow($white);
     }
-    .fas {
+    .right.weight {
+        top: -0.1rem;
+    }
+    .pole-icon {
         color: $white;
         @include bar-shadow($medium-gray);
     }
-    &:not(:hover) .adjective, &:hover .fas {
+    &:not(:hover) .adjective, &:hover .pole-icon {
         display: none;
     }
 }
@@ -188,6 +191,7 @@ div.preview > textarea {
 }
 
 .grade-bg-result-bar {
+    color: $black;
     float: right;
     border-radius: 3px;
     width: 42px;
@@ -211,4 +215,11 @@ div.preview > textarea {
 
 .grade-bg.vertically-aligned {
     vertical-align: middle;
+}
+
+.heading-row {
+    .distribution-bar,
+    .grade-bg-result-bar {
+        border: 1px solid $dark-gray;
+    }
 }

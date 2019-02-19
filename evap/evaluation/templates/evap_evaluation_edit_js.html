@@ -29,34 +29,6 @@
 {% endif %}
 
 <script type="text/javascript">
-    function makeClickHandler(i, contributorCount, responsibility) {
-        return function () {
-            // don't do anything on disabled buttons
-            if ($(this).hasClass("disabled"))
-                return false;
-
-            // if the responsible button is selected
-            if(responsibility == "RESPONSIBLE") {
-                // uncheck all buttons
-                uncheckButtons("input[name=contributions-" + i + "-textanswer_visibility]");
-                uncheckButtons("input[name=contributions-" + i + "-responsibility]");
-
-                // check "general text answers" and disable text answer buttons
-                checkButtons("input[name=contributions-" + i + "-textanswer_visibility][value=GENERAL]");
-                disableButtons("input[name=contributions-" + i + "-textanswer_visibility]");
-            }
-            // if the responsible button is deselected
-            else if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")){
-                // enable text answer buttons
-                enableButtons("input[name=contributions-" + i + "-textanswer_visibility]");
-                // enable all responsible buttons
-                for(var j = 0; j < contributorCount; j++){
-                    enableButtons("input[name=contributions-" + j + "-responsibility]");
-                }
-            }
-        }
-    }
-
     function makeDisabledClickHandler() {
         return function () {
             // suppress toggling disabled buttons
@@ -82,21 +54,6 @@
         }
     }
 
-    function uncheckButtons(selector){
-        $(selector).prop("checked", false);
-        $(selector).parent().removeClass("active");
-    }
-    function checkButtons(selector){
-        $(selector).prop("checked", true);
-        $(selector).parent().addClass("active");
-    }
-    function disableButtons(selector){
-        $(selector).parent().addClass("disabled");
-    }
-    function enableButtons(selector){
-        $(selector).parent().removeClass("disabled");
-    }
-
     function getContributorCount() {
         return $("#contribution_table select").length;
     }
@@ -105,9 +62,7 @@
         var count = getContributorCount();
         for(var i = 0; i < count; i++)
         {
-            $("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").parent().click(makeClickHandler(i, count, 'RESPONSIBLE'));
-            $("input[name=contributions-" + i + "-responsibility][value=EDITOR]").parent().click(makeClickHandler(i, count, 'EDITOR'));
-            $("input[name=contributions-" + i + "-responsibility][value=CONTRIBUTOR]").parent().click(makeClickHandler(i, count, 'CONTRIBUTOR'));
+            $("input[name=contributions-" + i + "-responsibility]").parent().click(makeDisabledClickHandler());
             $("input[name=contributions-" + i + "-textanswer_visibility]").parent().click(makeDisabledClickHandler());
             $("input[name=contributions-" + i + "-does_not_contribute]").parent().change(makeDoesNotContributeChangeHandler(i));
         }
@@ -117,10 +72,6 @@
 
     // apply initial settings
     for(var i = 0; i < getContributorCount(); i++){
-        if($("input[name=contributions-" + i + "-responsibility][value=RESPONSIBLE]").prop("checked")) {
-            // disable text answer buttons for responsible contributors
-            disableButtons("input[name=contributions-" + i + "-textanswer_visibility]");
-        }
         if($("input[name=contributions-" + i + "-does_not_contribute]").prop("checked")) {
             $("input[name=contributions-" + i + "-questionnaires]").prop("checked", false);
             $("input[name=contributions-" + i + "-questionnaires]").prop("disabled", true);

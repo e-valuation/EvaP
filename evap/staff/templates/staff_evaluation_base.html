@@ -1,0 +1,19 @@
+{% extends 'staff_course_base.html' %}
+
+{% block title %}
+    {% if evaluation.name %}
+        {{ evaluation.name }} -
+    {% endif %}
+    {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    {% if evaluation %}
+    	{% if evaluation.name %}
+        	<li class="breadcrumb-item">{{ evaluation.name }}</li>
+    	{% else %}
+    		<li class="breadcrumb-item">{{ evaluation.course.name }}</li>
+    	{% endif %}
+    {% endif %}
+{% endblock %}

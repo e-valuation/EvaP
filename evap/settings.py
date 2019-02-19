@@ -29,21 +29,21 @@ LOGIN_KEY_VALIDITY = 210  # days, so roughly 7 months
 
 VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS = 2
 VOTER_PERCENTAGE_NEEDED_FOR_PUBLISHING_AVERAGE_GRADE = 0.2
-SMALL_COURSE_SIZE = 5  # up to which number of participants the course gets additional warnings about anonymity
+SMALL_COURSE_SIZE = 5  # up to which number of participants the evaluation gets additional warnings about anonymity
 
 # a warning is shown next to results where less than RESULTS_WARNING_COUNT answers were given
-# or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this course)
+# or the number of answers is less than RESULTS_WARNING_PERCENTAGE times the median number of answers (for this question in this evaluation)
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# percentages for calculating a course's total average grade
+# percentages for calculating an evaluation's total average grade
 CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
 CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
-CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the course's average grade
-GENERAL_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general grade questions is weighted this much for the course's average grade
-GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general non-grade questions is weighted this much for the course's average grade
+CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the evaluation's average grade
+GENERAL_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general grade questions is weighted this much for the evaluation's average grade
+GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
 
-# number of reward points a student should have for a semester after evaluating the given fraction of courses.
+# number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
     (1 / 3, 1),
     (2 / 3, 2),
@@ -187,7 +187,6 @@ LOGGING = {
 AUTH_USER_MODEL = 'evaluation.UserProfile'
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

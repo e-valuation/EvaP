@@ -10,14 +10,13 @@ from django.test.utils import override_settings
 
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Semester
+from evap.evaluation.models import Evaluation, UserProfile
 
 
 class TestAnonymizeCommand(TestCase):
     @patch('builtins.input')
     def test_anonymize_does_not_crash(self, mock_input):
-        semester = mommy.make(Semester)
-        mommy.make(Course, semester=semester)
+        mommy.make(Evaluation)
         mock_input.return_value = 'yes'
 
         management.call_command('anonymize', stdout=StringIO())
@@ -62,17 +61,17 @@ class TestReloadTestdataCommand(TestCase):
 
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_collect_results(self):
-        mommy.make(Course)
+        mommy.make(Evaluation)
         with patch('evap.results.tools.collect_results') as mock:
             management.call_command('refresh_results_cache', stdout=StringIO())
 
-        self.assertEqual(mock.call_count, Course.objects.count())
+        self.assertEqual(mock.call_count, Evaluation.objects.count())
 
 
-class TestUpdateCourseStatesCommand(TestCase):
-    def test_update_courses_called(self):
-        with patch('evap.evaluation.models.Course.update_courses') as mock:
-            management.call_command('update_course_states')
+class TestUpdateEvaluationStatesCommand(TestCase):
+    def test_update_evaluations_called(self):
+        with patch('evap.evaluation.models.Evaluation.update_evaluations') as mock:
+            management.call_command('update_evaluation_states')
 
         self.assertEqual(mock.call_count, 1)
 
@@ -88,10 +87,10 @@ class TestDumpTestDataCommand(TestCase):
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
 class TestSendRemindersCommand(TestCase):
-    def test_remind_user_about_one_course(self):
+    def test_remind_user_about_one_evaluation(self):
         user_to_remind = mommy.make(UserProfile)
-        course = mommy.make(
-            Course,
+        evaluation = mommy.make(
+            Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
@@ -101,18 +100,18 @@ class TestSendRemindersCommand(TestCase):
             management.call_command('send_reminders')
 
         self.assertEqual(mock.call_count, 1)
-        mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_courses=[(course, 2)])
+        mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_evaluations=[(evaluation, 2)])
 
-    def test_remind_user_once_about_two_courses(self):
+    def test_remind_user_once_about_two_evaluations(self):
         user_to_remind = mommy.make(UserProfile)
-        course1 = mommy.make(
-            Course,
+        evaluation1 = mommy.make(
+            Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=0),
             participants=[user_to_remind])
-        course2 = mommy.make(
-            Course,
+        evaluation2 = mommy.make(
+            Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
@@ -122,12 +121,12 @@ class TestSendRemindersCommand(TestCase):
             management.call_command('send_reminders')
 
         self.assertEqual(mock.call_count, 1)
-        mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_courses=[(course1, 0), (course2, 2)])
+        mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_evaluations=[(evaluation1, 0), (evaluation2, 2)])
 
     def test_dont_remind_already_voted(self):
         user_no_remind = mommy.make(UserProfile)
         mommy.make(
-            Course,
+            Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),

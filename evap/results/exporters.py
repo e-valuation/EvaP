@@ -5,7 +5,8 @@ from django.utils.translation import ugettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType
-from evap.results.tools import collect_results, calculate_average_distribution, get_grade_color, distribution_to_grade
+from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
+                                distribution_to_grade, get_grade_color)
 
 
 class ExcelExporter(object):
@@ -34,13 +35,16 @@ class ExcelExporter(object):
         self.styles = {
             'default':          xlwt.Style.default_style,
             'headline':         xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium', num_format_str="0.0"),
-            'course':           xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium'),
+            'evaluation':       xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium'),
             'total_voters':     xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
             'evaluation_rate':  xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
+            'evaluation_weight': xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
             'bold':             xlwt.easyxf('font: bold on'),
             'italic':           xlwt.easyxf('font: italic on'),
             'border_left_right': xlwt.easyxf('borders: left medium, right medium'),
-            'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium')}
+            'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium'),
+            'border_top':       xlwt.easyxf('borders: top medium'),
+        }
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium'
         for i in range(0, self.NUM_GRADE_COLORS):
@@ -75,6 +79,7 @@ class ExcelExporter(object):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
+        course_results_exist = False
 
         for course_types in course_types_list:
             self.sheet = self.workbook.add_sheet("Sheet " + str(counter))
@@ -82,41 +87,46 @@ class ExcelExporter(object):
             self.row = 0
             self.col = 0
 
-            courses_with_results = list()
-            course_states = ['published']
+            evaluations_with_results = list()
+            evaluation_states = ['published']
             if include_unpublished:
-                course_states.extend(['evaluated', 'reviewed'])
+                evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for course in self.semester.courses.filter(state__in=course_states, type__in=course_types).all():
-                if course.is_single_result:
+            for evaluation in self.semester.evaluations.filter(state__in=evaluation_states, course__type__in=course_types).all():
+                if evaluation.is_single_result:
                     continue
-                if not course.can_publish_rating_results and not include_not_enough_voters:
+                if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for questionnaire_result in collect_results(course).questionnaire_results:
+                for questionnaire_result in collect_results(evaluation).questionnaire_results:
                     if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
                         continue
                     results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
                     used_questionnaires.add(questionnaire_result.questionnaire)
-                courses_with_results.append((course, results))
+                evaluation.course_evaluations_count = evaluation.course.evaluations.count()
+                if evaluation.course_evaluations_count > 1:
+                    course_results_exist = True
+                    evaluation.weight_percentage = int((evaluation.weight / sum(evaluation.weight for evaluation in evaluation.course.evaluations.all())) * 100)
+                    evaluation.course.avg_grade = distribution_to_grade(calculate_average_course_distribution(evaluation.course))
+                evaluations_with_results.append((evaluation, results))
 
-            courses_with_results.sort(key=lambda cr: (cr[0].type.order, cr[0].name))
+            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].full_name))
             used_questionnaires = sorted(used_questionnaires)
 
             course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]
             writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_type_names)), "headline")
 
-            for course, results in courses_with_results:
-                writec(self, course.name, "course")
+            for evaluation, results in evaluations_with_results:
+                writec(self, evaluation.full_name, "evaluation")
 
             writen(self)
-            for course, results in courses_with_results:
+            for evaluation, results in evaluations_with_results:
                 self.write_empty_cell_with_borders()
 
             for questionnaire in used_questionnaires:
                 writen(self, questionnaire.name, "bold")
-                for course, results in courses_with_results:
+                for evaluation, results in evaluations_with_results:
                     self.write_empty_cell_with_borders()
 
                 filtered_questions = self.filter_text_and_heading_questions(questionnaire.questions.all())
@@ -127,7 +137,7 @@ class ExcelExporter(object):
                     else:
                         writen(self, question.text)
 
-                    for course, results in courses_with_results:
+                    for evaluation, results in evaluations_with_results:
                         if questionnaire.id not in results or question.is_heading_question:
                             self.write_empty_cell_with_borders()
                             continue
@@ -154,31 +164,66 @@ class ExcelExporter(object):
                         else:
                             self.write_empty_cell_with_borders()
                 writen(self)
-                for course, results in courses_with_results:
+                for evaluation, results in evaluations_with_results:
                     self.write_empty_cell_with_borders()
 
             writen(self, _("Overall Average Grade"), "bold")
-            for course, results in courses_with_results:
-                avg = distribution_to_grade(calculate_average_distribution(course))
+            for evaluation, results in evaluations_with_results:
+                avg = distribution_to_grade(calculate_average_distribution(evaluation))
                 if avg:
                     writec(self, avg, self.grade_to_style(avg))
                 else:
                     self.write_empty_cell_with_borders()
 
             writen(self, _("Total voters/Total participants"), "bold")
-            for course, results in courses_with_results:
-                writec(self, "{}/{}".format(course.num_voters, course.num_participants), "total_voters")
+            for evaluation, results in evaluations_with_results:
+                writec(self, "{}/{}".format(evaluation.num_voters, evaluation.num_participants), "total_voters")
 
             writen(self, _("Evaluation rate"), "bold")
-            for course, results in courses_with_results:
+            for evaluation, results in evaluations_with_results:
                 # round down like in progress bar
-                percentage_participants = int((course.num_voters / course.num_participants) * 100) if course.num_participants > 0 else 0
+                percentage_participants = int((evaluation.num_voters / evaluation.num_participants) * 100) if evaluation.num_participants > 0 else 0
                 writec(self, "{}%".format(percentage_participants), "evaluation_rate")
+
+            if course_results_exist:
+                writen(self)
+                for evaluation, results in evaluations_with_results:
+                    if evaluation.course_evaluations_count > 1:
+                        self.write_empty_cell_with_borders()
+                    else:
+                        self.write_empty_cell()
+
+                writen(self, _("Evaluation weight"), "bold")
+                for evaluation, results in evaluations_with_results:
+                    if evaluation.course_evaluations_count > 1:
+                        writec(self, "{}%".format(evaluation.weight_percentage), "evaluation_weight")
+                    else:
+                        self.write_empty_cell()
+
+                writen(self, _("Course Grade"), "bold")
+                for evaluation, results in evaluations_with_results:
+                    if evaluation.course_evaluations_count > 1:
+                        if evaluation.course.avg_grade:
+                            writec(self, evaluation.course.avg_grade, self.grade_to_style(evaluation.course.avg_grade))
+                        else:
+                            self.write_empty_cell_with_borders()
+                    else:
+                        self.write_empty_cell()
+
+                writen(self)
+                for evaluation, results in evaluations_with_results:
+                    if evaluation.course_evaluations_count > 1:
+                        writec(self, None, "border_top")
+                    else:
+                        self.write_empty_cell()
 
         self.workbook.save(response)
 
     def write_empty_cell_with_borders(self):
         writec(self, None, "border_left_right")
+
+    def write_empty_cell(self):
+        writec(self, None, "default")
 
 
 def writen(exporter, label="", style_name="default"):

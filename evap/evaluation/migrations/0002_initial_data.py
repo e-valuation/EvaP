@@ -16,7 +16,7 @@ def insert_emailtemplates(apps, _schema_editor):
             EmailTemplate.objects.create(name=name, subject=subject, body="")
 
     Group = apps.get_model("auth", "Group")
-    Group.objects.create(name="Staff")
+    Group.objects.create(name="Staff", pk=1)
 
 
 class Migration(migrations.Migration):

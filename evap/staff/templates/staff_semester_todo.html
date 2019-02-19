@@ -10,7 +10,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% for responsible, courses, delegates in responsible_list %}
+    {% for responsible, evaluations, delegates in responsible_list %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
                 <span class="pl-1 mr-auto">
@@ -36,17 +36,17 @@
                        </tr>
                     </thead>
                     <tbody>
-                        {% for course in courses %}
-                            <tr{% if course.state != 'prepared' %} class="deactivate"{% endif %}>
+                        {% for evaluation in evaluations %}
+                            <tr{% if evaluation.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
-                                    <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a><br />
-                                    {% include 'course_badges.html' with mode='manager' %}
+                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
+                                    {% include 'evaluation_badges.html' with mode='manager' %}
                                 </th>
-                                <td>{{ course.state|statename }}</td>
-                                <td>{% include 'staff_course_evaluation_period.html' with state=course.state start_only=True %}</td>
+                                <td>{{ evaluation.state|statename }}</td>
+                                <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
                                 <td>
-                                    {% if course.last_modified_user %}
-                                        {{ course.last_modified_user }}
+                                    {% if evaluation.last_modified_user %}
+                                        {{ evaluation.last_modified_user }}
                                     {% else %}
                                         &mdash;
                                     {% endif %}

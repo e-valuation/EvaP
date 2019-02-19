@@ -4,6 +4,7 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
+from django.db.models import Q, Sum
 
 from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
@@ -17,7 +18,7 @@ GRADE_COLORS = {
 }
 
 
-class CourseResult:
+class EvaluationResult:
     def __init__(self, contribution_results):
         self.contribution_results = contribution_results
 
@@ -107,48 +108,48 @@ HeadingResult = namedtuple('HeadingResult', ('question'))
 TextAnswerVisibility = namedtuple('TextAnswerVisibility', ('visible_by_contribution', 'visible_by_delegation_count'))
 
 
-def get_single_result_rating_result(course):
-    assert course.is_single_result
+def get_single_result_rating_result(evaluation):
+    assert evaluation.is_single_result
 
-    answer_counters = RatingAnswerCounter.objects.filter(contribution__course__pk=course.pk)
+    answer_counters = RatingAnswerCounter.objects.filter(contribution__evaluation__pk=evaluation.pk)
     assert 1 <= len(answer_counters) <= 5
 
     question = Question.objects.get(questionnaire__name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
     return RatingResult(question, answer_counters)
 
 
-def get_collect_results_cache_key(course):
-    return 'evap.staff.results.tools.collect_results-{:d}'.format(course.id)
+def get_collect_results_cache_key(evaluation):
+    return 'evap.staff.results.tools.collect_results-{:d}'.format(evaluation.id)
 
 
-def collect_results(course, force_recalculation=False):
-    if course.state != "published":
-        return _collect_results_impl(course)
+def collect_results(evaluation, force_recalculation=False):
+    if evaluation.state != "published":
+        return _collect_results_impl(evaluation)
 
-    cache_key = get_collect_results_cache_key(course)
+    cache_key = get_collect_results_cache_key(evaluation)
     if force_recalculation:
         caches['results'].delete(cache_key)
-    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, course))
+    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, evaluation))
 
 
-def _collect_results_impl(course):
+def _collect_results_impl(evaluation):
     contributor_contribution_results = []
-    for contribution in course.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+    for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results = []
             for question in questionnaire.questions.all():
                 if question.is_rating_question:
-                    answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if course.can_publish_rating_results else ()
+                    answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if evaluation.can_publish_rating_results else ()
                     results.append(RatingResult(question, answer_counters))
-                elif question.is_text_question and course.can_publish_text_results:
+                elif question.is_text_question and evaluation.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
                     results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
                 elif question.is_heading_question:
                     results.append(HeadingResult(question=question))
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
         contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
-    return CourseResult(contributor_contribution_results)
+    return EvaluationResult(contributor_contribution_results)
 
 
 def normalized_distribution(distribution):
@@ -201,17 +202,41 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
-def calculate_average_distribution(course):
-    if not course.can_publish_average_grade:
+def calculate_average_course_distribution(course):
+    if course.evaluations.exclude(state="published").exists():
         return None
 
-    # will contain a list of question results for each contributor and one for the course (where contributor is None)
+    return avg_distribution([
+        (
+            calculate_average_distribution(evaluation) if not evaluation.is_single_result else normalized_distribution(get_single_result_rating_result(evaluation).counts),
+            evaluation.weight
+        )
+        for evaluation in course.evaluations.all()
+    ])
+
+
+def get_evaluations_with_course_result_attributes(evaluations):
+    for evaluation in evaluations:
+        if evaluation.course.evaluations.exclude(state="published").exists():
+            evaluation.course.not_all_evaluations_are_published = True
+        evaluation.course.evaluation_count = evaluation.course.evaluations.count()
+        evaluation.course.distribution = calculate_average_course_distribution(evaluation.course)
+        evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
+        evaluation.course.evaluation_weight_sum = evaluation.course.evaluations.all().aggregate(Sum('weight'))["weight__sum"]
+    return evaluations
+
+
+def calculate_average_distribution(evaluation):
+    if not evaluation.can_publish_average_grade:
+        return None
+
+    # will contain a list of question results for each contributor and one for the evaluation (where contributor is None)
     grouped_results = defaultdict(list)
-    for contribution_result in collect_results(course).contribution_results:
+    for contribution_result in collect_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 
-    course_results = grouped_results.pop(None, [])
+    evaluation_results = grouped_results.pop(None, [])
 
     average_contributor_distribution = avg_distribution([
         (
@@ -225,8 +250,8 @@ def calculate_average_distribution(course):
     ])
 
     return avg_distribution([
-        (average_grade_questions_distribution(course_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
-        (average_non_grade_rating_questions_distribution(course_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
+        (average_grade_questions_distribution(evaluation_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
+        (average_non_grade_rating_questions_distribution(evaluation_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
         (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT)
     ])
 
@@ -244,8 +269,8 @@ def color_mix(color1, color2, fraction):
 
 
 def get_grade_color(grade):
-    # Can happen if no one leaves any grades. Return white because its least likely to cause problems.
-    if grade is None:
+    # Can happen if no one leaves any grades. Return white because it least likely causes problems.
+    if not grade:
         return (255, 255, 255)
     grade = round(grade, 1)
     next_lower = int(grade)
@@ -256,9 +281,9 @@ def get_grade_color(grade):
 def textanswers_visible_to(contribution):
     if contribution.is_general:
         contributors = UserProfile.objects.filter(
-            contributions__course=contribution.course,
-            contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS
-        ).distinct().order_by('contributions__textanswer_visibility')
+            Q(contributions__evaluation=contribution.evaluation, contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS) |
+            Q(courses_responsible_for__in=[contribution.evaluation.course])
+        ).distinct().order_by('last_name', 'first_name')
     else:
         contributors = [contribution.contributor]
     num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))

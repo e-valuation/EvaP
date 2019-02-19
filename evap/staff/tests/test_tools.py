@@ -6,7 +6,7 @@ from django.core.cache.utils import make_template_fragment_key
 from model_mommy import mommy
 
 from evap.evaluation.tests.tools import WebTest
-from evap.evaluation.models import UserProfile, Course, Contribution
+from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import merge_users, delete_navbar_cache_for_users
 
@@ -42,8 +42,8 @@ class MergeUsersTest(TestCase):
         cls.user1 = mommy.make(UserProfile, username="test1")
         cls.user2 = mommy.make(UserProfile, username="test2")
         cls.user3 = mommy.make(UserProfile, username="test3")
-        cls.group1 = mommy.make(Group, name="group1")
-        cls.group2 = mommy.make(Group, name="group2")
+        cls.group1 = mommy.make(Group, pk=4)
+        cls.group2 = mommy.make(Group, pk=5)
         cls.main_user = mommy.make(UserProfile,
             username="main_user",
             title="Dr.",
@@ -69,12 +69,15 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.course1 = mommy.make(Course, name_de="course1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.course2 = mommy.make(Course, name_de="course2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.course3 = mommy.make(Course, name_de="course3", participants=[cls.other_user], voters=[cls.other_user])
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, course=cls.course1)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course1)  # this should make the merge fail
-        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, course=cls.course2)
+        cls.course1 = mommy.make(Course, responsibles=[cls.main_user])
+        cls.course2 = mommy.make(Course, responsibles=[cls.main_user])
+        cls.course3 = mommy.make(Course, responsibles=[cls.other_user])
+        cls.evaluation1 = mommy.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.evaluation2 = mommy.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.evaluation3 = mommy.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
+        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
+        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
         cls.rewardpointgranting_main = mommy.make(RewardPointGranting, user_profile=cls.main_user)
         cls.rewardpointgranting_other = mommy.make(RewardPointGranting, user_profile=cls.other_user)
         cls.rewardpointredemption_main = mommy.make(RewardPointRedemption, user_profile=cls.main_user)
@@ -103,8 +106,8 @@ class MergeUsersTest(TestCase):
             'login_key',  # we decided to discard other_user's login key
             'login_key_valid_until',  # not worth dealing with
             'language',  # Not worth dealing with
-            'Course_voters+',  # some more intermediate models, for an explanation see above
-            'Course_participants+',  # intermediate model
+            'Evaluation_voters+',  # some more intermediate models, for an explanation see above
+            'Evaluation_participants+',  # intermediate model
         }
         expected_attrs = set(all_attrs) - ignored_attrs
 
@@ -118,7 +121,9 @@ class MergeUsersTest(TestCase):
         # add attributes here only if you're actually dealing with them in merge_users().
         additional_handled_attrs = {
             'grades_last_modified_user+',
-            'course_last_modified_user+',
+            'courses_last_modified+',
+            'evaluations_last_modified+',
+            'Course_responsibles+'
         }
 
         actual_attrs = handled_attrs | additional_handled_attrs
@@ -127,7 +132,7 @@ class MergeUsersTest(TestCase):
 
     def test_merge_users(self):
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
-        self.assertSequenceEqual(errors, ['contributions', 'courses_participating_in'])
+        self.assertSequenceEqual(errors, ['contributions', 'evaluations_participating_in'])
         self.assertSequenceEqual(warnings, ['rewards'])
 
         # assert that nothing has changed
@@ -156,16 +161,20 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.other_user.represented_users.all(), [self.user1])
         self.assertSequenceEqual(self.other_user.cc_users.all(), [])
         self.assertSequenceEqual(self.other_user.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user, self.other_user])
-        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
-        self.assertSequenceEqual(self.course3.participants.all(), [self.other_user])
-        self.assertSequenceEqual(self.course3.voters.all(), [self.other_user])
+        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course3.responsibles.all(), [self.other_user])
+        self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
+        self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
+        self.assertSequenceEqual(self.evaluation2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation3.participants.all(), [self.other_user])
+        self.assertSequenceEqual(self.evaluation3.voters.all(), [self.other_user])
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
         # fix data
-        self.course1.participants.set([self.main_user])
+        self.evaluation1.participants.set([self.main_user])
         self.contribution2.delete()
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
@@ -183,11 +192,14 @@ class MergeUsersTest(TestCase):
         self.assertSequenceEqual(self.main_user.represented_users.all(), [self.user1, self.user3])
         self.assertSequenceEqual(self.main_user.cc_users.all(), [self.user1])
         self.assertSequenceEqual(self.main_user.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.participants.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.participants.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.voters.all(), [self.main_user])
-        self.assertSequenceEqual(self.course3.participants.all(), [self.main_user])
-        self.assertSequenceEqual(self.course3.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation1.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation2.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation2.voters.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation3.participants.all(), [self.main_user])
+        self.assertSequenceEqual(self.evaluation3.voters.all(), [self.main_user])
         self.assertTrue(self.main_user.is_superuser)
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())

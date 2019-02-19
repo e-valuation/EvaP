@@ -6,13 +6,13 @@ Awesome, jQuery, jQuery Formset, Moment, Popper, Select2, Sisyphus, Sortable.
 These components are used under the MIT resp. SIL OFL licenses.
 
 The source repository may include logos, names or other trademarks of the
-Hasso Plattner Institute, the Fachschaftsrat IT-Systems Engineering or other
+Hasso Plattner Institute, the Fachschaftsrat Digital Engineering or other
 entities; potential usage restrictions for these elements still apply and are
 not touched by the software license.
 
 ```
 EvaP – Evaluation Platform
-Copyright (C) 2011-2018 by Michael Grünewald, Stefan Richter, Johannes Linke,
+Copyright (C) 2011-2019 by Michael Grünewald, Stefan Richter, Johannes Linke,
 and Johannes Wolf
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

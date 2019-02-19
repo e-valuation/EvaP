@@ -1,4 +1,4 @@
-{% extends 'staff_course_base.html' %}
+{% extends 'staff_evaluation_base.html' %}
 
 {% load static %}
 
@@ -36,8 +36,8 @@
                 <div class="card h-100">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans 'Copy participants' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other course' %}</h6>
-                        <p class="card-text">{% trans 'Copy participants from another course.' %}</p>
+                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
+                        <p class="card-text">{% trans 'Copy participants from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
@@ -77,8 +77,8 @@
                 <div class="card h-100">
                     <div class="card-body import-card">
                         <h4 class="card-title">{% trans 'Copy contributors' %}</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other course' %}</h6>
-                        <p class="card-text">{% trans 'Copy contributors from another course.' %}</p>
+                    <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
+                        <p class="card-text">{% trans 'Copy contributors from another evaluation.' %}</p>
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
@@ -91,7 +91,7 @@
 
     <div class="row">
         <div class="col">
-            <form id="login-key-export-form" method="POST" class="form-vertical" action="{% url 'staff:course_login_key_export' semester.id course.id %}">
+            <form id="login-key-export-form" method="POST" class="form-vertical" action="{% url 'staff:evaluation_login_key_export' semester.id evaluation.id %}">
                 {% csrf_token %}
                 <div class="card">
                     <div class="card-body import-card">
@@ -101,7 +101,7 @@
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
-                        {% if not course.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This course has no external participants." %}"{% endif %}>
+                        {% if not evaluation.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
                             {% trans 'Export login keys' %}
                         </button>
                     </div>

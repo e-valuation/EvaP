@@ -30,14 +30,12 @@
                                 <td>
                                     <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
-                                    {% include 'course_badges.html' with mode='grades' %}
+                                    {% include 'evaluation_badges.html' with mode='grades' %}
                                 </td>
                                 <td>
-                                    {% for contributor in course.responsible_contributors %}
-                                        {{ contributor.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
+                                    {{ course.responsibles_names }}
                                 </td>
-                                <td class="text-center">{% if course.state == 'evaluationFinished' or course.state == 'reviewed' or course.state == 'published' %}<span class="fas fa-check"></span>{% endif %}
+                                <td class="text-center">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
                                 <td class="text-center">
                                     {% if num_midterm_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_midterm_grades }}

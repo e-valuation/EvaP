@@ -75,7 +75,7 @@ def index(request):
             return redirect('grades:semester_view', Semester.active_semester().id)
         elif user.is_student:
             return redirect('student:index')
-        elif user.is_contributor_or_delegate:
+        elif user.is_responsible_or_contributor_or_delegate:
             return redirect('contributor:index')
         else:
             return redirect('results:index')

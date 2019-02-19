@@ -14,7 +14,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
-from evap.evaluation.models import UserProfile, Course, Contribution, TextAnswer
+from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
 
@@ -125,19 +125,23 @@ def merge_users(main_user, other_user, preview=False):
 
     errors = []
     warnings = []
-    if any(contribution.course in [contribution.course for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
+    courses_main_user_is_responsible_for = main_user.get_sorted_courses_responsible_for()
+    if any(course in courses_main_user_is_responsible_for for course in other_user.get_sorted_courses_responsible_for()):
+        errors.append('courses_responsible_for')
+    if any(contribution.evaluation in [contribution.evaluation for contribution in main_user.get_sorted_contributions()] for contribution in other_user.get_sorted_contributions()):
         errors.append('contributions')
-    if any(course in main_user.get_sorted_courses_participating_in() for course in other_user.get_sorted_courses_participating_in()):
-        errors.append('courses_participating_in')
-    if any(course in main_user.get_sorted_courses_voted_for() for course in other_user.get_sorted_courses_voted_for()):
-        errors.append('courses_voted_for')
+    if any(evaluation in main_user.get_sorted_evaluations_participating_in() for evaluation in other_user.get_sorted_evaluations_participating_in()):
+        errors.append('evaluations_participating_in')
+    if any(evaluation in main_user.get_sorted_evaluations_voted_for() for evaluation in other_user.get_sorted_evaluations_voted_for()):
+        errors.append('evaluations_voted_for')
 
     if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
         warnings.append('rewards')
 
-    merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('course__semester__created_at', 'course__name_de')
-    merged_user['courses_participating_in'] = Course.objects.filter(participants__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
-    merged_user['courses_voted_for'] = Course.objects.filter(voters__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
+    merged_user['courses_responsible_for'] = Course.objects.filter(responsibles__in=[main_user, other_user]).order_by('semester__created_at', 'name_de')
+    merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by('evaluation__course__semester__created_at', 'evaluation__name_de')
+    merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
+    merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
 
     merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() if main_user.reward_point_grantings.all().exists() else other_user.reward_point_grantings.all()
     merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() if main_user.reward_point_redemptions.all().exists() else other_user.reward_point_redemptions.all()
@@ -145,8 +149,16 @@ def merge_users(main_user, other_user, preview=False):
     if preview or errors:
         return merged_user, errors, warnings
 
-    # update last_modified_user for courses and grade documents
+    # update responsibility
+    for course in Course.objects.filter(responsibles__in=[other_user]):
+        responsibles = list(course.responsibles.all())
+        responsibles.remove(other_user)
+        responsibles.append(main_user)
+        course.responsibles.set(responsibles)
+
+    # update last_modified_user for evaluations and grade documents
     Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
+    Evaluation.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
     # email must not exist twice. other_user can't be deleted before contributions have been changed
@@ -167,8 +179,8 @@ def merge_users(main_user, other_user, preview=False):
     other_user.reward_point_redemptions.all().delete()
 
     # refresh results cache
-    for course in Course.objects.filter(contributions__contributor=main_user).distinct():
-        collect_results(course, force_recalculation=True)
+    for evaluation in Evaluation.objects.filter(contributions__contributor=main_user).distinct():
+        collect_results(evaluation, force_recalculation=True)
 
     # delete other_user
     other_user.delete()
@@ -176,8 +188,8 @@ def merge_users(main_user, other_user, preview=False):
     return merged_user, errors, warnings
 
 
-def find_next_unreviewed_course(semester, excluded):
-    return semester.courses.exclude(pk__in=excluded) \
+def find_next_unreviewed_evaluation(semester, excluded):
+    return semester.evaluations.exclude(pk__in=excluded) \
         .exclude(state='published') \
         .exclude(can_publish_text_results=False) \
         .filter(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED) \

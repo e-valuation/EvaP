@@ -33,13 +33,12 @@ class Migration(migrations.Migration):
             name='uuid',
             field=models.UUIDField(primary_key=False, default=uuid.uuid4, serialize=False, editable=False),
         ),
-        # rename the old id field before deleting it at the end of the
-        # migration for compatibility with the sqlite driver
-        migrations.RenameField(
-            model_name='textanswer',
-            old_name='id',
-            new_name='old_id'
-        ),
+        # this causes trouble with sqlite. We have two open bug reports with django for this, see
+        # https://code.djangoproject.com/ticket/29790 and https://code.djangoproject.com/ticket/28541
+        # We can not get this to work with sqlite and postgres right now and we want django2.1, we only
+        # support postgres here. For sqlite, you need to rename the field here and move the RemoveField to
+        # the end.
+        migrations.RemoveField(model_name='textanswer', name='id'),
         migrations.RenameField(
             model_name='textanswer',
             old_name='uuid',
@@ -54,5 +53,4 @@ class Migration(migrations.Migration):
             name='textanswer',
             options={'ordering': ['id'], 'verbose_name': 'text answer', 'verbose_name_plural': 'text answers'},
         ),
-        migrations.RemoveField(model_name='textanswer', name='old_id'),
     ]

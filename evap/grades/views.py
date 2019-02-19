@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from django.db.models import Prefetch
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.conf import settings
@@ -10,7 +9,7 @@ from django.views.decorators.http import require_POST, require_GET
 from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
-from evap.evaluation.models import Semester, Contribution, Course
+from evap.evaluation.models import Course, Semester
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
 from evap.evaluation.tools import send_publish_notifications
@@ -26,13 +25,10 @@ def index(request):
 
 
 def prefetch_data(courses):
-    courses = courses.prefetch_related(
-        Prefetch("contributions", queryset=Contribution.objects.filter(responsible=True).select_related("contributor"), to_attr="responsible_contributions"),
-        "degrees")
+    courses = courses.prefetch_related("degrees", "responsibles")
 
     course_data = []
     for course in courses:
-        course.responsible_contributors = [contribution.contributor for contribution in course.responsible_contributions]
         course_data.append((
             course,
             course.midterm_grade_documents.count(),
@@ -48,7 +44,7 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = semester.courses.filter(is_graded=True).exclude(state='new')
+    courses = semester.courses.filter(is_graded=True).exclude(evaluations__state='new')
     courses = prefetch_data(courses)
 
     template_data = dict(
@@ -100,10 +96,12 @@ def upload_grades(request, semester_id, course_id):
 
     if form.is_valid():
         form.save(modifying_user=request.user)
-        if final_grades and course.state == 'reviewed':
-            course.publish()
-            course.save()
-            send_publish_notifications([course])
+        evaluations = course.evaluations.all()
+        if final_grades and all(evaluation.state == 'reviewed' for evaluation in evaluations):
+            for evaluation in evaluations:
+                evaluation.publish()
+                evaluation.save()
+            send_publish_notifications(evaluations)
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -128,11 +126,12 @@ def toggle_no_grades(request):
 
     course.gets_no_grade_documents = not course.gets_no_grade_documents
     course.save()
-    if course.gets_no_grade_documents:
-        if course.state == 'reviewed':
-            course.publish()
-            course.save()
-            send_publish_notifications([course])
+    evaluations = course.evaluations.all()
+    if course.gets_no_grade_documents and all(evaluation.state == 'reviewed' for evaluation in evaluations):
+        for evaluation in evaluations:
+            evaluation.publish()
+            evaluation.save()
+        send_publish_notifications(evaluations)
 
     return HttpResponse()  # 200 OK
 

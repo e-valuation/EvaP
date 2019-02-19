@@ -7,8 +7,8 @@
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ course.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -19,18 +19,52 @@
 
     <div class="bs-callout bs-callout-info small">
         {% if editable %}
-            {% blocktrans %}Please review the course's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the course on the bottom of the page.{% endblocktrans %}
+            {% blocktrans %}Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.{% endblocktrans %}
         {% else %}
-            {% blocktrans %}You cannot edit this course because it has already been approved.{% endblocktrans %}
+            {% blocktrans %}You cannot edit this evaluation because it has already been approved.{% endblocktrans %}
         {% endif %}
     </div>
 
-    <form method="POST" class="form-horizontal multiselect-form select2form" id="course-form">
-        {% csrf_token %}
+    <h3>
+        {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
+    </h3>
 
+    <form method="POST" class="form-horizontal multiselect-form select2form" id="evaluation-form">
+        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                {% include 'course_form_general_questionnaires.html' with course=course course_form=form %}
+                <h5 class="card-title">{% trans 'Course data' %}</h5>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Name (German)' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.name_de }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Name (English)' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.name_en }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Responsibles' %}</label>
+                    <div class="col-md-7 form-static-text">{{ evaluation.course.responsibles_names }}</div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Degrees' %}</label>
+                    <div class="col-md-7 form-static-text">
+                        {% for degree in evaluation.course.degrees.all %}
+                            <span class="badge badge-primary">{{ degree }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <label class="col-md-3 form-label">{% trans 'Course type' %}</label>
+                    <div class="col-md-7 form-static-text">
+                        <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'evaluation_form_general_questionnaires.html' with evaluation=evaluation evaluation_form=form %}
             </div>
         </div>
         <div class="card mb-3">
@@ -50,9 +84,9 @@
                             </a>
                         </div>
                     </div>
-                    <p>{% trans 'These students should be participating in your course. Please let us know if this data is not correct.' %}</p>
+                    <p>{% trans 'These people will be invited for the evaluation. Please let us know if this data is not correct.' %}</p>
                     <ul>
-                        {% for p in course.participants.all|dictsort:'last_name' %}
+                        {% for p in evaluation.participants.all|dictsort:'last_name' %}
                             <li>{{ p.full_name }}</li>
                         {% endfor %}
                     </ul>
@@ -66,7 +100,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <a onclick="approveCourseModalShow(0, '');" role="button" class="btn btn-success">{% trans 'Save and approve' %}</a>
+                    <a onclick="approveEvaluationModalShow(0, '');" role="button" class="btn btn-success">{% trans 'Save and approve' %}</a>
                 {% endif %}
                 <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
             </div>
@@ -95,17 +129,17 @@
 
 {% block modals %}
     {{ block.super }}
-    {% trans 'Approve course' as title %}
-    {% blocktrans asvar question%}Do you want to approve this course? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.{% endblocktrans %}
-    {% trans 'Approve course' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='approveCourseModal' title=title question=question action_text=action_text btn_type='primary' %}
+    {% trans 'Approve evaluation' as title %}
+    {% blocktrans asvar question%}Do you want to approve this evaluation? This will allow the evaluation team to proceed with the preparation, but you won't be able to make any further changes.{% endblocktrans %}
+    {% trans 'Approve evaluation' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='approveEvaluationModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
-        function approveCourseModalAction(dataId) {
-            $('#course-form').append('<input type="hidden" name="operation" value="approve" />');
-            $('#course-form').submit();
+        function approveEvaluationModalAction(dataId) {
+            $('#evaluation-form').append('<input type="hidden" name="operation" value="approve" />');
+            $('#evaluation-form').submit();
         };
     </script>
-    {% blocktrans asvar title with course_name=course.name|safe %}Request participant changes for {{ course_name }}{% endblocktrans %}
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request participant changes for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
     {% trans 'Request account creation' as title %}
@@ -114,7 +148,7 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'evap_course_edit_js.html' %}
+    {% include 'evap_evaluation_edit_js.html' %}
 
     {% if preview_html %}
         <script type="text/javascript">

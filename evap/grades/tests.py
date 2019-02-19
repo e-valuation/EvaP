@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django_webtest import WebTest
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Course, Questionnaire, Contribution, Semester
+from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
 
 
 class GradeUploadTest(WebTest):
@@ -18,27 +18,27 @@ class GradeUploadTest(WebTest):
         cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
         cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
-        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+        editor = mommy.make(UserProfile, username="editor", email="editor@institution.example.com")
 
         cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
-        cls.course = mommy.make(
-            Course,
-            name_en="Test",
-            semester=cls.semester,
+        cls.course = mommy.make(Course, semester=cls.semester)
+        cls.evaluation = mommy.make(
+            Evaluation,
+            course=cls.course,
             vote_start_datetime=datetime.now() - timedelta(days=10),
             vote_end_date=date.today() + timedelta(days=10),
             participants=[cls.student, cls.student2, cls.student3],
             voters=[cls.student, cls.student2],
         )
 
-        contribution = mommy.make(Contribution, course=cls.course, contributor=responsible, responsible=True,
-                                  can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
+                                  textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
-        cls.course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
     def setUp(self):
-        self.course = Course.objects.get(pk=self.course.pk)
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
     def tearDown(self):
         for course in Course.objects.all():
@@ -83,77 +83,78 @@ class GradeUploadTest(WebTest):
 
     def test_upload_final_grades(self):
         course = self.course
+        evaluation = self.evaluation
         self.assertEqual(course.final_grade_documents.count(), 0)
 
         # state: new
         self.helper_check_final_grade_upload(course, 0)
 
         # state: prepared
-        course.ready_for_editors()
-        course.save()
+        evaluation.ready_for_editors()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: editor_approved
-        course.editor_approve()
-        course.save()
+        evaluation.editor_approve()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
-        course.manager_approve()
-        course.save()
+        evaluation.manager_approve()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: in_evaluation
-        course.evaluation_begin()
-        course.save()
+        evaluation.evaluation_begin()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: evaluated
-        course.evaluation_end()
-        course.save()
+        evaluation.evaluation_end()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: reviewed
-        course.review_finished()
-        course.save()
+        evaluation.review_finished()
+        evaluation.save()
         self.helper_check_final_grade_upload(
-            course, course.num_participants + course.contributions.exclude(contributor=None).count())
+            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
 
         # state: published
-        course.publish()
-        course.save()
+        evaluation.publish()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
-        course = mommy.make(
-            Course,
+        evaluation = mommy.make(
+            Evaluation,
             name_en="Toggle",
             vote_start_datetime=datetime.now(),
             state="reviewed",
             participants=[self.student, self.student2, self.student3],
             voters=[self.student, self.student2]
         )
-        contribution = Contribution(course=course, contributor=UserProfile.objects.get(username="responsible"),
-                                    responsible=True, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(username="editor"),
+                                    can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.save()
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
-        course.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
-        self.assertFalse(course.gets_no_grade_documents)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": course.id}, user="grade_publisher")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)
-        course = Course.objects.get(id=course.id)
-        self.assertTrue(course.gets_no_grade_documents)
-        # course should get published here
-        self.assertEqual(course.state, "published")
-        self.assertEqual(len(mail.outbox), course.num_participants + course.contributions.exclude(contributor=None).count())
+        evaluation = Evaluation.objects.get(id=evaluation.id)
+        self.assertTrue(evaluation.course.gets_no_grade_documents)
+        # evaluation should get published here
+        self.assertEqual(evaluation.state, "published")
+        self.assertEqual(len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": course.id}, user="grade_publisher")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher")
         self.assertEqual(response.status_code, 200)
-        course = Course.objects.get(id=course.id)
-        self.assertFalse(course.gets_no_grade_documents)
+        evaluation = Evaluation.objects.get(id=evaluation.id)
+        self.assertFalse(evaluation.course.gets_no_grade_documents)
 
     def test_grade_document_download_after_archiving(self):
         # upload grade document
@@ -191,9 +192,10 @@ class GradeSemesterViewTest(WebTest):
 
     def test_does_not_crash(self):
         semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        semester_course = mommy.make(Course, semester=semester, state="prepared")
+        course = mommy.make(Course, semester=semester)
+        mommy.make(Evaluation, course=course, state="prepared")
         page = self.app.get(self.url, user="grade_publisher", status=200)
-        self.assertIn(semester_course.name, page)
+        self.assertIn(course.name, page)
 
     def test_403_on_deleted(self):
         mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
@@ -209,10 +211,10 @@ class GradeCourseViewTest(WebTest):
 
     def test_does_not_crash(self):
         semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        mommy.make(Course, pk=1, semester=semester, state="prepared")
+        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=semester), state="prepared")
         self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=200)
 
     def test_403_on_archived_semester(self):
         archived_semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
-        mommy.make(Course, pk=1, semester=archived_semester, state="prepared")
+        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=archived_semester), state="prepared")
         self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=403)

@@ -50,8 +50,8 @@
                                 <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fas fa-trash"></span></a>
                             {% else %}
                                 <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
-                                    title="{% blocktrans %}This user contributes to a course (or is a delegate or CC user of
-                                    such a person), participates in a course whose participations haven't been archived yet or has special
+                                    title="{% blocktrans %}This user contributes to an evaluation (or is a delegate or CC user of
+                                    such a person), participates in an evaluation whose participations haven't been archived yet or has special
                                     rights and as such cannot be deleted.{% endblocktrans %}">
                                     <a class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
                                 </div>

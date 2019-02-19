@@ -1,6 +1,11 @@
 language: python
-python:
-  - "3.4"
+python: "3.7"
+dist: xenial
+sudo: false
+cache:
+  directories:
+  - $HOME/.cache/pip
+
 services:
 - postgresql
 before_script:
@@ -15,7 +20,3 @@ script:
   - python manage.py test --keepdb --debug-mode
 after_success:
   - coveralls
-sudo: false
-cache:
-  directories:
-  - $HOME/.cache/pip

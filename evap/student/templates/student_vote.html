@@ -5,13 +5,13 @@
 {% load evaluation_filters %}
 {% load compress %}
 
-{% block title %}{{ course.name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.full_name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ course.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -22,7 +22,7 @@
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
-    {% if course.is_midterm_evaluation %}
+    {% if evaluation.is_midterm_evaluation %}
         <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
@@ -32,24 +32,24 @@
         <small>
         <div class="bs-callout bs-callout-info">
             <b>{% trans 'Questionnaire Preview' %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the course. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
     </small>
     {% endif %}
-    <h3 class="mb-3">{{ course.name }} ({{ course.semester.name }})</h3>
+    <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
         {% csrf_token %}
 
-        {% if small_course_size_warning and not preview %}
+        {% if small_evaluation_size_warning and not preview %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body">
                     {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
-                    {% if course.num_voters == 0 %}
+                    {% if evaluation.num_voters == 0 %}
                         <br />
-                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
+                        {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                         <div class="form-check mt-3">
                             <input class="form-check-input" id="text_results_publish_confirmation_top" type="checkbox"
@@ -63,13 +63,13 @@
             </div>
         {% endif %}
 
-        {% if course_form_group_top %}
+        {% if evaluation_form_group_top %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
                     {% trans 'General questions' %}
                 </div>
                 <div class="card-body">
-                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=course_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=evaluation_form_group_top textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
                 </div>
             </div>
         {% endif %}
@@ -110,23 +110,23 @@
                 </div>
             </div>
         {% endif %}
-        {% if course_form_group_bottom %}
+        {% if evaluation_form_group_bottom %}
             <div class="card card-outline-primary mb-3">
                 <div class="card-header">
                     {% trans "General questions" %}
                 </div>
                 <div class="card-body">
-                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=course_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
+                    {% include "student_vote_questionnaire_group.html" with questionnaire_group=evaluation_form_group_bottom textanswers_visible_to=general_contribution_textanswers_visible_to preview=preview %}
                 </div>
             </div>
         {% endif %}
-        {% if small_course_size_warning and not preview and course.num_voters == 0 %}
+        {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
             <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body">
-                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person evaluates the course.{% endblocktrans %}
+                    {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                     <div class="form-check mt-3">
                         <input class="form-check-input" id="text_results_publish_confirmation_bottom" type="checkbox"

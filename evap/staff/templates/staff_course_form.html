@@ -3,7 +3,7 @@
 {% block content %}
     {{ block.super }}
     <h3>
-        {% if form.instance.id %}
+        {% if course_form.instance.id %}
             {{ course.name }} ({{ course.semester.name }})
         {% else %}
             {% trans 'Create course' %}
@@ -14,37 +14,39 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                {% include 'course_form_general_questionnaires.html' with course=course course_form=form %}
+                {% include 'bootstrap_form.html' with form=course_form %}
             </div>
         </div>
-        <div class="card mb-3">
-            <div class="card-body">
-                {% include 'contribution_formset.html' with formset=formset manager=True editable=editable %}
+
+        {% if course_form.instance.id %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans 'Evaluations' %}</h5>
+                    {% if course.evaluations.count > 0 %}
+                        <ul>
+                            {% for evaluation in course.evaluations.all %}
+                                <li>
+                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">
+                                        {{ evaluation.full_name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <i>{% trans 'There are no evaluations for this course.' %}</i>
+                    {% endif %}
+                </div>
             </div>
-        </div>
+        {% endif %}
 
         {% if editable %}
-        <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
-            <div class="card-body">
-                {% if state == 'in_evaluation' %}
-                    <div class="alert alert-warning">{% trans 'You are editing a course, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes.' %}</div>
-                {% endif %}
-                {% if state == 'evaluated' or state == 'reviewed' %}
-                    <div class="alert alert-warning">{% trans 'You are editing a course, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>
-                {% endif %}
-                {% if state == 'new' or state == 'prepared' %}
-                    <div class="alert alert-warning">{% trans 'You are editing a course which has not been approved by the editor yet.' %}</div>
-                {% endif %}
-                <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-                {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
-                    <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans 'Save and approve' %}</button>
-                {% endif %}
+            <div class="card card-submit-area card-submit-area-3 text-center mb-3">
+                <div class="card-body">
+                    <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                    <button name="operation" value="save_create_evaluation" type="submit" class="btn btn-dark">{% trans 'Save and create evaluation' %}</button>
+                    <button name="operation" value="save_create_single_result" type="submit" class="btn btn-dark">{% trans 'Save and create single result' %}</button>
+                </div>
             </div>
-        </div>
         {% endif %}
     </form>
-{% endblock %}
-
-{% block additional_javascript %}
-    {% include 'evap_course_edit_js.html' %}
 {% endblock %}

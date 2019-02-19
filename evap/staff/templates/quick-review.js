@@ -29,7 +29,7 @@ $(document).ready(() => {
             75: "[data-action=make_private]", // k
             76: "[data-action=hide]",         // l
              8: "[data-action=unreview]",     // backspace
-            13: "[data-url=next-course]",     // enter
+            13: "[data-url=next-evaluation]", // enter
             77: "[data-startover=unreviewed]",// m
             78: "[data-startover=all]"        // n
         };
@@ -126,10 +126,10 @@ $(document).ready(() => {
         }
 
         let active = items.eq(index);
-        let parameters = {"id": active.data("id"), "action": action, "course_id": {{ course.id }}};
+        let parameters = {"id": active.data("id"), "action": action, "evaluation_id": {{ evaluation.id }}};
         $.ajax({
             type: "POST",
-            url: "{% url 'staff:course_textanswers_update_publish' %}",
+            url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
             data: parameters,
             error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
         });

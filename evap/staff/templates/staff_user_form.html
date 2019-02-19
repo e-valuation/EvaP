@@ -40,23 +40,23 @@
                     {% include 'user_list_with_links.html' with users=form.instance.ccing_users.all %}
                 </div>
             </div>
-            {% if courses_contributing_to %}
+            {% if evaluations_contributing_to %}
                 <div class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">{% trans 'Export result pages' %}</h5>
                         <ul>
-                            {% for semester, courses in courses_contributing_to %}
-                                {% if courses %}
+                            {% for semester, evaluations in evaluations_contributing_to %}
+                                {% if evaluations %}
                                     <li>{{ semester.name }}</li>
                                     <ul>
-                                        {% for course in courses %}
+                                        {% for evaluation in evaluations %}
                                             <li>
-                                                {% if course|can_user_see_results_page:form.instance %}
-                                                    <a href="{% url 'results:course_detail' semester.id course.id %}?view=export&contributor_id={{ form.instance.id }}">
-                                                        {{ course.name }}
+                                                {% if evaluation|can_user_see_results_page:form.instance %}
+                                                    <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
+                                                        {{ evaluation.full_name }}
                                                     </a>
                                                 {% else %}
-                                                    {{ course.name }}
+                                                    {{ evaluation.full_name }}
                                                 {% endif %}
                                             </li>
                                         {% endfor %}
