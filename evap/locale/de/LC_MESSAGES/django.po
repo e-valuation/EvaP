@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-19 14:09+0100\n"
-"PO-Revision-Date: 2019-02-19 14:20+0100\n"
+"PO-Revision-Date: 2019-02-19 22:02+0100\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -2219,7 +2219,7 @@ msgstr "Noten"
 #: evap/student/templates/student_index.html:5
 #: evap/student/templates/student_vote.html:8
 msgid "Evaluation"
-msgstr "Bewertung"
+msgstr "Evaluierung"
 
 #: evap/results/templates/results_evaluation_detail.html:97
 #: evap/results/templates/results_evaluation_detail.html:121
