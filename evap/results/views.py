@@ -135,7 +135,7 @@ def index(request):
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
         evaluations += additional_evaluations
 
-    evaluations.sort(key=lambda evaluation: (evaluation.full_name, evaluation.course.semester.pk))  # evaluations must be sorted for regrouping them in the template
+    evaluations.sort(key=lambda evaluation: (evaluation.course.semester.pk, evaluation.full_name))  # evaluations must be sorted for regrouping them in the template
 
     evaluation_pks = [evaluation.pk for evaluation in evaluations]
     degrees = Degree.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
