@@ -69,7 +69,7 @@
                         <tr>
                             <th style="width: 19%">{% trans 'Degree' %}</th>
                             <th style="width: 30%">{% trans 'Evaluation period' %}</th>
-                            <th style="width: 17%">{% trans 'Evaluated evaluations' %}</th>
+                            <th style="width: 17%">{% trans 'Finished evaluations' %}</th>
                             <th style="width: 17%">{% trans 'Reviewed text answers' %}</th>
                             <th style="width: 17%">{% trans 'Participation' %}</th>
                         </tr>
@@ -368,7 +368,7 @@
         };
     </script>
     {% trans 'Delete grade documents' as title %}
-    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's evaluations and will disable new uploads. You can't undo this action.{% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to delete the grade documents in the semester <strong id="data-label"></strong>? This will delete all existing grade documents for this semester's courses and will disable new uploads. You can't undo this action.{% endblocktrans %}
     {% trans 'Delete grade documents' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradeDocumentsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">

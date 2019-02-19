@@ -15,7 +15,7 @@
         </div>
         <div class="infobox-content">
             <b>{% trans 'Anonymity' %}</b><br />
-            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small evaluations.{% endblocktrans %}<br />
+            {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
             <br />
             <b>{% trans 'References to other answers' %}</b><br />
@@ -23,7 +23,7 @@
             <em>{% trans 'More details:' %} <a href="/faq#24-q">{% trans 'FAQ/Reference' %}</a></em><br />
             <br />
             <b>{% trans 'Evaluation Results' %}</b><br />
-            {% blocktrans %}Your text answers will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the evaluation's exams have been published. At the same time voting answers will be published for all users of the platform if at least two students participated in the evaluation. The average grade is calculated if at least 20 percent of the evaluation's students participated in the evaluation.{% endblocktrans %}<br />
+            {% blocktrans %}Your text answers will be shown to the person whom you evaluated and to the persons responsible for the course – after the grades of all the course's exams have been published. At the same time voting answers will be published for all users of the platform if at least two students participated in the evaluation. The average grade is calculated if at least 20 percent of the evaluation's students participated in the evaluation.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#3-s">{% trans 'FAQ/Results' %}</a></em>
         </div>
     </div>
@@ -122,7 +122,7 @@
                                                         <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You already gave us your feedback in this evaluation.' %}"><span class="far fa-smile" aria-hidden="true"></span></span>
                                                     {% elif evaluation.participates_in %}
                                                         {% if evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
-                                                            <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not take part this evaluation.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
+                                                            <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="far fa-frown" aria-hidden="true"></span></span>
                                                         {% endif %}
                                                     {% else %}
                                                         <span class="text text-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'You are not listed as a participant for this evaluation.' %}">

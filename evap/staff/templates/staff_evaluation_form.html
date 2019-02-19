@@ -32,7 +32,7 @@
         <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if state == 'in_evaluation' %}
-                    <div class="alert alert-warning">{% trans 'You are editing an evaluation, which is already in evaluation. Please note that only the students who did not evaluate yet will see your changes.' %}</div>
+                    <div class="alert alert-warning">{% trans 'You are editing an evaluation, which is already running. Please note that only the students who did not evaluate yet will see your changes.' %}</div>
                 {% endif %}
                 {% if state == 'evaluated' or state == 'reviewed' %}
                     <div class="alert alert-warning">{% trans 'You are editing an evaluation, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>

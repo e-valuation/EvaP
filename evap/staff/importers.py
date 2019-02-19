@@ -280,13 +280,13 @@ class EnrollmentImporter(ExcelImporter):
         evaluation_id = evaluation_data.name_en
         if evaluation_id not in self.evaluations:
             if evaluation_data.name_de in self.names_de:
-                self.errors.append(_('Sheet "{}", row {}: The German name for evaluation "{}" already exists for another evaluation.').format(sheet, row + 1, evaluation_data.name_en))
+                self.errors.append(_('Sheet "{}", row {}: The German name for course "{}" already exists for another course.').format(sheet, row + 1, evaluation_data.name_en))
             else:
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
             if not evaluation_data == self.evaluations[evaluation_id]:
-                self.errors.append(_('Sheet "{}", row {}: The evaluation\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, evaluation_data.name_en))
+                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, evaluation_data.name_en))
 
     def consolidate_enrollment_data(self):
         for (sheet, row), (student_data, responsible_data, evaluation_data) in self.associations.items():
@@ -299,7 +299,7 @@ class EnrollmentImporter(ExcelImporter):
         for evaluation_data in self.evaluations.values():
             already_exists = Evaluation.objects.filter(course__semester=semester, name_de=evaluation_data.name_de).exists()
             if already_exists:
-                self.errors.append(_("Evaluation {} does already exist in this semester.").format(evaluation_data.name_en))
+                self.errors.append(_("Course {} does already exist in this semester.").format(evaluation_data.name_en))
 
         degree_names = set()
         for evaluation_data in self.evaluations.values():
@@ -320,7 +320,7 @@ class EnrollmentImporter(ExcelImporter):
             elif evaluation_data.is_graded == settings.IMPORTER_GRADED_NO:
                 evaluation_data.is_graded = False
             else:
-                self.errors.append(_('"is_graded" of evaluation {} is {}, but must be {} or {}').format(
+                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(
                     evaluation_data.name_en, evaluation_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
                 evaluation_data.is_graded = True
 
@@ -356,7 +356,7 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 evaluation.participants.add(student)
 
-        msg = _("Successfully created {} evaluation(s), {} student(s) and {} contributor(s):").format(
+        msg = _("Successfully created {} courses/evaluations, {} students and {} contributors:").format(
             len(self.evaluations), len(students_created), len(responsibles_created))
         msg += create_user_list_string_for_message(students_created + responsibles_created)
         self.success_messages.append(mark_safe(msg))
@@ -365,7 +365,7 @@ class EnrollmentImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        msg = _("The import run will create {} evaluations and {} users:").format(len(self.evaluations), len(filtered_users))
+        msg = _("The import run will create {} courses/evaluations and {} users:").format(len(self.evaluations), len(filtered_users))
         msg += create_user_list_string_for_message(filtered_users)
         self.success_messages.append(mark_safe(msg))
 
@@ -440,7 +440,7 @@ class UserImporter(ExcelImporter):
                                          " The error message has been: '%(error)s'") % dict(row=row + 1, sheet=sheet, error=e))
                     raise
 
-        msg = _("Successfully created {} user(s):").format(len(created_users))
+        msg = _("Successfully created {} users:").format(len(created_users))
         msg += create_user_list_string_for_message(created_users)
         self.success_messages.append(mark_safe(msg))
         return new_participants
@@ -459,7 +459,7 @@ class UserImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        msg = _("The import run will create {} user(s):").format(len(filtered_users))
+        msg = _("The import run will create {} users:").format(len(filtered_users))
         msg += create_user_list_string_for_message(filtered_users)
         self.success_messages.append(mark_safe(msg))
 
@@ -514,7 +514,7 @@ class PersonImporter:
         users_to_add = [user for user in user_list if user not in evaluation_participants]
 
         if already_related:
-            msg = _("The following {} user(s) are already participants in evaluation {}:").format(len(already_related), evaluation.name)
+            msg = _("The following {} users are already participants in evaluation {}:").format(len(already_related), evaluation.name)
             msg += create_user_list_string_for_message(already_related)
             self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 
@@ -531,7 +531,7 @@ class PersonImporter:
         already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list).all()
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
-            msg = _("The following {} user(s) are already contributing to evaluation {}:").format(len(already_related), evaluation.name)
+            msg = _("The following {} users are already contributing to evaluation {}:").format(len(already_related), evaluation.name)
             msg += create_user_list_string_for_message(already_related)
             self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
 

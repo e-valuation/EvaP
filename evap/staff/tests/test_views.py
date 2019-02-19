@@ -261,7 +261,7 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'The import run will create 2 user(s):<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)')
+        self.assertContains(page, 'The import run will create 2 users:<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)')
         self.assertContains(page, 'Import previously uploaded file')
 
         form = page.forms["user-import-form"]

@@ -47,7 +47,7 @@ class TestUserImporter(TestCase):
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
-        self.assertIn('Successfully created 2 user(s):<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)', success_messages)
+        self.assertIn('Successfully created 2 users:<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)', success_messages)
         self.assertIn('Successfully read Excel file.', success_messages)
         self.assertEqual(warnings, {})
         self.assertEqual(errors, [])
@@ -139,14 +139,14 @@ class TestEnrollmentImporter(TestCase):
             excel_content = excel_file.read()
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
-        self.assertIn("The import run will create 23 evaluations and 23 users:", "".join(success_messages))
+        self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
-        self.assertIn("Successfully created 23 evaluation(s), 6 student(s) and 17 contributor(s):", "".join(success_messages))
+        self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
@@ -203,8 +203,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 7: Email address is missing.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 10: Email address is missing.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 18: The German name for evaluation "Bought" already exists for another evaluation.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 20: The evaluation\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.', errors_test)
+        self.assertIn('Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
         self.assertIn('The imported data contains two email addresses with the same username (\'678@external.example.com\' and \'678@internal.example.com\').', errors_test)
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
@@ -228,11 +228,11 @@ class TestPersonImporter(TestCase):
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 user(s) are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 user(s) are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
         self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1]))
@@ -256,11 +256,11 @@ class TestPersonImporter(TestCase):
     def test_import_existing_participant(self):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 user(s) are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 user(s) are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
         self.assertEqual(self.evaluation1.participants.count(), 1)
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)
