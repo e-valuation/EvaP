@@ -4,13 +4,15 @@ from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Evaluation, Semester, UserProfile, EmailTemplate
-from evap.evaluation.tools import get_parameter_from_url_or_session, STATES_ORDERED, sort_formset
-from evap.results.tools import calculate_average_distribution, distribution_to_grade
+from evap.evaluation.models import Contribution, Course, Evaluation, Semester, UserProfile, EmailTemplate
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result)
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -21,22 +23,40 @@ def index(request):
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
     contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
-    own_evaluations = Evaluation.objects.filter(contributions__contributor=user, state__in=contributor_visible_states)
+    own_courses = Course.objects.filter(
+        Q(evaluations__state__in=contributor_visible_states) & (
+            Q(responsibles=user) |
+            Q(evaluations__contributions__contributor=user)
+        )
+    )
+    own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user)]
+    for evaluation in own_evaluations:
+        evaluation.contributes_to = evaluation.contributions.filter(contributor=user).exists()
 
-    displayed_evaluations = list(own_evaluations)
+    displayed_evaluations = set(own_evaluations)
     if show_delegated:
         represented_users = user.represented_users.all()
-        delegated_evaluations = Evaluation.objects.exclude(id__in=own_evaluations).filter(contributions__can_edit=True, contributions__contributor__in=represented_users, state__in=contributor_visible_states)
+        delegated_courses = Course.objects.filter(
+            Q(evaluations__state__in=contributor_visible_states) & (
+                Q(responsibles__in=represented_users) |
+                Q(evaluations__contributions__can_edit=True, evaluations__contributions__contributor__in=represented_users)
+            )
+        )
+        delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user))
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True
-        displayed_evaluations += list(delegated_evaluations)
-    displayed_evaluations.sort(key=lambda evaluation: list(STATES_ORDERED.keys()).index(evaluation.state))
-
-    delegate_selection_form = DelegateSelectionForm()
+        displayed_evaluations |= delegated_evaluations - displayed_evaluations
+    displayed_evaluations = list(displayed_evaluations)
+    displayed_evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
 
     for evaluation in displayed_evaluations:
-        evaluation.distribution = calculate_average_distribution(evaluation)
-        evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+        if evaluation.state == "published":
+            if not evaluation.is_single_result:
+                evaluation.distribution = calculate_average_distribution(evaluation)
+                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+            else:
+                evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+    displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
     semester_list = [dict(
@@ -49,7 +69,7 @@ def index(request):
     template_data = dict(
         semester_list=semester_list,
         show_delegated=show_delegated,
-        delegate_selection_form=delegate_selection_form,
+        delegate_selection_form=DelegateSelectionForm(),
     )
     return render(request, "contributor_index.html", template_data)
 

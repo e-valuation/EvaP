@@ -4,25 +4,19 @@
     {{ block.super }}
     <h3>
         {% if evaluation_form.instance.id %}
-            {{ evaluation.name }} ({{ evaluation.course.semester.name }})
+            {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
         {% else %}
             {% trans 'Create evaluation' %}
         {% endif %}
     </h3>
-    <div class="mb-2">
-        {% include 'evaluation_badges.html' with mode='manager' %}
-    </div>
+    {% if evaluation_form.instance.id %}
+        <div class="mb-2">
+            {% include 'course_badges.html' %}
+        </div>
+    {% endif %}
     <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form select2form">
         {% csrf_token %}
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <fieldset>
-                    <h5 class="card-title">{% trans 'Course data' %}</h5>
-                    {% include 'bootstrap_form.html' with form=course_form %}
-                </fieldset>
-            </div>
-        </div>
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'evaluation_form_general_questionnaires.html' with evaluation=evaluation evaluation_form=evaluation_form %}

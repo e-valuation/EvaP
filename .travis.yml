@@ -19,4 +19,4 @@ script:
   - python manage.py test --keepdb --reverse
   - python manage.py test --keepdb --debug-mode
 after_success:
-  - coveralls\
+  - coveralls

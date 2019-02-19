@@ -273,6 +273,7 @@ class TestEvaluations(WebTest):
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
 
         evaluation.publish()
+        evaluation.save()
 
         self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
         self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
@@ -280,6 +281,7 @@ class TestEvaluations(WebTest):
         self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
 
         evaluation.unpublish()
+        evaluation.save()
 
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
@@ -287,8 +289,23 @@ class TestEvaluations(WebTest):
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
 
 
-class TestUserProfile(TestCase):
+class TestCourse(TestCase):
+    def test_can_manager_delete(self):
+        course = mommy.make(Course)
+        evaluation = mommy.make(Evaluation, course=course)
+        self.assertFalse(course.can_manager_delete)
 
+        evaluation.delete()
+        self.assertTrue(course.can_manager_delete)
+
+    def test_responsibles_names(self):
+        user1 = mommy.make(UserProfile)
+        user2 = mommy.make(UserProfile)
+        course = mommy.make(Course, responsibles=[user1, user2])
+        self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
+
+
+class TestUserProfile(TestCase):
     def test_is_student(self):
         some_user = mommy.make(UserProfile)
         self.assertFalse(some_user.is_student)
@@ -349,7 +366,6 @@ class TestUserProfile(TestCase):
 
 
 class ParticipationArchivingTests(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.semester = mommy.make(Semester)
@@ -417,7 +433,7 @@ class ParticipationArchivingTests(TestCase):
         with self.assertRaises(NotArchiveable):
             self.semester.archive_participations()
         with self.assertRaises(NotArchiveable):
-            self.semester.courses.first().evaluation._archive_participations()
+            self.semester.courses.first().evaluations.first()._archive_participations()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
         evaluation = mommy.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
@@ -439,7 +455,6 @@ class ParticipationArchivingTests(TestCase):
 
 
 class TestLoginUrlEmail(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.other_user = mommy.make(UserProfile, email="other@extern.com")

@@ -14,7 +14,8 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
-from evap.results.views import update_template_cache
+from evap.results.views import (update_template_cache,
+                                update_template_cache_of_published_evaluations_in_course)
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class EvaluationParticipantCopyForm(forms.Form):
         # Here we split the evaluations by semester and create supergroups for them. We also make sure to include an empty option.
         choices = [('', '<empty>')]
         for semester in Semester.objects.all():
-            evaluation_choices = [(evaluation.pk, evaluation.name) for evaluation in Evaluation.objects.filter(course__semester=semester)]
+            evaluation_choices = [(evaluation.pk, evaluation.full_name) for evaluation in Evaluation.objects.filter(course__semester=semester)]
             if evaluation_choices:
                 choices += [(semester.name, evaluation_choices)]
 
@@ -148,7 +149,6 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseForm(forms.ModelForm):
-    prefix = 'course'
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
@@ -193,21 +193,22 @@ class EvaluationForm(forms.ModelForm):
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
-    course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Evaluation
-        fields = ('name_de', 'name_en', 'is_rewarded', 'is_midterm_evaluation', 'vote_start_datetime', 'vote_end_date',
-                  'participants', 'general_questionnaires', 'last_modified_time', 'last_modified_user_name',
-                  'course')
+        fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
+                  'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
+                  'last_modified_time', 'last_modified_user_name')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):
+        semester = kwargs.pop('semester', None)
         super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             Q(obsolete=False) | Q(contributions__evaluation=self.instance)).distinct()
@@ -224,21 +225,23 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
 
-        if not self.instance.can_manager_edit:
+        if self.instance.pk and not self.instance.can_manager_edit:
             disable_all_fields(self)
 
-    # TODO (#1047): add this test once a Course can have multiple Evaluations
-    # def validate_unique(self):
-    #     super().validate_unique()
-    #     # name_xy and course are unique together. This will be treated as a non-field-error since two
-    #     # fields are involved. Since we only show the name_xy field to the user, assign that error to this
-    #     # field. This hack is not documented, so it might be broken when you are reading this.
-    #     for e in self.non_field_errors().as_data():
-    #         if e.code == "unique_together" and "unique_check" in e.params:
-    #             if "course" in e.params["unique_check"]:
-    #                 # The order of the fields is probably determined by the unique_together constraints in the Evaluation class.
-    #                 name_field = e.params["unique_check"][1]
-    #                 self.add_error(name_field, e)
+        if self.instance.pk:
+            self.instance.old_course = self.instance.course
+
+    def validate_unique(self):
+        super().validate_unique()
+        # name_xy and course are unique together. This will be treated as a non-field-error since two
+        # fields are involved. Since we only show the name_xy field to the user, assign that error to this
+        # field. This hack is not documented, so it might be broken when you are reading this.
+        for e in self.non_field_errors().as_data():
+            if e.code == "unique_together" and "unique_check" in e.params:
+                if "course" in e.params["unique_check"]:
+                    # The order of the fields is probably determined by the unique_together constraints in the Evaluation class.
+                    name_field = e.params["unique_check"][1]
+                    self.add_error(name_field, e)
 
     def clean_participants(self):
         participants = self.cleaned_data.get('participants')
@@ -251,6 +254,13 @@ class EvaluationForm(forms.ModelForm):
 
         return participants
 
+    def clean_weight(self):
+        weight = self.cleaned_data.get('weight')
+        course = self.cleaned_data.get('course')
+        if weight == 0 and not course.evaluations.exclude(pk=self.instance.pk).filter(weight__gt=0).exists():
+            self.add_error("weight", _("At least one evaluation of the course must have a weight greater than 0."))
+        return weight
+
     def clean(self):
         super().clean()
         vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
@@ -261,9 +271,12 @@ class EvaluationForm(forms.ModelForm):
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, *args, **kw):
-        self.instance.course = Course.objects.get(id=self.instance.course.id)  # TODO (#1047): remove once course form is handled on separate page
         evaluation = super().save(*args, **kw)
         evaluation.general_contribution.questionnaires.set(self.cleaned_data.get('general_questionnaires'))
+        if hasattr(self.instance, 'old_course'):
+            if self.instance.old_course != evaluation.course:
+                update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
+                update_template_cache_of_published_evaluations_in_course(evaluation.course)
         return evaluation
 
 
@@ -271,22 +284,21 @@ class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
-    responsible = UserModelChoiceField(label=_("Responsible"), queryset=UserProfile.objects.exclude_inactive_users())
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
     answer_3 = forms.IntegerField(label=_("# neutral"), initial=0)
     answer_4 = forms.IntegerField(label=_("# bad"), initial=0)
     answer_5 = forms.IntegerField(label=_("# very bad"), initial=0)
-    type = forms.ModelChoiceField(CourseType.objects.all())
-    degrees = forms.ModelMultipleChoiceField(Degree.objects.all())
 
     class Meta:
         model = Evaluation
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'event_date', 'responsible', 'answer_1', 'answer_2', 'answer_3', 'answer_4',
-                  'answer_5', 'last_modified_time_2', 'last_modified_user_2')
+        fields = ('course', 'name_de', 'name_en', 'weight', 'event_date', 'answer_1', 'answer_2', 'answer_3',
+                  'answer_4', 'answer_5', 'last_modified_time_2', 'last_modified_user_2')
 
     def __init__(self, *args, **kwargs):
+        semester = kwargs.pop('semester', None)
         super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
         self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
         if self.instance.last_modified_user:
@@ -295,75 +307,64 @@ class SingleResultForm(forms.ModelForm):
         if self.instance.vote_start_datetime:
             self.fields['event_date'].initial = self.instance.vote_start_datetime
 
-        if not self.instance.can_manager_edit:
+        if self.instance.pk and not self.instance.can_manager_edit:
             disable_all_fields(self)
 
         if self.instance.pk:
-            responsible = self.instance.course.responsibles.first()
-            self.fields['responsible'].queryset |= UserProfile.objects.filter(pk=responsible.pk)
-            self.fields['responsible'].initial = responsible
-            answer_counts = dict()
             for answer_counter in self.instance.ratinganswer_counters:
-                answer_counts[answer_counter.answer] = answer_counter.count
-            for i in range(1, 6):
-                self.fields['answer_' + str(i)].initial = answer_counts[i]
-            self.fields['type'].initial = self.instance.course.type
-            self.fields['degrees'].initial = self.instance.course.degrees.all()
+                self.fields['answer_{}'.format(answer_counter.answer)].initial = answer_counter.count
+            self.instance.old_course = self.instance.course
 
-    # TODO (#1047): add additional uniqueness check for Evaluation's names when a Course can have multiple Evaluations
-    def clean_name_de(self):
-        name_de = self.cleaned_data.get('name_de')
-        if Course.objects.filter(semester=self.instance.course.semester, name_de=name_de).exclude(id=self.instance.course.id).exists():
-            self.add_error("name_de", _("This name (German) was already used for a course in this semester."))
-        return name_de
-
-    def clean_name_en(self):
-        name_en = self.cleaned_data.get('name_en')
-        if Course.objects.filter(semester=self.instance.course.semester, name_en=name_en).exclude(id=self.instance.course.id).exists():
-            self.add_error("name_en", _("This name (English) was already used for a course in this semester."))
-        return name_en
+    def validate_unique(self):
+        super().validate_unique()
+        # name_xy and course are unique together. This will be treated as a non-field-error since two
+        # fields are involved. Since we only show the name_xy field to the user, assign that error to this
+        # field. This hack is not documented, so it might be broken when you are reading this.
+        for e in self.non_field_errors().as_data():
+            if e.code == "unique_together" and "unique_check" in e.params:
+                if "course" in e.params["unique_check"]:
+                    # The order of the fields is probably determined by the unique_together constraints in the Evaluation class.
+                    name_field = e.params["unique_check"][1]
+                    self.add_error(name_field, e)
 
     def save(self, *args, **kw):
-        self.instance.course.is_graded = False
-        self.instance.course.name_de = self.cleaned_data['name_de']
-        self.instance.course.name_en = self.cleaned_data['name_en']
-        self.instance.course.type = self.cleaned_data['type']
-        self.instance.course.save()
-        self.instance.course.responsibles.set([self.cleaned_data['responsible']])
-        self.instance.course.degrees.set(self.cleaned_data['degrees'])
-        self.instance.course.save()
-        self.instance.course = Course.objects.get(id=self.instance.course.id)
-
         user = kw.pop("user")
         self.instance.last_modified_user = user
         event_date = self.cleaned_data['event_date']
         self.instance.vote_start_datetime = date_to_datetime(event_date)
         self.instance.vote_end_date = event_date
         self.instance.is_single_result = True
-        super().save(*args, **kw)
+        evaluation = super().save(*args, **kw)
 
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution, created = Contribution.objects.get_or_create(evaluation=self.instance, contributor=None)
+        contribution, created = Contribution.objects.get_or_create(evaluation=evaluation, contributor=None)
         if created:
             contribution.questionnaires.add(single_result_questionnaire)
         contribution.save()
 
         # set answers
-        contribution = Contribution.objects.get(evaluation=self.instance)
+        contribution = Contribution.objects.get(evaluation=evaluation)
         total_votes = 0
         for i in range(1, 6):
             count = self.cleaned_data['answer_' + str(i)]
             total_votes += count
             RatingAnswerCounter.objects.update_or_create(contribution=contribution, question=single_result_question, answer=i, defaults={'count': count})
-        self.instance._participant_count = total_votes
-        self.instance._voter_count = total_votes
+        evaluation._participant_count = total_votes
+        evaluation._voter_count = total_votes
 
         # change state to "reviewed"
         # works only for single_results so the evaluation and its contribution must be saved first
-        self.instance.single_result_created()
-        self.instance.save()
+        evaluation.single_result_created()
+        evaluation.save()
+
+        if hasattr(self.instance, 'old_course'):
+            if self.instance.old_course != evaluation.course:
+                update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
+                update_template_cache_of_published_evaluations_in_course(evaluation.course)
+
+        return evaluation
 
 
 class ContributionForm(forms.ModelForm):
@@ -406,7 +407,7 @@ class ContributionForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
 
-        if not self.evaluation.can_manager_edit:
+        if self.evaluation.pk and not self.evaluation.can_manager_edit:
             # form is used as read-only evaluation view
             disable_all_fields(self)
 

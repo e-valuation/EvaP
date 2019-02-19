@@ -103,7 +103,7 @@ class Semester(models.Model):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(courses__evaluation__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(courses__evaluations__state="published", results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -299,6 +299,10 @@ class Course(models.Model):
         return not self.semester.participations_are_archived
 
     @property
+    def can_manager_delete(self):
+        return not self.evaluations.exists()
+
+    @property
     def final_grade_documents(self):
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
@@ -312,17 +316,25 @@ class Course(models.Model):
     def responsibles_names(self):
         return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
 
+    @property
+    def all_evaluations_finished(self):
+        return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
+
 
 class Evaluation(models.Model):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
     state = FSMField(default='new', protected=True)
 
-    course = models.OneToOneField(Course, models.CASCADE, verbose_name=_("course"), related_name="evaluation")
+    course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
-    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"))
-    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"))
+    # names can be empty, e.g., when there is just one evaluation in a course
+    name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), blank=True)
+    name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), blank=True)
     name = translate(en='name_en', de='name_de')
+
+    # defines how large the influence of this evaluation's grade is on the total grade of its course
+    weight = models.PositiveSmallIntegerField(verbose_name=_("weight"), default=1)
 
     is_single_result = models.BooleanField(verbose_name=_("is single result"), default=False)
 
@@ -355,7 +367,8 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        ordering = ('name_de',)
+        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
+        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
@@ -364,7 +377,7 @@ class Evaluation(models.Model):
         verbose_name_plural = _("evaluations")
 
     def __str__(self):
-        return self.name
+        return self.full_name
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
@@ -376,10 +389,41 @@ class Evaluation(models.Model):
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
+        if hasattr(self, 'state_change'):
+            if self.state_change == "published":
+                from evap.results.tools import collect_results
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                collect_results(self)
+                update_template_cache_of_published_evaluations_in_course(self.course)
+            elif self.state_change == "unpublished":
+                from evap.results.tools import get_collect_results_cache_key
+                from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
+                caches['results'].delete(get_collect_results_cache_key(self))
+                delete_template_cache(self)
+                update_template_cache_of_published_evaluations_in_course(self.course)
+
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
         logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+
+    @property
+    def full_name(self):
+        if self.name:
+            return "{} – {}".format(self.course.name, self.name)
+        return self.course.name
+
+    @property
+    def full_name_de(self):
+        if self.name_de:
+            return "{} – {}".format(self.course.name_de, self.name_de)
+        return self.course.name_de
+
+    @property
+    def full_name_en(self):
+        if self.name_en:
+            return "{} – {}".format(self.course.name_en, self.name_en)
+        return self.course.name_en
 
     @property
     def is_fully_reviewed(self):
@@ -414,6 +458,8 @@ class Evaluation(models.Model):
     def can_user_see_evaluation(self, user):
         if user.is_manager:
             return True
+        if self.state == 'new':
+            return False
         if user.is_reviewer and not self.course.semester.results_are_archived:
             return True
         if self.course.is_private or user.is_external:
@@ -662,21 +708,17 @@ class Evaluation(models.Model):
 
 
 @receiver(post_transition, sender=Evaluation)
-def warmup_cache_on_publish(instance, target, **_kwargs):
+def course_was_published(instance, target, **_kwargs):
+    """ Evaluation.save checks whether caches must be updated based on this value """
     if target == 'published':
-        from evap.results.tools import collect_results
-        from evap.results.views import warm_up_template_cache
-        collect_results(instance)
-        warm_up_template_cache([instance])
+        instance.state_change = "published"
 
 
 @receiver(post_transition, sender=Evaluation)
-def delete_cache_on_unpublish(instance, source, **_kwargs):
+def course_was_unpublished(instance, source, **_kwargs):
+    """ Evaluation.save checks whether caches must be updated based on this value """
     if source == 'published':
-        from evap.results.tools import get_collect_results_cache_key
-        from evap.results.views import delete_template_cache
-        caches['results'].delete(get_collect_results_cache_key(instance))
-        delete_template_cache(instance)
+        instance.state_change = "unpublished"
 
 
 @receiver(post_transition, sender=Evaluation)
@@ -1237,8 +1279,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor or self.is_responsible:
             return True
 
-        last_semester_participated = Semester.objects.filter(courses__evaluation__participants=self).order_by("-created_at").first()
-        last_semester_contributed = Semester.objects.filter(courses__evaluation__contributions__contributor=self).order_by("-created_at").first()
+        last_semester_participated = Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 

@@ -10,38 +10,38 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, NO_ANSWER, Semester
+from evap.evaluation.models import Evaluation, Course, NO_ANSWER, Semester
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
-from evap.results.tools import calculate_average_distribution, distribution_to_grade, textanswers_visible_to
+from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
+                                textanswers_visible_to)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 
 @participant_required
 def index(request):
-    # retrieve all evaluations, where the user is a participant and that are not new
-    evaluations = list(set(Evaluation.objects.filter(participants=request.user).exclude(state="new")))
+    # retrieve all courses which have evaluations that are not in state "new" and in which the user participates
+    courses = Course.objects.filter(
+        evaluations__participants=request.user,
+        evaluations__state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
+    ).distinct()
+    # retrieve all evaluations which the user can see that are not new
+    evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(request.user)]
     for evaluation in evaluations:
-        evaluation.distribution = calculate_average_distribution(evaluation)
-        evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
-
-    voted_evaluations = list(set(Evaluation.objects.filter(voters=request.user)))
-    due_evaluations = list(set(Evaluation.objects.filter(participants=request.user, state='in_evaluation').exclude(voters=request.user)))
-
-    # due evaluations come first, then everything else in chronological order
-    # some states are handled as a group because they appear the same to students
-    def sorter(evaluation):
-        return (
-            evaluation not in due_evaluations,
-            evaluation.state not in ['prepared', 'editor_approved', 'approved'],
-            evaluation.state != 'in_evaluation',
-            evaluation.state not in ['evaluated', 'reviewed'],
-            evaluation.name
-        )
-    evaluations.sort(key=sorter)
+        if evaluation.state == "published":
+            if not evaluation.is_single_result:
+                evaluation.distribution = calculate_average_distribution(evaluation)
+                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+            else:
+                evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+        evaluation.participates_in = request.user in evaluation.participants.all()
+        evaluation.voted_for = request.user in evaluation.voters.all()
+    evaluations = get_evaluations_with_course_result_attributes(evaluations)
+    evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
 
     semesters = Semester.objects.all()
     semester_list = [dict(
@@ -55,7 +55,6 @@ def index(request):
 
     template_data = dict(
         semester_list=semester_list,
-        voted_evaluations=voted_evaluations,
         can_download_grades=request.user.can_download_grades,
     )
     return render(request, "student_index.html", template_data)

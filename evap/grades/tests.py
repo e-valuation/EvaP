@@ -24,7 +24,6 @@ class GradeUploadTest(WebTest):
         cls.course = mommy.make(Course, semester=cls.semester)
         cls.evaluation = mommy.make(
             Evaluation,
-            name_en="Test",
             course=cls.course,
             vote_start_datetime=datetime.now() - timedelta(days=10),
             vote_end_date=date.today() + timedelta(days=10),
@@ -84,45 +83,46 @@ class GradeUploadTest(WebTest):
 
     def test_upload_final_grades(self):
         course = self.course
+        evaluation = self.evaluation
         self.assertEqual(course.final_grade_documents.count(), 0)
 
         # state: new
         self.helper_check_final_grade_upload(course, 0)
 
         # state: prepared
-        course.evaluation.ready_for_editors()
-        course.evaluation.save()
+        evaluation.ready_for_editors()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: editor_approved
-        course.evaluation.editor_approve()
-        course.evaluation.save()
+        evaluation.editor_approve()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
-        course.evaluation.manager_approve()
-        course.evaluation.save()
+        evaluation.manager_approve()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: in_evaluation
-        course.evaluation.evaluation_begin()
-        course.evaluation.save()
+        evaluation.evaluation_begin()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: evaluated
-        course.evaluation.evaluation_end()
-        course.evaluation.save()
+        evaluation.evaluation_end()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: reviewed
-        course.evaluation.review_finished()
-        course.evaluation.save()
+        evaluation.review_finished()
+        evaluation.save()
         self.helper_check_final_grade_upload(
-            course, course.evaluation.num_participants + course.evaluation.contributions.exclude(contributor=None).count())
+            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
 
         # state: published
-        course.evaluation.publish()
-        course.evaluation.save()
+        evaluation.publish()
+        evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):

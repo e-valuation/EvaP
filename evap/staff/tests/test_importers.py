@@ -26,9 +26,7 @@ class TestUserImporter(TestCase):
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
-
-        __, __, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-
+        UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertEqual(original_users, list(UserProfile.objects.all()))
 
     def test_test_and_notest_equality(self):

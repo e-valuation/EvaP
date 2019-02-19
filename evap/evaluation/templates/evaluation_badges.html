@@ -5,7 +5,7 @@
 {% endif %}
 <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
 {% if evaluation.is_single_result %}
-    <span class="badge badge-info">{% trans 'Single result' %}</span>
+    <span class="badge badge-success">{% trans 'Single result' %}</span>
 {% endif %}
 {% if evaluation.is_midterm_evaluation %}<span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
 {% if mode == 'manager' and not evaluation.is_single_result %}

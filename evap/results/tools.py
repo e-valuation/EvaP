@@ -4,7 +4,7 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
 
@@ -202,6 +202,30 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
+def calculate_average_course_distribution(course):
+    if course.evaluations.exclude(state="published").exists():
+        return None
+
+    return avg_distribution([
+        (
+            calculate_average_distribution(evaluation) if not evaluation.is_single_result else normalized_distribution(get_single_result_rating_result(evaluation).counts),
+            evaluation.weight
+        )
+        for evaluation in course.evaluations.all()
+    ])
+
+
+def get_evaluations_with_course_result_attributes(evaluations):
+    for evaluation in evaluations:
+        if evaluation.course.evaluations.exclude(state="published").exists():
+            evaluation.course.not_all_evaluations_are_published = True
+        evaluation.course.evaluation_count = evaluation.course.evaluations.count()
+        evaluation.course.distribution = calculate_average_course_distribution(evaluation.course)
+        evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
+        evaluation.course.evaluation_weight_sum = evaluation.course.evaluations.all().aggregate(Sum('weight'))["weight__sum"]
+    return evaluations
+
+
 def calculate_average_distribution(evaluation):
     if not evaluation.can_publish_average_grade:
         return None
@@ -245,8 +269,8 @@ def color_mix(color1, color2, fraction):
 
 
 def get_grade_color(grade):
-    # Can happen if no one leaves any grades. Return white because its least likely to cause problems.
-    if grade is None:
+    # Can happen if no one leaves any grades. Return white because it least likely causes problems.
+    if not grade:
         return (255, 255, 255)
     grade = round(grade, 1)
     next_lower = int(grade)

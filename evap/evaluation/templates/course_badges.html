@@ -1,0 +1,6 @@
+{% for degree in course.degrees.all %}
+    <span class="badge badge-primary">{{ degree }}</span>
+{% endfor %}
+<span class="badge badge-secondary">{{ course.type }}</span>
+{% if not course.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
+{% if course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}

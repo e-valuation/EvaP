@@ -39,7 +39,7 @@
                         {% for evaluation in evaluations %}
                             <tr{% if evaluation.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
-                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.name }}</a><br />
+                                    <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
                                     {% include 'evaluation_badges.html' with mode='manager' %}
                                 </th>
                                 <td>{{ evaluation.state|statename }}</td>

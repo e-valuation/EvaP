@@ -54,12 +54,15 @@
     <td class="icon" data-order="3"><span class="fas fa-chart-bar icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}"></span></td>
 {% endif %}
 
-<td style="width: {% if info_only %}51%{% else %}42%{% endif %}" data-order="{{ evaluation.name }}">
+<td style="width: {% if info_only %}51%{% else %}42%{% endif %}" data-order="{{ evaluation.full_name }}">
     <div>
     {% if not info_only and request.user.is_manager %}
-        <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.name }}</a>
+        <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a>
+        <a class="small no-underline" href="{% url 'staff:course_edit' semester.id evaluation.course.id %}" data-toggle="tooltip" data-placement="right" title="{% trans 'Edit course' %}">
+            <span class="fas fa-chalkboard-teacher"></span>
+        </a>
     {% else %}
-        {{ evaluation.name }}
+        {{ evaluation.full_name }}
     {% endif %}
     </div>
     <div class="evaluation-contributor">
@@ -175,7 +178,7 @@
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_manager_delete %}
-            <a onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
+            <a onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
         {% endif %}
     </td>
 {% endif %}

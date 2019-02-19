@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
 
+{% load evaluation_filters %}
 {% load results_templatetags %}
 
-{% block title %}{{ evaluation.name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ evaluation.full_name }} - {{ evaluation.course.semester.name }} - {% trans 'Results' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
     <div>
         <ul class="breadcrumb">
             <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.name }}</li>
+            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
         </ul>
         <span class="breadcrumb-end"></span>
     </div>
@@ -28,7 +29,7 @@
             </div>
         {% endif %}
         <div class="d-flex">
-            <h3 class="mr-auto">{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
+            <h3 class="mr-auto">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
@@ -68,7 +69,7 @@
             </div>
         </div>
     {% else %}
-        <h3>{{ evaluation.name }} ({{ evaluation.course.semester.name }})</h3>
+        <h3>{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     {% endif %}
 
     <div class="card card-outline-primary mb-3">
@@ -87,33 +88,49 @@
                 </div>
             {% endif %}
         </div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="width: 10%">{% trans 'Degree' %}</th>
-                        <th style="width: 15%">{% trans 'Type' %}</th>
-                        <th style="width: 30%">{% trans 'Responsible' %}</th>
-                        <th style="width: 15%">{% if not evaluation.is_single_result %}{% trans 'Voters' %}{% endif %}</th>
-                        <th style="width: 30%">{% trans 'Distribution and average grade' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            {% for degree in evaluation.course.degrees.all %}
-                                {{ degree }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>{{ evaluation.course.type }}</td>
-                        <td>
-                            {{ evaluation.course.responsibles_names }}
-                        </td>
-                        <td>{% if not evaluation.is_single_result %}{% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants %}{% endif %}</td>
-                        <td>{% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade %}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="card-body pt-2">
+            {% if course_evaluations %}
+                <table class="table table-hover-evap vertically-aligned">
+                    <thead>
+                        <tr class="table-header bt-0">
+                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
+                            <th style="width: 10%">{% trans 'Semester' %}</th>
+                            <th style="width: 22%">{% trans 'Responsible' %}</th>
+                            <th style="width: 13%">{% trans 'Voters' %}</th>
+                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% include 'results_index_course.html' %}
+                        {% for course_evaluation in course_evaluations|dictsort:"name" %}
+                            {% if course_evaluation.pk == evaluation.pk %}
+                                {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
+                                <tr class="current-row-follows"></tr>
+                            {% endif %}
+                            {% with evaluation=course_evaluation %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=True %}
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <table class="table vertically-aligned">
+                    <thead>
+                        <tr class="table-header bt-0">
+                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
+                            <th style="width: 10%">{% trans 'Semester' %}</th>
+                            <th style="width: 22%">{% trans 'Responsible' %}</th>
+                            <th style="width: 13%">{% trans 'Voters' %}</th>
+                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
+                        <tr class="nohover-row-follows"></tr>
+                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=False %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 

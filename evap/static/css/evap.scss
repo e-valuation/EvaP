@@ -20,6 +20,10 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1rem;
 }
 
+tr.bt-0 th {
+    border-top: none;
+}
+
 .navbar {
     padding: 0 1rem;
     -webkit-font-smoothing: subpixel-antialiased;
@@ -751,6 +755,9 @@ select[multiple] {
     font-weight: bold;
     padding-top: 0.3rem;
 }
+.form-static-text {
+    padding-top: 0.3rem;
+}
 
 .evap-progress-bar-container {
     padding-right: 4px;
@@ -810,10 +817,6 @@ select[multiple] {
     color: $black;
 }
 
-.preview {
-    opacity: 0.4;
-}
-
 .textanswer-link {
     color: $black;
 }
@@ -868,6 +871,13 @@ div.disabled-tooltip {
     margin: -10em;
     padding: 10em;
 }
+.table-hover-evap tr.preview td .evaluation-name
+{
+    color: $evap-dark-yellow;
+}
+tr.hover-results {
+    height: 2.5rem;
+}
 tr.hover-results:hover:not(.nohover):not(.hoverpause) .btn-results,
 tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
 tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
@@ -877,7 +887,39 @@ tr.hover-vote:hover:not(.nohover):not(.hoverpause) .btn-vote,
 tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
     box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
 }
+tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
+tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
+    box-shadow: none;
+}
 
+tr.heading-row.course-row{
+    td {
+        padding-bottom: 0.2rem;
+    }
+}
+tr.evaluation-row:not(.heading-row) {
+    border-radius: 0.2rem;
+    td {
+        padding-top: 0.18rem;
+        padding-bottom: 0.18rem;
+        border: none;
+        font-size: 0.9rem;
+    }
+    td:first-of-type {
+        padding-left: 2rem;
+    }
+    .evaluation-name {
+        font-style: italic;
+        color: $dark-gray;
+    }
+}
+tr.current-row-follows + tr {
+    box-shadow: inset 0px 0px 6px $evap-dark-blue;
+}
+
+.course-responsible {
+    font-style: italic;
+}
 .evaluation-contributor {
     font-style: italic;
 }
@@ -959,6 +1001,12 @@ td.icon {
 
 a.no-underline:hover {
     text-decoration: none;
+}
+
+.card-header .nav-pills {
+    .nav-link {
+        padding: 0.1rem 0.5rem;
+    }
 }
 
 /* Results index page */

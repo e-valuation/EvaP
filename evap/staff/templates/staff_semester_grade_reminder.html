@@ -12,10 +12,10 @@
     </h3>
     <div class="card">
         <div class="card-body">
-            {% for responsible, evaluations in responsible_list %}
+            {% for responsible, courses in responsible_list %}
                 <b>{{ responsible.full_name }}</b><br />
-                {% for evaluation in evaluations %}
-                    - {{ evaluation.name }} (<i>{{ evaluation.course.type }}</i>)<br />
+                {% for course in courses %}
+                    - {{ course.name }} (<i>{{ course.type }}</i>)<br />
                 {% endfor %}
                 {% if not forloop.last %}
                     <br />

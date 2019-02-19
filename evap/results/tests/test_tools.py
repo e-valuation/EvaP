@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 from django.core.cache import caches
 from django.test import override_settings
@@ -6,9 +7,10 @@ from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, Evaluation, Question, Questionnaire, RatingAnswerCounter,
                                     TextAnswer, UserProfile)
-from evap.results.tools import (calculate_average_distribution, collect_results, distribution_to_grade,
-                                get_collect_results_cache_key, get_single_result_rating_result, normalized_distribution,
-                                RatingResult, textanswers_visible_to, unipolarized_distribution)
+from evap.results.tools import (calculate_average_course_distribution, calculate_average_distribution, collect_results,
+                                distribution_to_grade, get_collect_results_cache_key, get_single_result_rating_result,
+                                normalized_distribution, RatingResult, textanswers_visible_to,
+                                unipolarized_distribution)
 from evap.results.views import user_can_see_textanswer
 from evap.staff.tools import merge_users
 
@@ -27,6 +29,7 @@ class TestCalculateResults(TestCase):
         evaluation = mommy.make(Evaluation, state='published', _voter_count=0, _participant_count=0)
         collect_results(evaluation)
         evaluation.unpublish()
+        evaluation.save()
 
         self.assertIsNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
 
@@ -281,6 +284,35 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(distribution[2], 0)
         self.assertEqual(distribution[3], 0)
         self.assertAlmostEqual(distribution[4], 0.43)
+
+    def test_calculate_average_course_distribution(self):
+        mommy.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=2)
+
+        course = self.evaluation.course
+        single_result = mommy.make(
+            Evaluation,
+            name_de="Single Result",
+            name_en="Single Result",
+            course=course,
+            weight=3,
+            is_single_result=True,
+            vote_start_datetime=datetime.now(),
+            vote_end_date=datetime.now().date(),
+            state="published",
+        )
+        single_result_questionnaire = Questionnaire.single_result_questionnaire()
+        single_result_question = single_result_questionnaire.questions.first()
+
+        contribution = mommy.make(Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire])
+        mommy.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=2, count=1)
+        mommy.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=3, count=1)
+
+        distribution = calculate_average_course_distribution(course)
+        self.assertEqual(distribution[0], 0.25)
+        self.assertEqual(distribution[1], 0.375)
+        self.assertEqual(distribution[2], 0.375)
+        self.assertEqual(distribution[3], 0)
+        self.assertEqual(distribution[4], 0)
 
 
 class TestTextAnswerVisibilityInfo(TestCase):

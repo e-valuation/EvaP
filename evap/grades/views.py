@@ -44,7 +44,7 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = semester.courses.filter(is_graded=True).exclude(evaluation__state='new')
+    courses = semester.courses.filter(is_graded=True).exclude(evaluations__state='new')
     courses = prefetch_data(courses)
 
     template_data = dict(
@@ -96,10 +96,12 @@ def upload_grades(request, semester_id, course_id):
 
     if form.is_valid():
         form.save(modifying_user=request.user)
-        if final_grades and course.evaluation.state == 'reviewed':
-            course.evaluation.publish()
-            course.evaluation.save()
-            send_publish_notifications([course.evaluation])
+        evaluations = course.evaluations.all()
+        if final_grades and all(evaluation.state == 'reviewed' for evaluation in evaluations):
+            for evaluation in evaluations:
+                evaluation.publish()
+                evaluation.save()
+            send_publish_notifications(evaluations)
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -124,11 +126,12 @@ def toggle_no_grades(request):
 
     course.gets_no_grade_documents = not course.gets_no_grade_documents
     course.save()
-    if course.gets_no_grade_documents:
-        if course.evaluation.state == 'reviewed':
-            course.evaluation.publish()
-            course.evaluation.save()
-            send_publish_notifications([course.evaluation])
+    evaluations = course.evaluations.all()
+    if course.gets_no_grade_documents and all(evaluation.state == 'reviewed' for evaluation in evaluations):
+        for evaluation in evaluations:
+            evaluation.publish()
+            evaluation.save()
+        send_publish_notifications(evaluations)
 
     return HttpResponse()  # 200 OK
 

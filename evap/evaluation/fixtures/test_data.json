@@ -86612,6 +86612,56 @@
   }
 },
 {
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8888,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 1,
+    "count": 6
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8889,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 2,
+    "count": 8
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8890,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 3,
+    "count": 5
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8891,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 4,
+    "count": 3
+  }
+},
+{
+  "model": "evaluation.ratinganswercounter",
+  "pk": 8892,
+  "fields": {
+    "question": 1,
+    "contribution": 4303,
+    "answer": 5,
+    "count": 1
+  }
+},
+{
   "model": "evaluation.textanswer",
   "pk": "00347b40-3f1e-4c56-92cd-4978c5f8c39f",
   "fields": {
@@ -117782,7 +117832,7 @@
   "pk": 815,
   "fields": {
     "password": "pbkdf2_sha256$100000$85ZeSerVM5mq$dt/svaAHtppUjGUjKMmmJCDCwJj8QxR0NyBdtJJCSak=",
-    "last_login": "2019-01-05T11:33:18.829",
+    "last_login": "2019-02-02T16:15:06.324",
     "is_superuser": true,
     "username": "evap",
     "email": "evap@institution.example.com",
@@ -128751,7 +128801,7 @@
   "fields": {
     "name": "Editor Review Notice",
     "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New evaluations ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for evaluation we would like to ask you for the following within a week:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \u201cEinstellungen\u201d k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for evaluation we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128760,7 +128810,7 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Lehrveranstaltungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nFolgende Kurse hast du noch nicht bewertet:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nThe following evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. We\u2019re looking forward to receive your feedback :)\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128769,7 +128819,7 @@
   "fields": {
     "name": "Publishing Notice",
     "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\nEvaluierungsergebnisse der folgenden Kurse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nevaluation results of the following evaluations have just been published:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Nutzer der Evaluierungsplattform,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear users of the evaluation platform,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128787,7 +128837,7 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Veranstaltungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Veranstaltungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your evaluation:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung.\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\nP.S.: Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback.\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe evaluation team\r\n\r\nPS: If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128796,7 +128846,7 @@
   "fields": {
     "name": "Editor Review Reminder",
     "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Evaluation ready for approval",
-    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe. \r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeiter delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertreter hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Lehrveranstaltungen erhalten. Beim Bearbeiten einzelner Lehrveranstaltungen k\u00f6nnen sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Veranstaltung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% else %}Zum Anmelden verwenden Sie bitte Ihre Zugangsdaten.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Lehrveranstaltungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n- Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n- Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n- Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Veranstaltungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all evaluations on our platform EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your evaluations. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% else %}Please use your credentials to login.{% endif %}\r\n\r\nTo prepare your evaluations for the evaluation we would like to ask you for the following:\r\n- Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your evaluation.\r\n- Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n- Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe evaluation team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128805,7 +128855,7 @@
   "fields": {
     "name": "Direct Delegation",
     "subject": "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation",
-    "body": ""
+    "body": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung f\u00fcr \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP (https://evap.hpi.de) vorzubereiten.\r\n\r\nBitte \u00fcberpr\u00fcfen Sie m\u00f6glichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden (evaluierung@hpi.de).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP (https://evap.hpi.de).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team (evaluierung@hpi.de).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -139148,13 +139198,27 @@
   }
 },
 {
+  "model": "evaluation.contribution",
+  "pk": 4303,
+  "fields": {
+    "evaluation": 1715,
+    "contributor": null,
+    "can_edit": false,
+    "textanswer_visibility": "OWN",
+    "label": null,
+    "order": -1,
+    "questionnaires": []
+  }
+},
+{
   "model": "evaluation.evaluation",
   "pk": 34,
   "fields": {
     "state": "published",
     "course": 4,
-    "name_de": "Analyse & Visualisierung von 3D-Punktwolken",
-    "name_en": "Analysis and Visualization of 3D Point Clouds",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139189,8 +139253,9 @@
   "fields": {
     "state": "reviewed",
     "course": 87,
-    "name_de": "Modellierung I",
-    "name_en": "Modeling I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139227,8 +139292,9 @@
   "fields": {
     "state": "reviewed",
     "course": 116,
-    "name_de": "Software Adaption",
-    "name_en": "Software Adaption",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139259,8 +139325,9 @@
   "fields": {
     "state": "published",
     "course": 53,
-    "name_de": "Grafikprogrammierung mit OpenGL und C++",
-    "name_en": "Graphics Programming with OpenGL and C++",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139302,8 +139369,9 @@
   "fields": {
     "state": "published",
     "course": 76,
-    "name_de": "Kliniksystemaufsatz basierend auf In-Memory-Technologie",
-    "name_en": "Prototypical clinical information system based on in-memroy technology",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139354,8 +139422,9 @@
   "fields": {
     "state": "reviewed",
     "course": 128,
-    "name_de": "Telemedicine",
-    "name_en": "Telemedicine",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139394,8 +139463,9 @@
   "fields": {
     "state": "published",
     "course": 100,
-    "name_de": "Projektentwicklung und -management (ohne Kolloquium)",
-    "name_en": "Project Development and Management (without Colloquium)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139433,8 +139503,9 @@
   "fields": {
     "state": "reviewed",
     "course": 83,
-    "name_de": "Mathematik I - Diskrete Strukturen und Logik",
-    "name_en": "Discrete Structures and Logic",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139461,8 +139532,9 @@
   "fields": {
     "state": "reviewed",
     "course": 113,
-    "name_de": "Seminar des Forschungskollegs",
-    "name_en": "Research School Seminar",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139556,8 +139628,9 @@
   "fields": {
     "state": "published",
     "course": 134,
-    "name_de": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
-    "name_en": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139595,8 +139668,9 @@
   "fields": {
     "state": "published",
     "course": 60,
-    "name_de": "IT-Entrepreneurship",
-    "name_en": "IT-Entrepreneurship",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139647,8 +139721,9 @@
   "fields": {
     "state": "reviewed",
     "course": 34,
-    "name_de": "Einf\u00fchrung in das Design Thinking (MA)",
-    "name_en": "Introduction Design Thinking (MA)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139690,20 +139765,21 @@
   "model": "evaluation.evaluation",
   "pk": 348,
   "fields": {
-    "state": "reviewed",
-    "course": 123,
+    "state": "published",
+    "course": 1,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": true,
-    "_participant_count": null,
-    "_voter_count": null,
+    "_participant_count": 9,
+    "_voter_count": 8,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
-    "last_modified_time": "2018-06-03T10:22:16.352",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:28:15.171",
+    "last_modified_user": 815,
     "participants": [
       809,
       836,
@@ -139733,8 +139809,9 @@
   "fields": {
     "state": "published",
     "course": 126,
-    "name_de": "Softwarevisualisierungsverfahren",
-    "name_en": "Software Visualization Techniques",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139771,8 +139848,9 @@
   "fields": {
     "state": "published",
     "course": 141,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren I",
-    "name_en": "Effective Presentations I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -139891,8 +139969,9 @@
   "fields": {
     "state": "published",
     "course": 69,
-    "name_de": "Interactive Representations of Data Structures and Algorithms",
-    "name_en": "Interactive Representations of Data Structures and Algorithms",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140029,8 +140108,9 @@
   "fields": {
     "state": "published",
     "course": 5,
-    "name_de": "Automated Analysis of Formal Models",
-    "name_en": "Automated Analysis of Formal Models",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140103,8 +140183,9 @@
   "fields": {
     "state": "published",
     "course": 37,
-    "name_de": "Evolving Applications: Object -migration with Ruby and GemStone",
-    "name_en": "Evolving Applications: Object -migration with Ruby and GemStone",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140139,8 +140220,9 @@
   "fields": {
     "state": "published",
     "course": 26,
-    "name_de": "Design Thinking Basic Track",
-    "name_en": "Design Thinking Basic Track",
+    "name_de": "",
+    "name_en": "",
+    "weight": 3,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140149,8 +140231,8 @@
     "_voter_count": 41,
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
-    "last_modified_time": "2018-06-06T09:06:22.536",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:15:58.567",
+    "last_modified_user": 815,
     "participants": [
       696,
       713,
@@ -140282,9 +140364,10 @@
   "pk": 372,
   "fields": {
     "state": "published",
-    "course": 20,
-    "name_de": "C\u00b3: Consistent Car Clustering",
-    "name_en": "C\u00b3: Konsistente Fahrzeug Gruppierung",
+    "course": 26,
+    "name_de": "C\u00b3: Konsistente Fahrzeug Gruppierung",
+    "name_en": "C\u00b3: Consistent Car Clustering",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140293,8 +140376,8 @@
     "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
-    "last_modified_time": "2018-06-06T09:06:22.516",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:14:40.767",
+    "last_modified_user": 815,
     "participants": [
       696,
       713,
@@ -140435,8 +140518,9 @@
   "fields": {
     "state": "published",
     "course": 50,
-    "name_de": "Global Team-Based Product Innovation & Engineering I, ME 310",
-    "name_en": "Global Team-Based Product Innovation & Engineering I, ME 310",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140485,8 +140569,9 @@
   "fields": {
     "state": "reviewed",
     "course": 38,
-    "name_de": "Explorative Erstellung von Visualisierungen in einem Interaktiven Programmiersystem",
-    "name_en": "Exploratory Authoring of Interative Content in a Live Environment",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140519,8 +140604,9 @@
   "fields": {
     "state": "published",
     "course": 44,
-    "name_de": "F\u00fchrungskompetenz",
-    "name_en": "Leadership Competence",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140661,8 +140747,9 @@
   "fields": {
     "state": "published",
     "course": 16,
-    "name_de": "Computergrafik II",
-    "name_en": "Computer Graphics II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140786,8 +140873,9 @@
   "fields": {
     "state": "published",
     "course": 12,
-    "name_de": "Business Etikette - HPI Charm School",
-    "name_en": "Business Etiquette - HPI Charm School",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -140924,8 +141012,9 @@
   "fields": {
     "state": "published",
     "course": 2,
-    "name_de": "Advanced Data Profiling",
-    "name_en": "Advanced Data Profiling",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141088,8 +141177,9 @@
   "fields": {
     "state": "published",
     "course": 82,
-    "name_de": "Management Essentials",
-    "name_en": "Management Essentials",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141222,8 +141312,9 @@
   "fields": {
     "state": "published",
     "course": 59,
-    "name_de": "HCI Project: Underwater Motion Capture using Depth Cameras",
-    "name_en": "HCI Project: Underwater Motion Capture using Depth Cameras",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141282,8 +141373,9 @@
   "fields": {
     "state": "published",
     "course": 52,
-    "name_de": "Global Team-Based Product Innovation & Engineering II, ME 310",
-    "name_en": "Global Team-Based Product Innovation & Engineering II, ME 310",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141326,8 +141418,9 @@
   "fields": {
     "state": "published",
     "course": 130,
-    "name_de": "Trends and Concepts in the Software Industry I: Inner Mechanics of In-Memory Databases",
-    "name_en": "Trends and Concepts in the Software Industry I: Inner Mechanics of In-Memory Databases",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141364,8 +141457,9 @@
   "fields": {
     "state": "published",
     "course": 94,
-    "name_de": "Physical Interaction across touch-sensitive rooms",
-    "name_en": "Physical Interaction across touch-sensitive rooms",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141419,8 +141513,9 @@
   "fields": {
     "state": "published",
     "course": 115,
-    "name_de": "Social Reputation",
-    "name_en": "Social Reputation",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141484,8 +141579,9 @@
   "fields": {
     "state": "published",
     "course": 103,
-    "name_de": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
-    "name_en": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141530,8 +141626,9 @@
   "fields": {
     "state": "published",
     "course": 35,
-    "name_de": "Eingebettete Betriebssysteme",
-    "name_en": "Embedded Operating Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141582,8 +141679,9 @@
   "fields": {
     "state": "published",
     "course": 51,
-    "name_de": "Global Team-Based Product Innovation & Engineering I, ME 310",
-    "name_en": "Global Team-Based Product Innovation & Engineering I, ME 310",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141644,8 +141742,9 @@
   "fields": {
     "state": "published",
     "course": 86,
-    "name_de": "Modellgetriebene Softwareentwicklung",
-    "name_en": "Model-driven Software Development",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141678,8 +141777,9 @@
   "fields": {
     "state": "published",
     "course": 90,
-    "name_de": "Modern Computer-aided Software Engineering",
-    "name_en": "Modern Computer-aided Software Engineering",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141720,8 +141820,9 @@
   "fields": {
     "state": "published",
     "course": 73,
-    "name_de": "Internet-Security - Weaknesses and Targets",
-    "name_en": "Internet-Security - Weaknesses and Targets",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141774,8 +141875,9 @@
   "fields": {
     "state": "published",
     "course": 121,
-    "name_de": "Software-as-a-Service and Multi-tenancy",
-    "name_en": "Software-as-a-Service and Multi-tenancy",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141812,8 +141914,9 @@
   "fields": {
     "state": "published",
     "course": 118,
-    "name_de": "Software Profiling",
-    "name_en": "Software Profiling",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141838,8 +141941,9 @@
   "fields": {
     "state": "published",
     "course": 18,
-    "name_de": "Creating Interactive Web-based Apps in the Context of eLearning",
-    "name_en": "Creating Interactive Web-based Apps in the Context of eLearning",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141874,8 +141978,9 @@
   "fields": {
     "state": "published",
     "course": 75,
-    "name_de": "Joint Data Profiling",
-    "name_en": "Joint Data Profiling",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141904,8 +142009,9 @@
   "fields": {
     "state": "published",
     "course": 24,
-    "name_de": "Design Thinking Advanced Track",
-    "name_en": "Design Thinking Advanced Track",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141939,8 +142045,9 @@
   "fields": {
     "state": "published",
     "course": 55,
-    "name_de": "HCI Project Seminar on Interactive Fabrication and Muscle Interfaces",
-    "name_en": "HCI Project Seminar on Interactive Fabrication and Muscle Interfaces",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -141972,8 +142079,9 @@
   "fields": {
     "state": "published",
     "course": 61,
-    "name_de": "IT-Entrepreneurship I",
-    "name_en": "IT-Entrepreneurship I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142015,8 +142123,9 @@
   "fields": {
     "state": "published",
     "course": 109,
-    "name_de": "Security Testing and Surveillance for Large-Scale Software",
-    "name_en": "Security Testing and Surveillance for Large-Scale Software",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142134,8 +142243,9 @@
   "fields": {
     "state": "published",
     "course": 21,
-    "name_de": "Data Mining and Probabilistic Reasoning",
-    "name_en": "Data Mining and Probabilistic Reasoning",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142161,8 +142271,9 @@
   "fields": {
     "state": "published",
     "course": 17,
-    "name_de": "Computergrafik II",
-    "name_en": "Computer Graphics II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142206,8 +142317,9 @@
   "fields": {
     "state": "published",
     "course": 3,
-    "name_de": "Algorithmen und Techniken der Geovisualisierung",
-    "name_en": "Algorithms and Techniques for Geovisualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142237,8 +142349,9 @@
   "fields": {
     "state": "published",
     "course": 131,
-    "name_de": "Trends und Konzepte in der Software Industrie II - Next Generation Clinical Information Systems",
-    "name_en": "Trends and Concepts in Software Industry II - Next Generation Clinical Information Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142346,8 +142459,9 @@
   "fields": {
     "state": "published",
     "course": 97,
-    "name_de": "Professionalisierte Lerntechniken",
-    "name_en": "Professionalized Learning Techniques",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142379,8 +142493,9 @@
   "fields": {
     "state": "published",
     "course": 30,
-    "name_de": "Drug Response Analysis on In-Memory Technology",
-    "name_en": "Drug Response Analysis on In-Memory Technology",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142439,9 +142554,10 @@
   "pk": 1480,
   "fields": {
     "state": "published",
-    "course": 6,
+    "course": 82,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142450,7 +142566,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
-    "last_modified_time": "2018-06-06T09:06:22.500",
+    "last_modified_time": "2019-01-28T10:21:35.449",
     "last_modified_user": 815,
     "participants": [
       929,
@@ -142492,8 +142608,9 @@
   "fields": {
     "state": "published",
     "course": 28,
-    "name_de": "Designing Interactive Systems",
-    "name_en": "Designing Interactive Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142535,8 +142652,9 @@
   "fields": {
     "state": "published",
     "course": 14,
-    "name_de": "Cloud Computing Technologien",
-    "name_en": "Cloud Computing Technologies",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142666,8 +142784,9 @@
   "fields": {
     "state": "published",
     "course": 29,
-    "name_de": "Designing Interactive Systems",
-    "name_en": "Designing Interactive Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142810,8 +142929,9 @@
   "fields": {
     "state": "published",
     "course": 122,
-    "name_de": "Softwarearchitektur",
-    "name_en": "Software Architecture",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142860,8 +142980,9 @@
   "fields": {
     "state": "new",
     "course": 46,
-    "name_de": "Game Programming",
-    "name_en": "Game Programming",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142890,8 +143011,9 @@
   "fields": {
     "state": "prepared",
     "course": 1,
-    "name_de": "3D-Computergrafik I",
-    "name_en": "3D-Computer Graphic I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142900,8 +143022,8 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
-    "last_modified_time": "2016-02-22T22:08:19.692",
-    "last_modified_user": null,
+    "last_modified_time": "2019-01-28T10:29:20.273",
+    "last_modified_user": 815,
     "participants": [
       51,
       841,
@@ -142921,8 +143043,9 @@
   "fields": {
     "state": "new",
     "course": 65,
-    "name_de": "In-Memory Data Management for Enhanced ERP",
-    "name_en": "In-Memory Data Management for Enhanced ERP",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142955,8 +143078,9 @@
   "fields": {
     "state": "published",
     "course": 84,
-    "name_de": "Mathematik II",
-    "name_en": "Mathematics II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -142996,8 +143120,9 @@
   "fields": {
     "state": "evaluated",
     "course": 98,
-    "name_de": "Projektentwicklung und -management",
-    "name_en": "Project Development and Management",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143026,8 +143151,9 @@
   "fields": {
     "state": "published",
     "course": 78,
-    "name_de": "Konflikt- und Kommunikationsmanagement",
-    "name_en": "Conflict and Communication managment",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143066,8 +143192,9 @@
   "fields": {
     "state": "new",
     "course": 102,
-    "name_de": "Prozessorientierte Informationssysteme I",
-    "name_en": "Process oriented Information Systems I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143093,8 +143220,9 @@
   "fields": {
     "state": "new",
     "course": 63,
-    "name_de": "IT-Recht",
-    "name_en": "Legal Aspects of Information Technology",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143122,8 +143250,9 @@
   "fields": {
     "state": "published",
     "course": 27,
-    "name_de": "Design Thinking Basic Track",
-    "name_en": "Design Thinking Basic Track",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143181,8 +143310,9 @@
   "fields": {
     "state": "published",
     "course": 70,
-    "name_de": "Interaktionen auf 10.000 m\u00b2-Fu\u00dfb\u00f6den",
-    "name_en": "Interaction on 10.000m\u00b2 interactive floors",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143219,8 +143349,9 @@
   "fields": {
     "state": "published",
     "course": 119,
-    "name_de": "Software-Analyse und Visualisierung",
-    "name_en": "Software Analysis and Visualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143278,8 +143409,9 @@
   "fields": {
     "state": "published",
     "course": 120,
-    "name_de": "Software-Design",
-    "name_en": "Software Design",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143382,8 +143514,9 @@
   "fields": {
     "state": "published",
     "course": 132,
-    "name_de": "Trends und Konzepte in der Software-Industrie II - Hauptspeicherdatenbanken f\u00fcr Gesch\u00e4ftsanwendungen.",
-    "name_en": "Trends and Concepts in the Software Industry II - Main Memory Databases for Enterprise Applications.",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143427,8 +143560,9 @@
   "fields": {
     "state": "published",
     "course": 7,
-    "name_de": "BPMN Models to SQL Queries",
-    "name_en": "BPMN Models to SQL Queries",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143506,8 +143640,9 @@
   "fields": {
     "state": "approved",
     "course": 23,
-    "name_de": "Datenbanksysteme I",
-    "name_en": "Database Systems I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143534,8 +143669,9 @@
   "fields": {
     "state": "published",
     "course": 49,
-    "name_de": "Geovisualisierung",
-    "name_en": "Geo-Visualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143596,8 +143732,9 @@
   "fields": {
     "state": "published",
     "course": 33,
-    "name_de": "Einf\u00fchrung in das Design Thinking (BA)",
-    "name_en": "Introduction of Design Thinking (BA)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143666,8 +143803,9 @@
   "fields": {
     "state": "published",
     "course": 114,
-    "name_de": "Sicherheit in komplexen IT-Landschaften",
-    "name_en": "Security in complex-IT-landscapes",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143719,8 +143857,9 @@
   "fields": {
     "state": "editor_approved",
     "course": 72,
-    "name_de": "Internet-Security - Weaknesses and Targets",
-    "name_en": "Internet-Security - Weaknesses and Targets",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143753,19 +143892,20 @@
   "pk": 1545,
   "fields": {
     "state": "editor_approved",
-    "course": 62,
+    "course": 89,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
     "can_publish_text_results": false,
     "_participant_count": null,
     "_voter_count": null,
-    "vote_start_datetime": "2014-08-01T00:00:00",
-    "vote_end_date": "2014-08-31",
-    "last_modified_time": "2016-02-22T22:08:19.812",
-    "last_modified_user": null,
+    "vote_start_datetime": "2099-08-01T00:00:00",
+    "vote_end_date": "2099-08-31",
+    "last_modified_time": "2019-01-28T11:11:46.247",
+    "last_modified_user": 815,
     "participants": [
       859,
       586,
@@ -143789,8 +143929,9 @@
   "fields": {
     "state": "published",
     "course": 58,
-    "name_de": "HCI Project: Underwater Interaction",
-    "name_en": "HCI Project: Underwater Interaction",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143933,8 +144074,9 @@
   "fields": {
     "state": "published",
     "course": 117,
-    "name_de": "Software Engineering for Embedded Systems",
-    "name_en": "Software Engineering for Embedded Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -143964,8 +144106,9 @@
   "fields": {
     "state": "published",
     "course": 22,
-    "name_de": "Data Profiling and Data Cleansing",
-    "name_en": "Data Profiling and Data Cleansing",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144012,8 +144155,9 @@
   "fields": {
     "state": "published",
     "course": 112,
-    "name_de": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
-    "name_en": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144054,8 +144198,9 @@
   "fields": {
     "state": "published",
     "course": 80,
-    "name_de": "Konzepte und Techniken der 3D-Visualisierung",
-    "name_en": "Concepts and Techniques of 3D Visualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144082,8 +144227,9 @@
   "fields": {
     "state": "published",
     "course": 54,
-    "name_de": "Grundlagen digitaler Systeme",
-    "name_en": "Foundations of Digital Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144143,8 +144289,9 @@
   "fields": {
     "state": "published",
     "course": 127,
-    "name_de": "Studienbegleitendes Seminar",
-    "name_en": "Accompanying Seminar",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144176,8 +144323,9 @@
   "fields": {
     "state": "published",
     "course": 88,
-    "name_de": "Modellierung I",
-    "name_en": "Modeling I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144203,8 +144351,9 @@
   "fields": {
     "state": "published",
     "course": 64,
-    "name_de": "Implementierung einer Mehrschichtenarchitektur f\u00fcr das Tumor-Dokumentationssystem GTDS",
-    "name_en": "An implementation of a multi tier architecture for cancer documentation system GTDS",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144360,8 +144509,9 @@
   "fields": {
     "state": "published",
     "course": 125,
-    "name_de": "Softwaretechnik II",
-    "name_en": "Software Technology II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144405,8 +144555,9 @@
   "fields": {
     "state": "published",
     "course": 43,
-    "name_de": "From Creative Ideas to Well-Founded Engineering",
-    "name_en": "From Creative Ideas to Well-Founded Engineering",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144539,9 +144690,10 @@
   "pk": 1571,
   "fields": {
     "state": "published",
-    "course": 13,
+    "course": 60,
     "name_de": "Business Process Compliance",
     "name_en": "Business Process Compliance",
+    "weight": 2,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144550,7 +144702,7 @@
     "_voter_count": 12,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
-    "last_modified_time": "2018-06-06T09:06:22.514",
+    "last_modified_time": "2019-01-28T11:07:08.968",
     "last_modified_user": 815,
     "participants": [
       2024,
@@ -144602,8 +144754,9 @@
   "fields": {
     "state": "published",
     "course": 77,
-    "name_de": "Knowledge-intensive Business Processes",
-    "name_en": "Knowledge-intensive Business Processes",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144639,8 +144792,9 @@
   "fields": {
     "state": "published",
     "course": 9,
-    "name_de": "Betriebssysteme I",
-    "name_en": "Operating Systems I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144698,8 +144852,9 @@
   "fields": {
     "state": "published",
     "course": 91,
-    "name_de": "Modulsysteme",
-    "name_en": "Modulsystems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144737,8 +144892,9 @@
   "fields": {
     "state": "published",
     "course": 41,
-    "name_de": "Fachspezifisches Englisch (Level 2)",
-    "name_en": "Subject-specific English (Level 2)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144772,8 +144928,9 @@
   "fields": {
     "state": "published",
     "course": 99,
-    "name_de": "Projektentwicklung und -management (ohne Kolloquium)",
-    "name_en": "Project Development and Management (without Colloquium)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144801,8 +144958,9 @@
   "fields": {
     "state": "new",
     "course": 67,
-    "name_de": "Information Retrieval",
-    "name_en": "Information Retrieval",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144828,8 +144986,9 @@
   "fields": {
     "state": "published",
     "course": 11,
-    "name_de": "Business Etikette - HPI Charm School",
-    "name_en": "Business Etiquette - HPI Charm School",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144863,8 +145022,9 @@
   "fields": {
     "state": "published",
     "course": 96,
-    "name_de": "Privacy and Security in IPv6",
-    "name_en": "Privacy and Security in IPv6",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144899,8 +145059,9 @@
   "fields": {
     "state": "published",
     "course": 138,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
-    "name_en": "Presenting Succesfully - First Impression Counts",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144931,8 +145092,9 @@
   "fields": {
     "state": "evaluated",
     "course": 40,
-    "name_de": "Fachspezifisches Englisch (Level 2)",
-    "name_en": "Subject-specific English (Level 2)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144968,8 +145130,9 @@
   "fields": {
     "state": "new",
     "course": 57,
-    "name_de": "HCI Project Seminar on Motion Capture, On-Body Interaction & Fabrication",
-    "name_en": "HCI Project Seminar on Motion Capture, On-Body Interaction & Fabrication",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -144992,8 +145155,9 @@
   "fields": {
     "state": "published",
     "course": 39,
-    "name_de": "Fachspezifisches Englisch (Level 1)",
-    "name_en": "Subject-specific English (Level 1)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145025,8 +145189,9 @@
   "fields": {
     "state": "new",
     "course": 81,
-    "name_de": "Large Scale Duplicate Detection",
-    "name_en": "Large Scale Duplicate Detection",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145071,8 +145236,9 @@
   "fields": {
     "state": "new",
     "course": 93,
-    "name_de": "Pers\u00f6nlichkeits- und Selbstmanagement",
-    "name_en": "Personality and Selfmanagement",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145096,8 +145262,9 @@
   "fields": {
     "state": "approved",
     "course": 47,
-    "name_de": "Gamification f\u00fcr openHPI",
-    "name_en": "Gamification f\u00fcr openHPI",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145121,8 +145288,9 @@
   "fields": {
     "state": "published",
     "course": 105,
-    "name_de": "Recht f\u00fcr Ingenieure I",
-    "name_en": "Law for Engineers I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145158,8 +145326,9 @@
   "fields": {
     "state": "published",
     "course": 104,
-    "name_de": "Real-time Analysis of Genome Data",
-    "name_en": "Real-time Analysis of Genome Data",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145186,9 +145355,10 @@
   "pk": 1625,
   "fields": {
     "state": "published",
-    "course": 95,
+    "course": 122,
     "name_de": "Piggyback Profiling: Metadata for Query Results",
     "name_en": "Piggyback Profiling: Metadata for Query Results",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145197,8 +145367,8 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
-    "last_modified_time": "2018-06-06T09:06:22.617",
-    "last_modified_user": 591,
+    "last_modified_time": "2019-01-28T11:15:24.373",
+    "last_modified_user": 815,
     "participants": [
       2247,
       825,
@@ -145216,8 +145386,9 @@
   "fields": {
     "state": "reviewed",
     "course": 129,
-    "name_de": "Theoretische Informatik I",
-    "name_en": "Theoretical Computer Science I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145246,8 +145417,9 @@
   "fields": {
     "state": "new",
     "course": 8,
-    "name_de": "Beautiful Data",
-    "name_en": "Beautiful Data",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145274,8 +145446,9 @@
   "fields": {
     "state": "published",
     "course": 139,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
-    "name_en": "Presenting Succesfully - First Impression Counts",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145315,8 +145488,9 @@
   "fields": {
     "state": "published",
     "course": 107,
-    "name_de": "Recognizing Cross-cutting Concerns by Revealing Task Contexts",
-    "name_en": "Recognizing Cross-cutting Concerns by Revealing Task Contexts",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145348,8 +145522,9 @@
   "fields": {
     "state": "new",
     "course": 142,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren II",
-    "name_en": "Effective Presentations II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145375,8 +145550,9 @@
   "fields": {
     "state": "published",
     "course": 48,
-    "name_de": "Geovisualisierung",
-    "name_en": "Geo-Visualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145408,8 +145584,9 @@
   "fields": {
     "state": "published",
     "course": 19,
-    "name_de": "Cybersecurity for the Masses",
-    "name_en": "Cybersecurity for the Masses",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145443,8 +145620,9 @@
   "fields": {
     "state": "published",
     "course": 135,
-    "name_de": "Visualisierungswerkzeug f\u00fcr Systemevolution",
-    "name_en": "A Visualization Tool for Software System Evolution",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145471,8 +145649,9 @@
   "fields": {
     "state": "published",
     "course": 137,
-    "name_de": "Wirtschaftliche Grundlagen",
-    "name_en": "Economic Basis",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145550,8 +145729,9 @@
   "fields": {
     "state": "new",
     "course": 71,
-    "name_de": "Interaktive 3D-Modelle auf mobilen Ger\u00e4ten",
-    "name_en": "Interactive 3D Models on mobile Devices",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145577,8 +145757,9 @@
   "fields": {
     "state": "published",
     "course": 79,
-    "name_de": "Konzepte paralleler Programmierung",
-    "name_en": "Parallel Programming Concepts",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145606,8 +145787,9 @@
   "fields": {
     "state": "published",
     "course": 74,
-    "name_de": "Investigating Practical MDE-Approches",
-    "name_en": "Investigating Practical MDE-Approches",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145639,8 +145821,9 @@
   "fields": {
     "state": "published",
     "course": 108,
-    "name_de": "Requirements Engineering: Elicitation and Negotiation",
-    "name_en": "Requirements Engineering: Elicitation and Negotiation",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145674,8 +145857,9 @@
   "fields": {
     "state": "published",
     "course": 85,
-    "name_de": "Model-Based Adaption for Embedded Systems",
-    "name_en": "Model-Based Adaption for Embedded Systems",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145729,8 +145913,9 @@
   "fields": {
     "state": "published",
     "course": 66,
-    "name_de": "Indoor Visualization & Software Visualization",
-    "name_en": "Indoor Visualization & Software Visualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145784,8 +145969,9 @@
   "fields": {
     "state": "new",
     "course": 56,
-    "name_de": "HCI Project Seminar on Kinect, Multitouch and Arduino",
-    "name_en": "HCI Project Seminar on Kinect, Multitouch and Arduino",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145813,8 +145999,9 @@
   "fields": {
     "state": "in_evaluation",
     "course": 140,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - noch besser auftreten",
-    "name_en": "Presenting Succesfully - How to Make an Even Better Impression",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -145849,8 +146036,9 @@
   "fields": {
     "state": "published",
     "course": 32,
-    "name_de": "Einf\u00fchrung in das Design Thinking",
-    "name_en": "Introduction Design Thinking",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146008,8 +146196,9 @@
   "fields": {
     "state": "in_evaluation",
     "course": 111,
-    "name_de": "Semantic Web Technologien",
-    "name_en": "Semantic Web Technologien",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146039,8 +146228,9 @@
   "fields": {
     "state": "new",
     "course": 124,
-    "name_de": "Softwaretechnik I",
-    "name_en": "Software Technology I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146067,8 +146257,9 @@
   "fields": {
     "state": "published",
     "course": 68,
-    "name_de": "Informationssicherheit",
-    "name_en": "Information Security",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146120,8 +146311,9 @@
   "fields": {
     "state": "published",
     "course": 42,
-    "name_de": "Fachspezifisches Englisch (Level 3)",
-    "name_en": "Subject-Specific English (Level 3)",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146253,8 +146445,9 @@
   "fields": {
     "state": "prepared",
     "course": 92,
-    "name_de": "Network Security in Practice",
-    "name_en": "Network Security in Practice",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146283,8 +146476,9 @@
   "fields": {
     "state": "in_evaluation",
     "course": 89,
-    "name_de": "Modellierung II",
-    "name_en": "Modeling II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146312,8 +146506,9 @@
   "fields": {
     "state": "published",
     "course": 106,
-    "name_de": "Recht f\u00fcr Ingenieure II",
-    "name_en": "Law for Engineers II",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146401,8 +146596,9 @@
   "fields": {
     "state": "published",
     "course": 110,
-    "name_de": "Semantic Multimedia",
-    "name_en": "Semantic Multimedia",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146451,8 +146647,9 @@
   "fields": {
     "state": "published",
     "course": 36,
-    "name_de": "Entwurf und Implementierung digitaler Schaltungen mit VHDL",
-    "name_en": "Digital Circuit Design using VHDL",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146583,8 +146780,9 @@
   "fields": {
     "state": "published",
     "course": 101,
-    "name_de": "Prozessorientierte Informationssysteme I",
-    "name_en": "Process oriented Information Systems I",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146624,8 +146822,9 @@
   "fields": {
     "state": "published",
     "course": 10,
-    "name_de": "Bring your own project: IT-Projekte erfolgreich planen und managen",
-    "name_en": "Bring Your Own Project: How to plan and manage IT-projects successfully",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146692,8 +146891,9 @@
   "fields": {
     "state": "published",
     "course": 25,
-    "name_de": "Design Thinking Advanced Track",
-    "name_en": "Design Thinking Advanced Track",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146836,8 +147036,9 @@
   "fields": {
     "state": "published",
     "course": 15,
-    "name_de": "Cloud und Virtualisierung",
-    "name_en": "Cloud and Virtualization",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -146917,8 +147118,9 @@
   "fields": {
     "state": "published",
     "course": 133,
-    "name_de": "VIP 2.0: Celebrity Exploration",
-    "name_en": "VIP 2.0: Celebrity Exploration",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -147063,8 +147265,9 @@
   "fields": {
     "state": "prepared",
     "course": 45,
-    "name_de": "Game Programming",
-    "name_en": "Game Programming",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -147093,8 +147296,9 @@
   "fields": {
     "state": "published",
     "course": 136,
-    "name_de": "Wer spricht wor\u00fcber?",
-    "name_en": "Who talks about what?",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": true,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -147115,8 +147319,9 @@
   "fields": {
     "state": "reviewed",
     "course": 31,
-    "name_de": "Effizienz und Langeweile",
-    "name_en": "Efficiency and Boredom",
+    "name_de": "",
+    "name_en": "",
+    "weight": 1,
     "is_single_result": true,
     "is_rewarded": true,
     "is_midterm_evaluation": false,
@@ -147126,6 +147331,29 @@
     "vote_start_datetime": "2015-10-01T00:00:00",
     "vote_end_date": "2015-10-01",
     "last_modified_time": "2018-06-03T10:22:16.193",
+    "last_modified_user": 815,
+    "participants": [],
+    "voters": []
+  }
+},
+{
+  "model": "evaluation.evaluation",
+  "pk": 1715,
+  "fields": {
+    "state": "published",
+    "course": 1,
+    "name_de": "CG quick",
+    "name_en": "CG quick",
+    "weight": 1,
+    "is_single_result": true,
+    "is_rewarded": true,
+    "is_midterm_evaluation": false,
+    "can_publish_text_results": false,
+    "_participant_count": 23,
+    "_voter_count": 23,
+    "vote_start_datetime": "2014-06-20T00:00:00",
+    "vote_end_date": "2014-06-20",
+    "last_modified_time": "2019-01-28T10:34:37.254",
     "last_modified_user": 815,
     "participants": [],
     "voters": []
@@ -147233,27 +147461,6 @@
     ],
     "responsibles": [
       2341
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 6,
-  "fields": {
-    "semester": 18,
-    "name_de": "Automated Analysis of Formal Models",
-    "name_en": "Automated Analysis of Formal Models",
-    "type": 2,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.479",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      222
     ]
   }
 },
@@ -147385,27 +147592,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 13,
-  "fields": {
-    "semester": 19,
-    "name_de": "Business Process Compliance",
-    "name_en": "Business Process Compliance",
-    "type": 3,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.582",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      2325
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 14,
   "fields": {
     "semester": 17,
@@ -147527,27 +147713,6 @@
     ],
     "responsibles": [
       127
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 20,
-  "fields": {
-    "semester": 19,
-    "name_de": "C\u00b3: Consistent Car Clustering",
-    "name_en": "C\u00b3: Konsistente Fahrzeug Gruppierung",
-    "type": 2,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.678",
-    "last_modified_user": null,
-    "degrees": [
-      1
-    ],
-    "responsibles": [
-      249
     ]
   }
 },
@@ -148414,27 +148579,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 62,
-  "fields": {
-    "semester": 21,
-    "name_de": "IT-Recht",
-    "name_en": "Legal Aspects of Information Technology",
-    "type": 3,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.265",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      1105
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 63,
   "fields": {
     "semester": 19,
@@ -149107,27 +149251,6 @@
 },
 {
   "model": "evaluation.course",
-  "pk": 95,
-  "fields": {
-    "semester": 19,
-    "name_de": "Piggyback Profiling: Metadata for Query Results",
-    "name_en": "Piggyback Profiling: Metadata for Query Results",
-    "type": 1,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.716",
-    "last_modified_user": null,
-    "degrees": [
-      2
-    ],
-    "responsibles": [
-      255
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
   "pk": 96,
   "fields": {
     "semester": 19,
@@ -149690,27 +149813,6 @@
     ],
     "responsibles": [
       255
-    ]
-  }
-},
-{
-  "model": "evaluation.course",
-  "pk": 123,
-  "fields": {
-    "semester": 21,
-    "name_de": "Softwarearchitektur",
-    "name_en": "Software Architecture",
-    "type": 1,
-    "is_graded": true,
-    "is_private": false,
-    "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.100",
-    "last_modified_user": null,
-    "degrees": [
-      1
-    ],
-    "responsibles": [
-      995
     ]
   }
 },

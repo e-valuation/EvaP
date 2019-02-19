@@ -2,7 +2,7 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import QuerySet, Count
+from django.db.models import Count, QuerySet, Sum
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
@@ -13,8 +13,13 @@ from django.utils import translation
 
 from evap.evaluation.models import Semester, Degree, Contribution, Evaluation, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
-from evap.results.tools import collect_results, calculate_average_distribution, distribution_to_grade, \
-    TextAnswer, TextResult, HeadingResult, get_single_result_rating_result
+from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
+                                HeadingResult, normalized_distribution, TextAnswer, TextResult)
+
+
+def get_course_result_template_fragment_cache_key(course_id, language):
+    return make_template_fragment_key('course_result_template_fragment', [course_id, language])
 
 
 def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, can_user_see_results_page):
@@ -27,24 +32,43 @@ def delete_template_cache(evaluation):
 
 
 def _delete_template_cache_impl(evaluation):
+    _delete_evaluation_template_cache_impl(evaluation)
+    _delete_course_template_cache_impl(evaluation.course)
+
+
+def _delete_evaluation_template_cache_impl(evaluation):
     caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True))
     caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False))
     caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True))
     caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', False))
 
 
+def _delete_course_template_cache_impl(course):
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en'))
+    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de'))
+
+
 def warm_up_template_cache(evaluations):
-    evaluations = get_evaluations_with_prefetched_data(evaluations)
+    evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
     current_language = translation.get_language()
+    courses_to_render = set([evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1])
     try:
+        for course in courses_to_render:
+            translation.activate('en')
+            get_template('results_index_course.html').render(dict(course=course))
+            translation.activate('de')
+            get_template('results_index_course.html').render(dict(course=course))
+            assert get_course_result_template_fragment_cache_key(course.id, 'en') in caches['results']
+            assert get_course_result_template_fragment_cache_key(course.id, 'de') in caches['results']
         for evaluation in evaluations:
             assert evaluation.state == 'published'
+            is_subentry = evaluation.course.evaluation_count > 1
             translation.activate('en')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False, is_subentry=is_subentry))
             translation.activate('de')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False, is_subentry=is_subentry))
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True) in caches['results']
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False) in caches['results']
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True) in caches['results']
@@ -60,10 +84,19 @@ def update_template_cache(evaluations):
         warm_up_template_cache([evaluation])
 
 
+def update_template_cache_of_published_evaluations_in_course(course):
+    course_evaluations = course.evaluations.filter(state="published")
+    for course_evaluation in course_evaluations:
+        _delete_evaluation_template_cache_impl(course_evaluation)
+    _delete_course_template_cache_impl(course)
+    warm_up_template_cache(course_evaluations)
+
+
 def get_evaluations_with_prefetched_data(evaluations):
     if isinstance(evaluations, QuerySet):
         participant_counts = evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
         voter_counts = evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+        course_evaluations_counts = evaluations.annotate(num_course_evaluations=Count("course__evaluations")).values_list("num_course_evaluations", flat=True)
         evaluations = (evaluations
             .select_related("course__type")
             .prefetch_related(
@@ -72,10 +105,11 @@ def get_evaluations_with_prefetched_data(evaluations):
                 "course__responsibles",
             )
         )
-        for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
+        for evaluation, participant_count, voter_count, course_evaluations_count in zip(evaluations, participant_counts, voter_counts, course_evaluations_counts):
             if evaluation._participant_count is None:
                 evaluation.num_participants = participant_count
                 evaluation.num_voters = voter_count
+            evaluation.course_evaluations_count = course_evaluations_count
     for evaluation in evaluations:
         if not evaluation.is_single_result:
             evaluation.distribution = calculate_average_distribution(evaluation)
@@ -92,12 +126,20 @@ def index(request):
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_user_see_evaluation(request.user)]
 
     if request.user.is_reviewer:
-        additional_evaluations = Evaluation.objects.filter(course__semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
-        evaluations += get_evaluations_with_prefetched_data(additional_evaluations)
+        additional_evaluations = get_evaluations_with_prefetched_data(
+            Evaluation.objects.filter(
+                course__semester__in=semesters,
+                state__in=['in_evaluation', 'evaluated', 'reviewed']
+            )
+        )
+        additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
+        evaluations += additional_evaluations
+
+    evaluations.sort(key=lambda evaluation: (evaluation.full_name, evaluation.course.semester.pk))  # evaluations must be sorted for regrouping them in the template
 
     evaluation_pks = [evaluation.pk for evaluation in evaluations]
-    degrees = Degree.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
-    course_types = CourseType.objects.filter(courses__evaluation__pk__in=evaluation_pks).distinct()
+    degrees = Degree.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
+    course_types = CourseType.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
     template_data = dict(
         evaluations=evaluations,
         degrees=degrees,
@@ -179,15 +221,32 @@ def evaluation_detail(request, semester_id, evaluation_id):
         general_questionnaire_results_top += general_questionnaire_results_bottom
         general_questionnaire_results_bottom = []
 
-    evaluation.distribution = calculate_average_distribution(evaluation)
-    evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+    course_evaluations = []
+    if evaluation.course.evaluations.count() > 1:
+        course_evaluations = [evaluation for evaluation in evaluation.course.evaluations.filter(state="published") if evaluation.can_user_see_evaluation(request.user)]
+        if request.user.is_reviewer:
+            course_evaluations += evaluation.course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
+        course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
+        for course_evaluation in course_evaluations:
+            if course_evaluation.is_single_result:
+                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
+            else:
+                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
+                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
 
     other_contributors = []
     if view == 'export':
         other_contributors = [contribution_result.contributor for contribution_result in evaluation_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
 
+    # if the evaluation is not published, the rendered results are not cached, so we need to attach distribution
+    # information for rendering the distribution bar
+    if evaluation.state != 'published':
+        evaluation = get_evaluations_with_prefetched_data([evaluation])[0]
+
     template_data = dict(
         evaluation=evaluation,
+        course=evaluation.course,
+        course_evaluations=course_evaluations,
         general_questionnaire_results_top=general_questionnaire_results_top,
         general_questionnaire_results_bottom=general_questionnaire_results_bottom,
         contributor_contribution_results=contributor_contribution_results,
