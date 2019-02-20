@@ -60,7 +60,6 @@ def annotate_evaluations_with_grade_document_counts(evaluations):
             final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True))
 
 
-
 def get_evaluations_with_prefetched_data(semester):
     evaluations = (semester.evaluations
         .select_related('course__type')
@@ -151,98 +150,101 @@ def semester_view(request, semester_id):
 
 
 class EvaluationOperation:
+    email_template_name = None
+    confirmation_message = None
 
-    def applicable_to(self, evaluation):
+    @staticmethod
+    def applicable_to(evaluation):
         raise NotImplementedError
 
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be updated. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be updated. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
+    @staticmethod
+    def warning_for_unapplicables(amount):
+        return ungettext("{} evaluation can not be updated. It was removed from the selection.",
+            "{} evaluations can not be updated. They were removed from the selection.", amount).format(amount)
 
-    def confirmation_message(self):
-        return _("Do you want to update the following evaluations?")
-
-    def apply(self, request, evaluations, email_template=None):
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
         raise NotImplementedError
-
-    def email_template_name(self):
-        return None
 
 
 class RevertToNewOperation(EvaluationOperation):
-
-    def applicable_to(self, evaluation):
+    @staticmethod
+    def applicable_to(evaluation):
         return evaluation.state in ['prepared', 'editor_approved', 'approved']
 
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be reverted, because it already started. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be reverted, because they already started. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
+    @staticmethod
+    def warning_for_unapplicables(amount):
+        return ungettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
-    def confirmation_message(self):
+    @staticmethod
+    def confirmation_message():
         return _("Do you want to revert the following evaluations to preparation?")
 
-    def apply(self, request, evaluations, email_template=None):
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
         helper_semester_evaluation_operation_revert(request, evaluations)
 
 
 class RevertToPreparedOperation(EvaluationOperation):
+    email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
 
-    def applicable_to(self, evaluation):
+    @staticmethod
+    def applicable_to(evaluation):
         return evaluation.state in ['new', 'editor_approved']
 
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be reverted, because it already started. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be reverted, because they already started. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
+    @staticmethod
+    def warning_for_unapplicables(amount):
+        return ungettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
-    def confirmation_message(self):
+    @staticmethod
+    def confirmation_message():
         return _("Do you want to revert the following evaluations to preparation?")
 
-    def apply(self, request, evaluations, email_template=None):
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
         return helper_semester_evaluation_operation_prepare(request, evaluations, email_template)
-
-    def email_template_name(self):
-        return EmailTemplate.EDITOR_REVIEW_NOTICE
 
 
 class RevertToReviewedOperation(EvaluationOperation):
-
-    def applicable_to(self, evaluation):
+    @staticmethod
+    def applicable_to(evaluation):
         return evaluation.state == 'published'
 
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
+    @staticmethod
+    def warning_for_unapplicables(amount):
+        return ungettext("{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
+            "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.", amount).format(amount)
 
-    def confirmation_message(self):
+    @staticmethod
+    def confirmation_message():
         return _("Do you want to unpublish the following evaluations?")
 
-    def apply(self, request, evaluations, email_template=None):
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
         helper_semester_evaluation_operation_unpublish(request, evaluations)
 
 
 class PublishOperation(EvaluationOperation):
+    email_template_name = EmailTemplate.PUBLISHING_NOTICE
 
-    def applicable_to(self, evaluation):
+    @staticmethod
+    def applicable_to(evaluation):
         return evaluation.state == 'reviewed'
 
-    def warning_for_unapplicables(self, amount):
-        return ungettext("%(evaluations)d evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
-                    "%(evaluations)d evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
-                    amount) % {'evaluations': amount}
+    @staticmethod
+    def warning_for_unapplicables(amount):
+        return ungettext("{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+           "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.", amount).format(amount)
 
-    def confirmation_message(self):
+    @staticmethod
+    def confirmation_message():
         return _("Do you want to publish the following evaluations?")
 
-    def apply(self, request, evaluations, email_template=None):
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
         helper_semester_evaluation_operation_publish(request, evaluations, email_template)
-
-    def email_template_name(self):
-        return EmailTemplate.PUBLISHING_NOTICE
-
 
 
 EVALUATION_OPERATIONS = {
@@ -265,7 +267,7 @@ def semester_evaluation_operation(request, semester_id):
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
     evaluations = annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
-    operation = EVALUATION_OPERATIONS[target_state]()
+    operation = EVALUATION_OPERATIONS[target_state]
 
     if request.method == 'POST':
         template = None
@@ -281,9 +283,8 @@ def semester_evaluation_operation(request, semester_id):
     if difference:
         evaluations = applicable_evaluations
         messages.warning(request, operation.warning_for_unapplicables(difference))
-    confirmation_message = operation.confirmation_message()
-    if operation.email_template_name():
-        email_template = EmailTemplate.objects.get(name=operation.email_template_name())
+        if operation.email_template_name:
+            email_template = EmailTemplate.objects.get(name=operation.email_template_name)
 
     if not evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
@@ -293,7 +294,7 @@ def semester_evaluation_operation(request, semester_id):
         semester=semester,
         evaluations=evaluations,
         target_state=target_state,
-        confirmation_message=confirmation_message,
+        confirmation_message=operation.confirmation_message(),
         email_template=email_template,
         show_email_checkbox=email_template is not None
     )
