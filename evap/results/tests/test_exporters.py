@@ -50,17 +50,17 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(2)[0], questionnaire_1.name)
-        self.assertEqual(workbook.sheets()[0].row_values(3)[0], question_1.text)
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire_1.name)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], question_1.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], questionnaire_2.name)
-        self.assertEqual(workbook.sheets()[0].row_values(6)[0], question_2.text)
+        self.assertEqual(workbook.sheets()[0].row_values(7)[0], questionnaire_2.name)
+        self.assertEqual(workbook.sheets()[0].row_values(8)[0], question_2.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(8)[0], questionnaire_3.name)
-        self.assertEqual(workbook.sheets()[0].row_values(9)[0], question_3.text)
+        self.assertEqual(workbook.sheets()[0].row_values(10)[0], questionnaire_3.name)
+        self.assertEqual(workbook.sheets()[0].row_values(11)[0], question_3.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(11)[0], questionnaire_4.name)
-        self.assertEqual(workbook.sheets()[0].row_values(12)[0], question_4.text)
+        self.assertEqual(workbook.sheets()[0].row_values(13)[0], questionnaire_4.name)
+        self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
 
     def test_heading_question_filtering(self):
         evaluation = mommy.make(Evaluation, state='published', _participant_count=2, _voter_count=2)
@@ -81,10 +81,10 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(2)[0], questionnaire.name)
-        self.assertEqual(workbook.sheets()[0].row_values(3)[0], heading_question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(4)[0], likert_question.text)
-        self.assertEqual(workbook.sheets()[0].row_values(5)[0], "")
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.name)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
 
     def test_view_excel_file_sorted(self):
         semester = mommy.make(Semester)

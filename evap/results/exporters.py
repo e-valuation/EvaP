@@ -44,6 +44,7 @@ class ExcelExporter(object):
             'border_left_right': xlwt.easyxf('borders: left medium, right medium'),
             'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium'),
             'border_top':       xlwt.easyxf('borders: top medium'),
+            'degree':           xlwt.easyxf('alignment: wrap on; borders: left medium, right medium'),
         }
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium'
@@ -119,6 +120,14 @@ class ExcelExporter(object):
 
             for evaluation, results in evaluations_with_results:
                 writec(self, evaluation.full_name, "evaluation")
+
+            writen(self, _("Course Degrees"), "bold")
+            for evaluation, results in evaluations_with_results:
+                writec(self, "\n".join([d.name for d in evaluation.course.degrees.all()]), "degree")
+
+            writen(self, _("Course Type"), "bold")
+            for evaluation, results in evaluations_with_results:
+                writec(self, evaluation.course.type.name, "border_left_right")
 
             writen(self)
             for evaluation, results in evaluations_with_results:
