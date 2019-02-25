@@ -65,13 +65,17 @@
     }
 }
 [data-layer="0"] {
-    @extend .card-header, .border, .rounded-top;
+    border: $card-border-width solid $card-border-color;
+    @include border-top-radius($card-border-radius);
 }
 [data-layer="1"] {
-    @extend .card-body, .bg-light, .border-left, .border-right;
+    background-color: theme-color("light");
+    border-left: $card-border-width solid $card-border-color;
+    border-right: $card-border-width solid $card-border-color;
 }
 [data-layer="2"] {
-    @extend .card-body, .border, .rounded-bottom;
+    border: $card-border-width solid $card-border-color;
+    @include border-bottom-radius($card-border-radius);
 }
 .hotkey-btn {
     float: right;

@@ -16,20 +16,24 @@ select[multiple] {
     min-height: 40px;
 }
 
-.email-form .form-row {
-    clear:both;
-}
+.email-form {
+    .form-row {
+        clear: both;
+    }
 
-.email-form .form-label {
-    float:left;
-    width: 15%;
-    padding-top: 7px;
-    padding-right: 15px;
-}
+    .form-label {
+        float: left;
+        width: 15%;
+        padding-top: 7px;
+        padding-right: 15px;
+        font-weight: bold;
+        text-align: right;
+    }
 
-.email-form .form-field {
-    float:left;
-    width:85%;
+    .form-field {
+        float: left;
+        width: 85%;
+    }
 }
 
 .form-label.is-invalid {
@@ -57,17 +61,13 @@ select[multiple] {
 
 /* custom checkboxes (based on http://getbootstrap.com/docs/4.0/components/forms/#custom-forms) */
 .form-check-input {
-    position: absolute;
     z-index: 1;
     width: 1rem;
     height: 1rem;
     opacity: 0;
 
-    &:checked ~ .form-check-label::after {
-        opacity: 1;
-    }
-
     &:checked ~ .form-check-label::before {
+        color: $white;
         background-color: $evap-dark-blue;
     }
 
@@ -112,39 +112,28 @@ input[type="hidden"] ~ .form-check-label {
     display: none;
 }
 .form-check-label {
-    margin-bottom: 0;
     color: $black;
     transition: color 0.15s ease-in-out;
 
-    &::before {  // background
+    &::before {
         position: absolute;
         top: .25rem;
         left: 0;
         display: block;
         width: 1rem;
         height: 1rem;
-        pointer-events: none;
-        user-select: none;
-        content: "";
-        border-radius: 0.25rem;
-        border: 0;
-        background-color: $light-gray;
-        transition: background-color 0.15s ease-in-out;
-    }
-
-    &::after {  // check icon
-        position: absolute;
-        top: .31rem;
-        left: .2rem;
-        display: block;
-        width: 1rem;
-        height: 1rem;
-        opacity: 0;
-        transition: opacity 0.15s ease-in-out;
-        content: "\f00c";
-        font-family: "Font Awesome\ 5 Free";
+        text-align: center;
+        content: fa-content($fa-var-check);
+        font-family: "Font Awesome 5 Free";
         font-size: .6rem;
         font-weight: 900;
-        color: $white;
+        line-height: 1.05rem;
+        color: rgba($white, 0);
+        border-radius: $border-radius;
+        background-color: $light-gray;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+
+        pointer-events: none;
+        @include no-user-select;
     }
 }

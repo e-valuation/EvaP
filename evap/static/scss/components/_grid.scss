@@ -20,8 +20,7 @@ div.container {
 }
 
 .vote-question {
-    @extend .col-12, .col-lg-4, .col-xl-5;
-
+    @include make-col-ready;
     padding: 0.5rem 0.75rem 0;
     word-wrap: break-word;
 
@@ -29,24 +28,42 @@ div.container {
         font-weight: bold;
         color: $evap-dark-red;
     }
+
+    @include media-breakpoint-up(lg) {
+        @include make-col(4);
+        padding-bottom: 0.5rem;
+    }
+
+    @include media-breakpoint-up(xl) {
+        @include make-col(5);
+    }
 }
 
 .vote-answer-buttons {
-    @extend .col-12, .col-lg-8, .col-xl-7;
-
+    @include make-col-ready;
     padding: 0.5rem 0.75rem 0.9rem;
-}
 
-@include media-breakpoint-up(lg) {
-    .vote-question, .vote-answer-buttons {
+    @include media-breakpoint-up(lg) {
+        @include make-col(8);
         padding-bottom: 0.5rem;
+    }
+
+    @include media-breakpoint-up(xl) {
+        @include make-col(7);
     }
 }
 
 .vote-text-answer {
-    @extend .col-12, .col-lg-8, .col-xl-7;
-
+    @include make-col-ready;
     padding: 0.75rem;
+
+    @include media-breakpoint-up(lg) {
+        @include make-col(8);
+    }
+
+    @include media-breakpoint-up(xl) {
+        @include make-col(7);
+    }
 }
 
 .result-rating-question {

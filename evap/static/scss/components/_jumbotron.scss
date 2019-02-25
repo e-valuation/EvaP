@@ -1,8 +1,8 @@
 .jumbotron-evap {
     background-image: url("../images/triangles_color.svg");
     background-size: cover;
-}
 
-.jumbotron-evap div .card {
-    background-color: $lighter-gray;
+    .card {
+        background-color: $lighter-gray;
+    }
 }

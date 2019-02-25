@@ -44,15 +44,15 @@
             </div>
             <div class="slider-items">
                 {% for questionnaire, contributor, label, is_responsible, results in sections %}
-                    <div class="slider-item" data-layer="0">
+                    <div class="slider-item card-header" data-layer="0">
                         {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="font-italic">{{ label }}</span>{% endif %}{% endif %}
                     </div>
                     {% for result in results %}
-                        <div class="slider-item" data-layer="1">
+                        <div class="slider-item card-body" data-layer="1">
                             {{ result.question.text}}
                         </div>
                         {% for answer in result.answers %}
-                            <div class="slider-item" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
+                            <div class="slider-item card-body" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
                                 {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}
                             >
                             <a class="textanswer-link" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
