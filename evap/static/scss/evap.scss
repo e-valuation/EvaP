@@ -287,14 +287,10 @@ a.btn:not([href]):not(.disabled).btn-dark {
 }
 .result-text-answer {
     width: 75%;
-    ul {
-        margin-bottom: 0;
-    }
 }
 
 .dropdown-menu-tight {
     min-width: inherit;
-    padding: 0.25rem 0;
 }
 .dropdown-toggle::after {
     vertical-align: 0.2em;
@@ -317,10 +313,6 @@ a.btn:not([href]):not(.disabled).btn-dark {
 
 button:not(:disabled) {
     cursor: pointer;
-}
-
-.hide-divs div {
-    display: none;
 }
 
 .table-primary,
@@ -417,9 +409,6 @@ button:not(:disabled) {
     }
     .grade-bg-result-bar-count {
         width: 35px;
-    }
-    .grade-bg {
-        width: 30px;
     }
     .alert {
         padding: 5px;
@@ -562,11 +551,7 @@ body {
     display: flex;
 }
 
-table#question_table textarea {
-    resize: vertical;
-}
-
-ul.inputs-list, .exportsheet ul {
+ul.inputs-list {
     list-style-type: none;
     padding-left: 0px;
 }
@@ -672,19 +657,6 @@ select[multiple] {
     font-weight: normal;
 }
 
-.questionnaire-warning p {
-    padding-left: 3px;
-}
-
-.inline-headers span, .inline-headers p {
-  display: inline-block;
-  vertical-align: baseline;
-}
-
-.button-menu {
-    margin-bottom: 15px;
-}
-
 .email-form .form-row {
     clear:both;
 }
@@ -694,8 +666,6 @@ select[multiple] {
     width: 15%;
     padding-top: 7px;
     padding-right: 15px;
-    font-weight: bold;
-    text-align: right;
 }
 
 .email-form .form-field {
@@ -927,14 +897,6 @@ tr.current-row-follows + tr {
     max-width: 1120px;
 }
 
-.fa-card-header {
-    line-height: 1.5;
-}
-
-.import-card .form-group {
-    margin-bottom: 0;
-}
-
 .card-body .form-group:last-of-type {
     margin-bottom: 0;
 }
@@ -983,10 +945,6 @@ a.no-underline:hover {
 
 .separation-left {
     border-left: 1px solid $medium-gray;
-}
-
-.flex-column {
-    flex-direction: column;
 }
 
 .reset-button {
@@ -1227,9 +1185,6 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
 table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting {
     padding-right: 0;
     padding-left: 20px;
-}
-.filter-toolbar {
-    float: left;
 }
 .dataTables_wrapper.container-fluid {
     padding: 0;

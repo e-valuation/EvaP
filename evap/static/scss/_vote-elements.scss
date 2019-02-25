@@ -104,10 +104,6 @@ div.vote-inputs > textarea {
     min-height: 8rem;
 }
 
-div.preview > textarea {
-    height: 60px;
-}
-
 .distribution-bar-container {
     position: relative;
     border-radius: 3px;
@@ -180,16 +176,6 @@ div.preview > textarea {
     color: lighten($medium-gray, 5%);
 }
 
-.grade-bg {
-    display: inline-block;
-    border-radius: 3px;
-    width: 45px;
-}
-.grade-bg-with-distribution {
-    float: left;
-    margin-right: 5px;
-}
-
 .grade-bg-result-bar {
     color: $black;
     float: right;
@@ -211,10 +197,6 @@ div.preview > textarea {
 .grade-bg-disabled {
     background-color: $light-gray;
     color: lighten($medium-gray, 5%);
-}
-
-.grade-bg.vertically-aligned {
-    vertical-align: middle;
 }
 
 .heading-row {
