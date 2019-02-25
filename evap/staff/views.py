@@ -316,7 +316,7 @@ def semester_evaluation_operation(request, semester_id):
 
     target_state = request.GET.get('target_state')
     if target_state not in EVALUATION_OPERATIONS.keys():
-        raise SuspiciousOperation("Unknown target state: " + target_state)
+        raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
     evaluations = annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
