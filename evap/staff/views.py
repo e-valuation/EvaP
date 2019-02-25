@@ -158,7 +158,7 @@ class EvaluationOperation:
         raise NotImplementedError
 
     @staticmethod
-    def warning_for_unapplicables(amount):
+    def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be updated. It was removed from the selection.",
             "{} evaluations can not be updated. They were removed from the selection.", amount).format(amount)
 
@@ -173,7 +173,7 @@ class RevertToNewOperation(EvaluationOperation):
         return evaluation.state in ['prepared', 'editor_approved', 'approved']
 
     @staticmethod
-    def warning_for_unapplicables(amount):
+    def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
@@ -194,7 +194,7 @@ class RevertToPreparedOperation(EvaluationOperation):
         return evaluation.state in ['new', 'editor_approved']
 
     @staticmethod
-    def warning_for_unapplicables(amount):
+    def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
@@ -213,7 +213,7 @@ class RevertToReviewedOperation(EvaluationOperation):
         return evaluation.state == 'published'
 
     @staticmethod
-    def warning_for_unapplicables(amount):
+    def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
             "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.", amount).format(amount)
 
@@ -234,7 +234,7 @@ class PublishOperation(EvaluationOperation):
         return evaluation.state == 'reviewed'
 
     @staticmethod
-    def warning_for_unapplicables(amount):
+    def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.", amount).format(amount)
 
@@ -282,7 +282,7 @@ def semester_evaluation_operation(request, semester_id):
     difference = len(evaluations) - len(applicable_evaluations)
     if difference:
         evaluations = applicable_evaluations
-        messages.warning(request, operation.warning_for_unapplicables(difference))
+        messages.warning(request, operation.warning_for_inapplicables(difference))
         if operation.email_template_name:
             email_template = EmailTemplate.objects.get(name=operation.email_template_name)
 
