@@ -288,3 +288,38 @@ def textanswers_visible_to(contribution):
         contributors = [contribution.contributor]
     num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
+
+
+def can_user_see_textanswer(user, represented_users, textanswer, view):
+    assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+    contributor = textanswer.contribution.contributor
+
+    if view == 'public':
+        return False
+    elif view == 'export':
+        if textanswer.is_private:
+            return False
+        if not textanswer.contribution.is_general and contributor != user:
+            return False
+    elif user.is_reviewer:
+        return True
+
+    if textanswer.is_private:
+        return contributor == user
+
+    # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
+    # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
+    if textanswer.is_published:
+        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
+        if contributor in represented_users:
+            return True
+        # users can see text answers from general contributions if one of their represented users has text answer
+        # visibility GENERAL_TEXTANSWERS for the evaluation
+        if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
+                contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
+            return True
+        # the people responsible for a course can see all general text answers for all its evaluations
+        if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):
+            return True
+
+    return False

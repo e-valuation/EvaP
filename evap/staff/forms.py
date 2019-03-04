@@ -106,7 +106,7 @@ class DegreeForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
+        if self.cleaned_data.get('DELETE') and not self.instance.can_be_deleted_by_manager:
             raise SuspiciousOperation("Deleting degree not allowed")
 
     def save(self, *args, **kwargs):
@@ -128,7 +128,7 @@ class CourseTypeForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data.get('DELETE') and not self.instance.can_manager_delete:
+        if self.cleaned_data.get('DELETE') and not self.instance.can_be_deleted_by_manager:
             raise SuspiciousOperation("Deleting course type not allowed")
 
     def save(self, *args, **kwargs):
@@ -171,7 +171,7 @@ class CourseForm(forms.ModelForm):
         if self.instance.last_modified_user:
             self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
-        if not self.instance.can_manager_edit:
+        if not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
     def validate_unique(self):
@@ -225,7 +225,7 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
 
-        if self.instance.pk and not self.instance.can_manager_edit:
+        if self.instance.pk and not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
         if self.instance.pk:
@@ -307,7 +307,7 @@ class SingleResultForm(forms.ModelForm):
         if self.instance.vote_start_datetime:
             self.fields['event_date'].initial = self.instance.vote_start_datetime
 
-        if self.instance.pk and not self.instance.can_manager_edit:
+        if self.instance.pk and not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
         if self.instance.pk:
@@ -407,7 +407,7 @@ class ContributionForm(forms.ModelForm):
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
 
-        if self.evaluation.pk and not self.evaluation.can_manager_edit:
+        if self.evaluation.pk and not self.evaluation.can_be_edited_by_manager:
             # form is used as read-only evaluation view
             disable_all_fields(self)
 

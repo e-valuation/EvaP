@@ -437,14 +437,14 @@ class TestSemesterDeleteView(WebTest):
     def test_failure(self):
         semester = mommy.make(Semester)
         mommy.make(Evaluation, course=mommy.make(Course, semester=semester), state='in_evaluation', voters=[mommy.make(UserProfile)])
-        self.assertFalse(semester.can_manager_delete)
+        self.assertFalse(semester.can_be_deleted_by_manager)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager', expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
     def test_success(self):
         semester = mommy.make(Semester)
-        self.assertTrue(semester.can_manager_delete)
+        self.assertTrue(semester.can_be_deleted_by_manager)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
@@ -1728,12 +1728,12 @@ class TestQuestionnaireDeletionView(WebTest):
             Tries to delete two questionnaires via the respective post request,
             only the second attempt should succeed.
         """
-        self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_manager_delete)
+        self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_be_deleted_by_manager)
         response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q1.pk}, user="manager", expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
 
-        self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_manager_delete)
+        self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_be_deleted_by_manager)
         response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q2.pk}, user="manager")
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
