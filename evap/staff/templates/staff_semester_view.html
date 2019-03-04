@@ -266,11 +266,6 @@
                                 <span class="far fa-check-square icon-green"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
-                            <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations waiting for evaluation period to start' %}">
-                                <span class="fas fa-pause icon-gray"></span>
-                                {% trans 'Start evaluation' %}
-                            </button>
                             <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished evaluations' %}">
                                 <span class="fas fa-chart-bar icon-yellow"></span>
@@ -331,43 +326,6 @@
                     </tbody>
                 </table>
             </div>
-                {% if request.user.is_manager and not semester.participations_are_archived %}
-                    <div class="my-2">
-                        <a role="button" class="btn btn-sm btn-secondary"
-                            onclick="$('#evaluation_operation_form td').prev().find(':checkbox').prop('checked', true);">
-                            {% trans 'Select all' %}
-                        </a>
-                        <a role="button" class="btn btn-sm btn-secondary"
-                            onclick="$('#evaluation_operation_form :checkbox').prop('checked', false);">{% trans 'Select none' %}
-                        </a>
-                    </div>
-                    <div>
-                        <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
-                            <span class="fas fa-circle icon-yellow"></span>
-                            <span class="far fa-check-square icon-yellow"></span>
-                            {% trans 'Ask for editor review' %}
-                        </button>
-                        <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
-                            <span class="far fa-square icon-gray"></span>
-                            <span class="far fa-check-square icon-yellow"></span>
-                            <span class="far fa-check-square icon-green"></span>
-                            {% trans 'Revert to preparation' %}
-                        </button>
-                        <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished evaluations' %}">
-                            <span class="fas fa-chart-bar icon-yellow"></span>
-                            <span class="fas fa-chart-bar icon-red"></span>
-                            {% trans 'Publish' %}
-                        </button>
-                        <button name="target_state" value="reviewed" type="submit" class="btn btn-sm btn-light"
-                            data-toggle="tooltip" data-placement="top" title="{% trans 'Published evaluations' %}">
-                            <span class="fas fa-chart-bar icon-green"></span>
-                            {% trans 'Unpublish' %}
-                        </button>
-                    </div>
-                {% endif %}
             </form>
         </div>
     </div>
