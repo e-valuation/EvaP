@@ -15,7 +15,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
 from evap.evaluation.auth import reviewer_required, manager_required
@@ -168,6 +168,8 @@ class EvaluationOperation:
 
 
 class RevertToNewOperation(EvaluationOperation):
+    confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
+
     @staticmethod
     def applicable_to(evaluation):
         return evaluation.state in ['prepared', 'editor_approved', 'approved']
@@ -178,16 +180,13 @@ class RevertToNewOperation(EvaluationOperation):
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def confirmation_message():
-        return _("Do you want to revert the following evaluations to preparation?")
-
-    @staticmethod
     def apply(request, evaluations, email_template=None):
         helper_semester_evaluation_operation_revert(request, evaluations)
 
 
 class RevertToPreparedOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
+    confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
 
     @staticmethod
     def applicable_to(evaluation):
@@ -199,15 +198,13 @@ class RevertToPreparedOperation(EvaluationOperation):
             "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def confirmation_message():
-        return _("Do you want to revert the following evaluations to preparation?")
-
-    @staticmethod
     def apply(request, evaluations, email_template=None):
         return helper_semester_evaluation_operation_prepare(request, evaluations, email_template)
 
 
 class RevertToReviewedOperation(EvaluationOperation):
+    confirmation_message = ugettext_lazy("Do you want to unpublish the following evaluations?")
+
     @staticmethod
     def applicable_to(evaluation):
         return evaluation.state == 'published'
@@ -218,16 +215,13 @@ class RevertToReviewedOperation(EvaluationOperation):
             "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.", amount).format(amount)
 
     @staticmethod
-    def confirmation_message():
-        return _("Do you want to unpublish the following evaluations?")
-
-    @staticmethod
     def apply(request, evaluations, email_template=None):
         helper_semester_evaluation_operation_unpublish(request, evaluations)
 
 
 class PublishOperation(EvaluationOperation):
     email_template_name = EmailTemplate.PUBLISHING_NOTICE
+    confirmation_message = ugettext_lazy("Do you want to publish the following evaluations?")
 
     @staticmethod
     def applicable_to(evaluation):
@@ -237,10 +231,6 @@ class PublishOperation(EvaluationOperation):
     def warning_for_inapplicables(amount):
         return ungettext("{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.", amount).format(amount)
-
-    @staticmethod
-    def confirmation_message():
-        return _("Do you want to publish the following evaluations?")
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
@@ -294,7 +284,7 @@ def semester_evaluation_operation(request, semester_id):
         semester=semester,
         evaluations=evaluations,
         target_state=target_state,
-        confirmation_message=operation.confirmation_message(),
+        confirmation_message=operation.confirmation_message,
         email_template=email_template,
         show_email_checkbox=email_template is not None
     )
