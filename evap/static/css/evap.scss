@@ -476,6 +476,15 @@ button:not(:disabled) {
     body, span, div, table, tr, tbody, tfoot, td, hr {
         -webkit-print-color-adjust: exact;
     }
+    .distribution-bar-container {
+        .adjective {
+            display: unset !important;
+            font-size: unset;
+        }
+        .fas {
+            display: none;
+        }
+    }
 }
 
 .breadcrumb {

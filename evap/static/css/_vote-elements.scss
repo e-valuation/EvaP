@@ -138,7 +138,7 @@ div.preview > textarea {
     .left, .right {
         position: absolute;
         top: 0;
-        line-height: 1.5rem;
+        line-height: 1.6em;
         color: $darker-gray;
         font-size: 0.9rem;
         @include bar-shadow($white);
