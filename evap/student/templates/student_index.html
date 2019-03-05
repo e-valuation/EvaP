@@ -37,7 +37,7 @@
                     {{ semester.semester_name }}
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover-evap table-vertically-aligned">
+                    <table class="table table-seamless-links table-vertically-aligned">
                         <thead>
                             <tr>
                                 <th style="width: 42%">{% trans 'Name' %}</th>
@@ -56,7 +56,7 @@
                             {% regroup semester.evaluations by course as course_evaluations %}
                             {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                                 {% if course.evaluation_count > 1 %}
-                                    <tr class="course-row heading-row nohover">
+                                    <tr class="course-row heading-row">
                                         <td>
                                             <div>
                                                 {{ course.name }}
@@ -101,12 +101,12 @@
                                 {% endif %}
                                 {% for evaluation in evaluations|dictsort:"name" %}
                                     <tr{% if evaluation.state == 'in_evaluation' and evaluation.participates_in and not evaluation.voted_for %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-vote" data-url="{% url 'student:vote' evaluation.id %}"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
                                         {# staff users should be able to access evaluations through the student index only if it actually has published results #}
                                         {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                         {% else %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} nohover"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                         {% endif %}>
                                         <td>
                                             <div class="evaluation-name">
@@ -211,12 +211,12 @@
                                         <td class="text-right">
                                             {% if evaluation.participates_in %}
                                                 {% if evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' %}
-                                                    <button type="button" disabled class="btn btn-sm btn-primary btn-vote" data-toggle="tooltip" data-placement="left"
+                                                    <button type="button" disabled class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="left"
                                                         title="{% trans 'You will receive an email when the evaluation period begins.' %}">
                                                         {% trans 'Evaluate' %}
                                                     </button>
                                                 {% elif evaluation.state == 'in_evaluation' and not evaluation.voted_for %}
-                                                    <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
+                                                    <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
                                                 {% elif evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                                     <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                         {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}

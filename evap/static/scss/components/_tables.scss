@@ -73,54 +73,59 @@
     padding-bottom: 0.4rem;
 }
 
-.table-hover-evap tbody tr {
-    transition: background-color 0.15s ease-in-out;
-}
-.table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
-    background-color: rgba(0, 0, 0, 0.075);
-    cursor: pointer;
-}
-.table-hover-evap tbody tr.hover-vote:hover:not(.hoverpause),
-.table-hover-evap tbody tr.hover-edit:hover:not(.hoverpause) {
-    background-color: $evap-light-blue;
-}
-.table-hover-evap tbody tr td {
+// Seamless links in tables
+//
+// -1- Expand links to fill the cell
+.table-seamless-links td {
     overflow: hidden;
-}
-.table-hover-evap tbody tr td a:not(.btn) {
-    color: $black;
-    text-decoration: none;
-    // the following values are necessary to make the a element fill the complete table cell
-    display: block;
-    margin: -10em;
-    padding: 10em;
-}
-.table-hover-evap tr.preview td .evaluation-name
-{
-    color: $evap-dark-yellow;
-}
-tr.hover-results {
-    height: 2.5rem;
-}
-tr.hover-results:hover:not(.nohover):not(.hoverpause) .btn-results,
-tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
-tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
-    box-shadow: 0 0 0 3px rgba($dark-gray, .5);
-}
-tr.hover-vote:hover:not(.nohover):not(.hoverpause) .btn-vote,
-tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
-    box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
-}
-tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
-tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
-    box-shadow: none;
+
+    a:not(.btn) {
+        color: $black;
+        text-decoration: none;
+        display: block; // -1-
+        margin: -10em;  // -1-
+        padding: 10em;  // -1-
+    }
 }
 
-tr.heading-row.course-row{
+// Hoverable rows
+.hover-row {
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+        cursor: pointer;
+
+        &.hover-row-info {
+            background-color: $evap-light-blue;
+
+            .btn-primary {
+                box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+            }
+        }
+
+        &.results-row {
+            .distribution-bar, .grade-bg-result-bar {
+                box-shadow: 0 0 0 3px rgba($dark-gray, .5);
+            }
+        }
+    }
+}
+
+.preview.evaluation-row .evaluation-name {
+    color: $evap-dark-yellow;
+}
+
+.results-row {
+    height: 2.5rem;
+}
+
+tr.heading-row.course-row {
     td {
         padding-bottom: 0.2rem;
     }
 }
+
 tr.evaluation-row:not(.heading-row) {
     border-radius: 0.2rem;
 
@@ -140,6 +145,7 @@ tr.evaluation-row:not(.heading-row) {
         color: $dark-gray;
     }
 }
+
 tr.current-row-follows + tr {
     box-shadow: inset 0px 0px 6px $evap-dark-blue;
 }

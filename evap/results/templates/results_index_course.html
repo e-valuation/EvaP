@@ -8,7 +8,7 @@
 
 {% cache None course_result_template_fragment course.id LANGUAGE_CODE using="results" %}
 
-<tr class="hover-results heading-row course-row nohover" data-course-id={{ course.id }}>
+<tr class="results-row heading-row course-row" data-course-id={{ course.id }}>
     <td data-order="{{ course.name }}">
         <span class="evaluation-name">{{ course.name }}</span>
         <div>

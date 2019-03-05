@@ -135,16 +135,18 @@
     }, true);
 
     // activate clickable hover tables
-    $(".table-hover-evap tbody tr:not(.nohover) td").wrapInner(function() {
-        var url = $(this).closest("[data-url]").data('url');
-        if (url) { return "<a href='" + url + "'></a>"; }
-        else { return ""; }
+    $(".table-seamless-links [data-url]").each(function() {
+        const row = $(this);
+        const link = "<a href='" + row.data("url") + "'></a>";
+        row.children().wrapInner(link);
     });
-    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseenter(function(){
-        $(this).closest("tr").addClass("hoverpause");
-    });
-    $(".table-hover-evap tbody tr:not(.nohover) td .btn:not(.btn-row-hover),div.disabled-tooltip").mouseleave(function(){
-        $(this).closest("tr").removeClass("hoverpause");
+
+    $(".hover-row").each(function() {
+        const row = $(this);
+        row
+            .find(".btn:not(.btn-row-hover)")
+            .mouseover(() => row.removeClass("hover-row"))
+            .mouseout(() => row.addClass("hover-row"));
     });
 
     function setLanguage(language) {

@@ -89,7 +89,7 @@
         </div>
         <div class="card-body pt-2">
             {% if course_evaluations %}
-                <table class="table table-hover-evap table-vertically-aligned">
+                <table class="table table-seamless-links table-vertically-aligned">
                     <thead>
                         <tr class="table-header table-header-border-top-0">
                             <th style="width: 35%">{% trans 'Evaluation' %}</th>
@@ -107,7 +107,7 @@
                                 <tr class="current-row-follows"></tr>
                             {% endif %}
                             {% with evaluation=course_evaluation %}
-                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
+                                {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                             {% endwith %}
                         {% endfor %}
                     </tbody>
@@ -124,9 +124,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
-                        <tr class="nohover-row-follows"></tr>
-                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
+                        {% include 'results_index_evaluation.html' with links_to_results_page=False is_subentry=False %}
                     </tbody>
                 </table>
             {% endif %}

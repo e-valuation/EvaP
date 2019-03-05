@@ -59,7 +59,7 @@
                 {{ semester.semester_name }}
             </div>
             <div class="card-body">
-                <table class="table table-hover-evap table-vertically-aligned">
+                <table class="table table-seamless-links table-vertically-aligned">
                     <thead>
                     <tr>
                         <th style="width: 35%">{% trans 'Name' %}</th>
@@ -73,7 +73,7 @@
                         {% regroup semester.evaluations by course as course_evaluations %}
                         {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                             {% if course.evaluation_count > 1 %}
-                                <tr class="course-row heading-row nohover">
+                                <tr class="course-row heading-row">
                                     <td>
                                         <div>
                                             {{ course.name }}
@@ -99,11 +99,11 @@
                             {% endif %}
                             {% for evaluation in evaluations|dictsort:"name" %}
                                 <tr {% if evaluation|is_user_editor_or_delegate:user and evaluation.state == 'prepared' %}
-                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-edit" data-url="{% url 'contributor:evaluation_edit' evaluation.id %}"
+                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'contributor:evaluation_edit' evaluation.id %}"
                                     {% elif evaluation.state == 'published' and evaluation|can_results_page_be_seen_by:user %}
-                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
-                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} nohover"
+                                        class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                     {% endif %}>
                                     <td>
                                         <div class="evaluation-name">
@@ -162,7 +162,7 @@
                                         {% if evaluation.state != 'published' and not evaluation.is_single_result %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == 'prepared' %}
-                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-edit btn-row-hover"
+                                                    <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
                                                         data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}">
                                                         <span class="fas fa-pencil-alt"></span>
                                                     </a>

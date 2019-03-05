@@ -6,11 +6,11 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 
-{% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE can_user_see_results_page using="results" %}
+{% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
 
-<tr class="hover-results{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if not can_user_see_results_page %} nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
+<tr class="results-row{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
         {% if is_subentry %}data-course-id="{{ evaluation.course.id }}"{% endif%}
-        {% if can_user_see_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
+        {% if links_to_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
     <td data-order="{{ evaluation.course.name }}">
         <span class="evaluation-name">
             {% if is_subentry %}

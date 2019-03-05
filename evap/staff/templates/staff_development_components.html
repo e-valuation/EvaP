@@ -379,30 +379,7 @@
                             {% include 'progress_bar.html' with done=8 total=14 %}
                         </td>
                     </tr>
-                </tbody>
-            </table>
-            <h6>Hover table</h6>
-            <table class="table table-hover-evap vertically-aligned">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Info</th>
-                        <th>Items</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr data-url="#">
-                        <td>
-                            Url
-                        </td>
-                        <td>
-                            Let all cells contain a link so that the whole row appears as one link.
-                        </td>
-                        <td>
-                            <div class="badge badge-primary">Badge</div>
-                        </td>
-                    </tr>
-                    <tr class="hover-edit">
+                    <tr class="hover-row hover-row-info">
                         <td>
                             Hover edit or vote buttons
                         </td>
@@ -418,7 +395,7 @@
                             </a>
                         </td>
                     </tr>
-                    <tr class="hover-results">
+                    <tr class="results-row hover-row">
                         <td>
                             Hover results
                         </td>
@@ -442,15 +419,27 @@
                             </div>
                         </td>
                     </tr>
-                    <tr class="nohover">
+                </tbody>
+            </table>
+            <h6>Link table</h6>
+            <table class="table table-seamless-links vertically-aligned">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Info</th>
+                        <th>Items<th>
+                    </tr>
+                </thead>
+                <tbody>
+                     <tr data-url="#">
                         <td>
-                            Nohover
+                            Url
                         </td>
                         <td>
-                            Cancels hover effects for this row.
+                            Let all cells contain a link so that the whole row appears as one link.
                         </td>
-                        <td class="text-secondary">
-                            Text
+                        <td>
+                            <div class="badge badge-primary">Badge</div>
                         </td>
                     </tr>
                 </tbody>
