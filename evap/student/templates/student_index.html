@@ -7,15 +7,15 @@
 {% block content %}
     {{ block.super }}
 
-    <div id="participantInfobox" class="infobox">
-        <div class="infobox-header d-flex">
-            <span class="fas fa-info-circle infobox-icon"></span>
-            <span class="infobox-title">{% trans 'Information about the evaluation' %}</span>
-            <button type="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close">
+    <div id="participantInfobox" class="callout callout-info callout-closable">
+        <div class="callout-header d-flex">
+            <span class="fas fa-info-circle callout-icon"></span>
+            <span>{% trans 'Information about the evaluation' %}</span>
+            <button type="button" class="close callout-closable-close ml-auto" data-dismiss="modal" aria-label="Close">
                 <span class="fas fa-times"></span>
             </button>
         </div>
-        <div class="infobox-content">
+        <div class="callout-content">
             <b>{% trans 'Anonymity' %}</b><br />
             {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />

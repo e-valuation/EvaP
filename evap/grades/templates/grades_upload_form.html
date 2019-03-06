@@ -9,7 +9,7 @@
     {{ block.super }}
 
     {% if show_automated_publishing_info %}
-        <div class="bs-callout bs-callout-info">
+        <div class="callout callout-info">
             <b>{% trans 'Automated publishing' %}</b><br />
             {% blocktrans %}After this file with final grades was uploaded, the evaluation results will be published automatically once the evaluation ends. If the evaluation has already ended, it will be published immediately. All contributors and participants will receive an email informing them about the published evaluation results and the available grade file document.{% endblocktrans %}
         </div>

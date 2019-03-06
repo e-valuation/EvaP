@@ -23,14 +23,14 @@
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
-        <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
+        <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
+        <div class="callout callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
-        <div class="bs-callout bs-callout-info">
+        <div class="callout callout-info">
             <b>{% trans 'Questionnaire Preview' %}</b><br />
             {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
@@ -80,7 +80,7 @@
                 </div>
                 <div class="card-body">
                     {% if not preview %}
-                        <div class="bs-callout bs-callout-info">
+                        <div class="callout callout-info">
                             {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
                         </div>
                     {% endif %}
