@@ -188,10 +188,23 @@
             function isTextareaInvalid(textarea) {
                 return textarea.val().length > 0 && ["", "ka", "na"].includes(textarea.val().replace(/\W/g,'').toLowerCase());
             }
+            // if it is not invalid, maybe show a reference warning (because referencing other answers is bad)
+            function doesTextareaContainReference(textarea) {
+                const text = textarea.val().toLowerCase();
+                return ["s.o.", "s. o.", "siehe oben", "wie oben", "see above", "bereits erwähnt", "already stated"]
+                    .some(ref => text.includes(ref));
+            }
             function updateTextareaWarning(textarea) {
-                let showWarning = isTextareaInvalid(textarea);
-                textarea.parents('.row').find('.warning-label').toggleClass('d-none', !showWarning);
+                const isInvalid = isTextareaInvalid(textarea);
+                const containsReference = !isInvalid && doesTextareaContainReference(textarea);
+
+                const showWarning = isInvalid || containsReference;
+                const warningLabel = textarea.parents('.row').find('.warning-label');
+                warningLabel.toggleClass('d-none', !showWarning);
                 textarea.toggleClass('warning-border', showWarning);
+
+                warningLabel.find('.warning-filtered-out').toggleClass('d-none', !isInvalid);
+                warningLabel.find('.warning-text-reference').toggleClass('d-none', !containsReference);
             }
             var warningdelayTimer;
             $('textarea').on('input', function() { // Run the check on input

@@ -24,7 +24,8 @@
                             {{ field.label }}
                             <div class="warning-label mt-auto d-none">
                                 <span class="fas fa-exclamation-triangle"></span>
-                                {% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}
+                                <span class="warning-filtered-out d-none">{% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}</span>
+                                <span class="warning-text-reference d-none">{% trans "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to." %}</span>
                             </div>
                         </div>
                     {% endif %}
