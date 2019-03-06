@@ -31,11 +31,10 @@
     <td data-order="{{ course.avg_grade }}">
         {% if course.not_all_evaluations_are_published %}
             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
-                <div class="distribution-bar distribution-bar-disabled text-center"><span class="fas fa-hourglass-half "></span></div>
-                <div class="grade-bg-result-bar text-center grade-bg-disabled"><span class="fas fa-hourglass-half "></span></div>
+                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
             </div>
         {% else %}
-            {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+            {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
         {% endif %}
     </td>
 </tr>

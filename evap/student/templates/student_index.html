@@ -87,14 +87,14 @@
                                         <td>
                                             {% if semester.results_are_archived %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-archive" %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-archive" %}
                                                 </div>
                                             {% elif course.not_all_evaluations_are_published %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
                                                 </div>
                                             {% else %}
-                                                {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+                                                {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -219,22 +219,22 @@
                                                     <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
                                                 {% elif evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                                     <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
-                                                        {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                        {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                     </div>
                                                 {% endif %}
                                             {% elif evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' or evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results have not been published yet.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                 </div>
                                             {% endif %}
                                             {% if evaluation.state == 'published' and semester.results_are_archived %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-archive" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-archive" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                 </div>
                                             {% elif evaluation.state == 'published' and not evaluation.is_single_result %}
-                                                {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                             {% elif evaluation.state == 'published' %}
-                                                {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                             {% endif %}
                                         </td>
                                     </tr>

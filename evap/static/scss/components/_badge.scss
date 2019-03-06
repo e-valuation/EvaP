@@ -16,25 +16,30 @@
     color: $darker-gray;
 }
 
-.grade-bg-result-bar {
+%badge {
+    border-radius: $badge-border-radius;
+    text-align: center;
+}
+
+.badge-grade {
+    @extend %badge;
     color: $black;
-    float: right;
-    border-radius: 3px;
     width: 42px;
-    margin-left: 10px;
     transition: box-shadow 0.15s ease-in-out;
 }
 
-.grade-bg-result-bar-count {
-    float: left;
-    border-radius: 3px;
-    width: 50px;
-    margin-right: 20px;
+.badge-participants {
+    @extend %badge;
     background-color: $evap-dark-blue;
     color: white;
+    width: 50px;
+
+    .fa-user {
+        font-size: 80%;
+    }
 }
 
-.grade-bg-disabled {
+.badge-disabled {
     background-color: $light-gray;
     color: lighten($medium-gray, 5%);
 }

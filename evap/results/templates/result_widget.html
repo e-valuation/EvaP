@@ -1,0 +1,37 @@
+{% load results_templatetags %}
+{% load evaluation_filters %}
+
+{% spaceless %}
+    {% if question_result.has_answers %}
+        <div class="d-flex{% if question_result.warning %} participants-warning{% endif %}"
+            data-toggle="tooltip" data-placement="left"
+            title="{% if question_result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
+            {% for count, name in question_result.counts|zip:question_result.choices.names %}
+                {{ name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
+                {% if not forloop.last %}</br>{% endif %}
+            {% endfor %}"
+        >
+            {% if not single_result %}
+                <div class="badge-participants mr-3">
+                    <span class="fas fa-user"></span> {{ question_result.count_sum }}
+                </div>
+            {% endif %}
+
+            {% include 'distribution_with_grade.html' with question_result=question_result distribution=question_result.counts|normalized_distribution average=question_result.average %}
+        </div>
+    {% else %}
+        <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">
+            {% if not single_result %}
+                <div class="badge-participants badge-disabled mr-3">
+                    {% if question_result.is_published %}
+                        <span class="fas fa-user"></span> {{ question_result.count_sum }}
+                    {% else %}
+                        <span class="far fa-eye-slash"></span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
+        </div>
+    {% endif %}
+{% endspaceless %}

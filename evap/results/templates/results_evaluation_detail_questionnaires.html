@@ -21,7 +21,7 @@
                 <tr class="no-break d-flex">
                     <td class="result-rating-question my-auto">{{ question_result.question.text }}</td>
                     <td class="result-rating-answer my-auto">
-                        {% include 'result_bar.html' with question_result=question_result %}
+                        {% include 'result_widget.html' with question_result=question_result %}
                     </td>
                 </tr>
             {% elif question_result.question.is_text_question %}

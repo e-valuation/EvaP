@@ -65,9 +65,9 @@
 
     <td data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
         {% if evaluation.is_single_result %}
-            {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+            {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% else %}
-            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+            {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% endif %}
     </td>
 </tr>

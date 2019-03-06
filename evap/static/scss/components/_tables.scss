@@ -105,7 +105,7 @@
         }
 
         &.results-row {
-            .distribution-bar, .grade-bg-result-bar {
+            .distribution-bar, .badge-grade {
                 box-shadow: 0 0 0 3px rgba($dark-gray, .5);
             }
         }
@@ -152,7 +152,7 @@ tr.current-row-follows + tr {
 
 .heading-row {
     .distribution-bar,
-    .grade-bg-result-bar {
+    .badge-grade {
         border: 1px solid $dark-gray;
     }
 }
