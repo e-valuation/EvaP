@@ -1,56 +1,44 @@
-.evap-progress-bar-container {
-    padding-right: 4px;
-    display: block;
+.progress-container .progress {
     min-width: 55px;
-    flex-grow: 1;
-}
-
-.evap-progress-bar-back {
-    background: $evap-light-blue;
-    border-radius: 3px;
-    width: 100%;
+    height: unset;
+    margin-right: 4px;
+    flex: 1;
     position: relative;
-    display: inline-block;
+    font-size: unset;
+    background-color: $evap-light-blue;
 }
 
-.evap-progress-bar-front {
-    background: $evap-dark-blue;
-    border-radius: 3px;
-    position: relative;
-    display: inline-block;
+.progress-container-warning {
+    .progress {
+        background-color: $evap-yellow;
+    }
+
+    .progress-bar {
+        background-color: $evap-dark-yellow;
+    }
+
+    .progress-bartext {
+        color: $black;
+        @include bar-shadow($evap-dark-yellow);
+    }
 }
 
-.evap-progress-bar-bartext {
+.progress-bartext {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     color: $white;
     width: 100%;
     text-align: center;
     @include bar-shadow($evap-dark-blue);
 }
 
-.evap-progress-bar-text {
+.progress-label {
     color: $black;
     text-align: right;
     min-width: 31px;
 }
 
-.evap-progress-bar-warning {
-    .evap-progress-bar-back {
-        background: $evap-yellow;
-    }
-
-    .evap-progress-bar-front {
-        background: $evap-dark-yellow;
-    }
-
-    .evap-progress-bar-bartext {
-        color: $black;
-        @include bar-shadow($evap-dark-yellow);
-    }
-}
-
-.multi-progress-bar .evap-progress-bar-container {
+.multi-progress-bar .progress-container {
     padding-bottom: 3px;
 }
