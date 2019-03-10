@@ -1,5 +1,5 @@
+@import "variables";
 @import "mixins";
-@import "colors";
 @import "../bootstrap/scss/bootstrap";
 @import "vote-elements";
 @import "quick-review";
@@ -16,10 +16,6 @@ body {
     margin-bottom: 60px; // keep space for footer
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin-bottom: 1rem;
-}
-
 tr.bt-0 th {
     border-top: none;
 }
@@ -33,18 +29,6 @@ tr.bt-0 th {
 .navbar-nav .navbar-text {
     padding: .0 .5rem;
     line-height: 42px;
-}
-
-.navbar-dark .navbar-nav .nav-link,
-.navbar-dark .navbar-text {
-    color: $light-gray;
-}
-.navbar-dark .navbar-nav .nav-link:focus,
-.navbar-dark .navbar-nav .nav-link:hover {
-    color: $white;
-}
-.navbar-toggler {
-    padding: 0;
 }
 
 div.container {
@@ -126,7 +110,6 @@ a.btn:not([href]):not(.disabled).btn-dark {
 }
 .btn.disabled {
     border-width: 1px;
-    opacity: 0.45;
 }
 .btn.disabled.btn-primary {
     background-color: $evap-light-blue;
@@ -265,12 +248,7 @@ a.btn:not([href]):not(.disabled).btn-dark {
     line-height: 1;
 }
 
-.tooltip.show {
-    opacity: 1;
-}
-
 .tooltip-inner {
-    max-width: 260px;
     text-align: left;
 }
 
@@ -286,8 +264,8 @@ a.btn:not([href]):not(.disabled).btn-dark {
 .table-striped tr.d-flex td {
     border-width: 0;
 }
-.table-striped tr:nth-child(odd), .container-striped .row:nth-child(odd) {
-    background-color: darken($lighter-gray, 3%);
+.container-striped .row:nth-child(odd) {
+    background-color: $table-accent-bg;
 }
 
 #results-table.table th {
@@ -314,24 +292,12 @@ a.btn:not([href]):not(.disabled).btn-dark {
     }
 }
 
-.dropdown-menu {
-    padding: 0.25rem 0;
-}
 .dropdown-menu-tight {
     min-width: inherit;
     padding: 0.25rem 0;
 }
 .dropdown-toggle::after {
     vertical-align: 0.2em;
-}
-.dropdown-item {
-    padding: 0.15rem 1rem;
-}
-.dropdown-item.hover, .dropdown-item:hover {
-    background-color: $light-gray;
-}
-.dropdown-item.active, .dropdown-item:active {
-    background-color: $dark-gray;
 }
 .dropdown-divider {
     margin: 0.25rem 0;
@@ -491,10 +457,7 @@ button:not(:disabled) {
     display: inline-block;
     position: relative;
     float: left;
-    margin: 0;
-    padding: 3px 0.5rem;
     font-size: small;
-    background-color: $darker-gray;
     color: $medium-gray;
     border-radius: 0;
     a {
@@ -519,12 +482,6 @@ button:not(:disabled) {
     border-top: 25px solid $darker-gray;
     border-right: 13px solid $darker-gray;
     border-color: $darker-gray transparent transparent transparent;
-}
-
-@include media-breakpoint-only(lg) {
-    .container {
-        max-width: 1040px;
-    }
 }
 
 

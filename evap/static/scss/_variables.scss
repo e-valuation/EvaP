@@ -1,0 +1,33 @@
+@import "colors";
+
+$container-max-widths: (
+    sm: 540px,
+    md: 720px,
+    lg: 1040px,
+    xl: 1140px
+);
+
+$headings-margin-bottom: 1rem;
+
+$table-accent-bg: darken($lighter-gray, 3%);
+
+$btn-disabled-opacity: 0.45;
+
+$dropdown-padding-y: 0.25rem;
+$dropdown-link-hover-bg: $light-gray;
+$dropdown-link-active-bg: $dark-gray;
+$dropdown-item-padding-y: 0.15rem;
+$dropdown-item-padding-x: 1rem;
+
+$navbar-toggler-padding-y: 0;
+$navbar-toggler-padding-x: 0;
+$navbar-dark-color: $light-gray;
+$navbar-dark-hover-color: $white;
+
+$tooltip-max-width: 260px;
+$tooltip-opacity: 1;
+
+$breadcrumb-padding-y: 3px;
+$breadcrumb-padding-x: 0.5rem;
+$breadcrumb-margin-bottom: 0;
+$breadcrumb-bg: $darker-gray;
