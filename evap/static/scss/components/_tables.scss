@@ -1,17 +1,13 @@
-tr.bt-0 th {
-    border-top: none;
-}
-
 .table {
     margin-bottom: 0;
 }
 
-.table-striped tr.d-flex td {
-    border-width: 0;
+.table-header-border-top-0 th {
+    border-top: 0;
 }
 
-#results-table.table th {
-    border-top: none;
+.table-border-0 td {
+    border-top: 0;
 }
 
 .table-primary,
@@ -63,12 +59,12 @@ tr.bt-0 th {
     color: $white;
 }
 
-.total-stats {
+.table-total-stats {
     font-weight: bold;
     background-color: $lighter-gray;
 }
 
-table.vertically-aligned tr td {
+.table-vertically-aligned td {
     vertical-align: middle;
 }
 

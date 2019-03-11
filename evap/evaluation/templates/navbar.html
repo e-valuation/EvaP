@@ -27,7 +27,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Semesters' %}</a>
                             {% for semester in grade_document_semesters %}
-                                <a class="dropdown-item menu-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>
+                                <a class="dropdown-item dropdown-item-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                         </div>
                     </li>
@@ -42,7 +42,7 @@
                             <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Overview' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Semesters' %}</a>
                             {% for semester in result_semesters %}
-                                <a class="dropdown-item menu-indent" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
+                                <a class="dropdown-item dropdown-item-indent" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
                             {% if user.is_grade_publisher %}
                                 <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Publish grades' %}</a>

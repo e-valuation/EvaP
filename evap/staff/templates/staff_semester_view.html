@@ -78,7 +78,7 @@
                     </thead>
                     <tbody>
                         {% for degree, stats in degree_stats.items %}
-                        <tr{% if degree == 'total' %} class="total-stats"{% endif %}>
+                        <tr{% if degree == 'total' %} class="table-total-stats"{% endif %}>
                             <td>
                                 {% if degree == 'total' %}{% trans 'Total' %}{% else %}{{ degree }}{% endif %}
                             </td>
@@ -217,7 +217,7 @@
                     </div>
                 </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
-                    <table id="evaluation-table" class="table table-striped table-narrow vertically-aligned">
+                    <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                         {% if num_evaluations > 0 %}
                             <thead>
                                 <tr>
@@ -289,7 +289,7 @@
                 </form>
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
-                <table id="course-table" class="table table-striped table-narrow vertically-aligned">
+                <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
                     {% if courses %}
                         <thead>
                             <tr role="row">
