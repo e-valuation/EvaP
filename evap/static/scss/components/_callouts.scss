@@ -1,0 +1,103 @@
+.bs-callout {
+    margin: 0 0 20px 0;
+    padding: 15px 30px 15px 15px;
+    border-left: 5px solid $dark-gray;
+}
+.bs-callout h4 {
+    margin-top: 0;
+}
+.bs-callout p:last-child {
+    margin-bottom: 0;
+}
+.bs-callout code,
+.bs-callout .highlight {
+    background-color: $lighter-gray;
+}
+
+.bs-callout-danger {
+    background-color: $evap-light-red;
+    border-color: $evap-red;
+}
+.bs-callout-warning {
+    background-color: $evap-light-yellow;
+    border-color: $evap-yellow;
+}
+.bs-callout-info {
+    background-color: $evap-light-blue;
+    border-color: $evap-dark-blue;
+}
+
+.infobox {
+    background-color: $evap-light-blue;
+    padding: 10px 15px 10px 15px;
+    margin: 0 0 20px 0;
+    overflow: hidden;
+    border-left: 5px solid $evap-dark-blue;
+    display: inline-block;
+    border-radius: 0;
+}
+.infobox-header {
+    color: $evap-dark-blue;
+    font-weight: bold;
+    min-width: 20px;
+
+    .infobox-icon {
+        padding: 4px 5px 0 0;
+    }
+}
+.infobox-content {
+    font-size: 80%;
+    max-height: 500px;
+    max-width: 1200px;
+    padding-top: 20px;
+    overflow: hidden;
+}
+
+.infobox.closed {
+    border-radius: 0.2rem;
+    border-left-width: 0;
+    transition: background-color 0.15s ease-in-out;
+
+    .infobox-content {
+        max-height: 0;
+        max-width: 0;
+        padding-top: 0;
+    }
+
+    .infobox-close {
+        display: none;
+    }
+}
+.infobox.closed:hover:not(.closing), .infobox.closed:active:not(.closing) {
+    background-color: darken($evap-light-blue, 10%);
+    cursor: pointer;
+}
+
+.infobox.closing {
+    border-radius: 0.2rem;
+    border-left-width: 0;
+    transition: border-radius 1s ease 1s, border-left-width 1s ease 1s;
+
+    .infobox-content {
+        max-height: 0;
+        max-width: 0;
+        padding-top: 0;
+        transition: max-height 1s ease 0s, padding-top 1s ease 0s, max-width 1s ease 1s;
+    }
+
+    .infobox-close {
+        display: none;
+    }
+}
+.infobox.opening {
+    border-radius: 0;
+    border-left-width: 5px;
+    transition: border-radius 1s ease 0s, border-left-width 1s ease 0s;
+
+    .infobox-content {
+        max-height: 500px;
+        max-width: 1200px;
+        padding-top: 20px;
+        transition: max-width 1s ease 0s, padding-top 1s ease 1s, max-height 1s ease 1s;
+    }
+}

@@ -1,0 +1,56 @@
+.evap-progress-bar-container {
+    padding-right: 4px;
+    display: block;
+    min-width: 55px;
+    flex-grow: 1;
+}
+
+.evap-progress-bar-back {
+    background: $evap-light-blue;
+    border-radius: 3px;
+    width: 100%;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-front {
+    background: $evap-dark-blue;
+    border-radius: 3px;
+    position: relative;
+    display: inline-block;
+}
+
+.evap-progress-bar-bartext {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: $white;
+    width: 100%;
+    text-align: center;
+    @include bar-shadow($evap-dark-blue);
+}
+
+.evap-progress-bar-text {
+    color: $black;
+    text-align: right;
+    min-width: 31px;
+}
+
+.evap-progress-bar-warning {
+    .evap-progress-bar-back {
+        background: $evap-yellow;
+    }
+
+    .evap-progress-bar-front {
+        background: $evap-dark-yellow;
+    }
+
+    .evap-progress-bar-bartext {
+        color: $black;
+        @include bar-shadow($evap-dark-yellow);
+    }
+}
+
+.multi-progress-bar .evap-progress-bar-container {
+    padding-bottom: 3px;
+}

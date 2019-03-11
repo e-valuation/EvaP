@@ -1,0 +1,150 @@
+.is-invalid {
+    .form-control {
+        border-color: $evap-dark-red;
+    }
+
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
+    }
+}
+
+select[multiple='multiple'] {
+    height: 200px;
+}
+
+select[multiple] {
+    min-height: 40px;
+}
+
+.email-form .form-row {
+    clear:both;
+}
+
+.email-form .form-label {
+    float:left;
+    width: 15%;
+    padding-top: 7px;
+    padding-right: 15px;
+}
+
+.email-form .form-field {
+    float:left;
+    width:85%;
+}
+
+.form-label.is-invalid {
+    color: $evap-dark-red;
+}
+
+.form-label {
+    text-align: right;
+    font-weight: bold;
+    padding-top: 0.3rem;
+}
+.form-static-text {
+    padding-top: 0.3rem;
+}
+
+.form-submit-btn {
+    min-width: 200px
+}
+
+.form-submit-btn-divider {
+    width: 5px;
+    height:auto;
+    display:inline-block;
+}
+
+/* custom checkboxes (based on http://getbootstrap.com/docs/4.0/components/forms/#custom-forms) */
+.form-check-input {
+    position: absolute;
+    z-index: 1;
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+
+    &:checked ~ .form-check-label::after {
+        opacity: 1;
+    }
+
+    &:checked ~ .form-check-label::before {
+        background-color: $evap-dark-blue;
+    }
+
+    &:hover ~ .form-check-label::before {
+        background-color: darken($light-gray, 10%);
+    }
+
+    &:checked:hover ~ .form-check-label::before {
+        background-color: darken($evap-dark-blue, 10%);
+    }
+
+    &:focus ~ .form-check-label::before {
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.25);
+    }
+
+    &:disabled {
+        ~ .form-check-label {
+            color: $medium-gray;
+
+            &::before {
+                background-color: $lighter-gray;
+                border: 1px solid $light-gray;
+                box-shadow: none;
+            }
+
+            &::after {
+                color: $medium-gray;
+            }
+        }
+
+        &:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
+        }
+
+        &:checked:hover ~ .form-check-label::before {
+            background-color: $lighter-gray;
+        }
+    }
+}
+// formset delete checkboxes are hidden when replaced with a link and no checkbox should be shown there
+input[type="hidden"] ~ .form-check-label {
+    display: none;
+}
+.form-check-label {
+    margin-bottom: 0;
+    color: $black;
+    transition: color 0.15s ease-in-out;
+
+    &::before {  // background
+        position: absolute;
+        top: .25rem;
+        left: 0;
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        pointer-events: none;
+        user-select: none;
+        content: "";
+        border-radius: 0.25rem;
+        border: 0;
+        background-color: $light-gray;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    &::after {  // check icon
+        position: absolute;
+        top: .31rem;
+        left: .2rem;
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        opacity: 0;
+        transition: opacity 0.15s ease-in-out;
+        content: "\f00c";
+        font-family: "Font Awesome\ 5 Free";
+        font-size: .6rem;
+        font-weight: 900;
+        color: $white;
+    }
+}

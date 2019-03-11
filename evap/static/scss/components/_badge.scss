@@ -1,0 +1,40 @@
+.badge-btn {
+    margin-left: 0.3rem;
+    color: $darker-gray;
+    background-color: $light-gray;
+}
+.btn-light.active .badge-btn {
+    color: $lighter-gray;
+    background-color: $dark-gray;
+}
+.badge-btn-zero {
+    margin-left: 0.3rem;
+    color: $medium-gray;
+    background-color: $white;
+}
+.badge-info, .badge-warning {
+    color: $darker-gray;
+}
+
+.grade-bg-result-bar {
+    color: $black;
+    float: right;
+    border-radius: 3px;
+    width: 42px;
+    margin-left: 10px;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.grade-bg-result-bar-count {
+    float: left;
+    border-radius: 3px;
+    width: 50px;
+    margin-right: 20px;
+    background-color: $evap-dark-blue;
+    color: white;
+}
+
+.grade-bg-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}

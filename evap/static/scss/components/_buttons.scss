@@ -1,0 +1,216 @@
+.btn.fas {
+    font-weight: 900;
+}
+.btn.far {
+    font-weight: 400;
+}
+
+.btn-light {
+    border-color: $medium-gray;
+}
+.btn-light:focus,
+.btn-light.focus {
+    box-shadow: 0 0 0 3px rgba($light-gray, 0.5);
+}
+.btn-light.active,
+.btn-light:active {
+    border-color: $dark-gray;
+    background-color: $light-gray;
+    box-shadow: inset 0 0 5px $dark-gray;
+}
+.btn-light:hover {
+    border-color: $dark-gray;
+}
+.btn-light:active,
+.btn-light.active,
+.show > .btn-light.dropdown-toggle {
+    border-color: $dark-gray;
+}
+.btn-light:not(:disabled):not(.disabled):active,
+.btn-light:not(:disabled):not(.disabled).active {
+    border-color: $dark-gray;
+}
+
+button:not(:disabled) {
+    cursor: pointer;
+}
+
+a:not([href]):not(.disabled) {
+    cursor: pointer;
+}
+
+@include button-disabled-variant(".btn-primary", $evap-dark-blue, $evap-light-blue);
+@include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
+@include button-disabled-variant(".btn-success", $evap-green, $evap-light-green);
+@include button-disabled-variant(".btn-danger", $evap-red, $evap-light-red);
+@include button-disabled-variant(".btn-warning", $evap-dark-yellow, $evap-light-yellow);
+@include button-disabled-variant(".btn-info", darken($evap-light-blue, 20%), lighten($evap-light-blue, 5%));
+@include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
+@include button-disabled-variant(".btn-dark", $white, $dark-gray, $darker-gray);
+
+.btn-switch {
+    display: inline-flex;
+    background-color: lighten($light-gray, 2%);
+    border-radius: 0.2rem;
+
+    .btn-toolbar {
+        background: $white;
+    }
+
+    .btn-group {
+        background: lighten($light-gray, 2%);
+
+        &::before {
+            width: 0.5rem;
+            content: "";
+        }
+    }
+}
+.btn-switch-light {
+    background-color: $lighter-gray;
+
+    .btn-group {
+        background: $lighter-gray;
+    }
+}
+.btn-switch-label {
+    display: inline-block;
+    font-weight: normal;
+    white-space: nowrap;
+    vertical-align: middle;
+    color: $darker-gray;
+    padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+.icon-buttons .btn {
+    min-width: 32px;
+}
+
+.btn-sm-narrow {
+    line-height: 1;
+}
+
+.btn-switch-navbar {
+    display: inline-flex;
+    background-color: $darker-gray;
+    padding: 0.5rem 0.75rem;
+
+    .btn-group {
+        .btn.btn-navbar {
+            padding: 0 0.25rem;
+            background-color: lighten($darker-gray, 5%);
+            border-width: 0;
+            color: $light-gray;
+            transition: none;
+            min-width: 28px;
+            margin-left: 0;
+        }
+
+        .btn.btn-navbar:hover {
+            background-color: lighten($darker-gray, 10%);
+            color: $white;
+        }
+
+        .btn.btn-navbar:focus {
+            box-shadow: none;
+        }
+
+        .btn.btn-navbar.active {
+            background-color: lighten($darker-gray, 5%);
+            color: $medium-gray;
+            border-width: 0;
+            box-shadow: inset 0 0 10px darken($darker-gray, 20%);
+            opacity: 1;
+        }
+    }
+}
+
+.feedback-button {
+    position: fixed;
+    right: 10px;
+    bottom: 8px;
+    z-index: $zindex-fixed;
+
+    .btn-dark {
+        padding: 0 0.2rem;
+        color: $light-gray;
+    }
+}
+.feedback-button-placeholder {
+    min-width: 140px;
+}
+
+.login-button {
+    min-width: 250px;
+}
+
+.btn-option {
+    background-color: $white;
+    border-color: $light-gray;
+    color: $black;
+}
+.btn-option.active {
+    background-color: $evap-dark-blue;
+    color: $white;
+}
+.btn-option.disabled {
+    opacity: 0.6;
+}
+.btn-option:hover:not(.disabled) {
+    background-color: $light-gray;
+}
+.btn-option.active:hover:not(.disabled) {
+    background-color: darken($evap-dark-blue, 10%);
+}
+
+.vote-btn {
+    width: 6rem;
+    height: 2.5rem;
+    padding: 0.25rem;
+    font-size: 0.85rem;
+    white-space: normal;
+    line-height: 1rem;
+    border-color: $medium-gray;
+
+    &:last-child {
+        width: 3.5rem;
+    }
+
+    .vote-type-bipolar &:not(:last-child) {
+        width: 5rem;
+        font-size: 0.8rem;
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .vote-btn {
+        margin-top: 0;
+    }
+
+    .vote-type-unipolar > .vote-btn:not(:last-child),
+    .vote-type-bipolar > .vote-btn:not(:last-child) {
+        width: 0;
+        flex: auto;
+    }
+}
+
+.vote-btn-text {
+    position: relative;
+    top: -1px;
+}
+
+@each $name, $color in $vote-colors {
+    .vote-btn-#{$name} {
+        background-color: $lighter-gray;
+        color: darken($color, 20%);
+
+        &:hover {
+            background-color: change-color($color, $lightness: 85%);
+        }
+
+        &.active {
+            background-color: $color;
+            color: change-color($color, $lightness: 30%);
+        }
+    }
+}

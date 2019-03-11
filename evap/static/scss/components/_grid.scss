@@ -1,0 +1,66 @@
+div.container {
+    padding-top: 80px; // for navbar (and breadcrumbs)
+    flex: 1 0 auto;
+}
+
+.container-striped .row:nth-child(odd) {
+    background-color: $table-accent-bg;
+}
+
+.lcr-left {
+    flex: 1;
+}
+.lcr-center {
+    flex: 5;
+    text-align: center;
+}
+.lcr-right {
+    flex: 1;
+    text-align: right;
+}
+
+.vote-question {
+    @extend .col-12, .col-lg-4, .col-xl-5;
+
+    padding: 0.5rem 0.75rem 0;
+    word-wrap: break-word;
+
+    &.choice-error {
+        font-weight: bold;
+        color: $evap-dark-red;
+    }
+}
+
+.vote-answer-buttons {
+    @extend .col-12, .col-lg-8, .col-xl-7;
+
+    padding: 0.5rem 0.75rem 0.9rem;
+}
+
+@include media-breakpoint-up(lg) {
+    .vote-question, .vote-answer-buttons {
+        padding-bottom: 0.5rem;
+    }
+}
+
+.vote-text-answer {
+    @extend .col-12, .col-lg-8, .col-xl-7;
+
+    padding: 0.75rem;
+}
+
+.result-rating-question {
+    width: 60%;
+}
+
+.result-rating-answer {
+    width: 40%;
+}
+
+.result-text-question {
+    width: 25%;
+}
+
+.result-text-answer {
+    width: 75%;
+}

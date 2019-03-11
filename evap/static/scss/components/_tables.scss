@@ -1,0 +1,156 @@
+tr.bt-0 th {
+    border-top: none;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table-striped tr.d-flex td {
+    border-width: 0;
+}
+
+#results-table.table th {
+    border-top: none;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: $evap-dark-blue;
+    color: $white;
+}
+.table-secondary,
+.table-secondary > th,
+.table-secondary > td {
+    background-color: $medium-gray;
+    color: $black;
+}
+.table-success,
+.table-success > th,
+.table-success > td {
+    background-color: $evap-green;
+    color: $black;
+}
+.table-info,
+.table-info > th,
+.table-info > td {
+    background-color: $evap-light-blue;
+    color: $black;
+}
+.table-warning,
+.table-warning > th,
+.table-warning > td {
+    background-color: $evap-yellow;
+    color: $black;
+}
+.table-danger,
+.table-danger > th,
+.table-danger > td {
+    background-color: $evap-red;
+    color: $white;
+}
+.table-light,
+.table-light > th,
+.table-light > td {
+    background-color: $light-gray;
+    color: $black;
+}
+.table-dark,
+.table-dark > th,
+.table-dark > td {
+    background-color: $darker-gray;
+    color: $white;
+}
+
+.total-stats {
+    font-weight: bold;
+    background-color: $lighter-gray;
+}
+
+table.vertically-aligned tr td {
+    vertical-align: middle;
+}
+
+.table-narrow td {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+.table-hover-evap tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+.table-hover-evap tbody tr:hover:not(.nohover):not(.hoverpause) {
+    background-color: rgba(0, 0, 0, 0.075);
+    cursor: pointer;
+}
+.table-hover-evap tbody tr.hover-vote:hover:not(.hoverpause),
+.table-hover-evap tbody tr.hover-edit:hover:not(.hoverpause) {
+    background-color: $evap-light-blue;
+}
+.table-hover-evap tbody tr td {
+    overflow: hidden;
+}
+.table-hover-evap tbody tr td a:not(.btn) {
+    color: $black;
+    text-decoration: none;
+    // the following values are necessary to make the a element fill the complete table cell
+    display: block;
+    margin: -10em;
+    padding: 10em;
+}
+.table-hover-evap tr.preview td .evaluation-name
+{
+    color: $evap-dark-yellow;
+}
+tr.hover-results {
+    height: 2.5rem;
+}
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .btn-results,
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
+tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
+    box-shadow: 0 0 0 3px rgba($dark-gray, .5);
+}
+tr.hover-vote:hover:not(.nohover):not(.hoverpause) .btn-vote,
+tr.hover-edit:hover:not(.nohover):not(.hoverpause) .btn-edit {
+    box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+}
+tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .distribution-bar,
+tr.nohover-row-follows + tr.hover-results:hover:not(.nohover):not(.hoverpause) .grade-bg-result-bar {
+    box-shadow: none;
+}
+
+tr.heading-row.course-row{
+    td {
+        padding-bottom: 0.2rem;
+    }
+}
+tr.evaluation-row:not(.heading-row) {
+    border-radius: 0.2rem;
+
+    td {
+        padding-top: 0.18rem;
+        padding-bottom: 0.18rem;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    td:first-of-type {
+        padding-left: 2rem;
+    }
+
+    .evaluation-name {
+        font-style: italic;
+        color: $dark-gray;
+    }
+}
+tr.current-row-follows + tr {
+    box-shadow: inset 0px 0px 6px $evap-dark-blue;
+}
+
+.heading-row {
+    .distribution-bar,
+    .grade-bg-result-bar {
+        border: 1px solid $dark-gray;
+    }
+}
