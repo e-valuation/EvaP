@@ -179,11 +179,11 @@
                                                         <span class="fas fa-pencil-alt"></span>
                                                     </a>
                                                 {% endif %}
+                                                <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
+                                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
+                                                    <span class="fas fa-eye"></span>
+                                                </a>
                                             {% endif %}
-                                            <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
-                                                data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
-                                                <span class="fas fa-eye"></span>
-                                            </a>
                                         {% elif evaluation.state != 'published' and evaluation.is_single_result %}
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
