@@ -169,10 +169,7 @@ class EvaluationOperation:
 
 class RevertToNewOperation(EvaluationOperation):
     confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
-
-    @staticmethod
-    def applicable_to(evaluation):
-        return evaluation.state in ['prepared', 'editor_approved', 'approved']
+    applicable_to = lambda evaluation: evaluation.state in ['prepared', 'editor_approved', 'approved']
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -187,10 +184,7 @@ class RevertToNewOperation(EvaluationOperation):
 class RevertToPreparedOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
     confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
-
-    @staticmethod
-    def applicable_to(evaluation):
-        return evaluation.state in ['new', 'editor_approved']
+    applicable_to = lambda evaluation: evaluation.state in ['new', 'editor_approved']
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -204,10 +198,7 @@ class RevertToPreparedOperation(EvaluationOperation):
 
 class RevertToReviewedOperation(EvaluationOperation):
     confirmation_message = ugettext_lazy("Do you want to unpublish the following evaluations?")
-
-    @staticmethod
-    def applicable_to(evaluation):
-        return evaluation.state == 'published'
+    applicable_to = lambda evaluation: evaluation.state == 'published'
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -222,10 +213,7 @@ class RevertToReviewedOperation(EvaluationOperation):
 class PublishOperation(EvaluationOperation):
     email_template_name = EmailTemplate.PUBLISHING_NOTICE
     confirmation_message = ugettext_lazy("Do you want to publish the following evaluations?")
-
-    @staticmethod
-    def applicable_to(evaluation):
-        return evaluation.state == 'reviewed'
+    applicable_to = lambda evaluation: evaluation.state == 'reviewed'
 
     @staticmethod
     def warning_for_inapplicables(amount):
