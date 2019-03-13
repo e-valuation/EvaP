@@ -116,3 +116,46 @@ def get_parameter_from_url_or_session(request, parameter, default=False):
 def translate(**kwargs):
     # get_language may return None if there is no session (e.g. during management commands)
     return property(lambda self: getattr(self, kwargs[get_language() or 'en']))
+
+
+def round_datetime(dt=None, round_to=60):
+    """Round a datetime object to closest time lapse (hours/minutes/seconds)
+    dt: datetime object, if is None: equals datetime.now()
+    round_to: time lapse in seconds, default: 1 minute
+    Microseconds will be discarded, rounding in days not supported"""
+
+    if dt is None:
+        dt = datetime.datetime.now()
+    seconds = (dt.replace(tzinfo=None) - dt.min).seconds
+    rounding = (seconds+round_to/2) // round_to * round_to
+
+    return dt + datetime.timedelta(0, rounding-seconds, -dt.microsecond)
+
+
+def round_datetime_down(dt=None, round_to=60):
+    """Round a datetime object down to closest time lapse (hours/minutes/seconds)
+    dt: datetime object, if is None: equals datetime.now()
+    round_to: time lapse in seconds, default: 1 minute
+    Microseconds will be discarded, rounding in days not supported"""
+
+    if dt is None:
+        dt = datetime.datetime.now()
+    round_dt = round_datetime(dt=dt, round_to=round_to)
+    if round_dt > dt:
+        round_dt -= datetime.timedelta(seconds=round_to)
+    return round_dt
+
+
+def round_datetime_up(dt=None, round_to=60):
+    """Round a datetime object up to closest time lapse (hours/minutes/seconds)
+    dt: datetime object, if is None: equals datetime.now()
+    round_to: time lapse in seconds, default: 1 minute
+    Microseconds will be discarded, rounding in days not supported"""
+
+    if dt is None:
+        dt = datetime.datetime.now()
+    round_dt = round_datetime(dt=dt, round_to=round_to)
+    if round_dt < dt:
+        round_dt += datetime.timedelta(seconds=round_to)
+    return round_dt
+
