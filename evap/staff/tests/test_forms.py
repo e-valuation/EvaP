@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from unittest.mock import patch
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
@@ -535,6 +537,7 @@ class EvaluationFormTests(TestCase):
             form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         else:
             form = EvaluationFormClass(form_data, instance=evaluation)
+
         self.assertEqual(form.is_valid(), expected_result)
 
     def test_contributor_evaluation_form_date_validation(self):
@@ -546,7 +549,9 @@ class EvaluationFormTests(TestCase):
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
         # contributors: start date must be in the future
-        self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", False)
+        # since issue #1312, a past vote_start_datetime is automatically set to datetime.now() (rounded up)
+        # -> test irrelevant
+        # self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", False)
 
         # contributors: end date must be in the future
         self.helper_date_validation(ContributorEvaluationForm, "2099-01-01", "1999-01-01", False)
