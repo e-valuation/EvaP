@@ -127,9 +127,9 @@ def round_datetime(dt=None, round_to=60):
     if dt is None:
         dt = datetime.datetime.now()
     seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-    rounding = (seconds+round_to/2) // round_to * round_to
+    rounding = (seconds + round_to/2) // round_to * round_to
 
-    return dt + datetime.timedelta(0, rounding-seconds, -dt.microsecond)
+    return dt + datetime.timedelta(0, rounding - seconds, -dt.microsecond)
 
 
 def round_datetime_down(dt=None, round_to=60):
@@ -143,6 +143,7 @@ def round_datetime_down(dt=None, round_to=60):
     round_dt = round_datetime(dt=dt, round_to=round_to)
     if round_dt > dt:
         round_dt -= datetime.timedelta(seconds=round_to)
+
     return round_dt
 
 
@@ -157,5 +158,5 @@ def round_datetime_up(dt=None, round_to=60):
     round_dt = round_datetime(dt=dt, round_to=round_to)
     if round_dt < dt:
         round_dt += datetime.timedelta(seconds=round_to)
-    return round_dt
 
+    return round_dt

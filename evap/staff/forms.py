@@ -1,7 +1,5 @@
 import logging
 
-from datetime import datetime
-
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
