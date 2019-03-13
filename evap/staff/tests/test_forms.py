@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from unittest.mock import patch
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
