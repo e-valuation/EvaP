@@ -127,7 +127,7 @@ def round_datetime(dt=None, round_to=60):
     if dt is None:
         dt = datetime.datetime.now()
     seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-    rounding = (seconds + round_to/2) // round_to * round_to
+    rounding = (seconds + round_to / 2) // round_to * round_to
 
     return dt + datetime.timedelta(0, rounding - seconds, -dt.microsecond)
 
