@@ -42,11 +42,12 @@ class EvaluationForm(forms.ModelForm):
     def clean(self):
         super().clean()
 
-        if self.cleaned_data['vote_start_datetime'] < datetime.now():
-            self.cleaned_data['vote_start_datetime'] = round_datetime_up(round_to=5 * 60)
-
         vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
         vote_end_date = self.cleaned_data.get('vote_end_date')
+
+        if vote_start_datetime and vote_start_datetime < datetime.now():
+            self.cleaned_data['vote_start_datetime'] = round_datetime_up(round_to=5 * 60)
+
         if vote_start_datetime and vote_end_date:
             if vote_start_datetime.date() > vote_end_date:
                 self.add_error("vote_start_datetime", "")
