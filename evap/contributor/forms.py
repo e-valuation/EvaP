@@ -46,7 +46,7 @@ class EvaluationForm(forms.ModelForm):
         vote_end_date = self.cleaned_data.get('vote_end_date')
 
         # IMPORTANT: when removing following feature (auto-set a vote_start_datetime of the past to the future),
-        # make sure to uncomment the according test ("start date in the past -> form invalid?")!
+        # make sure to alter the according test ("start date in the past -> form invalid?")!
         # Location of test: evap/staff/tests/test_forms.py
         #                   EvaluationFormTests.test_contributor_evaluation_form_date_validation(self):
         if vote_start_datetime and vote_start_datetime < datetime.now():

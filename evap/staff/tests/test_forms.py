@@ -548,8 +548,9 @@ class EvaluationFormTests(TestCase):
 
         # contributors: start date must be in the future
         # since issue #1312, a past vote_start_datetime is automatically set to datetime.now() (rounded up)
-        # -> test irrelevant
+        # -> test wrong, instead test whether form is still valid
         # self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", False)
+        self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", True)
 
         # contributors: end date must be in the future
         self.helper_date_validation(ContributorEvaluationForm, "2099-01-01", "1999-01-01", False)
