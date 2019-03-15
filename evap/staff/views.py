@@ -505,7 +505,7 @@ def semester_todo(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
+    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
