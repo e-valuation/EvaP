@@ -75,13 +75,13 @@
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
-            {% if evaluation.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.grade_documents.first.id %}">{{ evaluation.grade_documents.first.description }}</a>
-            {% elif evaluation.grade_documents.count > 1 and can_download_grades %}
+            {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
+            {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
                     <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
-                        {% for grade_document in evaluation.grade_documents.all %}
+                        {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
                         {% endfor %}
                     </div>
