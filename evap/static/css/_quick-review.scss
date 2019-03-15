@@ -67,6 +67,9 @@
     &:focus {
         outline: none;
     }
+    &[data-layer="0"] {
+        flex-direction: row;
+    }
 
 }
 [data-layer="0"] {
