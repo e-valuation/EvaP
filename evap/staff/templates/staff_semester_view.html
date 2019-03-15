@@ -49,7 +49,7 @@
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
-                        <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
+                        <a href="{% url 'staff:semester_preparation_reminder' semester.id %}" class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
                         <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
                     <div class="btn-switch ml-2">
