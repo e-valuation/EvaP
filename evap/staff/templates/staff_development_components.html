@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+
+{% block title %}{% trans 'Development' %} - {{ block.super }}{% endblock %}
+
+{% block breadcrumb_bar %}
+    <div>
+        <ul class="breadcrumb">
+            {% block breadcrumb %}
+                <li class="breadcrumb-item">{% trans 'Development' %}</li>
+            {% endblock %}
+        </ul>
+        <span class="breadcrumb-end"></span>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="card-deck mb-3">
+        <div class="card">
+            <div class="card-header">
+                Card
+            </div>
+            <div class="card-body"></div>
+        </div>
+        <div class="card card-outline-primary">
+            <div class="card-header">
+                Outline Primary
+            </div>
+            <div class="card-body"></div>
+        </div>
+        <div class="card card-outline-warning">
+            <div class="card-header">
+                Outline Warning
+            </div>
+            <div class="card-body"></div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Text
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for color in theme_colors %}
+                    <div class="col text-{{ color }}">{{ color|title }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Badges
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <div class="badge badge-{{ color }}">{{ color|title }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <div class="badge badge-pill badge-{{ color }}">{{ color|title }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <button type="button" class="btn btn-sm btn-light">
+                        <div class="badge badge-pill badge-btn">17</div>
+                    </button>
+                </div>
+                <div class="col-3">
+                    <button type="button" class="btn btn-sm btn-light">
+                        Sum
+                        <div class="badge badge-pill badge-btn">25</div>
+                    </button>
+                </div>
+                <div class="col-3">
+                    <button type="button" class="btn btn-sm btn-light">
+                        Zero
+                        <div class="badge badge-pill badge-btn-zero">0</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Buttons
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <button type="button" class="btn btn-{{ color }}">{{ color|title }}</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <button type="button" class="btn btn-outline-{{ color }}">{{ color|title }}</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <button type="button" disabled class="btn btn-{{ color }}">{{ color|title }}</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <a href="#" class="btn btn-{{ color }}">{{ color|title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <a href="#" class="btn btn-outline-{{ color }}">{{ color|title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row mb-2">
+                {% for color in theme_colors %}
+                    <div class="col">
+                        <a href="#" class="btn disabled btn-{{ color }}">{{ color|title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <div class="btn-switch">
+                        <div class="btn-switch-label">Normal</div>
+                        <div class="btn-switch btn-group">
+                            <button type="button" class="btn btn-sm btn-light active">On</button>
+                            <button type="button" class="btn btn-sm btn-light">Off</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="btn-switch btn-switch-light">
+                        <div class="btn-switch-label">Light</div>
+                        <div class="btn-switch btn-group">
+                            <button type="button" class="btn btn-sm btn-light active">On</button>
+                            <button type="button" class="btn btn-sm btn-light">Off</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="btn-switch">
+                        <div class="btn-switch-label">Normal</div>
+                        <div class="btn-switch btn-group icon-buttons">
+                            <button type="button" class="btn btn-sm btn-light active">
+                                <span class="fas fa-check"></span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light">
+                                <span class="fas fa-times"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="btn-switch btn-switch-light">
+                        <div class="btn-switch-label">Light</div>
+                        <div class="btn-switch btn-group icon-buttons">
+                            <button type="button" class="btn btn-sm btn-light active">
+                                <span class="fas fa-check"></span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light">
+                                <span class="fas fa-times"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Alerts and Callouts
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for color in theme_colors %}
+                    <div class="col-3">
+                        <div class="alert alert-{{ color }}">{{ color|title }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col-3">
+                    <div class="bs-callout bs-callout-info">Info</div>
+                </div>
+                <div class="col-3">
+                    <div class="bs-callout bs-callout-warning">Warning</div>
+                </div>
+                <div class="col-3">
+                    <div id="exampleInfobox" class="infobox">
+                        <div class="infobox-header d-flex">
+                            <span class="fas fa-info-circle infobox-icon"></span>
+                            <span>Information</span>
+                            <button type="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close">
+                                <span class="fas fa-times"></span>
+                            </button>
+                        </div>
+                        <div class="infobox-content">
+                            Give the user some explanation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Vote
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="vote-question">
+                    Unipolar
+                </div>
+                <div class="vote-answer-buttons">
+                    <div class="vote-inputs vote-type-unipolar btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-sm vote-btn vote-btn-green d-flex">
+                            <input type="radio" value="1" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Strongly<br>agree </span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-lime d-flex">
+                            <input type="radio" value="2" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Agree </span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-yellow d-flex">
+                            <input type="radio" value="3" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Neutral </span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-orange d-flex">
+                            <input type="radio" value="4" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Disagree </span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-red d-flex">
+                            <input type="radio" value="5" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Strongly<br>disagree </span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-gray d-flex">
+                            <input type="radio" value="6" autocomplete="off">
+                            <span class="m-auto vote-btn-text">no answer </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="vote-question">
+                    Bipolar
+                </div>
+                <div class="vote-answer-buttons">
+                    <div class="vote-inputs vote-type-bipolar btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-sm vote-btn vote-btn-red d-flex">
+                            <input type="radio" value="-3" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Way too<br>small</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-orange d-flex">
+                            <input type="radio" value="-2" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Too<br>small</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-lime d-flex">
+                            <input type="radio" value="-1" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Slightly too<br>small</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-green d-flex">
+                            <input type="radio" value="0" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Ideal</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-lime d-flex">
+                            <input type="radio" value="1" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Slightly too<br>large</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-orange d-flex">
+                            <input type="radio" value="2" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Too<br>large</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-red d-flex">
+                            <input type="radio" value="3" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Way too<br>large</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-gray d-flex">
+                            <input type="radio" value="6" autocomplete="off">
+                            <span class="m-auto vote-btn-text">no answer</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="vote-question">
+                    Yes-No
+                </div>
+                <div class="vote-answer-buttons">
+                    <div class="vote-inputs vote-type-yes-no btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-sm vote-btn vote-btn-green d-flex">
+                            <input type="radio" value="1" autocomplete="off">
+                            <span class="m-auto vote-btn-text">Yes</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-red d-flex">
+                            <input type="radio" value="5" autocomplete="off">
+                            <span class="m-auto vote-btn-text">No</span>
+                        </label>
+                        <label class="btn btn-sm vote-btn vote-btn-gray d-flex">
+                            <input type="radio" value="6" autocomplete="off">
+                            <span class="m-auto vote-btn-text">no answer</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Bars
+        </div>
+        <div class="card-body">
+            {% include 'progress_bar.html' with done=6 total=12 %}
+            {% include 'progress_bar.html' with done=7 total=7 icon='user' %}
+            {% include 'progress_bar.html' with done=1 total=8 warning=True %}
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Tables
+        </div>
+        <div class="card-body">
+            <h6>Special rows</h6>
+            <table class="table vertically-aligned">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Info</th>
+                        <th>Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="heading-row">
+                        <td>
+                            Heading row
+                        </td>
+                        <td>
+                            Signals a row being in the first indent level.
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                {% spaceless %}
+                                    <div class="distribution-bar-container">
+                                        <div class="distribution-bar">
+                                            <div class="vote-bg-green" style="width: 52%;">&nbsp;</div>
+                                            <div class="vote-bg-lime" style="width: 26%;">&nbsp;</div>
+                                            <div class="vote-bg-yellow" style="width: 13%;">&nbsp;</div>
+                                            <div class="vote-bg-orange" style="width: 6%;">&nbsp;</div>
+                                            <div class="vote-bg-red" style="width: 3%;">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                {% endspaceless %}
+                                <div class="grade-bg-result-bar text-center" style="background-color: rgb(177, 205, 82)">1.8</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="total-stats">
+                        <td>
+                            Total Stats
+                        </td>
+                        <td>
+                            Emphasize a row showing important data.
+                        </td>
+                        <td>
+                            {% include 'progress_bar.html' with done=8 total=14 %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h6>Hover table</h6>
+            <table class="table table-hover-evap vertically-aligned">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Info</th>
+                        <th>Items</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-url="#">
+                        <td>
+                            Url
+                        </td>
+                        <td>
+                            Let all cells contain a link so that the whole row appears as one link.
+                        </td>
+                        <td>
+                            <div class="badge badge-primary">Badge</div>
+                        </td>
+                    </tr>
+                    <tr class="hover-edit">
+                        <td>
+                            Hover edit or vote buttons
+                        </td>
+                        <td>
+                            Hightlight the row and the primary button when hovering, except when a secondary button is hovered.
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-primary btn-row-hover btn-edit">
+                                <span class="fas fa-link"></span>
+                            </a>
+                            <a href="#" class="btn btn-dark btn-sm">
+                                <span class="fas fa-anchor"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="hover-results">
+                        <td>
+                            Hover results
+                        </td>
+                        <td>
+                            Hightlight the row, distribution bar and grade badge when hovering.
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                {% spaceless %}
+                                    <div class="distribution-bar-container">
+                                        <div class="distribution-bar">
+                                            <div class="vote-bg-green" style="width: 52%;">&nbsp;</div>
+                                            <div class="vote-bg-lime" style="width: 26%;">&nbsp;</div>
+                                            <div class="vote-bg-yellow" style="width: 13%;">&nbsp;</div>
+                                            <div class="vote-bg-orange" style="width: 6%;">&nbsp;</div>
+                                            <div class="vote-bg-red" style="width: 3%;">&nbsp;</div>
+                                        </div>
+                                    </div>
+                                {% endspaceless %}
+                                <div class="grade-bg-result-bar text-center" style="background-color: rgb(177, 205, 82)">1.8</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="nohover">
+                        <td>
+                            Nohover
+                        </td>
+                        <td>
+                            Cancels hover effects for this row.
+                        </td>
+                        <td class="text-secondary">
+                            Text
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-header">
+            Containers
+        </div>
+        <div class="card-body">
+            <div class="d-flex text-white mb-3">
+                <div class="lcr-left p-2 bg-secondary">Left</div>
+                <div class="lcr-center p-2 bg-primary">Center</div>
+                <div class="lcr-right p-2 bg-secondary">Right</div>
+            </div>
+            <div class="card collapsible">
+                <div class="card-header">
+                    <a href="#collapse" class="collapse-toggle" data-toggle="collapse" aria-expanded="false">Collapsible</a>
+                </div>
+                <div id="collapse" class="collapse show">
+                    <div class="card-body">
+                        Content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include 'infobox_js.html' with id='exampleInfobox' %}
+{% endblock %}

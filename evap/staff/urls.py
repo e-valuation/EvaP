@@ -76,5 +76,7 @@ urlpatterns = [
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
-    path("download_sample_xls/<str:filename>", views.download_sample_xls, name="download_sample_xls")
+    path("download_sample_xls/<str:filename>", views.download_sample_xls, name="download_sample_xls"),
+
+    path("development/components", views.development_components, name="development_components"),
 ]
