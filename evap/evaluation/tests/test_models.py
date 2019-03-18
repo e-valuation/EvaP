@@ -167,10 +167,10 @@ class TestEvaluations(WebTest):
         evaluation.save()
 
         self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
-        self.assertFalse(evaluation.can_manager_delete)
+        self.assertFalse(evaluation.can_be_deleted_by_manager)
 
         evaluation.unpublish()
-        self.assertTrue(evaluation.can_manager_delete)
+        self.assertTrue(evaluation.can_be_deleted_by_manager)
 
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
         evaluation.delete()
@@ -293,10 +293,10 @@ class TestCourse(TestCase):
     def test_can_manager_delete(self):
         course = mommy.make(Course)
         evaluation = mommy.make(Evaluation, course=course)
-        self.assertFalse(course.can_manager_delete)
+        self.assertFalse(course.can_be_deleted_by_manager)
 
         evaluation.delete()
-        self.assertTrue(course.can_manager_delete)
+        self.assertTrue(course.can_be_deleted_by_manager)
 
     def test_responsibles_names(self):
         user1 = mommy.make(UserProfile)
@@ -340,15 +340,15 @@ class TestUserProfile(TestCase):
     def test_can_manager_delete(self):
         user = mommy.make(UserProfile)
         mommy.make(Evaluation, participants=[user], state="new")
-        self.assertFalse(user.can_manager_delete)
+        self.assertFalse(user.can_be_deleted_by_manager)
 
         user2 = mommy.make(UserProfile)
         mommy.make(Evaluation, participants=[user2], state="in_evaluation")
-        self.assertFalse(user2.can_manager_delete)
+        self.assertFalse(user2.can_be_deleted_by_manager)
 
         contributor = mommy.make(UserProfile)
         mommy.make(Contribution, contributor=contributor)
-        self.assertFalse(contributor.can_manager_delete)
+        self.assertFalse(contributor.can_be_deleted_by_manager)
 
     def test_inactive_users_hidden(self):
         active_user = mommy.make(UserProfile)

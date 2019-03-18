@@ -29,7 +29,7 @@ def index(request):
             Q(evaluations__contributions__contributor=user)
         )
     )
-    own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user)]
+    own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user)]
     for evaluation in own_evaluations:
         evaluation.contributes_to = evaluation.contributions.filter(contributor=user).exists()
 
@@ -42,7 +42,7 @@ def index(request):
                 Q(evaluations__contributions__can_edit=True, evaluations__contributions__contributor__in=represented_users)
             )
         )
-        delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user))
+        delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user))
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True
         displayed_evaluations |= delegated_evaluations - displayed_evaluations

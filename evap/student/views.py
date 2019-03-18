@@ -30,7 +30,7 @@ def index(request):
         evaluations__state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
     ).distinct()
     # retrieve all evaluations which the user can see that are not new
-    evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(request.user)]
+    evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(request.user)]
     for evaluation in evaluations:
         if evaluation.state == "published":
             if not evaluation.is_single_result:
@@ -109,7 +109,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
 @participant_required
 def vote(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
-    if not evaluation.can_user_vote(request.user):
+    if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
     form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, evaluation, preview=False)
