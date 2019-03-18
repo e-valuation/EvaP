@@ -8,20 +8,14 @@
 @import "adjustments";
 @import "utilities";
 
-
-/* override bootstrap values */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
     overflow-y: scroll !important;
     margin-bottom: 60px; // keep space for footer
-}
-
-/* evap styling */
-body {
     background-image: url("../images/triangles_gray.svg");
     background-size: cover;
     background-attachment: fixed;
@@ -35,9 +29,11 @@ body {
     background: $darker-gray;
     line-height: 1.2;
     color: $light-gray;
+
     a {
         white-space: nowrap;
     }
+
     .navbar-nav .nav-link.nav-link-multiline {
         line-height: 1.2;
     }
@@ -90,8 +86,10 @@ body {
     cursor:move;
 }
 
-.text-answer li,a {
-    word-wrap: break-word;
+.text-answer {
+    li, a {
+        word-wrap: break-word;
+    }
 }
 
 .card-body .form-group:last-of-type {
@@ -120,12 +118,14 @@ td.icon {
     color: $dark-gray;
     cursor: pointer;
     transition: color 0.15s ease-in-out;
-}
-.reset-button:hover {
-    color: $darker-gray;
-}
-.reset-button:active {
-    color: $black;
+
+    &:hover {
+        color: $darker-gray;
+    }
+
+    &:active {
+        color: $black;
+    }
 }
 
 .result-filter-list {
