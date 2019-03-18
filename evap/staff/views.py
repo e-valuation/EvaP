@@ -181,7 +181,11 @@ class RevertToNewOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
-        helper_semester_evaluation_operation_revert(request, evaluations)
+        for evaluation in evaluations:
+            evaluation.revert_to_new()
+            evaluation.save()
+        messages.success(request, ungettext("Successfully reverted {} evaluation to in preparation.",
+            "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
 
 
 class RevertToPreparedOperation(EvaluationOperation):
@@ -199,7 +203,13 @@ class RevertToPreparedOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
-        return helper_semester_evaluation_operation_prepare(request, evaluations, email_template)
+        for evaluation in evaluations:
+            evaluation.ready_for_editors()
+            evaluation.save()
+        messages.success(request, ungettext("Successfully enabled {} evaluation for editor review.",
+            "Successfully enabled {} evaluations for editor review.", len(evaluations)).format(len(evaluations)))
+        if email_template:
+            EmailTemplate.send_to_users_in_evaluations(email_template, evaluations, [EmailTemplate.EDITORS], use_cc=True, request=request)
 
 
 class StartEvaluationOperation(EvaluationOperation):
@@ -217,7 +227,14 @@ class StartEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
-        return helper_semester_evaluation_operation_start(request, evaluations, email_template)
+        for evaluation in evaluations:
+            evaluation.vote_start_datetime = datetime.now()
+            evaluation.evaluation_begin()
+            evaluation.save()
+        messages.success(request, ungettext("Successfully started {} evaluation.",
+            "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
+        if email_template:
+            EmailTemplate.send_to_users_in_evaluations(email_template, evaluations, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
 class RevertToReviewedOperation(EvaluationOperation):
@@ -234,7 +251,11 @@ class RevertToReviewedOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
-        helper_semester_evaluation_operation_unpublish(request, evaluations)
+        for evaluation in evaluations:
+            evaluation.unpublish()
+            evaluation.save()
+        messages.success(request, ungettext("Successfully unpublished {} evaluation.",
+            "Successfully unpublished {} evaluations.", len(evaluations)).format(len(evaluations)))
 
 
 class PublishOperation(EvaluationOperation):
@@ -252,7 +273,13 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
-        helper_semester_evaluation_operation_publish(request, evaluations, email_template)
+        for evaluation in evaluations:
+            evaluation.publish()
+            evaluation.save()
+        messages.success(request, ungettext("Successfully published {} evaluation.",
+            "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
+        if email_template:
+            send_publish_notifications(evaluations, email_template)
 
 
 EVALUATION_OPERATIONS = {
@@ -308,53 +335,6 @@ def semester_evaluation_operation(request, semester_id):
     )
 
     return render(request, "staff_evaluation_operation.html", template_data)
-
-
-def helper_semester_evaluation_operation_revert(request, evaluations):
-    for evaluation in evaluations:
-        evaluation.revert_to_new()
-        evaluation.save()
-    messages.success(request, ungettext("Successfully reverted %(evaluations)d evaluation to in preparation.",
-        "Successfully reverted %(evaluations)d evaluations to in preparation.", len(evaluations)) % {'evaluations': len(evaluations)})
-
-
-def helper_semester_evaluation_operation_prepare(request, evaluations, template):
-    for evaluation in evaluations:
-        evaluation.ready_for_editors()
-        evaluation.save()
-    messages.success(request, ungettext("Successfully enabled %(evaluations)d evaluation for editor review.",
-        "Successfully enabled %(evaluations)d evaluations for editor review.", len(evaluations)) % {'evaluations': len(evaluations)})
-    if template:
-        EmailTemplate.send_to_users_in_evaluations(template, evaluations, [EmailTemplate.EDITORS], use_cc=True, request=request)
-
-
-def helper_semester_evaluation_operation_start(request, evaluations, template):
-    for evaluation in evaluations:
-        evaluation.vote_start_datetime = datetime.now()
-        evaluation.evaluation_begin()
-        evaluation.save()
-    messages.success(request, ungettext("Successfully started %(evaluations)d evaluation.",
-        "Successfully started %(evaluations)d evaluations.", len(evaluations)) % {'evaluations': len(evaluations)})
-    if template:
-        EmailTemplate.send_to_users_in_evaluations(template, evaluations, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
-
-
-def helper_semester_evaluation_operation_publish(request, evaluations, template):
-    for evaluation in evaluations:
-        evaluation.publish()
-        evaluation.save()
-    messages.success(request, ungettext("Successfully published %(evaluations)d evaluation.",
-        "Successfully published %(evaluations)d evaluations.", len(evaluations)) % {'evaluations': len(evaluations)})
-    if template:
-        send_publish_notifications(evaluations, template)
-
-
-def helper_semester_evaluation_operation_unpublish(request, evaluations):
-    for evaluation in evaluations:
-        evaluation.unpublish()
-        evaluation.save()
-    messages.success(request, ungettext("Successfully unpublished %(evaluations)d evaluation.",
-        "Successfully unpublished %(evaluations)d evaluations.", len(evaluations)) % {'evaluations': len(evaluations)})
 
 
 @manager_required
