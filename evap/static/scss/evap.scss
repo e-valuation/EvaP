@@ -84,76 +84,16 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 .btn-light:not(:disabled):not(.disabled).active {
     border-color: $dark-gray;
 }
-a:not([href]):not(.disabled) {
-    cursor: pointer;
-}
-a.btn:not([href]):not(.disabled).btn-primary {
-    color: $white;
-}
-a.btn:not([href]):not(.disabled).btn-secondary {
-    color: $white;
-}
-a.btn:not([href]):not(.disabled).btn-success {
-    color: $white;
-}
-a.btn:not([href]):not(.disabled).btn-danger {
-    color: $white;
-}
-a.btn:not([href]):not(.disabled).btn-warning {
-    color: $black;
-}
-a.btn:not([href]):not(.disabled).btn-info {
-    color: $white;
-}
-a.btn:not([href]):not(.disabled).btn-light {
-    color: $black;
-}
-a.btn:not([href]):not(.disabled).btn-dark {
-    color: $white;
-}
-.btn.disabled {
-    border-width: 1px;
-}
-.btn.disabled.btn-primary {
-    background-color: $evap-light-blue;
-    border-color: $evap-dark-blue;
-    color: $evap-dark-blue;
-}
-.btn.disabled.btn-secondary {
-    background-color: $light-gray;
-    border-color: $dark-gray;
-    color: $dark-gray;
-}
-.btn.disabled.btn-success {
-    background-color: $evap-light-green;
-    border-color: $evap-green;
-    color: $evap-green;
-}
-.btn.disabled.btn-danger {
-    background-color: $evap-light-red;
-    border-color: $evap-red;
-    color: $evap-red;
-}
-.btn.disabled.btn-warning {
-    background-color: $evap-light-yellow;
-    border-color: $evap-dark-yellow;
-    color: $evap-dark-yellow;
-}
-.btn.disabled.btn-info {
-    background-color: lighten($evap-light-blue, 5%);
-    border-color: darken($evap-light-blue, 20%);
-    color: darken($evap-light-blue, 20%);
-}
-.btn.disabled.btn-light {
-    background-color: $lighter-gray;
-    border-color: $medium-gray;
-    color: $medium-gray;
-}
-.btn.disabled.btn-dark {
-    background-color: $dark-gray;
-    border-color: $darker-gray;
-    color: $white;
-}
+
+@include button-disabled-variant(".btn-primary", $evap-dark-blue, $evap-light-blue);
+@include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
+@include button-disabled-variant(".btn-success", $evap-green, $evap-light-green);
+@include button-disabled-variant(".btn-danger", $evap-red, $evap-light-red);
+@include button-disabled-variant(".btn-warning", $evap-dark-yellow, $evap-light-yellow);
+@include button-disabled-variant(".btn-info", darken($evap-light-blue, 20%), lighten($evap-light-blue, 5%));
+@include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
+@include button-disabled-variant(".btn-dark", $white, $dark-gray, $darker-gray);
+
 .btn-switch {
     display: inline-flex;
     background-color: lighten($light-gray, 2%);
@@ -166,11 +106,6 @@ a.btn:not([href]):not(.disabled).btn-dark {
         &::before {
             width: 0.5rem;
             content: "";
-        }
-        .disabled-right {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-            margin-left: -1px;
         }
     }
 }
@@ -505,7 +440,7 @@ body {
         .btn.btn-navbar:focus {
             box-shadow: none;
         }
-        .btn.btn-navbar.active.disabled {
+        .btn.btn-navbar.active {
             background-color: lighten($darker-gray, 5%);
             color: $medium-gray;
             border-width: 0;
@@ -536,7 +471,7 @@ body {
     right: 10px;
     bottom: 8px;
     z-index: $zindex-fixed;
-    a.btn:not([href]):not(.disabled).btn-dark {
+    .btn-dark {
         padding: 0 0.2rem;
         color: $light-gray;
     }
@@ -751,10 +686,6 @@ select[multiple] {
 }
 .textanswer-original {
     color: $medium-gray;
-}
-
-div.disabled-tooltip {
-    display: inline-block;
 }
 
 .grade-course-table tr {

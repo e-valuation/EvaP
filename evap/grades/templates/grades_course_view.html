@@ -30,7 +30,9 @@
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
                                         <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
-                                        <a role="button" onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
+                                        <button type="button" {{ disable_if_archived }} onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                                            <span class="fas fa-trash"></span>
+                                        </button>
                                     {% endif %}
                                 </td>
                             </tr>

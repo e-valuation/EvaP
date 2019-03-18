@@ -178,7 +178,9 @@
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
-            <a onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
+            <button type="button" onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                <span class="fas fa-trash" aria-hidden="true"></span>
+            </button>
         {% endif %}
     </td>
 {% endif %}

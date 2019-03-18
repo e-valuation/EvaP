@@ -72,8 +72,12 @@
             <li class="nav-item"><a class="nav-link" href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a></li>
             <div class="nav-item btn-switch-navbar my-auto">
                 <div class="btn-group">
-                    <a onclick="setLanguage('de');" class="btn btn-sm btn-navbar{% if language == 'de' %} active disabled{% endif %}">DE</a>
-                    <a onclick="setLanguage('en');" class="btn btn-sm btn-navbar{% if language == 'en' %} active disabled{% endif %}">EN</a>
+                    {% for language_code, language_name in languages %}
+                        <button type="button"{% if current_language == language_code %} disabled{% endif %} onclick="setLanguage('{{ language_code }}');"
+                            class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
+                            {{ language_code|upper }}
+                        </button>
+                    {% endfor %}
                 </div>
             </div>
             {% if user.is_authenticated %}

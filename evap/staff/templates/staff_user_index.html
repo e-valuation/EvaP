@@ -47,14 +47,16 @@
                         <td>
                             <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                             {% if user.can_be_deleted_by_manager %}
-                                <a class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');"><span class="fas fa-trash"></span></a>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');">
+                                    <span class="fas fa-trash"></span
+                                ></button>
                             {% else %}
-                                <div data-toggle="tooltip" data-placement="left" class="disabled-tooltip"
+                                <button type="button" disabled class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="left"
                                     title="{% blocktrans %}This user contributes to an evaluation (or is a delegate or CC user of
                                     such a person), participates in an evaluation whose participations haven't been archived yet or has special
                                     rights and as such cannot be deleted.{% endblocktrans %}">
-                                    <a class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
-                                </div>
+                                    <span class="fas fa-trash"></span>
+                                </button>
                             {% endif %}
                         </td>
                     </tr>

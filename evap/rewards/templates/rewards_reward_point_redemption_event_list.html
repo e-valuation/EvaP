@@ -24,11 +24,14 @@
                             <a href="{% url 'rewards:reward_point_redemption_event_export' event.id %}" class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'Export Redemptions' %}"><span class="fas fa-download"></span></a>
                             <a href="{% url 'rewards:reward_point_redemption_event_edit' event.id %}" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                             {% if event.can_delete %}
-                                <a onclick="deleteEventModalShow({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
+                                <button type="button" onclick="deleteEventModalShow({{ event.id }}, '{{ event.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                                    <span class="fas fa-trash"></span>
+                                </button>
                             {% else %}
-                                <div class="disabled-tooltip" data-toggle="tooltip" data-placement="top" title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
-                                    <a class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a>
-                                </div>
+                                <button disabled type="button" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top"
+                                    title="{% trans 'This event cannot be deleted because some users already redeemed points for it.' %}">
+                                    <span class="fas fa-trash"></span>
+                                </button>
                             {% endif %}
                         </td>
                     </tr>

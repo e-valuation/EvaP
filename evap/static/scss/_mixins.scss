@@ -6,3 +6,12 @@
     user-select: none;
     -moz-user-select: none;
 }
+
+@mixin button-disabled-variant($parent, $color, $background, $border: $color) {
+    #{$parent}:disabled,
+    #{$parent}.disabled {
+        color: $color;
+        background-color: $background;
+        border-color: $border;
+    }
+}

@@ -22,9 +22,9 @@
             <div class="navbar-nav justify-content-end feedback-button-placeholder">
                 {% if user.is_authenticated %}
                     <span class="feedback-button">
-                        <a class="btn btn-dark" onclick="feedbackModalShow();" id="feedbackModalButton">
+                        <button type="button" class="btn btn-dark" onclick="feedbackModalShow();" id="feedbackModalButton">
                             {% trans 'Problems/Feedback' %}
-                        </a>
+                        </button>
                     </span>
                 {% endif %}
             </div>

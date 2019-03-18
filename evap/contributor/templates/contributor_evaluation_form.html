@@ -79,9 +79,9 @@
                     <div class="d-flex">
                         <h5 class="card-title mr-auto">{% trans 'Students' %}</h5>
                         <div>
-                            <a role="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
+                            <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
                                 {% trans 'Request changes' %}
-                            </a>
+                            </button>
                         </div>
                     </div>
                     <p>{% trans 'These people will be invited for the evaluation. Please let us know if this data is not correct.' %}</p>
@@ -100,7 +100,7 @@
                     <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
                     {# webtest does not allow submission with value "approve" if no such button exists #}
                     <button style="display: none" name="operation" value="approve" type="submit"></button>
-                    <a onclick="approveEvaluationModalShow(0, '');" role="button" class="btn btn-success">{% trans 'Save and approve' %}</a>
+                    <button type="button" onclick="approveEvaluationModalShow(0, '');" class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
                 <a href="{% url 'contributor:index' %}" class="btn btn-light">{% if edit %}{% trans 'Cancel' %}{% else %}{% trans 'Back' %}{% endif %}</a>
             </div>
@@ -113,13 +113,13 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="previewModalLabel">{% trans 'Preview' %}</h5>
-                        <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></button>
                     </div>
                     <div class="modal-body">
                         {{ preview_html|safe }}
                     </div>
                     <div class="modal-footer">
-                        <a role="button" class="btn btn-light" data-dismiss="modal">{% trans 'Close' %}</a>
+                        <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Close' %}</button>
                     </div>
                 </div>
             </div>

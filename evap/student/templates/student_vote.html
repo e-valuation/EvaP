@@ -96,9 +96,9 @@
                                     </a>
                                 </div>
                                 <div>
-                                    <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">
+                                    <button type="button"{% if preview %} disabled{% endif %} class="btn btn-light btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">
                                         {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
@@ -145,7 +145,7 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
-                        <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</a>
+                        <button type="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>

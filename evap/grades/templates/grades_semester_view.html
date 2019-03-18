@@ -53,9 +53,13 @@
                                 <td class="text-right" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
-                                            <a onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary {{ disable_if_archived }}" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}"><span class="fas fa-times"></span></a>
+                                            <button type="button" {{ disable_if_archived }} onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
+                                                <span class="fas fa-times"></span>
+                                            </button>
                                             <div class="btn-group" role="group" data-toggle="tooltip" data-placement="top" title="{% trans 'Upload grade document' %}">
-                                                <a id="btnUpload{{ course.id }}" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-upload"></span></a>
+                                                <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="fas fa-upload"></span>
+                                                </button>
                                                 <div class="dropdown-menu" aria-labelledby="btnUpload{{ course.id }}">
                                                     <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}">{% trans 'Midterm grades' %}</a>
                                                     <a class="dropdown-item" href="{% url 'grades:upload_grades' semester.id course.id %}?final=true">{% trans 'Final grades' %}</a>

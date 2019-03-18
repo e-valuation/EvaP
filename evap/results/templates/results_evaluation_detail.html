@@ -44,15 +44,14 @@
                     {% trans 'Full' %}
                     </a>
                     {% if not evaluation.can_publish_rating_results %}
-                        <div class="disabled-tooltip" data-toggle="tooltip" data-placement="bottom" title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}">
-                            <a href="#" role="button" class="btn btn-sm btn-light disabled disabled-right">
-                                {% if evaluation.course.is_private %}
-                                    {% trans 'Participant' %}
-                                {% else %}
-                                    {% trans 'Public' %}
-                                {% endif %}
-                            </a>
-                        </div>
+                        <button type="button" disabled class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="bottom"
+                            title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}">
+                            {% if evaluation.course.is_private %}
+                                {% trans 'Participant' %}
+                            {% else %}
+                                {% trans 'Public' %}
+                            {% endif %}
+                        </button>
                     {% else %}
                         <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                            title="
@@ -79,7 +78,7 @@
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
             {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
-                    <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
+                    <button type="button" id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
                         {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>

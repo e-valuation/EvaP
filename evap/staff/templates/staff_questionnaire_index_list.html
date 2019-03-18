@@ -35,9 +35,14 @@
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-clone"></span></a>
                                 <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
                                 {% if questionnaire.can_be_deleted_by_manager %}
-                                    <a onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash"></span></a>
+                                    <button type="button" onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
                                 {% else %}
-                                    <div data-toggle="tooltip" data-placement="top" class="disabled-tooltip" title="{% trans 'This questionnaire cannot be deleted because it is already in use.' %}"><a href="#" class="btn btn-sm btn-danger disabled"><span class="fas fa-trash"></span></a></div>
+                                    <button type="button" disabled class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top"
+                                        title="{% trans 'This questionnaire cannot be deleted because it is already in use.' %}">
+                                        <span class="fas fa-trash"></span>
+                                    </button>
                                 {% endif %}
                             </td>
                         </tr>

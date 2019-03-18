@@ -16,7 +16,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
-                <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fas fa-times"></span>
+                </button>
             </div>
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
@@ -36,8 +38,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a role="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</a>
-                    <button id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
                 </div>
             </form>
         </div>
