@@ -57,8 +57,8 @@ class Semester(models.Model):
         return self.name
 
     @property
-    def can_manager_delete(self):
-        return all(evaluation.can_manager_delete for evaluation in self.evaluations.all())
+    def can_be_deleted_by_manager(self):
+        return all(evaluation.can_be_deleted_by_manager for evaluation in self.evaluations.all())
 
     @property
     def participations_can_be_archived(self):
@@ -185,11 +185,11 @@ class Questionnaire(models.Model):
         return self.type == self.BOTTOM
 
     @property
-    def can_manager_edit(self):
+    def can_be_edited_by_manager(self):
         return not self.contributions.exclude(evaluation__state='new').exists()
 
     @property
-    def can_manager_delete(self):
+    def can_be_deleted_by_manager(self):
         return not self.contributions.exists()
 
     @property
@@ -220,7 +220,7 @@ class Degree(models.Model):
     def __str__(self):
         return self.name
 
-    def can_manager_delete(self):
+    def can_be_deleted_by_manager(self):
         if self.pk is None:
             return True
         return not self.courses.all().exists()
@@ -241,7 +241,7 @@ class CourseType(models.Model):
     def __str__(self):
         return self.name
 
-    def can_manager_delete(self):
+    def can_be_deleted_by_manager(self):
         if not self.pk:
             return True
         return not self.courses.all().exists()
@@ -295,11 +295,11 @@ class Course(models.Model):
         logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
 
     @property
-    def can_manager_edit(self):
+    def can_be_edited_by_manager(self):
         return not self.semester.participations_are_archived
 
     @property
-    def can_manager_delete(self):
+    def can_be_deleted_by_manager(self):
         return not self.evaluations.exists()
 
     @property
@@ -448,14 +448,14 @@ class Evaluation(models.Model):
     def all_contributions_have_questionnaires(self):
         return self.general_contribution and (all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
 
-    def can_user_vote(self, user):
+    def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
         return (self.state == "in_evaluation"
             and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
 
-    def can_user_see_evaluation(self, user):
+    def can_be_seen_by(self, user):
         if user.is_manager:
             return True
         if self.state == 'new':
@@ -466,7 +466,7 @@ class Evaluation(models.Model):
             return self.is_user_responsible_or_contributor_or_delegate(user) or self.participants.filter(pk=user.pk).exists()
         return True
 
-    def can_user_see_results_page(self, user):
+    def can_results_page_be_seen_by(self, user):
         if self.is_single_result:
             return False
         if user.is_manager:
@@ -477,15 +477,15 @@ class Evaluation(models.Model):
             return False
         if not self.can_publish_rating_results or self.course.semester.results_are_archived:
             return self.is_user_responsible_or_contributor_or_delegate(user)
-        return self.can_user_see_evaluation(user)
+        return self.can_be_seen_by(user)
 
     @property
-    def can_manager_edit(self):
+    def can_be_edited_by_manager(self):
         return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
-    def can_manager_delete(self):
-        return self.can_manager_edit and (self.num_voters == 0 or self.is_single_result)
+    def can_be_deleted_by_manager(self):
+        return self.can_be_edited_by_manager and (self.num_voters == 0 or self.is_single_result)
 
     @cached_property
     def num_participants(self):
@@ -1242,7 +1242,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.groups.filter(name='Grade publisher').exists()
 
     @property
-    def can_manager_mark_inactive(self):
+    def can_be_marked_inactive_by_manager(self):
         if self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
@@ -1252,14 +1252,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return True
 
     @property
-    def can_manager_delete(self):
+    def can_be_deleted_by_manager(self):
         if self.is_responsible or self.is_contributor or self.is_reviewer or self.is_grade_publisher or self.is_superuser:
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
-        if any(not user.can_manager_delete for user in self.represented_users.all()):
+        if any(not user.can_be_deleted_by_manager for user in self.represented_users.all()):
             return False
-        if any(not user.can_manager_delete for user in self.ccing_users.all()):
+        if any(not user.can_be_deleted_by_manager for user in self.ccing_users.all()):
             return False
         return True
 

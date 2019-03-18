@@ -146,6 +146,6 @@ def reward_user_required(view_func):
     reward points.
     """
     def check_user(user):
-        from evap.rewards.tools import can_user_use_reward_points
-        return can_user_use_reward_points(user)
+        from evap.rewards.tools import can_reward_points_be_used_by
+        return can_reward_points_be_used_by(user)
     return user_passes_test(check_user)(view_func)

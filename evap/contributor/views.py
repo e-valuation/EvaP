@@ -4,7 +4,7 @@ from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
@@ -29,7 +29,7 @@ def index(request):
             Q(evaluations__contributions__contributor=user)
         )
     )
-    own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user)]
+    own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user)]
     for evaluation in own_evaluations:
         evaluation.contributes_to = evaluation.contributions.filter(contributor=user).exists()
 
@@ -42,7 +42,7 @@ def index(request):
                 Q(evaluations__contributions__can_edit=True, evaluations__contributions__contributor__in=represented_users)
             )
         )
-        delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_user_see_evaluation(user))
+        delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user))
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True
         displayed_evaluations |= delegated_evaluations - displayed_evaluations
@@ -208,7 +208,10 @@ def evaluation_direct_delegation(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
 
-    Contribution.objects.update_or_create(evaluation=evaluation, contributor=delegate_user, defaults={'can_edit': True})
+    contribution, created = Contribution.objects.update_or_create(evaluation=evaluation, contributor=delegate_user, defaults={'can_edit': True})
+    if created:
+        contribution.order = evaluation.contributions.all().aggregate(Max('order'))['order__max'] + 1
+        contribution.save()
 
     template = EmailTemplate.objects.get(name=EmailTemplate.DIRECT_DELEGATION)
     subject_params = {"evaluation": evaluation, "user": request.user, "delegate_user": delegate_user}
