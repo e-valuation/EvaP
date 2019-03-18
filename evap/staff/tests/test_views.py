@@ -833,6 +833,19 @@ class TestEvaluationOperationView(WebTest):
         evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester), state='published', _participant_count=0, _voter_count=0)
         self.helper_semester_state_views(evaluation, "published", "reviewed")
 
+    def test_operation_start_evaluation(self):
+        evaluation = mommy.make(Evaluation, state='approved', course=mommy.make(Course, semester=self.semester))
+        urloptions = '?evaluation={}&target_state=in_evaluation'.format(evaluation.pk)
+
+        response = self.app.get(self.url + urloptions, user='manager')
+        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
+
+        form = response.forms['evaluation-operation-form']
+        form.submit()
+
+        evaluation = Evaluation.objects.get(pk=evaluation.pk)
+        self.assertEqual(evaluation.state, 'in_evaluation')
+
     def test_operation_prepare(self):
         evaluation = mommy.make(Evaluation, state='new', course=mommy.make(Course, semester=self.semester))
         urloptions = '?evaluation={}&target_state=prepared'.format(evaluation.pk)

@@ -196,6 +196,21 @@ class RevertToPreparedOperation(EvaluationOperation):
         return helper_semester_evaluation_operation_prepare(request, evaluations, email_template)
 
 
+class StartEvaluationOperation(EvaluationOperation):
+    email_template_name = EmailTemplate.EVALUATION_STARTED
+    confirmation_message = ugettext_lazy("Do you want to immediately start the following evaluations?")
+    applicable_to = lambda evaluation: evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
+
+    @staticmethod
+    def warning_for_inapplicables(amount):
+        return ungettext("{} evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+            "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.", amount).format(amount)
+
+    @staticmethod
+    def apply(request, evaluations, email_template=None):
+        return helper_semester_evaluation_operation_start(request, evaluations, email_template)
+
+
 class RevertToReviewedOperation(EvaluationOperation):
     confirmation_message = ugettext_lazy("Do you want to unpublish the following evaluations?")
     applicable_to = lambda evaluation: evaluation.state == 'published'
@@ -228,6 +243,7 @@ class PublishOperation(EvaluationOperation):
 EVALUATION_OPERATIONS = {
         'new': RevertToNewOperation,
         'prepared': RevertToPreparedOperation,
+        'in_evaluation': StartEvaluationOperation,
         'reviewed': RevertToReviewedOperation,
         'published': PublishOperation,
 }
@@ -248,25 +264,24 @@ def semester_evaluation_operation(request, semester_id):
     operation = EVALUATION_OPERATIONS[target_state]
 
     if request.method == 'POST':
-        template = None
+        email_template = None
         if request.POST.get('send_email') == 'on':
-            template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
-
-        operation.apply(request, evaluations, template)
+            email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
+        operation.apply(request, evaluations, email_template)
         return custom_redirect('staff:semester_view', semester_id)
 
-    email_template = None
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
     difference = len(evaluations) - len(applicable_evaluations)
     if difference:
         evaluations = applicable_evaluations
         messages.warning(request, operation.warning_for_inapplicables(difference))
-        if operation.email_template_name:
-            email_template = EmailTemplate.objects.get(name=operation.email_template_name)
-
     if not evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
         return custom_redirect('staff:semester_view', semester_id)
+
+    email_template = None
+    if operation.email_template_name:
+        email_template = EmailTemplate.objects.get(name=operation.email_template_name)
 
     template_data = dict(
         semester=semester,

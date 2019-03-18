@@ -266,6 +266,11 @@
                                 <span class="far fa-check-square icon-green"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
+                            <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
+                                data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations waiting for evaluation period to start' %}">
+                                <span class="fas fa-pause icon-gray"></span>
+                                {% trans 'Start evaluation' %}
+                            </button>
                             <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished evaluations' %}">
                                 <span class="fas fa-chart-bar icon-yellow"></span>
@@ -326,7 +331,6 @@
                     </tbody>
                 </table>
             </div>
-            </form>
         </div>
     </div>
 {% endblock %}
