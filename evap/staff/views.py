@@ -169,7 +169,10 @@ class EvaluationOperation:
 
 class RevertToNewOperation(EvaluationOperation):
     confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
-    applicable_to = lambda evaluation: evaluation.state in ['prepared', 'editor_approved', 'approved']
+
+    @staticmethod
+    def applicable_to(evaluation):
+        return evaluation.state in ['prepared', 'editor_approved', 'approved']
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -184,7 +187,10 @@ class RevertToNewOperation(EvaluationOperation):
 class RevertToPreparedOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
     confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
-    applicable_to = lambda evaluation: evaluation.state in ['new', 'editor_approved']
+
+    @staticmethod
+    def applicable_to(evaluation):
+        return evaluation.state in ['new', 'editor_approved']
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -199,7 +205,10 @@ class RevertToPreparedOperation(EvaluationOperation):
 class StartEvaluationOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EVALUATION_STARTED
     confirmation_message = ugettext_lazy("Do you want to immediately start the following evaluations?")
-    applicable_to = lambda evaluation: evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
+
+    @staticmethod
+    def applicable_to(evaluation):
+        return evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -213,7 +222,10 @@ class StartEvaluationOperation(EvaluationOperation):
 
 class RevertToReviewedOperation(EvaluationOperation):
     confirmation_message = ugettext_lazy("Do you want to unpublish the following evaluations?")
-    applicable_to = lambda evaluation: evaluation.state == 'published'
+
+    @staticmethod
+    def applicable_to(evaluation):
+        return evaluation.state == 'published'
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -228,7 +240,10 @@ class RevertToReviewedOperation(EvaluationOperation):
 class PublishOperation(EvaluationOperation):
     email_template_name = EmailTemplate.PUBLISHING_NOTICE
     confirmation_message = ugettext_lazy("Do you want to publish the following evaluations?")
-    applicable_to = lambda evaluation: evaluation.state == 'reviewed'
+
+    @staticmethod
+    def applicable_to(evaluation):
+        return evaluation.state == 'reviewed'
 
     @staticmethod
     def warning_for_inapplicables(amount):
