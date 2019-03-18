@@ -545,6 +545,9 @@ class EvaluationFormTests(TestCase):
         evaluation = mommy.make(Evaluation)
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
+        # contributors: start date does not have to be in the future
+        self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", True)
+
         # contributors: end date must be in the future
         self.helper_date_validation(ContributorEvaluationForm, "2099-01-01", "1999-01-01", False)
 
