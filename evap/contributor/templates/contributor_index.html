@@ -179,6 +179,8 @@
                                                         <span class="fas fa-pencil-alt"></span>
                                                     </a>
                                                 {% endif %}
+                                            {% endif %}
+                                            {% if evaluation|is_user_responsible_or_contributor_or_delegate:user %}
                                                 <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
                                                     data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
                                                     <span class="fas fa-eye"></span>
