@@ -11,19 +11,12 @@
     align-items: center;
     // slider controls should not be overlapped by sliding slides
     z-index: 5;
-    opacity: 0;
-    transition: 0.2s opacity;
-    &.shown {
-        opacity: 1;
-        .fas {
-            cursor: pointer;
-        }
-    }
+    visibility: hidden;
     .fas {
         margin: 0.2rem 0;
         font-size: 2rem;
         color: grey;
-        transition: 0.2s opacity;
+        cursor: pointer;
     }
 }
 .slider-items {
@@ -67,7 +60,9 @@
     &:focus {
         outline: none;
     }
-
+    &[data-layer="0"] {
+        flex-direction: row;
+    }
 }
 [data-layer="0"] {
     @extend .card-header, .border, .rounded-top;

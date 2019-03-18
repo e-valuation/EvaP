@@ -479,8 +479,8 @@ class TestSemesterAssignView(WebTest):
             self.assertEqual(evaluation.general_contribution.questionnaires.get(), self.questionnaire)
 
 
-class TestSemesterTodoView(WebTestWith200Check):
-    url = '/staff/semester/1/todo'
+class TestSemesterPreparationReminderView(WebTestWith200Check):
+    url = '/staff/semester/1/preparation_reminder'
     test_users = ['manager']
 
     @classmethod
@@ -488,7 +488,7 @@ class TestSemesterTodoView(WebTestWith200Check):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
 
-    def test_todo(self):
+    def test_preparation_reminder(self):
         user = mommy.make(UserProfile, username='user_to_find')
         evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester, responsibles=[user]), state='prepared', name_en='name_to_find', name_de='name_to_find')
         mommy.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)

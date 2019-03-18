@@ -485,7 +485,7 @@ def semester_questionnaire_assign(request, semester_id):
 
 
 @manager_required
-def semester_todo(request, semester_id):
+def semester_preparation_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("course__degrees")
@@ -498,14 +498,14 @@ def semester_todo(request, semester_id):
                          responsible.delegates.all()) for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
-    return render(request, "staff_semester_todo.html", template_data)
+    return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
 @manager_required
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
+    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
@@ -530,7 +530,7 @@ def send_reminder(request, semester_id, responsible_id):
     if form.is_valid():
         form.send(request, evaluations)
         messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
-        return custom_redirect('staff:semester_todo', semester_id)
+        return custom_redirect('staff:semester_preparation_reminder', semester_id)
     else:
         return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
 

@@ -6,7 +6,7 @@
 <td>
     {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
         {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
-            <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Click to select for evaluation operation' %}">
+            <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Select for evaluation operation' %}">
                 <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}" />
                 <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
             </div>
@@ -72,7 +72,7 @@
                 ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </span>
         {% else %}
-            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="right" title="{% trans 'Click to add contributors' %}">
+            <a class="small no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="right" title="{% trans 'Manage contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </a>
         {% endif %}
@@ -105,7 +105,7 @@
                 </span>
             {% endif %}
             {% if evaluation.num_textanswers > 0 and state != 'published' and not info_only %}
-                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Click to review text answers' %}">
+                <a class="no-underline" href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Review text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </a>
             {% elif info_only %}

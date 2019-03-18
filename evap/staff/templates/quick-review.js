@@ -65,12 +65,12 @@ $(document).ready(() => {
             slideLayer(2, direction, items.eq(index));
         }
 
-        slider.find(".slider-side-left").toggleClass("shown", index > 0);
+        slider.find(".slider-side-left").toggleClass("visible", index > 0);
         let reviewed = items.slice(0, index).filter("[data-review]").length;
         slider.find("[data-counter=reviewed-left]").text(reviewed);
         slider.find("[data-counter=unreviewed-left]").text(index - reviewed);
 
-        slider.find(".slider-side-right").toggleClass("shown", index < items.length);
+        slider.find(".slider-side-right").toggleClass("visible", index < items.length);
         reviewed = items.slice(index + 1).filter("[data-review]").length;
         slider.find("[data-counter=reviewed-right]").text(reviewed);
         let unreviewed = items.length - index - reviewed - 1;

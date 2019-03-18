@@ -4,7 +4,7 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item"><a href="{% url 'staff:semester_todo' semester.id %}">{% trans 'Todo' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:semester_preparation_reminder' semester.id %}">{% trans 'Preparation reminder' %}</a></li>
     <li class="breadcrumb-item">{{ responsible }}</li>
 {% endblock %}
 
