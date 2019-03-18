@@ -7,7 +7,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from evap.evaluation.models import TextAnswer, UserProfile, Semester, Degree, CourseType
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, RatingAnswerCounter, Semester, TextAnswer,
+                                    UserProfile)
 
 class Command(BaseCommand):
     args = ''
@@ -42,7 +43,6 @@ class Command(BaseCommand):
 
         self.anonymize_data()
 
-    # Comprehensively anonymizes all the data.
     def anonymize_data(self):
         abs_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), Command.data_dir)
 
@@ -59,6 +59,7 @@ class Command(BaseCommand):
                 self.anonymize_email_templates()
                 self.anonymize_users(first_names, last_names)
                 self.anonymize_courses()
+                self.anonymize_evaluations()
                 self.anonymize_questionnaires(lorem_ipsum)
 
                 self.stdout.write("Done.")
@@ -70,34 +71,35 @@ class Command(BaseCommand):
             self.stdout.write("")
             raise
 
-    # Anonymizes the email templates by replacing the actual subject with a sample one
-    # and replacing the body with lorem ipsum.
     def anonymize_email_templates(self):
-        self.stdout.write("Reminder: The email templates could still contain sensitive contact information...")
+        self.stdout.write("REMINDER: The email templates could still contain sensitive contact information...")
 
-    # Replaces names, usernames, email addresses, login keys and valid until
-    # dates with fake ones.
+    # Replaces names, usernames, email addresses, login keys and valid until dates with fake ones
     def anonymize_users(self, first_names, last_names):
         user_profiles = UserProfile.objects.all()
 
-        # Generate as many fake usernames as real ones exist. Use the provided
-        # first/last names for that.
+        # Generate as many fake usernames as real ones exist. Use the provided first/last names for that
         self.stdout.write("Generating fake usernames...")
         fake_usernames = set()
 
         if len(first_names) * len(last_names) < len(user_profiles) * 1.5:
-            self.stdout.write("Warning: There are few example names compared "
-                + "to all that real data to be anonymized. Consider adding "
-                + "more data to the first_names.txt and last_names.txt files "
-                + "in the anonymize_data folder.")
+            self.stdout.write("Warning: There are few example names compared to all that real data to be anonymized. "
+                + "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
+                + "folder.")
 
         while len(fake_usernames) < len(user_profiles):
             fake_usernames.add(
                 (random.choice(first_names), random.choice(last_names)))
 
-        # Actually replace all the real user data.
-        self.stdout.write("Replacing usernames, email addresses and login "
-            + "keys with fake ones...")
+        for i, user in enumerate(user_profiles):
+            # Give users unique temporary names to counter identity errors due to the names being unique
+            if user.username in Command.ignore_usernames:
+                continue
+            user.username = "<User #" + str(i) + ">"
+            user.save()
+
+        # Actually replace all the real user data
+        self.stdout.write("Replacing usernames, email addresses and login keys with fake ones...")
         for user, name in zip(user_profiles, fake_usernames):
             if user.username in Command.ignore_usernames:
                 continue
@@ -112,11 +114,11 @@ class Command(BaseCommand):
                 user.email = user.username + '@' + new_domain
 
             if user.login_key is not None:
-                # Create a new login key.
+                # Create a new login key
                 user.login_key = None
                 user.valid_until = None
                 user.ensure_valid_login_key()
-                # Invalidate some keys.
+                # Invalidate some keys
                 user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)
 
             user.save()
@@ -125,78 +127,85 @@ class Command(BaseCommand):
         all_degrees = list(Degree.objects.all())
         all_course_types = CourseType.objects.all()
 
-        # Handling courses of each semester separately in order to prevent
-        # conflicts with archived courses.
+        # Randomize the degrees
+        self.stdout.write("Randomizing degrees...")
+        for course in Course.objects.all():
+            degrees = random.sample(all_degrees, course.degrees.count())
+            course.degrees.set(degrees)
+
+        # Randomize course types
+        self.stdout.write("Randomizing course types...")
+        for course in Course.objects.all():
+            course.type = random.choice(all_course_types)
+            course.save()
+
+        # Randomize names
         for semester in Semester.objects.all():
-            courses = semester.courses.all()
+            courses = list(semester.courses.all())
+            random.shuffle(courses)
             public_courses = [course for course in courses if not course.is_private]
-            private_courses = [course for course in courses if course.is_private]
 
-            num_public, num_private = len(public_courses), len(private_courses)
-            self.stdout.write("Anonymizing courses of semester "
-                + str(semester) + " (" + str(num_public) + " public, "
-                + str(num_private) + " private, " + str(len(courses)) + " in "
-                + "total)...")
+            self.stdout.write("Anonymizing " + str(len(courses)) + " courses of semester " + str(semester) + "...")
 
-            # Randomize the degrees.
-            # Either, this is a Bachelor course or a Master course or a
-            # Bachelor/Master course or something else
-            self.stdout.write("Randomizing degrees...")
-            for course in courses:
-                degrees = random.sample(all_degrees, len(course.degrees.all()))
-                course.degrees.set(degrees)
-
-            # Randomize course types.
-            self.stdout.write("Randomizing course types...")
-            for course in courses:
-                course.type = random.choice(all_course_types)
-                course.save()
-
-            # Shuffle public courses' names in order to decouple them from the
-            # results.
-            # Also, assign public courses' names to private ones as their names
-            # may be confidential.
-            # In order to ensure the same course name doesn't appear twice, the
-            # random courses get shuffled and their names then get applied to
-            # the private ones in order. If there are more private courses than
-            # public ones, the remaining private courses just get some default
-            # names.
-            self.stdout.write("Shuffling courses...")
-            public_names = list(map(lambda c: (c.name_de, c.name_en), public_courses))
+            # Shuffle public courses' names in order to decouple them from the results.
+            # Also, assign public courses' names to private ones as their names may be confidential.
+            self.stdout.write("Shuffling course names...")
+            public_names = list(set(map(lambda c: (c.name_de, c.name_en), public_courses)))
             random.shuffle(public_names)
 
             for i, course in enumerate(courses):
-                # Give courses unique temporary names to counter identity
-                # errors due to the names being unique.
+                # Give courses unique temporary names to counter identity errors due to the names being unique
                 course.name_de = "<Veranstaltung #" + str(i) + ">"
-                course.name_en = "<course #" + str(i) + ">"
+                course.name_en = "<Course #" + str(i) + ">"
                 course.save()
 
-            for i, course in enumerate(public_courses):
-                # Actually save the shuffled names of public courses.
-                course.name_de = public_names[i][0]
-                course.name_en = public_names[i][1]
-                course.save()
-
-            self.stdout.write("Replacing private course names with public "
-                + "ones...")
-            random.shuffle(public_names)
-            for i, course in enumerate(private_courses):
-                # Fill in private courses' names with public ones. If all of
-                # them are used up, default to numbering.
-                if len(public_courses) > i:
-                    course.name_de = public_names[i][0] + " (privat)"
-                    course.name_en = public_names[i][1] + " (private)"
+            for i, course in enumerate(courses):
+                if public_names:
+                    name = public_names.pop()
+                    course.name_de = name[0]
+                    course.name_en = name[1]
                 else:
-                    course.name_de = "Private Veranstaltung #" + str(i + 1)
-                    course.name_en = "Private course #" + str(i + 1)
+                    course.name_de = "Veranstaltung #" + str(i + 1)
+                    course.name_en = "Course #" + str(i + 1)
                 course.save()
+
+    def anonymize_evaluations(self):
+        for semester in Semester.objects.all():
+            evaluations = list(semester.evaluations.all())
+            random.shuffle(evaluations)
+            self.stdout.write("Anonymizing " + str(len(evaluations)) + " evaluations of semester " + str(semester) +
+                "...")
+
+            self.stdout.write("Shuffling evaluation names...")
+            named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
+            names = list(set(map(lambda c: (c.name_de, c.name_en), named_evaluations)))
+            random.shuffle(names)
+
+            for i, evaluation in enumerate(evaluations):
+                # Give evaluations unique temporary names to counter identity errors due to the names being unique
+                if evaluation.name_de:
+                    evaluation.name_de = "<Evaluierung #" + str(i) + ">"
+                if evaluation.name_en:
+                    evaluation.name_en = "<Evaluation #" + str(i) + ">"
+                evaluation.save()
+
+            for i, evaluation in enumerate(evaluations):
+                if not evaluation.name_de and not evaluation.name_en:
+                    continue
+                if names:
+                    name = names.pop()
+                    evaluation.name_de = name[0]
+                    evaluation.name_en = name[1]
+                else:
+                    evaluation.name_de = "Evaluierung #" + str(i + 1)
+                    evaluation.name_en = "Evaluation #" + str(i + 1)
+                evaluation.save()
 
     def anonymize_questionnaires(self, lorem_ipsum):
         # questionnaires = Questionnaire.objects.all()
 
-        self.stdout.write("Reminder: You still need to randomize the questionnaire names...")
-        self.stdout.write("Reminder: You still need to randomize the questionnaire questions...")
+        self.stdout.write("REMINDER: You still need to randomize the questionnaire names...")
+        self.stdout.write("REMINDER: You still need to randomize the questionnaire questions...")
 
         self.stdout.write("Replacing text answers with fake ones...")
         for text_answer in TextAnswer.objects.all():
@@ -205,8 +214,7 @@ class Command(BaseCommand):
                 text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
             text_answer.save()
 
-    # Returns a string with the same number of words as the given text, but
-    # uses lorem ipsum instead of the actual words.
+    # Returns a string with the same number of lorem ipsum words as the given text
     @staticmethod
     def lorem(text, lorem_ipsum):
         word_count = len(text.split(' '))

@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 
 from model_mommy import mommy
 
-from evap.evaluation.models import Evaluation, EmailTemplate, Semester, UserProfile
+from evap.evaluation.models import Course, Evaluation, EmailTemplate, Semester, UserProfile
 
 
 class TestAnonymizeCommand(TestCase):
@@ -27,20 +27,32 @@ class TestAnonymizeCommand(TestCase):
           login_key_valid_until=date.today())
         semester1 = mommy.make(Semester, name_de="S1", name_en="S1")
         semester2 = mommy.make(Semester, name_de="S2", name_en="S2")
-        mommy.make(Course,
-          semester=semester1,
-          name_de="Wie man Software testet",
-          name_en="Testing your software")
-        mommy.make(Course,
-          semester=semester2,
-          name_de="Einführung in Python",
-          name_en="Introduction to Python",
-          is_private=True)
-        mommy.make(Course,
-          semester=semester2,
-          name_de="Die Entstehung von Unicode 😄",
-          name_en="History of Unicode 😄",
-          is_private=True)
+        course1 = mommy.make(Course,
+            semester=semester1,
+            name_de="Eine private Veranstaltung",
+            name_en="A private course",
+            is_private=True,
+        )
+        course2 = mommy.make(Course,
+            semester=semester1,
+            name_de="Veranstaltungsexperimente",
+            name_en="Course experiments",
+        )
+        mommy.make(Evaluation,
+            course=course1,
+            name_de="Wie man Software testet",
+            name_en="Testing your software",
+        )
+        mommy.make(Evaluation,
+            course=course2,
+            name_de="Einführung in Python",
+            name_en="Introduction to Python",
+        )
+        mommy.make(Evaluation,
+            course=course2,
+            name_de="Die Entstehung von Unicode 😄",
+            name_en="History of Unicode 😄",
+        )
 
         mock_input.return_value = 'yes'
 
