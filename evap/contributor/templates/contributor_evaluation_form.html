@@ -5,13 +5,10 @@
 {% block title %}{% trans 'Your EvaP' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
-    <div>
-        <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
-        </ul>
-        <span class="breadcrumb-end"></span>
-    </div>
+    <ul class="breadcrumb">
+        <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+        <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
+    </ul>
 {% endblock %}
 
 {% block content %}

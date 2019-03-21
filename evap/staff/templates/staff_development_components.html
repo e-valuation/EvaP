@@ -3,14 +3,11 @@
 {% block title %}{% trans 'Development' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
-    <div>
-        <ul class="breadcrumb">
-            {% block breadcrumb %}
-                <li class="breadcrumb-item">{% trans 'Development' %}</li>
-            {% endblock %}
-        </ul>
-        <span class="breadcrumb-end"></span>
-    </div>
+    <ul class="breadcrumb">
+        {% block breadcrumb %}
+            <li class="breadcrumb-item">{% trans 'Development' %}</li>
+        {% endblock %}
+    </ul>
 {% endblock %}
 
 {% block content %}

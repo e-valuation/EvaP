@@ -1,36 +1,27 @@
 .breadcrumb {
-    display: inline-block;
     position: relative;
-    float: left;
+    width: -moz-fit-content;
+    width: fit-content;
     font-size: small;
     color: $medium-gray;
     border-radius: 0;
 
     a {
         color: $light-gray;
+
+        &:hover,
+        &:focus {
+            color: $white;
+            text-decoration: none;
+        }
     }
 
-    a:focus,
-    a:hover {
-        color: $white;
-        text-decoration: none;
+    &::after {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        content: "";
+        border-top: 25px solid $breadcrumb-bg;
+        border-right: 13px solid transparent;
     }
-}
-
-.breadcrumb-item {
-    display: inline-block;
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-    padding-right: 0.3rem;
-    padding-left: 0.2rem;
-}
-
-.breadcrumb-end {
-    position: relative;
-    float: left;
-    content: "";
-    border-top: 25px solid $darker-gray;
-    border-right: 13px solid $darker-gray;
-    border-color: $darker-gray transparent transparent transparent;
 }
