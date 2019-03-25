@@ -86,11 +86,11 @@
                         {% if course.evaluations.count > 1 %}
                             {% include 'results_index_course.html' %}
                             {% for evaluation in evaluations|dictsort:"name" %}
-                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=True %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                             {% endfor %}
                         {% else %}
                             {% for evaluation in evaluations|dictsort:"name" %}
-                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=False %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
                             {% endfor %}
                         {% endif %}
                     {% endfor %}

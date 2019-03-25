@@ -179,9 +179,7 @@ class TestEvaluations(WebTest):
     def test_single_result_can_be_published(self):
         """ Regression test for #1238 """
         responsible = mommy.make(UserProfile)
-        single_result = mommy.make(Evaluation,
-            is_single_result=True, _participant_count=5, _voter_count=5
-        )
+        single_result = mommy.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = mommy.make(Contribution,
             evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
@@ -290,7 +288,7 @@ class TestEvaluations(WebTest):
 
 
 class TestCourse(TestCase):
-    def test_can_manager_delete(self):
+    def test_can_be_deleted_by_manager(self):
         course = mommy.make(Course)
         evaluation = mommy.make(Evaluation, course=course)
         self.assertFalse(course.can_be_deleted_by_manager)
@@ -337,7 +335,7 @@ class TestUserProfile(TestCase):
 
         self.assertFalse(user.is_student)
 
-    def test_can_manager_delete(self):
+    def test_can_be_deleted_by_manager(self):
         user = mommy.make(UserProfile)
         mommy.make(Evaluation, participants=[user], state="new")
         self.assertFalse(user.can_be_deleted_by_manager)
@@ -442,9 +440,7 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation,
-            state="published", is_single_result=True, _participant_count=5, _voter_count=5
-        )
+        evaluation = mommy.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 

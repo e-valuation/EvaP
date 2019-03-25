@@ -75,12 +75,12 @@ def statedescription(state):
 
 
 @register.filter
-def can_user_see_results_page(evaluation, user):
+def can_results_page_be_seen_by(evaluation, user):
     return evaluation.can_results_page_be_seen_by(user)
 
 
-@register.filter(name='can_user_use_reward_points')
-def _can_user_use_reward_points(user):
+@register.filter(name='can_reward_points_be_used_by')
+def _can_reward_points_be_used_by(user):
     return can_reward_points_be_used_by(user)
 
 

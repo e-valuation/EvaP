@@ -43,7 +43,7 @@
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
                                 </td>
                                 <td>
-                                    {% if form.instance.can_manager_delete %}
+                                    {% if form.instance.can_be_deleted_by_manager %}
                                         {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
                                     {% else %}
                                         <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
