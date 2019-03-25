@@ -159,8 +159,7 @@ class EvaluationOperation:
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ungettext("{} evaluation can not be updated. It was removed from the selection.",
-            "{} evaluations can not be updated. They were removed from the selection.", amount).format(amount)
+        raise NotImplementedError
 
     @staticmethod
     def apply(request, evaluations, email_template=None):
@@ -315,9 +314,8 @@ def semester_evaluation_operation(request, semester_id):
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
     difference = len(evaluations) - len(applicable_evaluations)
     if difference:
-        evaluations = applicable_evaluations
         messages.warning(request, operation.warning_for_inapplicables(difference))
-    if not evaluations:  # no evaluations where applicable or none were selected
+    if not applicable_evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
         return custom_redirect('staff:semester_view', semester_id)
 
@@ -327,7 +325,7 @@ def semester_evaluation_operation(request, semester_id):
 
     template_data = dict(
         semester=semester,
-        evaluations=evaluations,
+        evaluations=applicable_evaluations,
         target_state=target_state,
         confirmation_message=operation.confirmation_message,
         email_template=email_template,
