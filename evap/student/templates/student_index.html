@@ -101,7 +101,7 @@
                                     <tr{% if evaluation.state == 'in_evaluation' and evaluation.participates_in and not evaluation.voted_for %}
                                             class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-vote" data-url="{% url 'student:vote' evaluation.id %}"
                                         {# staff users should be able to access evaluations through the student index only if it actually has published results #}
-                                        {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_user_see_results_page:request.user %}
+                                        {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
                                             class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                         {% else %}
                                             class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} nohover"

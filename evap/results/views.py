@@ -15,7 +15,7 @@ from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, Use
 from evap.evaluation.auth import internal_required
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, TextResult, can_user_see_textanswer)
+                                HeadingResult, TextResult, can_textanswer_be_seen_by)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -181,7 +181,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     for questionnaire_result in evaluation_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if can_user_see_textanswer(view_as_user, represented_users, answer, view)]
+                question_result.answers = [answer for answer in question_result.answers if can_textanswer_be_seen_by(view_as_user, represented_users, answer, view)]
         # remove empty TextResults
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 

@@ -168,16 +168,16 @@
             <a href="{% url 'staff:evaluation_preview' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
                 <span class="fas fa-eye" aria-hidden="true"></span>
             </a>
-        {% elif state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' and evaluation|can_user_see_results_page:request.user %}
+        {% elif state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
-        {% elif state == 'published' and evaluation|can_user_see_results_page:request.user %}
+        {% elif state == 'published' and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
         {% endif %}
-        {% if request.user.is_manager and evaluation.can_manager_delete %}
+        {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
             <a onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
         {% endif %}
     </td>

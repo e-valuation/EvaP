@@ -108,7 +108,7 @@
                                 <tr class="current-row-follows"></tr>
                             {% endif %}
                             {% with evaluation=course_evaluation %}
-                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=True %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                             {% endwith %}
                         {% endfor %}
                     </tbody>
@@ -127,7 +127,7 @@
                     <tbody>
                         {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
                         <tr class="nohover-row-follows"></tr>
-                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=False %}
+                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
                     </tbody>
                 </table>
             {% endif %}
