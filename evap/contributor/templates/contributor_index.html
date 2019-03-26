@@ -98,7 +98,7 @@
                             {% for evaluation in evaluations|dictsort:"name" %}
                                 <tr {% if evaluation|is_user_editor_or_delegate:user and evaluation.state == 'prepared' %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-edit" data-url="{% url 'contributor:evaluation_edit' evaluation.id %}"
-                                    {% elif evaluation.state == 'published' and evaluation|can_user_see_results_page:user %}
+                                    {% elif evaluation.state == 'published' and evaluation|can_results_page_be_seen_by:user %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} nohover"

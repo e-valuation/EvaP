@@ -95,7 +95,9 @@ class TestUserIndexView(WebTest):
         """
         num_users = 50
         semester = mommy.make(Semester, participations_are_archived=True)
-        evaluation = mommy.make(Evaluation, state="published", course=mommy.make(Course, semester=semester), _participant_count=1, _voter_count=1)  # this triggers more checks in UserProfile.can_manager_delete
+
+        # this triggers more checks in UserProfile.can_be_deleted_by_manager
+        evaluation = mommy.make(Evaluation, state="published", course=mommy.make(Course, semester=semester), _participant_count=1, _voter_count=1)
         mommy.make(UserProfile, _quantity=num_users, evaluations_participating_in=[evaluation])
 
         with self.assertNumQueries(FuzzyInt(0, num_users - 1)):

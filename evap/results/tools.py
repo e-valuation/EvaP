@@ -290,7 +290,7 @@ def textanswers_visible_to(contribution):
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
 
 
-def can_user_see_textanswer(user, represented_users, textanswer, view):
+def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
     assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
     contributor = textanswer.contribution.contributor
 
