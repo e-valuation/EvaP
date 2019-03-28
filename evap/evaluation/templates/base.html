@@ -115,6 +115,14 @@
     };
     applySelect2Disabled($('select[disabled]').not('.form-template select'));
 
+    // fix Bootstrap bug that selecting toggle buttons via keyboard controls is only visually
+    // https://github.com/twbs/bootstrap/issues/26855
+    $(document).on("click", '[data-toggle^="button"] input[type="radio"]', function(event) {
+        // Bootstrap will call event.preventDefault() which results into a reset of the radio buttons before the keyboard input.
+        // To work around this, we set the method to one without side effects.
+        event.preventDefault = () => true;
+    });
+
     // fix scrolling to required field when the browser does form validation
     // taken from http://stackoverflow.com/questions/19814673/html5-input-required-scroll-to-input-with-fixed-navbar-on-submit
     var delay = 0;
