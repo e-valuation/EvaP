@@ -95,7 +95,7 @@ class Command(BaseCommand):
             # Give users unique temporary names to counter identity errors due to the names being unique
             if user.username in Command.ignore_usernames:
                 continue
-            user.username = "<User #" + str(i) + ">"
+            user.username = f"<User #{i}>"
             user.save()
 
         # Actually replace all the real user data
@@ -145,7 +145,7 @@ class Command(BaseCommand):
             random.shuffle(courses)
             public_courses = [course for course in courses if not course.is_private]
 
-            self.stdout.write("Anonymizing " + str(len(courses)) + " courses of semester " + str(semester) + "...")
+            self.stdout.write(f"Anonymizing {len(courses)} courses of semester {semester}...")
 
             # Shuffle public courses' names in order to decouple them from the results.
             # Also, assign public courses' names to private ones as their names may be confidential.
@@ -155,8 +155,8 @@ class Command(BaseCommand):
 
             for i, course in enumerate(courses):
                 # Give courses unique temporary names to counter identity errors due to the names being unique
-                course.name_de = "<Veranstaltung #" + str(i) + ">"
-                course.name_en = "<Course #" + str(i) + ">"
+                course.name_de = f"<Veranstaltung #{i}>"
+                course.name_en = f"<Course #{i}>"
                 course.save()
 
             for i, course in enumerate(courses):
@@ -165,16 +165,15 @@ class Command(BaseCommand):
                     course.name_de = name[0]
                     course.name_en = name[1]
                 else:
-                    course.name_de = "Veranstaltung #" + str(i + 1)
-                    course.name_en = "Course #" + str(i + 1)
+                    course.name_de = f"Veranstaltung #{i + 1}"
+                    course.name_en = f"Course #{i + 1}"
                 course.save()
 
     def anonymize_evaluations(self):
         for semester in Semester.objects.all():
             evaluations = list(semester.evaluations.all())
             random.shuffle(evaluations)
-            self.stdout.write("Anonymizing " + str(len(evaluations)) + " evaluations of semester " + str(semester) +
-                "...")
+            self.stdout.write(f"Anonymizing {len(evaluations)} evaluations of semester {semester}...")
 
             self.stdout.write("Shuffling evaluation names...")
             named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
@@ -184,9 +183,9 @@ class Command(BaseCommand):
             for i, evaluation in enumerate(evaluations):
                 # Give evaluations unique temporary names to counter identity errors due to the names being unique
                 if evaluation.name_de:
-                    evaluation.name_de = "<Evaluierung #" + str(i) + ">"
+                    evaluation.name_de = f"<Evaluierung #{i}>"
                 if evaluation.name_en:
-                    evaluation.name_en = "<Evaluation #" + str(i) + ">"
+                    evaluation.name_en = f"<Evaluation #{i}>"
                 evaluation.save()
 
             for i, evaluation in enumerate(evaluations):
@@ -197,8 +196,8 @@ class Command(BaseCommand):
                     evaluation.name_de = name[0]
                     evaluation.name_en = name[1]
                 else:
-                    evaluation.name_de = "Evaluierung #" + str(i + 1)
-                    evaluation.name_en = "Evaluation #" + str(i + 1)
+                    evaluation.name_de = f"Evaluierung #{i + 1}"
+                    evaluation.name_en = f"Evaluation #{i + 1}"
                 evaluation.save()
 
     def anonymize_questionnaires(self, lorem_ipsum):
