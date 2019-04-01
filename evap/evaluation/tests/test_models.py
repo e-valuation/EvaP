@@ -297,8 +297,9 @@ class TestCourse(TestCase):
         self.assertTrue(course.can_be_deleted_by_manager)
 
     def test_responsibles_names(self):
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
+        # last names required for sorting
+        user1 = mommy.make(UserProfile, last_name="Doe")
+        user2 = mommy.make(UserProfile, last_name="Meyer")
         course = mommy.make(Course, responsibles=[user1, user2])
         self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
 
