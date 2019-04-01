@@ -56,8 +56,9 @@ def index(request):
 
 def annotate_evaluations_with_grade_document_counts(evaluations):
     return evaluations.annotate(
-            midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-            final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True))
+        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
+        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+    )
 
 
 def get_evaluations_with_prefetched_data(semester):
@@ -187,9 +188,9 @@ class RevertToNewOperation(EvaluationOperation):
             "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
 
 
-class RevertToPreparedOperation(EvaluationOperation):
+class MoveToPreparedOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
-    confirmation_message = ugettext_lazy("Do you want to revert the following evaluations to preparation?")
+    confirmation_message = ugettext_lazy("Do you want to send the following evaluations to editor review?")
 
     @staticmethod
     def applicable_to(evaluation):
@@ -283,7 +284,7 @@ class PublishOperation(EvaluationOperation):
 
 EVALUATION_OPERATIONS = {
         'new': RevertToNewOperation,
-        'prepared': RevertToPreparedOperation,
+        'prepared': MoveToPreparedOperation,
         'in_evaluation': StartEvaluationOperation,
         'reviewed': RevertToReviewedOperation,
         'published': PublishOperation,
