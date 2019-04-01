@@ -257,10 +257,6 @@ class Command(BaseCommand):
                             counter.delete()
 
                     assert original_sum == sum(counter.count for counter in counters)
-
-                if contribution.evaluation.is_single_result:
-                    answer_counters = RatingAnswerCounter.objects.filter(contribution__evaluation__pk=contribution.evaluation.pk)
-                    assert 1 <= len(answer_counters) <= 5
         finally:
             self.stdout.ending = "\n"
 
