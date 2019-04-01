@@ -100,6 +100,10 @@ def is_user_editor_or_delegate(evaluation, user):
 
 
 @register.filter
+def is_user_responsible_or_contributor_or_delegate(evaluation, user):
+    return evaluation.is_user_responsible_or_contributor_or_delegate(user)
+
+@register.filter
 def message_class(level):
     return {
         'debug': 'info',
