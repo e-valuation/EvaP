@@ -49,12 +49,6 @@ class EvaluationForm(forms.ModelForm):
                 self.add_error("vote_start_datetime", "")
                 self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
-    def clean_vote_start_datetime(self):
-        vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
-        if vote_start_datetime and vote_start_datetime < datetime.now():
-            raise forms.ValidationError(_("The first day of evaluation must be in the future."))
-        return vote_start_datetime
-
     def clean_vote_end_date(self):
         vote_end_date = self.cleaned_data.get('vote_end_date')
 

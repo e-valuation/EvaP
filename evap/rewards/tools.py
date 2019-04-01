@@ -44,7 +44,7 @@ def save_redemptions(request, redemptions):
             )
 
 
-def can_user_use_reward_points(user):
+def can_reward_points_be_used_by(user):
     return not user.is_external and user.is_participant
 
 
@@ -63,7 +63,7 @@ def is_semester_activated(semester):
 
 
 def grant_reward_points_if_eligible(user, semester):
-    if not can_user_use_reward_points(user):
+    if not can_reward_points_be_used_by(user):
         return None, False
     if not is_semester_activated(semester):
         return None, False

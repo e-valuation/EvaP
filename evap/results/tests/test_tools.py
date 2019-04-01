@@ -10,8 +10,7 @@ from evap.evaluation.models import (Contribution, Course, Evaluation, Question, 
 from evap.results.tools import (calculate_average_course_distribution, calculate_average_distribution, collect_results,
                                 distribution_to_grade, get_collect_results_cache_key, get_single_result_rating_result,
                                 normalized_distribution, RatingResult, textanswers_visible_to,
-                                unipolarized_distribution)
-from evap.results.views import user_can_see_textanswer
+                                unipolarized_distribution, can_textanswer_be_seen_by)
 from evap.staff.tools import merge_users
 
 
@@ -360,8 +359,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
         for user in UserProfile.objects.all():
             represented_users = [user] + list(user.represented_users.all())
             for i in range(len(textanswers)):
-                if user_can_see_textanswer(user, represented_users, textanswers[i], 'full'):
-                    if user_can_see_textanswer(user, [user], textanswers[i], 'full'):
+                if can_textanswer_be_seen_by(user, represented_users, textanswers[i], 'full'):
+                    if can_textanswer_be_seen_by(user, [user], textanswers[i], 'full'):
                         users_seeing_contribution[i][0].add(user)
                     else:
                         users_seeing_contribution[i][1].add(user)

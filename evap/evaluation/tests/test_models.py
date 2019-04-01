@@ -167,10 +167,10 @@ class TestEvaluations(WebTest):
         evaluation.save()
 
         self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
-        self.assertFalse(evaluation.can_manager_delete)
+        self.assertFalse(evaluation.can_be_deleted_by_manager)
 
         evaluation.unpublish()
-        self.assertTrue(evaluation.can_manager_delete)
+        self.assertTrue(evaluation.can_be_deleted_by_manager)
 
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
         evaluation.delete()
@@ -179,9 +179,7 @@ class TestEvaluations(WebTest):
     def test_single_result_can_be_published(self):
         """ Regression test for #1238 """
         responsible = mommy.make(UserProfile)
-        single_result = mommy.make(Evaluation,
-            is_single_result=True, _participant_count=5, _voter_count=5
-        )
+        single_result = mommy.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = mommy.make(Contribution,
             evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
@@ -290,13 +288,13 @@ class TestEvaluations(WebTest):
 
 
 class TestCourse(TestCase):
-    def test_can_manager_delete(self):
+    def test_can_be_deleted_by_manager(self):
         course = mommy.make(Course)
         evaluation = mommy.make(Evaluation, course=course)
-        self.assertFalse(course.can_manager_delete)
+        self.assertFalse(course.can_be_deleted_by_manager)
 
         evaluation.delete()
-        self.assertTrue(course.can_manager_delete)
+        self.assertTrue(course.can_be_deleted_by_manager)
 
     def test_responsibles_names(self):
         user1 = mommy.make(UserProfile)
@@ -337,18 +335,18 @@ class TestUserProfile(TestCase):
 
         self.assertFalse(user.is_student)
 
-    def test_can_manager_delete(self):
+    def test_can_be_deleted_by_manager(self):
         user = mommy.make(UserProfile)
         mommy.make(Evaluation, participants=[user], state="new")
-        self.assertFalse(user.can_manager_delete)
+        self.assertFalse(user.can_be_deleted_by_manager)
 
         user2 = mommy.make(UserProfile)
         mommy.make(Evaluation, participants=[user2], state="in_evaluation")
-        self.assertFalse(user2.can_manager_delete)
+        self.assertFalse(user2.can_be_deleted_by_manager)
 
         contributor = mommy.make(UserProfile)
         mommy.make(Contribution, contributor=contributor)
-        self.assertFalse(contributor.can_manager_delete)
+        self.assertFalse(contributor.can_be_deleted_by_manager)
 
     def test_inactive_users_hidden(self):
         active_user = mommy.make(UserProfile)
@@ -442,9 +440,7 @@ class ParticipationArchivingTests(TestCase):
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation,
-            state="published", is_single_result=True, _participant_count=5, _voter_count=5
-        )
+        evaluation = mommy.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 

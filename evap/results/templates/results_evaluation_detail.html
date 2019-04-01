@@ -75,13 +75,13 @@
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
             <div class="mr-auto">{% trans 'Overview' %}</div>
-            {% if evaluation.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.grade_documents.first.id %}">{{ evaluation.grade_documents.first.description }}</a>
-            {% elif evaluation.grade_documents.count > 1 and can_download_grades %}
+            {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
+                <a class="btn btn-sm btn-light d-print-none" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
+            {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none" role="group">
                     <a id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</a>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
-                        {% for grade_document in evaluation.grade_documents.all %}
+                        {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
                         {% endfor %}
                     </div>
@@ -108,7 +108,7 @@
                                 <tr class="current-row-follows"></tr>
                             {% endif %}
                             {% with evaluation=course_evaluation %}
-                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=True %}
+                                {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                             {% endwith %}
                         {% endfor %}
                     </tbody>
@@ -127,7 +127,7 @@
                     <tbody>
                         {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
                         <tr class="nohover-row-follows"></tr>
-                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_user_see_results_page:request.user is_subentry=False %}
+                        {% include 'results_index_evaluation.html' with can_user_see_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
                     </tbody>
                 </table>
             {% endif %}

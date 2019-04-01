@@ -30,7 +30,7 @@ from evap.results.tools import (calculate_average_distribution, collect_results,
 from evap.results.views import (delete_template_cache, update_template_cache_of_published_evaluations_in_course,
                                 warm_up_template_cache)
 from evap.rewards.models import RewardPointGranting
-from evap.rewards.tools import can_user_use_reward_points, is_semester_activated
+from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
                               EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
@@ -331,7 +331,7 @@ def semester_delete(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    if not semester.can_manager_delete:
+    if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
     semester.delete()
     delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
@@ -452,7 +452,7 @@ def semester_participation_export(_request, semester_id):
         number_of_optional_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
-            participant.username, can_user_use_reward_points(participant), number_of_required_evaluations_voted_for,
+            participant.username, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
             number_of_required_evaluations, number_of_optional_evaluations_voted_for, number_of_optional_evaluations,
             earned_reward_points
         ])
@@ -485,7 +485,7 @@ def semester_questionnaire_assign(request, semester_id):
 
 
 @manager_required
-def semester_todo(request, semester_id):
+def semester_preparation_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("course__degrees")
@@ -498,14 +498,14 @@ def semester_todo(request, semester_id):
                          responsible.delegates.all()) for responsible in responsibles]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
-    return render(request, "staff_semester_todo.html", template_data)
+    return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
 @manager_required
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).all()
+    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
@@ -530,7 +530,7 @@ def send_reminder(request, semester_id, responsible_id):
     if form.is_valid():
         form.send(request, evaluations)
         messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
-        return custom_redirect('staff:semester_todo', semester_id)
+        return custom_redirect('staff:semester_preparation_reminder', semester_id)
     else:
         return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
 
@@ -608,7 +608,7 @@ def course_edit(request, semester_id, course_id):
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
     course_form = CourseForm(request.POST or None, instance=course)
-    editable = course.can_manager_edit
+    editable = course.can_be_edited_by_manager
 
     if request.method == "POST" and not editable:
         raise SuspiciousOperation("Modifying this course is not allowed.")
@@ -644,7 +644,7 @@ def course_edit(request, semester_id, course_id):
 def course_delete(request):
     course_id = request.POST.get("course_id")
     course = get_object_or_404(Course, id=course_id)
-    if not course.can_manager_delete:
+    if not course.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting course not allowed")
     course.delete()
     return HttpResponse()  # 200 OK
@@ -706,7 +706,7 @@ def evaluation_edit(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
-    if request.method == "POST" and not evaluation.can_manager_edit:
+    if request.method == "POST" and not evaluation.can_be_edited_by_manager:
         raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
     if evaluation.is_single_result:
@@ -731,7 +731,7 @@ def helper_evaluation_edit(request, semester, evaluation):
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
-    editable = evaluation.can_manager_edit
+    editable = evaluation.can_be_edited_by_manager
 
     operation = request.POST.get('operation')
 
@@ -739,7 +739,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         if operation not in ('save', 'approve'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        if not evaluation.can_manager_edit or evaluation.participations_are_archived:
+        if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
         if evaluation.state in ['evaluated', 'reviewed'] and evaluation.is_in_evaluation_period:
@@ -782,7 +782,7 @@ def helper_single_result_edit(request, semester, evaluation):
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
     if form.is_valid():
-        if not evaluation.can_manager_edit or evaluation.participations_are_archived:
+        if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
         form.save(user=request.user)
@@ -791,7 +791,7 @@ def helper_single_result_edit(request, semester, evaluation):
         return redirect('staff:semester_view', semester.id)
     else:
         return render(request, "staff_single_result_form.html", dict(
-            evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_manager_edit
+            evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_be_edited_by_manager
         ))
 
 
@@ -801,7 +801,7 @@ def evaluation_delete(request):
     evaluation_id = request.POST.get("evaluation_id")
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
-    if not evaluation.can_manager_delete:
+    if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
     if evaluation.is_single_result:
         RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).delete()
@@ -1117,7 +1117,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
 @manager_required
 def questionnaire_edit(request, questionnaire_id):
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
-    editable = questionnaire.can_manager_edit
+    editable = questionnaire.can_be_edited_by_manager
 
     form, formset = make_questionnaire_edit_forms(request, questionnaire, editable)
 
@@ -1223,7 +1223,7 @@ def questionnaire_delete(request):
     questionnaire_id = request.POST.get("questionnaire_id")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-    if not questionnaire.can_manager_delete:
+    if not questionnaire.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting questionnaire not allowed")
     questionnaire.delete()
     return HttpResponse()  # 200 OK
@@ -1406,7 +1406,7 @@ def user_delete(request):
     user_id = request.POST.get("user_id")
     user = get_object_or_404(UserProfile, id=user_id)
 
-    if not user.can_manager_delete:
+    if not user.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
     return HttpResponse()  # 200 OK

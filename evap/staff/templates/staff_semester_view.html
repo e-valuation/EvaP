@@ -10,7 +10,7 @@
         {% if request.user.is_manager %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_manager_delete %} disabled{% endif %}">{% trans 'Delete' %}</a>
+            <a onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger{% if not semester.can_be_deleted_by_manager %} disabled{% endif %}">{% trans 'Delete' %}</a>
         {% endif %}
     </h3>
 
@@ -49,7 +49,7 @@
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
-                        <a href="{% url 'staff:semester_todo' semester.id %}" class="btn btn-sm btn-light">{% trans 'Todo' %}</a>
+                        <a href="{% url 'staff:semester_preparation_reminder' semester.id %}" class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
                         <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
                     <div class="btn-switch ml-2">
@@ -320,7 +320,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-right" style="width: 10%;">
-                                    {% if course.can_manager_delete %}
+                                    {% if course.can_be_deleted_by_manager %}
                                         <a onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
                                     {% endif %}
                                 </td>

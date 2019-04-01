@@ -3,7 +3,7 @@ from django.template import Library
 
 from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
 from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
-from evap.rewards.tools import can_user_use_reward_points
+from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
 
 
@@ -75,13 +75,13 @@ def statedescription(state):
 
 
 @register.filter
-def can_user_see_results_page(evaluation, user):
-    return evaluation.can_user_see_results_page(user)
+def can_results_page_be_seen_by(evaluation, user):
+    return evaluation.can_results_page_be_seen_by(user)
 
 
-@register.filter(name='can_user_use_reward_points')
-def _can_user_use_reward_points(user):
-    return can_user_use_reward_points(user)
+@register.filter(name='can_reward_points_be_used_by')
+def _can_reward_points_be_used_by(user):
+    return can_reward_points_be_used_by(user)
 
 
 @register.filter

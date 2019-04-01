@@ -2,7 +2,7 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import Count, QuerySet, Sum
+from django.db.models import Count, QuerySet
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
@@ -11,11 +11,11 @@ from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Contribution, Evaluation, CourseType, UserProfile
+from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile
 from evap.evaluation.auth import internal_required
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, normalized_distribution, TextAnswer, TextResult)
+                                HeadingResult, TextResult, can_textanswer_be_seen_by)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -123,7 +123,7 @@ def get_evaluations_with_prefetched_data(evaluations):
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
     evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
-    evaluations = [evaluation for evaluation in evaluations if evaluation.can_user_see_evaluation(request.user)]
+    evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
 
     if request.user.is_reviewer:
         additional_evaluations = get_evaluations_with_prefetched_data(
@@ -154,7 +154,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
 
-    if not evaluation.can_user_see_results_page(request.user):
+    if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
     evaluation_result = collect_results(evaluation)
@@ -181,7 +181,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     for questionnaire_result in evaluation_result.questionnaire_results:
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if user_can_see_textanswer(view_as_user, represented_users, answer, view)]
+                question_result.answers = [answer for answer in question_result.answers if can_textanswer_be_seen_by(view_as_user, represented_users, answer, view)]
         # remove empty TextResults
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
 
@@ -223,7 +223,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     course_evaluations = []
     if evaluation.course.evaluations.count() > 1:
-        course_evaluations = [evaluation for evaluation in evaluation.course.evaluations.filter(state="published") if evaluation.can_user_see_evaluation(request.user)]
+        course_evaluations = [evaluation for evaluation in evaluation.course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)]
         if request.user.is_reviewer:
             course_evaluations += evaluation.course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
@@ -284,36 +284,3 @@ def add_warnings(evaluation, evaluation_result):
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
 
 
-def user_can_see_textanswer(user, represented_users, textanswer, view):
-    assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
-    contributor = textanswer.contribution.contributor
-
-    if view == 'public':
-        return False
-    elif view == 'export':
-        if textanswer.is_private:
-            return False
-        if not textanswer.contribution.is_general and contributor != user:
-            return False
-    elif user.is_reviewer:
-        return True
-
-    if textanswer.is_private:
-        return contributor == user
-
-    # NOTE: when changing this behavior, make sure all changes are also reflected in results.tools.textanswers_visible_to
-    # and in results.tests.test_tools.TestTextAnswerVisibilityInfo
-    if textanswer.is_published:
-        # users can see textanswers if the contributor is one of their represented users (which includes the user itself)
-        if contributor in represented_users:
-            return True
-        # users can see text answers from general contributions if one of their represented users has text answer
-        # visibility GENERAL_TEXTANSWERS for the evaluation
-        if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
-            return True
-        # the people responsible for a course can see all general text answers for all its evaluations
-        if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):
-            return True
-
-    return False
