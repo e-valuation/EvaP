@@ -13,14 +13,14 @@
                     </button>
                 </div>
                 <table class="modal-body table table-striped vertically-aligned">
-                    <tr><td><span class="key">←</span> <span class="key">→</span></td><td>{% trans 'Navigate through answers' %}</td></tr>
-                    <tr><td><span class="key">J</span></td><td>{% trans 'Publish answer' %}</td></tr>
-                    <tr><td><span class="key">K</span></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
-                    <tr><td><span class="key">L</span></td><td>{% trans 'Remove answer' %}</td></tr>
-                    <tr><td><span class="key">&#x232b;</span></td><td>{% trans 'Unreview answer' %}</td></tr>
-                    <tr><td><span class="key">&#x21b2;</span></td><td>{% trans 'Review next evaluation' %}</td></tr>
-                    <tr><td><span class="key">N</span></td><td>{% trans 'Show all again' %}</td></tr>
-                    <tr><td><span class="key">M</span></td><td>{% trans 'Show unreviewed' %}</td></tr>
+                    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>{% trans 'Navigate through answers' %}</td></tr>
+                    <tr><td><kbd>J</kbd></td><td>{% trans 'Publish answer' %}</td></tr>
+                    <tr><td><kbd>K</kbd></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
+                    <tr><td><kbd>L</kbd></td><td>{% trans 'Remove answer' %}</td></tr>
+                    <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
+                    <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
+                    <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
+                    <tr><td><kbd>M</kbd></td><td>{% trans 'Show unreviewed' %}</td></tr>
                 </table>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
@@ -45,7 +45,7 @@
             <div class="slider-items">
                 {% for questionnaire, contributor, label, is_responsible, results in sections %}
                     <div class="slider-item" data-layer="0">
-                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<i>{{ label }}</i>{% endif %}{% endif %}
+                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="font-italic">{{ label }}</span>{% endif %}{% endif %}
                     </div>
                     {% for result in results %}
                         <div class="slider-item" data-layer="1">

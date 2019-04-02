@@ -91,7 +91,8 @@
                                 <div class="mr-auto">
                                     <a class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse"
                                         href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
-                                        {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
+                                        {{ contributor.full_name }}
+                                        {% if label %} &ndash; <span class="font-ialic">{{ label }}</span>{% endif %}
                                     </a>
                                 </div>
                                 <div>
@@ -201,7 +202,7 @@
                 const showWarning = isInvalid || containsReference;
                 const warningLabel = textarea.parents('.row').find('.warning-label');
                 warningLabel.toggleClass('d-none', !showWarning);
-                textarea.toggleClass('warning-border', showWarning);
+                textarea.toggleClass('border border-warning', showWarning);
 
                 warningLabel.find('.warning-filtered-out').toggleClass('d-none', !isInvalid);
                 warningLabel.find('.warning-text-reference').toggleClass('d-none', !containsReference);

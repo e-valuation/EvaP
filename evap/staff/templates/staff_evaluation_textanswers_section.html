@@ -3,7 +3,7 @@
 {% for questionnaire, contributor, label, is_responsible, results in sections %}
     <div class="card{% if not forloop.last %} mb-3{% endif %}">
         <div class="card-header">
-            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}{% endif %}
+            {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash; <span class="font-italic">{{ label }}</span>{% endif %}{% endif %}
         </div>
         <div class="card-body">
             {% for result in results %}

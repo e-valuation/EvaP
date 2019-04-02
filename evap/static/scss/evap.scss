@@ -551,11 +551,6 @@ body {
     display: flex;
 }
 
-ul.inputs-list {
-    list-style-type: none;
-    padding-left: 0px;
-}
-
 table.vertically-aligned tr td {
     vertical-align: middle;
 }
@@ -572,11 +567,6 @@ select[multiple] {
 }
 .error-label {
     color: $evap-dark-red;
-}
-
-.warning-border {
-    border: 1px solid $evap-yellow;
-    outline-color: $evap-yellow;
 }
 
 .card-submit-area {
@@ -853,13 +843,6 @@ tr.current-row-follows + tr {
     box-shadow: inset 0px 0px 6px $evap-dark-blue;
 }
 
-.course-responsible {
-    font-style: italic;
-}
-.evaluation-contributor {
-    font-style: italic;
-}
-
 .sortable .movable {
     width: 10px;
 }
@@ -941,10 +924,6 @@ a.no-underline:hover {
 // make the line always break between semester and year (e.g., "WT<break>17/18" and "ST<break>18")
 .semester-short-name {
     word-spacing: 30000px;
-}
-
-.separation-left {
-    border-left: 1px solid $medium-gray;
 }
 
 .reset-button {

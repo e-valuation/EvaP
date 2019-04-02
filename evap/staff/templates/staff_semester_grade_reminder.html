@@ -15,7 +15,7 @@
             {% for responsible, courses in responsible_list %}
                 <b>{{ responsible.full_name }}</b><br />
                 {% for course in courses %}
-                    - {{ course.name }} (<i>{{ course.type }}</i>)<br />
+                    - {{ course.name }} (<span class="font-italic">{{ course.type }}</span>)<br />
                 {% endfor %}
                 {% if not forloop.last %}
                     <br />

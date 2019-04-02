@@ -51,10 +51,10 @@
                         <button type="submit" class="btn btn-primary pull-right">{% trans 'Redeem' %}</button>
                     </form>
                 {% else %}
-                    <p><i>{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</i></p>
+                    <p class="font-italic">{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
                 {% endif %}
             {% else %}
-                <p><i>{% blocktrans %}You don't have any reward points that you could redeem.{% endblocktrans %}</i></p>
+                <p class="font-italic">{% blocktrans %}You don't have any reward points that you could redeem.{% endblocktrans %}</p>
             {% endif %}
         </div>
     </div>
@@ -86,7 +86,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p><i>{% trans 'No reward points earned yet.' %}</i></p>
+                <p class="font-italic">{% trans 'No reward points earned yet.' %}</p>
             {% endif %}
         </div>
     </div>

@@ -65,7 +65,7 @@
         {{ evaluation.full_name }}
     {% endif %}
     </div>
-    <div class="evaluation-contributor">
+    <div class="font-italic">
         {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
             <span class="small" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of contributors' %}">
