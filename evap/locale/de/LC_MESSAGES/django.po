@@ -1541,7 +1541,7 @@ msgstr "Probleme/Feedback"
 
 #: evap/evaluation/templates/index.html:7
 msgid "Welcome to the evaluation platform!"
-msgstr "Willkommen auf der Evaluierungsplattform!"
+msgstr "Willkommen auf der Evaluierungs&shy;plattform!"
 
 #: evap/evaluation/templates/index.html:16
 msgid "HPI users"

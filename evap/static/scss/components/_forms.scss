@@ -48,14 +48,17 @@ select[multiple] {
     }
 }
 
-.form-label.is-invalid {
-    color: $evap-dark-red;
-}
-
 .form-label {
-    text-align: right;
     font-weight: bold;
     padding-top: 0.3rem;
+
+    @include media-breakpoint-up(md) {
+        text-align: right;
+    }
+
+    &.is-invalid {
+        color: $evap-dark-red;
+    }
 }
 .form-static-text {
     padding-top: 0.3rem;

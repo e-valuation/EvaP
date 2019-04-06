@@ -151,7 +151,8 @@ a:not([href]):not(.disabled) {
 }
 
 .login-button {
-    min-width: 250px;
+    width: 100%;
+    max-width: 16em;
 }
 
 .btn-option {

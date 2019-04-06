@@ -64,3 +64,12 @@
 .card-submit-area-3 button {
     min-width: 190px;
 }
+
+.card-deck-login {
+    display: grid;
+    grid-gap: $card-deck-margin;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
