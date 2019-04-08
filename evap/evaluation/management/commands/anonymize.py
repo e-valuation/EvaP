@@ -1,14 +1,18 @@
 from datetime import date, timedelta
 import os
 import itertools
+from math import floor
 import random
 
+from collections import defaultdict
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.serializers.base import ProgressBar
 from django.db import transaction
 
-from evap.evaluation.models import (Contribution, Course, CourseType, Degree, RatingAnswerCounter, Semester, TextAnswer,
-                                    UserProfile)
+from evap.evaluation.models import (CHOICES, Contribution, Course, CourseType, Degree,
+        NO_ANSWER, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+
 
 class Command(BaseCommand):
     args = ''
@@ -60,8 +64,10 @@ class Command(BaseCommand):
                 self.anonymize_users(first_names, last_names)
                 self.anonymize_courses()
                 self.anonymize_evaluations()
-                self.anonymize_questionnaires(lorem_ipsum)
+                self.anonymize_questionnaires()
+                self.anonymize_answers(lorem_ipsum)
 
+                self.stdout.write("")
                 self.stdout.write("Done.")
 
         except Exception:
@@ -95,7 +101,7 @@ class Command(BaseCommand):
             # Give users unique temporary names to counter identity errors due to the names being unique
             if user.username in Command.ignore_usernames:
                 continue
-            user.username = "<User #" + str(i) + ">"
+            user.username = f"<User #{i}>"
             user.save()
 
         # Actually replace all the real user data
@@ -145,7 +151,7 @@ class Command(BaseCommand):
             random.shuffle(courses)
             public_courses = [course for course in courses if not course.is_private]
 
-            self.stdout.write("Anonymizing " + str(len(courses)) + " courses of semester " + str(semester) + "...")
+            self.stdout.write(f"Anonymizing {len(courses)} courses of semester {semester}...")
 
             # Shuffle public courses' names in order to decouple them from the results.
             # Also, assign public courses' names to private ones as their names may be confidential.
@@ -155,8 +161,8 @@ class Command(BaseCommand):
 
             for i, course in enumerate(courses):
                 # Give courses unique temporary names to counter identity errors due to the names being unique
-                course.name_de = "<Veranstaltung #" + str(i) + ">"
-                course.name_en = "<Course #" + str(i) + ">"
+                course.name_de = f"<Veranstaltung #{i}>"
+                course.name_en = f"<Course #{i}>"
                 course.save()
 
             for i, course in enumerate(courses):
@@ -165,16 +171,15 @@ class Command(BaseCommand):
                     course.name_de = name[0]
                     course.name_en = name[1]
                 else:
-                    course.name_de = "Veranstaltung #" + str(i + 1)
-                    course.name_en = "Course #" + str(i + 1)
+                    course.name_de = f"Veranstaltung #{i + 1}"
+                    course.name_en = f"Course #{i + 1}"
                 course.save()
 
     def anonymize_evaluations(self):
         for semester in Semester.objects.all():
             evaluations = list(semester.evaluations.all())
             random.shuffle(evaluations)
-            self.stdout.write("Anonymizing " + str(len(evaluations)) + " evaluations of semester " + str(semester) +
-                "...")
+            self.stdout.write(f"Anonymizing {len(evaluations)} evaluations of semester {semester}...")
 
             self.stdout.write("Shuffling evaluation names...")
             named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
@@ -184,9 +189,9 @@ class Command(BaseCommand):
             for i, evaluation in enumerate(evaluations):
                 # Give evaluations unique temporary names to counter identity errors due to the names being unique
                 if evaluation.name_de:
-                    evaluation.name_de = "<Evaluierung #" + str(i) + ">"
+                    evaluation.name_de = f"<Evaluierung #{i}>"
                 if evaluation.name_en:
-                    evaluation.name_en = "<Evaluation #" + str(i) + ">"
+                    evaluation.name_en = f"<Evaluation #{i}>"
                 evaluation.save()
 
             for i, evaluation in enumerate(evaluations):
@@ -197,22 +202,63 @@ class Command(BaseCommand):
                     evaluation.name_de = name[0]
                     evaluation.name_en = name[1]
                 else:
-                    evaluation.name_de = "Evaluierung #" + str(i + 1)
-                    evaluation.name_en = "Evaluation #" + str(i + 1)
+                    evaluation.name_de = f"Evaluierung #{i + 1}"
+                    evaluation.name_en = f"Evaluation #{i + 1}"
                 evaluation.save()
 
-    def anonymize_questionnaires(self, lorem_ipsum):
-        # questionnaires = Questionnaire.objects.all()
-
+    def anonymize_questionnaires(self):
         self.stdout.write("REMINDER: You still need to randomize the questionnaire names...")
         self.stdout.write("REMINDER: You still need to randomize the questionnaire questions...")
 
+    def anonymize_answers(self, lorem_ipsum):
         self.stdout.write("Replacing text answers with fake ones...")
         for text_answer in TextAnswer.objects.all():
             text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
             if text_answer.original_answer:
                 text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
             text_answer.save()
+
+        self.stdout.write("Shuffling rating answer counter counts...")
+
+        contributions = Contribution.objects.all().prefetch_related("ratinganswercounter_set__question")
+        try:
+            self.stdout.ending = ""
+            progress_bar = ProgressBar(self.stdout, contributions.count())
+            for contribution_counter, contribution in enumerate(contributions):
+                progress_bar.update(contribution_counter + 1)
+
+                counters_per_question = defaultdict(list)
+                for counter in contribution.ratinganswercounter_set.all():
+                    counters_per_question[counter.question].append(counter)
+
+                for question, counters in counters_per_question.items():
+                    original_sum = sum(counter.count for counter in counters)
+
+                    missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
+                    missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
+                    for value in missing_values:
+                        counters.append(RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0))
+
+                    generated_counts = [random.random() for c in counters]
+                    generated_sum = sum(generated_counts)
+                    generated_counts = [floor(count / generated_sum * original_sum) for count in generated_counts]
+
+                    to_add = original_sum - sum(generated_counts)
+                    index = random.randint(0, len(generated_counts) - 1)
+                    generated_counts[index] += to_add
+
+                    for counter, generated_count in zip(counters, generated_counts):
+                        assert generated_count >= 0
+                        counter.count = generated_count
+
+                        if counter.count:
+                            counter.save()
+                        elif counter.id:
+                            counter.delete()
+
+                    assert original_sum == sum(counter.count for counter in counters)
+        finally:
+            self.stdout.ending = "\n"
 
     # Returns a string with the same number of lorem ipsum words as the given text
     @staticmethod
