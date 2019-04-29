@@ -1,10 +1,11 @@
 import os
+from collections import defaultdict
 from datetime import date, datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_mommy import mommy
 
-from evap.evaluation.models import UserProfile, Semester, Evaluation, Contribution, CourseType
+from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
 from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter, PersonImporter
 
 
@@ -125,43 +126,73 @@ class TestUserImporter(TestCase):
 
 class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
+    filename_valid_degree_merge = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_degree_merge.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
-    def test_valid_file_import(self):
-        semester = mommy.make(Semester)
-        vote_start_datetime = datetime(2017, 1, 10)
-        vote_end_date = date(2017, 3, 10)
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = mommy.make(Semester)
+        cls.vote_start_datetime = datetime(2017, 1, 10)
+        cls.vote_end_date = date(2017, 3, 10)
         mommy.make(CourseType, name_de="Seminar")
         mommy.make(CourseType, name_de="Vorlesung")
 
+    def test_valid_file_import(self):
         with open(self.filename_valid, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
+        old_user_count = UserProfile.objects.all().count()
+
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
         self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
+        self.assertEqual(Evaluation.objects.all().count(), 23)
+        expected_user_count = old_user_count + 23
+        self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
+
+    def test_degrees_are_merged(self):
+        with open(self.filename_valid_degree_merge, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        expected_warnings = defaultdict(list)
+        expected_warnings[EnrollmentImporter.W_DEGREE].append(
+            'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. Both degrees have been added to the course.'
+        )
+
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, expected_warnings)
+
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        self.assertIn("Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages))
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, expected_warnings)
+
+        self.assertEqual(Course.objects.all().count(), 1)
+        self.assertEqual(Evaluation.objects.all().count(), 1)
+
+        course = Course.objects.get(name_de="Bauen")
+        self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
+
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        semester = mommy.make(Semester)
-        vote_start_datetime = datetime(2017, 1, 10)
-        vote_end_date = datetime(2017, 3, 10)
-
         with open(self.filename_valid, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        __, warnings_test, __ = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
-        __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, semester, vote_start_datetime, vote_end_date, test_run=False)
+        __, warnings_test, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
         warnings_many = warnings_test[EnrollmentImporter.W_MANY]
@@ -173,14 +204,13 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("Warning: User bastius.quid@external.example.com has 3 enrollments, which is a lot.", warnings_many)
 
     def test_random_file_error(self):
-        semester = mommy.make(Semester)
-        original_user_count = UserProfile.objects.count()
-
         with open(self.filename_random, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+        original_user_count = UserProfile.objects.count()
+
+        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
@@ -188,16 +218,13 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
-        semester = mommy.make(Semester)
-        mommy.make(CourseType, name_de="Seminar")
-        mommy.make(CourseType, name_de="Vorlesung")
-        original_user_count = UserProfile.objects.count()
-
         with open(self.filename_invalid, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+        original_user_count = UserProfile.objects.count()
+
+        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertIn('Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.', errors_test)
