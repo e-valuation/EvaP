@@ -381,7 +381,7 @@ class TestUserProfile(TestCase):
         grade_publisher = mommy.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
         self.assertFalse(grade_publisher.can_be_marked_inactive_by_manager)
 
-        super_user = mommy.make(UserProfile, is_super_user=True)
+        super_user = mommy.make(UserProfile, is_superuser=True)
         self.assertFalse(super_user.can_be_marked_inactive_by_manager)
 
         proxy_user = mommy.make(UserProfile, is_proxy_user=True)
