@@ -1146,6 +1146,9 @@ class UserProfileManager(BaseUserManager):
     def exclude_inactive_users(self):
         return self.get_queryset().exclude(is_active=False)
 
+    def exclude_proxy_users(self):
+        return self.get_queryset().exclude(is_proxy_user=True)
+
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -1191,6 +1194,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     # users to which all emails should be sent in cc without giving them delegate rights
     cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
+
+    # flag for proxy users like FSR or student office which are not actual users themselves, but represent a group of users
+    is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
     MAX_LOGIN_KEY = 2**31 - 1
@@ -1256,6 +1262,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not contribution.evaluation.participations_are_archived for contribution in self.contributions.all()):
             return False
+        if self.is_proxy_user:
+            return False
         return True
 
     @property
@@ -1267,6 +1275,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if any(not user.can_be_deleted_by_manager for user in self.represented_users.all()):
             return False
         if any(not user.can_be_deleted_by_manager for user in self.ccing_users.all()):
+            return False
+        if self.is_proxy_user:
             return False
         return True
 

@@ -368,7 +368,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
+    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users().exclude(is_proxy_user=True))
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -629,7 +629,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
         field_classes = {
             'delegates': UserModelMultipleChoiceField,
             'cc_users': UserModelMultipleChoiceField,
