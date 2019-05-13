@@ -1,0 +1,158 @@
+.table {
+    margin-bottom: 0;
+}
+
+.table-header-border-top-0 th {
+    border-top: 0;
+}
+
+.table-border-0 td {
+    border-top: 0;
+}
+
+.table-primary,
+.table-primary > th,
+.table-primary > td {
+    background-color: $evap-dark-blue;
+    color: $white;
+}
+.table-secondary,
+.table-secondary > th,
+.table-secondary > td {
+    background-color: $medium-gray;
+    color: $black;
+}
+.table-success,
+.table-success > th,
+.table-success > td {
+    background-color: $evap-green;
+    color: $black;
+}
+.table-info,
+.table-info > th,
+.table-info > td {
+    background-color: $evap-light-blue;
+    color: $black;
+}
+.table-warning,
+.table-warning > th,
+.table-warning > td {
+    background-color: $evap-yellow;
+    color: $black;
+}
+.table-danger,
+.table-danger > th,
+.table-danger > td {
+    background-color: $evap-red;
+    color: $white;
+}
+.table-light,
+.table-light > th,
+.table-light > td {
+    background-color: $light-gray;
+    color: $black;
+}
+.table-dark,
+.table-dark > th,
+.table-dark > td {
+    background-color: $darker-gray;
+    color: $white;
+}
+
+.table-total-stats {
+    font-weight: bold;
+    background-color: $lighter-gray;
+}
+
+.table-vertically-aligned td {
+    vertical-align: middle;
+}
+
+.table-narrow td {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+// Seamless links in tables
+//
+// -1- Expand links to fill the cell
+.table-seamless-links td {
+    overflow: hidden;
+
+    a:not(.btn) {
+        color: $black;
+        text-decoration: none;
+        display: block; // -1-
+        margin: -10em;  // -1-
+        padding: 10em;  // -1-
+    }
+}
+
+// Hoverable rows
+.hover-row {
+    transition: background-color 0.15s ease-in-out;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+        cursor: pointer;
+
+        &.hover-row-info {
+            background-color: $evap-light-blue;
+
+            .btn-primary {
+                box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
+            }
+        }
+
+        &.results-row {
+            .distribution-bar, .badge-grade {
+                box-shadow: 0 0 0 3px rgba($dark-gray, .5);
+            }
+        }
+    }
+}
+
+.preview.evaluation-row .evaluation-name {
+    color: $evap-dark-yellow;
+}
+
+.results-row {
+    height: 2.5rem;
+}
+
+tr.heading-row.course-row {
+    td {
+        padding-bottom: 0.2rem;
+    }
+}
+
+tr.evaluation-row:not(.heading-row) {
+    border-radius: 0.2rem;
+
+    td {
+        padding-top: 0.18rem;
+        padding-bottom: 0.18rem;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    td:first-of-type {
+        padding-left: 2rem;
+    }
+
+    .evaluation-name {
+        font-style: italic;
+        color: $dark-gray;
+    }
+}
+
+tr.current-row-follows + tr {
+    box-shadow: inset 0px 0px 6px $evap-dark-blue;
+}
+
+.heading-row {
+    .distribution-bar,
+    .badge-grade {
+        border: 1px solid $dark-gray;
+    }
+}

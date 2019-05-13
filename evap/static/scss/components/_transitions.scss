@@ -1,0 +1,15 @@
+.collapse-toggle {
+    color: $darker-gray;
+
+    &::before {
+        float: left;
+        content: fa-content($fa-var-chevron-down);
+        font-family: 'Font Awesome 5 Free';
+        margin-right: $spacer * .5;
+        transition: transform 0.15s ease-in-out;
+    }
+
+    &.collapsed::before {
+        transform: rotate(-90deg);
+    }
+}

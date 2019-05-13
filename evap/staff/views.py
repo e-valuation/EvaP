@@ -1602,3 +1602,12 @@ def download_sample_xls(_request, filename):
     response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
     write_book.save(response)
     return response
+
+
+@manager_required
+def development_components(request):
+    theme_colors = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
+    template_data = {
+        'theme_colors': theme_colors
+    }
+    return render(request, "staff_development_components.html", template_data)

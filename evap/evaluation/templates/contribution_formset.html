@@ -5,9 +5,9 @@
         <h5 class="card-title mr-auto">{% trans 'Contributors' %}</h5>
         {% if not manager %}
             <div>
-                <a role="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
+                <button type="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
                     {% trans 'Request creation of new account' %}
-                </a>
+                </button>
             </div>
         {% endif %}
     </div>

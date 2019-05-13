@@ -1,0 +1,78 @@
+// bootstrap
+
+// remove wrongly added padding by Bootstrap, caused by the always visible scrollbar
+// (https://github.com/twbs/bootstrap/blob/v4-dev/js/src/modal.js#L429)
+body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
+    padding-right: 0 !important;
+}
+
+// make collapsed card have no double bottom border
+// (bootstrap bug: https://github.com/twbs/bootstrap/issues/27108)
+.collapsible {
+    .card-header {
+        border-bottom: none;
+    }
+
+    .card-body {
+        border-top: 1px solid rgba(0, 0, 0, 0.125);
+    }
+}
+
+// select2 adjustments
+.select2-container--default .select2-selection--single {
+    height: 38px;
+
+    .select2-selection__rendered {
+        padding-top: 4px;
+    }
+
+    .select2-selection__arrow {
+        top: 6px;
+    }
+}
+
+.form-control.select2-hidden-accessible {
+    width: 1px;
+}
+
+
+// datatable adjustments
+table.dataTable {
+    border-collapse: collapse !important;
+}
+
+table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+    left: 0.2em;
+    bottom: 0.75em;
+    content: "\2193";
+}
+
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    left: 0.6em;
+    bottom: 0.75em;
+    content: "\2191";
+}
+
+table.dataTable thead>tr>th.sorting_asc, table.dataTable thead>tr>th.sorting_desc, table.dataTable thead>tr>th.sorting, table.dataTable thead>tr>td.sorting_asc, table.dataTable thead>tr>td.sorting_desc, table.dataTable thead>tr>td.sorting {
+    padding-right: 0;
+    padding-left: 20px;
+}
+
+.dataTables_wrapper.container-fluid {
+    padding: 0;
+}
+
+
+// datetimepicker adjustments
+.bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
+    width: 33em;
+
+    .datepicker {
+        flex: 0 0 60%;
+        max-width: 60%;
+    }
+
+    .timepicker {
+        flex: 0 0 40%;
+    }
+}

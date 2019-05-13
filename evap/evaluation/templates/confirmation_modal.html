@@ -5,14 +5,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
-                <a role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="fas fa-times"></span>
+                </button>
             </div>
             <div class="modal-body">
                 {{ question|safe }}
             </div>
             <div class="modal-footer">
-                <a role="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</a>
-                <a role="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</a>
+                <button type="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
             </div>
         </div>
     </div>

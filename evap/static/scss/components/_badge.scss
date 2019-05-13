@@ -1,0 +1,45 @@
+.badge-btn {
+    margin-left: 0.3rem;
+    color: $darker-gray;
+    background-color: $light-gray;
+}
+.btn-light.active .badge-btn {
+    color: $lighter-gray;
+    background-color: $dark-gray;
+}
+.badge-btn-zero {
+    margin-left: 0.3rem;
+    color: $medium-gray;
+    background-color: $white;
+}
+.badge-info, .badge-warning {
+    color: $darker-gray;
+}
+
+%badge {
+    border-radius: $badge-border-radius;
+    text-align: center;
+}
+
+.badge-grade {
+    @extend %badge;
+    color: $black;
+    width: 42px;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.badge-participants {
+    @extend %badge;
+    background-color: $evap-dark-blue;
+    color: white;
+    width: 50px;
+
+    .fa-user {
+        font-size: 80%;
+    }
+}
+
+.badge-disabled {
+    background-color: $light-gray;
+    color: lighten($medium-gray, 5%);
+}

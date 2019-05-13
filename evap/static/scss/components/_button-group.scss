@@ -1,0 +1,19 @@
+div.vote-inputs {
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+div.vote-inputs > textarea {
+    width: 100%;
+    min-height: 8rem;
+}
+
+@include media-breakpoint-up(md) {
+    .vote-inputs {
+        justify-content: flex-end;
+    }
+}
+
+div.vote-inputs label.choice-error {
+    border-color: $evap-red;
+}

@@ -29,7 +29,7 @@
                     <tbody>
                         {% for form in formset %}
                             {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
-                            <tr class="exportsheet sortable">
+                            <tr class="sortable">
                                 {% for field in form.hidden_fields %}
                                     {{ field }}
                                 {% endfor %}

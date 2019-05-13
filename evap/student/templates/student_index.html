@@ -7,13 +7,15 @@
 {% block content %}
     {{ block.super }}
 
-    <div id="participantInfobox" class="infobox">
-        <div class="infobox-header d-flex">
-            <span class="fas fa-info-circle infobox-icon"></span>
-            <span class="infobox-title">{% trans 'Information about the evaluation' %}</span>
-            <a role="button" class="close infobox-close ml-auto" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
+    <div id="participantInfobox" class="callout callout-info callout-closable">
+        <div class="callout-header d-flex">
+            <span class="fas fa-info-circle callout-icon"></span>
+            <span>{% trans 'Information about the evaluation' %}</span>
+            <button type="button" class="close callout-closable-close ml-auto" data-dismiss="modal" aria-label="Close">
+                <span class="fas fa-times"></span>
+            </button>
         </div>
-        <div class="infobox-content">
+        <div class="callout-content">
             <b>{% trans 'Anonymity' %}</b><br />
             {% blocktrans %}Your votes and text answers can't be related to you. But you should be aware that your style of writing might allow lecturers to guess who wrote the text answer, especially in small courses.{% endblocktrans %}<br />
             <em>{% trans 'More details:' %} <a href="/faq#21-q">{% trans 'FAQ/Anonymity' %}</a></em><br />
@@ -35,7 +37,7 @@
                     {{ semester.semester_name }}
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover-evap vertically-aligned">
+                    <table class="table table-seamless-links table-vertically-aligned">
                         <thead>
                             <tr>
                                 <th style="width: 42%">{% trans 'Name' %}</th>
@@ -54,7 +56,7 @@
                             {% regroup semester.evaluations by course as course_evaluations %}
                             {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                                 {% if course.evaluation_count > 1 %}
-                                    <tr class="course-row heading-row nohover">
+                                    <tr class="course-row heading-row">
                                         <td>
                                             <div>
                                                 {{ course.name }}
@@ -85,26 +87,26 @@
                                         <td>
                                             {% if semester.results_are_archived %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-archive" %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-archive" %}
                                                 </div>
                                             {% elif course.not_all_evaluations_are_published %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
                                                 </div>
                                             {% else %}
-                                                {% include 'distribution_bar.html' with distribution=course.distribution average=course.avg_grade %}
+                                                {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
                                             {% endif %}
                                         </td>
                                     </tr>
                                 {% endif %}
                                 {% for evaluation in evaluations|dictsort:"name" %}
                                     <tr{% if evaluation.state == 'in_evaluation' and evaluation.participates_in and not evaluation.voted_for %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-vote" data-url="{% url 'student:vote' evaluation.id %}"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
                                         {# staff users should be able to access evaluations through the student index only if it actually has published results #}
                                         {% elif evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-results" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                         {% else %}
-                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} nohover"
+                                            class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                         {% endif %}>
                                         <td>
                                             <div class="evaluation-name">
@@ -209,29 +211,30 @@
                                         <td class="text-right">
                                             {% if evaluation.participates_in %}
                                                 {% if evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' %}
-                                                    <div class="disabled-tooltip" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the evaluation period begins.' %}">
-                                                        <a class="btn btn-sm btn-primary btn-vote disabled">{% trans 'Evaluate' %}</a>
-                                                    </div>
+                                                    <button type="button" disabled class="btn btn-sm btn-primary" data-toggle="tooltip" data-placement="left"
+                                                        title="{% trans 'You will receive an email when the evaluation period begins.' %}">
+                                                        {% trans 'Evaluate' %}
+                                                    </button>
                                                 {% elif evaluation.state == 'in_evaluation' and not evaluation.voted_for %}
-                                                    <a class="btn btn-sm btn-primary btn-vote btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
+                                                    <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
                                                 {% elif evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                                     <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
-                                                        {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                        {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                     </div>
                                                 {% endif %}
                                             {% elif evaluation.state == 'prepared' or evaluation.state == 'editor_approved' or evaluation.state == 'approved' or evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results have not been published yet.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                 </div>
                                             {% endif %}
                                             {% if evaluation.state == 'published' and semester.results_are_archived %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'The results of this semester have been archived.' %}">
-                                                    {% include 'distribution_bar_disabled.html' with icon="fas fa-archive" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-archive" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                                 </div>
                                             {% elif evaluation.state == 'published' and not evaluation.is_single_result %}
-                                                {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                             {% elif evaluation.state == 'published' %}
-                                                {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                             {% endif %}
                                         </td>
                                     </tr>

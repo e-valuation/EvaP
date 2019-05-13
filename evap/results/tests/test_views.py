@@ -184,20 +184,20 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
             self.assertEqual(page.status_code, 403)
         else:
             self.assertEqual(page.status_code, 200)
-            number_of_grade_badges = str(page).count("grade-bg-result-bar text-center")
+            number_of_grade_badges = str(page).count("badge-grade")
             self.assertEqual(number_of_grade_badges, 5)  # 1 evaluation overview and 4 questions
             number_of_visible_grade_badges = str(page).count("background-color")
             self.assertEqual(number_of_visible_grade_badges, 0)
-            number_of_disabled_grade_badges = str(page).count("grade-bg-result-bar text-center grade-bg-disabled")
+            number_of_disabled_grade_badges = str(page).count("badge-grade badge-disabled")
             self.assertEqual(number_of_disabled_grade_badges, 5)
 
     def helper_test_answer_visibility_two_voters(self, username):
         page = self.app.get("/results/semester/2/evaluation/22", user=username)
-        number_of_grade_badges = str(page).count("grade-bg-result-bar text-center")
+        number_of_grade_badges = str(page).count("badge-grade")
         self.assertEqual(number_of_grade_badges, 5)  # 1 evaluation overview and 4 questions
         number_of_visible_grade_badges = str(page).count("background-color")
         self.assertEqual(number_of_visible_grade_badges, 4)  # all but average grade in evaluation overview
-        number_of_disabled_grade_badges = str(page).count("grade-bg-result-bar text-center grade-bg-disabled")
+        number_of_disabled_grade_badges = str(page).count("badge-grade badge-disabled")
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
     def test_answer_visibility_one_voter(self):

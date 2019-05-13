@@ -1,0 +1,33 @@
+{% load results_templatetags %}
+{% load evaluation_filters %}
+
+<div class="distribution-bar-container">
+    <div class="distribution-bar {{ question_result.choices.cssClass }}"
+        {% if question_result.question.is_bipolar_likert_question %} style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"{% endif %}
+    >
+        {% with colors=question_result.choices|to_colors %}
+            {% for value, color in distribution|zip:colors %}
+                {% if value != 0 %}
+                    <div class="vote-bg-{{ color }}" style="width: {{ value|percentage_one_decimal:1 }};">&nbsp;</div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+    </div>
+    {% if question_result.question.is_bipolar_likert_question %}
+        <span class="left pole-icon fas fa-minus"></span>
+        <span class="left adjective">{{ question_result.choices.minus_name }}</span>
+        <span class="middle"></span>
+        <span class="right pole-icon fas fa-plus"></span>
+        <span class="right adjective">{{ question_result.choices.plus_name }}</span>
+    {% endif %}
+    {% if weight_sum and evaluation.course.evaluation_count > 1 %}
+        <span class="right weight">{{ weight|percentage:weight_sum }}</span>
+    {% endif %}
+</div>
+<div class="badge-grade ml-2" style="background-color: {{ average|gradecolor }}">
+    {% if question_result.question.is_yes_no_question %}
+        {{ question_result.approval_count|percentage:question_result.count_sum }}
+    {% else %}
+        {{ average|floatformat:1 }}
+    {% endif %}
+</div>

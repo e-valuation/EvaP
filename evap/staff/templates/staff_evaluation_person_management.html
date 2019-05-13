@@ -12,7 +12,7 @@
             <form id="participant-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card">
-                    <div class="card-body import-card h-100">
+                    <div class="card-body h-100">
                         <h4 class="card-title">{% trans 'Import participants' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
                         <p class="card-text">{% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
@@ -34,7 +34,7 @@
             <form id="participant-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
-                    <div class="card-body import-card">
+                    <div class="card-body">
                         <h4 class="card-title">{% trans 'Copy participants' %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
                         <p class="card-text">{% trans 'Copy participants from another evaluation.' %}</p>
@@ -53,7 +53,7 @@
             <form id="contributor-import-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
-                    <div class="card-body import-card">
+                    <div class="card-body">
                         <h4 class="card-title">{% trans 'Import contributors' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
                         <p class="card-text">{% trans 'Upload Excel file with contributor data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
@@ -75,7 +75,7 @@
             <form id="contributor-copy-form" method="POST" enctype="multipart/form-data" class="form-vertical h-100">
                 {% csrf_token %}
                 <div class="card h-100">
-                    <div class="card-body import-card">
+                    <div class="card-body">
                         <h4 class="card-title">{% trans 'Copy contributors' %}</h4>
                     <h6 class="card-subtitle mb-2 text-muted">{% trans 'From other evaluation' %}</h6>
                         <p class="card-text">{% trans 'Copy contributors from another evaluation.' %}</p>
@@ -94,7 +94,7 @@
             <form id="login-key-export-form" method="POST" class="form-vertical" action="{% url 'staff:evaluation_login_key_export' semester.id evaluation.id %}">
                 {% csrf_token %}
                 <div class="card">
-                    <div class="card-body import-card">
+                    <div class="card-body">
                         <h4 class="card-title">{% trans 'Export login keys' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'To CSV file' %}</h6>
                         <p class="card-text">{% trans 'This will create a CSV file containing login keys for all external participants.' %}</p>

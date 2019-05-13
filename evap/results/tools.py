@@ -53,10 +53,14 @@ class RatingResult:
     def __init__(self, question, answer_counters):
         assert question.is_rating_question
         self.question = question
-        counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
-        for answer_counter in answer_counters:
-            counts[answer_counter.answer] = answer_counter.count
-        self.counts = tuple(counts.values())
+
+        if answer_counters is not None:
+            counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
+            for answer_counter in answer_counters:
+                counts[answer_counter.answer] = answer_counter.count
+            self.counts = tuple(counts.values())
+        else:
+            self.counts = None
 
     @property
     def choices(self):
@@ -140,7 +144,10 @@ def _collect_results_impl(evaluation):
             results = []
             for question in questionnaire.questions.all():
                 if question.is_rating_question:
-                    answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question) if evaluation.can_publish_rating_results else ()
+                    if evaluation.can_publish_rating_results:
+                        answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question)
+                    else:
+                        answer_counters = None
                     results.append(RatingResult(question, answer_counters))
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
@@ -167,6 +174,9 @@ def normalized_distribution(distribution):
 
 def unipolarized_distribution(result):
     summed_distribution = [0, 0, 0, 0, 0]
+
+    if not result.counts:
+        return None
 
     for counts, grade in zip(result.counts, result.choices.grades):
         grade_fraction, grade = modf(grade)

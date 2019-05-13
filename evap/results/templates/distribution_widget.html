@@ -1,0 +1,14 @@
+{% load results_templatetags %}
+{% load evaluation_filters %}
+
+{% spaceless %}
+{% if average is not None %}
+    <div class="d-flex">
+        {% include "distribution_with_grade.html" with distribution=distribution average=average weight=weight weight_sum=weight_sum %}
+    </div>
+{% else %}
+    <div class="d-flex"{% if not question_result %} data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"{% endif %}>
+        {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
+    </div>
+{% endif %}
+{% endspaceless %}
