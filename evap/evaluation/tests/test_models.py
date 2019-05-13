@@ -376,11 +376,10 @@ class TestUserProfile(TestCase):
         mommy.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_be_marked_inactive_by_manager)
 
-        user2 = mommy.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
-        self.assertFalse(user2.can_be_marked_inactive_by_manager)
-        user2.groups.set([Group.objects.get(name="Grade publisher")])
-        user2.save()
-        self.assertFalse(user2.can_be_marked_inactive_by_manager)
+        reviewer = mommy.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
+        self.assertFalse(reviewer.can_be_marked_inactive_by_manager)
+        grade_publisher = mommy.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
+        self.assertFalse(grade_publisher.can_be_marked_inactive_by_manager)
 
         super_user = mommy.make(UserProfile, is_super_user=True)
         self.assertFalse(super_user.can_be_marked_inactive_by_manager)

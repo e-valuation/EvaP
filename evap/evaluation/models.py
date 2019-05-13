@@ -1195,7 +1195,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # users to which all emails should be sent in cc without giving them delegate rights
     cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
 
-    # flag for proxy users like FSR or student office which are not actual users themselves, but represent a group of users
+    # flag for proxy users which represent a group of users
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
