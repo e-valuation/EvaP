@@ -8,13 +8,10 @@
 {% block title %}{{ evaluation.full_name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
 {% block breadcrumb_bar %}
-    <div>
-        <ul class="breadcrumb">
-            <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
-            <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
-        </ul>
-        <span class="breadcrumb-end"></span>
-    </div>
+    <ul class="breadcrumb">
+        <li class="breadcrumb-item">{{ evaluation.course.semester.name }}</li>
+        <li class="breadcrumb-item">{{ evaluation.full_name }}</li>
+    </ul>
 {% endblock %}
 
 {% block content %}
@@ -23,14 +20,14 @@
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
-        <div class="bs-callout bs-callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
+        <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
     {% if evaluation_ends_soon %}
-        <div class="bs-callout bs-callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
+        <div class="callout callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
-        <div class="bs-callout bs-callout-info">
+        <div class="callout callout-info">
             <b>{% trans 'Questionnaire Preview' %}</b><br />
             {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
         </div>
@@ -80,7 +77,7 @@
                 </div>
                 <div class="card-body">
                     {% if not preview %}
-                        <div class="bs-callout bs-callout-info">
+                        <div class="callout callout-info">
                             {% blocktrans %}Please vote for all contributors you worked with. Click on "I can't give feedback" to skip a person.{% endblocktrans %}
                         </div>
                     {% endif %}
@@ -91,13 +88,14 @@
                                 <div class="mr-auto">
                                     <a class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse"
                                         href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
-                                        {{ contributor.full_name }}{% if label %} &ndash; <i>{{ label }}</i>{% endif %}
+                                        {{ contributor.full_name }}
+                                        {% if label %} &ndash; <span class="font-ialic">{{ label }}</span>{% endif %}
                                     </a>
                                 </div>
                                 <div>
-                                    <a role="button" class="btn btn-light btn-sm{% if preview %} disabled{% endif %}" onclick="markNoAnswerFor({{ contributor.id }});">
+                                    <button type="button"{% if preview %} disabled{% endif %} class="btn btn-light btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">
                                         {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                             <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
@@ -144,7 +142,7 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
-                        <a role="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</a>
+                        <button type="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
@@ -201,7 +199,7 @@
                 const showWarning = isInvalid || containsReference;
                 const warningLabel = textarea.parents('.row').find('.warning-label');
                 warningLabel.toggleClass('d-none', !showWarning);
-                textarea.toggleClass('warning-border', showWarning);
+                textarea.toggleClass('border border-warning', showWarning);
 
                 warningLabel.find('.warning-filtered-out').toggleClass('d-none', !isInvalid);
                 warningLabel.find('.warning-text-reference').toggleClass('d-none', !containsReference);

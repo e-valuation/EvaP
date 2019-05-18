@@ -1,0 +1,27 @@
+.breadcrumb {
+    position: relative;
+    width: -moz-fit-content;
+    width: fit-content;
+    font-size: small;
+    color: $medium-gray;
+    border-radius: 0;
+
+    a {
+        color: $light-gray;
+
+        &:hover,
+        &:focus {
+            color: $white;
+            text-decoration: none;
+        }
+    }
+
+    &::after {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        content: "";
+        border-top: 25px solid $breadcrumb-bg;
+        border-right: 13px solid transparent;
+    }
+}

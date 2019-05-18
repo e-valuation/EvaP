@@ -22,8 +22,8 @@ def get_course_result_template_fragment_cache_key(course_id, language):
     return make_template_fragment_key('course_result_template_fragment', [course_id, language])
 
 
-def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, can_user_see_results_page):
-    return make_template_fragment_key('evaluation_result_template_fragment', [evaluation_id, language, can_user_see_results_page])
+def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, links_to_results_page):
+    return make_template_fragment_key('evaluation_result_template_fragment', [evaluation_id, language, links_to_results_page])
 
 
 def delete_template_cache(evaluation):
@@ -64,11 +64,11 @@ def warm_up_template_cache(evaluations):
             assert evaluation.state == 'published'
             is_subentry = evaluation.course.evaluation_count > 1
             translation.activate('en')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True, is_subentry=is_subentry))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry))
             translation.activate('de')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=True, is_subentry=is_subentry))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, can_user_see_results_page=False, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry))
+            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry))
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True) in caches['results']
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False) in caches['results']
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True) in caches['results']
@@ -282,5 +282,3 @@ def add_warnings(evaluation, evaluation_result):
 
         for rating_result in rating_results:
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
-
-

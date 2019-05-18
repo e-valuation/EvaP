@@ -6,11 +6,11 @@
 
 {% get_current_language as LANGUAGE_CODE %}
 
-{% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE can_user_see_results_page using="results" %}
+{% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
 
-<tr class="hover-results{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if not can_user_see_results_page %} nohover{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
+<tr class="results-row{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
         {% if is_subentry %}data-course-id="{{ evaluation.course.id }}"{% endif%}
-        {% if can_user_see_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
+        {% if links_to_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
     <td data-order="{{ evaluation.course.name }}">
         <span class="evaluation-name">
             {% if is_subentry %}
@@ -65,9 +65,9 @@
 
     <td data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
         {% if evaluation.is_single_result %}
-            {% include 'result_bar.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+            {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% else %}
-            {% include 'distribution_bar.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+            {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% endif %}
     </td>
 </tr>

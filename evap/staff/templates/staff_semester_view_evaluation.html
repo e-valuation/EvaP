@@ -65,7 +65,7 @@
         {{ evaluation.full_name }}
     {% endif %}
     </div>
-    <div class="evaluation-contributor">
+    <div class="font-italic">
         {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
             <span class="small" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of contributors' %}">
@@ -178,7 +178,9 @@
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}
-            <a onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}"><span class="fas fa-trash" aria-hidden="true"></span></a>
+            <button type="button" onclick="deleteEvaluationModalShow({{ evaluation.id }}, '{{ evaluation.full_name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                <span class="fas fa-trash" aria-hidden="true"></span>
+            </button>
         {% endif %}
     </td>
 {% endif %}

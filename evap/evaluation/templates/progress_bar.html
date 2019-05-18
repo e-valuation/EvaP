@@ -1,18 +1,16 @@
 {% load evaluation_filters %}
 
-<div class="d-flex{% if warning %} evap-progress-bar-warning{% endif %}">
-    <span class="evap-progress-bar-container">
-        {% spaceless %}
-            <span class="evap-progress-bar-back">
-                <span class="evap-progress-bar-front" style="width: {% widthratio done total 100 %}%;">&nbsp;</span>
-                <span class="evap-progress-bar-bartext">
-                    {% if icon %}
-                        <small><span class="fas fa-{{ icon }}"></span></small>&nbsp;
-                    {% endif %}
-                    {{ done }}/{{ total }}
-                </span>
+<div class="progress-container{% if warning %} progress-container-warning{% endif %} d-flex">
+    {% spaceless %}
+        <span class="progress">
+            <span class="progress-bar" style="width: {% widthratio done total 100 %}%;"></span>
+            <span class="progress-bartext">
+                {% if icon %}
+                    <small><span class="fas fa-{{ icon }}"></span></small>&nbsp;
+                {% endif %}
+                {{ done }}/{{ total }}
             </span>
-        {% endspaceless %}
-    </span>
-    <span class="evap-progress-bar-text">{{ done|percentage:total|default:'0%' }}</span>
+        </span>
+    {% endspaceless %}
+    <span class="progress-label">{{ done|percentage:total|default:'0%' }}</span>
 </div>

@@ -1,0 +1,44 @@
+.warning-label {
+    color: $evap-dark-yellow;
+}
+
+.error-label {
+    color: $evap-dark-red;
+}
+
+.light-link {
+    opacity: 0.4;
+    color: $black;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.icon-gray {
+    color: $medium-gray !important;
+}
+
+.icon-red {
+    color: $evap-red !important;
+}
+
+.icon-yellow {
+    color: $evap-dark-yellow !important;
+}
+
+.icon-green {
+    color: $evap-green !important;
+}
+
+a.no-underline:hover {
+    text-decoration: none;
+}
+
+@each $name, $color in $vote-colors {
+    @if $color != gray {
+        .vote-bg-#{$name} {
+            background: $color;
+        }
+    }
+}

@@ -1,0 +1,44 @@
+.progress-container .progress {
+    min-width: 55px;
+    height: unset;
+    margin-right: 4px;
+    flex: 1;
+    position: relative;
+    font-size: unset;
+    background-color: $evap-light-blue;
+}
+
+.progress-container-warning {
+    .progress {
+        background-color: $evap-yellow;
+    }
+
+    .progress-bar {
+        background-color: $evap-dark-yellow;
+    }
+
+    .progress-bartext {
+        color: $black;
+        @include bar-shadow($evap-dark-yellow);
+    }
+}
+
+.progress-bartext {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: $white;
+    width: 100%;
+    text-align: center;
+    @include bar-shadow($evap-dark-blue);
+}
+
+.progress-label {
+    color: $black;
+    text-align: right;
+    min-width: 31px;
+}
+
+.multi-progress-bar .progress-container {
+    padding-bottom: 3px;
+}

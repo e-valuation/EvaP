@@ -14,7 +14,7 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <table id="section_table" class="table vertically-aligned">
+                <table id="section_table" class="table table-vertically-aligned">
                     <thead>
                         <tr>
                             <th class="movable"></th>
@@ -34,11 +34,11 @@
                             </td>
                             <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_de %}</td>
                             <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_en %}</td>
-                            <td class="hide-divs">
+                            <td>
                                 {% if form.instance.id %}
                                     <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                                 {% endif %}
-                                {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
+                                {% include 'bootstrap_form_field_widget.html' with class="d-none" field=form.DELETE %}
                             </td>
                         </tr>
                     {% endfor %}

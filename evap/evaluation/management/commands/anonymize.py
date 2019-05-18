@@ -1,12 +1,17 @@
+from datetime import date, timedelta
 import os
 import itertools
+from math import floor
 import random
 
+from collections import defaultdict
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.serializers.base import ProgressBar
 from django.db import transaction
 
-from evap.evaluation.models import TextAnswer, UserProfile, Semester, Evaluation
+from evap.evaluation.models import (CHOICES, Contribution, Course, CourseType, Degree,
+        NO_ANSWER, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 
 
 class Command(BaseCommand):
@@ -45,6 +50,7 @@ class Command(BaseCommand):
     def anonymize_data(self):
         abs_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), Command.data_dir)
 
+        # load placeholders
         with open(os.path.join(abs_data_dir, Command.firstnames_filename)) as f:
             first_names = f.read().strip().split('\n')
         with open(os.path.join(abs_data_dir, Command.lastnames_filename)) as f:
@@ -54,19 +60,14 @@ class Command(BaseCommand):
 
         try:
             with transaction.atomic():
-                self.stdout.write("Replacing text answers with lorem ipsum...")
-                self.randomize_textanswers(lorem_ipsum)
+                self.anonymize_email_templates()
+                self.anonymize_users(first_names, last_names)
+                self.anonymize_courses()
+                self.anonymize_evaluations()
+                self.anonymize_questionnaires()
+                self.anonymize_answers(lorem_ipsum)
 
-                # do this ahead of time to avoid the same name being chosen twice
-                self.stdout.write("Generating random usernames...")
-                random_usernames = self.generate_random_usernames(first_names, last_names)
-
-                self.stdout.write("Replacing usernames and email addresses with random names...")
-                self.replace_usernames_emails(random_usernames)
-
-                self.stdout.write("Shuffling evaluation data...")
-                self.shuffle_evaluations()
-
+                self.stdout.write("")
                 self.stdout.write("Done.")
 
         except Exception:
@@ -76,33 +77,40 @@ class Command(BaseCommand):
             self.stdout.write("")
             raise
 
-    def randomize_textanswers(self, lorem_ipsum):
-        for textanswer in TextAnswer.objects.all():
-            textanswer.answer = self.lorem(textanswer.answer, lorem_ipsum)
-            if textanswer.original_answer:
-                textanswer.original_answer = self.lorem(textanswer.original_answer, lorem_ipsum)
-            textanswer.save()
+    def anonymize_email_templates(self):
+        self.stdout.write("REMINDER: The email templates could still contain sensitive contact information...")
 
-    @staticmethod
-    def lorem(text, lorem_ipsum):
-        word_count = len(text.split(' '))
-        return ' '.join(itertools.islice(itertools.cycle(lorem_ipsum), word_count))
+    # Replaces names, usernames, email addresses, login keys and valid until dates with fake ones
+    def anonymize_users(self, first_names, last_names):
+        user_profiles = UserProfile.objects.all()
 
-    @staticmethod
-    def generate_random_usernames(first_names, last_names):
-        user_count = UserProfile.objects.count()
-        random_usernames = set()
-        while len(random_usernames) != user_count:
-            random_usernames.add((random.choice(first_names), random.choice(last_names)))
-        return random_usernames
+        # Generate as many fake usernames as real ones exist. Use the provided first/last names for that
+        self.stdout.write("Generating fake usernames...")
+        fake_usernames = set()
 
-    @staticmethod
-    def replace_usernames_emails(random_usernames):
-        for user, new_username in zip(UserProfile.objects.all(), random_usernames):
+        if len(first_names) * len(last_names) < len(user_profiles) * 1.5:
+            self.stdout.write("Warning: There are few example names compared to all that real data to be anonymized. "
+                + "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
+                + "folder.")
+
+        while len(fake_usernames) < len(user_profiles):
+            fake_usernames.add(
+                (random.choice(first_names), random.choice(last_names)))
+
+        for i, user in enumerate(user_profiles):
+            # Give users unique temporary names to counter identity errors due to the names being unique
             if user.username in Command.ignore_usernames:
                 continue
-            user.first_name = new_username[0]
-            user.last_name = new_username[1]
+            user.username = f"<User #{i}>"
+            user.save()
+
+        # Actually replace all the real user data
+        self.stdout.write("Replacing usernames, email addresses and login keys with fake ones...")
+        for user, name in zip(user_profiles, fake_usernames):
+            if user.username in Command.ignore_usernames:
+                continue
+            user.first_name = name[0]
+            user.last_name = name[1]
             user.username = (user.first_name + '.' + user.last_name).lower()
 
             if user.email:
@@ -111,22 +119,149 @@ class Command(BaseCommand):
                 new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
                 user.email = user.username + '@' + new_domain
 
+            if user.login_key is not None:
+                # Create a new login key
+                user.login_key = None
+                user.valid_until = None
+                user.ensure_valid_login_key()
+                # Invalidate some keys
+                user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)
+
             user.save()
 
-    @staticmethod
-    def shuffle_evaluations():
-        # do this per semester to avoid problems e.g. with archived semesters
-        for semester in Semester.objects.all():
-            shuffled_evaluations = list(semester.evaluations)
-            random.shuffle(shuffled_evaluations)
+    def anonymize_courses(self):
+        all_degrees = list(Degree.objects.all())
+        all_course_types = CourseType.objects.all()
 
-            for i, evaluation in enumerate(semester.evaluations):
-                evaluation.course.degrees.set(shuffled_evaluations[i].course.degrees.all())
-                evaluation.course.semester = shuffled_evaluations[i].course.semester
-                evaluation.name_de = shuffled_evaluations[i].name_de + " "  # add a space to avoid name collisions
-                evaluation.name_en = shuffled_evaluations[i].name_en + " "
+        # Randomize the degrees
+        self.stdout.write("Randomizing degrees...")
+        for course in Course.objects.all():
+            degrees = random.sample(all_degrees, course.degrees.count())
+            course.degrees.set(degrees)
+
+        # Randomize course types
+        self.stdout.write("Randomizing course types...")
+        for course in Course.objects.all():
+            course.type = random.choice(all_course_types)
+            course.save()
+
+        # Randomize names
+        for semester in Semester.objects.all():
+            courses = list(semester.courses.all())
+            random.shuffle(courses)
+            public_courses = [course for course in courses if not course.is_private]
+
+            self.stdout.write(f"Anonymizing {len(courses)} courses of semester {semester}...")
+
+            # Shuffle public courses' names in order to decouple them from the results.
+            # Also, assign public courses' names to private ones as their names may be confidential.
+            self.stdout.write("Shuffling course names...")
+            public_names = list(set(map(lambda c: (c.name_de, c.name_en), public_courses)))
+            random.shuffle(public_names)
+
+            for i, course in enumerate(courses):
+                # Give courses unique temporary names to counter identity errors due to the names being unique
+                course.name_de = f"<Veranstaltung #{i}>"
+                course.name_en = f"<Course #{i}>"
+                course.save()
+
+            for i, course in enumerate(courses):
+                if public_names:
+                    name = public_names.pop()
+                    course.name_de = name[0]
+                    course.name_en = name[1]
+                else:
+                    course.name_de = f"Veranstaltung #{i + 1}"
+                    course.name_en = f"Course #{i + 1}"
+                course.save()
+
+    def anonymize_evaluations(self):
+        for semester in Semester.objects.all():
+            evaluations = list(semester.evaluations.all())
+            random.shuffle(evaluations)
+            self.stdout.write(f"Anonymizing {len(evaluations)} evaluations of semester {semester}...")
+
+            self.stdout.write("Shuffling evaluation names...")
+            named_evaluations = (evaluation for evaluation in evaluations if evaluation.name_de and evaluation.name_en)
+            names = list(set(map(lambda c: (c.name_de, c.name_en), named_evaluations)))
+            random.shuffle(names)
+
+            for i, evaluation in enumerate(evaluations):
+                # Give evaluations unique temporary names to counter identity errors due to the names being unique
+                if evaluation.name_de:
+                    evaluation.name_de = f"<Evaluierung #{i}>"
+                if evaluation.name_en:
+                    evaluation.name_en = f"<Evaluation #{i}>"
                 evaluation.save()
 
-        for evaluation in Evaluation.objects.all():
-            evaluation.name_de = evaluation.name_de[:-1]  # remove the space again
-            evaluation.name_en = evaluation.name_en[:-1]
+            for i, evaluation in enumerate(evaluations):
+                if not evaluation.name_de and not evaluation.name_en:
+                    continue
+                if names:
+                    name = names.pop()
+                    evaluation.name_de = name[0]
+                    evaluation.name_en = name[1]
+                else:
+                    evaluation.name_de = f"Evaluierung #{i + 1}"
+                    evaluation.name_en = f"Evaluation #{i + 1}"
+                evaluation.save()
+
+    def anonymize_questionnaires(self):
+        self.stdout.write("REMINDER: You still need to randomize the questionnaire names...")
+        self.stdout.write("REMINDER: You still need to randomize the questionnaire questions...")
+
+    def anonymize_answers(self, lorem_ipsum):
+        self.stdout.write("Replacing text answers with fake ones...")
+        for text_answer in TextAnswer.objects.all():
+            text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
+            if text_answer.original_answer:
+                text_answer.original_answer = self.lorem(text_answer.original_answer, lorem_ipsum)
+            text_answer.save()
+
+        self.stdout.write("Shuffling rating answer counter counts...")
+
+        contributions = Contribution.objects.all().prefetch_related("ratinganswercounter_set__question")
+        try:
+            self.stdout.ending = ""
+            progress_bar = ProgressBar(self.stdout, contributions.count())
+            for contribution_counter, contribution in enumerate(contributions):
+                progress_bar.update(contribution_counter + 1)
+
+                counters_per_question = defaultdict(list)
+                for counter in contribution.ratinganswercounter_set.all():
+                    counters_per_question[counter.question].append(counter)
+
+                for question, counters in counters_per_question.items():
+                    original_sum = sum(counter.count for counter in counters)
+
+                    missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
+                    missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
+                    for value in missing_values:
+                        counters.append(RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0))
+
+                    generated_counts = [random.random() for c in counters]
+                    generated_sum = sum(generated_counts)
+                    generated_counts = [floor(count / generated_sum * original_sum) for count in generated_counts]
+
+                    to_add = original_sum - sum(generated_counts)
+                    index = random.randint(0, len(generated_counts) - 1)
+                    generated_counts[index] += to_add
+
+                    for counter, generated_count in zip(counters, generated_counts):
+                        assert generated_count >= 0
+                        counter.count = generated_count
+
+                        if counter.count:
+                            counter.save()
+                        elif counter.id:
+                            counter.delete()
+
+                    assert original_sum == sum(counter.count for counter in counters)
+        finally:
+            self.stdout.ending = "\n"
+
+    # Returns a string with the same number of lorem ipsum words as the given text
+    @staticmethod
+    def lorem(text, lorem_ipsum):
+        word_count = len(text.split(' '))
+        return ' '.join(itertools.islice(itertools.cycle(lorem_ipsum), word_count))

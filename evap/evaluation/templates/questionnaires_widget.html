@@ -1,6 +1,6 @@
 {% load evaluation_filters %}
 
-<ul class="inputs-list">
+<ul class="list-unstyled">
     {% for choice, questionnaire in field|zip:field.field.queryset %}
         {% ifchanged questionnaire.type %}
             {% if questionnaire.type != questionnaire.TOP and questionnaire.type != questionnaire.CONTRIBUTOR %}

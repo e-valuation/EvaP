@@ -1,0 +1,66 @@
+.card-header {
+    font-weight: bold;
+}
+
+.card-outline-primary {
+    border-color: rgba($evap-dark-blue, 0.5);
+}
+.card-outline-primary > .card-header {
+    background-color: $evap-light-blue;
+}
+
+.card-outline-warning {
+    border-color: $evap-yellow;
+}
+.card-outline-warning > .card-header {
+    background-color: rgba($evap-yellow, 0.5);
+}
+
+.card-noflex {
+    flex: none;
+    display: block;
+
+    .card-body {
+        flex: none;
+    }
+}
+
+.card-header .btn-sm,
+.card-header .btn-switch {
+    line-height: 1;
+}
+
+.card-subtitle {
+    font-weight: 600;
+}
+
+.card-body ul {
+    margin-bottom: 0;
+}
+
+.card-submit-area {
+    background-color: $lighter-gray;
+    border-color: rgba($evap-dark-blue, 0.5);;
+    min-height: 65px;
+}
+
+.card-submit-area input,
+.card-submit-area a,
+.card-submit-area button,
+.card-submit-area-1 input,
+.card-submit-area-1 a,
+.card-submit-area-1 button {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    min-width: 250px;
+}
+.card-submit-area-2 input,
+.card-submit-area-2 a,
+.card-submit-area-2 button {
+    min-width: 230px;
+}
+.card-submit-area-3 input,
+.card-submit-area-3 a,
+.card-submit-area-3 button {
+    min-width: 190px;
+}
