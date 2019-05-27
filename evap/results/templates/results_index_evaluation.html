@@ -8,10 +8,9 @@
 
 {% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
 
-<tr class="results-row{% if not is_subentry %} heading-row{% endif %} evaluation-row{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview{% endif %}"
-        {% if is_subentry %}data-course-id="{{ evaluation.course.id }}"{% endif%}
-        {% if links_to_results_page %}data-url="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% endif %}>
-    <td data-order="{{ evaluation.course.name }}">
+<{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
+        class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview-row{% endif %}">
+    <div data-col="name" data-order="{{ evaluation.course.name|lower }}">
         <span class="evaluation-name">
             {% if is_subentry %}
                 {% if evaluation.name %}
@@ -46,30 +45,32 @@
                 <span class="badge badge-success">{% trans 'Single result' %}</span>
             {% endif %}
         </div>
-    </td>
-    <td data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
-        <span class="semester-name{% if is_subentry %} d-none{% endif %}">{{ evaluation.course.semester.short_name }}</span>
-    </td>
-    <td data-order="{{ evaluation.course.responsibles.first.last_name }}">
-        <span class="contributor-name{% if is_subentry %} d-none{% endif %}">
+    </div>
+    {% if not is_subentry %}
+        <div data-col="semester" data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">
+            {{ evaluation.course.semester.short_name }}
+        </div>
+    {% endif %}
+    {% if not is_subentry %}
+        <div data-col="responsible" data-order="{{ evaluation.course.responsibles.first.last_name|lower }}">
             {{ evaluation.course.responsibles_names }}
-        </span>
-    </td>
+        </div>
+    {% endif %}
     {% if evaluation.is_single_result %}
-        <td class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</td>
+        <div data-col="participants" class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
     {% else %}
         {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <td data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</td>
+            <div data-col="participants" data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
         {% endwith %}
     {% endif %}
 
-    <td data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
+    <div data-col="result" data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
         {% if evaluation.is_single_result %}
             {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% else %}
             {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% endif %}
-    </td>
-</tr>
+    </div>
+</{% if links_to_results_page %}a{% else %}div{% endif %}>
 
 {% endcache %}

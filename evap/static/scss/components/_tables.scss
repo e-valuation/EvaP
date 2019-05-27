@@ -2,10 +2,6 @@
     margin-bottom: 0;
 }
 
-.table-header-border-top-0 th {
-    border-top: 0;
-}
-
 .table-border-0 td {
     border-top: 0;
 }
@@ -104,7 +100,7 @@
             }
         }
 
-        &.results-row {
+        &.results-row, &.results-grid-row {
             .distribution-bar, .badge-grade {
                 box-shadow: 0 0 0 3px rgba($dark-gray, .5);
             }
@@ -112,7 +108,7 @@
     }
 }
 
-.preview.evaluation-row .evaluation-name {
+.preview-row .evaluation-name {
     color: $evap-dark-yellow;
 }
 

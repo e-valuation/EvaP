@@ -36,6 +36,18 @@ select[multiple] {
     }
 }
 
+.filter-form {
+    @include media-breakpoint-down(sm) {
+        margin: $spacer $grid-gutter-width / 2 0;
+        padding-top: $spacer;
+        border-top: $border-width solid $border-color;
+    }
+
+    @include media-breakpoint-up(md) {
+        border-left: $border-width solid $border-color;
+    }
+}
+
 .form-label.is-invalid {
     color: $evap-dark-red;
 }

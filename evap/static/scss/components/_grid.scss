@@ -81,3 +81,123 @@ div.container {
 .result-text-answer {
     width: 75%;
 }
+
+%grid-row {
+    display: grid;
+    min-height: 2.5rem;
+    padding: 0.75rem;
+    gap: 0.5rem 1rem;
+    align-items: center;
+
+    @at-root a#{&} {
+        color: $black;
+        text-decoration: none;
+    }
+
+    @include media-breakpoint-up(lg) {
+        colunm-gap: 2rem;
+    }
+}
+
+#results-grid > :not(.d-none) ~ :not(.d-none) {
+    border-top: 2 * $table-border-width solid $table-border-color;
+
+    @include media-breakpoint-up(lg) {
+        border-top-width: $table-border-width;
+    }
+}
+
+.results-grid-row {
+    @extend %grid-row;
+
+    grid:
+        "name semester responsible participants result"
+        / auto    6rem       12rem         7rem  11rem;
+
+    @include media-breakpoint-down(md) {
+        grid:
+            "name semester  responsible responsible"
+            "name semester participants      result"
+            / auto    3rem         7rem       10rem;
+    }
+
+    @include media-breakpoint-down(sm) {
+        grid:
+            "        name        name    semester"
+            " responsible responsible responsible"
+            "participants      result      result"
+            /         1fr         1fr        3rem;
+    }
+
+    &:not(.grid-header) [data-col=responsible] {
+        font-style: italic;
+    }
+
+    [data-col=participants] {
+        max-width: 8rem;
+    }
+
+    [data-col=result] {
+        width: 100%;
+        max-width: 11rem;
+        justify-self: end;
+    }
+
+    &.course-row {
+        padding-bottom: 0.2rem;
+    }
+
+    &.evaluation-row {
+        padding: 0.5rem 0.75rem 0.5rem 2rem;
+        font-size: 0.9rem;
+        row-gap: 0.25rem;
+
+        [data-col=name] {
+            font-style: italic;
+            color: $dark-gray;
+        }
+    }
+}
+
+@each $col in name, semester, responsible, participants, result {
+    [data-col=#{$col}] {
+        grid-area: $col;
+    }
+}
+
+.col-sorting {
+    position: relative;
+    padding-left: 1em;
+    cursor: pointer;
+}
+
+.col-sorting::before,
+.col-sorting::after {
+    position: absolute;
+    bottom: 0;
+    opacity: 0.3;
+}
+
+.col-sorting::before {
+    left: 0;
+    content: "\2193";
+}
+
+.col-sorting::after {
+    left: 0.4em;
+    content: "\2191";
+}
+
+.col-sorting-asc::before, .col-sorting-desc::after {
+    opacity: 1;
+}
+
+.grid-header {
+    align-items: stretch;
+    font-weight: bold;
+
+    [data-col] {
+        display: flex;
+        align-items: flex-end;
+    }
+}

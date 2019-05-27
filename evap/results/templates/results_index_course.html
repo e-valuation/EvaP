@@ -8,8 +8,8 @@
 
 {% cache None course_result_template_fragment course.id LANGUAGE_CODE using="results" %}
 
-<tr class="results-row heading-row course-row" data-course-id={{ course.id }}>
-    <td data-order="{{ course.name }}">
+<div class="results-grid-row heading-row course-row">
+    <div data-col="name" data-order="{{ course.name|lower }}">
         <span class="evaluation-name">{{ course.name }}</span>
         <div>
             {% for degree in course.degrees.all %}
@@ -17,18 +17,14 @@
             {% endfor %}
             <span class="badge badge-secondary badge-course-type">{{ course.type }}</span>
         </div>
-    </td>
-    <td data-order="{{ course.semester.id }}" class="text-center semester-short-name">
-        <span class="semester-name">{{ course.semester.short_name }}</span>
-    </td>
-    <td data-order="{{ course.responsibles.first.last_name }}">
-        <span class="contributor-name">
-            {{ course.responsibles_names }}
-        </span>
-    </td>
-    <td></td>
-
-    <td data-order="{{ course.avg_grade }}">
+    </div>
+    <div data-col="semester" data-order="{{ course.semester.id }}" class="text-center semester-short-name">
+        {{ course.semester.short_name }}
+    </div>
+    <div data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
+        {{ course.responsibles_names }}
+    </div>
+    <div data-col="result" data-order="{{ course.avg_grade }}">
         {% if course.not_all_evaluations_are_published %}
             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
@@ -36,7 +32,7 @@
         {% else %}
             {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
         {% endif %}
-    </td>
-</tr>
+    </div>
+</div>
 
 {% endcache %}

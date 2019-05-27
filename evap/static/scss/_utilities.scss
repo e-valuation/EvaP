@@ -42,3 +42,9 @@ a.no-underline:hover {
         }
     }
 }
+
+@include media-breakpoint-up(lg) {
+    .d-lg-grid {
+        display: grid !important;
+    }
+}
