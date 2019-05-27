@@ -1308,6 +1308,19 @@ def questionnaire_update_indices(request):
     return HttpResponse()
 
 
+@require_POST
+@manager_required
+def questionnaire_visibility(request):
+    questionnaire_id = request.POST.get("questionnaire_id")
+    visibility = int(request.POST.get("visibility"))
+    if visibility not in [Questionnaire.HIDDEN, Questionnaire.MANAGERS, Questionnaire.EDITORS]:
+        raise SuspiciousOperation("Invalid visibility choice")
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire.visibility = visibility
+    questionnaire.save()
+    return HttpResponse()
+
+
 @manager_required
 def degree_index(request):
     degrees = Degree.objects.all()

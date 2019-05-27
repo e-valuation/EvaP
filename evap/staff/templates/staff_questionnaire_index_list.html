@@ -10,8 +10,9 @@
                 <table class="table table-striped table-vertically-aligned questionnaire-table">
                     <thead>
                         <tr>
-                            <th class="movable"></th>
-                            <th style="width: 80%">{% trans 'Questionnaire' %}</th>
+                            <th class="movable" style="width: 3%"></th>
+                            <th style="width: 62%">{% trans 'Questionnaire' %}</th>
+                            <th style="width: 15%">{% trans 'Visibility' %}</th>
                             <th style="width: 20%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
@@ -25,7 +26,14 @@
                                 {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
                             </td>
-                            <td style="text-align: right;">
+                            <td>
+                                <div class="btn-group icon-buttons">
+                                    <button data-visibility="0" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}Hide in lists{% endblocktrans %}"><span class="fas fa-fw fa-user-slash" aria-hidden="true"></span></button>
+                                    <button data-visibility="1" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 1 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Show only for managers' %}"><span class="fas fa-fw fa-user" aria-hidden="true"></span></button>
+                                    <button data-visibility="2" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Show for managers and editors' %}"><span class="fas fa-fw fa-users" aria-hidden="true"></span></button>
+                                </div>
+                            </td>
+                            <td>
                                 <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Hide and create new version' %}"><span class="fas fa-clock"></span></a>
                                 <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-clone"></span></a>
@@ -49,3 +57,22 @@
         </div>
     </div>
 {% endif %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function changeVisibility(element) {
+            var id = element.parents(".questionnaire").data("id");
+            var visibility = element.data("visibility");
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:questionnaire_visibility' %}",
+                data: {"questionnaire_id": id, "visibility": visibility},
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
+                success: function(){
+                    $(`#questionnaire-row-${id} button[data-visibility]`).removeClass("active");
+                    $(`#questionnaire-row-${id} button[data-visibility="${visibility}"]`).addClass("active");
+                }
+            });
+        }
+    </script>
+{% endblock %}
