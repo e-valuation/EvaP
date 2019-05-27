@@ -98,6 +98,10 @@ select[multiple] {
             }
         }
 
+        &:checked ~ .form-check-label::before {
+            color: $light-gray;
+        }
+
         &:hover ~ .form-check-label::before {
             background-color: $lighter-gray;
         }
