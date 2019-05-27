@@ -18,6 +18,15 @@
         box-shadow: 0px 0px 1px $dark-gray;
     }
 
+    .left, .right {
+        position: absolute;
+        top: 0;
+        line-height: 1.6em;
+        color: $darker-gray;
+        font-size: 0.9rem;
+        @include bar-shadow($white);
+    }
+
     $distance: 0.5rem;
 
     .left {
@@ -26,15 +35,6 @@
 
     .right {
         right: $distance;
-    }
-
-    .left, .right {
-        position: absolute;
-        top: 0;
-        line-height: 1.6em;
-        color: $darker-gray;
-        font-size: 0.9rem;
-        @include bar-shadow($white);
     }
 
     .right.weight {
@@ -51,6 +51,30 @@
     &:not(:hover) .adjective,
     &:hover .pole-icon {
         display: none;
+    }
+
+    @include media-breakpoint-only(md) {
+        &:not(:hover) .adjective {
+            display: block;
+        }
+
+        .pole-icon {
+            display: none;
+        }
+
+        .col-answer & {
+            margin: 0 5rem;
+
+            .left {
+                left: unset;
+                right: calc(100% + #{$distance});
+            }
+
+            .right {
+                right: unset;
+                left: calc(100% + #{$distance});
+            }
+        }
     }
 }
 

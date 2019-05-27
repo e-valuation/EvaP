@@ -2,10 +2,6 @@
     margin-bottom: 0;
 }
 
-.table-border-0 td {
-    border-top: 0;
-}
-
 .table-primary,
 .table-primary > th,
 .table-primary > td {
@@ -123,8 +119,6 @@ tr.heading-row.course-row {
 }
 
 tr.evaluation-row:not(.heading-row) {
-    border-radius: 0.2rem;
-
     td {
         padding-top: 0.18rem;
         padding-bottom: 0.18rem;
@@ -142,7 +136,8 @@ tr.evaluation-row:not(.heading-row) {
     }
 }
 
-tr.current-row-follows + tr {
+.current-row-follows + .results-grid-row {
+    border-radius: 0.2rem;
     box-shadow: inset 0px 0px 6px $evap-dark-blue;
 }
 
