@@ -429,6 +429,9 @@ class UserImporter(ExcelImporter):
         with transaction.atomic():
             for (sheet, row), (user_data) in self.associations.items():
                 try:
+                    if user_data not in self.users.values():
+                        # The user_data of this row was a duplicated and therefore got dropped during the import
+                        continue
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
                     if created:
