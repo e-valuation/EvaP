@@ -236,12 +236,12 @@ class TestUserBulkDeleteView(WebTest):
         self.assertTrue(UserProfile.objects.filter(username='manager').exists())
 
         self.assertTrue(UserProfile.objects.filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.exclude_inactive_users().filter(username='contributor1').exists())
+        self.assertTrue(UserProfile.objects.exclude(is_active=False).filter(username='contributor1').exists())
         self.assertTrue(UserProfile.objects.filter(username='contributor2').exists())
-        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor2').exists())
+        self.assertFalse(UserProfile.objects.exclude(is_active=False).filter(username='contributor2').exists())
 
         self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
-        self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
+        self.assertEqual(UserProfile.objects.exclude(is_active=False).count(), user_count_before - 2)
 
 
 class TestUserImportView(WebTest):

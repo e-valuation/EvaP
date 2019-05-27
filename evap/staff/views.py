@@ -1384,7 +1384,7 @@ def user_index(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
     if filter_users:
-        users = UserProfile.objects.exclude_inactive_users()
+        users = UserProfile.objects.exclude(is_active=False)
     else:
         users = UserProfile.objects.all()
 

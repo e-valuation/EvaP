@@ -1143,12 +1143,6 @@ class FaqQuestion(models.Model):
 
 class UserProfileManager(BaseUserManager):
 
-    def exclude_inactive_users(self):
-        return self.get_queryset().exclude(is_active=False)
-
-    def exclude_proxy_users(self):
-        return self.get_queryset().exclude(is_proxy_user=True)
-
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))

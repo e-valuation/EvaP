@@ -357,7 +357,7 @@ class TestUserProfile(TestCase):
         active_user = mommy.make(UserProfile)
         mommy.make(UserProfile, is_active=False)
 
-        self.assertEqual(list(UserProfile.objects.exclude_inactive_users().all()), [active_user])
+        self.assertEqual(list(UserProfile.objects.exclude(is_active=False).all()), [active_user])
 
     def test_inactive_users_shown(self):
         active_user = mommy.make(UserProfile)
@@ -369,7 +369,10 @@ class TestUserProfile(TestCase):
 
     def test_can_be_marked_inactive_by_manager(self):
         user = mommy.make(UserProfile)
-        mommy.make(Evaluation, participants=[user], state="new")
+        evaluation = mommy.make(Evaluation, state="new")
+        self.assertTrue(user.can_be_marked_inactive_by_manager)
+        evaluation.participants = [user]
+        evaluation.save()
         self.assertFalse(user.can_be_marked_inactive_by_manager)
 
         contributor = mommy.make(UserProfile)
