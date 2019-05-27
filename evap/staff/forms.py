@@ -600,6 +600,10 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = "__all__"
+        widgets = {
+            'text_de': forms.Textarea(attrs={'rows': 2}),
+            'text_en': forms.Textarea(attrs={'rows': 2})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
