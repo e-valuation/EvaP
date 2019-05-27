@@ -105,6 +105,16 @@
   }
 },
 {
+  "pk": 6,
+  "model": "evaluation.question",
+  "fields": {
+    "questionnaire": 2,
+    "text_en": "can you see me?",
+    "text_de": "can you see me?",
+    "type": 0
+  }
+},
+{
   "pk": "00000000-0000-0000-0000-000000000001",
   "model": "evaluation.textanswer",
   "fields": {
@@ -215,6 +225,17 @@
   }
 },
 {
+  "pk": "00000000-0000-0000-0000-000000000016",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "answer": ".proxy_user_visibility_info.",
+    "question": 6,
+    "original_answer": null,
+    "contribution": 1,
+    "state": "PU"
+  }
+},
+{
   "pk": 2,
   "model": "evaluation.userprofile",
   "fields": {
@@ -227,6 +248,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [3],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -244,6 +266,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -261,6 +284,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -278,6 +302,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -295,6 +320,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [4],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -312,6 +338,7 @@
     "title": "",
     "cc_users": [],
     "delegates": [],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -328,7 +355,8 @@
     "email": "responsible_contributor@institution.example.com",
     "title": "",
     "cc_users": [],
-    "delegates": [],
+    "delegates": [11],
+    "is_proxy_user": true,
     "login_key_valid_until": null,
     "login_key": null
   }
@@ -346,6 +374,25 @@
     "title": "",
     "cc_users": [],
     "delegates": [],
+    "is_proxy_user": false,
+    "login_key_valid_until": null,
+    "login_key": null
+  }
+},
+{
+  "pk": 11,
+  "model": "evaluation.userprofile",
+  "fields": {
+    "username": "proxy_delegate",
+    "first_name": "proxy_delegate",
+    "last_name": "user",
+    "last_login": "2014-09-16T22:52:46.611",
+    "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
+    "email": "proxy_delegate@institution.example.com",
+    "title": "",
+    "cc_users": [],
+    "delegates": [],
+    "is_proxy_user": false,
     "login_key_valid_until": null,
     "login_key": null
   }
