@@ -7,9 +7,9 @@
         </div>
         <div class="collapse show" id="questionnaires-{{ type }}">
             <div class="card-body">
-                <table class="table table-striped table-vertically-aligned questionnaire-table">
+                <table class="table table-vertically-aligned questionnaire-table">
                     <thead>
-                        <tr>
+                        <tr class="table-header">
                             <th class="movable" style="width: 3%"></th>
                             <th style="width: 62%">{% trans 'Questionnaire' %}</th>
                             <th style="width: 15%">{% trans 'Visibility' %}</th>
@@ -21,7 +21,7 @@
                         <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
                             <td class="movable"><span class="movable-icon fas fa-arrows-alt-v"></span></td>
                             <td>
-                                <strong>{{ questionnaire.name }}</strong>
+                                <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                 <br />
                                 {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}

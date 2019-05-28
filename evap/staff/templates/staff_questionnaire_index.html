@@ -2,18 +2,28 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="d-flex mb-3">
-        <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark mr-auto">{% trans 'Create new questionnaire' %}</a>
-        <div class="btn-switch btn-switch-light">
-            <div class="btn-switch-label">{% trans 'Hidden questionnaires' %}</div>
-            <div class="btn-switch btn-group">
-                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
-                {% trans 'Show' %}
-                </a>
-                <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
-                    {% trans 'Hide' %}
-                </a>
+    <div class="row mb-3">
+        <div class="col my-auto">
+            <a href="{% url 'staff:questionnaire_create' %}" class="btn btn-sm btn-dark">{% trans 'Create new questionnaire' %}</a>
+        </div>
+        <div class="col-auto my-auto">
+            <div class="btn-switch btn-switch-light">
+                <div class="btn-switch-label">{% trans 'Hidden questionnaires' %}</div>
+                <div class="btn-switch btn-group">
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=false" role="button" class="btn btn-sm btn-light{% if not filter_questionnaires %} active{% endif %}">
+                    {% trans 'Show' %}
+                    </a>
+                    <a href="{% url 'staff:questionnaire_index' %}?filter_questionnaires=true" role="button" class="btn btn-sm btn-light{% if filter_questionnaires %} active{% endif %}">
+                        {% trans 'Hide' %}
+                    </a>
+                </div>
             </div>
+        </div>
+        <div class="input-group col-3 my-auto">
+            <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search">
+            <div class="input-group-append">
+                <button class="btn btn-light text-secondary" type="button" onclick="clearFilter();" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear filter' %}"><span class="fas fa-backspace"></span></button>
+              </div>
         </div>
     </div>
 
@@ -52,21 +62,53 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
+        var delayTimer;
+        function updateTable() {
+            var searchValue = $('input#search').val().toLowerCase();
+            localStorage['questionnaires_enteredSearchValue'] = $('input#search').val();
 
-    $('.questionnaire-table tbody').sortable({
-        handle: ".fa-arrows-alt-v",
-        draggable: ".sortable",
-        scrollSensitivity: 70,
-        onUpdate: function( event ) {
-            // update indices of all questionnaires in the table
-            var questionnaires = $(event.item).parent().children();
-            var updatedIndices = {};
-            for (var i = 0; i < questionnaires.length; i++) {
-                var questionnaire = $(questionnaires[i]);
-                updatedIndices[questionnaire.attr('data-id')] = i;
-            }
-            $.post("{% url 'staff:questionnaire_update_indices' %}", updatedIndices);
+            // find which rows to show
+            $('.questionnaire-table tr:not(.table-header)').each(function () {
+                var questionnaireName = $(this).find('.questionnaire-name').html().toLowerCase();
+                var showRow = searchValue.length === 0 || questionnaireName.includes(searchValue);
+                $(this).toggleClass("d-none", !showRow);
+            });
         }
-    });
+
+        function clearFilter() {
+            $('input#search').val('');
+            updateTable();
+        }
+
+        $(document).ready(function () {
+            $('.questionnaire-table tbody').sortable({
+                handle: ".fa-arrows-alt-v",
+                draggable: ".sortable",
+                scrollSensitivity: 70,
+                onUpdate: function( event ) {
+                    // update indices of all questionnaires in the table
+                    var questionnaires = $(event.item).parent().children();
+                    var updatedIndices = {};
+                    for (var i = 0; i < questionnaires.length; i++) {
+                        var questionnaire = $(questionnaires[i]);
+                        updatedIndices[questionnaire.attr('data-id')] = i;
+                    }
+                    $.post("{% url 'staff:questionnaire_update_indices' %}", updatedIndices);
+                }
+            });
+            // load previously selected filter
+            $('input#search').val(localStorage['questionnaires_enteredSearchValue']);
+
+            // add change handler for search field
+            $('input#search').on('change paste input', function () {
+                clearTimeout(delayTimer);
+                delayTimer = setTimeout(function () {
+                    updateTable();
+                }, 200);
+            });
+
+            // apply initial filters
+            updateTable();
+        });
     </script>
 {% endblock %}
