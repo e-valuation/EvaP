@@ -1110,8 +1110,8 @@ def questionnaire_index(request):
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
 
     if filter_questionnaires:
-        general_questionnaires = general_questionnaires.filter(obsolete=False)
-        contributor_questionnaires = contributor_questionnaires.filter(obsolete=False)
+        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.HIDDEN)
+        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.HIDDEN)
 
     general_questionnaires_top = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors]
     general_questionnaires_bottom = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors]
@@ -1166,7 +1166,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ['manager_only', 'obsolete', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+        editable_fields = ['visibility', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
 
         for name, field in form.fields.items():
             if name not in editable_fields:
@@ -1245,9 +1245,6 @@ def questionnaire_copy(request, questionnaire_id):
 def questionnaire_new_version(request, questionnaire_id):
     old_questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-    if old_questionnaire.obsolete:
-        raise PermissionDenied
-
     # Check if we can use the old name with the current time stamp.
     timestamp = date.today()
     new_name_de = '{} (until {})'.format(old_questionnaire.name_de, str(timestamp))
@@ -1271,7 +1268,7 @@ def questionnaire_new_version(request, questionnaire_id):
                 # Change old name before checking Form.
                 old_questionnaire.name_de = new_name_de
                 old_questionnaire.name_en = new_name_en
-                old_questionnaire.obsolete = True
+                old_questionnaire.visibility = Questionnaire.HIDDEN
                 old_questionnaire.save()
 
                 if form.is_valid() and formset.is_valid():

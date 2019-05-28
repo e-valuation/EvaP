@@ -24,13 +24,9 @@
                                 <br />
                                 {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
-                                {% if questionnaire.obsolete %}<span class="badge badge-warning">{% trans 'obsolete' %}</span>{% endif %}
-                                {% if questionnaire.manager_only %}<span class="badge badge-info">{% trans 'managers only' %}</span>{% endif %}
                             </td>
                             <td style="text-align: right;">
-                                {% if not questionnaire.obsolete %}
-                                    <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Make obsolete and create new version' %}"><span class="fas fa-clock"></span></a>
-                                {% endif %}
+                                <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Hide and create new version' %}"><span class="fas fa-clock"></span></a>
                                 <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-clone"></span></a>
                                 <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
