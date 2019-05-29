@@ -62,6 +62,15 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
+        function updateTableStripes() {
+            $('.questionnaire-table tr:not(.table-header)').removeClass("odd-row");
+            $('.questionnaire-table').each(function () {
+                $(this).find('tr:not(.table-header):not(.d-none)').filter(function (index, element) {
+                    return index % 2 === 0;
+                }).addClass("odd-row");
+            });
+        }
+
         var delayTimer;
         function updateTable() {
             var searchValue = $('input#search').val().toLowerCase();
@@ -73,6 +82,8 @@
                 var showRow = searchValue.length === 0 || questionnaireName.includes(searchValue);
                 $(this).toggleClass("d-none", !showRow);
             });
+
+            updateTableStripes();
         }
 
         function clearFilter() {
@@ -85,7 +96,7 @@
                 handle: ".fa-arrows-alt-v",
                 draggable: ".sortable",
                 scrollSensitivity: 70,
-                onUpdate: function( event ) {
+                onUpdate: function (event) {
                     // update indices of all questionnaires in the table
                     var questionnaires = $(event.item).parent().children();
                     var updatedIndices = {};
@@ -94,8 +105,10 @@
                         updatedIndices[questionnaire.attr('data-id')] = i;
                     }
                     $.post("{% url 'staff:questionnaire_update_indices' %}", updatedIndices);
+                    updateTableStripes();
                 }
             });
+
             // load previously selected filter
             $('input#search').val(localStorage['questionnaires_enteredSearchValue']);
 
