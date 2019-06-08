@@ -1,5 +1,7 @@
 {% extends 'staff_evaluation_base.html' %}
 
+{% load evaluation_filters %}
+
 {% block content %}
     {{ block.super }}
     <h3>
@@ -11,7 +13,10 @@
     </h3>
     {% if evaluation_form.instance.id %}
         <div class="mb-2">
-            {% include 'course_badges.html' %}
+            {% with approval_state_values=evaluation.state|approval_state_values %}
+                <span class="badge badge-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
+            {% endwith %}
+            {% include 'course_badges.html' with course=evaluation.course %}
         </div>
     {% endif %}
     <form id="evaluation-form" method="POST" class="form-horizontal multiselect-form select2form">
