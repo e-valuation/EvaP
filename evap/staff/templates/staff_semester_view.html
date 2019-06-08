@@ -47,7 +47,7 @@
 
     <div class="card collapsible mb-3">
         <div class="card-header d-flex">
-            <a class="collapse-toggle" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
+            <a class="collapse-toggle collapsed" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
@@ -64,7 +64,7 @@
                 </div>
             {% endif %}
         </div>
-        <div class="collapse show" id="overviewCard">
+        <div class="collapse" id="overviewCard">
             <div class="card-body">
                 <table class="table">
                     <thead>
@@ -436,16 +436,16 @@
             $(this).find('.btn').toggleClass('btn-secondary');
         });
 
-        if (localStorage['collapse_overview'] === 'false') {
-            $('#overviewCard').collapse('hide');
+        if (localStorage['show_overview'] === 'true') {
+            $('#overviewCard').collapse('show');
         }
         else {
-            $('#overviewCard').collapse('show');
+            $('#overviewCard').collapse('hide');
         }
 
         function saveCollapseState() {
-            var state = window.localStorage['collapse_overview'] === 'true';
-            localStorage['collapse_overview'] = (!state).toString();
+            var state = localStorage['show_overview'] === 'true';
+            localStorage['show_overview'] = (!state).toString();
         }
 
         if(localStorage['selected_tab'] === 'courses') {
