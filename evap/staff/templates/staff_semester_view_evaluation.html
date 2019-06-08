@@ -143,13 +143,13 @@
     {% endif %}
 {% elif info_only or not request.user.is_manager %}
     <td style="width: 20%">
-        <span data-toggle="tooltip" data-placement="top" title="{% trans 'Number of participants' %}">
+        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-toggle="tooltip" data-placement="top" title="{% trans 'Number of participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </span>
     </td>
 {% else %}
     <td style="width: 20%">
-        <a class="no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Manage participants' %}">
+        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Manage participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </a>
     </td>
