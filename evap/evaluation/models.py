@@ -363,6 +363,10 @@ class Evaluation(models.Model):
     # who last modified this evaluation
     last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
+    editor_approval_time = models.DateTimeField(null=True, blank=True, verbose_name=_("Editor approval"))
+    editor_approval_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_editor_approved+")
+    manager_approval_time = models.DateTimeField(null=True, blank=True, verbose_name=_("Manager approval"))
+    manager_approval_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_manager_approved+")
 
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
@@ -406,6 +410,16 @@ class Evaluation(models.Model):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
         logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+
+    def set_editor_approval(self, user):
+        self.editor_approval_user = user
+        self.editor_approval_time = timezone.now()
+        logger.info('Evaluation "{}" (id {}) was approved by editor {}.'.format(self, self.id, user.username))
+
+    def set_manager_approval(self, user):
+        self.manager_approval_user = user
+        self.manager_approval_time = timezone.now()
+        logger.info('Evaluation "{}" (id {}) was approved by manager {}.'.format(self, self.id, user.username))
 
     @property
     def full_name(self):
@@ -542,12 +556,12 @@ class Evaluation(models.Model):
         pass
 
     @transition(field=state, source='prepared', target='editor_approved')
-    def editor_approve(self):
-        pass
+    def editor_approve(self, user):
+        self.set_editor_approval(user)
 
     @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
-    def manager_approve(self):
-        pass
+    def manager_approve(self, user):
+        self.set_manager_approval(user)
 
     @transition(field=state, source=['prepared', 'editor_approved', 'approved'], target='new')
     def revert_to_new(self):

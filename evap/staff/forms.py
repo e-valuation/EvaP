@@ -193,13 +193,15 @@ class EvaluationForm(forms.ModelForm):
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
-    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
+    last_modified = forms.CharField(label=_("Last modified"), disabled=True, required=False)
+    editor_approval = forms.CharField(label=_("Editor approval"), disabled=True, required=False)
+    manager_approval = forms.CharField(label=_("Manager approval"), disabled=True, required=False)
 
     class Meta:
         model = Evaluation
         fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
                   'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time', 'last_modified_user_name')
+                  'editor_approval', 'manager_approval', 'last_modified')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -218,9 +220,18 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-        self.fields['last_modified_time'].disabled = True
         if self.instance.last_modified_user:
-            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
+            self.fields['last_modified'].initial = "{:%Y-%m-%d %H:%M:%S}, {}".format(
+                self.instance.last_modified_time, self.instance.last_modified_user.full_name
+            )
+        if self.instance.editor_approval_user:
+            self.fields['editor_approval'].initial = "{:%Y-%m-%d %H:%M:%S}, {}".format(
+                self.instance.editor_approval_time, self.instance.editor_approval_user.full_name
+            )
+        if self.instance.manager_approval_user:
+            self.fields['manager_approval'].initial = "{:%Y-%m-%d %H:%M:%S}, {}".format(
+                self.instance.manager_approval_time, self.instance.manager_approval_user.full_name
+            )
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True

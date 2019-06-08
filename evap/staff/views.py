@@ -824,7 +824,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         formset.save()
 
         if operation == 'approve':
-            evaluation.manager_approve()
+            evaluation.manager_approve(request.user)
             evaluation.save()
             if form_has_changed:
                 messages.success(request, _("Successfully updated and approved evaluation."))

@@ -162,7 +162,7 @@ def evaluation_edit(request, evaluation_id):
         formset.save()
 
         if post_operation == 'approve':
-            evaluation.editor_approve()
+            evaluation.editor_approve(request.user)
             evaluation.save()
             if form_has_changed:
                 messages.success(request, _("Successfully updated and approved evaluation."))

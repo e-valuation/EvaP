@@ -1263,6 +1263,20 @@ class TestEvaluationEditView(WebTest):
         self.assertEqual(self.evaluation.last_modified_user, last_modified_user_before)
         self.assertEqual(self.evaluation.last_modified_time, last_modified_time_before)
 
+    def test_approval(self):
+        """
+            Tests if approving the evaluation changes the state and updates the manager approval field
+        """
+        self.assertIsNone(self.evaluation.manager_approval_user)
+
+        page = self.app.get(self.url, user=self.user, status=200)
+        form = page.forms["evaluation-form"]
+        form.submit(name="operation", value="approve")
+
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+        self.assertEqual(self.evaluation.state, "approved")
+        self.assertEqual(self.evaluation.manager_approval_user, self.user)
+
 
 class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/evaluation/1/edit'

@@ -97,7 +97,7 @@ class TestContributorEvaluationView(WebTestWith200Check):
         self.app.get(self.url, user='responsible', status=403)
 
     def test_information_message(self):
-        self.evaluation.editor_approve()
+        self.evaluation.editor_approve(UserProfile.objects.get(username="editor"))
         self.evaluation.save()
 
         page = self.app.get(self.url, user='editor')
@@ -152,7 +152,7 @@ class TestContributorEvaluationEditView(WebTest):
             Asserts that a contributor attempting to edit an evaluation
             that is in a state where editing is not allowed gets a 403.
         """
-        self.evaluation.editor_approve()
+        self.evaluation.editor_approve(UserProfile.objects.get(username="responsible"))
         self.evaluation.save()
 
         self.app.get(self.url, user='responsible', status=403)
@@ -171,9 +171,11 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, "prepared")
 
+        self.assertIsNone(self.evaluation.editor_approval_user)
         form.submit(name="operation", value="approve")
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, "editor_approved")
+        self.assertEqual(self.evaluation.editor_approval_user, UserProfile.objects.get(username="responsible"))
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)

@@ -123,6 +123,8 @@ class MergeUsersTest(TestCase):
             'grades_last_modified_user+',
             'courses_last_modified+',
             'evaluations_last_modified+',
+            'evaluations_editor_approved+',
+            'evaluations_manager_approved+',
             'Course_responsibles+'
         }
 

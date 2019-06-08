@@ -18,7 +18,8 @@ class GradeUploadTest(WebTest):
         cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
         cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
         cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
-        editor = mommy.make(UserProfile, username="editor", email="editor@institution.example.com")
+        cls.editor = mommy.make(UserProfile, username="editor", email="editor@institution.example.com")
+        cls.manager = mommy.make(UserProfile, username="manager", email="manager@institution.example.com", groups=[Group.objects.get(name="Manager")])
 
         cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
         cls.course = mommy.make(Course, semester=cls.semester)
@@ -31,7 +32,7 @@ class GradeUploadTest(WebTest):
             voters=[cls.student, cls.student2],
         )
 
-        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
+        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True,
                                   textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
@@ -95,12 +96,12 @@ class GradeUploadTest(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
         # state: editor_approved
-        evaluation.editor_approve()
+        evaluation.editor_approve(self.editor)
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: approved
-        evaluation.manager_approve()
+        evaluation.manager_approve(self.manager)
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
