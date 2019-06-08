@@ -72,6 +72,9 @@
         {% endif %}
     </div>
     {% include 'evaluation_badges.html' with mode='manager' %}
+    {% if evaluation.num_course_evaluations > 1 %}
+        <span class="badge badge-pill badge-dark" data-toggle="tooltip" data-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
+    {% endif %}
 
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
         {% if not evaluation.all_contributions_have_questionnaires %}
