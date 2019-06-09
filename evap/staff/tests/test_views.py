@@ -447,13 +447,38 @@ class TestSemesterDeleteView(WebTest):
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
-    def test_success(self):
+    def test_success_if_no_courses(self):
         semester = mommy.make(Semester)
         self.assertTrue(semester.can_be_deleted_by_manager)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
+    def test_success_if_archived(self):
+        semester = mommy.make(Semester)
+        course = mommy.make(Course, semester=semester)
+        evaluation = mommy.make(Evaluation, course=course, state='published')
+        general_contribution = evaluation.general_contribution
+        responsible_contribution = mommy.make(Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile))
+        textanswer = mommy.make(TextAnswer, contribution=general_contribution, state='PU')
+        ratinganswercounter = mommy.make(RatingAnswerCounter, contribution=responsible_contribution)
+
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive_participations()
+        semester.delete_grade_documents()
+        semester.archive_results()
+
+        self.assertTrue(semester.can_be_deleted_by_manager)
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
+        self.assertFalse(Course.objects.filter(pk=course.pk).exists())
+        self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
+        self.assertFalse(Contribution.objects.filter(pk=general_contribution.pk).exists())
+        self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
+        self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
+        self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
 
 class TestSemesterAssignView(WebTest):
     url = '/staff/semester/1/assign'
