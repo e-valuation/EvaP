@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 import xlwt
 
-from evap.evaluation.models import CourseType
+from evap.evaluation.models import CourseType, Degree
 from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
@@ -76,13 +76,13 @@ class ExcelExporter(object):
 
         return filtered_questions
 
-    def export(self, response, course_types_list, include_not_enough_voters=False, include_unpublished=False):
+    def export(self, response, selection_list, include_not_enough_voters=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
         course_results_exist = False
 
-        for course_types in course_types_list:
+        for degrees, course_types in selection_list:
             self.sheet = self.workbook.add_sheet("Sheet " + str(counter))
             counter += 1
             self.row = 0
@@ -94,7 +94,9 @@ class ExcelExporter(object):
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for evaluation in self.semester.evaluations.filter(state__in=evaluation_states, course__type__in=course_types).all():
+            for evaluation in self.semester.evaluations.filter(
+                state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types
+            ).distinct():
                 if evaluation.is_single_result:
                     continue
                 if not evaluation.can_publish_rating_results and not include_not_enough_voters:
@@ -115,8 +117,11 @@ class ExcelExporter(object):
             evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].full_name))
             used_questionnaires = sorted(used_questionnaires)
 
-            course_type_names = [ct.name for ct in CourseType.objects.filter(pk__in=course_types)]
-            writec(self, _("Evaluation {0}\n\n{1}").format(self.semester.name, ", ".join(course_type_names)), "headline")
+            degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
+            course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
+            writec(self, _("Evaluation {}\n\n{}\n\n{}").format(
+                self.semester.name, ", ".join(degree_names), ", ".join(course_type_names)
+            ), "headline")
 
             for evaluation, results in evaluations_with_results:
                 writec(self, evaluation.full_name, "evaluation")
