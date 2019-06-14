@@ -20,7 +20,7 @@
     "teaser_de": "answer questions regarding a person here",
     "public_name_en": "the person",
     "description_en": "person_questionnaire description",
-    "obsolete": false,
+    "visibility": 2,
     "name_de": "person_questionnaire",
     "description_de": "person_questionnaire description",
     "name_en": "person_questionnaire"
@@ -37,7 +37,7 @@
     "teaser_de": "answer questions regarding an evaluation here",
     "public_name_en": "the evaluation",
     "description_en": "general_questionnaire description",
-    "obsolete": false,
+    "visibility": 2,
     "name_de": "general_questionnaire",
     "description_de": "general_questionnaire description",
     "name_en": "general_questionnaire"
@@ -51,7 +51,7 @@
     "name_en":"Single result",
     "order": 0,
     "type": 20,
-    "obsolete":true
+    "visibility": 0
   }
 },
 {

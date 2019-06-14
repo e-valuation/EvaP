@@ -72,34 +72,61 @@ class TestVoteView(WebTest):
 
         self.assertTrue(top_heading_index < top_text_index < contributor_heading_index < contributor_likert_index < bottom_heading_index < bottom_grade_index)
 
-    def fill_form(self, form, fill_complete):
+    def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
         form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)] = "some text"
         form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 3
         form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)] = 1
 
         form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)] = "some bottom text"
         form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)] = 4
-        form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)] = 2
+
+        if fill_general_complete:
+            form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question)] = 2
 
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)] = "some other text"
         form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
 
         form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)] = "some more text"
 
-        if fill_complete:
+        if fill_contributors_complete:
             form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)] = 2
 
-    def test_incomplete_form(self):
+    def test_incomplete_general_vote_form(self):
         """
-            Submits a student vote, verifies that an error message is
-            displayed if not all rating questions have been answered and that all
-            given answers stay selected/filled.
+            Submits a student vote, verifies that an error message is displayed if not all general rating questions have
+            been answered and that all given answers stay selected/filled.
         """
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=False)
+        self.fill_form(form, fill_general_complete=False)
         response = form.submit()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vote for all rating questions", response)
 
+        form = page.forms["student-vote-form"]
+
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
+
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
+        self.assertEqual(form[question_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)].value, "4")
+
+        self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value, "some other text")
+        self.assertEqual(form[question_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value, "4")
+
+        self.assertEqual(form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)].value, "some more text")
+        self.assertEqual(form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)].value, "2")
+
+    def test_incomplete_contributors_vote_form(self):
+        """
+            Submits a student vote, verifies that an error message is displayed if not all rating questions about
+            contributors have been answered and that all given answers stay selected/filled.
+        """
+        page = self.app.get(self.url, user=self.voting_user1.username, status=200)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form, fill_contributors_complete=False)
+        response = form.submit()
         self.assertEqual(response.status_code, 200)
         self.assertIn("vote for all rating questions", response)
 
@@ -121,13 +148,13 @@ class TestVoteView(WebTest):
     def test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=True)
+        self.fill_form(form)
         response = form.submit()
         self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
         page = self.app.get(self.url, user=self.voting_user2.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=True)
+        self.fill_form(form)
         response = form.submit()
         self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
@@ -172,7 +199,7 @@ class TestVoteView(WebTest):
     def test_user_cannot_vote_multiple_times(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=True)
+        self.fill_form(form)
         form.submit()
 
         self.app.get(self.url, user=self.voting_user1.username, status=403)
@@ -190,7 +217,7 @@ class TestVoteView(WebTest):
     def test_user_logged_out(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=True)
+        self.fill_form(form)
         page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1.username, status=302)
         response = form.submit()
         self.assertEqual(response.status_code, 302)
@@ -222,7 +249,7 @@ class TestVoteView(WebTest):
     def helper_test_answer_publish_confirmation(self, form_element):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
         form = page.forms["student-vote-form"]
-        self.fill_form(form, fill_complete=True)
+        self.fill_form(form)
         if form_element:
             form[form_element] = True
         response = form.submit()

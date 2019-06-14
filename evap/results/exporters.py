@@ -121,7 +121,7 @@ class ExcelExporter(object):
             for evaluation, results in evaluations_with_results:
                 writec(self, evaluation.full_name, "evaluation")
 
-            writen(self, _("Course Degrees"), "bold")
+            writen(self, _("Degrees"), "bold")
             for evaluation, results in evaluations_with_results:
                 writec(self, "\n".join([d.name for d in evaluation.course.degrees.all()]), "degree")
 

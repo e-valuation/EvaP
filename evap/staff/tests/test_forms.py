@@ -28,6 +28,7 @@ class QuestionnaireFormTest(TestCase):
             'questions-0-id': question.id,
             'order': 0,
             'type': Questionnaire.TOP,
+            'visibility': 2,
         }
 
         form = QuestionnaireForm(data=data)
@@ -51,6 +52,7 @@ class QuestionnaireFormTest(TestCase):
             'questions-0-id': question.id,
             'order': questionnaire.order,
             'type': Questionnaire.BOTTOM,
+            'visibility': 2,
         }
 
         form = QuestionnaireForm(instance=questionnaire, data=data)
@@ -339,35 +341,34 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_obsolete_manager_only(self):
+    def test_hidden_and_managers_only(self):
         """
-            Asserts that obsolete questionnaires are shown to managers only if
-            they are already selected for a contribution of the Evaluation, and
-            that manager only questionnaires are always shown.
+            Asserts that hidden questionnaires are shown to managers only if they are already selected for a
+            contribution of the Evaluation, and that manager only questionnaires are always shown.
             Regression test for #593.
         """
         evaluation = mommy.make(Evaluation)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=False)
-        questionnaire_obsolete = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=True, manager_only=False)
-        questionnaire_manager_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, obsolete=False, manager_only=True)
+        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
+        questionnaire_hidden = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
+        questionnaire_managers_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
 
-        # The normal and manager_only questionnaire should be shown.
+        # The normal and managers_only questionnaire should be shown.
         contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile), questionnaires=[])
 
         inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
-        expected = {questionnaire, questionnaire_manager_only}
+        expected = {questionnaire, questionnaire_managers_only}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
-        # Suppose we had an obsolete questionnaire already selected, that should be shown as well.
-        contribution1.questionnaires.set([questionnaire_obsolete])
+        # Suppose we had a hidden questionnaire already selected, that should be shown as well.
+        contribution1.questionnaires.set([questionnaire_hidden])
 
         inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
-        expected = {questionnaire, questionnaire_manager_only, questionnaire_obsolete}
+        expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 

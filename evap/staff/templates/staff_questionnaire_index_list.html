@@ -7,33 +7,37 @@
         </div>
         <div class="collapse show" id="questionnaires-{{ type }}">
             <div class="card-body">
-                <table class="table table-striped table-vertically-aligned questionnaire-table">
+                <table class="table table-vertically-aligned questionnaire-table">
                     <thead>
-                        <tr>
-                            <th class="movable"></th>
-                            <th style="width: 80%">{% trans 'Questionnaire' %}</th>
+                        <tr class="table-header">
+                            <th class="movable" style="width: 3%"></th>
+                            <th style="width: 62%">{% trans 'Questionnaire' %}</th>
+                            <th style="width: 15%">{% trans 'Visibility' %}</th>
                             <th style="width: 20%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for questionnaire in questionnaires %}
-                        <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}" data-index="{{ questionnaire.index }}">
+                        <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}">
                             <td class="movable"><span class="movable-icon fas fa-arrows-alt-v"></span></td>
                             <td>
-                                <strong>{{ questionnaire.name }}</strong>
+                                <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                 <br />
                                 {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
-                                {% if questionnaire.obsolete %}<span class="badge badge-warning">{% trans 'obsolete' %}</span>{% endif %}
-                                {% if questionnaire.manager_only %}<span class="badge badge-info">{% trans 'managers only' %}</span>{% endif %}
                             </td>
-                            <td style="text-align: right;">
-                                {% if not questionnaire.obsolete %}
-                                    <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Make obsolete and create new version' %}"><span class="fas fa-clock"></span></a>
-                                {% endif %}
-                                <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
-                                <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="fas fa-clone"></span></a>
-                                <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="fas fa-eye"></span></a>
+                            <td>
+                                <div class="btn-group icon-buttons">
+                                    <button data-visibility="0" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 0 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% blocktrans %}Hide in lists{% endblocktrans %}"><span class="fas fa-fw fa-user-slash" aria-hidden="true"></span></button>
+                                    <button data-visibility="1" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 1 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Show only for managers' %}"><span class="fas fa-fw fa-user" aria-hidden="true"></span></button>
+                                    <button data-visibility="2" type="button" onclick="changeVisibility($(this));" class="btn btn-sm btn-light{% if questionnaire.visibility == 2 %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Show for managers and editors' %}"><span class="fas fa-fw fa-users" aria-hidden="true"></span></button>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-toggle="tooltip" data-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% trans 'Edit' %}{% else %}{% trans 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil-alt"></span></a>
+                                <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Hide and create new version' %}"><span class="far fa-clock"></span></a>
+                                <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy' %}"><span class="far fa-copy"></span></a>
+                                <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}"><span class="far fa-eye"></span></a>
                                 {% if questionnaire.can_be_deleted_by_manager %}
                                     <button type="button" onclick="deleteQuestionnaireModalShow({{ questionnaire.id }}, '{{ questionnaire.name|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
                                         <span class="fas fa-trash"></span>
@@ -53,3 +57,22 @@
         </div>
     </div>
 {% endif %}
+
+{% block additional_javascript %}
+    <script type="text/javascript">
+        function changeVisibility(element) {
+            var id = element.parents(".questionnaire").data("id");
+            var visibility = element.data("visibility");
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:questionnaire_visibility' %}",
+                data: {"questionnaire_id": id, "visibility": visibility},
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
+                success: function(){
+                    $(`#questionnaire-row-${id} button[data-visibility]`).removeClass("active");
+                    $(`#questionnaire-row-${id} button[data-visibility="${visibility}"]`).addClass("active");
+                }
+            });
+        }
+    </script>
+{% endblock %}
