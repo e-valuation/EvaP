@@ -167,7 +167,7 @@ class TestEnrollmentImporter(TestCase):
 
         expected_warnings = defaultdict(list)
         expected_warnings[EnrollmentImporter.W_DEGREE].append(
-            'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. Both degrees have been added to the course.'
+            'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.'
         )
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)

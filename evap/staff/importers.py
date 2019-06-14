@@ -294,7 +294,7 @@ class EnrollmentImporter(ExcelImporter):
                     and evaluation_data.is_graded == self.evaluations[evaluation_id].is_graded
                     and evaluation_data.responsible_email == self.evaluations[evaluation_id].responsible_email):
                 self.warnings[self.W_DEGREE].append(
-                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been added to the course.')
+                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
                 )
                 self.evaluations[evaluation_id].degree_names.extend(evaluation_data.degree_names)
