@@ -53,6 +53,7 @@ urlpatterns = [
     path("questionnaire/<int:questionnaire_id>/copy", views.questionnaire_copy, name="questionnaire_copy"),
     path("questionnaire/delete", views.questionnaire_delete, name="questionnaire_delete"),
     path("questionnaire/update_indices", views.questionnaire_update_indices, name="questionnaire_update_indices"),
+    path("questionnaire/questionnaire_visibility", views.questionnaire_visibility, name="questionnaire_visibility"),
 
     path("degrees/", views.degree_index, name="degree_index"),
 

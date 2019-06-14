@@ -157,8 +157,15 @@ class Questionnaire(models.Model):
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
-    manager_only = models.BooleanField(verbose_name=_("display for managers only"), default=False)
-    obsolete = models.BooleanField(verbose_name=_("obsolete"), default=False)
+    HIDDEN = 0
+    MANAGERS = 1
+    EDITORS = 2
+    VISIBILITY_CHOICES = (
+        (HIDDEN, _("Don't show")),
+        (MANAGERS, _("Managers only")),
+        (EDITORS, _("Managers and editors")),
+    )
+    visibility = models.IntegerField(choices=VISIBILITY_CHOICES, verbose_name=_('visibility'), default=MANAGERS)
 
     objects = QuestionnaireManager()
 

@@ -189,7 +189,7 @@ class CourseForm(forms.ModelForm):
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().filter(obsolete=False),
+        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
@@ -211,7 +211,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(obsolete=False) | Q(contributions__evaluation=self.instance)).distinct()
+            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
 
@@ -372,7 +372,7 @@ class ContributionForm(forms.ModelForm):
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.contributor_questionnaires().filter(obsolete=False),
+        Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
@@ -402,7 +402,7 @@ class ContributionForm(forms.ModelForm):
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(obsolete=False) | Q(contributions__evaluation=self.evaluation)).distinct()
+            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
 
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
@@ -600,6 +600,10 @@ class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = "__all__"
+        widgets = {
+            'text_de': forms.Textarea(attrs={'rows': 2}),
+            'text_en': forms.Textarea(attrs={'rows': 2})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -611,8 +615,8 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().filter(obsolete=False))
-        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().filter(obsolete=False)
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN))
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN)
         self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 

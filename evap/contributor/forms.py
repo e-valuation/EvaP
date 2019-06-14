@@ -31,7 +31,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields['name_en_field'].initial = self.instance.full_name_en
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__evaluation=self.instance)).distinct()
+            Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -69,7 +69,7 @@ class EditorContributionForm(ContributionForm):
         super().__init__(*args, **kwargs)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            (Q(manager_only=False) & Q(obsolete=False)) | Q(contributions__evaluation=self.evaluation)).distinct()
+            Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
 
 
 class DelegatesForm(forms.ModelForm):

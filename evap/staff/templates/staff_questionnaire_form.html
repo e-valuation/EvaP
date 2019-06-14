@@ -2,6 +2,11 @@
 
 {% block content %}
     {{ block.super }}
+    {% if not editable %}
+        <div class="callout callout-info">
+            {% trans 'Some fields are disabled as this questionnaire is already in use.' %}
+        </div>
+    {% endif %}
     <form id="questionnaire-form" method="POST" class="form-horizontal select2form">
         {% csrf_token %}
         <fieldset>
