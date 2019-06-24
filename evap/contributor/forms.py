@@ -73,6 +73,9 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegatesForm(forms.ModelForm):
+    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
+                                             required=False)
+
     class Meta:
         model = UserProfile
         fields = ('delegates',)
@@ -83,12 +86,11 @@ class DelegatesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['delegates'].queryset = UserProfile.objects.exclude_inactive_users()
-
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "{}" edited the settings.'.format(self.instance.username))
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_to = UserModelChoiceField(label=_("Delegate to"), queryset=UserProfile.objects.exclude_inactive_users())
+    delegate_to = UserModelChoiceField(label=_("Delegate to"),
+                                       queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True))

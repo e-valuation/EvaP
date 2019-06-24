@@ -163,7 +163,7 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['responsibles'].queryset = UserProfile.objects.exclude_inactive_users()
+        self.fields['responsibles'].queryset = UserProfile.objects.exclude(is_active=False)
         if self.instance.pk:
             self.fields['responsibles'].queryset |= UserProfile.objects.filter(pk__in=[user.pk for user in self.instance.responsibles.all()])
 
@@ -213,7 +213,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
             Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
 
-        self.fields['participants'].queryset = UserProfile.objects.exclude_inactive_users()
+        self.fields['participants'].queryset = UserProfile.objects.exclude(is_active=False)
 
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
@@ -368,7 +368,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude_inactive_users())
+    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True))
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
@@ -629,7 +629,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users')
+        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
         field_classes = {
             'delegates': UserModelMultipleChoiceField,
             'cc_users': UserModelMultipleChoiceField,

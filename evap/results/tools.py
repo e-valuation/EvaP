@@ -296,7 +296,8 @@ def textanswers_visible_to(contribution):
         ).distinct().order_by('last_name', 'first_name')
     else:
         contributors = [contribution.contributor]
-    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=contributors).distinct()) - set(contributors))
+    non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
+    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors))
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
 
 
