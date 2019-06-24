@@ -129731,7 +129731,7 @@
       2
     ],
     "user_permissions": [],
-    "delegates": [591, 2375],
+    "delegates": [2375, 2376],
     "cc_users": []
   }
 },
@@ -129755,6 +129755,29 @@
     "groups": [
       2
     ],
+    "user_permissions": [],
+    "delegates": [],
+    "cc_users": []
+  }
+},
+{
+  "model": "evaluation.userprofile",
+  "pk": 2376,
+  "fields": {
+    "password": "pbkdf2_sha256$30000$fxnctep4sBM1$EvsaesmX21Z8vRLdBFKPqHJ1AzW9vlXBwo8740hIrKQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "proxy_delegate_2",
+    "email": null,
+    "title": "",
+    "first_name": "",
+    "last_name": "",
+    "language": null,
+    "is_proxy_user": false,
+    "login_key": null,
+    "login_key_valid_until": null,
+    "is_active": true,
+    "groups": [],
     "user_permissions": [],
     "delegates": [],
     "cc_users": []
