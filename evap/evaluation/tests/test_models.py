@@ -357,7 +357,7 @@ class TestUserProfile(TestCase):
         active_user = mommy.make(UserProfile)
         mommy.make(UserProfile, is_active=False)
 
-        self.assertEqual(list(UserProfile.objects.exclude(is_active=False).all()), [active_user])
+        self.assertEqual(list(UserProfile.objects.exclude(is_active=False)), [active_user])
 
     def test_inactive_users_shown(self):
         active_user = mommy.make(UserProfile)
