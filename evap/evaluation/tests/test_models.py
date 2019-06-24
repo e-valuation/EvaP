@@ -371,7 +371,7 @@ class TestUserProfile(TestCase):
         user = mommy.make(UserProfile)
         evaluation = mommy.make(Evaluation, state="new")
         self.assertTrue(user.can_be_marked_inactive_by_manager)
-        evaluation.participants = [user]
+        evaluation.participants.set([user])
         evaluation.save()
         self.assertFalse(user.can_be_marked_inactive_by_manager)
 
