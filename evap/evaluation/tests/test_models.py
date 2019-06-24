@@ -381,6 +381,7 @@ class TestUserProfile(TestCase):
 
         reviewer = mommy.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
         self.assertFalse(reviewer.can_be_marked_inactive_by_manager)
+
         grade_publisher = mommy.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
         self.assertFalse(grade_publisher.can_be_marked_inactive_by_manager)
 
