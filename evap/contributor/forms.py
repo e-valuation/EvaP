@@ -73,7 +73,8 @@ class EditorContributionForm(ContributionForm):
 
 
 class DelegatesForm(forms.ModelForm):
-    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_proxy_user=True), required=False)
+    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
+                                             required=False)
 
     class Meta:
         model = UserProfile
@@ -84,8 +85,6 @@ class DelegatesForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields['delegates'].queryset = UserProfile.objects.exclude(is_active=False)
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
