@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0102_individual_publishing_notice_email_template'),
+        ('evaluation', '0103_questionnaire_visibility'),
     ]
 
     operations = [
