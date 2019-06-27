@@ -144,6 +144,7 @@ def semester_view(request, semester_id):
         num_evaluations=len(evaluations),
         degree_stats=degree_stats,
         courses=courses,
+        approval_states=['new', 'prepared', 'editor_approved', 'approved'],
     )
     return render(request, "staff_semester_view.html", template_data)
 

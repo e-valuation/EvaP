@@ -14,15 +14,9 @@
     {% endif %}
 </td>
 
-{% if state == 'new' %}
-    <td class="icon" data-order="0"><span class="fas fa-circle icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}"></span></td>
-{% elif state == 'prepared' %}
-    <td class="icon" data-order="2"><span class="far fa-square icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}"></span></td>
-{% elif state == 'editor_approved' %}
-    <td class="icon" data-order="1"><span class="far fa-check-square icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting manager review' %}"></span></td>
-{% elif state == 'approved' or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    <td class="icon" data-order="3"><span class="far fa-check-square icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by manager' %}"></span></td>
-{% endif %}
+{% with approval_state_values=state|approval_state_values %}
+    <td class="icon" data-order="{{ approval_state_values.order }}"><span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span></td>
+{% endwith %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
     <td class="icon" data-order="1"><span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span></td>

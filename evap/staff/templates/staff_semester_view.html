@@ -151,22 +151,14 @@
                     <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
                     <div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-circle icon-yellow"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}">
-                                <span class="fas fa-circle icon-yellow"></span>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-square icon-gray"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}">
-                                <span class="far fa-square icon-gray"></span>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-yellow"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting manager review' %}">
-                                <span class="far fa-check-square icon-yellow"></span>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-check-square icon-green"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by manager' %}">
-                                <span class="far fa-check-square icon-green"></span>
-                            </button>
+                            {% for approval_state in approval_states %}
+                                {% with approval_state_values=approval_state|approval_state_values %}
+                                    <button type="button" class="btn btn-sm btn-light" data-filter="{{ approval_state_values.filter }}"
+                                        data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}">
+                                        <span class="{{ approval_state_values.icon }}"></span>
+                                    </button>
+                                {% endwith %}
+                            {% endfor %}
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
@@ -257,15 +249,15 @@
                         <div>
                             <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
-                                <span class="fas fa-circle icon-yellow"></span>
-                                <span class="far fa-check-square icon-yellow"></span>
+                                <span class="{{ 'new'|approval_state_icon }}"></span>
+                                <span class="{{ 'editor_approved'|approval_state_icon }}"></span>
                                 {% trans 'Ask for editor review' %}
                             </button>
                             <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
-                                <span class="far fa-square icon-gray"></span>
-                                <span class="far fa-check-square icon-yellow"></span>
-                                <span class="far fa-check-square icon-green"></span>
+                                <span class="{{ 'prepared'|approval_state_icon }}"></span>
+                                <span class="{{ 'editor_approved'|approval_state_icon }}"></span>
+                                <span class="{{ 'approved'|approval_state_icon }}"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
                             <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
