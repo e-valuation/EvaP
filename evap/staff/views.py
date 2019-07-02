@@ -466,15 +466,16 @@ def semester_export(request, semester_id):
     if formset.is_valid():
         include_not_enough_voters = request.POST.get('include_not_enough_voters') == 'on'
         include_unpublished = request.POST.get('include_unpublished') == 'on'
-        course_types_list = []
+        selection_list = []
         for form in formset:
-            if 'selected_course_types' in form.cleaned_data:
-                course_types_list.append(form.cleaned_data['selected_course_types'])
+            selection_list.append((form.cleaned_data['selected_degrees'], form.cleaned_data['selected_course_types']))
 
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
-        ExcelExporter(semester).export(response, course_types_list, include_not_enough_voters, include_unpublished)
+        ExcelExporter(semester).export(
+            response, selection_list, include_not_enough_voters, include_unpublished
+        )
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))

@@ -4,7 +4,7 @@ from model_mommy import mommy
 from django.test import TestCase
 from django.utils import translation
 
-from evap.evaluation.models import (Contribution, Course, CourseType, Evaluation, Question, Questionnaire,
+from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
 from evap.results.exporters import ExcelExporter
 
@@ -26,7 +26,14 @@ class TestExporters(TestCase):
         self.assertEqual(exporter.normalize_number(2.8), 2.8)
 
     def test_questionnaire_ordering(self):
-        evaluation = mommy.make(Evaluation, state='published', _participant_count=2, _voter_count=2)
+        degree = mommy.make(Degree)
+        evaluation = mommy.make(
+            Evaluation,
+            course=mommy.make(Course, degrees=[degree]),
+            state='published',
+            _participant_count=2,
+            _voter_count=2
+        )
 
         questionnaire_1 = mommy.make(Questionnaire, order=1, type=Questionnaire.TOP)
         questionnaire_2 = mommy.make(Questionnaire, order=4, type=Questionnaire.TOP)
@@ -46,7 +53,12 @@ class TestExporters(TestCase):
         mommy.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(binary_content, [[evaluation.course.type.id]], True, True)
+        ExcelExporter(evaluation.course.semester).export(
+            binary_content,
+            [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
+            True,
+            True
+        )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -63,7 +75,14 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
 
     def test_heading_question_filtering(self):
-        evaluation = mommy.make(Evaluation, state='published', _participant_count=2, _voter_count=2)
+        degree = mommy.make(Degree)
+        evaluation = mommy.make(
+            Evaluation,
+            course=mommy.make(Course, degrees=[degree]),
+            state='published',
+            _participant_count=2,
+            _voter_count=2
+        )
         contributor = mommy.make(UserProfile)
         evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
 
@@ -77,7 +96,12 @@ class TestExporters(TestCase):
         mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(binary_content, [[evaluation.course.type.id]], True, True)
+        ExcelExporter(evaluation.course.semester).export(
+            binary_content,
+            [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
+            True,
+            True
+        )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -89,19 +113,29 @@ class TestExporters(TestCase):
     def test_view_excel_file_sorted(self):
         semester = mommy.make(Semester)
         course_type = mommy.make(CourseType)
-        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester, name_de="A", name_en="B"),
-                   name_de='Evaluation1', name_en='Evaluation1')
-
-        mommy.make(Evaluation, state='published', course=mommy.make(Course, type=course_type, semester=semester, name_de="B", name_en="A"),
-                   name_de='Evaluation2', name_en='Evaluation2')
+        degree = mommy.make(Degree)
+        mommy.make(
+            Evaluation,
+            state='published',
+            course=mommy.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="A", name_en="B"),
+            name_de='Evaluation1',
+            name_en='Evaluation1'
+        )
+        mommy.make(
+            Evaluation,
+            state='published',
+            course=mommy.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="B", name_en="A"),
+            name_de='Evaluation2',
+            name_en='Evaluation2'
+        )
 
         content_de = BytesIO()
         with translation.override("de"):
-            ExcelExporter(semester).export(content_de, [[course_type.id]], True, True)
+            ExcelExporter(semester).export(content_de, [([degree.id], [course_type.id])], True, True)
 
         content_en = BytesIO()
         with translation.override("en"):
-            ExcelExporter(semester).export(content_en, [[course_type.id]], True, True)
+            ExcelExporter(semester).export(content_en, [([degree.id], [course_type.id])], True, True)
 
         content_de.seek(0)
         content_en.seek(0)
@@ -116,11 +150,22 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1")
 
     def test_course_type_ordering(self):
+        degree = mommy.make(Degree)
         course_type_1 = mommy.make(CourseType, order=1)
         course_type_2 = mommy.make(CourseType, order=2)
         semester = mommy.make(Semester)
-        evaluation_1 = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, type=course_type_1), state='published', _participant_count=2, _voter_count=2)
-        evaluation_2 = mommy.make(Evaluation, course=mommy.make(Course, semester=semester, type=course_type_2), state='published', _participant_count=2, _voter_count=2)
+        evaluation_1 = mommy.make(Evaluation,
+            course=mommy.make(Course, semester=semester, degrees=[degree], type=course_type_1),
+            state='published',
+            _participant_count=2,
+            _voter_count=2
+        )
+        evaluation_2 = mommy.make(Evaluation,
+            course=mommy.make(Course, semester=semester, degrees=[degree], type=course_type_2),
+            state='published',
+            _participant_count=2,
+            _voter_count=2
+        )
 
         questionnaire = mommy.make(Questionnaire)
         question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
@@ -132,7 +177,7 @@ class TestExporters(TestCase):
         mommy.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [[course_type_1.id, course_type_2.id]], True, True)
+        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -143,7 +188,7 @@ class TestExporters(TestCase):
         course_type_2.save()
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [[course_type_1.id, course_type_2.id]], True, True)
+        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 

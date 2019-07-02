@@ -767,8 +767,16 @@ class TextAnswerForm(forms.ModelForm):
 class ExportSheetForm(forms.Form):
     def __init__(self, semester, *args, **kwargs):
         super(ExportSheetForm, self).__init__(*args, **kwargs)
+        degrees = Degree.objects.filter(courses__semester=semester).distinct()
+        degree_tuples = [(degree.pk, degree.name) for degree in degrees]
+        self.fields['selected_degrees'] = forms.MultipleChoiceField(
+            choices=degree_tuples,
+            required=True,
+            widget=forms.CheckboxSelectMultiple(),
+            label=_("Degrees")
+        )
         course_types = CourseType.objects.filter(courses__semester=semester).distinct()
-        course_type_tuples = [(ct.pk, ct.name) for ct in course_types]
+        course_type_tuples = [(course_type.pk, course_type.name) for course_type in course_types]
         self.fields['selected_course_types'] = forms.MultipleChoiceField(
             choices=course_type_tuples,
             required=True,

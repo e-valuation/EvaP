@@ -18,11 +18,12 @@
 
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% trans 'Select the course types you want to export. Add multiple lines to create an export file with multiple sheets.' %}</p>
+                <p>{% trans 'Select the degrees and course types you want to export. An export will include all evaluations of courses that have at least one of the selected degrees and one of the selected course types. Add multiple lines to create an export file with multiple sheets.' %}</p>
                 <table id="exportsheets-table" class="table">
                     <thead>
                         <tr>
-                            <th style="width: 90%">{% trans 'Course types' %}</th>
+                            <th style="width: 25%">{% trans 'Degrees' %}</th>
+                            <th style="width: 65%">{% trans 'Course types' %}</th>
                             <th style="width: 10%"></th>
                         </tr>
                     </thead>
@@ -33,6 +34,9 @@
                                 {% for field in form.hidden_fields %}
                                     {{ field }}
                                 {% endfor %}
+                                <td>
+                                    {% include 'multiple_checkbox_widget.html' with field=form.selected_degrees %}
+                                </td>
                                 <td>
                                     {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}
                                 </td>
