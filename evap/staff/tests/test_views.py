@@ -236,12 +236,12 @@ class TestUserBulkDeleteView(WebTest):
         self.assertTrue(UserProfile.objects.filter(username='manager').exists())
 
         self.assertTrue(UserProfile.objects.filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.exclude_inactive_users().filter(username='contributor1').exists())
+        self.assertTrue(UserProfile.objects.exclude(is_active=False).filter(username='contributor1').exists())
         self.assertTrue(UserProfile.objects.filter(username='contributor2').exists())
-        self.assertFalse(UserProfile.objects.exclude_inactive_users().filter(username='contributor2').exists())
+        self.assertFalse(UserProfile.objects.exclude(is_active=False).filter(username='contributor2').exists())
 
         self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
-        self.assertEqual(UserProfile.objects.exclude_inactive_users().count(), user_count_before - 2)
+        self.assertEqual(UserProfile.objects.exclude(is_active=False).count(), user_count_before - 2)
 
 
 class TestUserImportView(WebTest):
@@ -675,22 +675,29 @@ class TestSemesterExportView(WebTest):
     def setUpTestData(cls):
         mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = mommy.make(Semester, pk=1)
+        cls.degree = mommy.make(Degree)
         cls.course_type = mommy.make(CourseType)
-        cls.evaluation = mommy.make(Evaluation, course=mommy.make(Course, type=cls.course_type, semester=cls.semester))
+        cls.evaluation = mommy.make(
+            Evaluation,
+            course=mommy.make(Course, degrees=[cls.degree], type=cls.course_type, semester=cls.semester)
+        )
 
     def test_view_downloads_excel_file(self):
         page = self.app.get(self.url, user='manager')
         form = page.forms["semester-export-form"]
 
-        # Check one course type.
+        # Check one degree and course type.
+        form.set('form-0-selected_degrees', 'id_form-0-selected_degrees_0')
         form.set('form-0-selected_course_types', 'id_form-0-selected_course_types_0')
 
         response = form.submit()
 
         # Load response as Excel file and check its heading for correctness.
         workbook = xlrd.open_workbook(file_contents=response.content)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[0],
-                         'Evaluation {0}\n\n{1}'.format(self.semester.name, ", ".join([self.course_type.name])))
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[0],
+            'Evaluation {}\n\n{}\n\n{}'.format(self.semester.name, self.degree.name, self.course_type.name)
+        )
 
 
 class TestSemesterRawDataExportView(WebTestWith200Check):

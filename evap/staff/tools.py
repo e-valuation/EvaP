@@ -118,6 +118,7 @@ def merge_users(main_user, other_user, preview=False):
 
     merged_user['groups'] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user['is_superuser'] = main_user.is_superuser or other_user.is_superuser
+    merged_user['is_proxy_user'] = main_user.is_proxy_user or other_user.is_proxy_user
     merged_user['delegates'] = UserProfile.objects.filter(represented_users__in=[main_user, other_user]).distinct()
     merged_user['represented_users'] = UserProfile.objects.filter(delegates__in=[main_user, other_user]).distinct()
     merged_user['cc_users'] = UserProfile.objects.filter(ccing_users__in=[main_user, other_user]).distinct()

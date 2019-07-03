@@ -14,15 +14,9 @@
     {% endif %}
 </td>
 
-{% if state == 'new' %}
-    <td class="icon" data-order="0"><span class="fas fa-circle icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'In preparation' %}"></span></td>
-{% elif state == 'prepared' %}
-    <td class="icon" data-order="2"><span class="far fa-square icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Awaiting editor review' %}"></span></td>
-{% elif state == 'editor_approved' %}
-    <td class="icon" data-order="1"><span class="far fa-check-square icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by editor, awaiting manager review' %}"></span></td>
-{% elif state == 'approved' or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
-    <td class="icon" data-order="3"><span class="far fa-check-square icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Approved by manager' %}"></span></td>
-{% endif %}
+{% with approval_state_values=state|approval_state_values %}
+    <td class="icon" data-order="{{ approval_state_values.order }}"><span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span></td>
+{% endwith %}
 
 {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
     <td class="icon" data-order="1"><span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span></td>
@@ -78,6 +72,9 @@
         {% endif %}
     </div>
     {% include 'evaluation_badges.html' with mode='manager' %}
+    {% if evaluation.num_course_evaluations > 1 %}
+        <span class="badge badge-pill badge-dark" data-toggle="tooltip" data-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
+    {% endif %}
 
     {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
         {% if not evaluation.all_contributions_have_questionnaires %}
@@ -146,13 +143,13 @@
     {% endif %}
 {% elif info_only or not request.user.is_manager %}
     <td style="width: 20%">
-        <span data-toggle="tooltip" data-placement="top" title="{% trans 'Number of participants' %}">
+        <span {% if evaluation.num_participants == 0 %}class="text-danger" {% endif %}data-toggle="tooltip" data-placement="top" title="{% trans 'Number of participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </span>
     </td>
 {% else %}
     <td style="width: 20%">
-        <a class="no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Manage participants' %}">
+        <a class="no-underline{% if evaluation.num_participants == 0 %} text-danger{% endif %}" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Manage participants' %}">
             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
         </a>
     </td>

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
+from django.contrib.auth.models import Group
 from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
@@ -349,11 +350,14 @@ class TestUserProfile(TestCase):
         mommy.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_be_deleted_by_manager)
 
+        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
+        self.assertFalse(proxy_user.can_be_deleted_by_manager)
+
     def test_inactive_users_hidden(self):
         active_user = mommy.make(UserProfile)
         mommy.make(UserProfile, is_active=False)
 
-        self.assertEqual(list(UserProfile.objects.exclude_inactive_users().all()), [active_user])
+        self.assertEqual(list(UserProfile.objects.exclude(is_active=False)), [active_user])
 
     def test_inactive_users_shown(self):
         active_user = mommy.make(UserProfile)
@@ -362,6 +366,30 @@ class TestUserProfile(TestCase):
         user_list = list(UserProfile.objects.all())
         self.assertIn(active_user, user_list)
         self.assertIn(inactive_user, user_list)
+
+    def test_can_be_marked_inactive_by_manager(self):
+        user = mommy.make(UserProfile)
+        evaluation = mommy.make(Evaluation, state="new")
+        self.assertTrue(user.can_be_marked_inactive_by_manager)
+        evaluation.participants.set([user])
+        evaluation.save()
+        self.assertFalse(user.can_be_marked_inactive_by_manager)
+
+        contributor = mommy.make(UserProfile)
+        mommy.make(Contribution, contributor=contributor)
+        self.assertFalse(contributor.can_be_marked_inactive_by_manager)
+
+        reviewer = mommy.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
+        self.assertFalse(reviewer.can_be_marked_inactive_by_manager)
+
+        grade_publisher = mommy.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
+        self.assertFalse(grade_publisher.can_be_marked_inactive_by_manager)
+
+        super_user = mommy.make(UserProfile, is_superuser=True)
+        self.assertFalse(super_user.can_be_marked_inactive_by_manager)
+
+        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
+        self.assertFalse(proxy_user.can_be_marked_inactive_by_manager)
 
 
 class ParticipationArchivingTests(TestCase):

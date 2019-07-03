@@ -70,6 +70,7 @@ def get_evaluations_with_prefetched_data(semester):
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
+            num_course_evaluations=Count("course__evaluations", distinct=True),
         )
     )
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
@@ -144,6 +145,7 @@ def semester_view(request, semester_id):
         num_evaluations=len(evaluations),
         degree_stats=degree_stats,
         courses=courses,
+        approval_states=['new', 'prepared', 'editor_approved', 'approved'],
     )
     return render(request, "staff_semester_view.html", template_data)
 
@@ -466,15 +468,16 @@ def semester_export(request, semester_id):
     if formset.is_valid():
         include_not_enough_voters = request.POST.get('include_not_enough_voters') == 'on'
         include_unpublished = request.POST.get('include_unpublished') == 'on'
-        course_types_list = []
+        selection_list = []
         for form in formset:
-            if 'selected_course_types' in form.cleaned_data:
-                course_types_list.append(form.cleaned_data['selected_course_types'])
+            selection_list.append((form.cleaned_data['selected_degrees'], form.cleaned_data['selected_course_types']))
 
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
-        ExcelExporter(semester).export(response, course_types_list, include_not_enough_voters, include_unpublished)
+        ExcelExporter(semester).export(
+            response, selection_list, include_not_enough_voters, include_unpublished
+        )
         return response
     else:
         return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
@@ -1384,7 +1387,7 @@ def user_index(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
     if filter_users:
-        users = UserProfile.objects.exclude_inactive_users()
+        users = UserProfile.objects.exclude(is_active=False)
     else:
         users = UserProfile.objects.all()
 

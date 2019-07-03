@@ -1,6 +1,6 @@
 import datetime
 import operator
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
@@ -10,30 +10,6 @@ from django.utils.translation import LANGUAGE_SESSION_KEY, get_language, ugettex
 
 # random object that will be used to check whether a default argument value was overwritten or not
 USE_DEFAULT = object()
-
-# the names used for contributors and staff
-STATES_ORDERED = OrderedDict((
-    ('new', _('new')),
-    ('prepared', _('prepared')),
-    ('editor_approved', _('lecturer approved')),
-    ('approved', _('approved')),
-    ('in_evaluation', _('in evaluation')),
-    ('evaluated', _('evaluated')),
-    ('reviewed', _('reviewed')),
-    ('published', _('published'))
-))
-
-# the descriptions used in tooltips for contributors
-STATE_DESCRIPTIONS = OrderedDict((
-    ('new', _('The evaluation was newly created and will be prepared by the evaluation team.')),
-    ('prepared', _('The evaluation was prepared by the evaluation team and is now available for editing to the responsible person.')),
-    ('editor_approved', _('The evaluation was approved by a lecturer and will now be checked by the evaluation team.')),
-    ('approved', _('All preparations are finished. The evaluation will begin once the defined start date is reached.')),
-    ('in_evaluation', _('The evaluation is currently running until the defined end date is reached.')),
-    ('evaluated', _('The evaluation has finished and will now be reviewed by the evaluation team.')),
-    ('reviewed', _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.')),
-    ('published', _('The results for this evaluation have been published.'))
-))
 
 
 def is_external_email(email):
