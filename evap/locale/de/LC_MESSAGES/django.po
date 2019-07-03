@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-03 15:58+0200\n"
-"PO-Revision-Date: 2019-07-03 15:58+0200\n"
+"POT-Creation-Date: 2019-07-03 16:34+0200\n"
+"PO-Revision-Date: 2019-07-03 16:34+0200\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -1715,21 +1715,21 @@ msgstr ""
 msgid "Default value. Will only see own text answers."
 msgstr "Standardwert. Kann nur die Textantworten zu sich selbst sehen."
 
-#: evap/evaluation/templates/textanswer_visibility_info.html:6
+#: evap/evaluation/templates/textanswer_visibility_info.html:4
 #, python-format
-msgid " (%(delegate_count)s person)"
-msgid_plural " (%(delegate_count)s people)"
+msgid "%(delegate_count)s person"
+msgid_plural "%(delegate_count)s people"
 msgstr[0] "%(delegate_count)s Person"
 msgstr[1] "%(delegate_count)s Personen"
 
-#: evap/evaluation/templates/textanswer_visibility_info.html:11
+#: evap/evaluation/templates/textanswer_visibility_info.html:7
 #, python-format
 msgid "%(delegate_count)s delegate"
 msgid_plural "%(delegate_count)s delegates"
 msgstr[0] "%(delegate_count)s Stellvertreter"
 msgstr[1] "%(delegate_count)s Stellvertreter"
 
-#: evap/evaluation/templates/textanswer_visibility_info.html:13
+#: evap/evaluation/templates/textanswer_visibility_info.html:9
 msgid "and the evaluation team."
 msgstr "und das Evaluierungsteam."
 
