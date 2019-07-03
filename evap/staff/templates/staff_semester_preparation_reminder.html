@@ -29,8 +29,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th style="width: 40%">{% trans 'Name' %}</th>
-                            <th style="width: 17%">{% trans 'State' %}</th>
+                            <th style="width: 57%">{% trans 'Name' %}</th>
                             <th style="width: 18%">{% trans 'Start of evaluation' %}</th>
                             <th style="width: 25%">{% trans 'Last modified by' %}</th>
                        </tr>
@@ -39,10 +38,12 @@
                         {% for evaluation in evaluations %}
                             <tr{% if evaluation.state != 'prepared' %} class="deactivate"{% endif %}>
                                 <th scope="row">
+                                    {% with approval_state_values=evaluation.state|approval_state_values %}
+                                        <span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span>
+                                    {% endwith %}
                                     <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
                                     {% include 'evaluation_badges.html' with mode='manager' %}
                                 </th>
-                                <td>{{ evaluation.state|statename }}</td>
                                 <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
                                 <td>
                                     {% if evaluation.last_modified_user %}

@@ -70,6 +70,7 @@ def get_evaluations_with_prefetched_data(semester):
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
+            num_course_evaluations=Count("course__evaluations", distinct=True),
         )
     )
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
@@ -144,6 +145,7 @@ def semester_view(request, semester_id):
         num_evaluations=len(evaluations),
         degree_stats=degree_stats,
         courses=courses,
+        approval_states=['new', 'prepared', 'editor_approved', 'approved'],
     )
     return render(request, "staff_semester_view.html", template_data)
 

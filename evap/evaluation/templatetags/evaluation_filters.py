@@ -1,10 +1,48 @@
+from collections import namedtuple
+
 from django.forms import TypedChoiceField
 from django.template import Library
+from django.utils.translation import ugettext_lazy as _
 
 from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
-from evap.evaluation.tools import STATES_ORDERED, STATE_DESCRIPTIONS
 from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
+
+
+# the names displayed for contributors
+STATE_NAMES = {
+    'new': _('new'),
+    'prepared': _('prepared'),
+    'editor_approved': _('editor approved'),
+    'approved': _('approved'),
+    'in_evaluation': _('in evaluation'),
+    'evaluated': _('evaluated'),
+    'reviewed': _('reviewed'),
+    'published': _('published'),
+}
+
+
+# the descriptions used in tooltips for contributors
+STATE_DESCRIPTIONS = {
+    'new': _('The evaluation was newly created and will be prepared by the evaluation team.'),
+    'prepared': _('The evaluation was prepared by the evaluation team and is now available for editors.'),
+    'editor_approved': _('The evaluation was approved by an editor and will now be checked by the evaluation team.'),
+    'approved': _('All preparations are finished. The evaluation will begin once the defined start date is reached.'),
+    'in_evaluation': _('The evaluation is currently running until the defined end date is reached.'),
+    'evaluated': _('The evaluation has finished and will now be reviewed by the evaluation team.'),
+    'reviewed': _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'),
+    'published': _('The results for this evaluation have been published.'),
+}
+
+
+# values for approval states shown to staff
+StateValues = namedtuple('StateValues', ('order', 'icon', 'filter', 'description'))
+APPROVAL_STATES = {
+    'new': StateValues(0, 'fas fa-circle icon-yellow', 'fa-circle icon-yellow', _('In preparation')),
+    'prepared': StateValues(2, 'far fa-square icon-gray', 'fa-square icon-gray', _('Awaiting editor review')),
+    'editor_approved': StateValues(1, 'far fa-check-square icon-yellow', 'fa-check-square icon-yellow', _('Approved by editor, awaiting manager review')),
+    'approved': StateValues(3, 'far fa-check-square icon-green', 'fa-check-square icon-green', _('Approved by manager')),
+}
 
 
 register = Library()
@@ -66,12 +104,30 @@ def to_colors(choices):
 
 @register.filter
 def statename(state):
-    return STATES_ORDERED.get(state)
+    return STATE_NAMES.get(state)
 
 
 @register.filter
 def statedescription(state):
     return STATE_DESCRIPTIONS.get(state)
+
+
+@register.filter
+def approval_state_values(state):
+    if state in APPROVAL_STATES:
+        return APPROVAL_STATES[state]
+    elif state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
+        return APPROVAL_STATES['approved']
+    return None
+
+
+@register.filter
+def approval_state_icon(state):
+    if state in APPROVAL_STATES:
+        return APPROVAL_STATES[state].icon
+    elif state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
+        return APPROVAL_STATES['approved'].icon
+    return None
 
 
 @register.filter
