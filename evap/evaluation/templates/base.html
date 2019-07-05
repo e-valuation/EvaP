@@ -106,7 +106,7 @@
             });
         });
     };
-    applySelect2($('select').not('.form-template select').not('[disabled]'));
+    applySelect2($('select').not('.form-template select').not('[disabled]').not('.no-select2'));
 
     // don't use the placeholder text on disabled select2 elements
     applySelect2Disabled = function(elem) {

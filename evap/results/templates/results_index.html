@@ -10,8 +10,17 @@
     <h3>{% trans 'Evaluation results' %}</h3>
     <div class="card mb-1">
         <div class="card-body">
-            <h5 class="card-title mb-3">{% trans 'Filter' %}</h5>
+            <h5 class="card-title">
+                {% trans 'Filter' %}
+                <div class="reset-button float-right" onclick="clearFilters();">
+                    <span class="fas fa-eraser"></span>
+                    {% trans 'Clear all filters' %}
+                </div>
+            </h5>
             <div class="row">
+                <div class="col-12 col-lg">
+                    <input type="search" name="search" class="form-control mb-3" placeholder="{% trans 'Search...' %}" />
+                </div>
                 <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
                     <div id="degree-select" class="result-filter-list">
@@ -51,19 +60,43 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-md d-flex flex-column justify-content-between filter-form">
-                    <div class="reset-button" onclick="resetOrdering();">
-                        <span class="fas fa-sort-amount-down"></span>
-                        {% trans 'Order by evaluation and semester' %}
-                    </div>
-                    <div class="reset-button" onclick="clearFilters();">
-                        <span class="fas fa-eraser"></span>
-                        {% trans 'Clear all filters' %}
-                    </div>
-                    <div class="input-group mt-auto">
-                        <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search" />
-                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-1">
+        <div class="card-body pb-lg-0">
+            <h5 class="card-title mb-lg-0">
+                {% trans 'Order' %}
+                <div class="reset-button float-right d-none d-lg-block" onclick="resetOrdering();">
+                    <span class="fas fa-sort-amount-down"></span>
+                    {% trans 'Order by evaluation and semester' %}
                 </div>
+            </h5>
+            <div class="grid-header results-grid-row d-none d-lg-grid">
+                <div data-col="name" class="col-sorting">{% trans 'Evaluation' %}</div>
+                <div data-col="semester" class="col-sorting">{% trans 'Semester' %}</div>
+                <div data-col="responsible" class="col-sorting">{% trans 'Responsible' %}</div>
+                <div data-col="participants">{% trans 'Voters' %}</div>
+                <div data-col="result" class="col-sorting">{% trans 'Distribution and average grade' %}</div>
+            </div>
+            <div class="d-flex d-lg-none">
+                <div class="mr-2 btn-switch btn-group btn-group-toggle icon-buttons" data-toggle="buttons">
+                    <label class="btn btn-light btn-lg active">
+                        <input type="radio" name="result-sorting-order" value="asc" />
+                        <span class="fas fa-sort-alpha-down"></span>
+                    </label>
+                    <label class="btn btn-light btn-lg">
+                        <input type="radio" name="result-sorting-order" value="desc" />
+                        <span class="fas fa-sort-alpha-up-alt"></span>
+                    </label>
+                </div>
+                <select name="result-sorting-column" class="form-control no-select2">
+                    <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
+                    <option value="name">{% trans 'Evaluation' %}</option>
+                    <option value="semester">{% trans 'Semester' %}</option>
+                    <option value="responsible">{% trans 'Responsible' %}</option>
+                    <option value="result">{% trans 'Distribution and average grade' %}</option>
+                </select>
             </div>
         </div>
     </div>
@@ -71,13 +104,6 @@
         <div class="card-body pt-0 pb-2">
             {% if evaluations %}
                 <div id="results-grid">
-                    <div class="grid-header results-grid-row">
-                        <div data-col="name" class="col-sorting">{% trans 'Evaluation' %}</div>
-                        <div data-col="semester" class="col-sorting">{% trans 'Semester' %}</div>
-                        <div data-col="responsible" class="col-sorting">{% trans 'Responsible' %}</div>
-                        <div data-col="participants">{% trans 'Voters' %}</div>
-                        <div data-col="result" class="col-sorting">{% trans 'Distribution and average grade' %}</div>
-                    </div>
                     {% regroup evaluations by course as course_evaluations %}
                     {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                         {% if course.evaluations.count > 1 %}
@@ -103,8 +129,8 @@
     <script type="text/javascript">
         var delayTimer;
         function updateTable(){
-            var searchValue = $('input#search').val().toLowerCase();
-            localStorage['results_enteredSearchValue'] = $('input#search').val();
+            var searchValue = $('input[name=search]').val().toLowerCase();
+            localStorage['results_enteredSearchValue'] = $('input[name=search]').val();
 
             var semesters = $('input[name=semester]:checked').get().map(elem => elem.value);
             var degrees = $('input[name=degree]:checked').get().map(elem => elem.value);
@@ -141,7 +167,7 @@
             $('input[name=semester]').prop('checked', false);
             $('input[name=degree]').prop('checked', false);
             $('input[name=courseType]').prop('checked', false);
-            $('input#search').val('');
+            $('input[name=search]').val('');
             updateTable();
         }
 
@@ -159,7 +185,7 @@
             });
         });
 
-        $("#results-grid > .grid-header .col-sorting").each(function() {
+        $(".grid-header .col-sorting").each(function() {
             let header = $(this);
             let column = header.data("col");
             header.click(event => {
@@ -179,7 +205,7 @@
             clearTimeout(showAllRowsTimeout);
 
             let parent = $("#results-grid");
-            let headers = parent.find(".grid-header [data-col]");
+            let headers = $(".grid-header [data-col]");
             headers.removeClass("col-sorting-asc col-sorting-desc");
 
             for ([column, ordering] of sorting) {
@@ -213,7 +239,7 @@
 
         $(document).ready(function() {
             // load previously selected filters
-            $('input#search').val(localStorage['results_enteredSearchValue']);
+            $('input[name=search]').val(localStorage['results_enteredSearchValue']);
             if(localStorage.getItem('results_selectedSemesters') != null){
                 var selectedSemesters = JSON.parse(localStorage['results_selectedSemesters']);
                 selectedSemesters.forEach(function(value){
@@ -243,11 +269,26 @@
             $('input[name=courseType]').on('change', function() {
                 updateTable();
             });
-            $('input#search').on('change paste input', function() {
+            $('input[name=search]').on('change paste input', function() {
                 clearTimeout(delayTimer);
                 delayTimer = setTimeout(function() {
                     updateTable();
                 }, 200);
+            }).keypress(event => {
+                if (event.keyCode == 13) {
+                    event.target.blur();
+                }
+            });
+
+            $('[name^=result-sorting]').change(() => {
+                const column = $('[name=result-sorting-column]').prop('value');
+                const order = $('[name=result-sorting-order]:checked').prop('value');
+                if (column === 'name-semester') {
+                    sorting = [["name", order], ["semester", order]];
+                } else {
+                    sorting = [[column, order]];
+                }
+                sortTable();
             });
 
             // apply initial filters

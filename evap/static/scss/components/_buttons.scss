@@ -86,8 +86,14 @@ a:not([href]):not(.disabled) {
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     font-size: 0.875rem;
 }
-.icon-buttons .btn {
-    min-width: 32px;
+.icon-buttons {
+    .btn {
+        min-width: 2.3em;
+    }
+
+    .btn-lg {
+        padding: 0.15em 0;
+    }
 }
 
 .btn-sm-narrow {
