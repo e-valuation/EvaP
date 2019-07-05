@@ -136,10 +136,12 @@ a:not([href]):not(.disabled) {
 }
 
 .feedback-button {
-    position: fixed;
-    right: 10px;
-    bottom: 8px;
-    z-index: $zindex-fixed;
+    @include media-breakpoint-up(md) {
+        position: fixed;
+        right: 10px;
+        bottom: 8px;
+        z-index: $zindex-fixed;
+    }
 
     .btn-dark {
         padding: 0 0.2rem;
