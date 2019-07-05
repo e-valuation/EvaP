@@ -11,6 +11,17 @@
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview-row{% endif %}">
     <div data-col="name" data-order="{{ evaluation.course.name|lower }}">
+        <div>
+            {% if not is_subentry %}
+                {% for degree in evaluation.course.degrees.all %}
+                    <span class="badge badge-primary badge-degree">{{ degree }}</span>
+                {% endfor %}
+                <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
+            {% endif %}
+            {% if evaluation.is_single_result %}
+                <span class="badge badge-success">{% trans 'Single result' %}</span>
+            {% endif %}
+        </div>
         <span class="evaluation-name">
             {% if is_subentry %}
                 {% if evaluation.name %}
@@ -34,17 +45,6 @@
                 {% endif %}
             {% endif %}
         </span>
-        <div>
-            {% if not is_subentry %}
-                {% for degree in evaluation.course.degrees.all %}
-                    <span class="badge badge-primary badge-degree">{{ degree }}</span>
-                {% endfor %}
-                <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
-            {% endif %}
-            {% if evaluation.is_single_result %}
-                <span class="badge badge-success">{% trans 'Single result' %}</span>
-            {% endif %}
-        </div>
     </div>
     {% if not is_subentry %}
         <div data-col="semester" data-order="{{ evaluation.course.semester.id }}" class="text-center semester-short-name">

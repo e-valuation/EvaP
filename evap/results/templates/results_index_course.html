@@ -10,13 +10,13 @@
 
 <div class="results-grid-row heading-row course-row">
     <div data-col="name" data-order="{{ course.name|lower }}">
-        <span class="evaluation-name">{{ course.name }}</span>
         <div>
             {% for degree in course.degrees.all %}
                 <span class="badge badge-primary badge-degree">{{ degree }}</span>
             {% endfor %}
             <span class="badge badge-secondary badge-course-type">{{ course.type }}</span>
         </div>
+        <span class="evaluation-name">{{ course.name }}</span>
     </div>
     <div data-col="semester" data-order="{{ course.semester.id }}" class="text-center semester-short-name">
         {{ course.semester.short_name }}
