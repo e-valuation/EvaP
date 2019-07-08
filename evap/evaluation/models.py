@@ -1035,6 +1035,8 @@ class RatingAnswerCounter(Answer):
     bipolar: -3, -2, -1, 0, 1, 2, 3; where a lower absolute means more agreement and the sign shows the pole
     yes / no: 1, 5; for 1 being the good answer"""
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
@@ -1067,7 +1069,8 @@ class TextAnswer(Answer):
     state = models.CharField(max_length=2, choices=TEXTANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
 
     class Meta:
-        # Prevent ordering by date for privacy reasons
+        # Prevent ordering by date for privacy reasons. Otherwise, entries
+        # may be returned in insertion order.
         ordering = ['id', ]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
