@@ -263,7 +263,7 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'The import run will create 2 users:<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)')
+        self.assertContains(page, 'The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium)<br />Bastius Quid (bastius.quid.ext)')
         self.assertContains(page, 'Import previously uploaded file')
 
         form = page.forms["user-import-form"]
@@ -303,8 +303,8 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
         helper_delete_all_import_files(self.user.id)
@@ -646,8 +646,8 @@ class TestSemesterImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):
@@ -1440,8 +1440,8 @@ class TestEvaluationImportPersonsView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-participants")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_import_contributors_error_handling(self):
@@ -1471,8 +1471,8 @@ class TestEvaluationImportPersonsView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-contributors")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):

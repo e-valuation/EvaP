@@ -48,7 +48,7 @@ class TestUserImporter(TestCase):
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
-        self.assertIn('Successfully created 2 users:<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)', success_messages)
+        self.assertIn('Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium)<br />Bastius Quid (bastius.quid.ext)', success_messages)
         self.assertIn('Successfully read Excel file.', success_messages)
         self.assertEqual(warnings, {})
         self.assertEqual(errors, [])
@@ -66,8 +66,8 @@ class TestUserImporter(TestCase):
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
-        self.assertIn("An existing user has the same first and last name as a new user:<br>"
-                " - lucilia.manilium2 ( Lucilia Manilium, ) (existing)<br>"
+        self.assertIn("An existing user has the same first and last name as a new user:<br />"
+                " - lucilia.manilium2 ( Lucilia Manilium, ) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
                 warnings_test[ExcelImporter.W_DUPL])
 
@@ -75,14 +75,14 @@ class TestUserImporter(TestCase):
         mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The existing user would be overwritten with the following data:<br>"
-                      " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertIn("The existing user would be overwritten with the following data:<br />"
+                      " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                       " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
                       warnings_test[ExcelImporter.W_EMAIL])
 
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("The existing user was overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertIn("The existing user was overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
                 warnings_no_test[ExcelImporter.W_EMAIL])
 
