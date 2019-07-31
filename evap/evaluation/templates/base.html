@@ -78,7 +78,12 @@
 
 <script type="text/javascript">
     activateTooltips = function(selector = "") {
-        $(selector + ' [data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
+        $(selector + ' [data-toggle="tooltip"]')
+            .tooltip({container: 'body', html: true, trigger: 'hover'})
+            .on('inserted.bs.tooltip', event => {
+                // trigger an immediate update of the tooltip to avoid later reposition
+                setTimeout(() => $(event.target).tooltip('update'), 0);
+            });
     };
     activateTooltips();
 

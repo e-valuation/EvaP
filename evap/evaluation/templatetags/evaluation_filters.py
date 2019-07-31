@@ -53,6 +53,11 @@ def _zip(a, b):
     return zip(a, b)
 
 
+@register.filter()
+def zip_choices(counts, choices):
+    return zip(counts, choices.names, choices.colors, choices.values)
+
+
 @register.filter
 def ordering_index(evaluation):
     if evaluation.state in ['new', 'prepared', 'editor_approved', 'approved']:

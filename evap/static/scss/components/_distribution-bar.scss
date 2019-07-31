@@ -1,3 +1,9 @@
+.pole-icon {
+    font-size: 1.4rem;
+    line-height: 1rem;
+    vertical-align: -0.15rem;
+}
+
 .distribution-bar-container {
     position: relative;
     border-radius: 3px;
@@ -20,8 +26,7 @@
 
     .left, .right {
         position: absolute;
-        top: 0;
-        line-height: 1.6em;
+        top: 0.05rem;
         color: $darker-gray;
         font-size: 0.9rem;
         @include bar-shadow($white);
@@ -37,43 +42,32 @@
         right: $distance;
     }
 
-    .right.weight {
-        top: -0.1rem;
-    }
-
     .pole-icon {
         color: $white;
         @include bar-shadow($medium-gray);
-        font-size: 1.4rem;
-        line-height: 1em;
     }
 
-    &:not(:hover) .adjective,
-    &:hover .pole-icon {
+    .adjective {
         display: none;
+        margin: 0 0.5rem;
     }
 
     @include media-breakpoint-only(md) {
-        &:not(:hover) .adjective {
-            display: block;
-        }
-
-        .pole-icon {
-            display: none;
-        }
-
         .col-answer & {
             margin: 0 5rem;
+        }
+    }
+}
 
-            .left {
-                left: unset;
-                right: calc(100% + #{$distance});
-            }
+.result-widget:hover {
+    .pole-icon {
+        color: $darker-gray;
+        @include bar-shadow($white);
+    }
 
-            .right {
-                right: unset;
-                left: calc(100% + #{$distance});
-            }
+    @include media-breakpoint-up(sm) {
+        .adjective {
+            display: inline;
         }
     }
 }
