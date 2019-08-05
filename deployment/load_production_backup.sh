@@ -6,8 +6,10 @@
 set -e # abort on error
 cd $(dirname $0)/.. # change to root directory
 
-USER="evap"
+USERNAME="evap"
 ENVDIR="/home/evap/env"
+ADDITIONAL_ARGUMENTS=""
+[[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7 && ADDITIONAL_ARGUMENTS=" --noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -39,26 +41,26 @@ then
     exit 1
 fi
 
-sudo service apache2 stop
+[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 stop
 
-sudo -H -u $USER $ENVDIR/bin/pip install -r requirements.txt
+sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
 
 # compilemessages and compress regularly fail without any real issue.
-sudo -H -u $USER $ENVDIR/bin/python manage.py compilemessages || true
-sudo -H -u $USER $ENVDIR/bin/python manage.py collectstatic --noinput
-sudo -H -u $USER $ENVDIR/bin/python manage.py compress --verbosity=0 || true
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compilemessages || true
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py collectstatic --noinput
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compress --verbosity=0 || true
 
-sudo -H -u $USER $ENVDIR/bin/python manage.py reset_db
-sudo -H -u $USER $ENVDIR/bin/python manage.py migrate
-sudo -H -u $USER $ENVDIR/bin/python manage.py flush
-sudo -H -u $USER $ENVDIR/bin/python manage.py loaddata $1
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py reset_db $ADDITIONAL_ARGUMENTS
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py migrate
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py flush $ADDITIONAL_ARGUMENTS
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py loaddata $1
 
-sudo -H -u $USER $ENVDIR/bin/python manage.py clear_cache
-sudo -H -u $USER $ENVDIR/bin/python manage.py refresh_results_cache
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py refresh_results_cache
 
-sudo -H -u $USER $ENVDIR/bin/python manage.py clear_cache --cache=sessions
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache --cache=sessions
 
-sudo service apache2 start
+[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 start
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 
