@@ -50,6 +50,9 @@ sudo -H -u vagrant /home/vagrant/venvs/env/bin/pip install -r /vagrant/requireme
 cp /vagrant/deployment/localsettings.template.py /vagrant/evap/localsettings.py
 sed -i -e "s/\${SECRET_KEY}/`sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32`/" /vagrant/evap/localsettings.py
 
+# setup vm auto-completion
+sudo cp /vagrant/deployment/manage_autocompletion.sh /etc/bash_completion.d/
+
 # setup evap
 cd /vagrant
 git submodule update --init

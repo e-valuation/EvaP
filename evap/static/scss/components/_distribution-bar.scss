@@ -44,6 +44,8 @@
     .pole-icon {
         color: $white;
         @include bar-shadow($medium-gray);
+        font-size: 1.4rem;
+        line-height: 1em;
     }
 
     &:not(:hover) .adjective,

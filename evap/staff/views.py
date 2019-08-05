@@ -406,6 +406,11 @@ def semester_delete(request):
 
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
+    RatingAnswerCounter.objects.filter(contribution__evaluation__course__semester=semester).delete()
+    TextAnswer.objects.filter(contribution__evaluation__course__semester=semester).delete()
+    Contribution.objects.filter(evaluation__course__semester=semester).delete()
+    Evaluation.objects.filter(course__semester=semester).delete()
+    Course.objects.filter(semester=semester).delete()
     semester.delete()
     delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
     return redirect('staff:index')

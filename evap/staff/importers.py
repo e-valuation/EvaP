@@ -14,7 +14,7 @@ from evap.evaluation.tools import is_external_email
 def create_user_list_string_for_message(users):
     msg = ""
     for user in users:
-        msg += "<br>"
+        msg += "<br />"
         msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
     return msg
 
@@ -219,8 +219,8 @@ class ExcelImporter(object):
         else:
             msg = _("The existing user was overwritten with the following data:")
         return (mark_safe(msg
-            + "<br> - " + ExcelImporter._create_user_string(user) + _(" (existing)")
-            + "<br> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
+            + "<br /> - " + ExcelImporter._create_user_string(user) + _(" (existing)")
+            + "<br /> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
 
     @staticmethod
     def _create_user_inactive_warning(user, test_run):
@@ -233,8 +233,8 @@ class ExcelImporter(object):
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = _("An existing user has the same first and last name as a new user:")
         for user in users_with_same_names:
-            warningstring += "<br> - " + self._create_user_string(user) + _(" (existing)")
-        warningstring += "<br> - " + self._create_user_string(user_data) + _(" (new)")
+            warningstring += "<br /> - " + self._create_user_string(user) + _(" (existing)")
+        warningstring += "<br /> - " + self._create_user_string(user_data) + _(" (new)")
         self.warnings[self.W_DUPL].append(mark_safe(warningstring))
 
     def check_user_data_sanity(self, test_run):
