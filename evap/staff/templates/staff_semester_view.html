@@ -10,7 +10,7 @@
         {% if request.user.is_manager %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
-            <button type="button"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
+            <button type="button" id="deleteSemesterButton"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
         {% endif %}
     </h3>
 
@@ -334,11 +334,14 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete semester' as title %}
-    {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.' as question %}
     {% trans 'Delete semester' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
+    {% include 'confirmation_text_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
         function deleteSemesterModalAction(dataId) {
+            var deleteButton = $('#deleteSemesterButton');
+            deleteButton.prop('disabled', true);
+            deleteButton.text("{% trans 'Deleting...' %}");
             $.ajax({
                 type: "POST",
                 url: "{% url 'staff:semester_delete' %}",

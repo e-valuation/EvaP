@@ -2,13 +2,13 @@
 {% load evaluation_filters %}
 
 <nav class="navbar navbar-dark bg-dark {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} pl-0">
-    <a class="d-block {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-none{% else %}d-lg-none{% endif %}" href="/"><img class="brand-image" src="{% get_static_prefix %}images/evap.png"></a>
+    <a class="d-block {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-none{% else %}d-lg-none{% endif %}" href="/"><img class="brand-image" src="{% get_static_prefix %}images/evap.png" /></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
         <ul class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
-            <a href="/"><img class="brand-image" src="{% get_static_prefix %}images/evap.png"></a>
+            <a href="/"><img class="brand-image" src="{% get_static_prefix %}images/evap.png" /></a>
         </ul>
         <ul class="navbar-nav justify-content-center">
             {% if user.is_authenticated %}
