@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
@@ -67,7 +68,7 @@
         <div class="card-body pb-lg-0">
             <h5 class="card-title mb-lg-0">
                 {% trans 'Order' %}
-                <div class="reset-button float-right d-none d-lg-block" onclick="resetOrdering();">
+                <div class="reset-button float-right d-none d-lg-block" data-reset="order">
                     <span class="fas fa-sort-amount-down"></span>
                     {% trans 'Order by evaluation and semester' %}
                 </div>
@@ -82,15 +83,15 @@
             <div class="d-flex d-lg-none">
                 <div class="mr-2 btn-switch btn-group btn-group-toggle icon-buttons" data-toggle="buttons">
                     <label class="btn btn-light btn-lg active">
-                        <input type="radio" name="result-sorting-order" value="asc" />
+                        <input type="radio" name="result-sort-order" value="asc" />
                         <span class="fas fa-sort-alpha-down"></span>
                     </label>
                     <label class="btn btn-light btn-lg">
-                        <input type="radio" name="result-sorting-order" value="desc" />
+                        <input type="radio" name="result-sort-order" value="desc" />
                         <span class="fas fa-sort-alpha-up-alt"></span>
                     </label>
                 </div>
-                <select name="result-sorting-column" class="form-control no-select2">
+                <select name="result-sort-column" class="form-control no-select2">
                     <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
                     <option value="name">{% trans 'Evaluation' %}</option>
                     <option value="semester">{% trans 'Semester' %}</option>
@@ -126,7 +127,9 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    <script type="text/javascript">
+    <script type="module">
+        import {ResultGrid} from "{% static 'js/datagrid.js' %}";
+
         var delayTimer;
         function updateTable(){
             var searchValue = $('input[name=search]').val().toLowerCase();
@@ -169,72 +172,6 @@
             $('input[name=courseType]').prop('checked', false);
             $('input[name=search]').val('');
             updateTable();
-        }
-
-        let sorting = [["name", "asc"], ["semester", "asc"]];
-        let children = [];
-
-        $("#results-grid > :not(.grid-header)").each(function() {
-            const row = $(this);
-            children.push({
-                element: this,
-                name: row.find("[data-col=name]").data("order").toLowerCase(),
-                semester: row.find("[data-col=semester]").data("order"),
-                responsible: row.find("[data-col=responsible]").data("order").toLowerCase(),
-                result: row.find("[data-col=result]").data("order"),
-            });
-        });
-
-        $(".grid-header .col-sorting").each(function() {
-            let header = $(this);
-            let column = header.data("col");
-            header.click(event => {
-                if (header.hasClass("col-sorting-asc")) {
-                    sorting = [[column, "desc"]];
-                } else {
-                    sorting = [[column, "asc"]];
-                }
-
-                sortTable();
-            });
-        });
-
-        let showAllRowsTimeout = null;
-
-        function sortTable() {
-            clearTimeout(showAllRowsTimeout);
-
-            let parent = $("#results-grid");
-            let headers = $(".grid-header [data-col]");
-            headers.removeClass("col-sorting-asc col-sorting-desc");
-
-            for ([column, ordering] of sorting) {
-                headers.filter(`[data-col=${column}]`).addClass(`col-sorting-${ordering}`);
-            }
-
-            children.sort((a, b) => {
-                for ([column, ordering] of sorting) {
-                    if (a[column] < b[column]) {
-                        return ordering === "asc" ? -1 : 1;
-                    } else if (a[column] > b[column]) {
-                        return ordering === "asc" ? 1 : -1;
-                    }
-                }
-                return 0;
-            });
-            let elements = $(children.map(child => child.element));
-            // Adding all sorted rows at once is too slow.
-            // Thus, we only add a small number of rows to provide a fast feedback.
-            elements.detach();
-            parent.append(elements.slice(0, 50));
-            showAllRowsTimeout = setTimeout(() => {
-                parent.append(elements.slice(50));
-            }, 0);
-        }
-
-        function resetOrdering() {
-            sorting = [["name", "asc"], ["semester", "asc"]];
-            sortTable();
         }
 
         $(document).ready(function() {
@@ -280,20 +217,18 @@
                 }
             });
 
-            $('[name^=result-sorting]').change(() => {
-                const column = $('[name=result-sorting-column]').prop('value');
-                const order = $('[name=result-sorting-order]:checked').prop('value');
-                if (column === 'name-semester') {
-                    sorting = [["name", order], ["semester", order]];
-                } else {
-                    sorting = [[column, order]];
-                }
-                sortTable();
-            });
-
             // apply initial filters
             updateTable();
-            resetOrdering();
+        });
+
+        $(document).ready(() => {
+            new ResultGrid().init({
+                head: $(".grid-header"),
+                container: $("#results-grid"),
+                sortColumnSelect: $("[name=result-sort-column]"),
+                sortOrderCheckboxes: $("[name=result-sort-order]"),
+                resetOrder: $("[data-reset=order]"),
+            });
         });
     </script>
 {% endblock %}
