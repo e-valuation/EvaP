@@ -24,7 +24,7 @@
             {% endif %}
             {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
             {% if evaluation.state == 'in_evaluation' %}
-                <span data-toggle="tooltip" data-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running.' %}"></span>
+                <span data-toggle="tooltip" data-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running' %}"></span>
             {% elif evaluation.state == 'evaluated' %}
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% elif evaluation.state == 'reviewed' %}

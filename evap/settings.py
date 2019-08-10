@@ -207,12 +207,14 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # LocaleMiddleware should be here according to https://docs.djangoproject.com/en/2.2/topics/i18n/translation/#how-django-discovers-language-preference
+    # Furthermore, set_or_get_language (happens on login) uses the active language, so LocaleMiddleware should be before AuthenticationMiddleware
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
 ]
 
 TEMPLATES = [

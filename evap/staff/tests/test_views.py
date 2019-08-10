@@ -263,7 +263,7 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'The import run will create 2 users:<br>Lucilia Manilium (lucilia.manilium)<br>Bastius Quid (bastius.quid.ext)')
+        self.assertContains(page, 'The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium)<br />Bastius Quid (bastius.quid.ext)')
         self.assertContains(page, 'Import previously uploaded file')
 
         form = page.forms["user-import-form"]
@@ -303,8 +303,8 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
         helper_delete_all_import_files(self.user.id)
@@ -352,12 +352,15 @@ class TestSemesterView(WebTest):
             course=mommy.make(Course, name_de="B", name_en="A", semester=cls.semester))
 
     def test_view_list_sorting(self):
-        page = self.app.get(self.url, user='manager', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'en'}).body.decode("utf-8")
+        UserProfile.objects.filter(username='manager').update(language='en')
+        page = self.app.get(self.url, user='manager').body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         self.assertGreater(position_evaluation1, position_evaluation2)
+        self.app.reset() # language is only loaded on login, so we're forcing a re-login here
 
-        page = self.app.get(self.url, user='manager', extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'}).body.decode("utf-8")
+        UserProfile.objects.filter(username='manager').update(language='de')
+        page = self.app.get(self.url, user='manager').body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         self.assertLess(position_evaluation1, position_evaluation2)
@@ -444,13 +447,38 @@ class TestSemesterDeleteView(WebTest):
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
-    def test_success(self):
+    def test_success_if_no_courses(self):
         semester = mommy.make(Semester)
         self.assertTrue(semester.can_be_deleted_by_manager)
         response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
+    def test_success_if_archived(self):
+        semester = mommy.make(Semester)
+        course = mommy.make(Course, semester=semester)
+        evaluation = mommy.make(Evaluation, course=course, state='published')
+        general_contribution = evaluation.general_contribution
+        responsible_contribution = mommy.make(Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile))
+        textanswer = mommy.make(TextAnswer, contribution=general_contribution, state='PU')
+        ratinganswercounter = mommy.make(RatingAnswerCounter, contribution=responsible_contribution)
+
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive_participations()
+        semester.delete_grade_documents()
+        semester.archive_results()
+
+        self.assertTrue(semester.can_be_deleted_by_manager)
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
+        self.assertFalse(Course.objects.filter(pk=course.pk).exists())
+        self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
+        self.assertFalse(Contribution.objects.filter(pk=general_contribution.pk).exists())
+        self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
+        self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
+        self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
 
 class TestSemesterAssignView(WebTest):
     url = '/staff/semester/1/assign'
@@ -618,8 +646,8 @@ class TestSemesterImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):
@@ -1412,8 +1440,8 @@ class TestEvaluationImportPersonsView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-participants")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_import_contributors_error_handling(self):
@@ -1443,8 +1471,8 @@ class TestEvaluationImportPersonsView(WebTest):
         form["excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-contributors")
-        self.assertContains(reply, "The existing user would be overwritten with the following data:<br>"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br>"
+        self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
+                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
                 " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
 
     def test_suspicious_operation(self):

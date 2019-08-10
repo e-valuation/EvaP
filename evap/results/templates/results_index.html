@@ -17,7 +17,7 @@
                     <div id="degree-select" class="result-filter-list">
                         {% for degree in degrees %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}">
+                                <input class="form-check-input" type="checkbox" value="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}" />
                                 <label class="form-check-label w-100" for="degree-{{ degree.id }}">
                                     {{ degree.name }}
                                 </label>
@@ -30,7 +30,7 @@
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}">
+                                <input class="form-check-input" type="checkbox" value="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}" />
                                 <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
                                     {{ course_type.name }}
                                 </label>
@@ -43,7 +43,7 @@
                     <div id="semester-select" class="result-filter-list">
                         {% for semester in semesters %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}">
+                                <input class="form-check-input" type="checkbox" value="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}" />
                                 <label class="form-check-label w-100" for="semester-{{ semester.id }}">
                                     {{ semester.name }}
                                 </label>
@@ -61,7 +61,7 @@
                         {% trans 'Clear all filters' %}
                     </div>
                     <div class="input-group mt-auto">
-                        <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search">
+                        <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search" />
                     </div>
                 </div>
             </div>
