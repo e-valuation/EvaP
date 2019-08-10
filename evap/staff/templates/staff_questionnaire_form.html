@@ -73,8 +73,8 @@
         {% include 'sortable_form_js.html' %}
         <script type="text/javascript">
             rowChanged = function(row) {
-                nameDe = $(row.find('input[id$=-text_de]')).val();
-                nameEn = $(row.find('input[id$=-text_en]')).val();
+                nameDe = $(row.find('textarea[id$=-text_de]')).val();
+                nameEn = $(row.find('textarea[id$=-text_en]')).val();
                 return nameDe || nameEn
             };
             rowAdded = function(row) {
