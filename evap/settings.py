@@ -59,6 +59,11 @@ INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
 
 INTERNAL_USERNAMES_MAX_LENGTH = 20
 
+# List of tuples defining email domains that should be replaced on saving UserProfiles.
+# Emails ending on the first value will have this part replaced by the second value.
+# e.g.: [("institution.example.com", "institution.com")]
+INSTITUTION_EMAIL_REPLACEMENTS = []
+
 # the importer accepts only these two strings in the 'graded' column
 IMPORTER_GRADED_YES = "yes"
 IMPORTER_GRADED_NO = "no"
@@ -178,6 +183,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'mozilla_django_oidc': {
+            'handlers': ['console', 'file', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
@@ -202,6 +212,7 @@ INSTALLED_APPS = [
     'evap.rewards',
     'evap.grades',
     'django.forms',
+    'mozilla_django_oidc',
 ]
 
 MIDDLEWARE = [
@@ -215,6 +226,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mozilla_django_oidc.middleware.SessionRefresh',
 ]
 
 TEMPLATES = [
@@ -242,6 +254,7 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
+    'evap.evaluation.auth.OpenIDAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -354,6 +367,25 @@ SLOGANS_EN = [
     "Everyone values awesome products",
     "Enhances vibrant academic programs",
 ]
+
+
+### OpenID Login
+# replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
+ACTIVATE_OPEN_ID_LOGIN = False
+OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
+OIDC_RP_SIGN_ALGO = 'RS256'
+OIDC_USERNAME_ALGO = ''
+OIDC_RP_SCOPES = 'openid email profile'
+LOGOUT_REDIRECT_URL = '/'
+
+OIDC_RP_CLIENT_ID = 'evap'
+OIDC_RP_CLIENT_SECRET = 'evap-secret'
+
+OIDC_OP_AUTHORIZATION_ENDPOINT = "https://example.com/auth"
+OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"
+OIDC_OP_USER_ENDPOINT = "https://example.com/me"
+OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
+
 
 ### Other
 
