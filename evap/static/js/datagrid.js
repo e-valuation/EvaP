@@ -1,6 +1,6 @@
 // Grid based data grid which has its container separated from its header
 export class ResultGrid {
-    init({storageKey, head, container, sortColumnSelect, sortOrderCheckboxes, resetOrder}) {
+    init({storageKey, head, container, searchInput, filterCheckboxes, sortColumnSelect, sortOrderCheckboxes, resetFilter, resetOrder}) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.find(".col-order").each((index, header) => {
@@ -8,8 +8,11 @@ export class ResultGrid {
             this.sortableHeaders.set(column, $(header));
         });
         this.container = container;
+        this.searchInput = searchInput;
+        this.filterCheckboxes = filterCheckboxes;
         this.sortColumnSelect = sortColumnSelect;
         this.sortOrderCheckboxes = sortOrderCheckboxes;
+        this.resetFilter = resetFilter;
         this.resetOrder = resetOrder;
         this.rows = this.fetchRowData();
         this.restoreStateFromStorage();
@@ -17,6 +20,34 @@ export class ResultGrid {
     }
 
     bindEvents() {
+        this.delayTimer = null;
+        this.searchInput.on("change paste input", () => {
+            clearTimeout(this.delayTimer);
+            this.delayTimer = setTimeout(() => {
+                this.state.search = this.searchInput.val();
+                this.filterRows();
+                this.renderToDOM();
+            }, 200);
+        }).keypress(event => {
+            // after enter, unfocus the search input to collapse the screen keyboard
+            if (event.keyCode === 13) {
+                event.target.blur();
+            }
+        });
+
+        for (const [name, {checkboxes}] of Object.entries(this.filterCheckboxes)) {
+            checkboxes.on("change", () => {
+                const values = checkboxes.filter(":checked").get().map(elem => elem.value);
+                if (values.length > 0) {
+                    this.state.filter.set(name, values);
+                } else {
+                    this.state.filter.delete(name);
+                }
+                this.filterRows();
+                this.renderToDOM();
+            });
+        }
+
         for (const [column, header] of this.sortableHeaders) {
             header.click(() => {
                 // The first click order the column ascending. All following clicks toggle the order.
@@ -35,6 +66,14 @@ export class ResultGrid {
             }
         });
 
+        this.resetFilter.click(() => {
+            this.state.search = "";
+            this.state.filter.clear();
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
+        });
+
         this.resetOrder.click(() => {
             this.sort(this.defaultOrder);
         });
@@ -43,6 +82,16 @@ export class ResultGrid {
     fetchRowData() {
         return this.container.children().get()
             .map(row => {
+                const searchWords = $(row).find(".evaluation-name, [data-col=responsible]").get()
+                    .flatMap(element => this.searchWordsOf($(element).text()));
+                let filterValues = new Map();
+                for (const [name, {selector, checkboxes}] of Object.entries(this.filterCheckboxes)) {
+                    // To store filter values independent of the language, use the corresponding id from the checkbox
+                    const values = $(row).find(selector).get()
+                        .map(element => $(element).text().trim())
+                        .map(filterName => checkboxes.filter(`[data-filter="${filterName}"]`).val());
+                    filterValues.set(name, values);
+                }
                 let orderValues = new Map();
                 for (const column of this.sortableHeaders.keys()) {
                     const cell = $(row).find(`[data-col=${column}]`);
@@ -54,9 +103,31 @@ export class ResultGrid {
                 }
                 return {
                     element: row,
+                    searchWords,
+                    filterValues,
                     orderValues,
                 };
             });
+    }
+
+    searchWordsOf(string) {
+        return string.toLowerCase().trim().split(/\s+/);
+    }
+
+    // Filters rows respecting the current search string and filters by their searchWords and filterValues
+    filterRows() {
+        const searchWords = this.searchWordsOf(this.state.search);
+        for (const row of this.rows) {
+            const isDisplayedBySearch = searchWords.every(searchWord => {
+                return row.searchWords.some(rowWord => rowWord.includes(searchWord));
+            });
+            const isDisplayedByFilters = [...this.state.filter].every(([name, filterValues]) => {
+                return filterValues.some(filterValue => {
+                    return row.filterValues.get(name).some(rowValue => rowValue === filterValue);
+                });
+            });
+            row.isDisplayed = isDisplayedBySearch && isDisplayedByFilters;
+        }
     }
 
     sort(order) {
@@ -89,7 +160,9 @@ export class ResultGrid {
     // Reflects changes to the rows to the DOM
     renderToDOM() {
         this.container.children().detach();
-        const elements = this.rows.map(row => row.element);
+        const elements = this.rows
+            .filter(row => row.isDisplayed)
+            .map(row => row.element);
         this.container.append($(elements));
         this.saveStateToStorage();
     }
@@ -99,14 +172,41 @@ export class ResultGrid {
     }
 
     restoreStateFromStorage() {
-        this.state = Object.assign({
-            order: this.defaultOrder,
-        }, JSON.parse(localStorage.getItem(this.storageKey)));
+        const stored = JSON.parse(localStorage.getItem(this.storageKey)) || {};
+        this.state = {
+            search: stored.search || "",
+            filter: new Map(stored.filter),
+            order: stored.order || this.defaultOrder,
+        };
+        this.reflectFilterStateOnInputs();
+        this.filterRows();
         this.sortRows();
         this.renderToDOM();
     }
 
     saveStateToStorage() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.state));
+        const stored = {
+            search: this.state.search,
+            filter: [...this.state.filter],
+            order: this.state.order,
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(stored));
+    }
+
+    reflectFilterStateOnInputs() {
+        this.searchInput.val(this.state.search);
+        for (const [name, {checkboxes}] of Object.entries(this.filterCheckboxes)) {
+            checkboxes.each((index, checkbox) => {
+                let isActive;
+                if (this.state.filter.has(name)) {
+                    isActive = this.state.filter.get(name).some(filterValue => {
+                        return filterValue === $(checkbox).val();
+                    });
+                } else {
+                    isActive = false;
+                }
+                $(checkbox).prop("checked", isActive);
+            });
+        }
     }
 }

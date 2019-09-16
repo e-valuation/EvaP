@@ -13,7 +13,7 @@
         <div class="card-body">
             <h5 class="card-title">
                 {% trans 'Filter' %}
-                <div class="reset-button float-right" onclick="clearFilters();">
+                <div class="reset-button float-right" data-reset="filter">
                     <span class="fas fa-eraser"></span>
                     {% trans 'Clear all filters' %}
                 </div>
@@ -27,7 +27,7 @@
                     <div id="degree-select" class="result-filter-list">
                         {% for degree in degrees %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}" />
+                                <input class="form-check-input" type="checkbox" value="{{ degree.id }}" data-filter="{{ degree.name }}" name="degree" id="degree-{{ degree.id }}" />
                                 <label class="form-check-label w-100" for="degree-{{ degree.id }}">
                                     {{ degree.name }}
                                 </label>
@@ -40,7 +40,7 @@
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}" />
+                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}"  data-filter="{{ course_type.name }}"name="courseType" id="courseType-{{ course_type.id }}" />
                                 <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
                                     {{ course_type.name }}
                                 </label>
@@ -53,7 +53,7 @@
                     <div id="semester-select" class="result-filter-list">
                         {% for semester in semesters %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}" />
+                                <input class="form-check-input" type="checkbox" value="{{ semester.id }}" data-filter="{{ semester.short_name }}" name="semester" id="semester-{{ semester.id }}" />
                                 <label class="form-check-label w-100" for="semester-{{ semester.id }}">
                                     {{ semester.name }}
                                 </label>
@@ -130,104 +130,29 @@
     <script type="module">
         import {ResultGrid} from "{% static 'js/datagrid.js' %}";
 
-        var delayTimer;
-        function updateTable(){
-            var searchValue = $('input[name=search]').val().toLowerCase();
-            localStorage['results_enteredSearchValue'] = $('input[name=search]').val();
-
-            var semesters = $('input[name=semester]:checked').get().map(elem => elem.value);
-            var degrees = $('input[name=degree]:checked').get().map(elem => elem.value);
-            var courseTypes = $('input[name=courseType]:checked').get().map(elem => elem.value);
-
-            localStorage['results_selectedSemesters'] = JSON.stringify(semesters);
-            localStorage['results_selectedDegrees'] = JSON.stringify(degrees);
-            localStorage['results_selectedCourseTypes'] = JSON.stringify(courseTypes);
-
-            // find which rows to show
-            $("#results-grid > :not(.grid-header)").each(function() {
-                const row = $(this);
-
-                const evaluationNames = row.find('.evaluation-name').get()
-                    .map(element => $(element).html().trim().toLowerCase())
-                    .join(" ");
-
-                const showRow =
-                    (semesters.length == 0 || semesters.includes(row.find('[data-col=semester]').text().trim())) &&
-                    (degrees.length == 0 || includesAny(row.find('.badge-degree').text(), degrees)) &&
-                    (courseTypes.length == 0 || courseTypes.includes(row.find('.badge-course-type').text())) &&
-                    (searchValue.length == 0 ||
-                        evaluationNames.includes(searchValue) ||
-                        row.find('[data-col=responsible]').text().toLowerCase().includes(searchValue));
-                row.toggleClass("d-none", !showRow);
-            });
-        }
-
-        function includesAny(string, array){
-            return array.some(s => string.includes(s))
-        }
-
-        function clearFilters(){
-            $('input[name=semester]').prop('checked', false);
-            $('input[name=degree]').prop('checked', false);
-            $('input[name=courseType]').prop('checked', false);
-            $('input[name=search]').val('');
-            updateTable();
-        }
-
-        $(document).ready(function() {
-            // load previously selected filters
-            $('input[name=search]').val(localStorage['results_enteredSearchValue']);
-            if(localStorage.getItem('results_selectedSemesters') != null){
-                var selectedSemesters = JSON.parse(localStorage['results_selectedSemesters']);
-                selectedSemesters.forEach(function(value){
-                    $(`input[name=semester][value="${value}"]`).prop('checked', true);
-                });
-            }
-            if(localStorage.getItem('results_selectedDegrees') != null){
-                var selectedDegrees = JSON.parse(localStorage['results_selectedDegrees']);
-                selectedDegrees.forEach(function(value){
-                    $(`input[name=degree][value="${value}"]`).prop('checked', true);
-                });
-            }
-            if(localStorage.getItem('results_selectedCourseTypes') != null){
-                var selectedCourseTypes = JSON.parse(localStorage['results_selectedCourseTypes']);
-                selectedCourseTypes.forEach(function(value){
-                    $(`input[name=courseType][value="${value}"]`).prop('checked', true);
-                });
-            }
-
-            // add change handlers for filter checkboxes and search field
-            $('input[name=semester]').on('change', function() {
-                updateTable();
-            });
-            $('input[name=degree]').on('change', function() {
-                updateTable();
-            });
-            $('input[name=courseType]').on('change', function() {
-                updateTable();
-            });
-            $('input[name=search]').on('change paste input', function() {
-                clearTimeout(delayTimer);
-                delayTimer = setTimeout(function() {
-                    updateTable();
-                }, 200);
-            }).keypress(event => {
-                if (event.keyCode == 13) {
-                    event.target.blur();
-                }
-            });
-
-            // apply initial filters
-            updateTable();
-        });
-
         $(document).ready(() => {
             new ResultGrid().init({
                 storageKey: "results-data-grid",
                 head: $(".grid-header"),
                 container: $("#results-grid"),
+                searchInput: $("input[name=search]"),
+                filterCheckboxes: {
+                    semester: {
+                        checkboxes: $("input[name=semester]"),
+                        selector: "[data-col=semester]",
+                    },
+                    degree: {
+                        checkboxes: $("input[name=degree]"),
+                        selector: ".badge-degree",
+                    },
+                    courseType: {
+                        checkboxes: $("input[name=courseType"),
+                        selector: ".badge-course-type",
+                    },
+                },
                 sortColumnSelect: $("[name=result-sort-column]"),
                 sortOrderCheckboxes: $("[name=result-sort-order]"),
+                resetFilter: $("[data-reset=filter]"),
                 resetOrder: $("[data-reset=order]"),
             });
         });

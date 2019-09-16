@@ -66,7 +66,7 @@
     }
 }
 
-#results-grid > :not(.d-none) ~ :not(.d-none) {
+#results-grid > :not(:first-child) {
     border-top: 2 * $table-border-width solid $table-border-color;
 
     @include media-breakpoint-up(lg) {
