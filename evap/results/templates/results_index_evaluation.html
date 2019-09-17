@@ -10,7 +10,7 @@
 
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview-row{% endif %}">
-    <div data-col="name" data-order="{{ evaluation.course.name|lower }}">
+    <div data-col="name"{% if not is_subentry %} data-order="{{ evaluation.course.name|lower }}"{% endif %}>
         <div>
             {% if not is_subentry %}
                 {% for degree in evaluation.course.degrees.all %}
@@ -57,14 +57,14 @@
         </div>
     {% endif %}
     {% if evaluation.is_single_result %}
-        <div data-col="participants" class="text-center" data-order="100"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
+        <div data-col="participants" class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</div>
     {% else %}
         {% with num_participants=evaluation.num_participants num_voters=evaluation.num_voters %}
-            <div data-col="participants" data-order="{{ num_voters|percentage_value:num_participants|default:'0' }}">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
+            <div data-col="participants">{% include 'progress_bar.html' with done=num_voters total=num_participants %}</div>
         {% endwith %}
     {% endif %}
 
-    <div data-col="result" data-order="{% if is_subentry %}{{ evaluation.course.avg_grade }}{% elif evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade }}{% endif %}">
+    <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
         {% if evaluation.is_single_result %}
             {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
         {% else %}

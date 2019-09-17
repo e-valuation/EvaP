@@ -89,16 +89,6 @@ def percentage_one_decimal(fraction, population):
 
 
 @register.filter
-def percentage_value(fraction, population):
-    try:
-        return "{0:0f}".format((float(fraction) / float(population)) * 100)
-    except ValueError:
-        return None
-    except ZeroDivisionError:
-        return None
-
-
-@register.filter
 def to_colors(choices):
     if not choices:
         # When displaying the course distribution, there are no associated voting choices.
