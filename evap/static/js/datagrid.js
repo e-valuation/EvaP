@@ -1,6 +1,6 @@
-// Grid based data grid which has its container separated from its header
-export class ResultGrid {
-    init({storageKey, head, container, searchInput, filterCheckboxes, sortColumnSelect, sortOrderCheckboxes, resetFilter, resetOrder}) {
+class DataGrid {
+    // Use init instead of constructor to enable access to this before calling super
+    init({storageKey, head, container, searchInput}) {
         this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.find(".col-order").each((index, header) => {
@@ -9,11 +9,6 @@ export class ResultGrid {
         });
         this.container = container;
         this.searchInput = searchInput;
-        this.filterCheckboxes = filterCheckboxes;
-        this.sortColumnSelect = sortColumnSelect;
-        this.sortOrderCheckboxes = sortOrderCheckboxes;
-        this.resetFilter = resetFilter;
-        this.resetOrder = resetOrder;
         this.rows = this.fetchRowData();
         this.restoreStateFromStorage();
         this.bindEvents();
@@ -35,19 +30,6 @@ export class ResultGrid {
             }
         });
 
-        for (const [name, {checkboxes}] of Object.entries(this.filterCheckboxes)) {
-            checkboxes.on("change", () => {
-                const values = checkboxes.filter(":checked").get().map(elem => elem.value);
-                if (values.length > 0) {
-                    this.state.filter.set(name, values);
-                } else {
-                    this.state.filter.delete(name);
-                }
-                this.filterRows();
-                this.renderToDOM();
-            });
-        }
-
         for (const [column, header] of this.sortableHeaders) {
             header.click(() => {
                 // The first click order the column ascending. All following clicks toggle the order.
@@ -55,43 +37,13 @@ export class ResultGrid {
                 this.sort([[column, ordering]]);
             });
         }
-
-        this.sortColumnSelect.add(this.sortOrderCheckboxes).change(() => {
-            const column = this.sortColumnSelect.prop("value");
-            const order = this.sortOrderCheckboxes.filter(":checked").prop("value");
-            if (column === "name-semester") {
-                this.sort([["name", order], ["semester", order]]);
-            } else {
-                this.sort([[column, order]]);
-            }
-        });
-
-        this.resetFilter.click(() => {
-            this.state.search = "";
-            this.state.filter.clear();
-            this.filterRows();
-            this.renderToDOM();
-            this.reflectFilterStateOnInputs();
-        });
-
-        this.resetOrder.click(() => {
-            this.sort(this.defaultOrder);
-        });
     }
 
     fetchRowData() {
         return this.container.children().get()
             .map(row => {
-                const searchWords = $(row).find(".evaluation-name, [data-col=responsible]").get()
+                const searchWords = this.findSearchableCells($(row))
                     .flatMap(element => this.searchWordsOf($(element).text()));
-                let filterValues = new Map();
-                for (const [name, {selector, checkboxes}] of Object.entries(this.filterCheckboxes)) {
-                    // To store filter values independent of the language, use the corresponding id from the checkbox
-                    const values = $(row).find(selector).get()
-                        .map(element => $(element).text().trim())
-                        .map(filterName => checkboxes.filter(`[data-filter="${filterName}"]`).val());
-                    filterValues.set(name, values);
-                }
                 let orderValues = new Map();
                 for (const column of this.sortableHeaders.keys()) {
                     const cell = $(row).find(`[data-col=${column}]`);
@@ -104,7 +56,7 @@ export class ResultGrid {
                 return {
                     element: row,
                     searchWords,
-                    filterValues,
+                    filterValues: this.fetchRowFilterValues(row),
                     orderValues,
                 };
             });
@@ -167,10 +119,6 @@ export class ResultGrid {
         this.saveStateToStorage();
     }
 
-    get defaultOrder() {
-        return [["name", "asc"], ["semester", "asc"]];
-    }
-
     restoreStateFromStorage() {
         const stored = JSON.parse(localStorage.getItem(this.storageKey)) || {};
         this.state = {
@@ -195,6 +143,119 @@ export class ResultGrid {
 
     reflectFilterStateOnInputs() {
         this.searchInput.val(this.state.search);
+    }
+}
+
+// Table based data grid which uses its head and body
+export class TableGrid extends DataGrid {
+    init({table, resetSearch, ...options}) {
+        this.resetSearch = resetSearch;
+        super.init({
+            head: table.find("thead"),
+            container: table.find("tbody"),
+            ...options,
+        });
+    }
+
+    bindEvents() {
+        super.bindEvents();
+        this.resetSearch.click(() => {
+            this.state.search = "";
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
+        });
+    }
+
+    findSearchableCells(row) {
+        return row.children().get();
+    }
+
+    fetchRowFilterValues(row) {
+        return new Map();
+    }
+
+    get defaultOrder() {
+        if (this.sortableHeaders.size > 0) {
+            const [firstColumn] = this.sortableHeaders.keys();
+            return [[firstColumn, "asc"]];
+        } else {
+            return [];
+        }
+    }
+}
+
+// Grid based data grid which has its container separated from its header
+export class ResultGrid extends DataGrid {
+    init({filterCheckboxes, sortColumnSelect, sortOrderCheckboxes, resetFilter, resetOrder, ...options}) {
+        this.filterCheckboxes = filterCheckboxes;
+        this.sortColumnSelect = sortColumnSelect;
+        this.sortOrderCheckboxes = sortOrderCheckboxes;
+        this.resetFilter = resetFilter;
+        this.resetOrder = resetOrder;
+        super.init(options);
+    }
+
+    bindEvents() {
+        super.bindEvents();
+        for (const [name, {checkboxes}] of Object.entries(this.filterCheckboxes)) {
+            checkboxes.on("change", () => {
+                const values = checkboxes.filter(":checked").get().map(elem => elem.value);
+                if (values.length > 0) {
+                    this.state.filter.set(name, values);
+                } else {
+                    this.state.filter.delete(name);
+                }
+                this.filterRows();
+                this.renderToDOM();
+            });
+        }
+
+        this.sortColumnSelect.add(this.sortOrderCheckboxes).change(() => {
+            const column = this.sortColumnSelect.prop("value");
+            const order = this.sortOrderCheckboxes.filter(":checked").prop("value");
+            if (column === "name-semester") {
+                this.sort([["name", order], ["semester", order]]);
+            } else {
+                this.sort([[column, order]]);
+            }
+        });
+
+        this.resetFilter.click(() => {
+            this.state.search = "";
+            this.state.filter.clear();
+            this.filterRows();
+            this.renderToDOM();
+            this.reflectFilterStateOnInputs();
+        });
+
+        this.resetOrder.click(() => {
+            this.sort(this.defaultOrder);
+        });
+    }
+
+    findSearchableCells(row) {
+        return row.find(".evaluation-name, [data-col=responsible]").get();
+    }
+
+    fetchRowFilterValues(row) {
+        let filterValues = new Map();
+        for (const [name, {selector, checkboxes}] of Object.entries(this.filterCheckboxes)) {
+            // To store filter values independent of the language, use the corresponding id from the checkbox
+            const values = $(row).find(selector).get()
+                .map(element => $(element).text().trim())
+                .map(filterName => checkboxes.filter(`[data-filter="${filterName}"]`).val());
+            filterValues.set(name, values);
+        }
+        return filterValues;
+    }
+
+    get defaultOrder() {
+        return [["name", "asc"], ["semester", "asc"]];
+    }
+
+    reflectFilterStateOnInputs() {
+        super.reflectFilterStateOnInputs();
         for (const [name, {checkboxes}] of Object.entries(this.filterCheckboxes)) {
             checkboxes.each((index, checkbox) => {
                 let isActive;
