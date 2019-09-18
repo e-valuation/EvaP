@@ -185,6 +185,56 @@ export class TableGrid extends DataGrid {
     }
 }
 
+export class EvaluationGrid extends TableGrid {
+    init({filterButtons, ...options}) {
+        this.filterButtons = filterButtons;
+        super.init(options);
+    }
+
+    bindEvents() {
+        super.bindEvents();
+        this.filterButtons.each((index, element) => {
+            const button = $(element);
+            const count = this.rows.filter(row => {
+                return row.filterValues.get("evaluationState").includes(button.data("filter"));
+            }).length;
+            const badgeClass = count === 0 ? "badge-btn-zero" : "badge-btn";
+            button.append(`<span class="badge badge-pill ${badgeClass}">${count}</span>`);
+
+            button.click(() => {
+                if (button.hasClass("active")) {
+                    button.removeClass("active");
+                    this.state.filter.delete("evaluationState");
+                } else {
+                    button.addClass("active");
+                    this.filterButtons.not(button).removeClass("active");
+                    this.state.filter.set("evaluationState", [button.data("filter")]);
+                }
+                this.filterRows();
+                this.renderToDOM()();
+            });
+        });
+    }
+
+    fetchRowFilterValues(row) {
+        const evaluationState = $(row).find("[data-filter]").get()
+            .map(element => $(element).data("filter"));
+        return new Map([["evaluationState", evaluationState]]);
+    }
+
+    get defaultOrder() {
+        return [["name", "asc"]];
+    }
+
+    reflectFilterStateOnInputs() {
+        super.reflectFilterStateOnInputs();
+        if (this.state.filter.has("evaluationState")) {
+            const activeEvaluationState = this.state.filter.get("evaluationState")[0];
+            this.filterButtons.filter(`[data-filter="${activeEvaluationState}"]`).addClass("active");
+        }
+    }
+}
+
 // Grid based data grid which has its container separated from its header
 export class ResultGrid extends DataGrid {
     init({filterCheckboxes, sortColumnSelect, sortOrderCheckboxes, resetFilter, resetOrder, ...options}) {

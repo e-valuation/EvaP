@@ -161,6 +161,10 @@
 th.col-order {
     padding-left: 1.25em;
 
+    &:empty {
+        padding-right: 0;
+    }
+
     &::before, &::after {
         margin-left: 0.2em;
         bottom: 0.75em;
