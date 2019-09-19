@@ -223,6 +223,7 @@
 
         $(document).ready(() => {
             new ResultGrid().init({
+                storageKey: "results-data-grid",
                 head: $(".grid-header"),
                 container: $("#results-grid"),
                 sortColumnSelect: $("[name=result-sort-column]"),

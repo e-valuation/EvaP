@@ -1,6 +1,7 @@
 // Grid based data grid which has its container separated from its header
 export class ResultGrid {
-    init({head, container, sortColumnSelect, sortOrderCheckboxes, resetOrder}) {
+    init({storageKey, head, container, sortColumnSelect, sortOrderCheckboxes, resetOrder}) {
+        this.storageKey = storageKey;
         this.sortableHeaders = new Map();
         head.find(".col-order").each((index, header) => {
             const column = $(header).data("col");
@@ -11,11 +12,7 @@ export class ResultGrid {
         this.sortOrderCheckboxes = sortOrderCheckboxes;
         this.resetOrder = resetOrder;
         this.rows = this.fetchRowData();
-        this.state = {
-            order: this.defaultOrder,
-        };
-        this.sortRows();
-        this.renderToDOM();
+        this.restoreStateFromStorage();
         this.bindEvents();
     }
 
@@ -94,9 +91,22 @@ export class ResultGrid {
         this.container.children().detach();
         const elements = this.rows.map(row => row.element);
         this.container.append($(elements));
+        this.saveStateToStorage();
     }
 
     get defaultOrder() {
         return [["name", "asc"], ["semester", "asc"]];
+    }
+
+    restoreStateFromStorage() {
+        this.state = Object.assign({
+            order: this.defaultOrder,
+        }, JSON.parse(localStorage.getItem(this.storageKey)));
+        this.sortRows();
+        this.renderToDOM();
+    }
+
+    saveStateToStorage() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.state));
     }
 }
