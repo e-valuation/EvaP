@@ -141,14 +141,11 @@ class ExcelImporter(object):
             if sheet.ncols != expected_column_count:
                 self.errors.append(_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
-    def for_each_row_in_excel_file_do(self, parse_row_function):
+    def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book.sheets():
             try:
                 for row in range(self.skip_first_n_rows, sheet.nrows):
-                    line_data = parse_row_function(sheet.row_values(row))
-                    # store data objects together with the data source location for problem tracking
-                    self.associations[(sheet.name, row)] = line_data
-
+                    row_function(sheet.row_values(row), sheet, row)
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
                 self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
@@ -240,11 +237,11 @@ class EnrollmentImporter(ExcelImporter):
         self.enrollments = []
         self.names_de = set()
 
-    def read_one_enrollment(self, data):
+    def read_one_enrollment(self, data, sheet, row):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
         evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
-        return (student_data, responsible_data, evaluation_data)
+        self.associations[(sheet.name, row)] = (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
         evaluation_id = evaluation_data.name_en
@@ -390,9 +387,10 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
-    def read_one_user(self, data):
+    def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        return user_data
+        if user_data not in self.associations.values():
+            self.associations[(sheet.name, row)] = user_data
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -408,9 +406,6 @@ class UserImporter(ExcelImporter):
         with transaction.atomic():
             for (sheet, row), (user_data) in self.associations.items():
                 try:
-                    if user_data not in self.users.values():
-                        # The user_data of this row was a duplicated and therefore got dropped during the import
-                        continue
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
                     if created:
