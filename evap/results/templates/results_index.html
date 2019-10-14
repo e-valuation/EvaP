@@ -102,9 +102,9 @@
     </div>
     <div class="card card-noflex">
         <div class="card-body pt-0 pb-2">
-            {% if courses %}
+            {% if courses_and_evaluations %}
                 <div id="results-grid">
-                    {% for course, evaluations in courses %}
+                    {% for course, evaluations in courses_and_evaluations %}
                         {# this is the reason why results_index_evaluation does not need to include is_subentry in the cache key: an evaluation is a subentry or no subentry regardless of which user asks #}
                         {% if course.num_evaluations > 1 %}
                             <div>

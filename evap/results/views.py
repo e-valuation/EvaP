@@ -122,7 +122,6 @@ def get_evaluations_with_prefetched_data(evaluations):
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-    # we need to prefetch the number of evaluations per course.
     evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
     evaluations = evaluations.select_related('course', 'course__semester')
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
@@ -142,21 +141,21 @@ def index(request):
     # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
     evaluations.sort(key=lambda evaluation: evaluation.course.pk)
 
-    courses = defaultdict(list)
+    courses_and_evaluations = defaultdict(list)
     for evaluation in evaluations:
-        courses[evaluation.course].append(evaluation)
+        courses_and_evaluations[evaluation.course].append(evaluation)
 
-    course_pks = list([course.pk for course in courses.keys()])
+    course_pks = list([course.pk for course in courses_and_evaluations.keys()])
 
     # annotate each course in courses with num_evaluations
     annotated_courses = Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
-    for course, annotated_course in zip(courses.keys(), annotated_courses):
+    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
         course.num_evaluations = annotated_course.num_evaluations
 
     degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
     course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
     template_data = dict(
-        courses=courses.items(),
+        courses_and_evaluations=courses_and_evaluations.items(),
         degrees=degrees,
         course_types=course_types,
         semesters=semesters,

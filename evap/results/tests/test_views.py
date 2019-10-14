@@ -13,13 +13,16 @@ from model_mommy import mommy
 
 from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire, RatingAnswerCounter,
                                     Semester, UserProfile)
-from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation, FuzzyInt
-from evap.results.views import get_evaluations_with_prefetched_data, get_course_result_template_fragment_cache_key
+from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
+from evap.results.views import get_evaluations_with_prefetched_data
+
+import random
+
 
 class TestResultsView(WebTest):
     url = '/results/'
 
-    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=lambda self, user: True)
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
     def test_multiple_evaluations_per_course(self):
         mommy.make(UserProfile, username='student', email="student@institution.example.com")
 
@@ -46,12 +49,12 @@ class TestResultsView(WebTest):
         caches['results'].clear()
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
-    @override_settings(CACHES = {
+    @override_settings(CACHES={
         'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},
         'sessions': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_results'},
         'results': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_sessions'},
     })
-    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=lambda self, user: True)
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
     def test_num_queries_is_constant(self):
         """
             ensures that the number of queries in the user list is constant
@@ -84,7 +87,7 @@ class TestResultsView(WebTest):
 
         self.assertEqual(num_queries_before, num_queries_after)
 
-        # django does not clear the LocMemCache in between tests. clear it hear just to be safe.
+        # django does not clear the LocMemCache in between tests. clear it here just to be safe.
         caches['default'].clear()
         caches['sessions'].clear()
         caches['results'].clear()
