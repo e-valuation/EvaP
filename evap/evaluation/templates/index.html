@@ -6,45 +6,43 @@
     <div class="jumbotron jumbotron-evap">
         <h1 class="display-4">{% trans 'Welcome to the evaluation platform!' %}</h1>
         <hr class="my-4" />
-        <div class="card-deck">
+        <div class="card-deck-login">
             <div class="card border-primary">
-                <form class="form-horizontal" role="form" action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                <form class="card-body d-flex flex-column" role="form"
+                    action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="login_username" />
-                    <div class="card-body">
-                        <h4 class="card-title text-primary">
-                            {% trans 'HPI users' %}
-                        </h4>
-                        <p class="card-text">
-                            {% trans 'Log in using your usual HPI credentials.' %}
-                        </p>
-                        {% for field in login_username_form %}
-                            {% include 'bootstrap_form_field.html' with field=field wide=True %}
-                        {% endfor %}
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary login-button">{% trans 'Login' %}</button>
-                        </div>
+                    <h4 class="card-title text-primary">
+                        {% trans 'HPI users' %}
+                    </h4>
+                    <p class="card-text">
+                        {% trans 'Log in using your usual HPI credentials.' %}
+                    </p>
+                    {% for field in login_username_form %}
+                        {% include 'bootstrap_form_field.html' with field=field wide=True %}
+                    {% endfor %}
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary login-button">{% trans 'Login' %}</button>
                     </div>
                 </form>
             </div>
             <div class="card border-dark">
-                <form class="form-horizontal" action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                <form class="card-body d-flex flex-column"
+                    action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
-                    <div class="card-body">
-                        <h4 class="card-title text-dark">
-                            {% trans 'External and D-School users' %}
-                        </h4>
-                        <p class="card-text mb-5">
-                            {% trans 'Here you can request a one-time login URL. We will send it to your email address.' %}
-                        </p>
-                        {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-dark login-button">{% trans 'Request login URL' %}</button>
-                            <button type="button" class="btn btn-light" data-toggle="modal" data-target="#loginProblemsModal">
-                                {% trans 'Help' %}
-                            </button>
-                        </div>
+                    <h4 class="card-title text-dark">
+                        {% trans 'External and D-School users' %}
+                    </h4>
+                    <p class="card-text mb-lg-auto">
+                        {% trans 'Here you can request a one-time login URL. We will send it to your email address.' %}
+                    </p>
+                    {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-dark login-button">{% trans 'Request login URL' %}</button>
+                        <button type="button" class="btn btn-light ml-1" data-toggle="modal" data-target="#loginProblemsModal">
+                            {% trans 'Help' %}
+                        </button>
                     </div>
                 </form>
             </div>

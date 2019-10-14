@@ -85,46 +85,29 @@
             {% endif %}
         </div>
         <div class="card-body pt-2">
-            {% if course_evaluations %}
-                <table class="table table-seamless-links table-vertically-aligned">
-                    <thead>
-                        <tr class="table-header table-header-border-top-0">
-                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
-                            <th style="width: 10%">{% trans 'Semester' %}</th>
-                            <th style="width: 22%">{% trans 'Responsible' %}</th>
-                            <th style="width: 13%">{% trans 'Voters' %}</th>
-                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% include 'results_index_course.html' %}
-                        {% for course_evaluation in course_evaluations|dictsort:"name" %}
-                            {% if course_evaluation.pk == evaluation.pk %}
-                                {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
-                                <tr class="current-row-follows"></tr>
-                            {% endif %}
-                            {% with evaluation=course_evaluation %}
-                                {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
-                            {% endwith %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <table class="table table-vertically-aligned">
-                    <thead>
-                        <tr class="table-header table-header-border-top-0">
-                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
-                            <th style="width: 10%">{% trans 'Semester' %}</th>
-                            <th style="width: 22%">{% trans 'Responsible' %}</th>
-                            <th style="width: 13%">{% trans 'Voters' %}</th>
-                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% include 'results_index_evaluation.html' with links_to_results_page=False is_subentry=False %}
-                    </tbody>
-                </table>
-            {% endif %}
+            <div class="result-grid">
+                <div class="grid-header results-grid-row border-bottom d-none d-lg-grid">
+                        <div data-col="name">{% trans 'Evaluation' %}</div>
+                        <div data-col="semester">{% trans 'Semester' %}</div>
+                        <div data-col="responsible">{% trans 'Responsible' %}</div>
+                        <div data-col="participants">{% trans 'Voters' %}</div>
+                        <div data-col="result">{% trans 'Distribution and average grade' %}</div>
+                </div>
+                {% if course_evaluations %}
+                    {% include 'results_index_course.html' %}
+                    {% for course_evaluation in course_evaluations|dictsort:"name" %}
+                        {% if course_evaluation.pk == evaluation.pk %}
+                            {# we cannot add a class to the actual row because it is cached globally. so we use a + selector in css to style the following row. #}
+                            <div class="current-row-follows"></div>
+                        {% endif %}
+                        {% with evaluation=course_evaluation %}
+                            {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
+                        {% endwith %}
+                    {% endfor %}
+                {% else %}
+                    {% include 'results_index_evaluation.html' with links_to_results_page=False is_subentry=False %}
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -207,4 +190,6 @@
         </div>
     {% endif %}
 
+    {# Leave some space for big tooltips #}
+    <div class="py-5 py-md-0"></div>
 {% endblock %}

@@ -10,9 +10,18 @@
     <h3>{% trans 'Evaluation results' %}</h3>
     <div class="card mb-1">
         <div class="card-body">
-            <h5 class="card-title mb-3">{% trans 'Filter' %}</h5>
+            <h5 class="card-title">
+                {% trans 'Filter' %}
+                <div class="reset-button float-right" onclick="clearFilters();">
+                    <span class="fas fa-eraser"></span>
+                    {% trans 'Clear all filters' %}
+                </div>
+            </h5>
             <div class="row">
-                <div class="col-sm">
+                <div class="col-12 col-lg">
+                    <input type="search" name="search" class="form-control mb-3" placeholder="{% trans 'Search...' %}" />
+                </div>
+                <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% trans 'Degrees' %}</h6>
                     <div id="degree-select" class="result-filter-list">
                         {% for degree in degrees %}
@@ -25,7 +34,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-sm">
+                <div class="col-6 col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% trans 'Course types' %}</h6>
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
@@ -38,7 +47,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-sm">
+                <div class="col-sm-4 col-md">
                     <h6 class="card-subtitle mb-1">{% trans 'Semester' %}</h6>
                     <div id="semester-select" class="result-filter-list">
                         {% for semester in semesters %}
@@ -51,71 +60,77 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-sm d-flex border-left flex-column">
-                    <div class="reset-button" onclick="resetOrdering();">
-                        <span class="fas fa-sort-amount-down"></span>
-                        {% trans 'Order by evaluation and semester' %}
-                    </div>
-                    <div class="mt-3 reset-button" onclick="clearFilters();">
-                        <span class="fas fa-eraser"></span>
-                        {% trans 'Clear all filters' %}
-                    </div>
-                    <div class="input-group mt-auto">
-                        <input type="text" class="form-control" placeholder="{% trans 'Search...' %}" id="search" />
-                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-1">
+        <div class="card-body pb-lg-0">
+            <h5 class="card-title mb-lg-0">
+                {% trans 'Order' %}
+                <div class="reset-button float-right d-none d-lg-block" onclick="resetOrdering();">
+                    <span class="fas fa-sort-amount-down"></span>
+                    {% trans 'Order by evaluation and semester' %}
                 </div>
+            </h5>
+            <div class="grid-header results-grid-row d-none d-lg-grid">
+                <div data-col="name" class="col-sorting">{% trans 'Evaluation' %}</div>
+                <div data-col="semester" class="col-sorting">{% trans 'Semester' %}</div>
+                <div data-col="responsible" class="col-sorting">{% trans 'Responsible' %}</div>
+                <div data-col="participants">{% trans 'Voters' %}</div>
+                <div data-col="result" class="col-sorting">{% trans 'Distribution and average grade' %}</div>
+            </div>
+            <div class="d-flex d-lg-none">
+                <div class="mr-2 btn-switch btn-group btn-group-toggle icon-buttons" data-toggle="buttons">
+                    <label class="btn btn-light btn-lg active">
+                        <input type="radio" name="result-sorting-order" value="asc" />
+                        <span class="fas fa-sort-alpha-down"></span>
+                    </label>
+                    <label class="btn btn-light btn-lg">
+                        <input type="radio" name="result-sorting-order" value="desc" />
+                        <span class="fas fa-sort-alpha-up-alt"></span>
+                    </label>
+                </div>
+                <select name="result-sorting-column" class="form-control no-select2">
+                    <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
+                    <option value="name">{% trans 'Evaluation' %}</option>
+                    <option value="semester">{% trans 'Semester' %}</option>
+                    <option value="responsible">{% trans 'Responsible' %}</option>
+                    <option value="result">{% trans 'Distribution and average grade' %}</option>
+                </select>
             </div>
         </div>
     </div>
     <div class="card card-noflex">
         <div class="card-body pt-0 pb-2">
             {% if evaluations %}
-                <table id="results-table" class="table table-seamless-links table-vertically-aligned{% if not forloop.last %} mb-3{% endif %}">
-                    <thead>
-                        <tr class="table-header table-header-border-top-0">
-                            <th style="width: 35%">{% trans 'Evaluation' %}</th>
-                            <th style="width: 10%">{% trans 'Semester' %}</th>
-                            <th style="width: 22%">{% trans 'Responsible' %}</th>
-                            <th style="width: 13%" data-orderable="false">{% trans 'Voters' %}</th>
-                            <th style="width: 20%">{% trans 'Distribution and average grade' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div id="results-grid">
                     {% regroup evaluations by course as course_evaluations %}
                     {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
                         {% if course.evaluations.count > 1 %}
-                            {% include 'results_index_course.html' %}
-                            {% for evaluation in evaluations|dictsort:"name" %}
-                                {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
-                            {% endfor %}
+                            <div>
+                                {% include 'results_index_course.html' %}
+                                {% for evaluation in evaluations|dictsort:"name" %}
+                                    {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
+                                {% endfor %}
+                            </div>
                         {% else %}
                             {% for evaluation in evaluations|dictsort:"name" %}
                                 {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
-                    </tbody>
-                </table>
+                </div>
             {% endif %}
         </div>
     </div>
 {% endblock %}
 
 {% block additional_javascript %}
-    {% get_current_language as LANGUAGE_CODE %}
-    {% load static %}
-    {% load compress %}
-
-    {% compress js %}
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap4.min.js"></script>
-    {% endcompress %}
-
     <script type="text/javascript">
         var delayTimer;
         function updateTable(){
-            var searchValue = $('input#search').val().toLowerCase();
-            localStorage['results_enteredSearchValue'] = $('input#search').val();
+            var searchValue = $('input[name=search]').val().toLowerCase();
+            localStorage['results_enteredSearchValue'] = $('input[name=search]').val();
 
             var semesters = $('input[name=semester]:checked').get().map(elem => elem.value);
             var degrees = $('input[name=degree]:checked').get().map(elem => elem.value);
@@ -126,25 +141,23 @@
             localStorage['results_selectedCourseTypes'] = JSON.stringify(courseTypes);
 
             // find which rows to show
-            $('#results-table tr.heading-row:not(.table-header)').each(function() {
-                courseId = $(this).data("course-id");
-                var evaluationNames = $(this).find('.evaluation-name').html().toLowerCase();
-                if (courseId) {
-                    $(`#results-table tr:not(.heading-row)[data-course-id=${courseId}]`).each(function() {
-                       evaluationNames += $(this).find('.evaluation-name').html().toLowerCase();
-                    });
-                }
-                var showRow =
-                    (semesters.length == 0 || semesters.includes($(this).find('.semester-name').text())) &&
-                    (degrees.length == 0 || includesAny($(this).find('.badge-degree').text(), degrees)) &&
-                    (courseTypes.length == 0 || courseTypes.includes($(this).find('.badge-course-type').text())) &&
+            $("#results-grid > :not(.grid-header)").each(function() {
+                const row = $(this);
+
+                const evaluationNames = row.find('.evaluation-name').get()
+                    .map(element => $(element).html().trim().toLowerCase())
+                    .join(" ");
+
+                const showRow =
+                    (semesters.length == 0 || semesters.includes(row.find('[data-col=semester]').text().trim())) &&
+                    (degrees.length == 0 || includesAny(row.find('.badge-degree').text(), degrees)) &&
+                    (courseTypes.length == 0 || courseTypes.includes(row.find('.badge-course-type').text())) &&
                     (searchValue.length == 0 ||
                         evaluationNames.includes(searchValue) ||
-                        $(this).find('.contributor-name').html().toLowerCase().includes(searchValue));
-                $(this).toggleClass("d-none", !showRow);
-                $(`#results-table tr[data-course-id=${courseId}]`).toggleClass("d-none", !showRow);
+                        row.find('[data-col=responsible]').text().toLowerCase().includes(searchValue));
+                row.toggleClass("d-none", !showRow);
             });
-        };
+        }
 
         function includesAny(string, array){
             return array.some(s => string.includes(s))
@@ -154,17 +167,79 @@
             $('input[name=semester]').prop('checked', false);
             $('input[name=degree]').prop('checked', false);
             $('input[name=courseType]').prop('checked', false);
-            $('input#search').val('');
+            $('input[name=search]').val('');
             updateTable();
         }
 
+        let sorting = [["name", "asc"], ["semester", "asc"]];
+        let children = [];
+
+        $("#results-grid > :not(.grid-header)").each(function() {
+            const row = $(this);
+            children.push({
+                element: this,
+                name: row.find("[data-col=name]").data("order").toLowerCase(),
+                semester: row.find("[data-col=semester]").data("order"),
+                responsible: row.find("[data-col=responsible]").data("order").toLowerCase(),
+                result: row.find("[data-col=result]").data("order"),
+            });
+        });
+
+        $(".grid-header .col-sorting").each(function() {
+            let header = $(this);
+            let column = header.data("col");
+            header.click(event => {
+                if (header.hasClass("col-sorting-asc")) {
+                    sorting = [[column, "desc"]];
+                } else {
+                    sorting = [[column, "asc"]];
+                }
+
+                sortTable();
+            });
+        });
+
+        let showAllRowsTimeout = null;
+
+        function sortTable() {
+            clearTimeout(showAllRowsTimeout);
+
+            let parent = $("#results-grid");
+            let headers = $(".grid-header [data-col]");
+            headers.removeClass("col-sorting-asc col-sorting-desc");
+
+            for ([column, ordering] of sorting) {
+                headers.filter(`[data-col=${column}]`).addClass(`col-sorting-${ordering}`);
+            }
+
+            children.sort((a, b) => {
+                for ([column, ordering] of sorting) {
+                    if (a[column] < b[column]) {
+                        return ordering === "asc" ? -1 : 1;
+                    } else if (a[column] > b[column]) {
+                        return ordering === "asc" ? 1 : -1;
+                    }
+                }
+                return 0;
+            });
+            let elements = $(children.map(child => child.element));
+            // Adding all sorted rows at once is too slow.
+            // Thus, we only add a small number of rows to provide a fast feedback.
+            elements.detach();
+            parent.append(elements.slice(0, 50));
+            showAllRowsTimeout = setTimeout(() => {
+                parent.append(elements.slice(50));
+            }, 0);
+        }
+
         function resetOrdering() {
-            $('#results-table').DataTable().order([0, "asc"], [1, "asc"]).draw();
+            sorting = [["name", "asc"], ["semester", "asc"]];
+            sortTable();
         }
 
         $(document).ready(function() {
             // load previously selected filters
-            $('input#search').val(localStorage['results_enteredSearchValue']);
+            $('input[name=search]').val(localStorage['results_enteredSearchValue']);
             if(localStorage.getItem('results_selectedSemesters') != null){
                 var selectedSemesters = JSON.parse(localStorage['results_selectedSemesters']);
                 selectedSemesters.forEach(function(value){
@@ -194,26 +269,31 @@
             $('input[name=courseType]').on('change', function() {
                 updateTable();
             });
-            $('input#search').on('change paste input', function() {
+            $('input[name=search]').on('change paste input', function() {
                 clearTimeout(delayTimer);
                 delayTimer = setTimeout(function() {
                     updateTable();
                 }, 200);
+            }).keypress(event => {
+                if (event.keyCode == 13) {
+                    event.target.blur();
+                }
             });
 
-            var table = $('#results-table').DataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                },
-                "order": [[0, "asc"], [1, "asc"]],
-                "dom": 'rt'
+            $('[name^=result-sorting]').change(() => {
+                const column = $('[name=result-sorting-column]').prop('value');
+                const order = $('[name=result-sorting-order]:checked').prop('value');
+                if (column === 'name-semester') {
+                    sorting = [["name", order], ["semester", order]];
+                } else {
+                    sorting = [[column, order]];
+                }
+                sortTable();
             });
 
             // apply initial filters
             updateTable();
+            resetOrdering();
         });
     </script>
 {% endblock %}

@@ -16,11 +16,11 @@
             {% else %}
                 <div class="row">
                     {% if field|is_choice_field %}
-                        <div class="vote-question my-auto{% if field.errors %} choice-error{% endif %}" name="{{ field.name }}">
+                        <div class="col-question col-lg-4 col-xl-5 my-auto{% if field.errors %} choice-error{% endif %}" name="{{ field.name }}">
                             {{ field.label }}
                         </div>
                     {% else %}
-                        <div class="vote-question d-flex flex-column">
+                        <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
                             {{ field.label }}
                             <div class="warning-label mt-auto d-none">
                                 <span class="fas fa-exclamation-triangle"></span>
@@ -30,7 +30,7 @@
                         </div>
                     {% endif %}
                     {% if field|is_choice_field %}
-                        <div class="vote-answer-buttons my-auto">
+                        <div class="col-answer col-lg-8 col-xl-7 my-auto">
                             <div class="vote-inputs {{ field.field.widget.attrs.choices.cssClass }} btn-group btn-group-toggle" data-toggle="buttons"{% if preview %} disabled{% endif %}>
                             {% for choice, color in field|zip:field.field.widget.attrs.choices.colors %}
                                 <label class="btn btn-sm vote-btn vote-btn-{{ color }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}" name="{{ choice.data.name }}"{% if not preview %} onclick="selectedAnswer('{{ choice.data.name }}');"{% endif %}>
@@ -41,7 +41,7 @@
                             </div>
                         </div>
                     {% else %}
-                        <div class="vote-text-answer d-flex">
+                        <div class="col-answer col-lg-8 col-xl-7 d-flex">
                             <div class="vote-inputs{% if preview %} preview{% endif %}">
                                 {{ field.errors }}
                                 <textarea id="{{ field.id_for_label }}" name="{{ field.name }}">{{ field.value|default_if_none:"" }}</textarea>

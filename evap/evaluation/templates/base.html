@@ -78,7 +78,12 @@
 
 <script type="text/javascript">
     activateTooltips = function(selector = "") {
-        $(selector + ' [data-toggle="tooltip"]').tooltip({container: 'body', html: true, trigger: 'hover'});
+        $(selector + ' [data-toggle="tooltip"]')
+            .tooltip({container: 'body', html: true, trigger: 'hover'})
+            .on('inserted.bs.tooltip', event => {
+                // trigger an immediate update of the tooltip to avoid later reposition
+                setTimeout(() => $(event.target).tooltip('update'), 0);
+            });
     };
     activateTooltips();
 
@@ -106,7 +111,7 @@
             });
         });
     };
-    applySelect2($('select').not('.form-template select').not('[disabled]'));
+    applySelect2($('select').not('.form-template select').not('[disabled]').not('.no-select2'));
 
     // don't use the placeholder text on disabled select2 elements
     applySelect2Disabled = function(elem) {

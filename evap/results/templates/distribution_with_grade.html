@@ -14,14 +14,18 @@
         {% endwith %}
     </div>
     {% if question_result.question.is_bipolar_likert_question %}
-        <span class="left pole-icon fas fa-caret-down"></span>
-        <span class="left adjective">{{ question_result.choices.minus_name }}</span>
+        <div class="left">
+            <span class="pole-icon fas fa-caret-down"></span>
+            <span class="adjective">{{ question_result.choices.minus_name }}</span>
+        </div>
         <span class="middle"></span>
-        <span class="right pole-icon fas fa-caret-up"></span>
-        <span class="right adjective">{{ question_result.choices.plus_name }}</span>
+        <div class="right">
+            <span class="adjective">{{ question_result.choices.plus_name }}</span>
+            <span class="pole-icon fas fa-caret-up"></span>
+        </div>
     {% endif %}
     {% if weight_sum and evaluation.course.evaluation_count > 1 %}
-        <span class="right weight">{{ weight|percentage:weight_sum }}</span>
+        <span class="right">{{ weight|percentage:weight_sum }}</span>
     {% endif %}
 </div>
 <div class="badge-grade ml-2" style="background-color: {{ average|gradecolor }}">
