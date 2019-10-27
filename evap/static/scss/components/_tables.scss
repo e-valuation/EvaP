@@ -2,14 +2,6 @@
     margin-bottom: 0;
 }
 
-.table-header-border-top-0 th {
-    border-top: 0;
-}
-
-.table-border-0 td {
-    border-top: 0;
-}
-
 .table-primary,
 .table-primary > th,
 .table-primary > td {
@@ -104,7 +96,7 @@
             }
         }
 
-        &.results-row {
+        &.results-row, &.results-grid-row {
             .distribution-bar, .badge-grade {
                 box-shadow: 0 0 0 3px rgba($dark-gray, .5);
             }
@@ -112,7 +104,7 @@
     }
 }
 
-.preview.evaluation-row .evaluation-name {
+.preview-row .evaluation-name {
     color: $evap-dark-yellow;
 }
 
@@ -127,8 +119,6 @@ tr.heading-row.course-row {
 }
 
 tr.evaluation-row:not(.heading-row) {
-    border-radius: 0.2rem;
-
     td {
         padding-top: 0.18rem;
         padding-bottom: 0.18rem;
@@ -146,7 +136,8 @@ tr.evaluation-row:not(.heading-row) {
     }
 }
 
-tr.current-row-follows + tr {
+.current-row-follows + .results-grid-row {
+    border-radius: 0.2rem;
     box-shadow: inset 0px 0px 6px $evap-dark-blue;
 }
 

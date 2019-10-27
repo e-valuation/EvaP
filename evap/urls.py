@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls import url
 from django.urls import include, path
 import django.contrib.auth.views
 
@@ -13,6 +14,7 @@ urlpatterns = [
     path("grades/", include('evap.grades.urls')),
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
+    url(r'^oidc/', include('mozilla_django_oidc.urls')),
 ]
 
 if settings.DEBUG and settings.ENABLE_DEBUG_TOOLBAR:

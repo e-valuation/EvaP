@@ -3,7 +3,7 @@
 <div class="distribution-bar-container">
     <div class="distribution-bar distribution-bar-disabled text-center"><span class="{{ icon }}"></span></div>
     {% if evaluations|length > 1 and weight %}
-        <span class="right weight">{{ weight|percentage:weight_sum }}</span>
+        <span class="right">{{ weight|percentage:weight_sum }}</span>
     {% endif %}
 </div>
 <div class="badge-grade badge-disabled ml-2"><span class="{{ icon }}"></span></div>

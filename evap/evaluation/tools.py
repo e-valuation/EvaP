@@ -111,3 +111,13 @@ def get_parameter_from_url_or_session(request, parameter, default=False):
 def translate(**kwargs):
     # get_language may return None if there is no session (e.g. during management commands)
     return property(lambda self: getattr(self, kwargs[get_language() or 'en']))
+
+
+def clean_email(email):
+    if email:
+        # Replace email domains in case there are multiple alias domains used in the organisation and all emails should
+        # have the same domain on EvaP.
+        for original_domain, replaced_domain in settings.INSTITUTION_EMAIL_REPLACEMENTS:
+            if email.endswith(original_domain):
+                return email[:-len(original_domain)] + replaced_domain
+    return email

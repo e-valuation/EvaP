@@ -1,11 +1,15 @@
 from functools import wraps
+import unicodedata
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
+from evap.evaluation.tools import clean_email
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -149,3 +153,36 @@ def reward_user_required(view_func):
         from evap.rewards.tools import can_reward_points_be_used_by
         return can_reward_points_be_used_by(user)
     return user_passes_test(check_user)(view_func)
+
+
+# see https://mozilla-django-oidc.readthedocs.io/en/stable/
+class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
+    def filter_users_by_claims(self, claims):
+        email = claims.get('email')
+        if not email:
+            return []
+
+        try:
+            return [UserProfile.objects.get(email=clean_email(email))]
+        except UserProfile.DoesNotExist:
+            return []
+
+    def create_user(self, claims):
+        user = UserProfile.objects.create(
+            username = generate_username_from_email(claims.get('email')),
+            email = claims.get('email'),
+            first_name = claims.get('given_name', ''),
+            last_name = claims.get('family_name', ''),
+        )
+        return user
+
+    def update_user(self, user, claims):
+        user.email = claims.get('email')
+        user.first_name = claims.get('given_name', '')
+        user.last_name = claims.get('family_name', '')
+        user.save()
+        return user
+
+
+def generate_username_from_email(email):
+    return unicodedata.normalize('NFKC', email).split('@')[0].lower()

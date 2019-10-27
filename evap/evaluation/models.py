@@ -21,7 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-from evap.evaluation.tools import date_to_datetime, get_due_evaluations_for_user, translate
+from evap.evaluation.tools import clean_email, date_to_datetime, get_due_evaluations_for_user, translate
 
 logger = logging.getLogger(__name__)
 
@@ -1164,7 +1164,7 @@ class UserProfileManager(BaseUserManager):
         user = self.create_user(
             username=username,
             password=password,
-            email=email,
+            email=self.normalize_email(email),
             first_name=first_name,
             last_name=last_name
         )
@@ -1177,7 +1177,7 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
 
-    # null=True because users created through kerberos logins and certain external users don't have an address.
+    # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
@@ -1212,6 +1212,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
+
+    def save(self, *args, **kwargs):
+        self.email = clean_email(self.email)
+        super().save(*args, **kwargs)
 
     @property
     def full_name(self):

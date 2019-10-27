@@ -391,6 +391,11 @@ class TestUserProfile(TestCase):
         proxy_user = mommy.make(UserProfile, is_proxy_user=True)
         self.assertFalse(proxy_user.can_be_marked_inactive_by_manager)
 
+    @override_settings(INSTITUTION_EMAIL_REPLACEMENTS=[("example.com","institution.com")])
+    def test_email_domain_replacement(self):
+        user = mommy.make(UserProfile, email="test@example.com")
+        self.assertEqual(user.email, "test@institution.com")
+
 
 class ParticipationArchivingTests(TestCase):
     @classmethod

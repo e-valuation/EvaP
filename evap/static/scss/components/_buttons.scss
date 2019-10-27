@@ -86,8 +86,14 @@ a:not([href]):not(.disabled) {
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     font-size: 0.875rem;
 }
-.icon-buttons .btn {
-    min-width: 32px;
+.icon-buttons {
+    .btn {
+        min-width: 2.3em;
+    }
+
+    .btn-lg {
+        padding: 0.15em 0;
+    }
 }
 
 .btn-sm-narrow {
@@ -130,10 +136,12 @@ a:not([href]):not(.disabled) {
 }
 
 .feedback-button {
-    position: fixed;
-    right: 10px;
-    bottom: 8px;
-    z-index: $zindex-fixed;
+    @include media-breakpoint-up(md) {
+        position: fixed;
+        right: 10px;
+        bottom: 8px;
+        z-index: $zindex-fixed;
+    }
 
     .btn-dark {
         padding: 0 0.2rem;
@@ -145,7 +153,8 @@ a:not([href]):not(.disabled) {
 }
 
 .login-button {
-    min-width: 250px;
+    width: 100%;
+    max-width: 16em;
 }
 
 .btn-option {

@@ -1,0 +1,9 @@
+.display-4 {
+    @include media-breakpoint-up(lg) {
+        hyphens: none;
+    }
+
+    @include media-breakpoint-down(sm) {
+        font-size: 0.7 * $display4-size;
+    }
+}

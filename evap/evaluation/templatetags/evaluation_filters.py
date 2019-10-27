@@ -53,6 +53,11 @@ def _zip(a, b):
     return zip(a, b)
 
 
+@register.filter()
+def zip_choices(counts, choices):
+    return zip(counts, choices.names, choices.colors, choices.values)
+
+
 @register.filter
 def ordering_index(evaluation):
     if evaluation.state in ['new', 'prepared', 'editor_approved', 'approved']:
@@ -77,16 +82,6 @@ def percentage(fraction, population):
 def percentage_one_decimal(fraction, population):
     try:
         return "{0:.1f}%".format((float(fraction) / float(population)) * 100)
-    except ValueError:
-        return None
-    except ZeroDivisionError:
-        return None
-
-
-@register.filter
-def percentage_value(fraction, population):
-    try:
-        return "{0:0f}".format((float(fraction) / float(population)) * 100)
     except ValueError:
         return None
     except ZeroDivisionError:

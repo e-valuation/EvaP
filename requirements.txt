@@ -12,3 +12,4 @@ model_mommy == 1.6.0
 django-extensions == 2.1.9
 django-sendfile == 0.3.11
 django-compressor == 2.3
+mozilla-django-oidc == 1.2.2

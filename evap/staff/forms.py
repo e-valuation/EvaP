@@ -511,7 +511,7 @@ class AtLeastOneFormSet(BaseInlineFormSet):
             raise forms.ValidationError(_('You must have at least one of these.'))
 
 
-class ContributionFormSet(AtLeastOneFormSet):
+class ContributionFormSet(BaseInlineFormSet):
     def __init__(self, data=None, *args, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, *args, **kwargs)

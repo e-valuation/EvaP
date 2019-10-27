@@ -37,8 +37,23 @@ a.no-underline:hover {
 
 @each $name, $color in $vote-colors {
     @if $color != gray {
+        .vote-text-#{$name} {
+            color: $color;
+        }
+
         .vote-bg-#{$name} {
             background: $color;
         }
     }
+}
+
+@include media-breakpoint-up(lg) {
+    .d-lg-grid {
+        display: grid !important;
+    }
+}
+
+.fa-fw-absolute {
+    text-align: center;
+    width: #{20rem / 16};
 }

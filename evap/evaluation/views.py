@@ -56,7 +56,11 @@ def index(request):
         # set test cookie to verify whether they work in the next step
         request.session.set_test_cookie()
 
-        template_data = dict(new_key_form=new_key_form, login_username_form=login_username_form)
+        template_data = dict(
+            new_key_form=new_key_form,
+            login_username_form=login_username_form,
+            openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
+        )
         return render(request, "index.html", template_data)
     else:
         user, __ = UserProfile.objects.get_or_create(username=request.user.username)

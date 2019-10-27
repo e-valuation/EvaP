@@ -156,7 +156,7 @@
                                                         {% elif evaluation.days_until_evaluation > 1 and evaluation.days_until_evaluation < 8 %}
                                                             <span class="badge badge-info">{% blocktrans with days=evaluation.days_until_evaluation %}starts in {{ days }} days{% endblocktrans %}</span>
                                                         {% endif %}
-                                                    {% elif evaluation.state == 'in_evaluation' %}
+                                                    {% elif evaluation.state == 'in_evaluation' and not evaluation.voted_for %}
                                                         {% if evaluation.days_left_for_evaluation < 0 %}
                                                             <span class="badge badge-danger">
                                                                 {% blocktrans with time_string=evaluation.time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}

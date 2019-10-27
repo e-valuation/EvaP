@@ -341,6 +341,23 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
+    def test_there_can_be_no_contributions(self):
+        """
+            Tests that there can also be no contribution
+            Regression test for #1347
+        """
+        evaluation = mommy.make(Evaluation)
+        contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+
+        data = to_querydict({
+            'contributions-TOTAL_FORMS': 0,
+            'contributions-INITIAL_FORMS': 1,
+            'contributions-MAX_NUM_FORMS': 5,
+        })
+
+        formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
+        self.assertTrue(formset.is_valid())
+
     def test_hidden_and_managers_only(self):
         """
             Asserts that hidden questionnaires are shown to managers only if they are already selected for a
