@@ -8,23 +8,34 @@
         <hr class="my-4" />
         <div class="card-deck-login">
             <div class="card border-primary">
-                <form class="card-body d-flex flex-column" role="form"
-                    action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_type" value="login_username" />
+                <div class="card-body">
                     <h4 class="card-title text-primary">
                         {% trans 'HPI users' %}
                     </h4>
-                    <p class="card-text">
-                        {% trans 'Log in using your usual HPI credentials.' %}
-                    </p>
-                    {% for field in login_username_form %}
-                        {% include 'bootstrap_form_field.html' with field=field wide=True %}
-                    {% endfor %}
-                    <div class="d-flex justify-content-center">
-                        <button type="submit" class="btn btn-primary login-button">{% trans 'Login' %}</button>
-                    </div>
-                </form>
+                    {% if openid_active %}
+                        <p class="card-text">
+                            {% trans 'Log in using HPI OpenID Connect.' %}
+                        </p>
+                        <div class="text-center mt-5">
+                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button">{% trans 'Login' %}</a>
+                        </div>
+                    {% else %}
+                        <p class="card-text">
+                            {% trans 'Log in using username and password.' %}
+                        </p>
+                        <form class="d-flex flex-column" role="form"
+                            action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="submit_type" value="login_username" />
+                            {% for field in login_username_form %}
+                                {% include 'bootstrap_form_field.html' with field=field wide=True %}
+                            {% endfor %}
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-primary login-button">{% trans 'Login' %}</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
             <div class="card border-dark">
                 <form class="card-body d-flex flex-column"
