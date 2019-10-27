@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-10 17:11+0200\n"
-"PO-Revision-Date: 2019-08-10 17:16+0200\n"
+"POT-Creation-Date: 2019-10-27 10:22+0100\n"
+"PO-Revision-Date: 2019-10-27 10:25+0100\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.2.4\n"
 
 #: evap/contributor/forms.py:18
 msgid "General questionnaires"
@@ -78,7 +78,7 @@ msgstr "Verantwortliche"
 
 #: evap/contributor/templates/contributor_evaluation_form.html:47
 #: evap/evaluation/templates/navbar.html:52 evap/results/exporters.py:129
-#: evap/results/templates/results_index.html:16 evap/staff/forms.py:776
+#: evap/results/templates/results_index.html:25 evap/staff/forms.py:776
 #: evap/staff/templates/staff_degree_index.html:5
 #: evap/staff/templates/staff_index.html:48
 #: evap/staff/templates/staff_semester_export.html:25 evap/staff/views.py:500
@@ -141,7 +141,7 @@ msgid "Back"
 msgstr "Zurück"
 
 #: evap/contributor/templates/contributor_evaluation_form.html:119
-#: evap/evaluation/templates/index.html:70
+#: evap/evaluation/templates/index.html:79
 msgid "Close"
 msgstr "Schließen"
 
@@ -290,7 +290,7 @@ msgid "Hide"
 msgstr "Verbergen"
 
 #: evap/contributor/templates/contributor_index.html:65
-#: evap/evaluation/models.py:1395
+#: evap/evaluation/models.py:1399
 #: evap/grades/templates/grades_semester_view.html:19
 #: evap/staff/templates/staff_semester_preparation_reminder.html:32
 #: evap/staff/templates/staff_semester_view.html:221
@@ -317,7 +317,7 @@ msgid "Participants"
 msgstr "Teilnehmende"
 
 #: evap/contributor/templates/contributor_index.html:91
-#: evap/results/templates/results_index_course.html:33
+#: evap/results/templates/results_index_course.html:29
 #: evap/student/templates/student_index.html:93
 msgid "Course result is not yet available."
 msgstr "Veranstaltungsergebnis ist noch nicht verfügbar."
@@ -342,7 +342,7 @@ msgstr "Zwischenevaluierung"
 
 #: evap/contributor/templates/contributor_index.html:135
 #: evap/evaluation/templates/evaluation_badges.html:8
-#: evap/results/templates/results_index_evaluation.html:46
+#: evap/results/templates/results_index_evaluation.html:22
 #: evap/staff/views.py:500 evap/student/templates/student_index.html:141
 msgid "Single result"
 msgstr "Einzelergebnis"
@@ -492,11 +492,11 @@ msgstr ""
 msgid "Password"
 msgstr "Passwort"
 
-#: evap/evaluation/forms.py:38
+#: evap/evaluation/forms.py:37
 msgid "Please enter a correct username and password."
 msgstr "Falscher Benutzername oder falsches Passwort."
 
-#: evap/evaluation/forms.py:44
+#: evap/evaluation/forms.py:43
 msgid ""
 "Your Web browser doesn't appear to have cookies enabled. Cookies are "
 "required for logging in."
@@ -504,11 +504,11 @@ msgstr ""
 "In Ihrem Web-Browser scheinen Cookies deaktiviert zu sein. Cookies werden "
 "zur Anmeldung benötigt."
 
-#: evap/evaluation/forms.py:56 evap/rewards/exporters.py:28
+#: evap/evaluation/forms.py:55 evap/rewards/exporters.py:28
 msgid "Email address"
 msgstr "E‑Mail-Adresse"
 
-#: evap/evaluation/forms.py:67
+#: evap/evaluation/forms.py:66
 msgid ""
 "HPI users cannot request login keys. Please login using your domain "
 "credentials."
@@ -516,7 +516,7 @@ msgstr ""
 "HPI-Benutzer können keine Anmeldeschlüssel anfordern. Bitte melden Sie sich "
 "mit Ihrem Domänenlogin an."
 
-#: evap/evaluation/forms.py:73
+#: evap/evaluation/forms.py:72
 msgid ""
 "No user with this email address was found. Please make sure to enter the "
 "email address used for registration."
@@ -524,7 +524,7 @@ msgstr ""
 "Es wurde kein Benutzer mit dieser E‑Mail-Adresse gefunden. Bitte verwenden "
 "Sie die E‑Mail-Adresse, die zur Anmeldung genutzt wurde."
 
-#: evap/evaluation/forms.py:76
+#: evap/evaluation/forms.py:75
 msgid "Inactive users cannot request login keys."
 msgstr "Inaktive Benutzer können keine Anmeldeschlüssel anfordern."
 
@@ -1348,33 +1348,33 @@ msgstr "Benutzer"
 msgid "users"
 msgstr "Benutzer"
 
-#: evap/evaluation/models.py:1397
+#: evap/evaluation/models.py:1401
 #: evap/evaluation/templates/contact_modal.html:32 evap/staff/forms.py:427
 #: evap/staff/forms.py:459
 msgid "Subject"
 msgstr "Betreff"
 
-#: evap/evaluation/models.py:1398
+#: evap/evaluation/models.py:1402
 msgid "Body"
 msgstr "Text"
 
-#: evap/evaluation/models.py:1416
+#: evap/evaluation/models.py:1420
 msgid "all participants"
 msgstr "Alle Teilnehmenden"
 
-#: evap/evaluation/models.py:1417
+#: evap/evaluation/models.py:1421
 msgid "due participants"
 msgstr "Ausstehende Teilnehmende"
 
-#: evap/evaluation/models.py:1418
+#: evap/evaluation/models.py:1422
 msgid "responsible person"
 msgstr "verantwortliche Person"
 
-#: evap/evaluation/models.py:1419
+#: evap/evaluation/models.py:1423
 msgid "all editors"
 msgstr "alle Bearbeiter"
 
-#: evap/evaluation/models.py:1420
+#: evap/evaluation/models.py:1424
 msgid "all contributors"
 msgstr "alle Mitwirkenden"
 
@@ -1416,7 +1416,7 @@ msgstr ""
 msgid "Evaluation Platform"
 msgstr "Evaluierungsplattform"
 
-#: evap/evaluation/templates/base.html:103
+#: evap/evaluation/templates/base.html:108
 msgid "Please select..."
 msgstr "Bitte auswählen..."
 
@@ -1446,7 +1446,7 @@ msgid "Sending failed, sorry!"
 msgstr "Nachricht konnte nicht gesendet werden!"
 
 #: evap/evaluation/templates/contribution_formset.html:5
-#: evap/results/templates/results_evaluation_detail.html:147
+#: evap/results/templates/results_evaluation_detail.html:130
 msgid "Contributors"
 msgstr "Mitwirkende"
 
@@ -1543,23 +1543,28 @@ msgstr "Probleme/Feedback"
 msgid "Welcome to the evaluation platform!"
 msgstr "Willkommen auf der Evaluierungs&shy;plattform!"
 
-#: evap/evaluation/templates/index.html:16
+#: evap/evaluation/templates/index.html:13
 msgid "HPI users"
 msgstr "HPI-Benutzer"
 
-#: evap/evaluation/templates/index.html:19
-msgid "Log in using your usual HPI credentials."
-msgstr "Melden Sie sich mit Ihrem üblichen HPI-Login an."
+#: evap/evaluation/templates/index.html:17
+msgid "Log in using HPI OpenID Connect."
+msgstr "Anmeldung mit HPI OpenID Connect."
 
-#: evap/evaluation/templates/index.html:25
+#: evap/evaluation/templates/index.html:20
+#: evap/evaluation/templates/index.html:34
 msgid "Login"
 msgstr "Anmelden"
 
-#: evap/evaluation/templates/index.html:36
+#: evap/evaluation/templates/index.html:24
+msgid "Log in using username and password."
+msgstr "Anmeldung mit Benutzername und Passwort."
+
+#: evap/evaluation/templates/index.html:46
 msgid "External and D-School users"
 msgstr "Externe und D-School-Benutzer"
 
-#: evap/evaluation/templates/index.html:39
+#: evap/evaluation/templates/index.html:49
 msgid ""
 "Here you can request a one-time login URL. We will send it to your email "
 "address."
@@ -1567,19 +1572,19 @@ msgstr ""
 "Hier können Sie einen einmalig gültigen Anmeldelink anfordern. Dieser wird "
 "an Ihre E-Mail-Adresse gesendet."
 
-#: evap/evaluation/templates/index.html:43
+#: evap/evaluation/templates/index.html:53
 msgid "Request login URL"
 msgstr "Anmeldelink anfordern"
 
-#: evap/evaluation/templates/index.html:45
+#: evap/evaluation/templates/index.html:55
 msgid "Help"
 msgstr "Hilfe"
 
-#: evap/evaluation/templates/index.html:61
+#: evap/evaluation/templates/index.html:70
 msgid "Login problems"
 msgstr "Probleme mit der Anmeldung"
 
-#: evap/evaluation/templates/index.html:67
+#: evap/evaluation/templates/index.html:76
 msgid ""
 "You should have received an evaluation invitation via email that included a "
 "URL to login on this platform. You can also request a new login URL on this "
@@ -1657,7 +1662,7 @@ msgid "Users"
 msgstr "Benutzer"
 
 #: evap/evaluation/templates/navbar.html:53
-#: evap/results/templates/results_index.html:29 evap/staff/forms.py:784
+#: evap/results/templates/results_index.html:38 evap/staff/forms.py:784
 #: evap/staff/templates/staff_course_type_index.html:5
 #: evap/staff/templates/staff_course_type_merge.html:7
 #: evap/staff/templates/staff_course_type_merge_selection.html:5
@@ -1843,11 +1848,11 @@ msgstr ""
 "Wir haben Ihnen einen einmalig gültigen Anmeldelink zugesendet. Bitte "
 "überprüfen Sie Ihren Posteingang."
 
-#: evap/evaluation/views.py:88
+#: evap/evaluation/views.py:92
 msgid "Inactive users are not allowed to login."
 msgstr "Inaktive Benutzer können sich nicht anmelden."
 
-#: evap/evaluation/views.py:95
+#: evap/evaluation/views.py:99
 msgid ""
 "Another user is currently logged in. Please logout first and then use the "
 "login URL again."
@@ -1855,12 +1860,12 @@ msgstr ""
 "Ein anderer Benutzer ist bereits angemeldet. Bitte melden Sie sich zuerst ab "
 "und klicken Sie dann erneut auf den Anmeldelink."
 
-#: evap/evaluation/views.py:102
+#: evap/evaluation/views.py:106
 #, python-format
 msgid "Logged in as %s."
 msgstr "Angemeldet als %s."
 
-#: evap/evaluation/views.py:110
+#: evap/evaluation/views.py:114
 msgid ""
 "The login URL is not valid anymore. We sent you a new one to your email "
 "address."
@@ -1868,7 +1873,7 @@ msgstr ""
 "Der Anmeldelink ist nicht mehr gültig. Wir haben Ihnen einen neuen Link an "
 "Ihre E-Mail-Adresse gesendet."
 
-#: evap/evaluation/views.py:112
+#: evap/evaluation/views.py:116
 msgid "Invalid login URL. Please request a new one below."
 msgstr "Ungültiger Anmeldelink. Bitte fordern Sie unten einen neuen an."
 
@@ -2012,9 +2017,9 @@ msgid "Courses"
 msgstr "Veranstaltungen"
 
 #: evap/grades/templates/grades_semester_view.html:20
-#: evap/results/templates/results_evaluation_detail.html:94
-#: evap/results/templates/results_evaluation_detail.html:118
+#: evap/results/templates/results_evaluation_detail.html:92
 #: evap/results/templates/results_index.html:78
+#: evap/results/templates/results_index.html:97
 #: evap/staff/templates/staff_semester_view.html:289
 #: evap/staff/templates/staff_user_badges.html:14
 msgid "Responsible"
@@ -2177,11 +2182,11 @@ msgid "Course Grade"
 msgstr "Veranstaltungsnote"
 
 #: evap/results/templates/distribution_widget.html:10
-#: evap/results/templates/result_widget.html:23
+#: evap/results/templates/result_widget.html:18
 msgid "Not enough answers were given."
 msgstr "Nicht genügend Antworten eingegangen."
 
-#: evap/results/templates/result_widget.html:8
+#: evap/results/templates/result_widget_tooltip.html:3
 msgid "Only a few participants answered this question."
 msgstr "Nur wenige Teilnehmende haben diese Frage beantwortet."
 
@@ -2256,43 +2261,42 @@ msgstr "Zeigt Ergebnisse an, die für alle angemeldeten Benutzer sichtbar sind."
 msgid "Grades"
 msgstr "Noten"
 
-#: evap/results/templates/results_evaluation_detail.html:92
-#: evap/results/templates/results_evaluation_detail.html:116
-#: evap/results/templates/results_index.html:76 evap/staff/forms.py:60
+#: evap/results/templates/results_evaluation_detail.html:90
+#: evap/results/templates/results_index.html:76
+#: evap/results/templates/results_index.html:95 evap/staff/forms.py:60
 #: evap/student/templates/student_index.html:5
 #: evap/student/templates/student_vote.html:8
 msgid "Evaluation"
 msgstr "Evaluierung"
 
-#: evap/results/templates/results_evaluation_detail.html:93
-#: evap/results/templates/results_evaluation_detail.html:117
-#: evap/results/templates/results_index.html:42
+#: evap/results/templates/results_evaluation_detail.html:91
+#: evap/results/templates/results_index.html:51
 #: evap/results/templates/results_index.html:77
+#: evap/results/templates/results_index.html:96
 msgid "Semester"
 msgstr "Semester"
 
-#: evap/results/templates/results_evaluation_detail.html:95
-#: evap/results/templates/results_evaluation_detail.html:119
+#: evap/results/templates/results_evaluation_detail.html:93
 #: evap/results/templates/results_index.html:79
 msgid "Voters"
 msgstr "Abstimmende"
 
-#: evap/results/templates/results_evaluation_detail.html:96
-#: evap/results/templates/results_evaluation_detail.html:120
+#: evap/results/templates/results_evaluation_detail.html:94
 #: evap/results/templates/results_index.html:80
+#: evap/results/templates/results_index.html:98
 msgid "Distribution and average grade"
 msgstr "Verteilung und Durchschnittsnote"
 
-#: evap/results/templates/results_evaluation_detail.html:134
-#: evap/results/templates/results_evaluation_detail.html:200
+#: evap/results/templates/results_evaluation_detail.html:117
+#: evap/results/templates/results_evaluation_detail.html:183
 msgid "General"
 msgstr "Allgemein"
 
-#: evap/results/templates/results_evaluation_detail.html:166
+#: evap/results/templates/results_evaluation_detail.html:149
 msgid "There are no results for this person."
 msgstr "Für diesen Mitwirkenden gibt es keine Ergebnisse."
 
-#: evap/results/templates/results_evaluation_detail.html:182
+#: evap/results/templates/results_evaluation_detail.html:165
 msgid "Other contributors"
 msgstr "Andere Mitwirkende"
 
@@ -2300,7 +2304,7 @@ msgstr "Andere Mitwirkende"
 msgid "Only a few participants answered these questions."
 msgstr "Nur wenige Teilnehmende haben diese Fragen beantwortet."
 
-#: evap/results/templates/results_evaluation_detail_questionnaires.html:35
+#: evap/results/templates/results_evaluation_detail_questionnaires.html:32
 msgid ""
 "This answer is only visible to you. Other contributors and your delegates "
 "can not see it."
@@ -2308,7 +2312,7 @@ msgstr ""
 "Diese Antwort ist privat. Andere Mitwirkende und Stellvertreter können sie "
 "nicht sehen."
 
-#: evap/results/templates/results_evaluation_detail_questionnaires.html:42
+#: evap/results/templates/results_evaluation_detail_questionnaires.html:39
 msgid "These text answers can be seen by:"
 msgstr "Diese Textantworten können sehen:"
 
@@ -2316,36 +2320,44 @@ msgstr "Diese Textantworten können sehen:"
 msgid "Evaluation results"
 msgstr "Evaluierungs-Ergebnisse"
 
-#: evap/results/templates/results_index.html:13
+#: evap/results/templates/results_index.html:14
 #: evap/staff/templates/staff_semester_view.html:151
 msgid "Filter"
 msgstr "Filter"
 
-#: evap/results/templates/results_index.html:57
-msgid "Order by evaluation and semester"
-msgstr "Nach Evaluierung und Semester sortieren"
-
-#: evap/results/templates/results_index.html:61
+#: evap/results/templates/results_index.html:17
 msgid "Clear all filters"
 msgstr "Alle Filter entfernen"
 
-#: evap/results/templates/results_index.html:64
+#: evap/results/templates/results_index.html:22
 #: evap/staff/templates/staff_questionnaire_index.html:23
 msgid "Search..."
 msgstr "Suchen..."
 
-#: evap/results/templates/results_index_evaluation.html:27
+#: evap/results/templates/results_index.html:69
+msgid "Order"
+msgstr "Reihenfolge"
+
+#: evap/results/templates/results_index.html:72
+msgid "Order by evaluation and semester"
+msgstr "Nach Evaluierung und Semester sortieren"
+
+#: evap/results/templates/results_index.html:94
+msgid "Evaluation and semester"
+msgstr "Evaluierung und Semester"
+
+#: evap/results/templates/results_index_evaluation.html:37
 msgid "This evaluation is still running"
 msgstr "Die Evaluierung läuft noch"
 
-#: evap/results/templates/results_index_evaluation.html:29
-#: evap/results/templates/results_index_evaluation.html:34
+#: evap/results/templates/results_index_evaluation.html:39
+#: evap/results/templates/results_index_evaluation.html:44
 #: evap/staff/templates/staff_semester_view.html:201
 #: evap/staff/templates/staff_semester_view_evaluation.html:45
 msgid "Results not yet published"
 msgstr "Ergebnisse wurden noch nicht veröffentlicht"
 
-#: evap/results/templates/results_index_evaluation.html:32
+#: evap/results/templates/results_index_evaluation.html:42
 #: evap/staff/templates/staff_semester_view.html:197
 #: evap/staff/templates/staff_semester_view_evaluation.html:43
 msgid "Results not yet published although they probably could be"
