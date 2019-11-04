@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from io import StringIO
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
@@ -73,14 +74,14 @@ class TestResultsView(WebTest):
         # first measure the number of queries with two courses
         make_course_with_evaluations('frob')
         make_course_with_evaluations('spam')
-        call_command("refresh_results_cache")
+        call_command("refresh_results_cache", stdout=StringIO())
         with CaptureQueriesContext(connection) as context:
             self.app.get(self.url, user="student")
         num_queries_before = context.final_queries - context.initial_queries
 
         # then measure the number of queries with one more course and compare
         make_course_with_evaluations('eggs')
-        call_command("refresh_results_cache")
+        call_command("refresh_results_cache", stdout=StringIO())
         with CaptureQueriesContext(connection) as context:
             self.app.get(self.url, user="student")
         num_queries_after = context.final_queries - context.initial_queries
