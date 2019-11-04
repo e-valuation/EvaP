@@ -136,11 +136,11 @@ $(document).ready(() => {
 
         if(action === "unreview") {
             active.removeAttr("data-review");
+            updateButtons();
         } else {
             active.attr("data-review", action);
+            updateButtonActive();
         }
-
-        updateButtonActive();
 
         if(action !== "unreview") {
             slideTo(index + 1);
@@ -158,6 +158,9 @@ $(document).ready(() => {
             let privateBtn = slider.find("[data-action=make_private]");
             privateBtn.attr("disabled", notContributor);
             privateBtn.tooltip(notContributor ? 'enable' : 'disable');
+
+            let review = items.eq(index).attr("data-review");
+            slider.find("[data-action=unreview]").attr("disabled", !review);
         }
     }
 
@@ -179,6 +182,5 @@ $(document).ready(() => {
             btn.toggleClass(actions[action], review === action);
             btn.toggleClass("btn-outline-secondary", review !== action);
         }
-        slider.find("[data-action=unreview]").attr("disabled", !review);
     }
 });
