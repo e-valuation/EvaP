@@ -387,10 +387,16 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
+
+    def __init__(self):
+        super().__init__()
+        self._read_userdata = set()
+
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        if user_data not in self.associations.values():
+        if user_data not in self._read_userdata:
             self.associations[(sheet.name, row)] = user_data
+            self._read_userdata.add(user_data)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
