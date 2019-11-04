@@ -1,83 +1,52 @@
-@media print {
-    .no-break {
-        page-break-inside: avoid;
-    }
-
-    body {
-        padding: 0;
-        background: none;
-    }
-
-    div.container {
-        padding-left: 0px;
-        padding-right: 0px;
-    }
-
-    .print-brand-image {
-        position: absolute;
-        left: 0px;
-        top: 0px;
-        height: 40px;
-    }
-
-    nav, #footer, .breadcrumb, .close {
-        display: none;
-    }
-
-    td, th, p {
-        font-size: 80%;
-        page-break-after: avoid;
-    }
-
-    h2 {
-        font-size: 20px;
-        page-break-after: avoid;
-    }
-
-    h4 {
-        font-size: 14px;
-        page-break-after: avoid;
-    }
-
-    .badge-participants {
-        width: 35px;
-    }
-
-    .alert {
-        padding: 5px;
-    }
-
-    .card-header {
-        padding: 0.5rem 1.25rem;
-        font-size: 0.85rem;
-    }
-
-    .card-body .card-header {
-        font-size: 0.75rem;
-    }
-
-    .table td {
-        padding: 0.5rem;
-    }
-
-    .table td, .table th {
-        background-color: transparent !important;
-        padding: 0.5rem;
-    }
-
+* {
     // always print background graphics in chrome
-    body, span, div, table, tr, tbody, tfoot, td, hr {
-        -webkit-print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+body {
+    margin: 0 auto;
+    padding: 0;
+    min-width: $print-body-min-width;
+    max-width: $print-body-max-width;
+    background: none;
+}
+
+.container {
+    padding: 0;
+    max-width: 100%;
+}
+
+.print-brand-image {
+    margin-bottom: 1em;
+    height: 2.5em;
+}
+
+.close {
+    display: none;
+}
+
+.card-header {
+    break-inside: avoid;
+    break-after: avoid;
+}
+
+.card {
+    // a long vertical flex layout would mess up with margins after a page break
+    display: block;
+}
+
+.print-no-break {
+    break-inside: avoid;
+}
+
+.distribution-bar-container {
+    .adjective {
+        display: inline;
+        font-size: unset;
     }
 
-    .distribution-bar-container {
-        .adjective {
-            display: inline;
-            font-size: unset;
-        }
-
-        .fas {
-            display: none;
-        }
+    .pole-icon {
+        color: $darker-gray;
+        @include bar-shadow($white);
     }
 }

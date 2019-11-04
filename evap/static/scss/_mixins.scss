@@ -17,3 +17,51 @@
         border-color: $border;
     }
 }
+
+@mixin media-breakpoint-between($lower, $upper, $breakpoints: $grid-breakpoints) {
+    $min: breakpoint-min($lower, $breakpoints);
+    $max: breakpoint-max($upper, $breakpoints);
+
+    $screen: null;
+    @if $min != null and $max != null {
+        $screen: "(min-width: #{$min}) and (max-width: #{$max})";
+    } @else if $min != null {
+        $screen: "(min-width: #{$min})";
+    } @else if $max != null {
+        $screen: "(max-width: #{$max})";
+    }
+
+    @if $screen == null {
+        @content;
+    } @else {
+        $print-index: index(map-keys($breakpoints), $print-breakpoint);
+        $print: index(map-keys($breakpoints), $lower) <= $print-index and $print-index <= index(map-keys($breakpoints), $upper);
+        $media-query: "screen and #{$screen}";
+        @if $print {
+            $media-query: "print, #{$screen}";
+        }
+        @media #{$media-query} {
+            @content;
+        }
+    }
+}
+
+@mixin media-breakpoint-up($lower, $breakpoints: $grid-breakpoints) {
+    $upper: nth(map-keys($breakpoints), -1);
+    @include media-breakpoint-between($lower, $upper, $breakpoints) {
+        @content;
+    }
+}
+
+@mixin media-breakpoint-down($upper, $breakpoints: $grid-breakpoints) {
+    $lower: nth(map-keys($breakpoints), 1);
+    @include media-breakpoint-between($lower, $upper, $breakpoints) {
+        @content;
+    }
+}
+
+@mixin media-breakpoint-only($name, $breakpoints: $grid-breakpoints) {
+    @include media-breakpoint-between($name, $name, $breakpoints) {
+        @content;
+    }
+}

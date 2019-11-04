@@ -43,7 +43,7 @@
     {% endblock %}
 </div>
 
-<div class="d-none d-print-block"><img class="print-brand-image" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" /></div>
+<img class="print-brand-image d-none d-print-block" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" />
 
 <div class="container mb-4">
     {% for message in messages %}

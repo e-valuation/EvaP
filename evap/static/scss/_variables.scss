@@ -10,6 +10,10 @@ $grid-breakpoints: (
     xl: 1200px
 );
 
+$print-breakpoint: lg;
+$print-body-min-width: map-get($grid-breakpoints, lg);
+$print-body-max-width: map-get($grid-breakpoints, xl);
+
 $container-max-widths: (
     sm: 540px,
     md: 720px,
