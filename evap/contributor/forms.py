@@ -70,6 +70,7 @@ class EditorContributionForm(ContributionForm):
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
+        self.fields['contributor'].queryset = UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
 
 
 class DelegatesForm(forms.ModelForm):
