@@ -3,11 +3,10 @@
 @import "../font-awesome/scss/fontawesome";
 @import "../font-awesome/scss/solid";
 @import "../font-awesome/scss/regular";
-@import "../bootstrap/scss/bootstrap";
+@import "bootstrap";
 @import "components";
 @import "adjustments";
 @import "utilities";
-@import "print";
 
 html {
     position: relative;
@@ -135,4 +134,8 @@ td.icon {
     max-height: 170px;
     overflow-y: auto;
     padding-left: 4px;
+}
+
+@media print {
+    @import "print";
 }

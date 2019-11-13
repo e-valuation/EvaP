@@ -1,7 +1,13 @@
 from unittest.mock import patch
+from io import StringIO
 
 from django.contrib.auth.models import Group
+from django.core.cache import caches
+from django.core.management import call_command
 from django.test.testcases import TestCase
+from django.db import connection
+from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 
 from django_webtest import WebTest
 from model_mommy import mommy
@@ -14,13 +20,78 @@ from evap.results.views import get_evaluations_with_prefetched_data
 import random
 
 
-class TestResultsView(WebTestWith200Check):
+class TestResultsView(WebTest):
     url = '/results/'
-    test_users = ['manager']
 
-    @classmethod
-    def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', email="manager@institution.example.com")
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
+    def test_multiple_evaluations_per_course(self):
+        mommy.make(UserProfile, username='student', email="student@institution.example.com")
+
+        # course with no evaluations does not show up
+        course = mommy.make(Course)
+        page = self.app.get(self.url, user="student")
+        self.assertNotContains(page, course.name)
+        caches['results'].clear()
+
+        # course with one evaluation is a single line with the evaluation's full_name
+        evaluation = mommy.make(Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published')
+        page = self.app.get(self.url, user="student")
+        self.assertContains(page, evaluation.full_name)
+        caches['results'].clear()
+
+        # course with two evaluations is three lines without using the full names
+        evaluation2 = mommy.make(Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published')
+        page = self.app.get(self.url, user="student")
+        self.assertContains(page, course.name)
+        self.assertContains(page, evaluation.name_en)
+        self.assertContains(page, evaluation2.name_en)
+        self.assertNotContains(page, evaluation.full_name)
+        self.assertNotContains(page, evaluation2.full_name)
+        caches['results'].clear()
+
+    # using LocMemCache so the cache queries don't show up in the query count that's measured here
+    @override_settings(CACHES={
+        'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},
+        'sessions': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_results'},
+        'results': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_sessions'},
+    })
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
+    def test_num_queries_is_constant(self):
+        """
+            ensures that the number of queries in the user list is constant
+            and not linear to the number of courses/evaluations
+        """
+        mommy.make(UserProfile, username='student', email="student@institution.example.com")
+
+        # warm up some caches
+        self.app.get(self.url, user="student")
+
+        def make_course_with_evaluations(unique_suffix):
+            course = mommy.make(Course)
+            mommy.make(Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0)
+            mommy.make(Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0)
+
+        # first measure the number of queries with two courses
+        make_course_with_evaluations('frob')
+        make_course_with_evaluations('spam')
+        call_command("refresh_results_cache", stdout=StringIO())
+        with CaptureQueriesContext(connection) as context:
+            self.app.get(self.url, user="student")
+        num_queries_before = context.final_queries - context.initial_queries
+
+        # then measure the number of queries with one more course and compare
+        make_course_with_evaluations('eggs')
+        call_command("refresh_results_cache", stdout=StringIO())
+        with CaptureQueriesContext(connection) as context:
+            self.app.get(self.url, user="student")
+        num_queries_after = context.final_queries - context.initial_queries
+
+        self.assertEqual(num_queries_before, num_queries_after)
+
+        # django does not clear the LocMemCache in between tests. clear it here just to be safe.
+        caches['default'].clear()
+        caches['sessions'].clear()
+        caches['results'].clear()
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):

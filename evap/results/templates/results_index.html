@@ -102,19 +102,19 @@
     </div>
     <div class="card card-noflex">
         <div class="card-body pt-0 pb-2">
-            {% if evaluations %}
+            {% if courses_and_evaluations %}
                 <div id="results-grid">
-                    {% regroup evaluations by course as course_evaluations %}
-                    {% for course, evaluations in course_evaluations|dictsort:"grouper.name" %}
-                        {% if course.evaluations.count > 1 %}
+                    {% for course, evaluations in courses_and_evaluations %}
+                        {# this is the reason why results_index_evaluation does not need to include is_subentry in the cache key: an evaluation is a subentry or no subentry regardless of which user asks #}
+                        {% if course.num_evaluations > 1 %}
                             <div>
                                 {% include 'results_index_course.html' %}
-                                {% for evaluation in evaluations|dictsort:"name" %}
+                                {% for evaluation in evaluations %}
                                     {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                                 {% endfor %}
                             </div>
                         {% else %}
-                            {% for evaluation in evaluations|dictsort:"name" %}
+                            {% for evaluation in evaluations %}
                                 {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=False %}
                             {% endfor %}
                         {% endif %}

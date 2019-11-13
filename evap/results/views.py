@@ -11,7 +11,7 @@ from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile
+from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile, Course
 from evap.evaluation.auth import internal_required
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
@@ -123,6 +123,7 @@ def get_evaluations_with_prefetched_data(evaluations):
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
     evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
+    evaluations = evaluations.select_related('course', 'course__semester')
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
 
     if request.user.is_reviewer:
@@ -135,13 +136,26 @@ def index(request):
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
         evaluations += additional_evaluations
 
-    evaluations.sort(key=lambda evaluation: (evaluation.course.semester.pk, evaluation.full_name))  # evaluations must be sorted for regrouping them in the template
+    # put evaluations into a dict that maps from course to a list of evaluations.
+    # this dict is sorted by course.pk (important for the zip below)
+    # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
+    evaluations.sort(key=lambda evaluation: evaluation.course.pk)
 
-    evaluation_pks = [evaluation.pk for evaluation in evaluations]
-    degrees = Degree.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
-    course_types = CourseType.objects.filter(courses__evaluations__pk__in=evaluation_pks).distinct()
+    courses_and_evaluations = defaultdict(list)
+    for evaluation in evaluations:
+        courses_and_evaluations[evaluation.course].append(evaluation)
+
+    course_pks = list([course.pk for course in courses_and_evaluations.keys()])
+
+    # annotate each course in courses with num_evaluations
+    annotated_courses = Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
+    for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
+        course.num_evaluations = annotated_course.num_evaluations
+
+    degrees = Degree.objects.filter(courses__pk__in=course_pks).distinct()
+    course_types = CourseType.objects.filter(courses__pk__in=course_pks).distinct()
     template_data = dict(
-        evaluations=evaluations,
+        courses_and_evaluations=courses_and_evaluations.items(),
         degrees=degrees,
         course_types=course_types,
         semesters=semesters,
