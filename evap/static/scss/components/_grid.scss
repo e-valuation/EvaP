@@ -1,4 +1,4 @@
-div.container {
+.container {
     padding-top: 80px; // for navbar (and breadcrumbs)
     flex: 1 0 auto;
 }
@@ -62,7 +62,7 @@ div.container {
     }
 
     @include media-breakpoint-up(lg) {
-        colunm-gap: 2rem;
+        column-gap: 2rem;
     }
 }
 

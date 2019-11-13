@@ -1,4 +1,4 @@
-<div class="d-md-flex">
+<div class="d-md-flex print-no-break">
     <h4>{{ questionnaire_result.questionnaire.public_name }}</h4>
     {% if questionnaire_result.warning %}
         <p class="ml-auto mt-auto participants-warning">
@@ -15,7 +15,7 @@
             <h5{% if not forloop.first %} class="mt-3"{% endif %}>{{ question_result.question.text }}</h5>
             <div class="container-fluid container-striped{% if not forloop.last %} mb-3{% endif %}">
         {% elif question_result.question.is_rating_question %}
-            <div class="row no-break">
+            <div class="row print-no-break">
                 <div class="col-question col-lg-broad col-lg-7 my-auto">{{ question_result.question.text }}</div>
                 <div class="col-answer col-lg-broad col-lg-5 my-auto">
                     {% include 'result_widget.html' with question_result=question_result %}
