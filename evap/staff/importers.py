@@ -416,8 +416,8 @@ class UserImporter(ExcelImporter):
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
+        self.associations[(sheet.name, row)] = user_data
         if user_data.email not in self._read_emails:
-            self.associations[(sheet.name, row)] = user_data
             self._read_emails.add(user_data.email)
         else:
             warningstring = _("A duplicated entry was ignored: {}.".format(user_data.email))
@@ -435,7 +435,7 @@ class UserImporter(ExcelImporter):
         new_participants = []
         created_users = []
         with transaction.atomic():
-            for (sheet, row), (user_data) in self.associations.items():
+            for user_data in self.users.values():
                 try:
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
@@ -444,8 +444,7 @@ class UserImporter(ExcelImporter):
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
-                                         " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                         " The error message has been: '%(error)s'") % dict(row=row + 1, sheet=sheet, error=e))
+                                         " The error message has been: '%(error)s'") % dict(error=e))
                     raise
 
         msg = _("Successfully created {} users:").format(len(created_users))
