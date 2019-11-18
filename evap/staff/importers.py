@@ -112,6 +112,7 @@ class EvaluationData(CommonEqualityMixin):
 class ExcelImporter(object):
     W_NAME = 'name'
     W_DUPL = 'duplicate'
+    W_IGNORED = 'ignored'
     W_GENERAL = 'general'
     W_INACTIVE = 'inactive'
 
@@ -397,6 +398,9 @@ class UserImporter(ExcelImporter):
         if user_data.email not in self._read_emails:
             self.associations[(sheet.name, row)] = user_data
             self._read_emails.add(user_data.email)
+        else:
+            warningstring = _("A duplicated entry was ignored: {}.".format(user_data.email))
+            self.warnings[self.W_IGNORED].append(mark_safe(warningstring))
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -573,6 +577,7 @@ WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: ugettext_lazy("Name mismatches"),
     ExcelImporter.W_INACTIVE: ugettext_lazy("Inactive users"),
     ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
+    ExcelImporter.W_IGNORED: ugettext_lazy("Ignored duplicates"),
     ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
     EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
     EnrollmentImporter.W_MANY: ugettext_lazy("Unusually high number of enrollments")
