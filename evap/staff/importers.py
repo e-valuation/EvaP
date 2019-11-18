@@ -411,13 +411,13 @@ class UserImporter(ExcelImporter):
 
     def __init__(self):
         super().__init__()
-        self._read_userdata = set()
+        self._read_emails = set()
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
-        if user_data not in self._read_userdata:
+        if user_data.email not in self._read_emails:
             self.associations[(sheet.name, row)] = user_data
-            self._read_userdata.add(user_data)
+            self._read_emails.add(user_data.email)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
