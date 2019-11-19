@@ -115,6 +115,7 @@ def translate(**kwargs):
 
 def clean_email(email):
     if email:
+        email = email.strip().lower()
         # Replace email domains in case there are multiple alias domains used in the organisation and all emails should
         # have the same domain on EvaP.
         for original_domain, replaced_domain in settings.INSTITUTION_EMAIL_REPLACEMENTS:

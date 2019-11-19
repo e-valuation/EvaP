@@ -8,14 +8,14 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
-from evap.evaluation.tools import is_external_email
+from evap.evaluation.tools import clean_email
 
 
 def create_user_list_string_for_message(users):
     msg = ""
     for user in users:
         msg += "<br />"
-        msg += "{} {} ({})".format(user.first_name, user.last_name, user.username)
+        msg += "{} {} ({})".format(user.first_name, user.last_name, user.email)
     return msg
 
 
@@ -31,26 +31,29 @@ class UserData(CommonEqualityMixin):
     """
         Holds information about a user, retrieved from the Excel file.
     """
-    def __init__(self, username, first_name, last_name, title, email, is_responsible):
-        self.username = username.strip().lower()
+    def __init__(self, first_name, last_name, title, email, is_responsible):
         self.first_name = first_name.strip()
         self.last_name = last_name.strip()
         self.title = title.strip()
-        self.email = email.strip().lower()
+        self.email = clean_email(email)
+        self.username = self.email
         self.is_responsible = is_responsible
 
     def store_in_database(self):
-        user, created = UserProfile.objects.update_or_create(username=self.username,
-                                                             defaults={
-                                                                 'first_name': self.first_name,
-                                                                 'last_name': self.last_name,
-                                                                 'email': self.email,
-                                                                 'title': self.title,
-                                                                 'is_active': True})
+        user, created = UserProfile.objects.update_or_create(
+            email=self.email,
+            defaults={
+                'username': self.username,
+                'first_name': self.first_name,
+                'last_name': self.last_name,
+                'title': self.title,
+                'is_active': True
+            }
+        )
         return user, created
 
     def user_already_exists(self):
-        return UserProfile.objects.filter(username=self.username).exists()
+        return UserProfile.objects.filter(email=self.email).exists()
 
     def get_user_profile_object(self):
         user = UserProfile()
@@ -108,7 +111,6 @@ class EvaluationData(CommonEqualityMixin):
 
 class ExcelImporter(object):
     W_NAME = 'name'
-    W_EMAIL = 'email'
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
     W_INACTIVE = 'inactive'
@@ -164,53 +166,21 @@ class ExcelImporter(object):
             if not user_data == self.users[curr_email]:
                 self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row + 1, curr_email))
 
-    def generate_external_usernames_if_external(self):
-        for user_data in self.users.values():
-            if is_external_email(user_data.email):
-                if user_data.username != "":
-                    self.errors.append(_('User {}: Username must be empty for external users.').format(user_data.username))
-                username = (user_data.first_name + '.' + user_data.last_name + '.ext').lower()
-                for old, new in settings.USERNAME_REPLACEMENTS:
-                    username = username.replace(old, new)
-                user_data.username = username
-
     def check_user_data_correctness(self):
-        username_to_user = {}
         for user_data in self.users.values():
-            if user_data.username in username_to_user:
-                self.errors.append(_('The imported data contains two email addresses with the same username '
-                    + _("('{}' and '{}').")).format(user_data.email, username_to_user[user_data.username].email))
-            username_to_user[user_data.username] = user_data
-
-        for user_data in self.users.values():
-            if not is_external_email(user_data.email) and user_data.username == "":
-                self.errors.append(_('Emailaddress {}: Username cannot be empty for non-external users.').format(user_data.email))
-                return  # to avoid duplicate errors with validate
             try:
                 user_data.validate()
             except ValidationError as e:
                 self.errors.append(_('User {}: Error when validating: {}').format(user_data.email, e))
 
-            try:
-                duplicate_email_user = UserProfile.objects.get(email=user_data.email)
-                if duplicate_email_user.username != user_data.username:
-                    self.errors.append(_('User {}, username {}: Another user with the same email address and a '
-                        'different username ({}) already exists.').format(user_data.email, user_data.username, duplicate_email_user.username))
-            except UserProfile.DoesNotExist:
-                pass
-
-            if not is_external_email(user_data.email) and len(user_data.username) > settings.INTERNAL_USERNAMES_MAX_LENGTH:
-                self.errors.append(_('User {}: Username cannot be longer than {} characters for non-external users.').format(user_data.email, settings.INTERNAL_USERNAMES_MAX_LENGTH))
             if user_data.first_name == "":
-                # This might be meaningless due to an empty email, but in that case, there will be
-                # another error saying that the email address is missing for this user.
                 self.errors.append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
                 self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
 
     @staticmethod
     def _create_user_string(user):
-        return "{} ({} {} {}, {})".format(user.username, user.title or "", user.first_name, user.last_name, user.email or "")
+        return "{} {} {}, {}".format(user.title or "", user.first_name, user.last_name, user.email or "")
 
     @staticmethod
     def _create_user_data_mismatch_warning(user, user_data, test_run):
@@ -240,9 +210,7 @@ class ExcelImporter(object):
     def check_user_data_sanity(self, test_run):
         for user_data in self.users.values():
             try:
-                user = UserProfile.objects.get(username=user_data.username)
-                if user.email != user_data.email:
-                    self.warnings[self.W_EMAIL].append(self._create_user_data_mismatch_warning(user, user_data, test_run))
+                user = UserProfile.objects.get(email=user_data.email)
                 if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
@@ -254,7 +222,7 @@ class ExcelImporter(object):
 
             users_same_name = (UserProfile.objects
                 .filter(first_name=user_data.first_name, last_name=user_data.last_name)
-                .exclude(username=user_data.username)
+                .exclude(email=user_data.email)
                 .all())
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
@@ -273,9 +241,9 @@ class EnrollmentImporter(ExcelImporter):
         self.names_de = set()
 
     def read_one_enrollment(self, data):
-        student_data = UserData(username=data[3], first_name=data[2], last_name=data[1], email=data[4], title='', is_responsible=False)
-        responsible_data = UserData(username=data[12], first_name=data[11], last_name=data[10], title=data[9], email=data[13], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[7], name_en=data[8], type_name=data[5], is_graded=data[6], degree_names=data[0], responsible_email=responsible_data.email)
+        student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
+        responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
+        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
         return (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
@@ -340,12 +308,11 @@ class EnrollmentImporter(ExcelImporter):
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
         for enrollment in self.enrollments:
-            # At this point the user should have a non-empty email address (see #953)
-            index = enrollment[1].username if enrollment[1].username else enrollment[1].email
+            index = enrollment[1].email
             enrollments_per_user[index].append(enrollment)
-        for username, enrollments in enrollments_per_user.items():
+        for email, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
-                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(username, len(enrollments)))
+                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(email, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_datetime, vote_end_date):
         students_created = []
@@ -365,7 +332,6 @@ class EnrollmentImporter(ExcelImporter):
 
             for evaluation_data, student_data in self.enrollments:
                 evaluation = Evaluation.objects.get(course__semester=semester, course__name_de=evaluation_data.name_de)
-                # This is safe because the user's email address is checked before in the importer (see #953)
                 student = UserProfile.objects.get(email=student_data.email)
                 evaluation.participants.add(student)
 
@@ -393,7 +359,7 @@ class EnrollmentImporter(ExcelImporter):
             if importer.errors:
                 return importer.success_messages, importer.warnings, importer.errors
 
-            importer.check_column_count(14)
+            importer.check_column_count(12)
 
             if importer.errors:
                 importer.errors.append(_("The input data is malformed. No data was imported."))
@@ -401,7 +367,6 @@ class EnrollmentImporter(ExcelImporter):
 
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.generate_external_usernames_if_external()
             importer.process_graded_column()
             importer.check_user_data_correctness()
             importer.check_evaluation_data_correctness(semester)
@@ -426,7 +391,7 @@ class EnrollmentImporter(ExcelImporter):
 
 class UserImporter(ExcelImporter):
     def read_one_user(self, data):
-        user_data = UserData(username=data[0], title=data[1], first_name=data[2], last_name=data[3], email=data[4], is_responsible=False)
+        user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
         return user_data
 
     def consolidate_user_data(self):
@@ -463,7 +428,7 @@ class UserImporter(ExcelImporter):
         new_participants = []
         for user_data in self.users.values():
             try:
-                new_participant = UserProfile.objects.get(username=user_data.username)
+                new_participant = UserProfile.objects.get(email=user_data.email)
             except UserProfile.DoesNotExist:
                 new_participant = user_data.get_user_profile_object()
             new_participants.append(new_participant)
@@ -489,14 +454,13 @@ class UserImporter(ExcelImporter):
             if importer.errors:
                 return [], importer.success_messages, importer.warnings, importer.errors
 
-            importer.check_column_count(5)
+            importer.check_column_count(4)
             if importer.errors:
                 importer.errors.append(_("The input data is malformed. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
 
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
             importer.consolidate_user_data()
-            importer.generate_external_usernames_if_external()
             importer.check_user_data_correctness()
             importer.check_user_data_sanity(test_run)
 
@@ -604,7 +568,6 @@ class PersonImporter:
 WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: ugettext_lazy("Name mismatches"),
     ExcelImporter.W_INACTIVE: ugettext_lazy("Inactive users"),
-    ExcelImporter.W_EMAIL: ugettext_lazy("Email mismatches"),
     ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
     ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
     EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
