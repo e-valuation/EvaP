@@ -48,7 +48,7 @@ class TestUserImporter(TestCase):
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
-        self.assertIn('Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium)<br />Bastius Quid (bastius.quid.ext)', success_messages)
+        self.assertIn('Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)', success_messages)
         self.assertIn('Successfully read Excel file.', success_messages)
         self.assertEqual(warnings, {})
         self.assertEqual(errors, [])
@@ -60,31 +60,16 @@ class TestUserImporter(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
-        mommy.make(UserProfile, first_name='Lucilia', last_name="Manilium", username="lucilia.manilium2")
+        mommy.make(UserProfile, first_name='Lucilia', last_name="Manilium", email="luma@institution.example.com")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
         self.assertIn("An existing user has the same first and last name as a new user:<br />"
-                " - lucilia.manilium2 ( Lucilia Manilium, ) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
+                " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
                 warnings_test[ExcelImporter.W_DUPL])
-
-    def test_email_mismatch_warning(self):
-        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
-
-        __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The existing user would be overwritten with the following data:<br />"
-                      " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                      " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
-                      warnings_test[ExcelImporter.W_EMAIL])
-
-        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("The existing user was overwritten with the following data:<br />"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)",
-                warnings_no_test[ExcelImporter.W_EMAIL])
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
@@ -109,16 +94,16 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
-        mommy.make(UserProfile, username="lucilia.manilium", is_active=False)
+        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
-                      "lucilia.manilium ( None None, )",
+                      " None None, lucilia.manilium@institution.example.com",
                       warnings_test[ExcelImporter.W_INACTIVE])
 
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
         self.assertIn("The following user was previously marked inactive and is now marked active upon importing: "
-            "lucilia.manilium ( None None, )",
+            " None None, lucilia.manilium@institution.example.com",
             warnings_no_test[ExcelImporter.W_INACTIVE])
 
         self.assertEqual(UserProfile.objects.count(), 2)
@@ -145,7 +130,7 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
-        self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
+        self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
@@ -153,7 +138,7 @@ class TestEnrollmentImporter(TestCase):
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
-        self.assertIn("Ferdi Itaque (ferdi.itaque)", "".join(success_messages))
+        self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, [])
         self.assertEqual(warnings, {})
 
@@ -196,12 +181,12 @@ class TestEnrollmentImporter(TestCase):
 
         self.assertEqual(warnings_test, warnings_no_test)
         warnings_many = warnings_test[EnrollmentImporter.W_MANY]
-        self.assertIn("Warning: User ipsum.lorem has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User lucilia.manilium has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User diam.synephebos has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User torquate.metrodorus has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User latinas.menandri has 5 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User bastius.quid@external.example.com has 3 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User ipsum.lorem@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User lucilia.manilium@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User diam.synephebos@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User torquate.metrodorus@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User latinas.menandri@institution.example.com has 5 enrollments, which is a lot.", warnings_many)
+        self.assertIn("Warning: User bastius.quid@external.example.com has 4 enrollments, which is a lot.", warnings_many)
 
     def test_random_file_error(self):
         with open(self.filename_random, "rb") as excel_file:
@@ -232,7 +217,6 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('Sheet "MA Belegungen", row 10: Email address is missing.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.', errors_test)
         self.assertIn('Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
-        self.assertIn('The imported data contains two email addresses with the same username (\'678@external.example.com\' and \'678@internal.example.com\').', errors_test)
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
@@ -240,12 +224,12 @@ class TestEnrollmentImporter(TestCase):
 class TestPersonImporter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.participant1 = mommy.make(UserProfile)
+        cls.participant1 = mommy.make(UserProfile, email="participant1@example.com")
         cls.evaluation1 = mommy.make(Evaluation, participants=[cls.participant1])
         cls.contributor1 = mommy.make(UserProfile)
         cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, evaluation=cls.evaluation1)
 
-        cls.participant2 = mommy.make(UserProfile)
+        cls.participant2 = mommy.make(UserProfile, email="participant2@example.com")
         cls.evaluation2 = mommy.make(Evaluation, participants=[cls.participant2])
         cls.contributor2 = mommy.make(UserProfile)
         cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, evaluation=cls.evaluation2)
@@ -269,13 +253,13 @@ class TestPersonImporter(TestCase):
 
         success_messages, __, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.full_name), "".join(success_messages))
+        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
         success_messages, __, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.full_name), "".join(success_messages))
+        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1, self.contributor2]))
@@ -295,11 +279,11 @@ class TestPersonImporter(TestCase):
     def test_import_new_participant(self):
         success_messages, __, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.full_name), "".join(success_messages))
+        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
         success_messages, __, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 participants added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.full_name), "".join(success_messages))
+        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
         self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
