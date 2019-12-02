@@ -368,7 +368,7 @@ class SingleResultForm(forms.ModelForm):
 
 
 class ContributionForm(forms.ModelForm):
-    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True))
+    contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
     responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
