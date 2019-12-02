@@ -576,8 +576,17 @@ def semester_preparation_reminder(request, semester_id):
     responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.course.responsibles.all()],
                          responsible.delegates.all()) for responsible in responsibles]
 
-    template_data = dict(semester=semester, responsible_list=responsible_list)
-    return render(request, "staff_semester_preparation_reminder.html", template_data)
+    if request.method == "POST":
+        template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        subject_params = {}
+        for responsible, evaluations, __ in responsible_list:
+            body_params = {"user": responsible, "evaluations": evaluations}
+            EmailTemplate.send_to_user(responsible, template, subject_params, body_params, use_cc=True, request=request)
+        messages.success(request, _("Successfully sent reminders to everyone."))
+        return HttpResponse()
+    else:
+        template_data = dict(semester=semester, responsible_list=responsible_list)
+        return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
 @manager_required
