@@ -24,12 +24,12 @@ class Migration(migrations.Migration):
                         (8, 'Little-much question'),
                         (9, 'Small-large question'),
                         (10, 'Slow-fast question'),
-                        (11, 'Short-long question'))
-                    ),
+                        (11, 'Short-long question')
+                    )),
                     ('Yes-no', (
                         (3, 'Positive yes-no question'),
-                        (4, 'Negative yes-no question'))
-                    ),
+                        (4, 'Negative yes-no question')
+                    )),
                     ('Layout', ((5, 'Heading'),))
                 ],
                 verbose_name='question type'),
