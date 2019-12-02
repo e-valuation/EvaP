@@ -18,6 +18,12 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
     }
 }
 
+// make buttons that really look like links
+.btn-link {
+    padding: 0;
+    border: none;
+}
+
 // select2 adjustments
 .select2-container--default .select2-selection--single {
     height: 38px;

@@ -15,7 +15,11 @@
                     <div class="card-body h-100">
                         <h4 class="card-title">{% trans 'Import participants' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
-                        <p class="card-text">{% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
+                        <p class="card-text">
+                            {% trans 'Upload Excel file with participant data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'download sample file' %}</a>,
+                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'copy headers to clipboard' %}</button>).
+                            {% trans 'This will create all containing users.' %}
+                        </p>
                         {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
@@ -56,7 +60,12 @@
                     <div class="card-body">
                         <h4 class="card-title">{% trans 'Import contributors' %}</h4>
                         <h6 class="card-subtitle mb-2 text-muted">{% trans 'From Excel file' %}</h6>
-                        <p class="card-text">{% trans 'Upload Excel file with contributor data' %} (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'sample file' %}</a>). {% trans 'This will create all containing users.' %}</p>
+                        <p class="card-text">
+                            {% trans 'Upload Excel file with contributor data' %}
+                            (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'download sample file' %}</a>,
+                            <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'copy headers to clipboard' %}</button>).
+                            {% trans 'This will create all containing users.' %}
+                        </p>
                         {% include 'bootstrap_form.html' with form=contributor_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
@@ -109,4 +118,8 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/copy-to-clipboard.js"></script>
 {% endblock %}
