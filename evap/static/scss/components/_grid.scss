@@ -132,31 +132,30 @@
     }
 }
 
-.col-sorting {
+.col-order {
     position: relative;
     padding-left: 1em;
     cursor: pointer;
-}
 
-.col-sorting::before,
-.col-sorting::after {
-    position: absolute;
-    bottom: 0;
-    opacity: 0.3;
-}
+    &::before, &::after {
+        position: absolute;
+        bottom: 0;
+        opacity: 0.3;
+    }
 
-.col-sorting::before {
-    left: 0;
-    content: "\2193";
-}
+    &::before {
+        left: 0;
+        content: "↓";
+    }
 
-.col-sorting::after {
-    left: 0.4em;
-    content: "\2191";
-}
+    &::after {
+        left: 0.4em;
+        content: "↑";
+    }
 
-.col-sorting-asc::before, .col-sorting-desc::after {
-    opacity: 1;
+    &-asc::before, &-desc::after {
+        opacity: 1;
+    }
 }
 
 .grid-header {
