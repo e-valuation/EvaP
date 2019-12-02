@@ -1,6 +1,7 @@
 import datetime
 import os
 import glob
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -512,6 +513,7 @@ class TestSemesterAssignView(WebTest):
 class TestSemesterPreparationReminderView(WebTestWith200Check):
     url = '/staff/semester/1/preparation_reminder'
     test_users = ['manager']
+    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -526,6 +528,22 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
         self.assertContains(response, 'name_to_find')
+
+    @patch("evap.staff.views.EmailTemplate.send_to_user")
+    def test_remind_all(self, send_to_user_mock):
+        user = mommy.make(UserProfile)
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester, responsibles=[user]), state='prepared')
+
+        response = self.app.post(self.url, user='manager')
+        self.assertEqual(response.status_code, 200)
+
+        template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        subject_params = {}
+        body_params = {"user": user, "evaluations": [evaluation]}
+        expected = (user, template, subject_params, body_params)
+
+        send_to_user_mock.assert_called_once()
+        self.assertEqual(send_to_user_mock.call_args_list[0][0][:4], expected)
 
 
 class TestSendReminderView(WebTest):

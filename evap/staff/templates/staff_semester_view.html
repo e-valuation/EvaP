@@ -36,9 +36,9 @@
                         <button type="button" class="btn btn-sm btn-success disabled">{% trans 'Grade documents have been deleted' %}</button>
                     {% endif %}
                     {% if semester.results_can_be_archived %}
-                        <button type="button" onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</a>
+                        <button type="button" onclick="archiveResultsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-warning">{% trans 'Archive results' %}</button>
                     {% elif semester.results_are_archived %}
-                        <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Results have been archived' %}</a>
+                        <button type="button" disabled class="btn btn-sm btn-success">{% trans 'Results have been archived' %}</button>
                     {% endif %}
                 </div>
             </div>
