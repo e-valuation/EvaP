@@ -780,6 +780,7 @@ class Question(models.Model):
     LITTLE_MUCH = 8
     SMALL_LARGE = 9
     SLOW_FAST = 10
+    SHORT_LONG = 11
     POSITIVE_YES_NO = 3
     NEGATIVE_YES_NO = 4
     HEADING = 5
@@ -799,6 +800,7 @@ class Question(models.Model):
             (LITTLE_MUCH, _("Little-much question")),
             (SMALL_LARGE, _("Small-large question")),
             (SLOW_FAST, _("Slow-fast question")),
+            (SHORT_LONG, _("Short-long question")),
         )),
         (_("Yes-no"), (
             (POSITIVE_YES_NO, _("Positive yes-no question")),
@@ -837,7 +839,7 @@ class Question(models.Model):
 
     @property
     def is_bipolar_likert_question(self):
-        return self.type in (self.EASY_DIFFICULT, self.FEW_MANY, self.LITTLE_MUCH, self.SLOW_FAST, self.SMALL_LARGE)
+        return self.type in (self.EASY_DIFFICULT, self.FEW_MANY, self.LITTLE_MUCH, self.SLOW_FAST, self.SMALL_LARGE, self.SHORT_LONG)
 
     @property
     def is_text_question(self):
@@ -991,6 +993,21 @@ CHOICES = {
             _("Slightly too\nfast"),
             _("Too\nfast"),
             _("Way too\nfast"),
+            _("no answer")
+        ],
+        **BASE_BIPOLAR_CHOICES
+    ),
+    Question.SHORT_LONG: BipolarChoices(
+        minus_name=_("Short"),
+        plus_name=_("Long"),
+        names=[
+            _("Way too\nshort"),
+            _("Too\nshort"),
+            _("Slightly too\nshort"),
+            _("Ideal"),
+            _("Slightly too\nlong"),
+            _("Too\nlong"),
+            _("Way too\nlong"),
             _("no answer")
         ],
         **BASE_BIPOLAR_CHOICES

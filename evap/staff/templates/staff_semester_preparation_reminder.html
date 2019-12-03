@@ -10,6 +10,14 @@
 {% block content %}
     {{ block.super }}
 
+    {% if responsible_list %}
+        <div class="d-flex mb-3">
+            <div class="mr-auto">
+                <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
+            </div>
+        </div>
+    {% endif %}
+
     {% for responsible, evaluations, delegates in responsible_list %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
@@ -22,7 +30,7 @@
                     {% endfor %}
                 </span>
                 <div>
-                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send Reminder' %}</a>
+                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send reminder' %}</a>
                 </div>
             </div>
             <div class="card-body">
@@ -60,4 +68,30 @@
         </div>
     {% endfor %}
 
+{% endblock %}
+
+{% block modals %}
+    {{ block.super }}
+    {% trans 'Remind all' as title %}
+    {% trans 'Do you really want to remind everyone?' as question %}
+    {% trans 'Remind all' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='remindAllModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function remindAllModalAction() {
+            var remindAllButton = $('#remindAllButton');
+            remindAllButton.prop('disabled', true);
+            remindAllButton.text('{% trans 'Reminding everyone' %}');
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:semester_preparation_reminder' semester_id=semester.id %}",
+                success: function(){
+                    location.reload();
+                },
+                error: function(){
+                    window.alert("{% trans 'The server is not responding.' %}");
+                }
+            })
+        }
+    </script>
 {% endblock %}

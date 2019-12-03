@@ -389,6 +389,12 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
+    def test_staff_can_select_proxy_user(self):
+        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
+        course = mommy.make(Course, semester=mommy.make(Semester))
+        form = CourseForm(instance=course)
+        self.assertIn(proxy_user, form.fields['responsibles'].queryset)
+
 
 class ContributionFormset775RegressionTests(TestCase):
     """
@@ -518,6 +524,12 @@ class CourseFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('name_de', form.errors)
         self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])
+
+    def test_that_proxy_user_can_be_responsible(self):
+        course = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)])
+        proxy = mommy.make(UserProfile, is_proxy_user=True, is_active=True)
+        form = CourseForm(instance=course)
+        self.assertIn(proxy, form.fields['responsibles'].queryset)
 
 
 class EvaluationFormTests(TestCase):

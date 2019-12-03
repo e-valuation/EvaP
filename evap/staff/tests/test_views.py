@@ -1,6 +1,7 @@
 import datetime
 import os
 import glob
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -263,7 +264,7 @@ class TestUserImportView(WebTest):
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium)<br />Bastius Quid (bastius.quid.ext)')
+        self.assertContains(page, 'The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)')
         self.assertContains(page, 'Import previously uploaded file')
 
         form = page.forms["user-import-form"]
@@ -295,7 +296,7 @@ class TestUserImportView(WebTest):
         """
         Tests whether warnings given from the importer are displayed
         """
-        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user='manager')
 
@@ -304,8 +305,8 @@ class TestUserImportView(WebTest):
 
         reply = form.submit(name="operation", value="test")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+                " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
         helper_delete_all_import_files(self.user.id)
 
@@ -512,6 +513,7 @@ class TestSemesterAssignView(WebTest):
 class TestSemesterPreparationReminderView(WebTestWith200Check):
     url = '/staff/semester/1/preparation_reminder'
     test_users = ['manager']
+    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -526,6 +528,22 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
         self.assertContains(response, 'name_to_find')
+
+    @patch("evap.staff.views.EmailTemplate.send_to_user")
+    def test_remind_all(self, send_to_user_mock):
+        user = mommy.make(UserProfile)
+        evaluation = mommy.make(Evaluation, course=mommy.make(Course, semester=self.semester, responsibles=[user]), state='prepared')
+
+        response = self.app.post(self.url, user='manager')
+        self.assertEqual(response.status_code, 200)
+
+        template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
+        subject_params = {}
+        body_params = {"user": user, "evaluations": [evaluation]}
+        expected = (user, template, subject_params, body_params)
+
+        send_to_user_mock.assert_called_once()
+        self.assertEqual(send_to_user_mock.call_args_list[0][0][:4], expected)
 
 
 class TestSendReminderView(WebTest):
@@ -589,14 +607,12 @@ class TestSemesterImportView(WebTest):
         for evaluation in evaluations:
             self.assertEqual(evaluation.course.responsibles.count(), 1)
 
-        check_student = UserProfile.objects.get(username="diam.synephebos")
+        check_student = UserProfile.objects.get(email="diam.synephebos@institution.example.com")
         self.assertEqual(check_student.first_name, "Diam")
-        self.assertEqual(check_student.email, "diam.synephebos@institution.example.com")
 
-        check_contributor = UserProfile.objects.get(username="sanctus.aliquyam.ext")
+        check_contributor = UserProfile.objects.get(email="567@external.example.com")
         self.assertEqual(check_contributor.first_name, "Sanctus")
         self.assertEqual(check_contributor.last_name, "Aliquyam")
-        self.assertEqual(check_contributor.email, "567@external.example.com")
 
         check_course = Course.objects.get(name_en="Choose")
         self.assertEqual(check_course.name_de, "Wählen")
@@ -629,7 +645,6 @@ class TestSemesterImportView(WebTest):
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
-        self.assertContains(reply, 'The imported data contains two email addresses with the same username')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
 
         self.assertNotContains(reply, 'Import previously uploaded file')
@@ -638,7 +653,7 @@ class TestSemesterImportView(WebTest):
         """
         Tests whether warnings given from the importer are displayed
         """
-        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user='manager')
 
@@ -647,8 +662,8 @@ class TestSemesterImportView(WebTest):
 
         reply = form.submit(name="operation", value="test")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+                " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='manager')
@@ -1432,7 +1447,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         Tests whether warnings given from the importer are displayed
         """
-        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user='manager')
 
@@ -1441,8 +1456,8 @@ class TestEvaluationImportPersonsView(WebTest):
 
         reply = form.submit(name="operation", value="test-participants")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+                " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
     def test_import_contributors_error_handling(self):
         """
@@ -1463,7 +1478,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         Tests whether warnings given from the importer are displayed
         """
-        mommy.make(UserProfile, email="42@42.de", username="lucilia.manilium")
+        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user='manager')
 
@@ -1472,8 +1487,8 @@ class TestEvaluationImportPersonsView(WebTest):
 
         reply = form.submit(name="operation", value="test-contributors")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
-                " - lucilia.manilium ( None None, 42@42.de) (existing)<br />"
-                " - lucilia.manilium ( Lucilia Manilium, lucilia.manilium@institution.example.com) (new)")
+                " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user='manager')
