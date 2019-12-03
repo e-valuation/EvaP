@@ -9,11 +9,11 @@
 
 {% block content %}
     {{ block.super }}
-    
+
     {% if responsible_list %}
         <div class="d-flex mb-3">
             <div class="mr-auto">
-                <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind All' %}</button>
+                <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
             </div>
         </div>
     {% endif %}
@@ -30,7 +30,7 @@
                     {% endfor %}
                 </span>
                 <div>
-                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send Reminder' %}</a>
+                    <a href="{% url 'staff:send_reminder' semester.id responsible.id %}" class="btn btn-sm btn-light">{% trans 'Send reminder' %}</a>
                 </div>
             </div>
             <div class="card-body">
