@@ -131,7 +131,12 @@ class ExcelExporter(object):
             ), "headline")
 
             for evaluation, results in evaluations_with_results:
-                writec(self, evaluation.full_name, "evaluation")
+                title = evaluation.full_name
+                if len(semesters) > 1:
+                    title += "\n{}".format(evaluation.course.semester.name)
+                responsible_names = [responsible.full_name for responsible in evaluation.course.responsibles.all()]
+                title += "\n{}".format(", ".join(responsible_names))
+                writec(self, title, "evaluation")
 
             writen(self, _("Degrees"), "bold")
             for evaluation, results in evaluations_with_results:

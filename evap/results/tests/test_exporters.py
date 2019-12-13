@@ -144,12 +144,12 @@ class TestExporters(TestCase):
 
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=content_de.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2\n")
 
         workbook = xlrd.open_workbook(file_contents=content_en.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1\n")
 
     def test_course_type_ordering(self):
         degree = baker.make(Degree)
@@ -183,8 +183,8 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name + "\n")
 
         course_type_2.order = 0
         course_type_2.save()
@@ -194,5 +194,5 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name + "\n")

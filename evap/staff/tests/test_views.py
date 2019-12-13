@@ -752,7 +752,7 @@ class TestSemesterExportView(WebTest):
         workbook = xlrd.open_workbook(file_contents=response.content)
         self.assertEqual(
             workbook.sheets()[0].row_values(0)[0],
-            'Evaluation {}\n\n{}\n\n{}'.format(self.semester.name, self.degree.name, self.course_type.name)
+            'Evaluation\n{}\n\n{}\n\n{}'.format(self.semester.name, self.degree.name, self.course_type.name)
         )
 
 
