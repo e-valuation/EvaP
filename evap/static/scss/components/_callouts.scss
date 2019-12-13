@@ -56,6 +56,7 @@
     &.closed {
         border-radius: .2rem;
         border-left-width: 0;
+        padding: 4px 8px 4px 8px;
 
         .callout-content {
             max-height: 0;
@@ -69,7 +70,7 @@
     }
 
     &.closing {
-        transition: border-radius 1s ease 1s, border-left-width 1s ease 1s;
+        transition: border-radius 1s ease 1s, border-left-width 1s ease 1s, padding 1s ease-in-out;
 
         .callout-content {
             transition: max-width 1s ease 1s, padding-top 1s ease, max-height 1s ease;
@@ -77,7 +78,7 @@
     }
 
     &.opening {
-        transition: border-radius 1s ease, border-left-width 1s ease;
+        transition: border-radius 1s ease, border-left-width 1s ease, padding 1s ease-in-out;
 
         .callout-content {
             transition: max-width 1s ease, padding-top 1s ease 1s, max-height 1s ease 1s;
