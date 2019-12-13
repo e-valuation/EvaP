@@ -18,6 +18,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
+from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
@@ -1642,3 +1643,9 @@ def development_components(request):
         'theme_colors': theme_colors
     }
     return render(request, "staff_development_components.html", template_data)
+
+
+@manager_required
+def export_contributor_results_view(request, contributor_id):
+    contributor = get_object_or_404(UserProfile, id=contributor_id)
+    return export_contributor_results(contributor)

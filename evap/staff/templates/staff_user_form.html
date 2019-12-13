@@ -43,7 +43,12 @@
             {% if evaluations_contributing_to %}
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">{% trans 'Export result pages' %}</h5>
+                        <div class="d-flex">
+                            <h5 class="card-title mr-auto">{% trans 'Export evaluation results' %}</h5>
+                            <div>
+                                <a href="{% url 'staff:export_contributor_results' form.instance.id %}" class="btn btn-sm btn-light">{% trans 'Export all results' %}</a>
+                            </div>
+                        </div>
                         <ul>
                             {% for semester, evaluations in evaluations_contributing_to %}
                                 {% if evaluations %}
