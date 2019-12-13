@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 import xlwt
@@ -75,7 +76,7 @@ class ExcelExporter(object):
 
         return filtered_questions
 
-    def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False):
+    def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -93,9 +94,11 @@ class ExcelExporter(object):
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for evaluation in Evaluation.objects.filter(
-                course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types
-            ).distinct():
+            evaluations_filter = Q(course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types)
+            if contributor:
+                evaluations_filter = evaluations_filter & (Q(course__responsibles__in=[contributor]) | Q(contributions__contributor__in=[contributor]))
+            evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
+            for evaluation in evaluations:
                 if evaluation.is_single_result:
                     continue
                 if not evaluation.can_publish_rating_results and not include_not_enough_voters:
@@ -117,7 +120,9 @@ class ExcelExporter(object):
             used_questionnaires = sorted(used_questionnaires)
 
             export_name = "Evaluation"
-            if len(semesters) == 1:
+            if contributor:
+                export_name += "\n{}".format(contributor.full_name)
+            elif len(semesters) == 1:
                 export_name += "\n{}".format(semesters[0].name)
             degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
