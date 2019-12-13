@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 
 import xlwt
 
-from evap.evaluation.models import CourseType, Degree
+from evap.evaluation.models import CourseType, Degree, Evaluation
 from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
@@ -15,8 +15,7 @@ class ExcelExporter(object):
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
     STEP = 0.2  # we only have a limited number of custom colors
 
-    def __init__(self, semester):
-        self.semester = semester
+    def __init__(self):
         self.styles = dict()
 
     def normalize_number(self, number):
@@ -76,7 +75,7 @@ class ExcelExporter(object):
 
         return filtered_questions
 
-    def export(self, response, selection_list, include_not_enough_voters=False, include_unpublished=False):
+    def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -94,8 +93,8 @@ class ExcelExporter(object):
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for evaluation in self.semester.evaluations.filter(
-                state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types
+            for evaluation in Evaluation.objects.filter(
+                course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types
             ).distinct():
                 if evaluation.is_single_result:
                     continue
@@ -114,13 +113,16 @@ class ExcelExporter(object):
                     evaluation.course.avg_grade = distribution_to_grade(calculate_average_course_distribution(evaluation.course))
                 evaluations_with_results.append((evaluation, results))
 
-            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].full_name))
+            evaluations_with_results.sort(key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name))
             used_questionnaires = sorted(used_questionnaires)
 
+            export_name = "Evaluation"
+            if len(semesters) == 1:
+                export_name += "\n{}".format(semesters[0].name)
             degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
-            writec(self, _("Evaluation {}\n\n{}\n\n{}").format(
-                self.semester.name, ", ".join(degree_names), ", ".join(course_type_names)
+            writec(self, _("{}\n\n{}\n\n{}").format(
+                export_name, ", ".join(degree_names), ", ".join(course_type_names)
             ), "headline")
 
             for evaluation, results in evaluations_with_results:

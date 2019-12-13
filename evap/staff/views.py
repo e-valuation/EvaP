@@ -480,8 +480,8 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
-        ExcelExporter(semester).export(
-            response, selection_list, include_not_enough_voters, include_unpublished
+        ExcelExporter().export(
+            response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
         return response
     else:

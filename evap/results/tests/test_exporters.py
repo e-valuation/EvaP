@@ -11,7 +11,7 @@ from evap.results.exporters import ExcelExporter
 
 class TestExporters(TestCase):
     def test_grade_color_calculation(self):
-        exporter = ExcelExporter(Semester())
+        exporter = ExcelExporter()
         self.assertEqual(exporter.STEP, 0.2)
         self.assertEqual(exporter.normalize_number(1.94999999999), 1.8)
         # self.assertEqual(exporter.normalize_number(1.95), 2.0)  # floats ftw
@@ -53,8 +53,9 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(
+        ExcelExporter().export(
             binary_content,
+            [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
             True,
             True
@@ -96,8 +97,9 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(
+        ExcelExporter().export(
             binary_content,
+            [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
             True,
             True
@@ -131,11 +133,11 @@ class TestExporters(TestCase):
 
         content_de = BytesIO()
         with translation.override("de"):
-            ExcelExporter(semester).export(content_de, [([degree.id], [course_type.id])], True, True)
+            ExcelExporter().export(content_de, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_en = BytesIO()
         with translation.override("en"):
-            ExcelExporter(semester).export(content_en, [([degree.id], [course_type.id])], True, True)
+            ExcelExporter().export(content_en, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_de.seek(0)
         content_en.seek(0)
@@ -177,7 +179,7 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -188,7 +190,7 @@ class TestExporters(TestCase):
         course_type_2.save()
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
