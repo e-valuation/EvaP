@@ -125,7 +125,7 @@
         </div>
     {% endif %}
 
-    {% if contributor_contribution_results %}
+    {% if contributor_contribution_results or other_contributors %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Contributors' %}
@@ -160,7 +160,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                {% if view == 'export' and other_contributors %}
+                {% if other_contributors %}
                     <div class="card mt-3">
                         <div class="card-header">
                             {% trans 'Other contributors' %}
