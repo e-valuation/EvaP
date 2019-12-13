@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 import xlwt
 
-from evap.evaluation.models import CourseType, Degree, Evaluation
+from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
@@ -104,11 +104,13 @@ class ExcelExporter(object):
                 if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for questionnaire_result in collect_results(evaluation).questionnaire_results:
-                    if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
-                        continue
-                    results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
-                    used_questionnaires.add(questionnaire_result.questionnaire)
+                for contribution_result in collect_results(evaluation).contribution_results:
+                    for questionnaire_result in contribution_result.questionnaire_results:
+                        if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
+                            continue
+                        if not contributor or contribution_result.contributor is None or contribution_result.contributor == contributor:
+                            results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
+                            used_questionnaires.add(questionnaire_result.questionnaire)
                 evaluation.course_evaluations_count = evaluation.course.evaluations.count()
                 if evaluation.course_evaluations_count > 1:
                     course_results_exist = True
@@ -151,7 +153,10 @@ class ExcelExporter(object):
                 self.write_empty_cell_with_borders()
 
             for questionnaire in used_questionnaires:
-                writen(self, questionnaire.name, "bold")
+                if contributor and questionnaire.type == Questionnaire.CONTRIBUTOR:
+                    writen(self, "{} ({})".format(questionnaire.name, contributor.full_name), "bold")
+                else:
+                    writen(self, questionnaire.name, "bold")
                 for evaluation, results in evaluations_with_results:
                     self.write_empty_cell_with_borders()
 
