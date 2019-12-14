@@ -250,6 +250,34 @@ export class EvaluationGrid extends TableGrid {
     }
 }
 
+export class QuestionnaireGrid extends TableGrid {
+    init({updateUrl, ...options}) {
+        this.updateUrl = updateUrl;
+        super.init(options);
+    }
+
+    bindEvents() {
+        super.bindEvents();
+        this.container.sortable({
+            handle: ".fa-arrows-alt-v",
+            draggable: ".sortable",
+            scrollSensitivity: 70,
+            onUpdate: event => {
+                this.reorderRow(event.oldIndex, event.newIndex);
+                const questionnaireIndices = this.rows.map((row, index) => [$(row.element).data("id"), index]);
+                $.post(this.updateUrl, Object.fromEntries(questionnaireIndices));
+            }
+        });
+    }
+
+    reorderRow(oldPosition, newPosition) {
+        const displayedRows = this.rows.map((row, index) => ({row, index}))
+            .filter(({row}) => row.isDisplayed);
+        this.rows.splice(displayedRows[oldPosition].index, 1);
+        this.rows.splice(displayedRows[newPosition].index, 0, displayedRows[oldPosition].row);
+    }
+}
+
 // Grid based data grid which has its container separated from its header
 export class ResultGrid extends DataGrid {
     init({filterCheckboxes, sortColumnSelect, sortOrderCheckboxes, resetFilter, resetOrder, ...options}) {
