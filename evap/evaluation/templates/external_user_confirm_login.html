@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{{ block.super }}
+
+<div class="jumbotron jumbotron-evap">
+    <h1 class="display-4">{% trans 'Welcome to the evaluation platform!' %}</h1>
+    <hr class="my-4" />
+    <div class="card-deck-external-login-confirm">
+        <div class="card border-primary mx-auto">
+            <div class="card-body">
+                <h4 class="card-title text-primary">
+                    {% trans 'Confirm your login' %}
+                </h4>
+                <p class="card-text">
+                    {% trans 'By clicking this button, you will be logged in and your login link will be invalidated.' %}
+                </p>
+                <form class="d-flex flex-column" role="form" method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary login-button">{% blocktrans %}Login as {{ username }}{% endblocktrans %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
