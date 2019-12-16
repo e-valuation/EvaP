@@ -73,3 +73,16 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+.card-deck-external-login-confirm {
+    display: flex;
+    .card {
+        width: 100%;
+    }
+    
+    @include media-breakpoint-up(lg) {
+        .card {
+            width: 50%;
+        }
+    }
+}
