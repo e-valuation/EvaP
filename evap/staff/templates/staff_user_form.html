@@ -50,23 +50,22 @@
                             </div>
                         </div>
                         <ul>
-                            {% for semester, evaluations in evaluations_contributing_to %}
-                                {% if evaluations %}
-                                    <li>{{ semester.name }}</li>
-                                    <ul>
-                                        {% for evaluation in evaluations %}
-                                            <li>
-                                                {% if evaluation|can_results_page_be_seen_by:form.instance %}
-                                                    <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
-                                                        {{ evaluation.full_name }}
-                                                    </a>
-                                                {% else %}
+                            {% regroup evaluations_contributing_to by course.semester as evaluation_list %}
+                            {% for semester_evaluations in evaluation_list %}
+                                <li>{{ semester_evaluations.grouper.name }}</li>
+                                <ul>
+                                    {% for evaluation in semester_evaluations.list %}
+                                        <li>
+                                            {% if evaluation|can_results_page_be_seen_by:form.instance %}
+                                                <a href="{% url 'results:evaluation_detail' semester_evaluations.grouper.id evaluation.id %}?view=export&contributor_id={{ form.instance.id }}">
                                                     {{ evaluation.full_name }}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endif %}
+                                                </a>
+                                            {% else %}
+                                                {{ evaluation.full_name }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
                             {% endfor %}
                         </ul>
                     </div>

@@ -1491,8 +1491,9 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    semesters_with_evaluations = Semester.objects.filter(courses__evaluations__contributions__contributor=user).distinct()
-    evaluations_contributing_to = [(semester, Evaluation.objects.filter(course__semester=semester, contributions__contributor=user)) for semester in semesters_with_evaluations]
+    evaluations_contributing_to = Evaluation.objects.filter(
+        Q(contributions__contributor=user) | Q(course__responsibles__in=[user])
+    ).distinct().order_by('course__semester')
 
     if form.is_valid():
         form.save()
