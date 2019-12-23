@@ -1477,6 +1477,7 @@ class EmailTemplate(models.Model):
     @classmethod
     def send_to_users_in_evaluations(cls, template, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
+        evaluations.sort(key=lambda evaluation: str.lower(evaluation.full_name_de))
         for evaluation in evaluations:
             recipients = cls.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
@@ -1545,6 +1546,7 @@ class EmailTemplate(models.Model):
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
+        due_evaluations.sort(key=lambda evaluation: str.lower(evaluation.full_name_de))
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_evaluations': due_evaluations}
 

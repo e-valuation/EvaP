@@ -568,7 +568,7 @@ def semester_preparation_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).all().prefetch_related("course__degrees")
-
+    evaluations.sort(key=lambda evaluation: str.lower(evaluation.full_name_de))
     prepared_evaluations = semester.evaluations.filter(state__in=['prepared']).all()
     responsibles = list(set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))

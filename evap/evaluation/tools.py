@@ -27,7 +27,8 @@ def send_publish_notifications(evaluations, template_contributor=USE_DEFAULT, te
 
     evaluations_for_contributors = defaultdict(set)
     evaluations_for_participants = defaultdict(set)
-
+    evaluations.sort(key=lambda evaluation: str.lower(evaluation.full_name_de))
+    
     for evaluation in evaluations:
         # for evaluations with published averaged grade, all contributors and participants get a notification
         # we don't send a notification if the significance threshold isn't met
