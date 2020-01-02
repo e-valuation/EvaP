@@ -180,7 +180,7 @@ class TestRefreshResultsCacheCommand(TestCase):
         mommy.make(Evaluation)
 
         with patch('evap.evaluation.management.commands.refresh_results_cache.collect_results') as mock:
-            management.call_command('refresh_results_cache')
+            management.call_command('refresh_results_cache', stdout=StringIO())
 
         self.assertEqual(mock.call_count, Evaluation.objects.count())
 
