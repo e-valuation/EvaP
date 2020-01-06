@@ -391,15 +391,22 @@ class UserImporter(ExcelImporter):
 
     def __init__(self):
         super().__init__()
-        self._read_emails = set()
+        self._read_emails = dict()
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
         if user_data.email not in self._read_emails:
             self.associations[(sheet.name, row)] = user_data
-            self._read_emails.add(user_data.email)
+            self._read_emails[user_data.email] = (sheet.name, row)
         else:
-            warningstring = _("A duplicated entry was ignored: {}.".format(user_data.email))
+            orig_sheet, orig_row = self._read_emails[user_data.email]
+            warningstring = _("A duplicated entry in sheet '{sheet}' on row {row} was ignored: {email}. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
+                    sheet=sheet.name,
+                    row=row+1,
+                    email=user_data.email,
+                    orig_sheet=orig_sheet,
+                    orig_row=orig_row+1,
+            )
             self.warnings[self.W_IGNORED].append(mark_safe(warningstring))
 
     def consolidate_user_data(self):
