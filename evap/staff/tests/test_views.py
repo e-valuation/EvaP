@@ -376,6 +376,19 @@ class TestSemesterView(WebTest):
         # managers can access the page
         self.app.get('/staff/semester/2', user='manager', status=200)
 
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com"])
+    def test_badge_for_external_responsibles(self):
+        responsible = mommy.make(UserProfile, email='a@institution.com')
+        course = mommy.make(Course, semester=self.semester, responsibles=[responsible])
+        mommy.make(Evaluation, course=course)
+        response = self.app.get(self.url, user='manager')
+        self.assertNotContains(response, 'External responsible')
+
+        responsible.email = 'r@external.com'
+        responsible.save()
+        response = self.app.get(self.url, user='manager')
+        self.assertContains(response, 'External responsible')
+
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_get_evaluations_with_prefetched_data(self):
