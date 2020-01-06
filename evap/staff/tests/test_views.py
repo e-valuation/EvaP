@@ -380,7 +380,7 @@ class TestSemesterView(WebTest):
     def test_badge_for_external_responsibles(self):
         responsible = mommy.make(UserProfile, email='a@institution.com')
         course = mommy.make(Course, semester=self.semester, responsibles=[responsible])
-        evaluation = mommy.make(Evaluation, course=course)
+        mommy.make(Evaluation, course=course)
         response = self.app.get(self.url, user='manager')
         self.assertNotContains(response, 'External responsible')
 
