@@ -26,6 +26,9 @@ class CommonEqualityMixin(object):
         return (isinstance(other, self.__class__)
             and self.__dict__ == other.__dict__)
 
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
+
 
 class UserData(CommonEqualityMixin):
     """
@@ -391,19 +394,19 @@ class UserImporter(ExcelImporter):
 
     def __init__(self):
         super().__init__()
-        self._read_emails = dict()
+        self._read_user_data_hashes = dict()
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        if user_data.email not in self._read_emails:
-            self.associations[(sheet.name, row)] = user_data
-            self._read_emails[user_data.email] = (sheet.name, row)
+        user_data_hash = hash(user_data)
+        self.associations[(sheet.name, row)] = user_data
+        if user_data_hash not in self._read_user_data_hashes:
+            self._read_user_data_hashes[user_data_hash] = (sheet.name, row)
         else:
-            orig_sheet, orig_row = self._read_emails[user_data.email]
-            warningstring = _("A duplicated entry in sheet '{sheet}' on row {row} was ignored: {email}. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
+            orig_sheet, orig_row = self._read_user_data_hashes[user_data_hash]
+            warningstring = _("The duplicated row {row} in sheet '{sheet}' was ignored. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
                     sheet=sheet.name,
                     row=row+1,
-                    email=user_data.email,
                     orig_sheet=orig_sheet,
                     orig_row=orig_row+1,
             )
@@ -421,7 +424,7 @@ class UserImporter(ExcelImporter):
         new_participants = []
         created_users = []
         with transaction.atomic():
-            for (sheet, row), (user_data) in self.associations.items():
+            for user_data in self.users.values():
                 try:
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
@@ -430,8 +433,7 @@ class UserImporter(ExcelImporter):
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
-                                         " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                         " The error message has been: '%(error)s'") % dict(row=row + 1, sheet=sheet, error=e))
+                                         " The error message has been: '%(error)s'") % dict(error=e))
                     raise
 
         msg = _("Successfully created {} users:").format(len(created_users))

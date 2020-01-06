@@ -79,7 +79,7 @@ class TestUserImporter(TestCase):
         __, __, warnings_no_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
-        self.assertTrue(any("A duplicated entry in sheet 'Users' on row 4 was ignored: bastius.quid@external.example.com. It was first found in sheet 'Users' on row 3." in warning for warning in warnings_test[ExcelImporter.W_IGNORED]))
+        self.assertTrue(any("The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3." in warning for warning in warnings_test[ExcelImporter.W_IGNORED]))
 
 
     def test_random_file_error(self):
