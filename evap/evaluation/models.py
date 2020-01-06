@@ -1163,7 +1163,7 @@ class FaqQuestion(models.Model):
 
 class UserProfileManager(BaseUserManager):
 
-    def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
+    def create_user(self, username, email=None, password=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
 
