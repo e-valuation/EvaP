@@ -4,7 +4,7 @@ from django.core import mail
 from django.contrib.auth.models import Group
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
 
@@ -14,15 +14,15 @@ class GradeUploadTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        cls.student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
-        cls.student2 = mommy.make(UserProfile, username="student2", email="student2@institution.example.com")
-        cls.student3 = mommy.make(UserProfile, username="student3", email="student3@institution.example.com")
-        editor = mommy.make(UserProfile, username="editor", email="editor@institution.example.com")
+        baker.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        cls.student = baker.make(UserProfile, username="student", email="student@institution.example.com")
+        cls.student2 = baker.make(UserProfile, username="student2", email="student2@institution.example.com")
+        cls.student3 = baker.make(UserProfile, username="student3", email="student3@institution.example.com")
+        editor = baker.make(UserProfile, username="editor", email="editor@institution.example.com")
 
-        cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
-        cls.course = mommy.make(Course, semester=cls.semester)
-        cls.evaluation = mommy.make(
+        cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
+        cls.course = baker.make(Course, semester=cls.semester)
+        cls.evaluation = baker.make(
             Evaluation,
             course=cls.course,
             vote_start_datetime=datetime.now() - timedelta(days=10),
@@ -31,11 +31,11 @@ class GradeUploadTest(WebTest):
             voters=[cls.student, cls.student2],
         )
 
-        contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
+        contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
                                   textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
+        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
-        cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -126,7 +126,7 @@ class GradeUploadTest(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
-        evaluation = mommy.make(
+        evaluation = baker.make(
             Evaluation,
             name_en="Toggle",
             vote_start_datetime=datetime.now(),
@@ -137,9 +137,9 @@ class GradeUploadTest(WebTest):
         contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(username="editor"),
                                     can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.save()
-        contribution.questionnaires.set([mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
+        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
 
-        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
@@ -173,9 +173,9 @@ class GradeDocumentIndexTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
-        cls.semester = mommy.make(Semester, grade_documents_are_deleted=False)
-        cls.archived_semester = mommy.make(Semester, grade_documents_are_deleted=True)
+        baker.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
+        cls.archived_semester = baker.make(Semester, grade_documents_are_deleted=True)
 
     def test_visible_semesters(self):
         page = self.app.get(self.url, user="grade_publisher", status=200)
@@ -188,17 +188,17 @@ class GradeSemesterViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        baker.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
 
     def test_does_not_crash(self):
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        course = mommy.make(Course, semester=semester)
-        mommy.make(Evaluation, course=course, state="prepared")
+        semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
+        course = baker.make(Course, semester=semester)
+        baker.make(Evaluation, course=course, state="prepared")
         page = self.app.get(self.url, user="grade_publisher", status=200)
         self.assertIn(course.name, page)
 
     def test_403_on_deleted(self):
-        mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
+        baker.make(Semester, pk=1, grade_documents_are_deleted=True)
         self.app.get('/grades/semester/1', user="grade_publisher", status=403)
 
 
@@ -207,14 +207,14 @@ class GradeCourseViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
+        baker.make(UserProfile, username="grade_publisher", groups=[Group.objects.get(name="Grade publisher")])
 
     def test_does_not_crash(self):
-        semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=False)
-        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=semester), state="prepared")
+        semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
+        baker.make(Evaluation, course=baker.make(Course, pk=1, semester=semester), state="prepared")
         self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=200)
 
     def test_403_on_archived_semester(self):
-        archived_semester = mommy.make(Semester, pk=1, grade_documents_are_deleted=True)
-        mommy.make(Evaluation, course=mommy.make(Course, pk=1, semester=archived_semester), state="prepared")
+        archived_semester = baker.make(Semester, pk=1, grade_documents_are_deleted=True)
+        baker.make(Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state="prepared")
         self.app.get('/grades/semester/1/course/1', user="grade_publisher", status=403)

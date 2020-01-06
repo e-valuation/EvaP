@@ -2,7 +2,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import UserProfile, Evaluation, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
 from evap.evaluation.tests.tools import WebTestWith200Check
@@ -16,8 +16,8 @@ class TestStudentIndexView(WebTestWith200Check):
 
     def setUp(self):
         # View is only visible to users participating in at least one evaluation.
-        user = mommy.make(UserProfile, username='student')
-        mommy.make(Evaluation, participants=[user])
+        user = baker.make(UserProfile, username='student')
+        baker.make(Evaluation, participants=[user])
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
@@ -26,34 +26,34 @@ class TestVoteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.voting_user1 = mommy.make(UserProfile)
-        cls.voting_user2 = mommy.make(UserProfile)
-        cls.contributor1 = mommy.make(UserProfile)
-        cls.contributor2 = mommy.make(UserProfile)
+        cls.voting_user1 = baker.make(UserProfile)
+        cls.voting_user2 = baker.make(UserProfile)
+        cls.contributor1 = baker.make(UserProfile)
+        cls.contributor2 = baker.make(UserProfile)
 
-        cls.evaluation = mommy.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
+        cls.evaluation = baker.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
-        cls.top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        cls.bottom_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
-        cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.BOTTOM)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
-        cls.contributor_heading_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING)
-        cls.contributor_text_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT)
-        cls.contributor_likert_question = mommy.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT)
+        cls.contributor_heading_question = baker.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING)
+        cls.contributor_text_question = baker.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT)
+        cls.contributor_likert_question = baker.make(Question, questionnaire=cls.contributor_questionnaire, order=2, type=Question.LIKERT)
 
-        cls.top_heading_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING)
-        cls.top_text_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT)
-        cls.top_likert_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT)
-        cls.top_grade_question = mommy.make(Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE)
+        cls.top_heading_question = baker.make(Question, questionnaire=cls.top_general_questionnaire, order=0, type=Question.HEADING)
+        cls.top_text_question = baker.make(Question, questionnaire=cls.top_general_questionnaire, order=1, type=Question.TEXT)
+        cls.top_likert_question = baker.make(Question, questionnaire=cls.top_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.top_grade_question = baker.make(Question, questionnaire=cls.top_general_questionnaire, order=3, type=Question.GRADE)
 
-        cls.bottom_heading_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING)
-        cls.bottom_text_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT)
-        cls.bottom_likert_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT)
-        cls.bottom_grade_question = mommy.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE)
+        cls.bottom_heading_question = baker.make(Question, questionnaire=cls.bottom_general_questionnaire, order=0, type=Question.HEADING)
+        cls.bottom_text_question = baker.make(Question, questionnaire=cls.bottom_general_questionnaire, order=1, type=Question.TEXT)
+        cls.bottom_likert_question = baker.make(Question, questionnaire=cls.bottom_general_questionnaire, order=2, type=Question.LIKERT)
+        cls.bottom_grade_question = baker.make(Question, questionnaire=cls.bottom_general_questionnaire, order=3, type=Question.GRADE)
 
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
+        cls.contribution1 = baker.make(Contribution, contributor=cls.contributor1, questionnaires=[cls.contributor_questionnaire],
                                        evaluation=cls.evaluation)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, questionnaires=[cls.contributor_questionnaire],
+        cls.contribution2 = baker.make(Contribution, contributor=cls.contributor2, questionnaires=[cls.contributor_questionnaire],
                                        evaluation=cls.evaluation)
 
         cls.evaluation.general_contribution.questionnaires.set([cls.top_general_questionnaire, cls.bottom_general_questionnaire])

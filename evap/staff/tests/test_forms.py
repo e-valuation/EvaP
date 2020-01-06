@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, Degree, EmailTemplate, Evaluation, Question,
                                     Questionnaire, Semester, UserProfile)
@@ -14,9 +14,9 @@ from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 class QuestionnaireFormTest(TestCase):
     def test_force_highest_order(self):
-        mommy.make(Questionnaire, order=45, type=Questionnaire.TOP)
+        baker.make(Questionnaire, order=45, type=Questionnaire.TOP)
 
-        question = mommy.make(Question)
+        question = baker.make(Question)
 
         data = {
             'description_de': 'English description',
@@ -37,10 +37,10 @@ class QuestionnaireFormTest(TestCase):
         self.assertEqual(questionnaire.order, 46)
 
     def test_automatic_order_correction_on_type_change(self):
-        mommy.make(Questionnaire, order=72, type=Questionnaire.BOTTOM)
+        baker.make(Questionnaire, order=72, type=Questionnaire.BOTTOM)
 
-        questionnaire = mommy.make(Questionnaire, order=7, type=Questionnaire.TOP)
-        question = mommy.make(Question)
+        questionnaire = baker.make(Questionnaire, order=7, type=Questionnaire.TOP)
+        question = baker.make(Question)
 
         data = {
             'description_de': questionnaire.description_de,
@@ -82,8 +82,8 @@ class UserFormTests(TestCase):
         """
             Tests the UserForm with one valid and one invalid input dataset.
         """
-        user = mommy.make(UserProfile)
-        another_user = mommy.make(UserProfile)
+        user = baker.make(UserProfile)
+        another_user = baker.make(UserProfile)
         data = {"username": "mklqoep50x2", "email": "a@b.ce"}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
@@ -98,7 +98,7 @@ class UserFormTests(TestCase):
             that already exist in the database
             Regression test for #590
         """
-        user = mommy.make(UserProfile, email="uiae@example.com")
+        user = baker.make(UserProfile, email="uiae@example.com")
 
         data = {"username": "uiae", "email": user.email}
         form = UserForm(data=data)
@@ -117,7 +117,7 @@ class UserFormTests(TestCase):
             Tests whether the user form correctly handles usernames
             that already exist in the database
         """
-        user = mommy.make(UserProfile)
+        user = baker.make(UserProfile)
 
         data = {"username": user.username}
         form = UserForm(data=data)
@@ -132,8 +132,8 @@ class UserFormTests(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_user_cannot_be_removed_from_evaluation_already_voted_for(self):
-        student = mommy.make(UserProfile)
-        mommy.make(Evaluation, participants=[student], voters=[student])
+        student = baker.make(UserProfile)
+        baker.make(Evaluation, participants=[student], voters=[student])
 
         form_data = get_form_data_from_instance(UserForm, student)
         form_data["evaluations_participating_in"] = []
@@ -146,7 +146,7 @@ class UserFormTests(TestCase):
 
 class SingleResultFormTests(TestCase):
     def test_single_result_form_saves_participant_and_voter_count(self):
-        course = mommy.make(Course)
+        course = baker.make(Course)
         evaluation = Evaluation(course=course, is_single_result=True)
         form_data = {
             "name_de": "qwertz",
@@ -163,7 +163,7 @@ class SingleResultFormTests(TestCase):
         form = SingleResultForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         self.assertTrue(form.is_valid())
 
-        form.save(user=mommy.make(UserProfile))
+        form.save(user=baker.make(UserProfile))
 
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.num_participants, 10)
@@ -175,11 +175,11 @@ class ContributionFormsetTests(TestCase):
         """
             Tests the ContributionFormset with various input data sets.
         """
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        evaluation = baker.make(Evaluation)
+        user1 = baker.make(UserProfile)
+        user2 = baker.make(UserProfile)
+        baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         ContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -216,11 +216,11 @@ class ContributionFormsetTests(TestCase):
             Tests whether contributions marked for deletion are validated.
             Regression test for #415 and #244
         """
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
-        mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        evaluation = baker.make(Evaluation)
+        user1 = baker.make(UserProfile)
+        user2 = baker.make(UserProfile)
+        baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -267,9 +267,9 @@ class ContributionFormsetTests(TestCase):
             Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
             Regression test for #1057
         """
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        evaluation = baker.make(Evaluation)
+        user1 = baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -309,10 +309,10 @@ class ContributionFormsetTests(TestCase):
             when the same contributor got added again in the same formset.
             Regression test for #415
         """
-        evaluation = mommy.make(Evaluation)
-        user1 = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True,
+        evaluation = baker.make(Evaluation)
+        user1 = baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True,
                                    textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire])
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -346,7 +346,7 @@ class ContributionFormsetTests(TestCase):
             Tests that there can also be no contribution
             Regression test for #1347
         """
-        evaluation = mommy.make(Evaluation)
+        evaluation = baker.make(Evaluation)
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
         data = to_querydict({
@@ -364,13 +364,13 @@ class ContributionFormsetTests(TestCase):
             contribution of the Evaluation, and that manager only questionnaires are always shown.
             Regression test for #593.
         """
-        evaluation = mommy.make(Evaluation)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
-        questionnaire_hidden = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
-        questionnaire_managers_only = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
+        evaluation = baker.make(Evaluation)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
+        questionnaire_hidden = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
+        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
 
         # The normal and managers_only questionnaire should be shown.
-        contribution1 = mommy.make(Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile), questionnaires=[])
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
 
         inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
@@ -390,8 +390,8 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
 
     def test_staff_can_select_proxy_user(self):
-        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
-        course = mommy.make(Course, semester=mommy.make(Semester))
+        proxy_user = baker.make(UserProfile, is_proxy_user=True)
+        course = baker.make(Course, semester=baker.make(Semester))
         form = CourseForm(instance=course)
         self.assertIn(proxy_user, form.fields['responsibles'].queryset)
 
@@ -402,13 +402,13 @@ class ContributionFormset775RegressionTests(TestCase):
     """
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = mommy.make(Evaluation, name_en="some evaluation")
-        cls.user1 = mommy.make(UserProfile)
-        cls.user2 = mommy.make(UserProfile)
-        mommy.make(UserProfile)
-        cls.questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
+        cls.evaluation = baker.make(Evaluation, name_en="some evaluation")
+        cls.user1 = baker.make(UserProfile)
+        cls.user2 = baker.make(UserProfile)
+        baker.make(UserProfile)
+        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.contribution1 = baker.make(Contribution, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.contribution2 = baker.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
         cls.contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
@@ -489,7 +489,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-0-contributor'] = self.user2.pk
         self.data['contributions-1-contributor'] = self.user1.pk
 
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
         self.data.appendlist('contributions-0-questionnaires', questionnaire.pk)
         formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         formset.save()
@@ -502,7 +502,7 @@ class CourseFormTests(TestCase):
             Test whether giving a course the same name as another course
             in the same semester in the course edit form is invalid.
         """
-        courses = mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
+        courses = baker.make(Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2)
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
         form = CourseForm(form_data, instance=courses[0])
@@ -515,7 +515,7 @@ class CourseFormTests(TestCase):
         """
             Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
-        courses = mommy.make(Course, semester=mommy.make(Semester), responsibles=[mommy.make(UserProfile)], degrees=[mommy.make(Degree)], _quantity=2)
+        courses = baker.make(Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2)
 
         form_data = get_form_data_from_instance(CourseForm, courses[1])
         form_data["name_de"] = courses[0].name_de
@@ -526,8 +526,8 @@ class CourseFormTests(TestCase):
         self.assertEqual(form.errors['name_de'], ['Course with this Semester and Name (german) already exists.'])
 
     def test_that_proxy_user_can_be_responsible(self):
-        course = mommy.make(Course, semester=mommy.make(Semester), degrees=[mommy.make(Degree)])
-        proxy = mommy.make(UserProfile, is_proxy_user=True, is_active=True)
+        course = baker.make(Course, semester=baker.make(Semester), degrees=[baker.make(Degree)])
+        proxy = baker.make(UserProfile, is_proxy_user=True, is_active=True)
         form = CourseForm(instance=course)
         self.assertIn(proxy, form.fields['responsibles'].queryset)
 
@@ -538,11 +538,11 @@ class EvaluationFormTests(TestCase):
             Test whether giving an evaluation the same name as another evaluation
             in the same course in the evaluation edit form is invalid.
         """
-        course = mommy.make(Course, degrees=[mommy.make(Degree)])
-        evaluation1 = mommy.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
-        evaluation2 = mommy.make(Evaluation, course=course, name_de="Evaluierung 2", name_en="Evaluation 2")
-        evaluation1.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        evaluation2.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        course = baker.make(Course, degrees=[baker.make(Degree)])
+        evaluation1 = baker.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
+        evaluation2 = baker.make(Evaluation, course=course, name_de="Evaluierung 2", name_en="Evaluation 2")
+        evaluation1.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+        evaluation2.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation1)
         form_data["vote_start_datetime"] = "2098-01-01"  # needed to fix the form
@@ -572,8 +572,8 @@ class EvaluationFormTests(TestCase):
             Tests validity of various start/end date combinations in
             the two evaluation edit forms.
         """
-        evaluation = mommy.make(Evaluation)
-        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        evaluation = baker.make(Evaluation)
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         # contributors: start date does not have to be in the future
         self.helper_date_validation(ContributorEvaluationForm, "1999-01-01", "2099-01-01", True)
@@ -600,9 +600,9 @@ class EvaluationFormTests(TestCase):
         """
             Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
-        course = mommy.make(Course)
-        evaluation1 = mommy.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
-        evaluation2 = mommy.make(Evaluation, course=course, name_de="Evaluierung 2", name_en="Evaluation 2")
+        course = baker.make(Course)
+        evaluation1 = baker.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
+        evaluation2 = baker.make(Evaluation, course=course, name_de="Evaluierung 2", name_en="Evaluation 2")
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation2)
         form_data["name_de"] = evaluation1.name_de
@@ -613,9 +613,9 @@ class EvaluationFormTests(TestCase):
         self.assertEqual(form.errors['name_de'], ['Evaluation with this Course and Name (german) already exists.'])
 
     def test_voter_cannot_be_removed_from_evaluation(self):
-        student = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, course=mommy.make(Course, degrees=[mommy.make(Degree)]), participants=[student], voters=[student])
-        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        student = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, course=baker.make(Course, degrees=[baker.make(Degree)]), participants=[student], voters=[student])
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form_data["participants"] = []
@@ -626,11 +626,11 @@ class EvaluationFormTests(TestCase):
         self.assertIn("Participants who already voted for the evaluation can't be removed", form.errors['participants'][0])
 
     def test_course_change_updates_cache(self):
-        semester = mommy.make(Semester)
-        course1 = mommy.make(Course, semester=semester)
-        course2 = mommy.make(Course, semester=semester)
-        evaluation = mommy.make(Evaluation, course=course1)
-        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        semester = baker.make(Semester)
+        course1 = baker.make(Course, semester=semester)
+        course2 = baker.make(Course, semester=semester)
+        evaluation = baker.make(Evaluation, course=course1)
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation, semester=semester)
