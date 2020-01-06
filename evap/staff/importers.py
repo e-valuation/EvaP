@@ -394,16 +394,15 @@ class UserImporter(ExcelImporter):
 
     def __init__(self):
         super().__init__()
-        self._read_user_data_hashes = dict()
+        self._read_user_data = dict()
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        user_data_hash = hash(user_data)
         self.associations[(sheet.name, row)] = user_data
-        if user_data_hash not in self._read_user_data_hashes:
-            self._read_user_data_hashes[user_data_hash] = (sheet.name, row)
+        if user_data not in self._read_user_data:
+            self._read_user_data[user_data] = (sheet.name, row)
         else:
-            orig_sheet, orig_row = self._read_user_data_hashes[user_data_hash]
+            orig_sheet, orig_row = self._read_user_data[user_data]
             warningstring = _("The duplicated row {row} in sheet '{sheet}' was ignored. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
                     sheet=sheet.name,
                     row=row+1,
