@@ -33,22 +33,36 @@ class LoginTests(WebTest):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
 
         url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        page = self.app.get(url_with_key).follow().follow()
+        old_login_key = self.external_user.login_key
+        old_login_key_valid_until = self.external_user.login_key_valid_until
+        page = self.app.get(url_with_key)
+        self.external_user.refresh_from_db()
+        self.assertEqual(old_login_key, self.external_user.login_key)
+        self.assertEqual(old_login_key_valid_until, self.external_user.login_key_valid_until)
+        self.assertContains(page, 'Login')
+        self.assertContains(page, self.external_user.full_name)
+
+        page = self.app.post(url_with_key).follow().follow()
         self.assertContains(page, 'Logout')
+        self.assertContains(page, self.external_user.full_name)
 
     def test_login_key_valid_only_once(self):
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])).follow().follow()
+        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key]))
         self.assertContains(page, self.external_user.full_name)
+
+        url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
+        page = self.app.post(url_with_key).follow().follow()
+        self.assertContains(page, 'Logout')
 
         page = self.app.get(reverse("django-auth-logout")).follow()
         self.assertNotContains(page, 'Logout')
 
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])).follow()
+        page = self.app.get(url_with_key).follow()
         self.assertContains(page, 'The login URL is not valid anymore.')
         self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
 
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[new_key])).follow().follow()
+        page = self.app.post(reverse("evaluation:login_key_authentication", args=[new_key])).follow().follow()
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
