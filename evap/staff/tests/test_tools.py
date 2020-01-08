@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
@@ -13,8 +13,8 @@ from evap.staff.tools import merge_users, delete_navbar_cache_for_users
 
 class NavbarCacheTest(WebTest):
     def test_navbar_cache_deletion_for_users(self):
-        user1 = mommy.make(UserProfile, username='user1', email="user1@institution.example.com")
-        user2 = mommy.make(UserProfile, username='user2', email="user2@institution.example.com")
+        user1 = baker.make(UserProfile, username='user1', email="user1@institution.example.com")
+        user2 = baker.make(UserProfile, username='user2', email="user2@institution.example.com")
 
         # create navbar caches for anonymous user, user1 and user2
         self.app.get("/")
@@ -39,12 +39,12 @@ class NavbarCacheTest(WebTest):
 class MergeUsersTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = mommy.make(UserProfile, username="test1")
-        cls.user2 = mommy.make(UserProfile, username="test2")
-        cls.user3 = mommy.make(UserProfile, username="test3")
-        cls.group1 = mommy.make(Group, pk=4)
-        cls.group2 = mommy.make(Group, pk=5)
-        cls.main_user = mommy.make(UserProfile,
+        cls.user1 = baker.make(UserProfile, username="test1")
+        cls.user2 = baker.make(UserProfile, username="test2")
+        cls.user3 = baker.make(UserProfile, username="test3")
+        cls.group1 = baker.make(Group, pk=4)
+        cls.group2 = baker.make(Group, pk=5)
+        cls.main_user = baker.make(UserProfile,
             username="main_user",
             title="Dr.",
             first_name="Main",
@@ -56,7 +56,7 @@ class MergeUsersTest(TestCase):
             cc_users=[cls.user1],
             ccing_users=[]
         )
-        cls.other_user = mommy.make(UserProfile,
+        cls.other_user = baker.make(UserProfile,
             username="other_user",
             title="",
             first_name="Other",
@@ -69,23 +69,23 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.course1 = mommy.make(Course, responsibles=[cls.main_user])
-        cls.course2 = mommy.make(Course, responsibles=[cls.main_user])
-        cls.course3 = mommy.make(Course, responsibles=[cls.other_user])
-        cls.evaluation1 = mommy.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.evaluation2 = mommy.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.evaluation3 = mommy.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
-        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
-        cls.rewardpointgranting_main = mommy.make(RewardPointGranting, user_profile=cls.main_user)
-        cls.rewardpointgranting_other = mommy.make(RewardPointGranting, user_profile=cls.other_user)
-        cls.rewardpointredemption_main = mommy.make(RewardPointRedemption, user_profile=cls.main_user)
-        cls.rewardpointredemption_other = mommy.make(RewardPointRedemption, user_profile=cls.other_user)
+        cls.course1 = baker.make(Course, responsibles=[cls.main_user])
+        cls.course2 = baker.make(Course, responsibles=[cls.main_user])
+        cls.course3 = baker.make(Course, responsibles=[cls.other_user])
+        cls.evaluation1 = baker.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.evaluation2 = baker.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.evaluation3 = baker.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.contribution1 = baker.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
+        cls.contribution2 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
+        cls.contribution3 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
+        cls.rewardpointgranting_main = baker.make(RewardPointGranting, user_profile=cls.main_user)
+        cls.rewardpointgranting_other = baker.make(RewardPointGranting, user_profile=cls.other_user)
+        cls.rewardpointredemption_main = baker.make(RewardPointRedemption, user_profile=cls.main_user)
+        cls.rewardpointredemption_other = baker.make(RewardPointRedemption, user_profile=cls.other_user)
 
     def test_merge_handles_all_attributes(self):
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
+        user1 = baker.make(UserProfile)
+        user2 = baker.make(UserProfile)
 
         all_attrs = list(field.name for field in UserProfile._meta.get_fields(include_hidden=True))
 

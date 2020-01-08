@@ -1,6 +1,6 @@
 import xlrd
 from io import BytesIO
-from model_mommy import mommy
+from model_bakery import baker
 from django.test import TestCase
 from django.utils import translation
 
@@ -26,31 +26,31 @@ class TestExporters(TestCase):
         self.assertEqual(exporter.normalize_number(2.8), 2.8)
 
     def test_questionnaire_ordering(self):
-        degree = mommy.make(Degree)
-        evaluation = mommy.make(
+        degree = baker.make(Degree)
+        evaluation = baker.make(
             Evaluation,
-            course=mommy.make(Course, degrees=[degree]),
+            course=baker.make(Course, degrees=[degree]),
             state='published',
             _participant_count=2,
             _voter_count=2
         )
 
-        questionnaire_1 = mommy.make(Questionnaire, order=1, type=Questionnaire.TOP)
-        questionnaire_2 = mommy.make(Questionnaire, order=4, type=Questionnaire.TOP)
-        questionnaire_3 = mommy.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
-        questionnaire_4 = mommy.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
+        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.TOP)
+        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.TOP)
+        questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
+        questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
 
-        question_1 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_1)
-        question_2 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_2)
-        question_3 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_3)
-        question_4 = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire_4)
+        question_1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_1)
+        question_2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_2)
+        question_3 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_3)
+        question_4 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_4)
 
         evaluation.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4])
 
-        mommy.make(RatingAnswerCounter, question=question_1, contribution=evaluation.general_contribution, answer=3, count=100)
-        mommy.make(RatingAnswerCounter, question=question_2, contribution=evaluation.general_contribution, answer=3, count=100)
-        mommy.make(RatingAnswerCounter, question=question_3, contribution=evaluation.general_contribution, answer=3, count=100)
-        mommy.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
+        baker.make(RatingAnswerCounter, question=question_1, contribution=evaluation.general_contribution, answer=3, count=100)
+        baker.make(RatingAnswerCounter, question=question_2, contribution=evaluation.general_contribution, answer=3, count=100)
+        baker.make(RatingAnswerCounter, question=question_3, contribution=evaluation.general_contribution, answer=3, count=100)
+        baker.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
         ExcelExporter(evaluation.course.semester).export(
@@ -75,25 +75,25 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
 
     def test_heading_question_filtering(self):
-        degree = mommy.make(Degree)
-        evaluation = mommy.make(
+        degree = baker.make(Degree)
+        evaluation = baker.make(
             Evaluation,
-            course=mommy.make(Course, degrees=[degree]),
+            course=baker.make(Course, degrees=[degree]),
             state='published',
             _participant_count=2,
             _voter_count=2
         )
-        contributor = mommy.make(UserProfile)
-        evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        contributor = baker.make(UserProfile)
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-        questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
-        heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
-        mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
+        questionnaire = baker.make(Questionnaire)
+        baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
+        heading_question = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
-        contribution = mommy.make(Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor)
-        mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
+        contribution = baker.make(Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor)
+        baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
         ExcelExporter(evaluation.course.semester).export(
@@ -111,20 +111,20 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
 
     def test_view_excel_file_sorted(self):
-        semester = mommy.make(Semester)
-        course_type = mommy.make(CourseType)
-        degree = mommy.make(Degree)
-        mommy.make(
+        semester = baker.make(Semester)
+        course_type = baker.make(CourseType)
+        degree = baker.make(Degree)
+        baker.make(
             Evaluation,
             state='published',
-            course=mommy.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="A", name_en="B"),
+            course=baker.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="A", name_en="B"),
             name_de='Evaluation1',
             name_en='Evaluation1'
         )
-        mommy.make(
+        baker.make(
             Evaluation,
             state='published',
-            course=mommy.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="B", name_en="A"),
+            course=baker.make(Course, degrees=[degree], type=course_type, semester=semester, name_de="B", name_en="A"),
             name_de='Evaluation2',
             name_en='Evaluation2'
         )
@@ -150,31 +150,31 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1")
 
     def test_course_type_ordering(self):
-        degree = mommy.make(Degree)
-        course_type_1 = mommy.make(CourseType, order=1)
-        course_type_2 = mommy.make(CourseType, order=2)
-        semester = mommy.make(Semester)
-        evaluation_1 = mommy.make(Evaluation,
-            course=mommy.make(Course, semester=semester, degrees=[degree], type=course_type_1),
+        degree = baker.make(Degree)
+        course_type_1 = baker.make(CourseType, order=1)
+        course_type_2 = baker.make(CourseType, order=2)
+        semester = baker.make(Semester)
+        evaluation_1 = baker.make(Evaluation,
+            course=baker.make(Course, semester=semester, degrees=[degree], type=course_type_1),
             state='published',
             _participant_count=2,
             _voter_count=2
         )
-        evaluation_2 = mommy.make(Evaluation,
-            course=mommy.make(Course, semester=semester, degrees=[degree], type=course_type_2),
+        evaluation_2 = baker.make(Evaluation,
+            course=baker.make(Course, semester=semester, degrees=[degree], type=course_type_2),
             state='published',
             _participant_count=2,
             _voter_count=2
         )
 
-        questionnaire = mommy.make(Questionnaire)
-        question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
+        questionnaire = baker.make(Questionnaire)
+        question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(RatingAnswerCounter, question=question, contribution=evaluation_1.general_contribution, answer=3, count=2)
+        baker.make(RatingAnswerCounter, question=question, contribution=evaluation_1.general_contribution, answer=3, count=2)
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
+        baker.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
 
         binary_content = BytesIO()
         ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)

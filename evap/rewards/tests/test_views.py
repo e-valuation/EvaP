@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.urls import reverse
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import UserProfile, Evaluation, Semester
 from evap.evaluation.tests.tools import WebTestWith200Check
@@ -18,18 +18,18 @@ class TestEventDeleteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
     def test_deletion_success(self):
-        event = mommy.make(RewardPointRedemptionEvent)
+        event = baker.make(RewardPointRedemptionEvent)
         response = self.app.post(self.url, params={'event_id': event.pk}, user='manager')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
     def test_deletion_failure(self):
         """ try to delete event that can not be deleted, because people already redeemed points """
-        event = mommy.make(RewardPointRedemptionEvent)
-        mommy.make(RewardPointRedemption, value=1, event=event)
+        event = baker.make(RewardPointRedemptionEvent)
+        baker.make(RewardPointRedemption, value=1, event=event)
 
         response = self.app.post(self.url, params={'event_id': event.pk}, user='manager', expect_errors=True)
         self.assertEqual(response.status_code, 400)
@@ -42,11 +42,11 @@ class TestIndexView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
-        mommy.make(Evaluation, participants=[cls.student])
-        mommy.make(RewardPointGranting, user_profile=cls.student, value=5)
-        mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
-        mommy.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
+        cls.student = baker.make(UserProfile, username='student', email='foo@institution.example.com')
+        baker.make(Evaluation, participants=[cls.student])
+        baker.make(RewardPointGranting, user_profile=cls.student, value=5)
+        baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        baker.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
         response = self.app.get(self.url, user='student')
@@ -84,9 +84,9 @@ class TestEventsView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
-        mommy.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+        baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
 class TestEventCreateView(WebTest):
@@ -95,7 +95,7 @@ class TestEventCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
     def test_create_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
@@ -118,8 +118,8 @@ class TestEventEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.event = mommy.make(RewardPointRedemptionEvent, pk=1, name='old name')
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.event = baker.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
@@ -139,9 +139,9 @@ class TestExportView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        event = mommy.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
-        mommy.make(RewardPointRedemption, value=1, event=event)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        event = baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        baker.make(RewardPointRedemption, value=1, event=event)
 
 
 class TestSemesterActivationView(WebTest):
@@ -150,15 +150,15 @@ class TestSemesterActivationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.semester = mommy.make(Semester, pk=1)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.semester = baker.make(Semester, pk=1)
 
     def test_activate(self):
-        mommy.make(SemesterActivation, semester=self.semester, is_active=False)
+        baker.make(SemesterActivation, semester=self.semester, is_active=False)
         self.app.post(self.url + 'on', user='manager')
         self.assertTrue(is_semester_activated(self.semester))
 
     def test_deactivate(self):
-        mommy.make(SemesterActivation, semester=self.semester, is_active=True)
+        baker.make(SemesterActivation, semester=self.semester, is_active=True)
         self.app.post(self.url + 'off', user='manager')
         self.assertFalse(is_semester_activated(self.semester))

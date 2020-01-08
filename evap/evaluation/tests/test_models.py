@@ -7,7 +7,7 @@ from django.core.cache import caches
 from django.core import mail
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
@@ -19,7 +19,7 @@ from evap.results.views import get_evaluation_result_template_fragment_cache_key
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):
-        evaluation = mommy.make(Evaluation, state='approved', vote_start_datetime=datetime.now())
+        evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now())
 
         with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_evaluations') as mock:
             Evaluation.update_evaluations()
@@ -32,7 +32,7 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.state, 'in_evaluation')
 
     def test_in_evaluation_to_evaluated(self):
-        evaluation = mommy.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+        evaluation = baker.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.models.Evaluation.is_fully_reviewed') as mock:
@@ -44,7 +44,7 @@ class TestEvaluations(WebTest):
 
     def test_in_evaluation_to_reviewed(self):
         # Evaluation is "fully reviewed" as no open text answers are present by default.
-        evaluation = mommy.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+        evaluation = baker.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
         Evaluation.update_evaluations()
@@ -54,8 +54,8 @@ class TestEvaluations(WebTest):
 
     def test_in_evaluation_to_published(self):
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
-        course = mommy.make(Course, is_graded=False)
-        evaluation = mommy.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+        course = baker.make(Course, is_graded=False)
+        evaluation = baker.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
         with patch('evap.evaluation.tools.send_publish_notifications') as mock:
@@ -68,7 +68,7 @@ class TestEvaluations(WebTest):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_evaluation_ends_soon(self):
-        evaluation = mommy.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
+        evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() + timedelta(hours=24))
 
         self.assertFalse(evaluation.evaluation_ends_soon())
@@ -81,7 +81,7 @@ class TestEvaluations(WebTest):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
     def test_evaluation_ends_soon_with_offset(self):
-        evaluation = mommy.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
+        evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
         self.assertFalse(evaluation.evaluation_ends_soon())
@@ -94,12 +94,12 @@ class TestEvaluations(WebTest):
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
-        course_1 = mommy.make(Course, is_graded=False)
-        course_2 = mommy.make(Course, is_graded=False)
-        mommy.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+        course_1 = baker.make(Course, is_graded=False)
+        course_2 = baker.make(Course, is_graded=False)
+        baker.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today() - timedelta(days=1))
         # This evaluation is not.
-        mommy.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
+        baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today())
 
         with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
@@ -109,8 +109,8 @@ class TestEvaluations(WebTest):
 
     def test_approved_to_in_evaluation_sends_emails(self):
         """ Regression test for #945 """
-        participant = mommy.make(UserProfile, email='foo@example.com')
-        evaluation = mommy.make(Evaluation, state='approved', vote_start_datetime=datetime.now(), participants=[participant])
+        participant = baker.make(UserProfile, email='foo@example.com')
+        evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now(), participants=[participant])
 
         Evaluation.update_evaluations()
 
@@ -120,27 +120,27 @@ class TestEvaluations(WebTest):
 
     def test_has_enough_questionnaires(self):
         # manually circumvent Evaluation's save() method to have a Evaluation without a general contribution
-        # the semester must be specified because of https://github.com/vandersonmota/model_mommy/issues/258
-        course = mommy.make(Course, semester=mommy.make(Semester), type=mommy.make(CourseType))
-        Evaluation.objects.bulk_create([mommy.prepare(Evaluation, course=course)])
+        # the semester must be specified because of https://github.com/vandersonmota/model_bakery/issues/258
+        course = baker.make(Course, semester=baker.make(Semester), type=baker.make(CourseType))
+        Evaluation.objects.bulk_create([baker.prepare(Evaluation, course=course)])
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.contributions.count(), 0)
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
-        editor_contribution = mommy.make(
-                Contribution, evaluation=evaluation, contributor=mommy.make(UserProfile),
+        editor_contribution = baker.make(
+                Contribution, evaluation=evaluation, contributor=baker.make(UserProfile),
                 can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
-        general_contribution = mommy.make(Contribution, evaluation=evaluation, contributor=None)
+        general_contribution = baker.make(Contribution, evaluation=evaluation, contributor=None)
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
-        questionnaire = mommy.make(Questionnaire)
+        questionnaire = baker.make(Questionnaire)
         general_contribution.questionnaires.add(questionnaire)
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
@@ -150,19 +150,19 @@ class TestEvaluations(WebTest):
         self.assertTrue(evaluation.all_contributions_have_questionnaires)
 
     def test_deleting_last_modified_user_does_not_delete_evaluation(self):
-        user = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, last_modified_user=user)
+        user = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, last_modified_user=user)
         user.delete()
         self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
 
     def test_single_result_can_be_deleted_only_in_reviewed(self):
-        responsible = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, is_single_result=True)
-        contribution = mommy.make(Contribution,
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, is_single_result=True)
+        contribution = baker.make(Contribution,
             evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
+        baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
         evaluation.single_result_created()
         evaluation.publish()
         evaluation.save()
@@ -179,24 +179,24 @@ class TestEvaluations(WebTest):
 
     def test_single_result_can_be_published(self):
         """ Regression test for #1238 """
-        responsible = mommy.make(UserProfile)
-        single_result = mommy.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = mommy.make(Contribution,
+        responsible = baker.make(UserProfile)
+        single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
+        contribution = baker.make(Contribution,
             evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
-        mommy.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
+        baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
         single_result.single_result_created()
         single_result.publish()  # used to crash
 
     def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
-        student1 = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
+        student1 = baker.make(UserProfile)
+        student2 = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
         evaluation.save()
-        top_general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        mommy.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
         self.assertFalse(evaluation.can_publish_text_results)
@@ -207,40 +207,40 @@ class TestEvaluations(WebTest):
         self.assertTrue(evaluation.can_publish_text_results)
 
     def test_textanswers_get_deleted_if_they_cannot_be_published(self):
-        student = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        student = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 0)
 
     def test_textanswers_do_not_get_deleted_if_they_can_be_published(self):
-        student = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        student = baker.make(UserProfile)
+        student2 = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         evaluation.publish()
         self.assertEqual(evaluation.textanswer_set.count(), 1)
 
     def test_hidden_textanswers_get_deleted_on_publish(self):
-        student = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        student = baker.make(UserProfile)
+        student2 = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="private", state=TextAnswer.PRIVATE)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="private", state=TextAnswer.PRIVATE)
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
         evaluation.publish()
@@ -248,13 +248,13 @@ class TestEvaluations(WebTest):
         self.assertFalse(TextAnswer.objects.filter(answer="hidden").exists())
 
     def test_original_textanswers_get_deleted_on_publish(self):
-        student = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        question = mommy.make(Question, type=Question.TEXT, questionnaire=questionnaire)
+        student = baker.make(UserProfile)
+        student2 = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        mommy.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         self.assertFalse(TextAnswer.objects.get().original_answer is None)
@@ -263,8 +263,8 @@ class TestEvaluations(WebTest):
         self.assertTrue(TextAnswer.objects.get().original_answer is None)
 
     def test_publishing_and_unpublishing_effect_on_template_cache(self):
-        student = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=True)
+        student = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=True)
 
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
@@ -290,8 +290,8 @@ class TestEvaluations(WebTest):
 
 class TestCourse(TestCase):
     def test_can_be_deleted_by_manager(self):
-        course = mommy.make(Course)
-        evaluation = mommy.make(Evaluation, course=course)
+        course = baker.make(Course)
+        evaluation = baker.make(Evaluation, course=course)
         self.assertFalse(course.can_be_deleted_by_manager)
 
         evaluation.delete()
@@ -299,31 +299,31 @@ class TestCourse(TestCase):
 
     def test_responsibles_names(self):
         # last names required for sorting
-        user1 = mommy.make(UserProfile, last_name="Doe")
-        user2 = mommy.make(UserProfile, last_name="Meyer")
-        course = mommy.make(Course, responsibles=[user1, user2])
+        user1 = baker.make(UserProfile, last_name="Doe")
+        user2 = baker.make(UserProfile, last_name="Meyer")
+        course = baker.make(Course, responsibles=[user1, user2])
         self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
 
 
 class TestUserProfile(TestCase):
     def test_is_student(self):
-        some_user = mommy.make(UserProfile)
+        some_user = baker.make(UserProfile)
         self.assertFalse(some_user.is_student)
 
-        student = mommy.make(UserProfile, evaluations_participating_in=[mommy.make(Evaluation)])
+        student = baker.make(UserProfile, evaluations_participating_in=[baker.make(Evaluation)])
         self.assertTrue(student.is_student)
 
-        contributor = mommy.make(UserProfile, contributions=[mommy.make(Contribution)])
+        contributor = baker.make(UserProfile, contributions=[baker.make(Contribution)])
         self.assertFalse(contributor.is_student)
 
-        semester_contributed_to = mommy.make(Semester, created_at=date.today())
-        semester_participated_in = mommy.make(Semester, created_at=date.today())
-        course_contributed_to = mommy.make(Course, semester=semester_contributed_to)
-        course_participated_in = mommy.make(Course, semester=semester_participated_in)
-        evaluation_contributed_to = mommy.make(Evaluation, course=course_contributed_to)
-        evaluation_participated_in = mommy.make(Evaluation, course=course_participated_in)
-        contribution = mommy.make(Contribution, evaluation=evaluation_contributed_to)
-        user = mommy.make(UserProfile, contributions=[contribution], evaluations_participating_in=[evaluation_participated_in])
+        semester_contributed_to = baker.make(Semester, created_at=date.today())
+        semester_participated_in = baker.make(Semester, created_at=date.today())
+        course_contributed_to = baker.make(Course, semester=semester_contributed_to)
+        course_participated_in = baker.make(Course, semester=semester_participated_in)
+        evaluation_contributed_to = baker.make(Evaluation, course=course_contributed_to)
+        evaluation_participated_in = baker.make(Evaluation, course=course_participated_in)
+        contribution = baker.make(Contribution, evaluation=evaluation_contributed_to)
+        user = baker.make(UserProfile, contributions=[contribution], evaluations_participating_in=[evaluation_participated_in])
 
         self.assertTrue(user.is_student)
 
@@ -338,73 +338,73 @@ class TestUserProfile(TestCase):
         self.assertFalse(user.is_student)
 
     def test_can_be_deleted_by_manager(self):
-        user = mommy.make(UserProfile)
-        mommy.make(Evaluation, participants=[user], state="new")
+        user = baker.make(UserProfile)
+        baker.make(Evaluation, participants=[user], state="new")
         self.assertFalse(user.can_be_deleted_by_manager)
 
-        user2 = mommy.make(UserProfile)
-        mommy.make(Evaluation, participants=[user2], state="in_evaluation")
+        user2 = baker.make(UserProfile)
+        baker.make(Evaluation, participants=[user2], state="in_evaluation")
         self.assertFalse(user2.can_be_deleted_by_manager)
 
-        contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, contributor=contributor)
+        contributor = baker.make(UserProfile)
+        baker.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_be_deleted_by_manager)
 
-        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
+        proxy_user = baker.make(UserProfile, is_proxy_user=True)
         self.assertFalse(proxy_user.can_be_deleted_by_manager)
 
     def test_inactive_users_hidden(self):
-        active_user = mommy.make(UserProfile)
-        mommy.make(UserProfile, is_active=False)
+        active_user = baker.make(UserProfile)
+        baker.make(UserProfile, is_active=False)
 
         self.assertEqual(list(UserProfile.objects.exclude(is_active=False)), [active_user])
 
     def test_inactive_users_shown(self):
-        active_user = mommy.make(UserProfile)
-        inactive_user = mommy.make(UserProfile, is_active=False)
+        active_user = baker.make(UserProfile)
+        inactive_user = baker.make(UserProfile, is_active=False)
 
         user_list = list(UserProfile.objects.all())
         self.assertIn(active_user, user_list)
         self.assertIn(inactive_user, user_list)
 
     def test_can_be_marked_inactive_by_manager(self):
-        user = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state="new")
+        user = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state="new")
         self.assertTrue(user.can_be_marked_inactive_by_manager)
         evaluation.participants.set([user])
         evaluation.save()
         self.assertFalse(user.can_be_marked_inactive_by_manager)
 
-        contributor = mommy.make(UserProfile)
-        mommy.make(Contribution, contributor=contributor)
+        contributor = baker.make(UserProfile)
+        baker.make(Contribution, contributor=contributor)
         self.assertFalse(contributor.can_be_marked_inactive_by_manager)
 
-        reviewer = mommy.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
+        reviewer = baker.make(UserProfile, groups=[Group.objects.get(name="Reviewer")])
         self.assertFalse(reviewer.can_be_marked_inactive_by_manager)
 
-        grade_publisher = mommy.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
+        grade_publisher = baker.make(UserProfile, groups=[Group.objects.get(name="Grade publisher")])
         self.assertFalse(grade_publisher.can_be_marked_inactive_by_manager)
 
-        super_user = mommy.make(UserProfile, is_superuser=True)
+        super_user = baker.make(UserProfile, is_superuser=True)
         self.assertFalse(super_user.can_be_marked_inactive_by_manager)
 
-        proxy_user = mommy.make(UserProfile, is_proxy_user=True)
+        proxy_user = baker.make(UserProfile, is_proxy_user=True)
         self.assertFalse(proxy_user.can_be_marked_inactive_by_manager)
 
     @override_settings(INSTITUTION_EMAIL_REPLACEMENTS=[("example.com","institution.com")])
     def test_email_domain_replacement(self):
-        user = mommy.make(UserProfile, email="test@example.com")
+        user = baker.make(UserProfile, email="test@example.com")
         self.assertEqual(user.email, "test@institution.com")
 
 
 class ParticipationArchivingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester)
-        cls.evaluation = mommy.make(Evaluation, state="published", course=mommy.make(Course, semester=cls.semester))
-        cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
+        cls.semester = baker.make(Semester)
+        cls.evaluation = baker.make(Evaluation, state="published", course=baker.make(Course, semester=cls.semester))
+        cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-        users = mommy.make(UserProfile, _quantity=3)
+        users = baker.make(UserProfile, _quantity=3)
         cls.evaluation.participants.set(users)
         cls.evaluation.voters.set(users[:2])
 
@@ -468,14 +468,14 @@ class ParticipationArchivingTests(TestCase):
             self.semester.courses.first().evaluations.first()._archive_participations()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
-        evaluation = mommy.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
+        evaluation = baker.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
         self.assertFalse(evaluation.participations_are_archived)
         self.assertTrue(evaluation.participations_can_be_archived)
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
-        responsible = mommy.make(UserProfile)
-        evaluation = mommy.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = mommy.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        responsible = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
+        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         evaluation.course.semester.archive_participations()
@@ -487,14 +487,14 @@ class ParticipationArchivingTests(TestCase):
 class TestLoginUrlEmail(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.other_user = mommy.make(UserProfile, email="other@extern.com")
-        cls.user = mommy.make(UserProfile, email="extern@extern.com")
+        cls.other_user = baker.make(UserProfile, email="other@extern.com")
+        cls.user = baker.make(UserProfile, email="extern@extern.com")
         cls.user.ensure_valid_login_key()
 
-        cls.evaluation = mommy.make(Evaluation)
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.evaluation = baker.make(Evaluation)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
-        cls.template = mommy.make(EmailTemplate, body="{{ login_url }}")
+        cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
 
         EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
 
@@ -537,23 +537,23 @@ class TestEmailTemplate(TestCase):
         Tests that __send_to_user behaves when the user has no email address.
         Regression test to https://github.com/fsr-de/EvaP/issues/825
         """
-        user = mommy.make(UserProfile, email=None)
+        user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         EmailTemplate.send_to_user(user, template, {}, {}, False, None)
 
 
 class TestEmailRecipientList(TestCase):
     def test_recipient_list(self):
-        evaluation = mommy.make(Evaluation)
-        responsible = mommy.make(UserProfile)
-        editor = mommy.make(UserProfile)
-        contributor = mommy.make(UserProfile)
+        evaluation = baker.make(Evaluation)
+        responsible = baker.make(UserProfile)
+        editor = baker.make(UserProfile)
+        contributor = baker.make(UserProfile)
         evaluation.course.responsibles.set([responsible])
-        mommy.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True)
-        mommy.make(Contribution, evaluation=evaluation, contributor=contributor)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor)
 
-        participant1 = mommy.make(UserProfile, evaluations_participating_in=[evaluation])
-        participant2 = mommy.make(UserProfile, evaluations_participating_in=[evaluation])
+        participant1 = baker.make(UserProfile, evaluations_participating_in=[evaluation])
+        participant2 = baker.make(UserProfile, evaluations_participating_in=[evaluation])
         evaluation.voters.set([participant1])
 
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [], filter_users_in_cc=False)
@@ -575,13 +575,13 @@ class TestEmailRecipientList(TestCase):
         self.assertCountEqual(recipient_list, [participant2])
 
     def test_recipient_list_filtering(self):
-        evaluation = mommy.make(Evaluation)
+        evaluation = baker.make(Evaluation)
 
-        contributor1 = mommy.make(UserProfile)
-        contributor2 = mommy.make(UserProfile, delegates=[contributor1])
+        contributor1 = baker.make(UserProfile)
+        contributor2 = baker.make(UserProfile, delegates=[contributor1])
 
-        mommy.make(Contribution, evaluation=evaluation, contributor=contributor1)
-        mommy.make(Contribution, evaluation=evaluation, contributor=contributor2)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor1)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor2)
 
         # no-one should get filtered.
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
@@ -591,8 +591,8 @@ class TestEmailRecipientList(TestCase):
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=True)
         self.assertCountEqual(recipient_list, [contributor2])
 
-        contributor3 = mommy.make(UserProfile, delegates=[contributor2])
-        mommy.make(Contribution, evaluation=evaluation, contributor=contributor3)
+        contributor3 = baker.make(UserProfile, delegates=[contributor2])
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor3)
 
         # again, no-one should get filtered.
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)

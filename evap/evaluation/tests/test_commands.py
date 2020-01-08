@@ -12,7 +12,7 @@ from django.db.models import Sum
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import (CHOICES, Contribution, Course, Evaluation, EmailTemplate, NO_ANSWER,
     Question, Questionnaire, RatingAnswerCounter, Semester, UserProfile)
@@ -21,8 +21,8 @@ from evap.evaluation.models import (CHOICES, Contribution, Course, Evaluation, E
 class TestAnonymizeCommand(TestCase):
     @classmethod
     def setUpTestData(cls):
-        mommy.make(EmailTemplate, name="name", subject="Subject", body="Body.")
-        mommy.make(UserProfile,
+        baker.make(EmailTemplate, name="name", subject="Subject", body="Body.")
+        baker.make(UserProfile,
           username="secret.username",
           email="secret.email@hpi.de",
           title="Prof.",
@@ -30,45 +30,45 @@ class TestAnonymizeCommand(TestCase):
           last_name="User",
           login_key=1234567890,
           login_key_valid_until=date.today())
-        semester1 = mommy.make(Semester, name_de="S1", name_en="S1")
-        mommy.make(Semester, name_de="S2", name_en="S2")
-        cls.course = mommy.make(
+        semester1 = baker.make(Semester, name_de="S1", name_en="S1")
+        baker.make(Semester, name_de="S2", name_en="S2")
+        cls.course = baker.make(
             Course,
             semester=semester1,
             name_de="Eine private Veranstaltung",
             name_en="A private course",
             is_private=True,
         )
-        course2 = mommy.make(
+        course2 = baker.make(
             Course,
             semester=semester1,
             name_de="Veranstaltungsexperimente",
             name_en="Course experiments",
         )
-        cls.evaluation = mommy.make(
+        cls.evaluation = baker.make(
             Evaluation,
             course=cls.course,
             name_de="Wie man Software testet",
             name_en="Testing your software",
         )
-        mommy.make(
+        baker.make(
             Evaluation,
             course=course2,
             name_de="Die Entstehung von Unicode 😄",
             name_en="History of Unicode 😄",
         )
 
-        cls.contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.general_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
 
-        cls.contributor_questions = mommy.make(Question, _quantity=10,
+        cls.contributor_questions = baker.make(Question, _quantity=10,
                 questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))
-        cls.general_questions = mommy.make(Question, _quantity=10,
+        cls.general_questions = baker.make(Question, _quantity=10,
                 questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))
 
-        cls.contributor = mommy.make(UserProfile)
+        cls.contributor = baker.make(UserProfile)
 
-        cls.contribution = mommy.make(Contribution, contributor=cls.contributor, evaluation=cls.evaluation,
+        cls.contribution = baker.make(Contribution, contributor=cls.contributor, evaluation=cls.evaluation,
             questionnaires=[cls.contributor_questionnaire, cls.contributor_questionnaire])
 
         cls.general_contribution = cls.evaluation.general_contribution
@@ -85,7 +85,7 @@ class TestAnonymizeCommand(TestCase):
         for question in chain(self.contributor_questions, self.general_questions):
             choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
             for answer in choices:
-                mommy.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=1, answer=answer)
+                baker.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=1, answer=answer)
 
         old_count = RatingAnswerCounter.objects.count()
 
@@ -109,7 +109,7 @@ class TestAnonymizeCommand(TestCase):
             choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
             for answer in choices:
                 count = random.randint(10, 100)
-                mommy.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer)
+                baker.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer)
                 answers_per_question[question] += count
 
         management.call_command('anonymize', stdout=StringIO())
@@ -120,7 +120,7 @@ class TestAnonymizeCommand(TestCase):
 
     def test_single_result_anonymization(self):
         questionnaire = Questionnaire.single_result_questionnaire()
-        single_result = mommy.make(Evaluation, is_single_result=True, course=self.course)
+        single_result = baker.make(Evaluation, is_single_result=True, course=self.course)
         single_result.general_contribution.questionnaires.set([questionnaire])
         question = Question.objects.get(questionnaire=questionnaire)
 
@@ -129,7 +129,7 @@ class TestAnonymizeCommand(TestCase):
         random.seed(0)
         for answer in choices:
             count = random.randint(50, 100)
-            mommy.make(RatingAnswerCounter, question=question, contribution=single_result.general_contribution, count=count, answer=answer)
+            baker.make(RatingAnswerCounter, question=question, contribution=single_result.general_contribution, count=count, answer=answer)
             answer_count_before += count
 
         management.call_command('anonymize', stdout=StringIO())
@@ -177,7 +177,7 @@ class TestReloadTestdataCommand(TestCase):
 
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_collect_results(self):
-        mommy.make(Evaluation)
+        baker.make(Evaluation)
 
         with patch('evap.evaluation.management.commands.refresh_results_cache.collect_results') as mock:
             management.call_command('refresh_results_cache', stdout=StringIO())
@@ -205,8 +205,8 @@ class TestDumpTestDataCommand(TestCase):
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])
 class TestSendRemindersCommand(TestCase):
     def test_remind_user_about_one_evaluation(self):
-        user_to_remind = mommy.make(UserProfile)
-        evaluation = mommy.make(
+        user_to_remind = baker.make(UserProfile)
+        evaluation = baker.make(
             Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
@@ -220,14 +220,14 @@ class TestSendRemindersCommand(TestCase):
         mock.assert_called_once_with(user_to_remind, first_due_in_days=2, due_evaluations=[(evaluation, 2)])
 
     def test_remind_user_once_about_two_evaluations(self):
-        user_to_remind = mommy.make(UserProfile)
-        evaluation1 = mommy.make(
+        user_to_remind = baker.make(UserProfile)
+        evaluation1 = baker.make(
             Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=0),
             participants=[user_to_remind])
-        evaluation2 = mommy.make(
+        evaluation2 = baker.make(
             Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
@@ -241,8 +241,8 @@ class TestSendRemindersCommand(TestCase):
         mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_evaluations=[(evaluation1, 0), (evaluation2, 2)])
 
     def test_dont_remind_already_voted(self):
-        user_no_remind = mommy.make(UserProfile)
-        mommy.make(
+        user_no_remind = baker.make(UserProfile)
+        baker.make(
             Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),

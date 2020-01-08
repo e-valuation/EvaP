@@ -7,7 +7,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Semester, UserProfile, CourseType
 from evap.evaluation.tests.tools import WebTest
@@ -20,10 +20,10 @@ class SampleXlsTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester)
-        mommy.make(UserProfile, username="user", groups=[Group.objects.get(name="Manager")])
-        mommy.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        mommy.make(CourseType, name_de="Seminar", name_en="Seminar")
+        cls.semester = baker.make(Semester)
+        baker.make(UserProfile, username="user", groups=[Group.objects.get(name="Manager")])
+        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
+        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
 
     def test_sample_xls(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user='user')

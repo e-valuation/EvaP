@@ -1,7 +1,7 @@
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, NO_ANSWER, Question, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest
@@ -19,11 +19,11 @@ class TestGrantRewardPoints(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = mommy.make(UserProfile, username='student', email='foo@institution.example.com')
-        cls.evaluation = mommy.make(Evaluation, state='in_evaluation', participants=[cls.student])
+        cls.student = baker.make(UserProfile, username='student', email='foo@institution.example.com')
+        cls.evaluation = baker.make(Evaluation, state='in_evaluation', participants=[cls.student])
 
-        questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        questionnaire = baker.make(Questionnaire)
+        baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
@@ -45,20 +45,20 @@ class TestGrantRewardPoints(WebTest):
 
     def test_semester_activated_not_all_evaluations(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
-        mommy.make(Evaluation, course=mommy.make(Course, semester=self.evaluation.course.semester), participants=[self.student])
+        baker.make(Evaluation, course=baker.make(Course, semester=self.evaluation.course.semester), participants=[self.student])
         self.form.submit()
         self.assertEqual(1, reward_points_of_user(self.student))
 
     def test_already_got_grant_objects_but_points_missing(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
-        mommy.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.evaluation.course.semester)
+        baker.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
         self.assertEqual(2, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
 
     def test_already_got_enough_points(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
-        mommy.make(RewardPointGranting, user_profile=self.student, value=3, semester=self.evaluation.course.semester)
+        baker.make(RewardPointGranting, user_profile=self.student, value=3, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
         self.assertEqual(1, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
@@ -72,10 +72,10 @@ class TestGrantRewardPoints(WebTest):
 class TestGrantRewardPointsParticipationChange(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = mommy.make(Evaluation)
-        already_evaluated = mommy.make(Evaluation, course=mommy.make(Course, semester=cls.evaluation.course.semester))
+        cls.evaluation = baker.make(Evaluation)
+        already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=cls.evaluation.course.semester))
         SemesterActivation.objects.create(semester=cls.evaluation.course.semester, is_active=True)
-        cls.student = mommy.make(UserProfile, username="student", email="foo@institution.example.com",
+        cls.student = baker.make(UserProfile, username="student", email="foo@institution.example.com",
             evaluations_participating_in=[cls.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
 
     def test_participant_removed_from_evaluation(self):

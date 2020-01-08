@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.core import mail
 from django.test import override_settings
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
@@ -13,13 +13,13 @@ class LoginTests(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.external_user = mommy.make(UserProfile, email="extern@extern.com")
+        cls.external_user = baker.make(UserProfile, email="extern@extern.com")
         cls.external_user.ensure_valid_login_key()
-        cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
+        cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
-        evaluation = mommy.make(Evaluation, state='published')
-        mommy.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation = baker.make(Evaluation, state='published')
+        baker.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     @override_settings(PAGE_URL='https://example.com')
     def test_login_url_generation(self):
