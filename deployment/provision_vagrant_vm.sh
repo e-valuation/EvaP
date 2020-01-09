@@ -1,5 +1,11 @@
 set -x # print executed commands
 
+USER="evap"
+REPO_FOLDER="/home/$USER/evap"
+
+# force apt to not ask, just do defaults.
+export DEBIAN_FRONTEND=noninteractive
+
 # install python stuff
 apt-get -q update
 apt-get -q install -y python3.7 python3.7-dev python3.7-venv python3-pip gettext
@@ -21,16 +27,27 @@ apt-get -q install -y redis-server
 # install apache
 apt-get -q install -y apache2 apache2-dev
 
+# make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
+sudo useradd -m -u 1042 -s /bin/bash evap
+# allow ssh login
+sudo cp -r /home/vagrant/.ssh /home/$USER/.ssh
+sudo chown -R $USER:$USER /home/$USER/.ssh
+# allow sudo without password
+echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/evap
+
+# link the mounted evap folder from the home directory
+ln -s /evap /home/evap/evap
+
 # setup virtualenv and mod_wsgi
-sudo -H -u vagrant python3.7 -m venv /home/vagrant/venvs/env
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/pip install wheel  # required, otherwise following installs fail
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/pip install mod_wsgi
+sudo -H -u $USER python3.7 -m venv /home/$USER/env
+sudo -H -u $USER /home/$USER/env/bin/pip install wheel  # required, otherwise following installs fail
+sudo -H -u $USER /home/$USER/env/bin/pip install mod_wsgi
 
 # setup apache
 a2enmod expires
-cp /vagrant/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
+cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
 a2enmod wsgi
-cp /vagrant/deployment/apache.template.conf /etc/apache2/sites-available/evap.conf
+cp $REPO_FOLDER/deployment/apache.template.conf /etc/apache2/sites-available/evap.conf
 a2ensite evap.conf
 a2dissite 000-default.conf
 # this comments in some line in some apache config file to fix the locale.
@@ -39,25 +56,25 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2
 
-# auto cd into /vagrant on login and activate venv
-echo "cd /vagrant" >> /home/vagrant/.bashrc
-echo "source /home/vagrant/venvs/env/bin/activate" >> /home/vagrant/.bashrc
+# auto cd into /$USER on login and activate venv
+echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
+echo "source /home/$USER/env/bin/activate" >> /home/$USER/.bashrc
 
 # install requirements
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/pip install -r /vagrant/requirements-dev.txt
+sudo -H -u $USER /home/$USER/env/bin/pip install -r $REPO_FOLDER/requirements-dev.txt
 
 # deploy localsettings and insert random key
-cp /vagrant/deployment/localsettings.template.py /vagrant/evap/localsettings.py
-sed -i -e "s/\${SECRET_KEY}/`sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32`/" /vagrant/evap/localsettings.py
+cp $REPO_FOLDER/deployment/localsettings.template.py $REPO_FOLDER/evap/localsettings.py
+sed -i -e "s/\${SECRET_KEY}/$(sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" $REPO_FOLDER/evap/localsettings.py
 
 # setup vm auto-completion
 sudo cp /vagrant/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
 # setup evap
-cd /vagrant
+cd /$USER
 git submodule update --init
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/python manage.py migrate --noinput
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/python manage.py collectstatic --noinput
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/python manage.py compilemessages
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/python manage.py loaddata test_data.json
-sudo -H -u vagrant /home/vagrant/venvs/env/bin/python manage.py refresh_results_cache
+sudo -H -u $USER /home/$USER/env/bin/python manage.py migrate --noinput
+sudo -H -u $USER /home/$USER/env/bin/python manage.py collectstatic --noinput
+sudo -H -u $USER /home/$USER/env/bin/python manage.py compilemessages
+sudo -H -u $USER /home/$USER/env/bin/python manage.py loaddata test_data.json
+sudo -H -u $USER /home/$USER/env/bin/python manage.py refresh_results_cache

@@ -12,4 +12,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         outfile_name = os.path.join(settings.BASE_DIR, "evaluation", "fixtures", "test_data.json")
-        call_command("dumpdata", "auth.group", "evaluation", "rewards", "grades", indent=2, output=outfile_name)
+        call_command(
+            "dumpdata", "auth.group", "evaluation", "rewards", "grades", indent=2,
+            output=outfile_name, natural_foreign=True, natural_primary=True)
