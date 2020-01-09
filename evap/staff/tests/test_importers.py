@@ -220,6 +220,19 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
+    def test_duplicate_course_error(self):
+        with open(self.filename_valid, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        semester = baker.make(Semester)
+        baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
+        baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
+
+        __, __, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+
+        self.assertIn("Course Stehlen does already exist in this semester.", errors)
+        self.assertIn("Course Shine does already exist in this semester.", errors)
+
 
 class TestPersonImporter(TestCase):
     @classmethod
