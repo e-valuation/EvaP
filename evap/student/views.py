@@ -143,7 +143,9 @@ def vote(request, evaluation_id):
 
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
-            if request.POST.get('text_results_publish_confirmation_top') == 'on' or request.POST.get('text_results_publish_confirmation_bottom') == 'on' or evaluation.voters.count() >= 2:
+            if (request.POST.get('text_results_publish_confirmation_top') == 'on'
+                    or request.POST.get('text_results_publish_confirmation_bottom') == 'on'
+                    or evaluation.voters.count() >= 2):
                 evaluation.can_publish_text_results = True
                 evaluation.save()
 

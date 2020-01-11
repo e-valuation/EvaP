@@ -1,10 +1,12 @@
+from model_bakery import baker
+
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
+
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
-from model_bakery import baker
 
 
 class UserFormTests(TestCase):

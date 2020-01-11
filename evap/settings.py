@@ -392,7 +392,7 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # Create a localsettings.py if you want to locally override settings
 # and don't want the changes to appear in 'git status'.
 try:
-    from evap.localsettings import *
+    from evap.localsettings import *  # pylint: disable=unused-wildcard-import,wildcard-import
 except ImportError:
     pass
 

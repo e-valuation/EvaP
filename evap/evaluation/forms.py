@@ -13,7 +13,7 @@ class LoginUsernameForm(forms.Form):
     username = forms.CharField(label=_("Username"), max_length=254)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
-    def __init__(self, request=None, *args, **kwargs):
+    def __init__(self, request, *args, **kwargs):
         """
         If request is passed in, the form will validate that cookies are
         enabled. Note that the request (a HttpRequest object) must have set a

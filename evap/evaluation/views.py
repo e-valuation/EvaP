@@ -43,7 +43,8 @@ def index(request):
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect('evaluation:index')
-        elif login_username_form.is_valid():
+
+        if login_username_form.is_valid():
             # user would like to login with username and password and passed password test
             auth.login(request, login_username_form.get_user())
 
@@ -62,27 +63,27 @@ def index(request):
             openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
         )
         return render(request, "index.html", template_data)
-    else:
-        user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
-        # check for redirect variable
-        redirect_to = request.GET.get("next", None)
-        if redirect_to is not None:
-            return redirect(redirect_to)
+    user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
-        # redirect user to appropriate start page
-        if request.user.is_reviewer:
-            return redirect('staff:semester_view', Semester.active_semester().id)
-        if request.user.is_manager:
-            return redirect('staff:index')
-        elif request.user.is_grade_publisher:
-            return redirect('grades:semester_view', Semester.active_semester().id)
-        elif user.is_student:
-            return redirect('student:index')
-        elif user.is_responsible_or_contributor_or_delegate:
-            return redirect('contributor:index')
-        else:
-            return redirect('results:index')
+    # check for redirect variable
+    redirect_to = request.GET.get("next", None)
+    if redirect_to is not None:
+        return redirect(redirect_to)
+
+    # redirect user to appropriate start page
+    if request.user.is_reviewer:
+        return redirect('staff:semester_view', Semester.active_semester().id)
+    if request.user.is_manager:
+        return redirect('staff:index')
+    if request.user.is_grade_publisher:
+        return redirect('grades:semester_view', Semester.active_semester().id)
+    if user.is_student:
+        return redirect('student:index')
+    if user.is_responsible_or_contributor_or_delegate:
+        return redirect('contributor:index')
+
+    return redirect('results:index')
 
 
 def login_key_authentication(request, key):

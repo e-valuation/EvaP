@@ -6,7 +6,7 @@ from evap.rewards.models import RewardPointRedemptionEvent
 class RewardPointRedemptionEventForm(forms.ModelForm):
     class Meta:
         model = RewardPointRedemptionEvent
-        fields = "__all__"
+        fields = ('name', 'date', 'redeem_end_date')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

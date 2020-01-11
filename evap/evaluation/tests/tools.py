@@ -26,7 +26,7 @@ class FuzzyInt(int):
         return obj
 
     def __eq__(self, other):
-        return other >= self.lowest and other <= self.highest
+        return self.lowest <= other <= self.highest
 
     def __repr__(self):
         return "[%d..%d]" % (self.lowest, self.highest)

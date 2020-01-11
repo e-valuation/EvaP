@@ -51,12 +51,12 @@ class Command(BaseCommand):
         abs_data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), Command.data_dir)
 
         # load placeholders
-        with open(os.path.join(abs_data_dir, Command.firstnames_filename)) as f:
-            first_names = f.read().strip().split('\n')
-        with open(os.path.join(abs_data_dir, Command.lastnames_filename)) as f:
-            last_names = f.read().strip().split('\n')
-        with open(os.path.join(abs_data_dir, Command.lorem_ipsum_filename)) as f:
-            lorem_ipsum = f.read().strip().split(' ')
+        with open(os.path.join(abs_data_dir, Command.firstnames_filename)) as firstnames_file:
+            first_names = firstnames_file.read().strip().split('\n')
+        with open(os.path.join(abs_data_dir, Command.lastnames_filename)) as lastnames_file:
+            last_names = lastnames_file.read().strip().split('\n')
+        with open(os.path.join(abs_data_dir, Command.lorem_ipsum_filename)) as lorem_ipsum_file:
+            lorem_ipsum = lorem_ipsum_file.read().strip().split(' ')
 
         try:
             with transaction.atomic():

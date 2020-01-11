@@ -20,7 +20,7 @@ def create_user_list_string_for_message(users):
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
-class CommonEqualityMixin(object):
+class CommonEqualityMixin():
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
@@ -109,7 +109,7 @@ class EvaluationData(CommonEqualityMixin):
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
 
-class ExcelImporter(object):
+class ExcelImporter():
     W_NAME = 'name'
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
@@ -240,10 +240,12 @@ class EnrollmentImporter(ExcelImporter):
         self.enrollments = []
         self.names_de = set()
 
-    def read_one_enrollment(self, data):
+    @staticmethod
+    def read_one_enrollment(data):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
+        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0],
+                responsible_email=responsible_data.email)
         return (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
@@ -381,7 +383,7 @@ class EnrollmentImporter(ExcelImporter):
             else:
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -391,7 +393,8 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
-    def read_one_user(self, data):
+    @staticmethod
+    def read_one_user(data):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
         return user_data
 
@@ -471,10 +474,10 @@ class UserImporter(ExcelImporter):
             if test_run:
                 importer.create_test_success_messages()
                 return importer.get_user_profile_list(), importer.success_messages, importer.warnings, importer.errors
-            else:
-                return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
-        except Exception as e:
+            return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
+
+        except Exception as e:  # pylint: disable=broad-except
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode

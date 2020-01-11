@@ -51,7 +51,7 @@ def _delete_course_template_cache_impl(course):
 def warm_up_template_cache(evaluations):
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
     current_language = translation.get_language()
-    courses_to_render = set([evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1])
+    courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
     try:
         for course in courses_to_render:
             translation.activate('en')
@@ -202,10 +202,10 @@ def evaluation_detail(request, semester_id, evaluation_id):
     # filter empty headings
     for questionnaire_result in evaluation_result.questionnaire_results:
         filtered_question_results = []
-        for index, question_result in enumerate(questionnaire_result.question_results):
+        for i, question_result in enumerate(questionnaire_result.question_results):
             # filter out if there are no more questions or the next question is also a heading question
             if isinstance(question_result, HeadingResult):
-                if index == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[index + 1], HeadingResult):
+                if i == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[i + 1], HeadingResult):
                     continue
             filtered_question_results.append(question_result)
         questionnaire_result.question_results = filtered_question_results

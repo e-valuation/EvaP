@@ -28,7 +28,6 @@ logger = logging.getLogger(__name__)
 
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
-    pass
 
 
 class Semester(models.Model):
@@ -709,7 +708,7 @@ class Evaluation(models.Model):
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 logger.exception('An error occured when updating the state of evaluation "{}" (id {}).'.format(evaluation, evaluation.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
@@ -832,10 +831,10 @@ class Question(models.Model):
     def answer_class(self):
         if self.is_text_question:
             return TextAnswer
-        elif self.is_rating_question:
+        if self.is_rating_question:
             return RatingAnswerCounter
-        else:
-            raise Exception("Unknown answer type: %r" % self.type)
+
+        raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
@@ -879,7 +878,7 @@ class Question(models.Model):
 
 
 Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
-BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))
+BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))  # pylint: disable=invalid-name
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1166,7 +1165,6 @@ class FaqQuestion(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -1247,8 +1245,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             if self.title:
                 name = self.title + " " + name
             return name
-        else:
-            return self.username
+
+        return self.username
 
     @property
     def full_name_with_username(self):
@@ -1543,7 +1541,7 @@ class EmailTemplate(models.Model):
             logger.info(('Sent email "{}" to {}.').format(subject, user.username))
             if send_separate_login_url:
                 cls.send_login_url_to_user(user)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
     @classmethod

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
 from django.utils import translation
-from django.utils.translation import LANGUAGE_SESSION_KEY, get_language, ugettext_lazy as _
+from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
 
 # random object that will be used to check whether a default argument value was overwritten or not
@@ -50,8 +50,8 @@ def send_publish_notifications(evaluations, template_contributor=USE_DEFAULT, te
             for contributor in evaluation.course.responsibles.all():
                 evaluations_for_contributors[contributor].add(evaluation)
 
-    assert(not evaluations_for_contributors or template_contributor)
-    assert(not evaluations_for_participants or template_participant)
+    assert not evaluations_for_contributors or template_contributor
+    assert not evaluations_for_participants or template_participant
 
     for contributor, evaluation_set in evaluations_for_contributors.items():
         body_params = {'user': contributor, 'evaluations': list(evaluation_set)}

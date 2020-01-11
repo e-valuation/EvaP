@@ -105,15 +105,15 @@ def upload_grades(request, semester_id, course_id):
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
-    else:
-        template_data = dict(
-            semester=semester,
-            course=course,
-            form=form,
-            final_grades=final_grades,
-            show_automated_publishing_info=final_grades,
-        )
-        return render(request, "grades_upload_form.html", template_data)
+
+    template_data = dict(
+        semester=semester,
+        course=course,
+        form=form,
+        final_grades=final_grades,
+        show_automated_publishing_info=final_grades,
+    )
+    return render(request, "grades_upload_form.html", template_data)
 
 
 @require_POST
@@ -160,14 +160,14 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
         return redirect('grades:course_view', semester.id, course.id)
-    else:
-        template_data = dict(
-            semester=semester,
-            course=course,
-            form=form,
-            show_automated_publishing_info=False,
-        )
-        return render(request, "grades_upload_form.html", template_data)
+
+    template_data = dict(
+        semester=semester,
+        course=course,
+        form=form,
+        show_automated_publishing_info=False,
+    )
+    return render(request, "grades_upload_form.html", template_data)
 
 
 @require_POST

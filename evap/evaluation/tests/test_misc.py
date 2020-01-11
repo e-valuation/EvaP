@@ -6,13 +6,12 @@ from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from model_bakery import baker
 
 from evap.evaluation.models import Semester, UserProfile, CourseType
 from evap.evaluation.tests.tools import WebTest
-
-from django.urls import reverse
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
@@ -66,7 +65,7 @@ class TestDataTest(TestCase):
         """
         try:
             call_command("loaddata", "test_data", verbosity=0)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             self.fail("Test data failed to load.")
 
 

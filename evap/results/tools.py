@@ -14,7 +14,7 @@ GRADE_COLORS = {
     2: (187, 209, 84),
     3: (239, 226, 88),
     4: (242, 158, 88),
-    5: (235,  89, 90),
+    5: (235, 89, 90),
 }
 
 
@@ -307,7 +307,8 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
 
     if view == 'public':
         return False
-    elif view == 'export':
+
+    if view == 'export':
         if textanswer.is_private:
             return False
         if not textanswer.contribution.is_general and contributor != user:

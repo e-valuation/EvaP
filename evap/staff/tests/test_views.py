@@ -391,7 +391,8 @@ class TestSemesterView(WebTest):
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
-    def test_get_evaluations_with_prefetched_data(self):
+    @staticmethod
+    def test_get_evaluations_with_prefetched_data():
         evaluation = baker.make(Evaluation, is_single_result=True)
         get_evaluations_with_prefetched_data(evaluation.course.semester)
 

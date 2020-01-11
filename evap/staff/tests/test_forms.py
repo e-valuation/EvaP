@@ -261,7 +261,8 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_deleted_empty_contribution_does_not_crash(self):
+    @staticmethod
+    def test_deleted_empty_contribution_does_not_crash():
         """
             When removing the empty extra contribution formset, validating the form should not crash.
             Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.

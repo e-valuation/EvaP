@@ -177,7 +177,8 @@ class TestEvaluations(WebTest):
         evaluation.delete()
         self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
 
-    def test_single_result_can_be_published(self):
+    @staticmethod
+    def test_single_result_can_be_published():
         """ Regression test for #1238 """
         responsible = baker.make(UserProfile)
         single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
@@ -190,7 +191,7 @@ class TestEvaluations(WebTest):
         single_result.single_result_created()
         single_result.publish()  # used to crash
 
-    def test_adding_second_voter_sets_can_publish_text_results_to_true(self):
+    def test_second_vote_sets_can_publish_text_results_to_true(self):
         student1 = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
@@ -391,7 +392,7 @@ class TestUserProfile(TestCase):
         proxy_user = baker.make(UserProfile, is_proxy_user=True)
         self.assertFalse(proxy_user.can_be_marked_inactive_by_manager)
 
-    @override_settings(INSTITUTION_EMAIL_REPLACEMENTS=[("example.com","institution.com")])
+    @override_settings(INSTITUTION_EMAIL_REPLACEMENTS=[("example.com", "institution.com")])
     def test_email_domain_replacement(self):
         user = baker.make(UserProfile, email="test@example.com")
         self.assertEqual(user.email, "test@institution.com")
@@ -532,7 +533,8 @@ class TestLoginUrlEmail(TestCase):
 
 
 class TestEmailTemplate(TestCase):
-    def test_missing_email_address(self):
+    @staticmethod
+    def test_missing_email_address():
         """
         Tests that __send_to_user behaves when the user has no email address.
         Regression test to https://github.com/fsr-de/EvaP/issues/825

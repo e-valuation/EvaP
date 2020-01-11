@@ -7,17 +7,14 @@ from django.db import models
 
 class NoPointsSelected(Exception):
     """An attempt has been made to redeem <= 0 points."""
-    pass
 
 
 class NotEnoughPoints(Exception):
     """An attempt has been made to redeem more points than available."""
-    pass
 
 
 class RedemptionEventExpired(Exception):
     """An attempt has been made to redeem more points for an event whose redeem_end_date lies in the past."""
-    pass
 
 
 class RewardPointRedemptionEvent(models.Model):

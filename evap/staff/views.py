@@ -1,8 +1,8 @@
 import csv
 from datetime import datetime, date
-from xlrd import open_workbook as open_workbook
-from xlutils.copy import copy as copy_workbook
 from collections import OrderedDict, defaultdict, namedtuple
+from xlrd import open_workbook
+from xlutils.copy import copy as copy_workbook
 
 from django.conf import settings
 from django.contrib import messages
@@ -184,8 +184,8 @@ class RevertToNewOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
-        assert(email_template_contributor is None)
-        assert(email_template_participant is None)
+        assert email_template_contributor is None
+        assert email_template_participant is None
 
         for evaluation in evaluations:
             evaluation.revert_to_new()
@@ -209,8 +209,8 @@ class MoveToPreparedOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
-        assert(email_template_contributor is None)
-        assert(email_template_participant is None)
+        assert email_template_contributor is None
+        assert email_template_participant is None
 
         for evaluation in evaluations:
             evaluation.ready_for_editors()
@@ -236,8 +236,8 @@ class StartEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
-        assert(email_template_contributor is None)
-        assert(email_template_participant is None)
+        assert email_template_contributor is None
+        assert email_template_participant is None
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
@@ -263,8 +263,8 @@ class RevertToReviewedOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
-        assert(email_template_contributor is None)
-        assert(email_template_participant is None)
+        assert email_template_contributor is None
+        assert email_template_participant is None
 
         for evaluation in evaluations:
             evaluation.unpublish()
@@ -289,7 +289,7 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
-        assert(email_template is None)
+        assert email_template is None
 
         for evaluation in evaluations:
             evaluation.publish()
@@ -381,8 +381,8 @@ def semester_create(request):
 
         messages.success(request, _("Successfully created semester."))
         return redirect('staff:semester_view', semester.id)
-    else:
-        return render(request, "staff_semester_form.html", dict(form=form))
+
+    return render(request, "staff_semester_form.html", dict(form=form))
 
 
 @manager_required
@@ -392,11 +392,10 @@ def semester_edit(request, semester_id):
 
     if form.is_valid():
         semester = form.save()
-
         messages.success(request, _("Successfully updated semester."))
         return redirect('staff:semester_view', semester.id)
-    else:
-        return render(request, "staff_semester_form.html", dict(semester=semester, form=form))
+
+    return render(request, "staff_semester_form.html", dict(semester=semester, form=form))
 
 
 @require_POST
@@ -485,8 +484,8 @@ def semester_export(request, semester_id):
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
         return response
-    else:
-        return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
+
+    return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
 
 
 @manager_required
@@ -560,8 +559,8 @@ def semester_questionnaire_assign(request, semester_id):
 
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_semester_questionnaire_assign_form.html", dict(semester=semester, form=form))
+
+    return render(request, "staff_semester_questionnaire_assign_form.html", dict(semester=semester, form=form))
 
 
 @manager_required
@@ -585,9 +584,9 @@ def semester_preparation_reminder(request, semester_id):
             EmailTemplate.send_to_user(responsible, template, subject_params, body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
-    else:
-        template_data = dict(semester=semester, responsible_list=responsible_list)
-        return render(request, "staff_semester_preparation_reminder.html", template_data)
+
+    template_data = dict(semester=semester, responsible_list=responsible_list)
+    return render(request, "staff_semester_preparation_reminder.html", template_data)
 
 
 @manager_required
@@ -620,8 +619,8 @@ def send_reminder(request, semester_id, responsible_id):
         form.send(request, evaluations)
         messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
         return custom_redirect('staff:semester_preparation_reminder', semester_id)
-    else:
-        return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
+
+    return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
 
 
 @require_POST
@@ -687,8 +686,8 @@ def course_create(request, semester_id):
         if operation == 'save_create_single_result':
             return redirect('staff:single_result_create', semester_id, course.id)
         return redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_course_form.html", dict(semester=semester, course_form=course_form, editable=True))
+
+    return render(request, "staff_course_form.html", dict(semester=semester, course_form=course_form, editable=True))
 
 
 @manager_required
@@ -721,11 +720,11 @@ def course_edit(request, semester_id, course_id):
             return redirect('staff:single_result_create', semester_id, course.id)
 
         return custom_redirect('staff:semester_view', semester.id)
-    else:
-        template_data = dict(
-            course=course, semester=semester, course_form=course_form, editable=editable, disable_breadcrumb_course=True,
-        )
-        return render(request, "staff_course_form.html", template_data)
+
+    template_data = dict(
+        course=course, semester=semester, course_form=course_form, editable=editable, disable_breadcrumb_course=True,
+    )
+    return render(request, "staff_course_form.html", template_data)
 
 
 @require_POST
@@ -762,6 +761,7 @@ def evaluation_create(request, semester_id, course_id=None):
 
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
+
     return render(request, "staff_evaluation_form.html", dict(
         semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True,
         editable=True, state=""
@@ -786,8 +786,8 @@ def single_result_create(request, semester_id, course_id=None):
 
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_single_result_form.html", dict(semester=semester, form=form, editable=True))
+
+    return render(request, "staff_single_result_form.html", dict(semester=semester, form=form, editable=True))
 
 
 @manager_required
@@ -811,7 +811,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     # and no other strong references are being kept.
     # See https://github.com/fsr-de/EvaP/issues/1361 for more information and discussion.
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
+    def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         for granting in grantings:
             messages.info(request,
                 ngettext(
@@ -860,15 +860,15 @@ def helper_evaluation_edit(request, semester, evaluation):
         delete_navbar_cache_for_users(UserProfile.objects.filter(contributions__evaluation=evaluation))
 
         return custom_redirect('staff:semester_view', semester.id)
-    else:
-        if evaluation_form.errors or formset.errors:
-            messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
-        sort_formset(request, formset)
-        template_data = dict(
-            evaluation=evaluation, semester=semester, evaluation_form=evaluation_form,
-            formset=formset, manager=True, state=evaluation.state, editable=editable
-        )
-        return render(request, "staff_evaluation_form.html", template_data)
+
+    if evaluation_form.errors or formset.errors:
+        messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
+    sort_formset(request, formset)
+    template_data = dict(
+        evaluation=evaluation, semester=semester, evaluation_form=evaluation_form,
+        formset=formset, manager=True, state=evaluation.state, editable=editable
+    )
+    return render(request, "staff_evaluation_form.html", template_data)
 
 
 @manager_required
@@ -880,13 +880,12 @@ def helper_single_result_edit(request, semester, evaluation):
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
         form.save(user=request.user)
-
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
-    else:
-        return render(request, "staff_single_result_form.html", dict(
-            evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_be_edited_by_manager
-        ))
+
+    return render(request, "staff_single_result_form.html", dict(
+        evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_be_edited_by_manager
+    ))
 
 
 @require_POST
@@ -919,8 +918,8 @@ def evaluation_email(request, semester_id, evaluation_id):
         form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % evaluation.full_name)
         return custom_redirect('staff:semester_view', semester_id)
-    else:
-        return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
+
+    return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
 
 @manager_required
@@ -1050,9 +1049,9 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         sections = evaluation_sections + contributor_sections
         template_data.update(dict(sections=sections, next_evaluation=next_evaluation))
         return render(request, "staff_evaluation_textanswers_quick.html", template_data)
-    else:
-        template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
-        return render(request, "staff_evaluation_textanswers_full.html", template_data)
+
+    template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
+    return render(request, "staff_evaluation_textanswers_full.html", template_data)
 
 
 @require_POST
@@ -1173,8 +1172,8 @@ def questionnaire_create(request):
 
         messages.success(request, _("Successfully created questionnaire."))
         return redirect('staff:questionnaire_index')
-    else:
-        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
+
+    return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
 def make_questionnaire_edit_forms(request, questionnaire, editable):
@@ -1196,7 +1195,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
                 field.disabled = True
         for question_form in formset.forms:
             for name, field in question_form.fields.items():
-                if name is not 'id':
+                if name != 'id':
                     field.disabled = True
 
         # disallow type changed from and to contributor
@@ -1222,9 +1221,9 @@ def questionnaire_edit(request, questionnaire_id):
 
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('staff:questionnaire_index')
-    else:
-        template_data = dict(questionnaire=questionnaire, form=form, formset=formset, editable=editable)
-        return render(request, "staff_questionnaire_form.html", template_data)
+
+    template_data = dict(questionnaire=questionnaire, form=form, formset=formset, editable=editable)
+    return render(request, "staff_questionnaire_form.html", template_data)
 
 
 def get_identical_form_and_formset(questionnaire):
@@ -1252,14 +1251,13 @@ def questionnaire_copy(request, questionnaire_id):
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
-
             messages.success(request, _("Successfully created questionnaire."))
             return redirect('staff:questionnaire_index')
-        else:
-            return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
-    else:
-        form, formset = get_identical_form_and_formset(copied_questionnaire)
+
         return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
+
+    form, formset = get_identical_form_and_formset(copied_questionnaire)
+    return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
 @manager_required
@@ -1292,18 +1290,19 @@ def questionnaire_new_version(request, questionnaire_id):
                 old_questionnaire.visibility = Questionnaire.HIDDEN
                 old_questionnaire.save()
 
-                if form.is_valid() and formset.is_valid():
-                    form.save()
-                    formset.save()
-                    messages.success(request, _("Successfully created questionnaire."))
-                    return redirect('staff:questionnaire_index')
-                else:
+                if not form.is_valid() or not formset.is_valid():
                     raise IntegrityError
+
+                form.save()
+                formset.save()
+                messages.success(request, _("Successfully created questionnaire."))
+                return redirect('staff:questionnaire_index')
+
         except IntegrityError:
             return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
-    else:
-        form, formset = get_identical_form_and_formset(old_questionnaire)
-        return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
+
+    form, formset = get_identical_form_and_formset(old_questionnaire)
+    return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
 @require_POST
@@ -1351,11 +1350,10 @@ def degree_index(request):
 
     if formset.is_valid():
         formset.save()
-
         messages.success(request, _("Successfully updated the degrees."))
         return custom_redirect('staff:degree_index')
-    else:
-        return render(request, "staff_degree_index.html", dict(formset=formset))
+
+    return render(request, "staff_degree_index.html", dict(formset=formset))
 
 
 @manager_required
@@ -1367,11 +1365,10 @@ def course_type_index(request):
 
     if formset.is_valid():
         formset.save()
-
         messages.success(request, _("Successfully updated the course types."))
         return custom_redirect('staff:course_type_index')
-    else:
-        return render(request, "staff_course_type_index.html", dict(formset=formset))
+
+    return render(request, "staff_course_type_index.html", dict(formset=formset))
 
 
 @manager_required
@@ -1382,8 +1379,8 @@ def course_type_merge_selection(request):
         main_type = form.cleaned_data['main_type']
         other_type = form.cleaned_data['other_type']
         return redirect('staff:course_type_merge', main_type.id, other_type.id)
-    else:
-        return render(request, "staff_course_type_merge_selection.html", dict(form=form))
+
+    return render(request, "staff_course_type_merge_selection.html", dict(form=form))
 
 
 @manager_required
@@ -1396,20 +1393,19 @@ def course_type_merge(request, main_type_id, other_type_id):
         other_type.delete()
         messages.success(request, _("Successfully merged course types."))
         return redirect('staff:course_type_index')
-    else:
-        courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
-        return render(request, "staff_course_type_merge.html",
-            dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
+
+    courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
+    return render(request, "staff_course_type_merge.html",
+        dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
 
 
 @manager_required
 def user_index(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
+    users = UserProfile.objects.all()
     if filter_users:
-        users = UserProfile.objects.exclude(is_active=False)
-    else:
-        users = UserProfile.objects.all()
+        users = users.exclude(is_active=False)
 
     users = (users
         # the following six annotations basically add three bools indicating whether each user is part of a group or not.
@@ -1432,8 +1428,8 @@ def user_create(request):
         form.save()
         messages.success(request, _("Successfully created user."))
         return redirect('staff:user_index')
-    else:
-        return render(request, "staff_user_form.html", dict(form=form))
+
+    return render(request, "staff_user_form.html", dict(form=form))
 
 
 @manager_required
@@ -1477,7 +1473,7 @@ def user_import(request):
 def user_edit(request, user_id):
     # See comment in helper_evaluation_edit
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):
+    def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         assert len(grantings) == 1
 
         messages.info(request,
@@ -1500,8 +1496,8 @@ def user_edit(request, user_id):
         delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
         return redirect('staff:user_index')
-    else:
-        return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))
+
+    return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))
 
 
 @require_POST
@@ -1532,8 +1528,8 @@ def user_bulk_delete(request):
         if test_run:
             return render(request, "staff_user_bulk_delete.html", dict(form=form))
         return redirect('staff:user_index')
-    else:
-        return render(request, "staff_user_bulk_delete.html", dict(form=form))
+
+    return render(request, "staff_user_bulk_delete.html", dict(form=form))
 
 
 @manager_required
@@ -1544,8 +1540,8 @@ def user_merge_selection(request):
         main_user = form.cleaned_data['main_user']
         other_user = form.cleaned_data['other_user']
         return redirect('staff:user_merge', main_user.id, other_user.id)
-    else:
-        return render(request, "staff_user_merge_selection.html", dict(form=form))
+
+    return render(request, "staff_user_merge_selection.html", dict(form=form))
 
 
 @manager_required
@@ -1555,14 +1551,14 @@ def user_merge(request, main_user_id, other_user_id):
 
     if request.method == 'POST':
         merged_user, errors, warnings = merge_users(main_user, other_user)
-        if not errors:
-            messages.success(request, _("Successfully merged users."))
-        else:
+        if errors:
             messages.error(request, _("Merging the users failed. No data was changed."))
+        else:
+            messages.success(request, _("Successfully merged users."))
         return redirect('staff:user_index')
-    else:
-        merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
-        return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
+
+    merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
+    return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
 
 
 @manager_required
@@ -1572,11 +1568,10 @@ def template_edit(request, template_id):
 
     if form.is_valid():
         form.save()
-
         messages.success(request, _("Successfully updated template."))
         return redirect('staff:index')
-    else:
-        return render(request, "staff_template_form.html", dict(form=form, template=template))
+
+    return render(request, "staff_template_form.html", dict(form=form, template=template))
 
 
 @manager_required
@@ -1588,11 +1583,10 @@ def faq_index(request):
 
     if formset.is_valid():
         formset.save()
-
         messages.success(request, _("Successfully updated the FAQ sections."))
         return custom_redirect('staff:faq_index')
-    else:
-        return render(request, "staff_faq_index.html", dict(formset=formset, sections=sections))
+
+    return render(request, "staff_faq_index.html", dict(formset=formset, sections=sections))
 
 
 @manager_required
@@ -1605,12 +1599,11 @@ def faq_section(request, section_id):
 
     if formset.is_valid():
         formset.save()
-
         messages.success(request, _("Successfully updated the FAQ questions."))
         return custom_redirect('staff:faq_index')
-    else:
-        template_data = dict(formset=formset, section=section, questions=questions)
-        return render(request, "staff_faq_section.html", template_data)
+
+    template_data = dict(formset=formset, section=section, questions=questions)
+    return render(request, "staff_faq_section.html", template_data)
 
 
 @manager_required

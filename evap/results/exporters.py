@@ -10,7 +10,7 @@ from evap.results.tools import (collect_results, calculate_average_course_distri
                                 distribution_to_grade, get_grade_color)
 
 
-class ExcelExporter(object):
+class ExcelExporter():
 
     CUSTOM_COLOR_START = 8
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
@@ -18,13 +18,17 @@ class ExcelExporter(object):
 
     def __init__(self):
         self.styles = dict()
+        self.sheet = None
+        self.col = 0
+        self.row = 0
 
     def normalize_number(self, number):
         """ floors 'number' to a multiply of self.STEP """
         rounded_number = round(number, 1)  # see #302
         return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
 
-    def create_color(self, workbook, color_name, palette_index, color):
+    @staticmethod
+    def create_color(workbook, color_name, palette_index, color):
         xlwt.add_palette_colour(color_name, palette_index)
         workbook.set_colour_RGB(palette_index, *color)
 
@@ -60,14 +64,13 @@ class ExcelExporter(object):
     def grade_to_style(self, grade):
         return 'grade_' + str(self.normalize_number(grade))
 
-    def filter_text_and_heading_questions(self, questions):
-        # remove text questions:
+    @staticmethod
+    def filter_text_and_heading_questions(questions):
         questions = [question for question in questions if not question.is_text_question]
 
         # remove heading questions if they have no "content" below them
         filtered_questions = []
-        for index in range(len(questions)):
-            question = questions[index]
+        for index, question in enumerate(questions):
             if question.is_heading_question:
                 # filter out if there are no more questions or the next question is also a heading question
                 if index == len(questions) - 1 or questions[index + 1].is_heading_question:
@@ -77,13 +80,13 @@ class ExcelExporter(object):
         return filtered_questions
 
     def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
-        self.workbook = xlwt.Workbook()
-        self.init_styles(self.workbook)
+        workbook = xlwt.Workbook()
+        self.init_styles(workbook)
         counter = 1
         course_results_exist = False
 
         for degrees, course_types in selection_list:
-            self.sheet = self.workbook.add_sheet("Sheet " + str(counter))
+            self.sheet = workbook.add_sheet("Sheet " + str(counter))
             counter += 1
             self.row = 0
             self.col = 0
@@ -248,7 +251,7 @@ class ExcelExporter(object):
                     else:
                         self.write_empty_cell()
 
-        self.workbook.save(response)
+        workbook.save(response)
 
     def write_empty_cell_with_borders(self):
         writec(self, None, "border_left_right")

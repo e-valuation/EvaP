@@ -13,8 +13,8 @@ import sys
 from django.core.wsgi import get_wsgi_application
 
 # this adds the project root to the python path.
-pwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path = [pwd] + sys.path
+PWD = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path = [PWD] + sys.path
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "evap.settings")
 
