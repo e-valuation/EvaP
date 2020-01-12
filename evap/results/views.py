@@ -248,9 +248,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
                 course_evaluation.distribution = calculate_average_distribution(course_evaluation)
                 course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
 
-    other_contributors = []
+    contributors_with_omitted_results = []
     if view == 'export':
-        other_contributors = [contribution_result.contributor for contribution_result in evaluation_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
+        contributors_with_omitted_results = [contribution_result.contributor for contribution_result in evaluation_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
 
     # if the evaluation is not published, the rendered results are not cached, so we need to attach distribution
     # information for rendering the distribution bar
@@ -270,7 +270,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
         can_download_grades=view_as_user.can_download_grades,
         view=view,
         view_as_user=view_as_user,
-        other_contributors=other_contributors,
+        contributors_with_omitted_results=contributors_with_omitted_results,
     )
     return render(request, "results_evaluation_detail.html", template_data)
 
