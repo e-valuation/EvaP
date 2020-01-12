@@ -21,7 +21,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-from evap.evaluation.tools import clean_email, date_to_datetime, get_due_evaluations_for_user, translate
+
+from evap.evaluation.tools import clean_email, date_to_datetime, get_due_evaluations_for_user,\
+        translate, is_external_email, send_publish_notifications
 
 logger = logging.getLogger(__name__)
 
@@ -689,7 +691,6 @@ class Evaluation(models.Model):
     @classmethod
     def update_evaluations(cls):
         logger.info("update_evaluations called. Processing evaluations now.")
-        from evap.evaluation.tools import send_publish_notifications
 
         evaluations_new_in_evaluation = []
         evaluation_results_evaluations = []
@@ -1347,8 +1348,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_external(self):
-        # do the import here to prevent a circular import
-        from evap.evaluation.tools import is_external_email
         if not self.email:
             return True
         return is_external_email(self.email)
@@ -1359,8 +1358,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @classmethod
     def email_needs_login_key(cls, email):
-        # do the import here to prevent a circular import
-        from evap.evaluation.tools import is_external_email
         return is_external_email(email)
 
     @property
