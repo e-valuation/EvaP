@@ -4,6 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.dispatch import Signal
 from django.db import models
 
+from evap.evaluation.models import UserProfile, Semester
+
 
 class NoPointsSelected(Exception):
     """An attempt has been made to redeem <= 0 points."""
@@ -44,8 +46,8 @@ these objects may not be altered or deleted after creation.
 """
 
 class RewardPointGranting(models.Model):
-    user_profile = models.ForeignKey('evaluation.UserProfile', models.CASCADE, related_name="reward_point_grantings")
-    semester = models.ForeignKey('evaluation.Semester', models.PROTECT, related_name="reward_point_grantings")
+    user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_grantings")
+    semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
 
@@ -53,12 +55,12 @@ class RewardPointGranting(models.Model):
 
 
 class RewardPointRedemption(models.Model):
-    user_profile = models.ForeignKey('evaluation.UserProfile', models.CASCADE, related_name="reward_point_redemptions")
+    user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_redemptions")
     redemption_time = models.DateTimeField(verbose_name=_("redemption time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
     event = models.ForeignKey(RewardPointRedemptionEvent, models.PROTECT, related_name="reward_point_redemptions")
 
 
 class SemesterActivation(models.Model):
-    semester = models.OneToOneField('evaluation.Semester', models.CASCADE, related_name='rewards_active')
+    semester = models.OneToOneField(Semester, models.CASCADE, related_name='rewards_active')
     is_active = models.BooleanField(default=False)
