@@ -144,6 +144,8 @@ disable=print-statement,
         bad-continuation,            # Over a hundred reports, we seem to indent differently, but at least consistently.
         missing-docstring,           # yeah... we don't have those
         protected-access,            # for us that means "be careful", not "don't do it"
+        too-many-lines,              # we don't currently think that splitting up views.py or test_views.py creates any value
+        too-many-arguments,          # we can't determine a good limit here. reviews should spot bad cases of this.
 #
 # it would be nice to have these enabled, but we need more refactoring
 # or are missing pylint features to do that
