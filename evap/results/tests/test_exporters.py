@@ -4,6 +4,7 @@ from model_bakery import baker
 from django.test import TestCase
 from django.utils import translation
 
+from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile)
 from evap.results.exporters import ExcelExporter
@@ -11,7 +12,7 @@ from evap.results.exporters import ExcelExporter
 
 class TestExporters(TestCase):
     def test_grade_color_calculation(self):
-        exporter = ExcelExporter(Semester())
+        exporter = ExcelExporter()
         self.assertEqual(exporter.STEP, 0.2)
         self.assertEqual(exporter.normalize_number(1.94999999999), 1.8)
         # self.assertEqual(exporter.normalize_number(1.95), 2.0)  # floats ftw
@@ -53,8 +54,9 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(
+        ExcelExporter().export(
             binary_content,
+            [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
             True,
             True
@@ -96,8 +98,9 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter(evaluation.course.semester).export(
+        ExcelExporter().export(
             binary_content,
+            [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
             True,
             True
@@ -131,23 +134,23 @@ class TestExporters(TestCase):
 
         content_de = BytesIO()
         with translation.override("de"):
-            ExcelExporter(semester).export(content_de, [([degree.id], [course_type.id])], True, True)
+            ExcelExporter().export(content_de, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_en = BytesIO()
         with translation.override("en"):
-            ExcelExporter(semester).export(content_en, [([degree.id], [course_type.id])], True, True)
+            ExcelExporter().export(content_en, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_de.seek(0)
         content_en.seek(0)
 
         # Load responses as Excel files and check for correct sorting
         workbook = xlrd.open_workbook(file_contents=content_de.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation1\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation2\n")
 
         workbook = xlrd.open_workbook(file_contents=content_en.read())
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2")
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "A – Evaluation2\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "B – Evaluation1\n")
 
     def test_course_type_ordering(self):
         degree = baker.make(Degree)
@@ -177,20 +180,82 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_1.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_2.full_name + "\n")
 
         course_type_2.order = 0
         course_type_2.save()
 
         binary_content = BytesIO()
-        ExcelExporter(semester).export(binary_content, [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name)
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name)
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name + "\n")
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name + "\n")
+
+    def test_contributor_result_export(self):
+        degree = baker.make(Degree)
+        course_type_1 = baker.make(CourseType, order=1)
+        course_type_2 = baker.make(CourseType, order=2)
+        semester_1 = baker.make(Semester)
+        semester_2 = baker.make(Semester)
+        contributor = baker.make(UserProfile)
+        other_contributor = baker.make(UserProfile)
+        evaluation_1 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester_1, degrees=[degree], type=course_type_1, responsibles=[contributor]),
+            state='published',
+            _participant_count=10,
+            _voter_count=1
+        )
+        evaluation_2 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester_2, degrees=[degree], type=course_type_2, responsibles=[other_contributor]),
+            state='published',
+            _participant_count=2,
+            _voter_count=2,
+        )
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation_2,
+            contributor=contributor,
+        )
+        other_contribution = baker.make(
+            Contribution,
+            evaluation=evaluation_2,
+            contributor=other_contributor,
+        )
+
+        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        general_question = baker.make(Question, type=Question.LIKERT, questionnaire=general_questionnaire)
+        contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
+
+        evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
+        baker.make(RatingAnswerCounter, question=general_question, contribution=evaluation_1.general_contribution, answer=1, count=2)
+        evaluation_2.general_contribution.questionnaires.set([general_questionnaire])
+        baker.make(RatingAnswerCounter, question=general_question, contribution=evaluation_2.general_contribution, answer=4, count=2)
+
+        contribution.questionnaires.set([contributor_questionnaire])
+        baker.make(RatingAnswerCounter, question=contributor_question, contribution=contribution, answer=3, count=2)
+        other_contribution.questionnaires.set([contributor_questionnaire])
+        baker.make(RatingAnswerCounter, question=contributor_question, contribution=other_contribution, answer=2, count=2)
+
+        binary_content = export_contributor_results(contributor).content
+        workbook = xlrd.open_workbook(file_contents=binary_content)
+
+        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "{}\n{}\n{}".format(evaluation_1.full_name, semester_1.name, contributor.full_name))
+        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "{}\n{}\n{}".format(evaluation_2.full_name, semester_2.name, other_contributor.full_name))
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.name)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
+        self.assertEqual(workbook.sheets()[0].row_values(7)[0], "{} ({})".format(contributor_questionnaire.name, contributor.full_name))
+        self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
+        self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
+        self.assertEqual(workbook.sheets()[0].row_values(10)[0], "Overall Average Grade")
+        self.assertEqual(workbook.sheets()[0].row_values(10)[2], 3.25)

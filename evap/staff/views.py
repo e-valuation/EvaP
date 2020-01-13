@@ -18,6 +18,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.utils.translation import get_language, ungettext, ngettext
 from django.views.decorators.http import require_POST
+from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
@@ -480,8 +481,8 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = HttpResponse(content_type="application/vnd.ms-excel")
         response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
-        ExcelExporter(semester).export(
-            response, selection_list, include_not_enough_voters, include_unpublished
+        ExcelExporter().export(
+            response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
         return response
     else:
@@ -1490,8 +1491,9 @@ def user_edit(request, user_id):
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    semesters_with_evaluations = Semester.objects.filter(courses__evaluations__contributions__contributor=user).distinct()
-    evaluations_contributing_to = [(semester, Evaluation.objects.filter(course__semester=semester, contributions__contributor=user)) for semester in semesters_with_evaluations]
+    evaluations_contributing_to = Evaluation.objects.filter(
+        Q(contributions__contributor=user) | Q(course__responsibles__in=[user])
+    ).distinct().order_by('course__semester')
 
     if form.is_valid():
         form.save()
@@ -1642,3 +1644,9 @@ def development_components(request):
         'theme_colors': theme_colors
     }
     return render(request, "staff_development_components.html", template_data)
+
+
+@manager_required
+def export_contributor_results_view(request, contributor_id):
+    contributor = get_object_or_404(UserProfile, id=contributor_id)
+    return export_contributor_results(contributor)
