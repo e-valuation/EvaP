@@ -21,12 +21,16 @@ class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):
         evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now())
 
-        with patch('evap.evaluation.models.EmailTemplate.send_to_users_in_evaluations') as mock:
+        with patch('evap.evaluation.models.EmailTemplate') as mock:
+            mock.EVALUATION_STARTED = EmailTemplate.EVALUATION_STARTED
+            mock.ALL_PARTICIPANTS = EmailTemplate.ALL_PARTICIPANTS
+            mock.objects.get.return_value = mock
             Evaluation.update_evaluations()
 
-        template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        mock.assert_called_once_with(template, [evaluation], [EmailTemplate.ALL_PARTICIPANTS],
-                                     use_cc=False, request=None)
+        self.assertEqual(mock.objects.get.call_args_list[0][1]['name'], EmailTemplate.EVALUATION_STARTED)
+        mock.send_to_users_in_evaluations.assert_called_once_with(
+            [evaluation], [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None
+        )
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, 'in_evaluation')
@@ -502,7 +506,7 @@ class TestLoginUrlEmail(TestCase):
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -511,7 +515,7 @@ class TestLoginUrlEmail(TestCase):
 
     def test_no_login_url_when_cc_users_in_cc(self):
         self.user.cc_users.add(self.other_user)
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -520,14 +524,14 @@ class TestLoginUrlEmail(TestCase):
 
     def test_login_url_when_nobody_in_cc(self):
         # message is not sent to others in cc
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
@@ -536,12 +540,12 @@ class TestEmailTemplate(TestCase):
     @staticmethod
     def test_missing_email_address():
         """
-        Tests that __send_to_user behaves when the user has no email address.
+        Tests send_to_user when the user has no email address.
         Regression test to https://github.com/fsr-de/EvaP/issues/825
         """
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
-        EmailTemplate.send_to_user(user, template, {}, {}, False, None)
+        template.send_to_user(user, {}, {}, False, None)
 
 
 class TestEmailRecipientList(TestCase):

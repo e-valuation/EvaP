@@ -55,11 +55,11 @@ def send_publish_notifications(evaluations, template_contributor=USE_DEFAULT, te
 
     for contributor, evaluation_set in evaluations_for_contributors.items():
         body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
-        EmailTemplate.send_to_user(contributor, template_contributor, {}, body_params, use_cc=True)
+        template_contributor.send_to_user(contributor, {}, body_params, use_cc=True)
 
     for participant, evaluation_set in evaluations_for_participants.items():
         body_params = {'user': participant, 'evaluations': list(evaluation_set)}
-        EmailTemplate.send_to_user(participant, template_participant, {}, body_params, use_cc=True)
+        template_participant.send_to_user(participant, {}, body_params, use_cc=True)
 
 
 def sort_formset(request, formset):

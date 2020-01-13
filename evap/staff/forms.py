@@ -450,7 +450,7 @@ class EvaluationEmailForm(forms.Form):
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], self.recipient_groups, use_cc=True, request=request)
+        self.template.send_to_users_in_evaluations([self.evaluation], self.recipient_groups, use_cc=True, request=request)
 
 
 class RemindResponsibleForm(forms.Form):
@@ -477,7 +477,7 @@ class RemindResponsibleForm(forms.Form):
         self.template.body = self.cleaned_data.get('body')
         subject_params = {}
         body_params = {'user': recipient, 'evaluations': evaluations}
-        EmailTemplate.send_to_user(recipient, self.template, subject_params, body_params, use_cc=True, request=request)
+        self.template.send_to_user(recipient, subject_params, body_params, use_cc=True, request=request)
 
 
 class QuestionnaireForm(forms.ModelForm):

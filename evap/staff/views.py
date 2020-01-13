@@ -218,7 +218,7 @@ class MoveToPreparedOperation(EvaluationOperation):
         messages.success(request, ungettext("Successfully enabled {} evaluation for editor review.",
             "Successfully enabled {} evaluations for editor review.", len(evaluations)).format(len(evaluations)))
         if email_template:
-            EmailTemplate.send_to_users_in_evaluations(email_template, evaluations, [EmailTemplate.EDITORS], use_cc=True, request=request)
+            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.EDITORS], use_cc=True, request=request)
 
 
 class StartEvaluationOperation(EvaluationOperation):
@@ -246,7 +246,7 @@ class StartEvaluationOperation(EvaluationOperation):
         messages.success(request, ungettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
         if email_template:
-            EmailTemplate.send_to_users_in_evaluations(email_template, evaluations, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
+            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
 class RevertToReviewedOperation(EvaluationOperation):
@@ -581,7 +581,7 @@ def semester_preparation_reminder(request, semester_id):
         subject_params = {}
         for responsible, evaluations, __ in responsible_list:
             body_params = {"user": responsible, "evaluations": evaluations}
-            EmailTemplate.send_to_user(responsible, template, subject_params, body_params, use_cc=True, request=request)
+            template.send_to_user(responsible, subject_params, body_params, use_cc=True, request=request)
         messages.success(request, _("Successfully sent reminders to everyone."))
         return HttpResponse()
 

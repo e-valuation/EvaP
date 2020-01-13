@@ -714,7 +714,7 @@ class Evaluation(models.Model):
                 logger.exception('An error occured when updating the state of evaluation "{}" (id {}).'.format(evaluation, evaluation.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        EmailTemplate.send_to_users_in_evaluations(template, evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
+        template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
         send_publish_notifications(evaluation_results_evaluations)
         logger.info("update_evaluations finished.")
 
@@ -1483,21 +1483,19 @@ class EmailTemplate(models.Model):
     def render_string(cls, text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    @classmethod
-    def send_to_users_in_evaluations(cls, template, evaluations, recipient_groups, use_cc, request):
+    def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
         for evaluation in evaluations:
-            recipients = cls.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
+            recipients = self.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
                 user_evaluation_map.setdefault(user, []).append(evaluation)
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
             body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': user.get_sorted_due_evaluations()}
-            cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
+            self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
 
-    @classmethod
-    def send_to_user(cls, user, template, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
+    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
@@ -1532,8 +1530,8 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
-        subject = cls.render_string(template.subject, subject_params)
-        body = cls.render_string(template.body, body_params)
+        subject = self.render_string(self.subject, subject_params)
+        body = self.render_string(self.body, body_params)
 
         mail = EmailMessage(
             subject=subject,
@@ -1547,7 +1545,7 @@ class EmailTemplate(models.Model):
             mail.send(False)
             logger.info(('Sent email "{}" to {}.').format(subject, user.username))
             if send_separate_login_url:
-                cls.send_login_url_to_user(user)
+                self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
@@ -1557,7 +1555,7 @@ class EmailTemplate(models.Model):
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_evaluations': due_evaluations}
 
-        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params, body_params, use_cc=False)
 
     @classmethod
     def send_login_url_to_user(cls, user):
@@ -1565,5 +1563,5 @@ class EmailTemplate(models.Model):
         subject_params = {}
         body_params = {'user': user, 'login_url': user.login_url}
 
-        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.username))
