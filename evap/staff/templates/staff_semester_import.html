@@ -18,9 +18,9 @@
             <div class="card-body">
                 <p>
                     {% trans 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_xls' 'sample.xls' %}">{% trans 'download sample file' %}</a>,
+                    (<a href="{% url 'staff:download_sample_xls' 'sample.xls' %}">{% trans 'Download sample file' %}</a>,
                     <button type="button" class="btn-link" onClick="copyHeaders(['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'])">
-                        {% trans 'copy headers to clipboard' %}</button>).
+                        {% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all containing students, teachers and courses and connect them. It will also set the entered values as default for all evaluations.' %}
                 </p>
                 {% csrf_token %}
