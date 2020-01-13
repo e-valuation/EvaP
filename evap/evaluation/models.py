@@ -403,6 +403,9 @@ class Evaluation(models.Model):
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
         if hasattr(self, 'state_change'):
+            # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
+            # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
+            # pylint: disable=import-outside-toplevel
             if self.state_change == "published":
                 from evap.results.tools import collect_results
                 from evap.results.views import update_template_cache_of_published_evaluations_in_course
