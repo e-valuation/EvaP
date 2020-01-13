@@ -1,5 +1,6 @@
 {% extends 'staff_semester_base.html' %}
 
+{% load static %}
 {% load evaluation_filters %}
 
 {% block content %}
@@ -153,7 +154,7 @@
                         <div class="btn-switch btn-group icon-buttons">
                             {% for approval_state in approval_states %}
                                 {% with approval_state_values=approval_state|approval_state_values %}
-                                    <button type="button" class="btn btn-sm btn-light" data-filter="{{ approval_state_values.filter }}"
+                                    <button type="button" class="btn btn-sm btn-light" data-filter="{{ approval_state }}"
                                         data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}">
                                         <span class="{{ approval_state_values.icon }}"></span>
                                     </button>
@@ -161,67 +162,75 @@
                             {% endfor %}
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-pause icon-gray"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_yet_started"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-play icon-gray"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="in_evaluation"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}">
                                 <span class="fas fa-play icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-stop icon-green"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluated"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}">
                                 <span class="fas fa-stop icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-gray"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="no_textanswers"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-yellow"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-yellow"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-comment icon-green"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}">
                                 <span class="fas fa-comment icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-gray"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}">
                                 <span class="fas fa-chart-bar icon-gray"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-red"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
                                 <span class="fas fa-chart-bar icon-red"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-yellow"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}">
                                 <span class="fas fa-chart-bar icon-yellow"></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light" data-filter="fa-chart-bar icon-green"
+                            <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}">
                                 <span class="fas fa-chart-bar icon-green"></span>
                             </button>
                         </div>
                     </div>
                 </div>
+                <div class="input-group ml-auto mb-3 w-25">
+                    <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
+                    <div class="input-group-append">
+                        <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                            <span class="fas fa-backspace"></span>
+                        </button>
+                    </div>
+                </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
-                    <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
+                    <table id="evaluation-table" class="table table-striped table-fixed table-narrow table-vertically-aligned">
                         {% if num_evaluations > 0 %}
                             <thead>
                                 <tr>
-                                    <th data-orderable="false"></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th>{% trans 'Name' %}</th>
-                                    <th>{% trans 'Evaluation period' %}</th>
-                                    <th data-orderable="false"></th>
-                                    <th data-orderable="false"></th>
+                                    <th style="width: 2.5em"></th>
+                                    <th style="width: 1.25em" class="col-order" data-col="state-approval"></th>
+                                    <th style="width: 1.25em" class="col-order" data-col="state-evaluating"></th>
+                                    <th style="width: 1.25em" class="col-order" data-col="state-textanswers"></th>
+                                    <th style="width: 1.25em" class="col-order" data-col="state-results"></th>
+                                    <th class="col-order" data-col="name">{% trans 'Name' %}</th>
+                                    <th style="width: 11em" class="col-order" data-col="period">{% trans 'Evaluation period' %}</th>
+                                    <th style="width: 12em"></th>
+                                    <th style="width: 9em"></th>
                                 </tr>
                             </thead>
                         {% endif %}
@@ -281,32 +290,40 @@
                 </form>
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
+                <div class="input-group ml-auto mb-3 w-25">
+                    <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
+                    <div class="input-group-append">
+                        <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                            <span class="fas fa-backspace"></span>
+                        </button>
+                    </div>
+                </div>
                 <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
                     {% if courses %}
                         <thead>
                             <tr role="row">
-                                <th>{% trans 'Course' %}</th>
-                                <th>{% trans 'Responsible' %}</th>
-                                <th>{% trans '#Evaluations' %}</th>
-                                <th data-orderable="false"></th>
+                                <th style="width: 40%" class="col-order" data-col="name">{% trans 'Course' %}</th>
+                                <th style="width: 40%" class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
+                                <th style="width: 12%" class="col-order" data-col="evaluation-count">{% trans '#Evaluations' %}</th>
+                                <th style="width: 8%"></th>
                             </tr>
                         </thead>
                     {% endif %}
                     <tbody>
                         {% for course in courses %}
                             <tr id="course-row-{{ course.id }}">
-                                <td style="width: 40%" data-order="{{ course.name }}">
+                                <td style="width: 40%" data-col="name" data-order="{{ course.name }}">
                                     <div>
                                         <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
                                     </div>
                                     {% include 'course_badges.html' %}
                                 </td>
-                                <td style="width: 40%;">
+                                <td style="width: 40%;" data-col="responsible">
                                     <div class="font-italic">
                                         {{ course.responsibles_names }}
                                     </div>
                                 </td>
-                                <td style="width: 10%;">
+                                <td style="width: 10%;" data-col="evaluation-count">
                                     {% if course.evaluations.count == 0 %}
                                         <span class="badge badge-warning">{% trans 'No evaluations' %}</span>
                                     {% else %}
@@ -463,80 +480,20 @@
             $('#evaluation_operation_form :checkbox').prop('checked', false); // prevent wrong autofills
         });
     </script>
-
-
-    {% get_current_language as LANGUAGE_CODE %}
-    {% load static %}
-    {% load compress %}
-
-    {% compress js %}
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.dataTables.min.js"></script>
-        <script type="text/javascript" src="{% get_static_prefix %}js/plugins/dataTables.bootstrap4.min.js"></script>
-    {% endcompress %}
-
-    <script type="text/javascript">
-        $.fn.dataTable.ext.search.push(
-            // return true for each line that should be visible after filtering
-            // inspired by https://datatables.net/examples/plug-ins/range_filtering.html
-            function( settings, data, dataIndex ) {
-                if (settings.nTable.id === 'evaluation-table' && $("[data-filter].active").length > 0) {
-                    // check whether any icon row contains the data-filter value of the active button
-                    return data.slice(1,5).some(str => str.includes($("[data-filter].active")[0].dataset.filter));
-                }
-                return true;
-            }
-        );
-
-        $(document).ready(function() {
-            var evaluationTable = $('#evaluation-table').DataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                },
-                "order": [[5, "asc"]],
-                "dom": 'frt',
-                fnInitComplete: function() {
-                    // add counts to each filter button
-                    $("#evaluation-filter-buttons [data-filter]").each(function(i, obj) {
-                        var iconCount = 0;
-                        [1,2,3,4].forEach(i => {
-                            iconCount += evaluationTable.column(i).data().filter((value, index) => value.includes(obj.dataset.filter)).count();
-                        });
-                        $(`<span class="badge badge-pill ${iconCount == 0 ? 'badge-btn-zero' : 'badge-btn'}">${iconCount}</span>`).appendTo(obj);
-                    });
-
-                    // add click events for filter buttons
-                    $('#evaluation-filter-buttons [data-filter]').click(function(e) {
-                        // toggle active states and refresh table
-                        const button = $(e.target).closest("button");
-                        button.toggleClass("active");
-                        $("[data-filter].active").not(button).removeClass("active");
-                        evaluationTable.draw();
-
-                        // store which button was selected
-                        localStorage.removeItem('evaluation-filter_{{ semester.id }}');
-                        if($("[data-filter].active").length) {
-                            localStorage['evaluation-filter_{{ semester.id }}'] = $("[data-filter].active")[0].dataset.filter;
-                        }
-                    });
-
-                    // activate previously stored active button after page reload
-                    $('#evaluation-filter-buttons [data-filter="' + localStorage['evaluation-filter_{{ semester.id }}'] + '"]').addClass("active");
-                    evaluationTable.draw();
-                }
-            });
-            var courseTable = $('#course-table').DataTable({
-                "paging": false,
-                "info": false,
-                "stateSave": true,
-                "language": {
-                    "url": "{% get_static_prefix %}dataTables/{{ LANGUAGE_CODE }}.json"
-                },
-                "order": [[0, "asc"]],
-                "dom": 'frt'
-            });
+    <script type="module">
+        import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
+        new EvaluationGrid().init({
+            storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
+            table: $("#evaluation-table"),
+            searchInput: $("input[name=search-evaluation]"),
+            filterButtons: $("#evaluation-filter-buttons [data-filter]"),
+            resetSearch: $("[data-reset=search-evaluation]"),
+        });
+        new TableGrid().init({
+            storageKey: "course-semester-{{ semester.id }}-data-grid",
+            table: $("#course-table"),
+            searchInput: $("input[name=search-course]"),
+            resetSearch: $("[data-reset=search-course]"),
         });
     </script>
 {% endblock %}

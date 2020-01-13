@@ -12,4 +12,7 @@
     {% if not evaluation.course.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
     {% if not evaluation.is_rewarded %}<span class="badge badge-dark">{% trans 'not rewarded' %}</span>{% endif %}
     {% if evaluation.course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}
+    {% if evaluation.course.has_external_responsible %}
+        <span class="badge badge-warning">{% trans 'External responsible' %}</span>
+    {% endif %}
 {% endif %}

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.test.testcases import TestCase
 from django.utils import translation
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import UserProfile
@@ -17,7 +17,7 @@ class TestLanguageSignalReceiver(WebTest):
         """
         Check that a user gets the default language set if they have none
         """
-        user = mommy.make(UserProfile, language=None, email="user@institution.example.com")
+        user = baker.make(UserProfile, language=None, email="user@institution.example.com")
         user.ensure_valid_login_key()
 
         self.app.get("/", user=user)
@@ -30,7 +30,7 @@ class TestLanguageSignalReceiver(WebTest):
         Activate 'en' as langauge and check, that user does not get this langauge as he has one.
         """
         translation.activate('en')
-        user = mommy.make(UserProfile, language='de', email="user@institution.example.com")
+        user = baker.make(UserProfile, language='de', email="user@institution.example.com")
         user.ensure_valid_login_key()
 
         self.app.get(reverse("evaluation:login_key_authentication", args=[user.login_key]))

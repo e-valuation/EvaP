@@ -40,7 +40,7 @@
 
 .card-submit-area {
     background-color: $lighter-gray;
-    border-color: rgba($evap-dark-blue, 0.5);;
+    border-color: rgba($evap-dark-blue, 0.5);
     min-height: 65px;
 }
 
@@ -71,5 +71,18 @@
 
     @include media-breakpoint-up(lg) {
         grid-template-columns: 1fr 1fr;
+    }
+}
+
+.card-deck-external-login-confirm {
+    display: flex;
+    .card {
+        width: 100%;
+    }
+    
+    @include media-breakpoint-up(lg) {
+        .card {
+            width: 50%;
+        }
     }
 }

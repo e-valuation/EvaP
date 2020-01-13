@@ -1,7 +1,7 @@
 from django.core import mail
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, UserProfile, Contribution
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
@@ -14,11 +14,11 @@ class TestContributorDirectDelegationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = mommy.make(Evaluation, state='prepared')
+        cls.evaluation = baker.make(Evaluation, state='prepared')
 
-        cls.editor = mommy.make(UserProfile)
-        cls.non_editor = mommy.make(UserProfile, email="a@b.c")
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.editor = baker.make(UserProfile)
+        cls.non_editor = baker.make(UserProfile, email="a@b.c")
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_editor.id}
@@ -35,7 +35,7 @@ class TestContributorDirectDelegationView(WebTest):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_direct_delegation_request_with_existing_contribution(self):
-        contribution = mommy.make(Contribution, evaluation=self.evaluation, contributor=self.non_editor, can_edit=False)
+        contribution = baker.make(Contribution, evaluation=self.evaluation, contributor=self.non_editor, can_edit=False)
         old_contribution_count = Contribution.objects.count()
 
         data = {"delegate_to": self.non_editor.id}
@@ -71,7 +71,7 @@ class TestContributorSettingsView(WebTest):
         create_evaluation_with_responsible_and_editor()
 
     def test_save_settings(self):
-        user = mommy.make(UserProfile)
+        user = baker.make(UserProfile)
         page = self.app.get(self.url, user="responsible", status=200)
         form = page.forms["settings-form"]
         form["delegates"] = [user.pk]

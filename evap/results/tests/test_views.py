@@ -10,7 +10,7 @@ from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire, RatingAnswerCounter,
                                     Semester, UserProfile)
@@ -25,22 +25,22 @@ class TestResultsView(WebTest):
 
     @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
     def test_multiple_evaluations_per_course(self):
-        mommy.make(UserProfile, username='student', email="student@institution.example.com")
+        baker.make(UserProfile, username='student', email="student@institution.example.com")
 
         # course with no evaluations does not show up
-        course = mommy.make(Course)
+        course = baker.make(Course)
         page = self.app.get(self.url, user="student")
         self.assertNotContains(page, course.name)
         caches['results'].clear()
 
         # course with one evaluation is a single line with the evaluation's full_name
-        evaluation = mommy.make(Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published')
+        evaluation = baker.make(Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published')
         page = self.app.get(self.url, user="student")
         self.assertContains(page, evaluation.full_name)
         caches['results'].clear()
 
         # course with two evaluations is three lines without using the full names
-        evaluation2 = mommy.make(Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published')
+        evaluation2 = baker.make(Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published')
         page = self.app.get(self.url, user="student")
         self.assertContains(page, course.name)
         self.assertContains(page, evaluation.name_en)
@@ -61,15 +61,15 @@ class TestResultsView(WebTest):
             ensures that the number of queries in the user list is constant
             and not linear to the number of courses/evaluations
         """
-        mommy.make(UserProfile, username='student', email="student@institution.example.com")
+        baker.make(UserProfile, username='student', email="student@institution.example.com")
 
         # warm up some caches
         self.app.get(self.url, user="student")
 
         def make_course_with_evaluations(unique_suffix):
-            course = mommy.make(Course)
-            mommy.make(Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0)
-            mommy.make(Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0)
+            course = baker.make(Course)
+            baker.make(Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0)
+            baker.make(Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0)
 
         # first measure the number of queries with two courses
         make_course_with_evaluations('frob')
@@ -97,8 +97,8 @@ class TestResultsView(WebTest):
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
         """ Regression test for #1248 """
-        participants = mommy.make(UserProfile, _quantity=2)
-        evaluation = mommy.make(Evaluation,
+        participants = baker.make(UserProfile, _quantity=2)
+        evaluation = baker.make(Evaluation,
             state='published', _participant_count=2, _voter_count=2,
             participants=participants, voters=participants
         )
@@ -116,22 +116,22 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester, id=3)
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        contributor = mommy.make(UserProfile)
+        cls.semester = baker.make(Semester, id=3)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        contributor = baker.make(UserProfile)
 
         # Set up an evaluation with one question but no answers
-        student1 = mommy.make(UserProfile)
-        student2 = mommy.make(UserProfile)
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester), participants=[student1, student2], voters=[student1, student2])
-        questionnaire = mommy.make(Questionnaire)
+        student1 = baker.make(UserProfile)
+        student2 = baker.make(UserProfile)
+        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester), participants=[student1, student2], voters=[student1, student2])
+        questionnaire = baker.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
-        cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, questionnaires=[questionnaire], contributor=contributor)
-        cls.likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, questionnaires=[questionnaire], contributor=contributor)
+        cls.likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = '/results/semester/%s/evaluation/%s' % (cls.semester.id, cls.evaluation.id)
 
     def test_many_answers_evaluation_no_warning(self):
-        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
+        baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
         page = self.app.get(self.url, user='manager', status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
@@ -140,7 +140,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        mommy.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
+        baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
         page = self.app.get(self.url, user='manager', status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
@@ -151,37 +151,37 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester, id=2)
+        cls.semester = baker.make(Semester, id=2)
 
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
-        contributor = mommy.make(UserProfile, username='contributor')
-        responsible = mommy.make(UserProfile, username='responsible')
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
+        contributor = baker.make(UserProfile, username='contributor')
+        responsible = baker.make(UserProfile, username='responsible')
 
         # Normal evaluation with responsible and contributor.
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester))
+        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester))
 
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=contributor, can_edit=True)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=contributor, can_edit=True)
 
     def test_questionnaire_ordering(self):
-        top_questionnaire = mommy.make(Questionnaire, type=Questionnaire.TOP)
-        contributor_questionnaire = mommy.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        bottom_questionnaire = mommy.make(Questionnaire, type=Questionnaire.BOTTOM)
+        top_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.BOTTOM)
 
-        top_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
-        top_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
+        top_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
+        top_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
 
-        contributor_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
+        contributor_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
-        bottom_heading_question = mommy.make(Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0)
-        bottom_likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
+        bottom_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0)
+        bottom_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
 
-        mommy.make(RatingAnswerCounter, question=top_likert_question, contribution=self.evaluation.general_contribution, answer=2, count=100)
-        mommy.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
-        mommy.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100)
+        baker.make(RatingAnswerCounter, question=top_likert_question, contribution=self.evaluation.general_contribution, answer=2, count=100)
+        baker.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
+        baker.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100)
 
         content = self.app.get(self.url, user='manager').body.decode()
 
@@ -194,16 +194,16 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         self.assertTrue(top_heading_index < top_likert_index < contributor_likert_index < bottom_heading_index < bottom_likert_index)
 
     def test_heading_question_filtering(self):
-        contributor = mommy.make(UserProfile)
-        questionnaire = mommy.make(Questionnaire)
+        contributor = baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire)
 
-        heading_question_0 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
-        heading_question_1 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
-        likert_question = mommy.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
-        heading_question_2 = mommy.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
+        heading_question_0 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=0)
+        heading_question_1 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=1)
+        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
+        heading_question_2 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
-        contribution = mommy.make(Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor)
-        mommy.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
+        contribution = baker.make(Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor)
+        baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         page = self.app.get(self.url, user='manager')
 
@@ -223,7 +223,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
     def test_wrong_state(self):
-        evaluation = mommy.make(Evaluation, state='reviewed', course=mommy.make(Course, semester=self.semester))
+        evaluation = baker.make(Evaluation, state='reviewed', course=baker.make(Course, semester=self.semester))
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user='student', status=403)
 
@@ -231,20 +231,20 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester, id=2)
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
-        responsible = mommy.make(UserProfile, username='responsible')
-        cls.student1 = mommy.make(UserProfile, username='student')
-        cls.student2 = mommy.make(UserProfile)
-        students = mommy.make(UserProfile, _quantity=10)
+        cls.semester = baker.make(Semester, id=2)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
+        responsible = baker.make(UserProfile, username='responsible')
+        cls.student1 = baker.make(UserProfile, username='student')
+        cls.student2 = baker.make(UserProfile)
+        students = baker.make(UserProfile, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
-        cls.evaluation = mommy.make(Evaluation, id=22, state='in_evaluation', course=mommy.make(Course, semester=cls.semester), participants=students)
-        questionnaire = mommy.make(Questionnaire)
-        cls.question_grade = mommy.make(Question, questionnaire=questionnaire, type=Question.GRADE)
-        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        cls.evaluation = baker.make(Evaluation, id=22, state='in_evaluation', course=baker.make(Course, semester=cls.semester), participants=students)
+        questionnaire = baker.make(Questionnaire)
+        cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
+        baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
-        cls.responsible_contribution = mommy.make(Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire])
+        cls.responsible_contribution = baker.make(Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire])
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -300,22 +300,22 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
 class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_evaluation(self):
-        semester = mommy.make(Semester)
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
-        student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
-        student_external = mommy.make(UserProfile, username="student_external")
-        contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
-        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
-        responsible_contributor = mommy.make(UserProfile, username="responsible_contributor", email="responsible_contributor@institution.example.com")
-        test1 = mommy.make(UserProfile, username="test1")
-        test2 = mommy.make(UserProfile, username="test2")
-        mommy.make(UserProfile, username="random", email="random@institution.example.com")
-        degree = mommy.make(Degree)
-        course = mommy.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, responsible_contributor])
-        private_evaluation = mommy.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
-        private_evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        mommy.make(Contribution, evaluation=private_evaluation, contributor=responsible_contributor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        mommy.make(Contribution, evaluation=private_evaluation, contributor=contributor, can_edit=True)
+        semester = baker.make(Semester)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
+        student = baker.make(UserProfile, username="student", email="student@institution.example.com")
+        student_external = baker.make(UserProfile, username="student_external")
+        contributor = baker.make(UserProfile, username="contributor", email="contributor@institution.example.com")
+        responsible = baker.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+        responsible_contributor = baker.make(UserProfile, username="responsible_contributor", email="responsible_contributor@institution.example.com")
+        test1 = baker.make(UserProfile, username="test1")
+        test2 = baker.make(UserProfile, username="test2")
+        baker.make(UserProfile, username="random", email="random@institution.example.com")
+        degree = baker.make(Degree)
+        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, responsible_contributor])
+        private_evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
+        private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+        baker.make(Contribution, evaluation=private_evaluation, contributor=responsible_contributor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=private_evaluation, contributor=contributor, can_edit=True)
 
         url = '/results/'
         self.assertNotIn(private_evaluation.full_name, self.app.get(url, user='random'))
@@ -342,7 +342,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
     @classmethod
     def setUpTestData(cls):
         manager_group = Group.objects.get(name="Manager")
-        mommy.make(UserProfile, username="manager", groups=[manager_group])
+        baker.make(UserProfile, username="manager", groups=[manager_group])
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
@@ -505,19 +505,19 @@ class TestResultsTextanswerVisibility(WebTest):
 class TestResultsOtherContributorsListOnExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester, id=2)
-        responsible = mommy.make(UserProfile, username='responsible')
-        cls.evaluation = mommy.make(Evaluation, id=21, state='published', course=mommy.make(Course, semester=cls.semester, responsibles=[responsible]))
+        cls.semester = baker.make(Semester, id=2)
+        responsible = baker.make(UserProfile, username='responsible')
+        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester, responsibles=[responsible]))
 
-        questionnaire = mommy.make(Questionnaire)
-        mommy.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        questionnaire = baker.make(Questionnaire)
+        baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=responsible, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        cls.other_contributor_1 = mommy.make(UserProfile, username='other contributor 1')
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
-        cls.other_contributor_2 = mommy.make(UserProfile, username='other contributor 2')
-        mommy.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        cls.other_contributor_1 = baker.make(UserProfile, username='other contributor 1')
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+        cls.other_contributor_2 = baker.make(UserProfile, username='other contributor 2')
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
 
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
@@ -532,7 +532,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         manager_group = Group.objects.get(name="Manager")
-        cls.manager = mommy.make(UserProfile, username="manager", groups=[manager_group])
+        cls.manager = baker.make(UserProfile, username="manager", groups=[manager_group])
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1?view=export", user='responsible')
@@ -654,19 +654,19 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
 class TestArchivedResults(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester)
-        mommy.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
-        mommy.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')], email="reviewer@institution.example.com")
-        student = mommy.make(UserProfile, username="student", email="student@institution.example.com")
-        student_external = mommy.make(UserProfile, username="student_external")
-        contributor = mommy.make(UserProfile, username="contributor", email="contributor@institution.example.com")
-        responsible = mommy.make(UserProfile, username="responsible", email="responsible@institution.example.com")
+        cls.semester = baker.make(Semester)
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')], email="manager@institution.example.com")
+        baker.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')], email="reviewer@institution.example.com")
+        student = baker.make(UserProfile, username="student", email="student@institution.example.com")
+        student_external = baker.make(UserProfile, username="student_external")
+        contributor = baker.make(UserProfile, username="contributor", email="contributor@institution.example.com")
+        responsible = baker.make(UserProfile, username="responsible", email="responsible@institution.example.com")
 
-        course = mommy.make(Course, semester=cls.semester, degrees=[mommy.make(Degree)], responsibles=[responsible])
-        cls.evaluation = mommy.make(Evaluation, course=course, state='published', participants=[student, student_external], voters=[student, student_external])
-        cls.evaluation.general_contribution.questionnaires.set([mommy.make(Questionnaire)])
-        cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
-        cls.contribution = mommy.make(Contribution, evaluation=cls.evaluation, contributor=contributor)
+        course = baker.make(Course, semester=cls.semester, degrees=[baker.make(Degree)], responsibles=[responsible])
+        cls.evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external], voters=[student, student_external])
+        cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
+        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=contributor)
 
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):

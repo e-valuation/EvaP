@@ -100,6 +100,12 @@ def login_key_authentication(request, key):
         return redirect('evaluation:index')
 
     if user and user.login_key_valid_until >= date.today():
+        if request.method != "POST":
+            template_data = {
+                'username': user.full_name
+            }
+            return render(request, "external_user_confirm_login.html", template_data)
+
         # User is valid. Set request.user and persist user in the session by logging the user in.
         request.user = user
         auth.login(request, user)

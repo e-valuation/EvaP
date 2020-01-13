@@ -278,9 +278,10 @@ class EnrollmentImporter(ExcelImporter):
 
     def check_evaluation_data_correctness(self, semester):
         for evaluation_data in self.evaluations.values():
-            already_exists = Evaluation.objects.filter(course__semester=semester, name_de=evaluation_data.name_de).exists()
-            if already_exists:
+            if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
                 self.errors.append(_("Course {} does already exist in this semester.").format(evaluation_data.name_en))
+            if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
+                self.errors.append(_("Course {} does already exist in this semester.").format(evaluation_data.name_de))
 
         degree_names = set()
         for evaluation_data in self.evaluations.values():

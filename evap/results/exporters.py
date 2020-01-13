@@ -1,10 +1,11 @@
 from collections import OrderedDict
 
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 import xlwt
 
-from evap.evaluation.models import CourseType, Degree
+from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
@@ -15,8 +16,7 @@ class ExcelExporter(object):
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
     STEP = 0.2  # we only have a limited number of custom colors
 
-    def __init__(self, semester):
-        self.semester = semester
+    def __init__(self):
         self.styles = dict()
 
     def normalize_number(self, number):
@@ -76,7 +76,7 @@ class ExcelExporter(object):
 
         return filtered_questions
 
-    def export(self, response, selection_list, include_not_enough_voters=False, include_unpublished=False):
+    def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
         self.workbook = xlwt.Workbook()
         self.init_styles(self.workbook)
         counter = 1
@@ -94,19 +94,23 @@ class ExcelExporter(object):
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
             used_questionnaires = set()
-            for evaluation in self.semester.evaluations.filter(
-                state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types
-            ).distinct():
+            evaluations_filter = Q(course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types)
+            if contributor:
+                evaluations_filter = evaluations_filter & (Q(course__responsibles__in=[contributor]) | Q(contributions__contributor__in=[contributor]))
+            evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
+            for evaluation in evaluations:
                 if evaluation.is_single_result:
                     continue
                 if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                     continue
                 results = OrderedDict()
-                for questionnaire_result in collect_results(evaluation).questionnaire_results:
-                    if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
-                        continue
-                    results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
-                    used_questionnaires.add(questionnaire_result.questionnaire)
+                for contribution_result in collect_results(evaluation).contribution_results:
+                    for questionnaire_result in contribution_result.questionnaire_results:
+                        if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
+                            continue
+                        if not contributor or contribution_result.contributor is None or contribution_result.contributor == contributor:
+                            results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
+                            used_questionnaires.add(questionnaire_result.questionnaire)
                 evaluation.course_evaluations_count = evaluation.course.evaluations.count()
                 if evaluation.course_evaluations_count > 1:
                     course_results_exist = True
@@ -114,17 +118,27 @@ class ExcelExporter(object):
                     evaluation.course.avg_grade = distribution_to_grade(calculate_average_course_distribution(evaluation.course))
                 evaluations_with_results.append((evaluation, results))
 
-            evaluations_with_results.sort(key=lambda cr: (cr[0].course.type.order, cr[0].full_name))
+            evaluations_with_results.sort(key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name))
             used_questionnaires = sorted(used_questionnaires)
 
+            export_name = "Evaluation"
+            if contributor:
+                export_name += "\n{}".format(contributor.full_name)
+            elif len(semesters) == 1:
+                export_name += "\n{}".format(semesters[0].name)
             degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
             course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
-            writec(self, _("Evaluation {}\n\n{}\n\n{}").format(
-                self.semester.name, ", ".join(degree_names), ", ".join(course_type_names)
+            writec(self, _("{}\n\n{}\n\n{}").format(
+                export_name, ", ".join(degree_names), ", ".join(course_type_names)
             ), "headline")
 
             for evaluation, results in evaluations_with_results:
-                writec(self, evaluation.full_name, "evaluation")
+                title = evaluation.full_name
+                if len(semesters) > 1:
+                    title += "\n{}".format(evaluation.course.semester.name)
+                responsible_names = [responsible.full_name for responsible in evaluation.course.responsibles.all()]
+                title += "\n{}".format(", ".join(responsible_names))
+                writec(self, title, "evaluation")
 
             writen(self, _("Degrees"), "bold")
             for evaluation, results in evaluations_with_results:
@@ -139,7 +153,10 @@ class ExcelExporter(object):
                 self.write_empty_cell_with_borders()
 
             for questionnaire in used_questionnaires:
-                writen(self, questionnaire.name, "bold")
+                if contributor and questionnaire.type == Questionnaire.CONTRIBUTOR:
+                    writen(self, "{} ({})".format(questionnaire.name, contributor.full_name), "bold")
+                else:
+                    writen(self, questionnaire.name, "bold")
                 for evaluation, results in evaluations_with_results:
                     self.write_empty_cell_with_borders()
 

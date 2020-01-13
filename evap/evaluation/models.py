@@ -324,6 +324,10 @@ class Course(models.Model):
         return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
 
     @property
+    def has_external_responsible(self):
+        return any(responsible.is_external for responsible in self.responsibles.all())
+
+    @property
     def all_evaluations_finished(self):
         return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
 
