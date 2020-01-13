@@ -302,6 +302,7 @@ def textanswers_visible_to(contribution):
 
 
 def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
+    # pylint: disable=too-many-return-statements
     assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
     contributor = textanswer.contribution.contributor
 
