@@ -62,7 +62,7 @@ class TestEvaluations(WebTest):
         evaluation = baker.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() - timedelta(days=1))
 
-        with patch('evap.evaluation.models.send_publish_notifications') as mock:
+        with patch('evap.evaluation.models.EmailTemplate.send_publish_notifications') as mock:
             Evaluation.update_evaluations()
 
         mock.assert_called_once_with([evaluation])

@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
 import logging
 import random
@@ -23,10 +23,12 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.tools import clean_email, date_to_datetime,\
-        translate, is_external_email, send_publish_notifications
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
 
 logger = logging.getLogger(__name__)
+
+# random object that will be used to check whether a default argument value was overwritten or not
+USE_DEFAULT = object()
 
 
 class NotArchiveable(Exception):
@@ -718,7 +720,7 @@ class Evaluation(models.Model):
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
         template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
-        send_publish_notifications(evaluation_results_evaluations)
+        EmailTemplate.send_publish_notifications(evaluation_results_evaluations)
         logger.info("update_evaluations finished.")
 
 
@@ -1568,3 +1570,47 @@ class EmailTemplate(models.Model):
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.username))
+
+    @classmethod
+    def send_publish_notifications(cls, evaluations, template_contributor=USE_DEFAULT, template_participant=USE_DEFAULT):
+        if template_contributor == USE_DEFAULT:
+            template_contributor = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
+
+        if template_participant == USE_DEFAULT:
+            template_participant = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT)
+
+        evaluations_for_contributors = defaultdict(set)
+        evaluations_for_participants = defaultdict(set)
+
+        for evaluation in evaluations:
+            # for evaluations with published averaged grade, all contributors and participants get a notification
+            # we don't send a notification if the significance threshold isn't met
+            if evaluation.can_publish_average_grade:
+                if template_contributor:
+                    for contribution in evaluation.contributions.all():
+                        if contribution.contributor:
+                            evaluations_for_contributors[contribution.contributor].add(evaluation)
+
+                if template_participant:
+                    for participant in evaluation.participants.all():
+                        evaluations_for_participants[participant].add(evaluation)
+
+            # if the average grade was not published, notifications are only sent for contributors who can see text answers
+            elif evaluation.textanswer_set and template_contributor:
+                for textanswer in evaluation.textanswer_set:
+                    if textanswer.contribution.contributor:
+                        evaluations_for_contributors[textanswer.contribution.contributor].add(evaluation)
+
+                for contributor in evaluation.course.responsibles.all():
+                    evaluations_for_contributors[contributor].add(evaluation)
+
+        assert not evaluations_for_contributors or template_contributor
+        assert not evaluations_for_participants or template_participant
+
+        for contributor, evaluation_set in evaluations_for_contributors.items():
+            body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
+            template_contributor.send_to_user(contributor, {}, body_params, use_cc=True)
+
+        for participant, evaluation_set in evaluations_for_participants.items():
+            body_params = {'user': participant, 'evaluations': list(evaluation_set)}
+            template_participant.send_to_user(participant, {}, body_params, use_cc=True)

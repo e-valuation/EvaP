@@ -9,10 +9,9 @@ from django.views.decorators.http import require_POST, require_GET
 from sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
-from evap.evaluation.models import Course, Semester
+from evap.evaluation.models import Course, Semester, EmailTemplate
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
-from evap.evaluation.tools import send_publish_notifications
 
 
 @grade_publisher_required
@@ -101,7 +100,7 @@ def upload_grades(request, semester_id, course_id):
             for evaluation in evaluations:
                 evaluation.publish()
                 evaluation.save()
-            send_publish_notifications(evaluations)
+            EmailTemplate.send_publish_notifications(evaluations)
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -131,7 +130,7 @@ def toggle_no_grades(request):
         for evaluation in evaluations:
             evaluation.publish()
             evaluation.save()
-        send_publish_notifications(evaluations)
+        EmailTemplate.send_publish_notifications(evaluations)
 
     return HttpResponse()  # 200 OK
 

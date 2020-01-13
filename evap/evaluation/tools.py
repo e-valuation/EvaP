@@ -1,6 +1,4 @@
 import datetime
-import operator
-from collections import defaultdict
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
@@ -8,58 +6,8 @@ from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
 
-# random object that will be used to check whether a default argument value was overwritten or not
-USE_DEFAULT = object()
-
-
 def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
-
-
-def send_publish_notifications(evaluations, template_contributor=USE_DEFAULT, template_participant=USE_DEFAULT):
-    from evap.evaluation.models import EmailTemplate
-
-    if template_contributor == USE_DEFAULT:
-        template_contributor = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
-
-    if template_participant == USE_DEFAULT:
-        template_participant = EmailTemplate.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT)
-
-    evaluations_for_contributors = defaultdict(set)
-    evaluations_for_participants = defaultdict(set)
-
-    for evaluation in evaluations:
-        # for evaluations with published averaged grade, all contributors and participants get a notification
-        # we don't send a notification if the significance threshold isn't met
-        if evaluation.can_publish_average_grade:
-            if template_contributor:
-                for contribution in evaluation.contributions.all():
-                    if contribution.contributor:
-                        evaluations_for_contributors[contribution.contributor].add(evaluation)
-
-            if template_participant:
-                for participant in evaluation.participants.all():
-                    evaluations_for_participants[participant].add(evaluation)
-
-        # if the average grade was not published, notifications are only sent for contributors who can see text answers
-        elif evaluation.textanswer_set and template_contributor:
-            for textanswer in evaluation.textanswer_set:
-                if textanswer.contribution.contributor:
-                    evaluations_for_contributors[textanswer.contribution.contributor].add(evaluation)
-
-            for contributor in evaluation.course.responsibles.all():
-                evaluations_for_contributors[contributor].add(evaluation)
-
-    assert not evaluations_for_contributors or template_contributor
-    assert not evaluations_for_participants or template_participant
-
-    for contributor, evaluation_set in evaluations_for_contributors.items():
-        body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
-        template_contributor.send_to_user(contributor, {}, body_params, use_cc=True)
-
-    for participant, evaluation_set in evaluations_for_participants.items():
-        body_params = {'user': participant, 'evaluations': list(evaluation_set)}
-        template_participant.send_to_user(participant, {}, body_params, use_cc=True)
 
 
 def sort_formset(request, formset):

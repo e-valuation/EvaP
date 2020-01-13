@@ -23,7 +23,7 @@ from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tools import get_parameter_from_url_or_session, send_publish_notifications, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
@@ -297,9 +297,9 @@ class PublishOperation(EvaluationOperation):
         messages.success(request, ungettext("Successfully published {} evaluation.",
             "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
         if email_template_contributor:
-            send_publish_notifications(evaluations, template_participant=None, template_contributor=email_template_contributor)
+            EmailTemplate.send_publish_notifications(evaluations, template_participant=None, template_contributor=email_template_contributor)
         if email_template_participant:
-            send_publish_notifications(evaluations, template_participant=email_template_participant, template_contributor=None)
+            EmailTemplate.send_publish_notifications(evaluations, template_participant=email_template_participant, template_contributor=None)
 
 
 EVALUATION_OPERATIONS = {
