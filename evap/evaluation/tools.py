@@ -68,11 +68,6 @@ def sort_formset(request, formset):
         formset.forms.sort(key=lambda f: f.cleaned_data.get("order", 9001))
 
 
-def course_types_in_semester(semester):
-    from evap.evaluation.models import Evaluation
-    return Evaluation.objects.filter(course__semester=semester).values_list('type', flat=True).order_by().distinct()
-
-
 def date_to_datetime(date):
     return datetime.datetime(year=date.year, month=date.month, day=date.day)
 
