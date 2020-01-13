@@ -211,6 +211,8 @@ class Command(BaseCommand):
         self.stdout.write("REMINDER: You still need to randomize the questionnaire questions...")
 
     def anonymize_answers(self, lorem_ipsum):
+        # This method is very mathematical and has a lot of "one new variable per line" code, but we think it's okay.
+        # pylint: disable=too-many-locals
         self.stdout.write("Replacing text answers with fake ones...")
         for text_answer in TextAnswer.objects.all():
             text_answer.answer = self.lorem(text_answer.answer, lorem_ipsum)
