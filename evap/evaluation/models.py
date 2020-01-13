@@ -1578,45 +1578,51 @@ class EmailTemplate(models.Model):
         logger.info(('Sent login url to {}.').format(user.username))
 
     @classmethod
+    def send_contributor_publish_notifications(cls, evaluations, template):
+        evaluations_per_contributor = defaultdict(set)
+        for evaluation in evaluations:
+            # for evaluations with published averaged grade, all contributors get a notification
+            # we don't send a notification if the significance threshold isn't met
+            if evaluation.can_publish_average_grade:
+                for contribution in evaluation.contributions.all():
+                    if contribution.contributor:
+                        evaluations_per_contributor[contribution.contributor].add(evaluation)
+
+            # if the average grade was not published, notifications are only sent for contributors who can see text answers
+            elif evaluation.textanswer_set:
+                for textanswer in evaluation.textanswer_set:
+                    if textanswer.contribution.contributor:
+                        evaluations_per_contributor[textanswer.contribution.contributor].add(evaluation)
+
+                for contributor in evaluation.course.responsibles.all():
+                    evaluations_per_contributor[contributor].add(evaluation)
+
+        for contributor, evaluation_set in evaluations_per_contributor.items():
+            body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
+            template.send_to_user(contributor, {}, body_params, use_cc=True)
+
+    @classmethod
+    def send_participant_publish_notifications(cls, evaluations, template):
+        evaluations_per_participant = defaultdict(set)
+        for evaluation in evaluations:
+            # for evaluations with published averaged grade, participants get a notification
+            # we don't send a notification if the significance threshold isn't met
+            if evaluation.can_publish_average_grade:
+                for participant in evaluation.participants.all():
+                    evaluations_per_participant[participant].add(evaluation)
+
+        for participant, evaluation_set in evaluations_per_participant.items():
+            body_params = {'user': participant, 'evaluations': list(evaluation_set)}
+            template.send_to_user(participant, {}, body_params, use_cc=True)
+
+    @classmethod
     def send_publish_notifications(cls, evaluations, template_contributor=USE_DEFAULT, template_participant=USE_DEFAULT):
         if template_contributor == USE_DEFAULT:
             template_contributor = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
+        if template_contributor:
+            cls.send_contributor_publish_notifications(evaluations, template_contributor)
 
         if template_participant == USE_DEFAULT:
             template_participant = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT)
-
-        evaluations_for_contributors = defaultdict(set)
-        evaluations_for_participants = defaultdict(set)
-
-        for evaluation in evaluations:
-            # for evaluations with published averaged grade, all contributors and participants get a notification
-            # we don't send a notification if the significance threshold isn't met
-            if evaluation.can_publish_average_grade:
-                if template_contributor:
-                    for contribution in evaluation.contributions.all():
-                        if contribution.contributor:
-                            evaluations_for_contributors[contribution.contributor].add(evaluation)
-
-                if template_participant:
-                    for participant in evaluation.participants.all():
-                        evaluations_for_participants[participant].add(evaluation)
-
-            # if the average grade was not published, notifications are only sent for contributors who can see text answers
-            elif evaluation.textanswer_set and template_contributor:
-                for textanswer in evaluation.textanswer_set:
-                    if textanswer.contribution.contributor:
-                        evaluations_for_contributors[textanswer.contribution.contributor].add(evaluation)
-
-                for contributor in evaluation.course.responsibles.all():
-                    evaluations_for_contributors[contributor].add(evaluation)
-
-        assert not evaluations_for_contributors or template_contributor
-        assert not evaluations_for_participants or template_participant
-
-        for contributor, evaluation_set in evaluations_for_contributors.items():
-            body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
-            template_contributor.send_to_user(contributor, {}, body_params, use_cc=True)
-
-        for participant, evaluation_set in evaluations_for_participants.items():
-            body_params = {'user': participant, 'evaluations': list(evaluation_set)}
-            template_participant.send_to_user(participant, {}, body_params, use_cc=True)
+        if template_participant:
+            cls.send_participant_publish_notifications(evaluations, template_participant)
