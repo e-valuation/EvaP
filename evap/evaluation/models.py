@@ -3,6 +3,7 @@ from datetime import datetime, date, timedelta
 import logging
 import random
 import uuid
+import operator
 
 from django.conf import settings
 from django.contrib import messages
@@ -22,7 +23,7 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.tools import clean_email, date_to_datetime, get_due_evaluations_for_user,\
+from evap.evaluation.tools import clean_email, date_to_datetime,\
         translate, is_external_email, send_publish_notifications
 
 logger = logging.getLogger(__name__)
@@ -1401,6 +1402,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def get_sorted_evaluations_voted_for(self):
         return self.evaluations_voted_for.order_by('course__semester__created_at', 'name_de')
 
+    def get_sorted_due_evaluations(self):
+        due_evaluations = dict()
+        for evaluation in Evaluation.objects.filter(participants=self, state='in_evaluation').exclude(voters=self):
+            due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
+
+        # Sort evaluations by number of days left for evaluation and bring them to following format:
+        # [(evaluation, due_in_days), ...]
+        return sorted(due_evaluations.items(), key=operator.itemgetter(1))
+
 
 def validate_template(value):
     """Field validator which ensures that the value can be compiled into a
@@ -1483,7 +1493,7 @@ class EmailTemplate(models.Model):
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
-            body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': get_due_evaluations_for_user(user)}
+            body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': user.get_sorted_due_evaluations()}
             cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
 
     @classmethod

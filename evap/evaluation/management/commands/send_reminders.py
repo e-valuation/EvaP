@@ -6,7 +6,6 @@ from django.conf import settings
 
 from evap.evaluation.models import Evaluation, EmailTemplate
 from evap.evaluation.management.commands.tools import log_exceptions
-from evap.evaluation.tools import get_due_evaluations_for_user
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ class Command(BaseCommand):
             recipients.update(evaluation.due_participants)
 
         for recipient in recipients:
-            due_evaluations = get_due_evaluations_for_user(recipient)
+            due_evaluations = recipient.get_sorted_due_evaluations()
             first_due_in_days = due_evaluations[0][1]  # entry 0 is first due evaluation, entry 1 in tuple is number of days
 
             EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations)

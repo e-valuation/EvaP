@@ -82,17 +82,6 @@ def set_or_get_language(user, request, **_kwargs):
     request.session[LANGUAGE_SESSION_KEY] = user.language
 
 
-def get_due_evaluations_for_user(user):
-    from evap.evaluation.models import Evaluation
-    due_evaluations = dict()
-    for evaluation in Evaluation.objects.filter(participants=user, state='in_evaluation').exclude(voters=user):
-        due_evaluations[evaluation] = (evaluation.vote_end_date - datetime.date.today()).days
-
-    # Sort evaluations by number of days left for evaluation and bring them to following format:
-    # [(evaluation, due_in_days), ...]
-    return sorted(due_evaluations.items(), key=operator.itemgetter(1))
-
-
 def get_parameter_from_url_or_session(request, parameter, default=False):
     result = request.GET.get(parameter, None)
     if result is None:  # if no parameter is given take session value
