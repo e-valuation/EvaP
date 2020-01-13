@@ -87,6 +87,8 @@ class Semester(models.Model):
 
     @transaction.atomic
     def delete_grade_documents(self):
+        # Resolving this circular dependency makes the code more ugly, so we leave it.
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
 
         if not self.grade_documents_can_be_deleted:
@@ -315,11 +317,15 @@ class Course(models.Model):
 
     @property
     def final_grade_documents(self):
+        # We think it's better to use the imported constant here instead of using some workaround
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
+        # We think it's better to use the imported constant here instead of using some workaround
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
 
