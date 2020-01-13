@@ -13,9 +13,24 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
+from evap.evaluation.models import FaqSection, EmailTemplate, Semester
 
 logger = logging.getLogger(__name__)
+
+
+def redirect_user_to_start_page(user):
+    if user.is_reviewer:
+        return redirect('staff:semester_view', Semester.active_semester().id)
+    if user.is_manager:
+        return redirect('staff:index')
+    if user.is_grade_publisher:
+        return redirect('grades:semester_view', Semester.active_semester().id)
+    if user.is_student:
+        return redirect('student:index')
+    if user.is_responsible_or_contributor_or_delegate:
+        return redirect('contributor:index')
+
+    return redirect('results:index')
 
 
 @sensitive_post_parameters("password")
@@ -64,26 +79,12 @@ def index(request):
         )
         return render(request, "index.html", template_data)
 
-    user, __ = UserProfile.objects.get_or_create(username=request.user.username)
-
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
     if redirect_to is not None:
         return redirect(redirect_to)
 
-    # redirect user to appropriate start page
-    if request.user.is_reviewer:
-        return redirect('staff:semester_view', Semester.active_semester().id)
-    if request.user.is_manager:
-        return redirect('staff:index')
-    if request.user.is_grade_publisher:
-        return redirect('grades:semester_view', Semester.active_semester().id)
-    if user.is_student:
-        return redirect('student:index')
-    if user.is_responsible_or_contributor_or_delegate:
-        return redirect('contributor:index')
-
-    return redirect('results:index')
+    return redirect_user_to_start_page(request.user)
 
 
 def login_key_authentication(request, key):
