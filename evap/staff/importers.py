@@ -85,6 +85,16 @@ class EvaluationData(CommonEqualityMixin):
             degree_name = degree_name.strip()
         self.degree_names = degree_names
 
+    def equals_except_for_degree_names(self, other):
+        return (
+            set(self.degree_names) != set(other.degree_names)
+            and self.name_de == other.name_de
+            and self.name_en == other.name_en
+            and self.type_name == other.type_name
+            and self.is_graded == other.is_graded
+            and self.responsible_email == other.responsible_email
+        )
+
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
         # This is safe because the user's email address is checked before in the importer (see #953)
@@ -257,12 +267,7 @@ class EnrollmentImporter(ExcelImporter):
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if (set(evaluation_data.degree_names) != set(self.evaluations[evaluation_id].degree_names)
-                    and evaluation_data.name_de == self.evaluations[evaluation_id].name_de
-                    and evaluation_data.name_en == self.evaluations[evaluation_id].name_en
-                    and evaluation_data.type_name == self.evaluations[evaluation_id].type_name
-                    and evaluation_data.is_graded == self.evaluations[evaluation_id].is_graded
-                    and evaluation_data.responsible_email == self.evaluations[evaluation_id].responsible_email):
+            if evaluation_data.equals_except_for_degree_names(self.evaluations[evaluation_id]):
                 self.warnings[self.W_DEGREE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
