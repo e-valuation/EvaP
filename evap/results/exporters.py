@@ -80,6 +80,11 @@ class ExcelExporter():
         return filtered_questions
 
     def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
+        # the excel file we're creating here is rather complex. However, from the nature of a single
+        # file, it doesn't make much sense to split up the code into different methods as they will
+        # always be tightly coupled based on the layout of the sheet. We thus think that one big method
+        # containing the business logic is okay here
+        # pylint: disable=too-many-locals, too-many-nested-blocks, too-many-branches, too-many-statements
         workbook = xlwt.Workbook()
         self.init_styles(workbook)
         counter = 1
