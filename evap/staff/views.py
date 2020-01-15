@@ -38,7 +38,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
-from evap.staff.tools import (bulk_delete_users, custom_redirect, delete_import_file, delete_navbar_cache_for_users,
+from evap.staff.tools import (bulk_delete_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
                               save_import_file, find_next_unreviewed_evaluation)
 from evap.student.forms import QuestionnaireVotingForm
@@ -339,7 +339,7 @@ def semester_evaluation_operation(request, semester_id):
             email_template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], body=request.POST['email_body_participant'])
 
         operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
-        return custom_redirect('staff:semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
 
     applicable_evaluations = list(filter(operation.applicable_to, evaluations))
     difference = len(evaluations) - len(applicable_evaluations)
@@ -347,7 +347,7 @@ def semester_evaluation_operation(request, semester_id):
         messages.warning(request, operation.warning_for_inapplicables(difference))
     if not applicable_evaluations:  # no evaluations where applicable or none were selected
         messages.warning(request, _("Please select at least one evaluation."))
-        return custom_redirect('staff:semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
 
     email_template = None
     email_template_contributor = None
@@ -620,7 +620,7 @@ def send_reminder(request, semester_id, responsible_id):
     if form.is_valid():
         form.send(request, evaluations)
         messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
-        return custom_redirect('staff:semester_preparation_reminder', semester_id)
+        return redirect('staff:semester_preparation_reminder', semester_id)
 
     return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
 
@@ -721,7 +721,7 @@ def course_edit(request, semester_id, course_id):
         if operation == 'save_create_single_result':
             return redirect('staff:single_result_create', semester_id, course.id)
 
-        return custom_redirect('staff:semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
 
     template_data = dict(
         course=course, semester=semester, course_form=course_form, editable=editable, disable_breadcrumb_course=True,
@@ -861,7 +861,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         delete_navbar_cache_for_users(evaluation.participants.all())
         delete_navbar_cache_for_users(UserProfile.objects.filter(contributions__evaluation=evaluation))
 
-        return custom_redirect('staff:semester_view', semester.id)
+        return redirect('staff:semester_view', semester.id)
 
     if evaluation_form.errors or formset.errors:
         messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
@@ -919,7 +919,7 @@ def evaluation_email(request, semester_id, evaluation_id):
             return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
         form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % evaluation.full_name)
-        return custom_redirect('staff:semester_view', semester_id)
+        return redirect('staff:semester_view', semester_id)
 
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
@@ -1370,7 +1370,7 @@ def degree_index(request):
     if formset.is_valid():
         formset.save()
         messages.success(request, _("Successfully updated the degrees."))
-        return custom_redirect('staff:degree_index')
+        return redirect('staff:degree_index')
 
     return render(request, "staff_degree_index.html", dict(formset=formset))
 
@@ -1385,7 +1385,7 @@ def course_type_index(request):
     if formset.is_valid():
         formset.save()
         messages.success(request, _("Successfully updated the course types."))
-        return custom_redirect('staff:course_type_index')
+        return redirect('staff:course_type_index')
 
     return render(request, "staff_course_type_index.html", dict(formset=formset))
 
@@ -1603,7 +1603,7 @@ def faq_index(request):
     if formset.is_valid():
         formset.save()
         messages.success(request, _("Successfully updated the FAQ sections."))
-        return custom_redirect('staff:faq_index')
+        return redirect('staff:faq_index')
 
     return render(request, "staff_faq_index.html", dict(formset=formset, sections=sections))
 
@@ -1619,7 +1619,7 @@ def faq_section(request, section_id):
     if formset.is_valid():
         formset.save()
         messages.success(request, _("Successfully updated the FAQ questions."))
-        return custom_redirect('staff:faq_index')
+        return redirect('staff:faq_index')
 
     template_data = dict(formset=formset, section=section, questions=questions)
     return render(request, "staff_faq_section.html", template_data)

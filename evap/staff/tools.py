@@ -1,10 +1,7 @@
-import urllib.parse
 import os
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
@@ -60,12 +57,6 @@ def get_import_file_content_or_raise(user_id, import_type):
         raise SuspiciousOperation("No test run performed previously.")
     with open(filename, "rb") as file:
         return file.read()
-
-
-def custom_redirect(url_name, *args, **kwargs):
-    url = reverse(url_name, args=args)
-    params = urllib.parse.urlencode(kwargs)
-    return HttpResponseRedirect(url + "?%s" % params)
 
 
 def delete_navbar_cache_for_users(users):
