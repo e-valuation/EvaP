@@ -1368,8 +1368,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_download_grades(self):
         return not self.is_external
 
-    @classmethod
-    def email_needs_login_key(cls, email):
+    @staticmethod
+    def email_needs_login_key(email):
         return is_external_email(email)
 
     @property
@@ -1490,8 +1490,8 @@ class EmailTemplate(models.Model):
 
         return list(recipients)
 
-    @classmethod
-    def render_string(cls, text, dictionary):
+    @staticmethod
+    def render_string(text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
@@ -1601,8 +1601,8 @@ class EmailTemplate(models.Model):
             body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
             template.send_to_user(contributor, {}, body_params, use_cc=True)
 
-    @classmethod
-    def send_participant_publish_notifications(cls, evaluations, template):
+    @staticmethod
+    def send_participant_publish_notifications(evaluations, template):
         evaluations_per_participant = defaultdict(set)
         for evaluation in evaluations:
             # for evaluations with published averaged grade, participants get a notification
