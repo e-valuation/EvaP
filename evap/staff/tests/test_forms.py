@@ -377,8 +377,8 @@ class ContributionFormsetTests(TestCase):
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only}
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
         # Suppose we had a hidden questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_hidden])
@@ -387,8 +387,8 @@ class ContributionFormsetTests(TestCase):
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
     def test_staff_can_select_proxy_user(self):
         proxy_user = baker.make(UserProfile, is_proxy_user=True)

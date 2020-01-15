@@ -232,8 +232,7 @@ class ExcelImporter():
 
             users_same_name = (UserProfile.objects
                 .filter(first_name=user_data.first_name, last_name=user_data.last_name)
-                .exclude(email=user_data.email)
-                .all())
+                .exclude(email=user_data.email))
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
 
@@ -515,7 +514,7 @@ class PersonImporter:
         self.success_messages.append(mark_safe(msg))
 
     def process_contributors(self, evaluation, test_run, user_list):
-        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list).all()
+        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = _("The following {} users are already contributing to evaluation {}:").format(len(already_related), evaluation.name)
