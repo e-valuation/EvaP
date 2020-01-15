@@ -926,6 +926,9 @@ def evaluation_email(request, semester_id, evaluation_id):
 
 @manager_required
 def evaluation_person_management(request, semester_id, evaluation_id):
+    # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
+    # would lead to more code duplication. Thus, we decided to leave it as is for now
+    # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
