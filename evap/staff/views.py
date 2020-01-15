@@ -1,4 +1,5 @@
 import csv
+from dataclasses import dataclass
 from datetime import datetime, date
 from collections import OrderedDict, defaultdict, namedtuple
 from xlrd import open_workbook
@@ -104,16 +105,17 @@ def semester_view(request, semester_id):
     courses = Course.objects.filter(semester=semester)
 
     # semester statistics (per degree)
+    @dataclass
     class Stats:
-        def __init__(self):
-            self.num_enrollments_in_evaluation = 0
-            self.num_votes = 0
-            self.num_evaluations_evaluated = 0
-            self.num_evaluations = 0
-            self.num_textanswers = 0
-            self.num_textanswers_reviewed = 0
-            self.first_start = datetime(9999, 1, 1)
-            self.last_end = date(2000, 1, 1)
+        # pylint: disable=too-many-instance-attributes
+        num_enrollments_in_evaluation: int = 0
+        num_votes: int = 0
+        num_evaluations_evaluated: int = 0
+        num_evaluations: int = 0
+        num_textanswers: int = 0
+        num_textanswers_reviewed: int = 0
+        first_start: datetime = datetime(9999, 1, 1)
+        last_end: date = date(2000, 1, 1)
 
     degree_stats = defaultdict(Stats)
     total_stats = Stats()
