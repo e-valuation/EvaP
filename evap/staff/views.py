@@ -1010,6 +1010,35 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     return response
 
 
+def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers):
+    TextAnswerSection = namedtuple('TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
+
+    evaluation_sections = []
+    contributor_sections = []
+
+    for contribution in evaluation.contributions.all().prefetch_related("questionnaires"):
+        for questionnaire in contribution.questionnaires.all():
+            text_results = []
+
+            for question in questionnaire.text_questions:
+                answers = TextAnswer.objects.filter(contribution=contribution, question=question)
+                if filter_textanswers:
+                    answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
+                if answers:
+                    text_results.append(TextResult(question=question, answers=answers))
+
+            if not text_results:
+                continue
+
+            section_list = evaluation_sections if contribution.is_general else contributor_sections
+            section_list.append(TextAnswerSection(
+                questionnaire, contribution.contributor, contribution.label,
+                contribution.contributor in evaluation.course.responsibles.all(), text_results
+            ))
+
+    return evaluation_sections, contributor_sections
+
+
 @reviewer_required
 def evaluation_textanswers(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -1023,22 +1052,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
     view = request.GET.get('view', 'quick')
     filter_textanswers = view == "unreviewed"
 
-    TextAnswerSection = namedtuple('TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
-    evaluation_sections = []
-    contributor_sections = []
-    for contribution in evaluation.contributions.all().prefetch_related("questionnaires"):
-        for questionnaire in contribution.questionnaires.all():
-            text_results = []
-            for question in questionnaire.text_questions:
-                answers = TextAnswer.objects.filter(contribution=contribution, question=question)
-                if filter_textanswers:
-                    answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
-                if answers:
-                    text_results.append(TextResult(question=question, answers=answers))
-            if not text_results:
-                continue
-            section_list = evaluation_sections if contribution.is_general else contributor_sections
-            section_list.append(TextAnswerSection(questionnaire, contribution.contributor, contribution.label, contribution.contributor in evaluation.course.responsibles.all(), text_results))
+    evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers)
 
     template_data = dict(semester=semester, evaluation=evaluation, view=view)
 
