@@ -83,6 +83,11 @@ class MergeUsersTest(TestCase):
         cls.rewardpointredemption_main = baker.make(RewardPointRedemption, user_profile=cls.main_user)
         cls.rewardpointredemption_other = baker.make(RewardPointRedemption, user_profile=cls.other_user)
 
+    def setUp(self):
+        # merge users changes these instances in such a way that refresh_from_db doesn't work anymore.
+        self.main_user = UserProfile.objects.get(username="main_user")
+        self.other_user = UserProfile.objects.get(username="other_user")
+
     def test_merge_handles_all_attributes(self):
         user1 = baker.make(UserProfile)
         user2 = baker.make(UserProfile)
@@ -130,7 +135,7 @@ class MergeUsersTest(TestCase):
 
         self.assertEqual(expected_attrs, actual_attrs)
 
-    def test_merge_users(self):
+    def test_merge_users_does_not_change_data_on_fail(self):
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
         self.assertCountEqual(errors, ['contributions', 'evaluations_participating_in'])
         self.assertCountEqual(warnings, ['rewards'])
@@ -173,7 +178,8 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
-        # fix data
+    def test_merge_users_changes_data_on_success(self):
+        # Fix data so that the merge will not fail as in test_merge_users_does_not_change_data_on_fail
         self.evaluation1.participants.set([self.main_user])
         self.contribution2.delete()
 
