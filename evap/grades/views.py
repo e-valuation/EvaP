@@ -100,7 +100,9 @@ def upload_grades(request, semester_id, course_id):
             for evaluation in evaluations:
                 evaluation.publish()
                 evaluation.save()
-            EmailTemplate.send_publish_notifications(evaluations)
+
+            EmailTemplate.send_participant_publish_notifications(evaluations)
+            EmailTemplate.send_contributor_publish_notifications(evaluations)
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -130,7 +132,9 @@ def toggle_no_grades(request):
         for evaluation in evaluations:
             evaluation.publish()
             evaluation.save()
-        EmailTemplate.send_publish_notifications(evaluations)
+
+        EmailTemplate.send_participant_publish_notifications(evaluations)
+        EmailTemplate.send_contributor_publish_notifications(evaluations)
 
     return HttpResponse()  # 200 OK
 

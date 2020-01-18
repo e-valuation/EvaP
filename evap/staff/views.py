@@ -298,10 +298,11 @@ class PublishOperation(EvaluationOperation):
             evaluation.save()
         messages.success(request, ungettext("Successfully published {} evaluation.",
             "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
+
         if email_template_contributor:
-            EmailTemplate.send_publish_notifications(evaluations, template_participant=None, template_contributor=email_template_contributor)
+            EmailTemplate.send_contributor_publish_notifications(evaluations, template=email_template_contributor)
         if email_template_participant:
-            EmailTemplate.send_publish_notifications(evaluations, template_participant=email_template_participant, template_contributor=None)
+            EmailTemplate.send_participant_publish_notifications(evaluations, template=email_template_participant)
 
 
 EVALUATION_OPERATIONS = {

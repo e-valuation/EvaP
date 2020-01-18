@@ -27,9 +27,6 @@ from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_e
 
 logger = logging.getLogger(__name__)
 
-# random object that will be used to check whether a default argument value was overwritten or not
-USE_DEFAULT = object()
-
 
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
@@ -726,7 +723,10 @@ class Evaluation(models.Model):
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
         template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
-        EmailTemplate.send_publish_notifications(evaluation_results_evaluations)
+
+        EmailTemplate.send_participant_publish_notifications(evaluation_results_evaluations)
+        EmailTemplate.send_contributor_publish_notifications(evaluation_results_evaluations)
+
         logger.info("update_evaluations finished.")
 
 
@@ -1578,7 +1578,10 @@ class EmailTemplate(models.Model):
         logger.info(('Sent login url to {}.').format(user.username))
 
     @classmethod
-    def send_contributor_publish_notifications(cls, evaluations, template):
+    def send_contributor_publish_notifications(cls, evaluations, template=None):
+        if not template:
+            template = cls.objects.get(name=cls.PUBLISHING_NOTICE_CONTRIBUTOR)
+
         evaluations_per_contributor = defaultdict(set)
         for evaluation in evaluations:
             # for evaluations with published averaged grade, all contributors get a notification
@@ -1601,8 +1604,11 @@ class EmailTemplate(models.Model):
             body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
             template.send_to_user(contributor, {}, body_params, use_cc=True)
 
-    @staticmethod
-    def send_participant_publish_notifications(evaluations, template):
+    @classmethod
+    def send_participant_publish_notifications(cls, evaluations, template=None):
+        if not template:
+            template = cls.objects.get(name=cls.PUBLISHING_NOTICE_PARTICIPANT)
+
         evaluations_per_participant = defaultdict(set)
         for evaluation in evaluations:
             # for evaluations with published averaged grade, participants get a notification
@@ -1614,15 +1620,3 @@ class EmailTemplate(models.Model):
         for participant, evaluation_set in evaluations_per_participant.items():
             body_params = {'user': participant, 'evaluations': list(evaluation_set)}
             template.send_to_user(participant, {}, body_params, use_cc=True)
-
-    @classmethod
-    def send_publish_notifications(cls, evaluations, template_contributor=USE_DEFAULT, template_participant=USE_DEFAULT):
-        if template_contributor == USE_DEFAULT:
-            template_contributor = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR)
-        if template_contributor:
-            cls.send_contributor_publish_notifications(evaluations, template_contributor)
-
-        if template_participant == USE_DEFAULT:
-            template_participant = cls.objects.get(name=EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT)
-        if template_participant:
-            cls.send_participant_publish_notifications(evaluations, template_participant)
