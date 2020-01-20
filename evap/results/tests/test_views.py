@@ -521,8 +521,8 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
         page = self.app.get(url, user='responsible')
-        self.assertIn("<li>{}</li>".format(self.other_contributor_1.username), page)
-        self.assertIn("<li>{}</li>".format(self.other_contributor_2.username), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_1.full_name), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_2.full_name), page)
 
 
 class TestResultsTextanswerVisibilityForExportView(WebTest):
