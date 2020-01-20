@@ -20,7 +20,7 @@ def create_user_list_string_for_message(users):
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
-class CommonEqualityMixin(object):
+class CommonEqualityMixin():
 
     def __eq__(self, other):
         return (isinstance(other, self.__class__)
@@ -85,6 +85,16 @@ class EvaluationData(CommonEqualityMixin):
             degree_name = degree_name.strip()
         self.degree_names = degree_names
 
+    def equals_except_for_degree_names(self, other):
+        return (
+            set(self.degree_names) != set(other.degree_names)
+            and self.name_de == other.name_de
+            and self.name_en == other.name_en
+            and self.type_name == other.type_name
+            and self.is_graded == other.is_graded
+            and self.responsible_email == other.responsible_email
+        )
+
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
         course_type = CourseType.objects.get(name_de=self.type_name)
         # This is safe because the user's email address is checked before in the importer (see #953)
@@ -109,7 +119,7 @@ class EvaluationData(CommonEqualityMixin):
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
 
 
-class ExcelImporter(object):
+class ExcelImporter():
     W_NAME = 'name'
     W_DUPL = 'duplicate'
     W_GENERAL = 'general'
@@ -222,8 +232,7 @@ class ExcelImporter(object):
 
             users_same_name = (UserProfile.objects
                 .filter(first_name=user_data.first_name, last_name=user_data.last_name)
-                .exclude(email=user_data.email)
-                .all())
+                .exclude(email=user_data.email))
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
 
@@ -240,10 +249,12 @@ class EnrollmentImporter(ExcelImporter):
         self.enrollments = []
         self.names_de = set()
 
-    def read_one_enrollment(self, data):
+    @staticmethod
+    def read_one_enrollment(data):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
+        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0],
+                responsible_email=responsible_data.email)
         return (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
@@ -255,12 +266,7 @@ class EnrollmentImporter(ExcelImporter):
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if (set(evaluation_data.degree_names) != set(self.evaluations[evaluation_id].degree_names)
-                    and evaluation_data.name_de == self.evaluations[evaluation_id].name_de
-                    and evaluation_data.name_en == self.evaluations[evaluation_id].name_en
-                    and evaluation_data.type_name == self.evaluations[evaluation_id].type_name
-                    and evaluation_data.is_graded == self.evaluations[evaluation_id].is_graded
-                    and evaluation_data.responsible_email == self.evaluations[evaluation_id].responsible_email):
+            if evaluation_data.equals_except_for_degree_names(self.evaluations[evaluation_id]):
                 self.warnings[self.W_DEGREE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
@@ -381,7 +387,7 @@ class EnrollmentImporter(ExcelImporter):
             else:
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -391,7 +397,8 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
-    def read_one_user(self, data):
+    @staticmethod
+    def read_one_user(data):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
         return user_data
 
@@ -471,10 +478,10 @@ class UserImporter(ExcelImporter):
             if test_run:
                 importer.create_test_success_messages()
                 return importer.get_user_profile_list(), importer.success_messages, importer.warnings, importer.errors
-            else:
-                return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
-        except Exception as e:
+            return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
+
+        except Exception as e:  # pylint: disable=broad-except
             importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
@@ -507,7 +514,7 @@ class PersonImporter:
         self.success_messages.append(mark_safe(msg))
 
     def process_contributors(self, evaluation, test_run, user_list):
-        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list).all()
+        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = _("The following {} users are already contributing to evaluation {}:").format(len(already_related), evaluation.name)

@@ -224,7 +224,7 @@ class TestCalculateAverageDistribution(TestCase):
         rating_result = get_single_result_rating_result(single_result_evaluation)
         self.assertEqual(rating_result.counts, (1, 0, 0, 1, 0))
 
-    def test_result_calculation_with_no_contributor_rating_question_does_not_fail(self):
+    def test_result_calculation_with_no_contributor_rating_question(self):
         evaluation = baker.make(Evaluation, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2])
         questionnaire_text = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire_text, type=Question.TEXT)
@@ -348,7 +348,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def test_text_answer_visible_to_non_contributing_responsible(self):
         self.assertIn(self.responsible_without_contribution, textanswers_visible_to(self.general_contribution_textanswer.contribution)[0])
 
-    def test_correct_contributors_and_delegate_count_are_shown_in_textanswer_visibility_info(self):
+    def test_contributors_and_delegate_count_in_textanswer_visibility_info(self):
         textanswers = [
             self.general_contribution_textanswer, self.responsible1_textanswer, self.responsible2_textanswer,
             self.contributor_own_textanswer, self.contributor_general_textanswer
@@ -358,9 +358,9 @@ class TestTextAnswerVisibilityInfo(TestCase):
 
         for user in UserProfile.objects.all():
             represented_users = [user] + list(user.represented_users.all())
-            for i in range(len(textanswers)):
-                if can_textanswer_be_seen_by(user, represented_users, textanswers[i], 'full'):
-                    if can_textanswer_be_seen_by(user, [user], textanswers[i], 'full'):
+            for i, textanswer in enumerate(textanswers):
+                if can_textanswer_be_seen_by(user, represented_users, textanswer, 'full'):
+                    if can_textanswer_be_seen_by(user, [user], textanswer, 'full'):
                         users_seeing_contribution[i][0].add(user)
                     else:
                         users_seeing_contribution[i][1].add(user)

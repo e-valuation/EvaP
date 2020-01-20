@@ -1,7 +1,7 @@
+import random
+
 from django.conf import settings
 from django.utils.translation import get_language
-
-import random
 
 
 def slogan(request):

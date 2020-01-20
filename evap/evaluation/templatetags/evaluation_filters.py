@@ -62,7 +62,7 @@ def zip_choices(counts, choices):
 def ordering_index(evaluation):
     if evaluation.state in ['new', 'prepared', 'editor_approved', 'approved']:
         return evaluation.days_until_evaluation
-    elif evaluation.state == "in_evaluation":
+    if evaluation.state == "in_evaluation":
         return 100000 + evaluation.days_left_for_evaluation
     return 200000 + evaluation.days_left_for_evaluation
 
@@ -111,7 +111,7 @@ def statedescription(state):
 def approval_state_values(state):
     if state in APPROVAL_STATES:
         return APPROVAL_STATES[state]
-    elif state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
+    if state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
         return APPROVAL_STATES['approved']
     return None
 
@@ -120,7 +120,7 @@ def approval_state_values(state):
 def approval_state_icon(state):
     if state in APPROVAL_STATES:
         return APPROVAL_STATES[state].icon
-    elif state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
+    if state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
         return APPROVAL_STATES['approved'].icon
     return None
 

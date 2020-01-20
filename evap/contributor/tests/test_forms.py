@@ -1,10 +1,12 @@
+from model_bakery import baker
+
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
+
 from evap.contributor.forms import DelegatesForm, EditorContributionForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
-from model_bakery import baker
 
 
 class UserFormTests(TestCase):
@@ -50,8 +52,8 @@ class ContributionFormsetTests(TestCase):
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = set([questionnaire])
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
         # now a manager adds a manager only questionnaire, which should be shown as well
         contribution1.questionnaires.set([questionnaire_managers_only])
@@ -60,8 +62,8 @@ class ContributionFormsetTests(TestCase):
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = set([questionnaire, questionnaire_managers_only])
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
 
 class ContributionFormsetWebTests(WebTest):

@@ -1,8 +1,9 @@
-import xlrd
 from io import BytesIO
 from model_bakery import baker
 from django.test import TestCase
 from django.utils import translation
+
+import xlrd
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
@@ -200,36 +201,24 @@ class TestExporters(TestCase):
 
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
-        course_type_1 = baker.make(CourseType, order=1)
-        course_type_2 = baker.make(CourseType, order=2)
-        semester_1 = baker.make(Semester)
-        semester_2 = baker.make(Semester)
         contributor = baker.make(UserProfile)
         other_contributor = baker.make(UserProfile)
         evaluation_1 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester_1, degrees=[degree], type=course_type_1, responsibles=[contributor]),
+            course=baker.make(Course, degrees=[degree], responsibles=[contributor]),
             state='published',
             _participant_count=10,
             _voter_count=1
         )
         evaluation_2 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=semester_2, degrees=[degree], type=course_type_2, responsibles=[other_contributor]),
+            course=baker.make(Course, degrees=[degree], responsibles=[other_contributor]),
             state='published',
             _participant_count=2,
             _voter_count=2,
         )
-        contribution = baker.make(
-            Contribution,
-            evaluation=evaluation_2,
-            contributor=contributor,
-        )
-        other_contribution = baker.make(
-            Contribution,
-            evaluation=evaluation_2,
-            contributor=other_contributor,
-        )
+        contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=contributor)
+        other_contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=other_contributor)
 
         general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
         contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
@@ -249,8 +238,14 @@ class TestExporters(TestCase):
         binary_content = export_contributor_results(contributor).content
         workbook = xlrd.open_workbook(file_contents=binary_content)
 
-        self.assertEqual(workbook.sheets()[0].row_values(0)[1], "{}\n{}\n{}".format(evaluation_1.full_name, semester_1.name, contributor.full_name))
-        self.assertEqual(workbook.sheets()[0].row_values(0)[2], "{}\n{}\n{}".format(evaluation_2.full_name, semester_2.name, other_contributor.full_name))
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[1],
+            "{}\n{}\n{}".format(evaluation_1.full_name, evaluation_1.course.semester.name, contributor.full_name)
+        )
+        self.assertEqual(
+            workbook.sheets()[0].row_values(0)[2],
+            "{}\n{}\n{}".format(evaluation_2.full_name, evaluation_2.course.semester.name, other_contributor.full_name)
+        )
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)

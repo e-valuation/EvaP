@@ -1,8 +1,9 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
 import logging
 import random
 import uuid
+import operator
 
 from django.conf import settings
 from django.contrib import messages
@@ -21,14 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-from evap.evaluation.tools import clean_email, date_to_datetime, get_due_evaluations_for_user, translate
+
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
 
 logger = logging.getLogger(__name__)
 
 
 class NotArchiveable(Exception):
     """An attempt has been made to archive something that is not archiveable."""
-    pass
 
 
 class Semester(models.Model):
@@ -83,6 +84,8 @@ class Semester(models.Model):
 
     @transaction.atomic
     def delete_grade_documents(self):
+        # Resolving this circular dependency makes the code more ugly, so we leave it.
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
 
         if not self.grade_documents_can_be_deleted:
@@ -311,11 +314,15 @@ class Course(models.Model):
 
     @property
     def final_grade_documents(self):
+        # We think it's better to use the imported constant here instead of using some workaround
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
+        # We think it's better to use the imported constant here instead of using some workaround
+        # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
         return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
 
@@ -401,6 +408,9 @@ class Evaluation(models.Model):
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
         if hasattr(self, 'state_change'):
+            # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
+            # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
+            # pylint: disable=import-outside-toplevel
             if self.state_change == "published":
                 from evap.results.tools import collect_results
                 from evap.results.views import update_template_cache_of_published_evaluations_in_course
@@ -690,7 +700,6 @@ class Evaluation(models.Model):
     @classmethod
     def update_evaluations(cls):
         logger.info("update_evaluations called. Processing evaluations now.")
-        from evap.evaluation.tools import send_publish_notifications
 
         evaluations_new_in_evaluation = []
         evaluation_results_evaluations = []
@@ -709,12 +718,15 @@ class Evaluation(models.Model):
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 logger.exception('An error occured when updating the state of evaluation "{}" (id {}).'.format(evaluation, evaluation.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        EmailTemplate.send_to_users_in_evaluations(template, evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
-        send_publish_notifications(evaluation_results_evaluations)
+        template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
+
+        EmailTemplate.send_participant_publish_notifications(evaluation_results_evaluations)
+        EmailTemplate.send_contributor_publish_notifications(evaluation_results_evaluations)
+
         logger.info("update_evaluations finished.")
 
 
@@ -832,10 +844,10 @@ class Question(models.Model):
     def answer_class(self):
         if self.is_text_question:
             return TextAnswer
-        elif self.is_rating_question:
+        if self.is_rating_question:
             return RatingAnswerCounter
-        else:
-            raise Exception("Unknown answer type: %r" % self.type)
+
+        raise Exception("Unknown answer type: %r" % self.type)
 
     @property
     def is_likert_question(self):
@@ -879,7 +891,7 @@ class Question(models.Model):
 
 
 Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
-BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))
+BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))  # pylint: disable=invalid-name
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1166,7 +1178,6 @@ class FaqQuestion(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-
     def create_user(self, username, password=None, email=None, first_name=None, last_name=None):
         if not username:
             raise ValueError(_('Users must have a username'))
@@ -1247,8 +1258,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             if self.title:
                 name = self.title + " " + name
             return name
-        else:
-            return self.username
+
+        return self.username
 
     @property
     def full_name_with_username(self):
@@ -1349,8 +1360,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_external(self):
-        # do the import here to prevent a circular import
-        from evap.evaluation.tools import is_external_email
         if not self.email:
             return True
         return is_external_email(self.email)
@@ -1359,10 +1368,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def can_download_grades(self):
         return not self.is_external
 
-    @classmethod
-    def email_needs_login_key(cls, email):
-        # do the import here to prevent a circular import
-        from evap.evaluation.tools import is_external_email
+    @staticmethod
+    def email_needs_login_key(email):
         return is_external_email(email)
 
     @property
@@ -1405,6 +1412,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def get_sorted_evaluations_voted_for(self):
         return self.evaluations_voted_for.order_by('course__semester__created_at', 'name_de')
+
+    def get_sorted_due_evaluations(self):
+        due_evaluations = dict()
+        for evaluation in Evaluation.objects.filter(participants=self, state='in_evaluation').exclude(voters=self):
+            due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
+
+        # Sort evaluations by number of days left for evaluation and bring them to following format:
+        # [(evaluation, due_in_days), ...]
+        return sorted(due_evaluations.items(), key=operator.itemgetter(1))
 
 
 def validate_template(value):
@@ -1474,25 +1490,23 @@ class EmailTemplate(models.Model):
 
         return list(recipients)
 
-    @classmethod
-    def render_string(cls, text, dictionary):
+    @staticmethod
+    def render_string(text, dictionary):
         return Template(text).render(Context(dictionary, autoescape=False))
 
-    @classmethod
-    def send_to_users_in_evaluations(cls, template, evaluations, recipient_groups, use_cc, request):
+    def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
         for evaluation in evaluations:
-            recipients = cls.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
+            recipients = self.recipient_list_for_evaluation(evaluation, recipient_groups, filter_users_in_cc=use_cc)
             for user in recipients:
                 user_evaluation_map.setdefault(user, []).append(evaluation)
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
-            body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': get_due_evaluations_for_user(user)}
-            cls.send_to_user(user, template, subject_params, body_params, use_cc=use_cc, request=request)
+            body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': user.get_sorted_due_evaluations()}
+            self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
 
-    @classmethod
-    def send_to_user(cls, user, template, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
+    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
@@ -1527,8 +1541,8 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
-        subject = cls.render_string(template.subject, subject_params)
-        body = cls.render_string(template.body, body_params)
+        subject = self.render_string(self.subject, subject_params)
+        body = self.render_string(self.body, body_params)
 
         mail = EmailMessage(
             subject=subject,
@@ -1542,8 +1556,8 @@ class EmailTemplate(models.Model):
             mail.send(False)
             logger.info(('Sent email "{}" to {}.').format(subject, user.username))
             if send_separate_login_url:
-                cls.send_login_url_to_user(user)
-        except Exception:
+                self.send_login_url_to_user(user)
+        except Exception:  # pylint: disable=broad-except
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
 
     @classmethod
@@ -1552,7 +1566,7 @@ class EmailTemplate(models.Model):
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_evaluations': due_evaluations}
 
-        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params, body_params, use_cc=False)
 
     @classmethod
     def send_login_url_to_user(cls, user):
@@ -1560,5 +1574,49 @@ class EmailTemplate(models.Model):
         subject_params = {}
         body_params = {'user': user, 'login_url': user.login_url}
 
-        cls.send_to_user(user, template, subject_params, body_params, use_cc=False)
+        template.send_to_user(user, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.username))
+
+    @classmethod
+    def send_contributor_publish_notifications(cls, evaluations, template=None):
+        if not template:
+            template = cls.objects.get(name=cls.PUBLISHING_NOTICE_CONTRIBUTOR)
+
+        evaluations_per_contributor = defaultdict(set)
+        for evaluation in evaluations:
+            # for evaluations with published averaged grade, all contributors get a notification
+            # we don't send a notification if the significance threshold isn't met
+            if evaluation.can_publish_average_grade:
+                for contribution in evaluation.contributions.all():
+                    if contribution.contributor:
+                        evaluations_per_contributor[contribution.contributor].add(evaluation)
+
+            # if the average grade was not published, notifications are only sent for contributors who can see text answers
+            elif evaluation.textanswer_set:
+                for textanswer in evaluation.textanswer_set:
+                    if textanswer.contribution.contributor:
+                        evaluations_per_contributor[textanswer.contribution.contributor].add(evaluation)
+
+                for contributor in evaluation.course.responsibles.all():
+                    evaluations_per_contributor[contributor].add(evaluation)
+
+        for contributor, evaluation_set in evaluations_per_contributor.items():
+            body_params = {'user': contributor, 'evaluations': list(evaluation_set)}
+            template.send_to_user(contributor, {}, body_params, use_cc=True)
+
+    @classmethod
+    def send_participant_publish_notifications(cls, evaluations, template=None):
+        if not template:
+            template = cls.objects.get(name=cls.PUBLISHING_NOTICE_PARTICIPANT)
+
+        evaluations_per_participant = defaultdict(set)
+        for evaluation in evaluations:
+            # for evaluations with published averaged grade, participants get a notification
+            # we don't send a notification if the significance threshold isn't met
+            if evaluation.can_publish_average_grade:
+                for participant in evaluation.participants.all():
+                    evaluations_per_participant[participant].add(evaluation)
+
+        for participant, evaluation_set in evaluations_per_participant.items():
+            body_params = {'user': participant, 'evaluations': list(evaluation_set)}
+            template.send_to_user(participant, {}, body_params, use_cc=True)

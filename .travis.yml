@@ -12,10 +12,10 @@ services:
 before_script:
   - psql -c 'create database evap;' -U postgres
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
+  - pip install -r requirements-travis.txt
 script:
   - coverage run manage.py test --keepdb
+  - pylint evap
   - python manage.py test --keepdb evap.evaluation.tests.test_misc.TestDataTest.load_test_data
   - python manage.py test --keepdb --reverse
   - python manage.py test --keepdb --debug-mode

@@ -1,5 +1,4 @@
 -r requirements.txt
-coverage
-django-debug-toolbar>=1.6
+coveralls
 pylint==2.4.4
 pylint-django==2.0.13

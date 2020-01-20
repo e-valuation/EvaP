@@ -102,7 +102,7 @@ class DegreeForm(forms.ModelForm):
 
     class Meta:
         model = Degree
-        fields = "__all__"
+        fields = ('name_de', 'name_en', 'order')
 
     def clean(self):
         super().clean()
@@ -124,7 +124,7 @@ class CourseTypeForm(forms.ModelForm):
 
     class Meta:
         model = CourseType
-        fields = "__all__"
+        fields = ('name_de', 'name_en', 'order')
 
     def clean(self):
         super().clean()
@@ -431,6 +431,7 @@ class EvaluationEmailForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.template = EmailTemplate()
         self.evaluation = evaluation
+        self.recipient_groups = None
         self.fields['subject'].required = not export
         self.fields['body'].required = not export
 
@@ -449,7 +450,7 @@ class EvaluationEmailForm(forms.Form):
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        EmailTemplate.send_to_users_in_evaluations(self.template, [self.evaluation], self.recipient_groups, use_cc=True, request=request)
+        self.template.send_to_users_in_evaluations([self.evaluation], self.recipient_groups, use_cc=True, request=request)
 
 
 class RemindResponsibleForm(forms.Form):
@@ -476,16 +477,18 @@ class RemindResponsibleForm(forms.Form):
         self.template.body = self.cleaned_data.get('body')
         subject_params = {}
         body_params = {'user': recipient, 'evaluations': evaluations}
-        EmailTemplate.send_to_user(recipient, self.template, subject_params, body_params, use_cc=True, request=request)
+        self.template.send_to_user(recipient, subject_params, body_params, use_cc=True, request=request)
 
 
 class QuestionnaireForm(forms.ModelForm):
     class Meta:
         model = Questionnaire
-        exclude = ()
         widgets = {'order': forms.HiddenInput()}
+        fields = ('type', 'name_de', 'name_en', 'description_de', 'description_en',
+                  'public_name_de', 'public_name_en', 'teaser_de', 'teaser_en', 'order',
+                  'visibility')
 
-    def save(self, commit=True, force_highest_order=False, *args, **kwargs):
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 
@@ -512,9 +515,9 @@ class AtLeastOneFormSet(BaseInlineFormSet):
 
 
 class ContributionFormSet(BaseInlineFormSet):
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         data = self.handle_moved_contributors(data, **kwargs)
-        super().__init__(data, *args, **kwargs)
+        super().__init__(data, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
 
     def handle_deleted_and_added_contributions(self):
@@ -537,7 +540,8 @@ class ContributionFormSet(BaseInlineFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-    def handle_moved_contributors(self, data, **kwargs):
+    @staticmethod
+    def handle_moved_contributors(data, **kwargs):
         """
             Work around https://code.djangoproject.com/ticket/25139
             Basically, if the user assigns a contributor who already has a contribution to a new contribution,
@@ -592,14 +596,14 @@ class ContributionFormSet(BaseInlineFormSet):
                 raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
             if contributor and contributor in found_contributor:
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
-            elif contributor:
+            if contributor:
                 found_contributor.add(contributor)
 
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = "__all__"
+        fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type')
         widgets = {
             'text_de': forms.Textarea(attrs={'rows': 2}),
             'text_en': forms.Textarea(attrs={'rows': 2})
@@ -674,7 +678,7 @@ class UserForm(forms.ModelForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email is None:
-            return
+            return None
 
         user_with_same_email = UserProfile.objects.filter(email__iexact=email)
 
@@ -722,7 +726,7 @@ class UserMergeSelectionForm(forms.Form):
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
-        exclude = ("name", )
+        fields = ('subject', 'body')
 
 
 class FaqSectionForm(forms.ModelForm):
@@ -733,7 +737,7 @@ class FaqSectionForm(forms.ModelForm):
 
     class Meta:
         model = FaqSection
-        exclude = ()
+        fields = ('order', 'title_de', 'title_en')
 
 
 class FaqQuestionForm(forms.ModelForm):
@@ -744,7 +748,7 @@ class FaqQuestionForm(forms.ModelForm):
 
     class Meta:
         model = FaqQuestion
-        exclude = ("section",)
+        fields = ('order', 'question_de', 'question_en', 'answer_de', 'answer_en')
 
 
 class TextAnswerForm(forms.ModelForm):
@@ -755,7 +759,7 @@ class TextAnswerForm(forms.ModelForm):
 
     class Meta:
         model = TextAnswer
-        fields = ("answer", "original_answer",)
+        fields = ('answer', 'original_answer',)
 
     def clean_original_answer(self):
         original_answer = normalize_newlines(self.cleaned_data.get('original_answer'))
