@@ -81,7 +81,6 @@ class TestUserImporter(TestCase):
         self.assertEqual(warnings_test, warnings_no_test)
         self.assertTrue(any("The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3." in warning for warning in warnings_test[ExcelImporter.W_IGNORED]))
 
-
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
 

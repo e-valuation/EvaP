@@ -405,9 +405,9 @@ class UserImporter(ExcelImporter):
             orig_sheet, orig_row = self._read_user_data[user_data]
             warningstring = _("The duplicated row {row} in sheet '{sheet}' was ignored. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
                     sheet=sheet.name,
-                    row=row+1,
+                    row=row + 1,
                     orig_sheet=orig_sheet,
-                    orig_row=orig_row+1,
+                    orig_row=orig_row + 1,
             )
             self.warnings[self.W_IGNORED].append(mark_safe(warningstring))
 
