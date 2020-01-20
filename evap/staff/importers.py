@@ -26,6 +26,9 @@ class CommonEqualityMixin():
         return (isinstance(other, self.__class__)
             and self.__dict__ == other.__dict__)
 
+    def __hash__(self):
+        return hash(tuple(sorted(self.__dict__.items())))
+
 
 class UserData(CommonEqualityMixin):
     """
@@ -122,6 +125,7 @@ class EvaluationData(CommonEqualityMixin):
 class ExcelImporter():
     W_NAME = 'name'
     W_DUPL = 'duplicate'
+    W_IGNORED = 'ignored'
     W_GENERAL = 'general'
     W_INACTIVE = 'inactive'
 
@@ -151,14 +155,11 @@ class ExcelImporter():
             if sheet.ncols != expected_column_count:
                 self.errors.append(_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
 
-    def for_each_row_in_excel_file_do(self, parse_row_function):
+    def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book.sheets():
             try:
                 for row in range(self.skip_first_n_rows, sheet.nrows):
-                    line_data = parse_row_function(sheet.row_values(row))
-                    # store data objects together with the data source location for problem tracking
-                    self.associations[(sheet.name, row)] = line_data
-
+                    row_function(sheet.row_values(row), sheet, row)
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
                 self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
@@ -249,13 +250,11 @@ class EnrollmentImporter(ExcelImporter):
         self.enrollments = []
         self.names_de = set()
 
-    @staticmethod
-    def read_one_enrollment(data):
+    def read_one_enrollment(self, data, sheet, row):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0],
-                responsible_email=responsible_data.email)
-        return (student_data, responsible_data, evaluation_data)
+        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
+        self.associations[(sheet.name, row)] = (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
         evaluation_id = evaluation_data.name_en
@@ -397,10 +396,25 @@ class EnrollmentImporter(ExcelImporter):
 
 
 class UserImporter(ExcelImporter):
-    @staticmethod
-    def read_one_user(data):
+
+    def __init__(self):
+        super().__init__()
+        self._read_user_data = dict()
+
+    def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        return user_data
+        self.associations[(sheet.name, row)] = user_data
+        if user_data not in self._read_user_data:
+            self._read_user_data[user_data] = (sheet.name, row)
+        else:
+            orig_sheet, orig_row = self._read_user_data[user_data]
+            warningstring = _("The duplicated row {row} in sheet '{sheet}' was ignored. It was first found in sheet '{orig_sheet}' on row {orig_row}.").format(
+                    sheet=sheet.name,
+                    row=row + 1,
+                    orig_sheet=orig_sheet,
+                    orig_row=orig_row + 1,
+            )
+            self.warnings[self.W_IGNORED].append(warningstring)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -414,7 +428,7 @@ class UserImporter(ExcelImporter):
         new_participants = []
         created_users = []
         with transaction.atomic():
-            for (sheet, row), (user_data) in self.associations.items():
+            for user_data in self.users.values():
                 try:
                     user, created = user_data.store_in_database()
                     new_participants.append(user)
@@ -423,8 +437,7 @@ class UserImporter(ExcelImporter):
 
                 except Exception as e:
                     self.errors.append(_("A problem occured while writing the entries to the database."
-                                         " The original data location was row %(row)d of sheet '%(sheet)s'."
-                                         " The error message has been: '%(error)s'") % dict(row=row + 1, sheet=sheet, error=e))
+                                         " The error message has been: '%(error)s'") % dict(error=e))
                     raise
 
         msg = _("Successfully created {} users:").format(len(created_users))
@@ -577,6 +590,7 @@ WARNING_DESCRIPTIONS = {
     ExcelImporter.W_NAME: ugettext_lazy("Name mismatches"),
     ExcelImporter.W_INACTIVE: ugettext_lazy("Inactive users"),
     ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
+    ExcelImporter.W_IGNORED: ugettext_lazy("Ignored duplicates"),
     ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
     EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
     EnrollmentImporter.W_MANY: ugettext_lazy("Unusually high number of enrollments")
