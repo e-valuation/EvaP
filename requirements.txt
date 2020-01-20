@@ -8,7 +8,7 @@ django-redis == 4.10.0
 django-fsm == 2.6.1
 django-webtest == 1.9.7
 WebTest == 2.0.30
-model_mommy == 1.6.0
+model-bakery == 1.0.2
 django-extensions == 2.1.9
 django-sendfile == 0.3.11
 django-compressor == 2.3

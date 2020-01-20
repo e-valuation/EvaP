@@ -14,7 +14,7 @@ GRADE_COLORS = {
     2: (187, 209, 84),
     3: (239, 226, 88),
     4: (242, 158, 88),
-    5: (235,  89, 90),
+    5: (235, 89, 90),
 }
 
 
@@ -302,12 +302,14 @@ def textanswers_visible_to(contribution):
 
 
 def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
+    # pylint: disable=too-many-return-statements
     assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
     contributor = textanswer.contribution.contributor
 
     if view == 'public':
         return False
-    elif view == 'export':
+
+    if view == 'export':
         if textanswer.is_private:
             return False
         if not textanswer.contribution.is_general and contributor != user:

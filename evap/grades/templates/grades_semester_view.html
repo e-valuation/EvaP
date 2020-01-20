@@ -1,11 +1,23 @@
 {% extends 'grades_semester_base.html' %}
 
+{% load static %}
+
 {% block content %}
     {{ block.super }}
 
-    <h3>
-        {{ semester.name }}
-    </h3>
+    <div class="row mb-3 align-items-center">
+        <h3 class="col-9 mb-0">
+            {{ semester.name }}
+        </h3>
+        <div class="input-group col-3">
+            <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
+            <div class="input-group-append">
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                    <span class="fas fa-backspace"></span>
+                </button>
+              </div>
+        </div>
+    </div>
 
     <div class="card">
         <div class="card-header">
@@ -16,32 +28,32 @@
                 <table class="table table-striped grade-course-table table-vertically-aligned">
                     <thead>
                         <tr>
-                            <th style="width: 35%">{% trans 'Name' %}</th>
-                            <th style="width: 20%">{% trans 'Responsible' %}</th>
-                            <th style="width: 10%">{% trans 'Evaluation completed' %}</th>
-                            <th style="width: 10%">{% trans 'Midterm grade documents' %}</th>
-                            <th style="width: 10%">{% trans 'Final grade documents' %}</th>
-                            <th style="width: 15%" class="text-right" data-orderable="false">{% trans 'Actions' %}</th>
+                            <th style="width: 35%" class="col-order" data-col="name">{% trans 'Name' %}</th>
+                            <th style="width: 20%" class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="complete">{% trans 'Evaluation completed' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="midterm-grades">{% trans 'Midterm grade documents' %}</th>
+                            <th style="width: 10%" class="col-order" data-col="final-grades">{% trans 'Final grade documents' %}</th>
+                            <th style="width: 15%" class="text-right">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
-                                <td>
+                                <td data-col="name">
                                     <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
                                     {% include 'evaluation_badges.html' with mode='grades' %}
                                 </td>
-                                <td>
+                                <td data-col="responsible">
                                     {{ course.responsibles_names }}
                                 </td>
-                                <td class="text-center">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
-                                <td class="text-center">
+                                <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}
+                                <td class="text-center" data-col="midterm-grades">
                                     {% if num_midterm_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_midterm_grades }}
                                     {% endif %}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" data-col="final-grades">
                                     {% if num_final_grades > 0 %}
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
@@ -110,5 +122,13 @@
 {% endblock %}
 
 {% block additional_javascript %}
-    {% include 'datatables.html' with table_selector='.grade-course-table' %}
+    <script type="module">
+        import {TableGrid} from "{% static 'js/datagrid.js' %}";
+        new TableGrid().init({
+            storageKey: "grades-semester-{{ semester.id }}-data-grid",
+            table: $(".grade-course-table"),
+            searchInput: $("input[name=search]"),
+            resetSearch: $("[data-reset=search]"),
+        });
+    </script>
 {% endblock %}

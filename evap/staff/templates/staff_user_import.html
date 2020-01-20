@@ -20,8 +20,8 @@
             <div class="card-body">
                 <p>
                     {% trans 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'download sample file' %}</a>,
-                    <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'copy headers to clipboard' %}</button>).
+                    (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'Download sample file' %}</a>,
+                    <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}

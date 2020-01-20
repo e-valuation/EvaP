@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.forms import NewKeyForm
@@ -9,7 +9,7 @@ from evap.evaluation.forms import NewKeyForm
 class TestNewKeyForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.inactive_external_user = mommy.make(UserProfile, email="inactive@extern.com", is_active=False)
+        cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
 
     def test_inactive_external_users_can_not_request_login_key(self):
         data = {

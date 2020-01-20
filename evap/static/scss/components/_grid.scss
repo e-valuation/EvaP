@@ -66,7 +66,7 @@
     }
 }
 
-#results-grid > :not(.d-none) ~ :not(.d-none) {
+#results-grid > :not(:first-child) {
     border-top: 2 * $table-border-width solid $table-border-color;
 
     @include media-breakpoint-up(lg) {
@@ -132,31 +132,43 @@
     }
 }
 
-.col-sorting {
+.col-order {
     position: relative;
     padding-left: 1em;
     cursor: pointer;
+
+    &::before, &::after {
+        position: absolute;
+        bottom: 0;
+        opacity: 0.3;
+    }
+
+    &::before {
+        left: 0;
+        content: "↓";
+    }
+
+    &::after {
+        left: 0.4em;
+        content: "↑";
+    }
+
+    &-asc::before, &-desc::after {
+        opacity: 1;
+    }
 }
 
-.col-sorting::before,
-.col-sorting::after {
-    position: absolute;
-    bottom: 0;
-    opacity: 0.3;
-}
+th.col-order {
+    padding-left: 1.25em;
 
-.col-sorting::before {
-    left: 0;
-    content: "\2193";
-}
+    &:empty {
+        padding-right: 0;
+    }
 
-.col-sorting::after {
-    left: 0.4em;
-    content: "\2191";
-}
-
-.col-sorting-asc::before, .col-sorting-desc::after {
-    opacity: 1;
+    &::before, &::after {
+        margin-left: 0.2em;
+        bottom: 0.75em;
+    }
 }
 
 .grid-header {

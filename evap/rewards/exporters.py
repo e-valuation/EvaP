@@ -5,7 +5,7 @@ import xlwt
 from evap.results.exporters import writen, writec
 
 
-class ExcelExporter(object):
+class ExcelExporter():
 
     def __init__(self, redemptions_by_user):
         self.redemptions_by_user = redemptions_by_user

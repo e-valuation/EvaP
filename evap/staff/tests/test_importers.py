@@ -3,7 +3,7 @@ from collections import defaultdict
 from datetime import date, datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
 from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter, PersonImporter
@@ -63,7 +63,7 @@ class TestUserImporter(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
-        mommy.make(UserProfile, first_name='Lucilia', last_name="Manilium", email="luma@institution.example.com")
+        baker.make(UserProfile, first_name='Lucilia', last_name="Manilium", email="luma@institution.example.com")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
@@ -104,7 +104,7 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
-        mommy.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
+        baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
@@ -127,11 +127,11 @@ class TestEnrollmentImporter(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.semester = mommy.make(Semester)
+        cls.semester = baker.make(Semester)
         cls.vote_start_datetime = datetime(2017, 1, 10)
         cls.vote_end_date = date(2017, 3, 10)
-        mommy.make(CourseType, name_de="Seminar")
-        mommy.make(CourseType, name_de="Vorlesung")
+        baker.make(CourseType, name_de="Seminar")
+        baker.make(CourseType, name_de="Vorlesung")
 
     def test_valid_file_import(self):
         with open(self.filename_valid, "rb") as excel_file:
@@ -230,19 +230,32 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
+    def test_duplicate_course_error(self):
+        with open(self.filename_valid, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        semester = baker.make(Semester)
+        baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
+        baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
+
+        __, __, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+
+        self.assertIn("Course Stehlen does already exist in this semester.", errors)
+        self.assertIn("Course Shine does already exist in this semester.", errors)
+
 
 class TestPersonImporter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.participant1 = mommy.make(UserProfile, email="participant1@example.com")
-        cls.evaluation1 = mommy.make(Evaluation, participants=[cls.participant1])
-        cls.contributor1 = mommy.make(UserProfile)
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.contributor1, evaluation=cls.evaluation1)
+        cls.participant1 = baker.make(UserProfile, email="participant1@example.com")
+        cls.evaluation1 = baker.make(Evaluation, participants=[cls.participant1])
+        cls.contributor1 = baker.make(UserProfile)
+        cls.contribution1 = baker.make(Contribution, contributor=cls.contributor1, evaluation=cls.evaluation1)
 
-        cls.participant2 = mommy.make(UserProfile, email="participant2@example.com")
-        cls.evaluation2 = mommy.make(Evaluation, participants=[cls.participant2])
-        cls.contributor2 = mommy.make(UserProfile)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.contributor2, evaluation=cls.evaluation2)
+        cls.participant2 = baker.make(UserProfile, email="participant2@example.com")
+        cls.evaluation2 = baker.make(Evaluation, participants=[cls.participant2])
+        cls.contributor2 = baker.make(UserProfile)
+        cls.contribution2 = baker.make(Contribution, contributor=cls.contributor2, evaluation=cls.evaluation2)
 
     def test_import_existing_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)

@@ -1,16 +1,18 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.forms.models import inlineformset_factory
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext as _
 from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
+from django.forms.models import inlineformset_factory
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Course, Evaluation, Semester, UserProfile, EmailTemplate
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result)
 from evap.staff.forms import ContributionFormSet
@@ -84,13 +86,13 @@ def settings_edit(request):
 
         messages.success(request, _("Successfully updated your settings."))
         return redirect('contributor:settings_edit')
-    else:
-        return render(request, "contributor_settings.html", dict(
-            form=form,
-            delegate_of=user.represented_users.all(),
-            cc_users=user.cc_users.all(),
-            ccing_users=user.ccing_users.all(),
-        ))
+
+    return render(request, "contributor_settings.html", dict(
+        form=form,
+        delegate_of=user.represented_users.all(),
+        cc_users=user.cc_users.all(),
+        ccing_users=user.ccing_users.all(),
+    ))
 
 
 @editor_or_delegate_required
@@ -172,20 +174,20 @@ def evaluation_edit(request, evaluation_id):
             messages.success(request, _("Successfully updated evaluation."))
 
         return redirect('contributor:index')
-    else:
-        preview_html = None
-        if preview and forms_are_valid:
-            preview_html = render_preview(request, formset, evaluation_form, evaluation)
 
-        if not forms_are_valid and (evaluation_form.errors or formset.errors):
-            if preview:
-                messages.error(request, _("The preview could not be rendered. Please resolve the errors shown below."))
-            else:
-                messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
+    preview_html = None
+    if preview and forms_are_valid:
+        preview_html = render_preview(request, formset, evaluation_form, evaluation)
 
-        sort_formset(request, formset)
-        template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html)
-        return render(request, "contributor_evaluation_form.html", template_data)
+    if not forms_are_valid and (evaluation_form.errors or formset.errors):
+        if preview:
+            messages.error(request, _("The preview could not be rendered. Please resolve the errors shown below."))
+        else:
+            messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
+
+    sort_formset(request, formset)
+    template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html)
+    return render(request, "contributor_evaluation_form.html", template_data)
 
 
 @responsible_or_contributor_or_delegate_required
@@ -219,7 +221,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
     # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
     # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
-    EmailTemplate.send_to_user(delegate_user, template, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
+    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
 
     messages.add_message(
         request,
@@ -228,3 +230,23 @@ def evaluation_direct_delegation(request, evaluation_id):
     )
 
     return redirect('contributor:index')
+
+
+def export_contributor_results(contributor):
+    filename = "Evaluation_{}.xls".format(contributor.full_name)
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    ExcelExporter().export(
+        response,
+        Semester.objects.all(),
+        [(Degree.objects.all(), CourseType.objects.all())],
+        include_not_enough_voters=True,
+        include_unpublished=False,
+        contributor=contributor
+    )
+    return response
+
+
+@responsible_or_contributor_or_delegate_required
+def export(request):
+    return export_contributor_results(request.user)

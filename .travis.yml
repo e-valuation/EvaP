@@ -1,22 +1,28 @@
 language: python
 python: "3.7"
 dist: xenial
-sudo: false
+sudo: required
 cache:
   directories:
   - $HOME/.cache/pip
 
 services:
-- postgresql
+  - postgresql
+  - redis-server
 before_script:
   - psql -c 'create database evap;' -U postgres
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
+  - pip install -r requirements-travis.txt
 script:
   - coverage run manage.py test --keepdb
+  - pylint evap
   - python manage.py test --keepdb evap.evaluation.tests.test_misc.TestDataTest.load_test_data
   - python manage.py test --keepdb --reverse
   - python manage.py test --keepdb --debug-mode
+  # create a backup and load it again
+  - python manage.py migrate
+  - python manage.py loaddata test_data
+  - EVAP_OVERRIDE_BACKUP_FILENAME=true EVAP_SKIP_CHECKOUT=true EVAP_RUNNING_INSIDE_TRAVIS=true deployment/update_production.sh backup.json
+  - echo "yy" | EVAP_RUNNING_INSIDE_TRAVIS=true deployment/load_production_backup.sh backup.json
 after_success:
   - coveralls

@@ -13,9 +13,24 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
-from evap.evaluation.models import UserProfile, FaqSection, EmailTemplate, Semester
+from evap.evaluation.models import FaqSection, EmailTemplate, Semester
 
 logger = logging.getLogger(__name__)
+
+
+def redirect_user_to_start_page(user):
+    if user.is_reviewer:
+        return redirect('staff:semester_view', Semester.active_semester().id)
+    if user.is_manager:
+        return redirect('staff:index')
+    if user.is_grade_publisher:
+        return redirect('grades:semester_view', Semester.active_semester().id)
+    if user.is_student:
+        return redirect('student:index')
+    if user.is_responsible_or_contributor_or_delegate:
+        return redirect('contributor:index')
+
+    return redirect('results:index')
 
 
 @sensitive_post_parameters("password")
@@ -43,7 +58,8 @@ def index(request):
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect('evaluation:index')
-        elif login_username_form.is_valid():
+
+        if login_username_form.is_valid():
             # user would like to login with username and password and passed password test
             auth.login(request, login_username_form.get_user())
 
@@ -62,27 +78,13 @@ def index(request):
             openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
         )
         return render(request, "index.html", template_data)
-    else:
-        user, __ = UserProfile.objects.get_or_create(username=request.user.username)
 
-        # check for redirect variable
-        redirect_to = request.GET.get("next", None)
-        if redirect_to is not None:
-            return redirect(redirect_to)
+    # check for redirect variable
+    redirect_to = request.GET.get("next", None)
+    if redirect_to is not None:
+        return redirect(redirect_to)
 
-        # redirect user to appropriate start page
-        if request.user.is_reviewer:
-            return redirect('staff:semester_view', Semester.active_semester().id)
-        if request.user.is_manager:
-            return redirect('staff:index')
-        elif request.user.is_grade_publisher:
-            return redirect('grades:semester_view', Semester.active_semester().id)
-        elif user.is_student:
-            return redirect('student:index')
-        elif user.is_responsible_or_contributor_or_delegate:
-            return redirect('contributor:index')
-        else:
-            return redirect('results:index')
+    return redirect_user_to_start_page(request.user)
 
 
 def login_key_authentication(request, key):
@@ -100,6 +102,12 @@ def login_key_authentication(request, key):
         return redirect('evaluation:index')
 
     if user and user.login_key_valid_until >= date.today():
+        if request.method != "POST":
+            template_data = {
+                'username': user.full_name
+            }
+            return render(request, "external_user_confirm_login.html", template_data)
+
         # User is valid. Set request.user and persist user in the session by logging the user in.
         request.user = user
         auth.login(request, user)

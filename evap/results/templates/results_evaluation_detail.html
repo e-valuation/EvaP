@@ -125,7 +125,7 @@
         </div>
     {% endif %}
 
-    {% if contributor_contribution_results %}
+    {% if contributor_contribution_results or contributors_with_omitted_results %}
         <div class="card card-outline-primary mb-3">
             <div class="card-header">
                 {% trans 'Contributors' %}
@@ -160,14 +160,14 @@
                         </div>
                     </div>
                 {% endfor %}
-                {% if view == 'export' and other_contributors %}
+                {% if contributors_with_omitted_results %}
                     <div class="card mt-3">
                         <div class="card-header">
                             {% trans 'Other contributors' %}
                         </div>
                         <div class="card-body">
                             <ul>
-                                {% for contributor in other_contributors %}
+                                {% for contributor in contributors_with_omitted_results %}
                                     <li>{{ contributor.full_name }}</li>
                                 {% endfor %}
                             </ul>

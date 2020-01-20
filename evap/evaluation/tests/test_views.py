@@ -2,7 +2,7 @@ from django.core import mail
 from django.contrib.auth.hashers import make_password
 
 from django_webtest import WebTest
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check
@@ -13,7 +13,7 @@ class TestIndexView(WebTest):
 
     def test_passworduser_login(self):
         """ Tests whether a user can login with an incorrect and a correct password. """
-        mommy.make(UserProfile, username='password.user', password=make_password('evap'))
+        baker.make(UserProfile, username='password.user', password=make_password('evap'))
         response = self.app.get(self.url)
         password_form = response.forms[0]
         password_form['username'] = 'password.user'
@@ -26,7 +26,7 @@ class TestIndexView(WebTest):
         """ Tests whether requesting a new login key is only possible for existing users,
             shows the expected success message and sends only one email to the requesting
             user without people in cc even if the user has delegates and cc users. """
-        mommy.make(UserProfile, email='asdf@example.com')
+        baker.make(UserProfile, email='asdf@example.com')
         response = self.app.get(self.url)
         email_form = response.forms[1]
         email_form['email'] = "doesnotexist@example.com"
@@ -53,7 +53,7 @@ class TestContactEmail(WebTest):
     csrf_checks = False
 
     def test_sends_mail(self):
-        user = mommy.make(UserProfile)
+        user = baker.make(UserProfile)
         self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user=user.username)
         self.assertEqual(len(mail.outbox), 1)
 
@@ -63,7 +63,7 @@ class TestChangeLanguageView(WebTest):
     csrf_checks = False
 
     def test_changes_language(self):
-        user = mommy.make(UserProfile, username='tester', language='de')
+        user = baker.make(UserProfile, username='tester', language='de')
 
         self.app.post(self.url, params={'language': 'en'}, user='tester')
 

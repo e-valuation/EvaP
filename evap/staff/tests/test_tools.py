@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 
-from model_mommy import mommy
+from model_bakery import baker
 
 from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
@@ -13,8 +13,8 @@ from evap.staff.tools import merge_users, delete_navbar_cache_for_users
 
 class NavbarCacheTest(WebTest):
     def test_navbar_cache_deletion_for_users(self):
-        user1 = mommy.make(UserProfile, username='user1', email="user1@institution.example.com")
-        user2 = mommy.make(UserProfile, username='user2', email="user2@institution.example.com")
+        user1 = baker.make(UserProfile, username='user1', email="user1@institution.example.com")
+        user2 = baker.make(UserProfile, username='user2', email="user2@institution.example.com")
 
         # create navbar caches for anonymous user, user1 and user2
         self.app.get("/")
@@ -39,12 +39,12 @@ class NavbarCacheTest(WebTest):
 class MergeUsersTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = mommy.make(UserProfile, username="test1")
-        cls.user2 = mommy.make(UserProfile, username="test2")
-        cls.user3 = mommy.make(UserProfile, username="test3")
-        cls.group1 = mommy.make(Group, pk=4)
-        cls.group2 = mommy.make(Group, pk=5)
-        cls.main_user = mommy.make(UserProfile,
+        cls.user1 = baker.make(UserProfile, username="test1")
+        cls.user2 = baker.make(UserProfile, username="test2")
+        cls.user3 = baker.make(UserProfile, username="test3")
+        cls.group1 = baker.make(Group, pk=4)
+        cls.group2 = baker.make(Group, pk=5)
+        cls.main_user = baker.make(UserProfile,
             username="main_user",
             title="Dr.",
             first_name="Main",
@@ -56,7 +56,7 @@ class MergeUsersTest(TestCase):
             cc_users=[cls.user1],
             ccing_users=[]
         )
-        cls.other_user = mommy.make(UserProfile,
+        cls.other_user = baker.make(UserProfile,
             username="other_user",
             title="",
             first_name="Other",
@@ -69,23 +69,28 @@ class MergeUsersTest(TestCase):
             ccing_users=[cls.user1, cls.user2],
             is_superuser=True
         )
-        cls.course1 = mommy.make(Course, responsibles=[cls.main_user])
-        cls.course2 = mommy.make(Course, responsibles=[cls.main_user])
-        cls.course3 = mommy.make(Course, responsibles=[cls.other_user])
-        cls.evaluation1 = mommy.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.evaluation2 = mommy.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.evaluation3 = mommy.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
-        cls.contribution1 = mommy.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
-        cls.contribution2 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
-        cls.contribution3 = mommy.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
-        cls.rewardpointgranting_main = mommy.make(RewardPointGranting, user_profile=cls.main_user)
-        cls.rewardpointgranting_other = mommy.make(RewardPointGranting, user_profile=cls.other_user)
-        cls.rewardpointredemption_main = mommy.make(RewardPointRedemption, user_profile=cls.main_user)
-        cls.rewardpointredemption_other = mommy.make(RewardPointRedemption, user_profile=cls.other_user)
+        cls.course1 = baker.make(Course, responsibles=[cls.main_user])
+        cls.course2 = baker.make(Course, responsibles=[cls.main_user])
+        cls.course3 = baker.make(Course, responsibles=[cls.other_user])
+        cls.evaluation1 = baker.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
+        cls.evaluation2 = baker.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
+        cls.evaluation3 = baker.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.contribution1 = baker.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
+        cls.contribution2 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
+        cls.contribution3 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
+        cls.rewardpointgranting_main = baker.make(RewardPointGranting, user_profile=cls.main_user)
+        cls.rewardpointgranting_other = baker.make(RewardPointGranting, user_profile=cls.other_user)
+        cls.rewardpointredemption_main = baker.make(RewardPointRedemption, user_profile=cls.main_user)
+        cls.rewardpointredemption_other = baker.make(RewardPointRedemption, user_profile=cls.other_user)
+
+    def setUp(self):
+        # merge users changes these instances in such a way that refresh_from_db doesn't work anymore.
+        self.main_user = UserProfile.objects.get(username="main_user")
+        self.other_user = UserProfile.objects.get(username="other_user")
 
     def test_merge_handles_all_attributes(self):
-        user1 = mommy.make(UserProfile)
-        user2 = mommy.make(UserProfile)
+        user1 = baker.make(UserProfile)
+        user2 = baker.make(UserProfile)
 
         all_attrs = list(field.name for field in UserProfile._meta.get_fields(include_hidden=True))
 
@@ -130,7 +135,7 @@ class MergeUsersTest(TestCase):
 
         self.assertEqual(expected_attrs, actual_attrs)
 
-    def test_merge_users(self):
+    def test_merge_users_does_not_change_data_on_fail(self):
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
         self.assertCountEqual(errors, ['contributions', 'evaluations_participating_in'])
         self.assertCountEqual(warnings, ['rewards'])
@@ -138,70 +143,78 @@ class MergeUsersTest(TestCase):
         # assert that nothing has changed
         self.main_user.refresh_from_db()
         self.other_user.refresh_from_db()
+
         self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
         self.assertEqual(self.main_user.last_name, "")
         self.assertEqual(self.main_user.email, None)
-        self.assertCountEqual(self.main_user.groups.all(), [self.group1])
-        self.assertCountEqual(self.main_user.delegates.all(), [self.user1, self.user2])
-        self.assertCountEqual(self.main_user.represented_users.all(), [self.user3])
-        self.assertCountEqual(self.main_user.cc_users.all(), [self.user1])
-        self.assertCountEqual(self.main_user.ccing_users.all(), [])
         self.assertFalse(self.main_user.is_superuser)
+        self.assertEqual(set(self.main_user.groups.all()), {self.group1})
+        self.assertEqual(set(self.main_user.delegates.all()), {self.user1, self.user2})
+        self.assertEqual(set(self.main_user.represented_users.all()), {self.user3})
+        self.assertEqual(set(self.main_user.cc_users.all()), {self.user1})
+        self.assertEqual(set(self.main_user.ccing_users.all()), set())
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
+
         self.assertEqual(self.other_user.username, "other_user")
         self.assertEqual(self.other_user.title, "")
         self.assertEqual(self.other_user.first_name, "Other")
         self.assertEqual(self.other_user.last_name, "User")
         self.assertEqual(self.other_user.email, "other@test.com")
-        self.assertCountEqual(self.other_user.groups.all(), [self.group2])
-        self.assertCountEqual(self.other_user.delegates.all(), [self.user3])
-        self.assertCountEqual(self.other_user.represented_users.all(), [self.user1])
-        self.assertCountEqual(self.other_user.cc_users.all(), [])
-        self.assertCountEqual(self.other_user.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
-        self.assertSequenceEqual(self.course3.responsibles.all(), [self.other_user])
-        self.assertCountEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
-        self.assertCountEqual(self.evaluation1.participants.all(), [self.main_user, self.other_user])
-        self.assertCountEqual(self.evaluation2.participants.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation2.voters.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation3.participants.all(), [self.other_user])
-        self.assertCountEqual(self.evaluation3.voters.all(), [self.other_user])
+        self.assertEqual(set(self.other_user.groups.all()), {self.group2})
+        self.assertEqual(set(self.other_user.delegates.all()), {self.user3})
+        self.assertEqual(set(self.other_user.represented_users.all()), {self.user1})
+        self.assertEqual(set(self.other_user.cc_users.all()), set())
+        self.assertEqual(set(self.other_user.ccing_users.all()), {self.user1, self.user2})
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
 
-        # fix data
+        self.assertEqual(set(self.course1.responsibles.all()), {self.main_user})
+        self.assertEqual(set(self.course2.responsibles.all()), {self.main_user})
+        self.assertEqual(set(self.course3.responsibles.all()), {self.other_user})
+        self.assertEqual(set(self.evaluation1.participants.all()), {self.main_user, self.other_user})
+        self.assertEqual(set(self.evaluation1.participants.all()), {self.main_user, self.other_user})
+        self.assertEqual(set(self.evaluation2.participants.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation2.voters.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation3.participants.all()), {self.other_user})
+        self.assertEqual(set(self.evaluation3.voters.all()), {self.other_user})
+
+    def test_merge_users_changes_data_on_success(self):
+        # Fix data so that the merge will not fail as in test_merge_users_does_not_change_data_on_fail
         self.evaluation1.participants.set([self.main_user])
         self.contribution2.delete()
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
         self.assertEqual(errors, [])
-        self.assertCountEqual(warnings, ['rewards'])  # rewards warning is still there
+        self.assertEqual(warnings, ['rewards'])  # rewards warning is still there
 
         self.main_user.refresh_from_db()
+
         self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
         self.assertEqual(self.main_user.last_name, "User")
         self.assertEqual(self.main_user.email, "other@test.com")
-        self.assertCountEqual(self.main_user.groups.all(), [self.group1, self.group2])
-        self.assertCountEqual(self.main_user.delegates.all(), [self.user1, self.user2, self.user3])
-        self.assertCountEqual(self.main_user.represented_users.all(), [self.user1, self.user3])
-        self.assertCountEqual(self.main_user.cc_users.all(), [self.user1])
-        self.assertCountEqual(self.main_user.ccing_users.all(), [self.user1, self.user2])
-        self.assertSequenceEqual(self.course1.responsibles.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
-        self.assertSequenceEqual(self.course2.responsibles.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation1.participants.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation2.participants.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation2.voters.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation3.participants.all(), [self.main_user])
-        self.assertCountEqual(self.evaluation3.voters.all(), [self.main_user])
         self.assertTrue(self.main_user.is_superuser)
+        self.assertEqual(set(self.main_user.groups.all()), {self.group1, self.group2})
+        self.assertEqual(set(self.main_user.delegates.all()), {self.user1, self.user2, self.user3})
+        self.assertEqual(set(self.main_user.represented_users.all()), {self.user1, self.user3})
+        self.assertEqual(set(self.main_user.cc_users.all()), {self.user1})
+        self.assertEqual(set(self.main_user.ccing_users.all()), {self.user1, self.user2})
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
+
+        self.assertEqual(set(self.course1.responsibles.all()), {self.main_user})
+        self.assertEqual(set(self.course2.responsibles.all()), {self.main_user})
+        self.assertEqual(set(self.course2.responsibles.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation1.participants.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation2.participants.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation2.voters.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation3.participants.all()), {self.main_user})
+        self.assertEqual(set(self.evaluation3.voters.all()), {self.main_user})
+
+        self.assertFalse(UserProfile.objects.filter(username="other_user").exists())
         self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
