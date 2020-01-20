@@ -409,7 +409,7 @@ class UserImporter(ExcelImporter):
                     orig_sheet=orig_sheet,
                     orig_row=orig_row + 1,
             )
-            self.warnings[self.W_IGNORED].append(mark_safe(warningstring))
+            self.warnings[self.W_IGNORED].append(warningstring)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
