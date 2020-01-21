@@ -35,12 +35,12 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
                               EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
                               FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
-from evap.staff.tools import (bulk_delete_users, delete_import_file, delete_navbar_cache_for_users,
+from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation)
+                              save_import_file, find_next_unreviewed_evaluation, ImportType)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -439,7 +439,7 @@ def semester_import(request, semester_id):
         raise PermissionDenied
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    import_type = 'semester'
+    import_type = ImportType.Semester
 
     errors = []
     warnings = {}
@@ -965,7 +965,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = 'participant' if 'participants' in operation else 'contributor'
+        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
@@ -994,8 +994,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
-    participant_test_passed = import_file_exists(request.user.id, 'participant')
-    contributor_test_passed = import_file_exists(request.user.id, 'contributor')
+    participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
@@ -1470,7 +1470,7 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    import_type = 'user'
+    import_type = ImportType.User
 
     errors = []
     warnings = {}
@@ -1548,23 +1548,40 @@ def user_delete(request):
 
 
 @manager_required
-def user_bulk_delete(request):
-    form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
+def user_bulk_update(request):
+    form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
+    test_run = operation == 'test'
+    import_type = ImportType.UserBulkUpdate
 
-    if form.is_valid():
-        if operation not in ('test', 'bulk_delete'):
+    if request.POST:
+        if operation not in ('test', 'bulk_update'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        test_run = operation == 'test'
-        username_file = form.cleaned_data['username_file']
-        bulk_delete_users(request, username_file, test_run)
-
         if test_run:
-            return render(request, "staff_user_bulk_delete.html", dict(form=form))
-        return redirect('staff:user_index')
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            form.file_required = True
+            if form.is_valid():
+                username_file = form.cleaned_data['username_file']
+                file_content = username_file.read()
+                success = False
+                try:
+                    success = bulk_update_users(request, file_content, test_run)
+                except Exception:  # pylint: disable=broad-except
+                    if settings.DEBUG:
+                        raise
+                    messages.error(request, _("An error happened when processing the file. Make sure the file meets the requirements."))
 
-    return render(request, "staff_user_bulk_delete.html", dict(form=form))
+                if success:
+                    save_import_file(username_file, request.user.id, import_type)
+        else:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            bulk_update_users(request, file_content, test_run)
+            delete_import_file(request.user.id, import_type)
+            return redirect('staff:user_index')
+
+    test_passed = import_file_exists(request.user.id, import_type)
+    return render(request, "staff_user_bulk_update.html", dict(form=form, test_passed=test_passed))
 
 
 @manager_required

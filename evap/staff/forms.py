@@ -78,8 +78,16 @@ class EvaluationParticipantCopyForm(forms.Form):
             raise ValidationError(_("Please select an evaluation from the dropdown menu."))
 
 
-class UserBulkDeleteForm(forms.Form):
-    username_file = forms.FileField(label=_("Username file"))
+class UserBulkUpdateForm(forms.Form):
+    username_file = forms.FileField(label=_("Username file"), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.file_required = False
+
+    def clean(self):
+        if self.file_required and self.cleaned_data['username_file'] is None:
+            raise ValidationError(_("Please select a file."))
 
 
 class SemesterForm(forms.ModelForm):
