@@ -860,6 +860,8 @@ class TestEvaluationOperationView(WebTest):
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.semester = baker.make(Semester, pk=1)
+        cls.responsible = baker.make(UserProfile, email='responsible@example.com')
+        cls.course = baker.make(Course, semester=cls.semester, responsibles=[cls.responsible])
 
     def helper_publish_evaluation_with_publish_notifications_for(self, evaluation, contributors=True, participants=True):
         page = self.app.get("/staff/semester/1", user="manager")
@@ -881,8 +883,7 @@ class TestEvaluationOperationView(WebTest):
         participant2 = baker.make(UserProfile, email="bar@example.com")
         contributor1 = baker.make(UserProfile, email="contributor@example.com")
 
-        course = baker.make(Course, semester=self.semester)
-        evaluation = baker.make(Evaluation, course=course, state='reviewed',
+        evaluation = baker.make(Evaluation, course=self.course, state='reviewed',
                                 participants=[participant1, participant2], voters=[participant1, participant2])
         baker.make(Contribution, contributor=contributor1, evaluation=evaluation)
 
@@ -926,35 +927,34 @@ class TestEvaluationOperationView(WebTest):
     def test_semester_publish(self):
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
-        course = baker.make(Course, semester=self.semester)
-        evaluation = baker.make(Evaluation, course=course, state='reviewed',
+        evaluation = baker.make(Evaluation, course=self.course, state='reviewed',
                                 participants=[participant1, participant2], voters=[participant1, participant2])
 
         self.helper_semester_state_views(evaluation, "reviewed", "published")
         self.assertEqual(len(mail.outbox), 2)
 
     def test_semester_reset_1(self):
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester), state='prepared')
+        evaluation = baker.make(Evaluation, course=self.course, state='prepared')
         self.helper_semester_state_views(evaluation, "prepared", "new")
 
     def test_semester_reset_2(self):
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester), state='approved')
+        evaluation = baker.make(Evaluation, course=self.course, state='approved')
         self.helper_semester_state_views(evaluation, "approved", "new")
 
     def test_semester_contributor_ready_1(self):
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester), state='new')
+        evaluation = baker.make(Evaluation, course=self.course, state='new')
         self.helper_semester_state_views(evaluation, "new", "prepared")
 
     def test_semester_contributor_ready_2(self):
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester), state='editor_approved')
+        evaluation = baker.make(Evaluation, course=self.course, state='editor_approved')
         self.helper_semester_state_views(evaluation, "editor_approved", "prepared")
 
     def test_semester_unpublish(self):
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester), state='published', _participant_count=0, _voter_count=0)
+        evaluation = baker.make(Evaluation, course=self.course, state='published', _participant_count=0, _voter_count=0)
         self.helper_semester_state_views(evaluation, "published", "reviewed")
 
     def test_operation_start_evaluation(self):
-        evaluation = baker.make(Evaluation, state='approved', course=baker.make(Course, semester=self.semester))
+        evaluation = baker.make(Evaluation, state='approved', course=self.course)
         urloptions = '?evaluation={}&target_state=in_evaluation'.format(evaluation.pk)
 
         response = self.app.get(self.url + urloptions, user='manager')
@@ -967,7 +967,7 @@ class TestEvaluationOperationView(WebTest):
         self.assertEqual(evaluation.state, 'in_evaluation')
 
     def test_operation_prepare(self):
-        evaluation = baker.make(Evaluation, state='new', course=baker.make(Course, semester=self.semester))
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
         urloptions = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
 
         response = self.app.get(self.url + urloptions, user='manager')
