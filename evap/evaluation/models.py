@@ -1259,7 +1259,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
                 name = self.title + " " + name
             return name
 
-        return self.username
+        return self.username.replace(" ", "\u00A0")  # replace spaces with non-breaking spaces
 
     @property
     def full_name_with_username(self):
