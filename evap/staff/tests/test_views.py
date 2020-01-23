@@ -972,12 +972,113 @@ class TestEvaluationOperationView(WebTest):
 
         response = self.app.get(self.url + urloptions, user='manager')
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
-
         form = response.forms['evaluation-operation-form']
         form.submit()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation.state, 'prepared')
+
+    def submit_operation_prepare_form(self, url_options):
+        actual_emails = []
+
+        def mock(email_template, user, subject_params, body_params, use_cc, additional_cc_users=None, request=None):
+            actual_emails.append({
+                'user': user,
+                'subject': email_template.subject,
+                'subject_params': subject_params,
+                'body': email_template.body,
+                'body_params': body_params,
+                'use_cc': use_cc,
+                'additional_cc_users': set(additional_cc_users),
+            })
+
+        response = self.app.get(self.url + url_options, user='manager')
+        form = response.forms['evaluation-operation-form']
+        form['send_email'] = True
+        form['email_subject'] = 'New evaluations ready for review'
+        form['email_body'] = 'There are evaluations that need your approval.'
+
+        with patch.object(EmailTemplate, 'send_to_user', mock):
+            form.submit()
+
+        return actual_emails
+
+    def test_operation_prepare_sends_email_to_responsible(self):
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
+        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(actual_emails, [{
+            'user': self.responsible,
+            'subject': 'New evaluations ready for review',
+            'subject_params': {},
+            'body': 'There are evaluations that need your approval.',
+            'body_params': {'user': self.responsible, 'evaluations': [evaluation]},
+            'use_cc': True,
+            'additional_cc_users': set(),
+        }])
+
+    def test_operation_prepare_sends_one_email_to_each_responsible(self):
+        other_responsible = baker.make(UserProfile, email='co-responsible@example.com')
+        self.course.responsibles.add(other_responsible)
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
+        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(len(actual_emails), 2)
+
+        email_to_responsible = next(email for email in actual_emails if email['user'] == self.responsible)
+        self.assertEqual(email_to_responsible['body_params'], {'user': self.responsible, 'evaluations': [evaluation]})
+
+        email_to_other_responsible = next(email for email in actual_emails if email['user'] == other_responsible)
+        self.assertEqual(email_to_other_responsible['body_params'], {'user': other_responsible, 'evaluations': [evaluation]})
+
+    def test_operation_prepare_with_multiple_evaluations(self):
+        responsible_b = baker.make(UserProfile, email='responsible-b@example.com')
+        course_b = baker.make(Course, semester=self.semester, responsibles=[responsible_b])
+        evaluation_a = baker.make(Evaluation, state='new', course=self.course)
+        evaluation_b = baker.make(Evaluation, state='new', course=course_b)
+        url_options = '?evaluation={}&evaluation={}&target_state=prepared'.format(evaluation_a.pk, evaluation_b.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(len(actual_emails), 2)
+
+        email_to_responsible = next(email for email in actual_emails if email['user'] == self.responsible)
+        self.assertEqual(email_to_responsible['body_params'], {'user': self.responsible, 'evaluations': [evaluation_a]})
+
+        email_to_responsible_b = next(email for email in actual_emails if email['user'] == responsible_b)
+        self.assertEqual(email_to_responsible_b['body_params'], {'user': responsible_b, 'evaluations': [evaluation_b]})
+
+    def test_operation_prepare_sends_email_with_editors_in_cc(self):
+        editor_a = baker.make(UserProfile, email='editor-a@example.com')
+        editor_b = baker.make(UserProfile, email='editor-b@example.com')
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_a, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_b, can_edit=True)
+        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(len(actual_emails), 1)
+        self.assertEqual(actual_emails[0]['additional_cc_users'], {editor_a, editor_b})
+
+    def test_operation_prepare_does_not_put_responsible_into_cc(self):
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
+        baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, can_edit=True)
+        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(len(actual_emails), 1)
+        self.assertEqual(actual_emails[0]['additional_cc_users'], set())
+
+    def test_operation_prepare_does_not_send_email_to_contributors(self):
+        contributor = baker.make(UserProfile, email='contributor@example.com')
+        evaluation = baker.make(Evaluation, state='new', course=self.course)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor, can_edit=False)
+        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        actual_emails = self.submit_operation_prepare_form(url_options)
+
+        self.assertEqual(len(actual_emails), 1)
+        self.assertEqual(actual_emails[0]['additional_cc_users'], set())
 
 
 class TestCourseCreateView(WebTest):
