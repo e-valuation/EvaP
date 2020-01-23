@@ -574,17 +574,19 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {cc_a.email, cc_b.email})
 
-    def test_put_additional_cc_user_in_cc(self):
-        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+    def test_put_additional_cc_users_in_cc(self):
+        additional_cc_b = baker.make(UserProfile, email='additional-b@example.com')
+        self.template.send_to_user(self.user, {}, {}, use_cc=True,
+                                   additional_cc_users=[self.additional_cc, additional_cc_b])
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, additional_cc_b.email})
 
     def test_put_delegates_of_additional_cc_user_in_cc(self):
         additional_delegate_a = baker.make(UserProfile, email='additional-delegate-a@example.com')
         additional_delegate_b = baker.make(UserProfile, email='additional-delegate-b@example.com')
         self.additional_cc.delegates.add(additional_delegate_a, additional_delegate_b)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc),
@@ -598,7 +600,7 @@ class TestEmailTemplate(TestCase):
         self.user.cc_users.add(self.additional_cc, user_b)
         self.additional_cc.delegates.add(user_b, user_c)
         self.additional_cc.cc_users.add(user_a, user_c)
-        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(len(mail.outbox[0].cc), 4)
@@ -611,7 +613,7 @@ class TestEmailTemplate(TestCase):
         self.user.cc_users.add(cc_user)
         self.additional_cc.delegates.add(delegate)
         self.additional_cc.cc_users.add(cc_user)
-        self.template.send_to_user(self.user, {}, {}, use_cc=False, additional_cc_user=self.additional_cc)
+        self.template.send_to_user(self.user, {}, {}, use_cc=False, additional_cc_users=[self.additional_cc])
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
