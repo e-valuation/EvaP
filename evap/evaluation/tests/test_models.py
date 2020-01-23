@@ -538,7 +538,14 @@ class TestLoginUrlEmail(TestCase):
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
 
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class TestEmailTemplate(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(UserProfile, email='user@example.com')
+        cls.additional_cc = baker.make(UserProfile, email='additional@example.com')
+        cls.template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+
     @staticmethod
     def test_missing_email_address():
         """
@@ -548,6 +555,66 @@ class TestEmailTemplate(TestCase):
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         template.send_to_user(user, {}, {}, False, None)
+
+    def test_put_delegates_in_cc(self):
+        delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
+        delegate_b = baker.make(UserProfile, email='delegate-b@example.com')
+        self.user.delegates.add(delegate_a, delegate_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {delegate_a.email, delegate_b.email})
+
+    def test_put_cc_users_in_cc(self):
+        cc_a = baker.make(UserProfile, email='cc-a@example.com')
+        cc_b = baker.make(UserProfile, email='cc-b@example.com')
+        self.user.cc_users.add(cc_a, cc_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {cc_a.email, cc_b.email})
+
+    def test_put_additional_cc_user_in_cc(self):
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
+
+    def test_put_delegates_of_additional_cc_user_in_cc(self):
+        additional_delegate_a = baker.make(UserProfile, email='additional-delegate-a@example.com')
+        additional_delegate_b = baker.make(UserProfile, email='additional-delegate-b@example.com')
+        self.additional_cc.delegates.add(additional_delegate_a, additional_delegate_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc),
+            {self.additional_cc.email, additional_delegate_a.email, additional_delegate_b.email})
+
+    def test_cc_does_not_contain_duplicates(self):
+        user_a = baker.make(UserProfile, email='a@example.com')
+        user_b = baker.make(UserProfile, email='b@example.com')
+        user_c = baker.make(UserProfile, email='c@example.com')
+        self.user.delegates.add(user_a)
+        self.user.cc_users.add(self.additional_cc, user_b)
+        self.additional_cc.delegates.add(user_b, user_c)
+        self.additional_cc.cc_users.add(user_a, user_c)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_user=self.additional_cc)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].cc), 4)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, user_a.email, user_b.email, user_c.email})
+
+    def test_disable_cc(self):
+        delegate = baker.make(UserProfile, email='delegate@example.com')
+        cc_user = baker.make(UserProfile, email='cc@example.com')
+        self.user.delegates.add(delegate)
+        self.user.cc_users.add(cc_user)
+        self.additional_cc.delegates.add(delegate)
+        self.additional_cc.cc_users.add(cc_user)
+        self.template.send_to_user(self.user, {}, {}, use_cc=False, additional_cc_user=self.additional_cc)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
 
 
 class TestEmailRecipientList(TestCase):
