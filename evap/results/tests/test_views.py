@@ -97,9 +97,13 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
         """ Regression test for #1248 """
         participants = baker.make(UserProfile, _quantity=2)
-        evaluation = baker.make(Evaluation,
-            state='published', _participant_count=2, _voter_count=2,
-            participants=participants, voters=participants
+        evaluation = baker.make(
+            Evaluation,
+            state='published',
+            _participant_count=2,
+            _voter_count=2,
+            participants=participants,
+            voters=participants,
         )
         participants[0].delete()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
