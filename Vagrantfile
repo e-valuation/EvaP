@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
   # this user, so mounting before does not work with an owner specified by name.
   # Also, provision needs to use vagrant as ssh user (since evap does not exist yet)
   config.vm.synced_folder ".", "/evap", mount_options: ["uid=1042", "gid=1042"]
-  if ARGV[0] == "ssh"
+  if ARGV[0] == "ssh" or ARGV[0] == "ssh-config"
     config.ssh.username = 'evap'
   end
 
