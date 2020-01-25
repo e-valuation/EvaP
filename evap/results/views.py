@@ -51,7 +51,7 @@ def _delete_course_template_cache_impl(course):
 def warm_up_template_cache(evaluations):
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
     current_language = translation.get_language()
-    courses_to_render = set([evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1])
+    courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
     try:
         for course in courses_to_render:
             translation.activate('en')
@@ -171,8 +171,6 @@ def evaluation_detail(request, semester_id, evaluation_id):
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
-    evaluation_result = collect_results(evaluation)
-
     if request.user.is_reviewer:
         view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
     else:
@@ -191,66 +189,25 @@ def evaluation_detail(request, semester_id, evaluation_id):
     if not evaluation.can_publish_rating_results and view == 'public':
         view = 'full'
 
-    # remove text answers if the user may not see them
-    for questionnaire_result in evaluation_result.questionnaire_results:
-        for question_result in questionnaire_result.question_results:
-            if isinstance(question_result, TextResult):
-                question_result.answers = [answer for answer in question_result.answers if can_textanswer_be_seen_by(view_as_user, represented_users, answer, view)]
-        # remove empty TextResults
-        questionnaire_result.question_results = [result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0]
-
-    # filter empty headings
-    for questionnaire_result in evaluation_result.questionnaire_results:
-        filtered_question_results = []
-        for index, question_result in enumerate(questionnaire_result.question_results):
-            # filter out if there are no more questions or the next question is also a heading question
-            if isinstance(question_result, HeadingResult):
-                if index == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[index + 1], HeadingResult):
-                    continue
-            filtered_question_results.append(question_result)
-        questionnaire_result.question_results = filtered_question_results
-
-    # remove empty questionnaire_results and contribution_results
-    for contribution_result in evaluation_result.contribution_results:
-        contribution_result.questionnaire_results = [questionnaire_result for questionnaire_result in contribution_result.questionnaire_results if questionnaire_result.question_results]
-    evaluation_result.contribution_results = [contribution_result for contribution_result in evaluation_result.contribution_results if contribution_result.questionnaire_results]
-
+    evaluation_result = collect_results(evaluation)
+    remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
+    filter_empty_headings(evaluation_result)
+    remove_empty_questionnaire_and_contribution_results(evaluation_result)
     add_warnings(evaluation, evaluation_result)
 
-    # split evaluation_result into different lists
-    general_questionnaire_results_top = []
-    general_questionnaire_results_bottom = []
-    contributor_contribution_results = []
-    for contribution_result in evaluation_result.contribution_results:
-        if contribution_result.contributor is None:
-            for questionnaire_result in contribution_result.questionnaire_results:
-                if questionnaire_result.questionnaire.is_below_contributors:
-                    general_questionnaire_results_bottom.append(questionnaire_result)
-                else:
-                    general_questionnaire_results_top.append(questionnaire_result)
-        elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
-            contributor_contribution_results.append(contribution_result)
+    top_results, bottom_results, contributor_results = split_evaluation_result_into_top_bottom_and_contributor(
+        evaluation_result, view_as_user, view
+    )
 
-    if not contributor_contribution_results:
-        general_questionnaire_results_top += general_questionnaire_results_bottom
-        general_questionnaire_results_bottom = []
-
-    course_evaluations = []
-    if evaluation.course.evaluations.count() > 1:
-        course_evaluations = [evaluation for evaluation in evaluation.course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)]
-        if request.user.is_reviewer:
-            course_evaluations += evaluation.course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
-        course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
-        for course_evaluation in course_evaluations:
-            if course_evaluation.is_single_result:
-                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
-            else:
-                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
-                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
+    course_evaluations = get_evaluations_of_course(evaluation.course, request)
 
     contributors_with_omitted_results = []
     if view == 'export':
-        contributors_with_omitted_results = [contribution_result.contributor for contribution_result in evaluation_result.contribution_results if contribution_result.contributor not in [None, view_as_user]]
+        contributors_with_omitted_results = [
+            contribution_result.contributor
+            for contribution_result in evaluation_result.contribution_results
+            if contribution_result.contributor not in [None, view_as_user]
+        ]
 
     # if the evaluation is not published, the rendered results are not cached, so we need to attach distribution
     # information for rendering the distribution bar
@@ -261,9 +218,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         evaluation=evaluation,
         course=evaluation.course,
         course_evaluations=course_evaluations,
-        general_questionnaire_results_top=general_questionnaire_results_top,
-        general_questionnaire_results_bottom=general_questionnaire_results_bottom,
-        contributor_contribution_results=contributor_contribution_results,
+        general_questionnaire_results_top=top_results,
+        general_questionnaire_results_bottom=bottom_results,
+        contributor_contribution_results=contributor_results,
         is_reviewer=view_as_user.is_reviewer,
         is_contributor=evaluation.is_user_contributor(view_as_user),
         is_responsible_or_contributor_or_delegate=evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user),
@@ -273,6 +230,89 @@ def evaluation_detail(request, semester_id, evaluation_id):
         contributors_with_omitted_results=contributors_with_omitted_results,
     )
     return render(request, "results_evaluation_detail.html", template_data)
+
+
+def remove_textanswers_that_the_user_must_not_see(evaluation_result, user, represented_users, view):
+    for questionnaire_result in evaluation_result.questionnaire_results:
+        for question_result in questionnaire_result.question_results:
+            if isinstance(question_result, TextResult):
+                question_result.answers = [
+                    answer for answer in question_result.answers
+                    if can_textanswer_be_seen_by(user, represented_users, answer, view)
+                ]
+        # remove empty TextResults
+        questionnaire_result.question_results = [
+            result for result in questionnaire_result.question_results
+            if not isinstance(result, TextResult) or len(result.answers) > 0
+        ]
+
+
+def filter_empty_headings(evaluation_result):
+    for questionnaire_result in evaluation_result.questionnaire_results:
+        filtered_question_results = []
+        for i, question_result in enumerate(questionnaire_result.question_results):
+            # filter out if there are no more questions or the next question is also a heading question
+            if isinstance(question_result, HeadingResult):
+                if i == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[i + 1], HeadingResult):
+                    continue
+            filtered_question_results.append(question_result)
+        questionnaire_result.question_results = filtered_question_results
+
+
+def remove_empty_questionnaire_and_contribution_results(evaluation_result):
+    for contribution_result in evaluation_result.contribution_results:
+        contribution_result.questionnaire_results = [
+            questionnaire_result
+            for questionnaire_result in contribution_result.questionnaire_results
+            if questionnaire_result.question_results
+        ]
+    evaluation_result.contribution_results = [
+        contribution_result
+        for contribution_result in evaluation_result.contribution_results
+        if contribution_result.questionnaire_results
+    ]
+
+
+def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, view_as_user, view):
+    top_results = []
+    bottom_results = []
+    contributor_results = []
+
+    for contribution_result in evaluation_result.contribution_results:
+        if contribution_result.contributor is None:
+            for questionnaire_result in contribution_result.questionnaire_results:
+                if questionnaire_result.questionnaire.is_below_contributors:
+                    bottom_results.append(questionnaire_result)
+                else:
+                    top_results.append(questionnaire_result)
+        elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
+            contributor_results.append(contribution_result)
+
+    if not contributor_results:
+        top_results += bottom_results
+        bottom_results = []
+
+    return top_results, bottom_results, contributor_results
+
+
+def get_evaluations_of_course(course, request):
+    course_evaluations = []
+
+    if course.evaluations.count() > 1:
+        course_evaluations = [evaluation for evaluation in course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)]
+        if request.user.is_reviewer:
+            course_evaluations += course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
+
+        course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
+
+        for course_evaluation in course_evaluations:
+            if course_evaluation.is_single_result:
+                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
+            else:
+                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
+                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
+
+    return course_evaluations
 
 
 def add_warnings(evaluation, evaluation_result):

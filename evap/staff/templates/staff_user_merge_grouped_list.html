@@ -1,0 +1,14 @@
+{% for group in grouped_list %}
+    {{ group.grouper }}
+    <ul>
+        {% for subgroup in group.list %}
+            {% if subgroup.full_name %}
+                <li>{{ subgroup.full_name }}</li>
+            {% elif subgroup.name %}
+                <li>{{ subgroup.name }}</li>
+            {% elif subgroup.evaluation.full_name %}
+                <li>{{ subgroup.evaluation.full_name }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endfor %}

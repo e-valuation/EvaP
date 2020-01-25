@@ -1,1 +1,1 @@
-from evap.locale.en.formats import *
+from evap.locale.en.formats import *  # pylint: disable=unused-wildcard-import,wildcard-import

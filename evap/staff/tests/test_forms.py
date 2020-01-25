@@ -261,7 +261,8 @@ class ContributionFormsetTests(TestCase):
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
-    def test_deleted_empty_contribution_does_not_crash(self):
+    @staticmethod
+    def test_deleted_empty_contribution_does_not_crash():
         """
             When removing the empty extra contribution formset, validating the form should not crash.
             Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
@@ -376,8 +377,8 @@ class ContributionFormsetTests(TestCase):
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only}
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
         # Suppose we had a hidden questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_hidden])
@@ -386,8 +387,8 @@ class ContributionFormsetTests(TestCase):
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
-        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset.all()))
-        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset.all()))
+        self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
+        self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
     def test_staff_can_select_proxy_user(self):
         proxy_user = baker.make(UserProfile, is_proxy_user=True)

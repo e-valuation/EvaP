@@ -11,6 +11,7 @@ from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter
 
 class TestUserImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
+    filename_duplicate = os.path.join(settings.BASE_DIR, "staff/fixtures/duplicate_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
@@ -24,6 +25,8 @@ class TestUserImporter(TestCase):
             cls.invalid_excel_content = excel_file.read()
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
+        with open(cls.filename_duplicate, "rb") as excel_file:
+            cls.duplicate_excel_content = excel_file.read()
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
@@ -70,6 +73,13 @@ class TestUserImporter(TestCase):
                 " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
                 " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
                 warnings_test[ExcelImporter.W_DUPL])
+
+    def test_ignored_duplicate_warning(self):
+        __, __, warnings_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=True)
+        __, __, warnings_no_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=False)
+
+        self.assertEqual(warnings_test, warnings_no_test)
+        self.assertTrue(any("The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3." in warning for warning in warnings_test[ExcelImporter.W_IGNORED]))
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()

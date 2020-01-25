@@ -1,9 +1,11 @@
-{% if not mode == 'student' %}
+{% if not mode == 'student' and not mode == 'subentry' %}
     {% for degree in evaluation.course.degrees.all %}
-        <span class="badge badge-primary">{{ degree }}</span>
+        <span class="badge badge-primary badge-degree">{{ degree }}</span>
     {% endfor %}
 {% endif %}
-<span class="badge badge-secondary">{{ evaluation.course.type }}</span>
+{% if not mode == 'subentry' %}
+    <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
+{% endif %}
 {% if evaluation.is_single_result %}
     <span class="badge badge-success">{% trans 'Single result' %}</span>
 {% endif %}

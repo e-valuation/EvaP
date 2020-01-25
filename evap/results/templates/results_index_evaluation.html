@@ -12,14 +12,10 @@
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview-row{% endif %}">
     <div data-col="name"{% if not is_subentry %} data-order="{{ evaluation.course.name|lower }}"{% endif %}>
         <div>
-            {% if not is_subentry %}
-                {% for degree in evaluation.course.degrees.all %}
-                    <span class="badge badge-primary badge-degree">{{ degree }}</span>
-                {% endfor %}
-                <span class="badge badge-secondary badge-course-type">{{ evaluation.course.type }}</span>
-            {% endif %}
-            {% if evaluation.is_single_result %}
-                <span class="badge badge-success">{% trans 'Single result' %}</span>
+            {% if is_subentry %}
+                {% include 'evaluation_badges.html' with mode='subentry' %}
+            {% else %}
+                {% include 'evaluation_badges.html' %}
             {% endif %}
         </div>
         <span class="evaluation-name">

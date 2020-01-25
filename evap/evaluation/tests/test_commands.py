@@ -139,7 +139,8 @@ class TestAnonymizeCommand(TestCase):
 
 
 class TestRunCommand(TestCase):
-    def test_calls_runserver(self):
+    @staticmethod
+    def test_calls_runserver():
         args = ["manage.py", "runserver", "0.0.0.0:8000"]
         with patch('django.core.management.execute_from_command_line') as mock:
             management.call_command('run', stdout=StringIO())
@@ -194,7 +195,8 @@ class TestUpdateEvaluationStatesCommand(TestCase):
 
 
 class TestDumpTestDataCommand(TestCase):
-    def test_dumpdata_called(self):
+    @staticmethod
+    def test_dumpdata_called():
         with patch('evap.evaluation.management.commands.dump_testdata.call_command') as mock:
             management.call_command('dump_testdata')
 

@@ -391,7 +391,8 @@ class TestSemesterView(WebTest):
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
-    def test_get_evaluations_with_prefetched_data(self):
+    @staticmethod
+    def test_get_evaluations_with_prefetched_data():
         evaluation = baker.make(Evaluation, is_single_result=True)
         get_evaluations_with_prefetched_data(evaluation.course.semester)
 
@@ -542,21 +543,23 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
         self.assertContains(response, 'user_to_find')
         self.assertContains(response, 'name_to_find')
 
-    @patch("evap.staff.views.EmailTemplate.send_to_user")
-    def test_remind_all(self, send_to_user_mock):
+    @patch("evap.staff.views.EmailTemplate")
+    def test_remind_all(self, email_template_mock):
         user = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester, responsibles=[user]), state='prepared')
+
+        email_template_mock.objects.get.return_value = email_template_mock
+        email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
         response = self.app.post(self.url, user='manager')
         self.assertEqual(response.status_code, 200)
 
-        template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
         subject_params = {}
         body_params = {"user": user, "evaluations": [evaluation]}
-        expected = (user, template, subject_params, body_params)
+        expected = (user, subject_params, body_params)
 
-        send_to_user_mock.assert_called_once()
-        self.assertEqual(send_to_user_mock.call_args_list[0][0][:4], expected)
+        email_template_mock.send_to_user.assert_called_once()
+        self.assertEqual(email_template_mock.send_to_user.call_args_list[0][0][:4], expected)
 
 
 class TestSendReminderView(WebTest):

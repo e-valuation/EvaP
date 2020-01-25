@@ -1,7 +1,6 @@
 from functools import wraps
 import unicodedata
 
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.views import redirect_to_login
@@ -10,6 +9,7 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email
+from evap.rewards.tools import can_reward_points_be_used_by
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -20,7 +20,9 @@ class RequestAuthUserBackend(ModelBackend):
 
     It looks for the appropriate key in the login_key field of the UserProfile.
     """
-    def authenticate(self, request, key):
+    # Having a different method signature is okay according to django documentation:
+    # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#writing-an-authentication-backend
+    def authenticate(self, request, key):  # pylint: disable=arguments-differ
         if not key:
             return None
 
@@ -44,8 +46,7 @@ def user_passes_test(test_func):
                 return redirect_to_login(request.get_full_path())
             if not test_func(request.user):
                 raise PermissionDenied()
-            else:
-                return view_func(request, *args, **kwargs)
+            return view_func(request, *args, **kwargs)
         return _wrapped_view
     return decorator
 
@@ -150,7 +151,6 @@ def reward_user_required(view_func):
     reward points.
     """
     def check_user(user):
-        from evap.rewards.tools import can_reward_points_be_used_by
         return can_reward_points_be_used_by(user)
     return user_passes_test(check_user)(view_func)
 
@@ -163,20 +163,21 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             return []
 
         try:
-            return [UserProfile.objects.get(email=clean_email(email))]
+            return [self.UserModel.objects.get(email=clean_email(email))]
         except UserProfile.DoesNotExist:
             return []
 
     def create_user(self, claims):
-        user = UserProfile.objects.create(
-            username = generate_username_from_email(claims.get('email')),
-            email = claims.get('email'),
-            first_name = claims.get('given_name', ''),
-            last_name = claims.get('family_name', ''),
+        user = self.UserModel.objects.create(
+            username=generate_username_from_email(claims.get('email')),
+            email=claims.get('email'),
+            first_name=claims.get('given_name', ''),
+            last_name=claims.get('family_name', ''),
         )
         return user
 
-    def update_user(self, user, claims):
+    @staticmethod
+    def update_user(user, claims):
         user.email = claims.get('email')
         user.first_name = claims.get('given_name', '')
         user.last_name = claims.get('family_name', '')

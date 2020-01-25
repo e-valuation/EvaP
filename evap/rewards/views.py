@@ -52,7 +52,7 @@ def index(request):
             reward_point_actions=reward_point_actions,
             total_points_available=total_points_available,
             events=events,
-            point_selection=[x for x in range(0, total_points_available + 1)])
+            point_selection=range(0, total_points_available + 1))
     return render(request, "rewards_index.html", template_data)
 
 
@@ -73,8 +73,8 @@ def reward_point_redemption_event_create(request):
         form.save()
         messages.success(request, _("Successfully created event."))
         return redirect('rewards:reward_point_redemption_events')
-    else:
-        return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
+
+    return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
 
 @manager_required
@@ -87,8 +87,8 @@ def reward_point_redemption_event_edit(request, event_id):
 
         messages.success(request, _("Successfully updated event."))
         return redirect('rewards:reward_point_redemption_events')
-    else:
-        return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
+
+    return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
 
 
 @require_POST

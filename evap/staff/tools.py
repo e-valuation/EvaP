@@ -1,10 +1,7 @@
-import urllib.parse
 import os
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
@@ -62,12 +59,6 @@ def get_import_file_content_or_raise(user_id, import_type):
         return file.read()
 
 
-def custom_redirect(url_name, *args, **kwargs):
-    url = reverse(url_name, args=args)
-    params = urllib.parse.urlencode(kwargs)
-    return HttpResponseRedirect(url + "?%s" % params)
-
-
 def delete_navbar_cache_for_users(users):
     # delete navbar cache from base.html
     for user in users:
@@ -107,14 +98,16 @@ def bulk_delete_users(request, username_file, test_run):
 @transaction.atomic
 def merge_users(main_user, other_user, preview=False):
     """Merges other_user into main_user"""
+    # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
+    # pylint: disable=too-many-statements
 
     merged_user = dict()
     merged_user['username'] = main_user.username
     merged_user['is_active'] = main_user.is_active or other_user.is_active
-    merged_user['title'] = main_user.title if main_user.title else other_user.title or ""
-    merged_user['first_name'] = main_user.first_name if main_user.first_name else other_user.first_name or ""
-    merged_user['last_name'] = main_user.last_name if main_user.last_name else other_user.last_name or ""
-    merged_user['email'] = main_user.email if main_user.email else other_user.email or None
+    merged_user['title'] = main_user.title or other_user.title or ""
+    merged_user['first_name'] = main_user.first_name or other_user.first_name or ""
+    merged_user['last_name'] = main_user.last_name or other_user.last_name or ""
+    merged_user['email'] = main_user.email or other_user.email or None
 
     merged_user['groups'] = Group.objects.filter(user__in=[main_user, other_user]).distinct()
     merged_user['is_superuser'] = main_user.is_superuser or other_user.is_superuser
@@ -144,8 +137,8 @@ def merge_users(main_user, other_user, preview=False):
     merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
     merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by('course__semester__created_at', 'name_de')
 
-    merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() if main_user.reward_point_grantings.all().exists() else other_user.reward_point_grantings.all()
-    merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() if main_user.reward_point_redemptions.all().exists() else other_user.reward_point_redemptions.all()
+    merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() or other_user.reward_point_grantings.all()
+    merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() or other_user.reward_point_redemptions.all()
 
     if preview or errors:
         return merged_user, errors, warnings

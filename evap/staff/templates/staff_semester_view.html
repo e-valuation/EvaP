@@ -218,19 +218,30 @@
                     </div>
                 </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
-                    <table id="evaluation-table" class="table table-striped table-fixed table-narrow table-vertically-aligned">
+                    <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                         {% if num_evaluations > 0 %}
+                            <colgroup>
+                                <col style="width: 2.75em" />
+                                <col style="width: 1.25em" />
+                                <col style="width: 1.25em" />
+                                <col style="width: 1.25em" />
+                                <col style="width: 1.25em" />
+                                <col style="" />
+                                <col style="width: 12.25em" />
+                                <col style="width: 12em" />
+                                <col style="width: 9em" />
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="width: 2.5em"></th>
-                                    <th style="width: 1.25em" class="col-order" data-col="state-approval"></th>
-                                    <th style="width: 1.25em" class="col-order" data-col="state-evaluating"></th>
-                                    <th style="width: 1.25em" class="col-order" data-col="state-textanswers"></th>
-                                    <th style="width: 1.25em" class="col-order" data-col="state-results"></th>
+                                    <th></th>
+                                    <th class="col-order" data-col="state-approval"></th>
+                                    <th class="col-order" data-col="state-evaluating"></th>
+                                    <th class="col-order" data-col="state-textanswers"></th>
+                                    <th class="col-order" data-col="state-results"></th>
                                     <th class="col-order" data-col="name">{% trans 'Name' %}</th>
-                                    <th style="width: 11em" class="col-order" data-col="period">{% trans 'Evaluation period' %}</th>
-                                    <th style="width: 12em"></th>
-                                    <th style="width: 9em"></th>
+                                    <th class="col-order" data-col="period">{% trans 'Evaluation period' %}</th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                         {% endif %}

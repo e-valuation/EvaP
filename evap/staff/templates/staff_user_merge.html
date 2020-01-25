@@ -143,209 +143,85 @@
                             {% endfor %}
                         </td>
                     </tr>
+
                     <tr{% if 'courses_responsible_for' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Courses responsible for' %}</strong></td>
                         {% regroup main_user.get_sorted_courses_responsible_for by semester as course_list %}
                         <td{% if course_list|length > 0 %} class="info"{% endif %}>
-                            {% for courses in course_list %}
-                                {{ courses.grouper }}
-                                <ul>
-                                    {% for course in courses.list %}
-                                        <li>{{ course.name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup other_user.get_sorted_courses_responsible_for by semester as course_list %}
                         <td{% if course_list|length > 0 %} class="info"{% endif %}>
-                            {% for courses in course_list %}
-                                {{ courses.grouper }}
-                                <ul>
-                                    {% for course in courses.list %}
-                                        <li>{{ course.name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup merged_user.courses_responsible_for by semester as course_list %}
                         <td{% if course_list|length > 0 %} class="success"{% endif %}>
-                            {% for courses in course_list %}
-                                {{ courses.grouper }}
-                                <ul>
-                                    {% for course in courses.list %}
-                                        <li>{{ course.name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                     </tr>
+
                     <tr{% if 'contributions' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Contributions' %}</strong></td>
                         {% regroup main_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
-                            {% for contributions in contribution_list %}
-                                {{ contributions.grouper }}
-                                <ul>
-                                    {% for contribution in contributions.list %}
-                                        <li>{{ contribution.evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup other_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
-                            {% for contributions in contribution_list %}
-                                {{ contributions.grouper }}
-                                <ul>
-                                    {% for contribution in contributions.list %}
-                                        <li>{{ contribution.evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup merged_user.contributions by evaluation.course.semester as contribution_list %}
                         <td{% if contribution_list|length > 0 %} class="success"{% endif %}>
-                            {% for contributions in contribution_list %}
-                                {{ contributions.grouper }}
-                                <ul>
-                                    {% for contribution in contributions.list %}
-                                        <li>{{ contribution.evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                     </tr>
+
                     <tr{% if 'evaluations_participating_in' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Participated in' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="info"{% endif %}>
-                            {% for semester in participation_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="info"{% endif %}>
-                            {% for semester in participation_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                         {% regroup merged_user.evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="success"{% endif %}>
-                            {% for semester in participation_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                     </tr>
+
                     <tr{% if 'evaluations_voted_for' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Voted for' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="info"{% endif %}>
-                            {% for semester in voting_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="info"{% endif %}>
-                            {% for semester in voting_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                         {% regroup merged_user.evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="success"{% endif %}>
-                            {% for semester in voting_list %}
-                                {{ semester.grouper }}
-                                <ul>
-                                    {% for evaluation in semester.list %}
-                                        <li>{{ evaluation.full_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endfor %}
+                            {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                     </tr>
+
                     <tr>
                         <td><strong>{% trans 'Reward points' %}</strong></td>
                         <td{% if main_user.reward_point_grantings.all %} class="table-info"{% endif %}>
-                            {% if main_user.reward_point_grantings.all %}
-                                {% trans 'Grantings' %}:
-                                <ul>
-                                    {% for reward_point_granting in main_user.reward_point_grantings.all %}
-                                        <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if main_user.reward_point_redemptions.all %}
-                                {% trans 'Redemptions' %}:
-                                <ul>
-                                    {% for reward_point_redemption in main_user.reward_point_redemptions.all %}
-                                        <li>{{ reward_point_redemption.event.name }} ({{ reward_point_redemption.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                            {% include "staff_user_merge_reward_points_list.html" with user=main_user %}
                         </td>
                         <td{% if other_user.reward_point_grantings.all and not 'rewards' in warnings %} class="table-info"
                         {% elif other_user.reward_point_grantings.all and 'rewards' in warnings %} class="table-warning"{% endif %}>
                             {% if 'rewards' in warnings %}
                                 <span class="fas fa-exclamation-triangle"></span> {% trans 'The rewards of this user will be deleted and not be merged into the other user.' %}<br /><br />
                             {% endif %}
-                            {% if other_user.reward_point_grantings.all %}
-                                {% trans 'Grantings' %}:
-                                <ul>
-                                    {% for reward_point_granting in other_user.reward_point_grantings.all %}
-                                        <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if other_user.reward_point_redemptions.all %}
-                                {% trans 'Redemptions' %}:
-                                <ul>
-                                    {% for reward_point_redemption in other_user.reward_point_redemptions.all %}
-                                        <li>{{ reward_point_redemption.event.name }} ({{ reward_point_redemption.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                            {% include "staff_user_merge_reward_points_list.html" with user=other_user %}
                         </td>
                         <td{% if merged_user.reward_point_grantings %} class="table-success"{% endif %}>
-                            {% if merged_user.reward_point_grantings.all %}
-                                {% trans 'Grantings' %}:
-                                <ul>
-                                    {% for reward_point_granting in merged_user.reward_point_grantings %}
-                                        <li>{{ reward_point_granting.semester.name }} ({{ reward_point_granting.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                            {% if merged_user.reward_point_redemptions %}
-                                {% trans 'Redemptions' %}:
-                                <ul>
-                                    {% for reward_point_redemption in merged_user.reward_point_redemptions %}
-                                        <li>{{ reward_point_redemption.event.name }} ({{ reward_point_redemption.value }})</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
+                            {% include "staff_user_merge_reward_points_list.html" with user=merged_user %}
                         </td>
                     </tr>
                 </tbody>

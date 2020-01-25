@@ -1,5 +1,6 @@
 from unittest.mock import patch
 from io import StringIO
+import random
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
@@ -16,8 +17,6 @@ from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Qu
                                     Semester, UserProfile)
 from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
 from evap.results.views import get_evaluations_with_prefetched_data
-
-import random
 
 
 class TestResultsView(WebTest):
@@ -522,8 +521,8 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
         page = self.app.get(url, user='responsible')
-        self.assertIn("<li>{}</li>".format(self.other_contributor_1.username), page)
-        self.assertIn("<li>{}</li>".format(self.other_contributor_2.username), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_1.full_name), page)
+        self.assertIn("<li>{}</li>".format(self.other_contributor_2.full_name), page)
 
 
 class TestResultsTextanswerVisibilityForExportView(WebTest):

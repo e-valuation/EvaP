@@ -45,6 +45,13 @@ unsafe-load-any-extension=no
 # all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
 confidence=
 
+
+# Enable the message, report, category or checker with the given id(s). You can
+# either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once). See also the "--disable" option for examples.
+enable=all
+
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
 # option multiple times (only on the command line, not in the configuration
@@ -54,86 +61,8 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=print-statement,
-        parameter-unpacking,
-        unpacking-in-except,
-        old-raise-syntax,
-        backtick,
-        long-suffix,
-        old-ne-operator,
-        old-octal-literal,
-        import-star-module-level,
-        non-ascii-bytes-literal,
-        invalid-unicode-literal,
-        raw-checker-failed,
-        bad-inline-option,
-        locally-disabled,
-        locally-enabled,
-        file-ignored,
+disable=locally-disabled,            # we allow locally disabling some checks if we think it makes sense to do that.
         suppressed-message,
-        useless-suppression,
-        deprecated-pragma,
-        apply-builtin,
-        basestring-builtin,
-        buffer-builtin,
-        cmp-builtin,
-        coerce-builtin,
-        execfile-builtin,
-        file-builtin,
-        long-builtin,
-        raw_input-builtin,
-        reduce-builtin,
-        standarderror-builtin,
-        unicode-builtin,
-        xrange-builtin,
-        coerce-method,
-        delslice-method,
-        getslice-method,
-        setslice-method,
-        no-absolute-import,
-        old-division,
-        dict-iter-method,
-        dict-view-method,
-        next-method-called,
-        metaclass-assignment,
-        indexing-exception,
-        raising-string,
-        reload-builtin,
-        oct-method,
-        hex-method,
-        nonzero-method,
-        cmp-method,
-        input-builtin,
-        round-builtin,
-        intern-builtin,
-        unichr-builtin,
-        map-builtin-not-iterating,
-        zip-builtin-not-iterating,
-        range-builtin-not-iterating,
-        filter-builtin-not-iterating,
-        using-cmp-argument,
-        eq-without-hash,
-        div-method,
-        idiv-method,
-        rdiv-method,
-        exception-message-attribute,
-        invalid-str-codec,
-        sys-max-int,
-        bad-python3-import,
-        deprecated-string-function,
-        deprecated-str-translate-call,
-        deprecated-itertools-function,
-        deprecated-types-field,
-        next-method-defined,
-        dict-items-not-iterating,
-        dict-keys-not-iterating,
-        dict-values-not-iterating,
-        deprecated-operator-function,
-        deprecated-urllib-function,
-        xreadlines-attribute,
-        deprecated-sys-function,
-        exception-escape,
-        comprehension-escape,
         line-too-long,               # we don't enforce some fixed line length but rather complain about long lines in reviews.
         too-many-public-methods,     # reported for some models, that won't change
         too-few-public-methods,      # noisy, e.g. exception classes, mixins etc
@@ -144,12 +73,14 @@ disable=print-statement,
         bad-continuation,            # Over a hundred reports, we seem to indent differently, but at least consistently.
         missing-docstring,           # yeah... we don't have those
         protected-access,            # for us that means "be careful", not "don't do it"
-
-# Enable the message, report, category or checker with the given id(s). You can
-# either give multiple identifier separated by comma (,) or put this option
-# multiple time (only on the command line, not in the configuration file where
-# it should appear only once). See also the "--disable" option for examples.
-enable=c-extension-no-member
+        too-many-lines,              # we don't currently think that splitting up views.py or test_views.py creates any value
+        too-many-arguments,          # we can't determine a good limit here. reviews should spot bad cases of this.
+#
+# it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
+        arguments-differ,            # currently, if a method takes *args and **kwargs and passes them to the super method,
+                                     # pylint compains - see https://github.com/PyCQA/pylint/pull/3001
+        redeclared-assigned-name,    # currently, __, a, __ = some_method() does not work
+                                     # see https://github.com/PyCQA/pylint/issues/3341
 
 
 [REPORTS]
@@ -254,7 +185,8 @@ good-names=i,
            _,
            __,
            e,
-           logger
+           logger,
+           setUpTestData, setUp, tearDown
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -271,7 +203,8 @@ method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style
-method-rgx=[a-z_][a-z0-9_]{2,60}$
+# Allow longer names in tests as test_* methods are usually named a bit more verbose
+method-rgx=([a-z_][a-z0-9_]{2,60}$)|(test_[a-z0-9_]{2,80}$)
 
 # Naming style matching correct module names
 module-naming-style=snake_case
