@@ -202,6 +202,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     )
 
     course_evaluations = get_evaluations_of_course(evaluation.course, request)
+    course_evaluations.sort(key=lambda evaluation: evaluation.name)
 
     contributors_with_omitted_results = []
     if view == 'export':
