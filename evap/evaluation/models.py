@@ -385,8 +385,6 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
-        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
