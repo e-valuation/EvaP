@@ -498,7 +498,7 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_textanswer_visibility_info_is_shown(self):
         page = self.app.get("/results/semester/1/evaluation/1", user='contributor')
-        self.assertIn("can be seen by: contributor user", page)
+        self.assertRegex(page.body.decode(), r"can be seen by:<br />\s*contributor user")
 
     def test_textanswer_visibility_info_for_proxy_user(self):
         page = self.app.get("/results/semester/1/evaluation/1", user='responsible')
