@@ -6,6 +6,7 @@ from django.db.models import Count, QuerySet
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
@@ -13,6 +14,8 @@ from django.utils import translation
 
 from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile, Course
 from evap.evaluation.auth import internal_required
+from evap.evaluation.tools import FileResponse
+from evap.results.exporters import TextAnswerExcelExporter
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
                                 HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution)
@@ -168,29 +171,11 @@ def index(request):
 
 @login_required
 def evaluation_detail(request, semester_id, evaluation_id):
+    # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(semester.evaluations, id=evaluation_id, course__semester=semester)
 
-    if not evaluation.can_results_page_be_seen_by(request.user):
-        raise PermissionDenied
-
-    if request.user.is_reviewer:
-        view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
-    else:
-        view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
-    if view not in ['public', 'full', 'export']:
-        view = 'public'
-
-    view_as_user = request.user
-    if view == 'export' and request.user.is_staff:
-        view_as_user = UserProfile.objects.get(id=int(request.GET.get('contributor_id', request.user.id)))
-
-    represented_users = [view_as_user]
-    if view != 'export':
-        represented_users += list(view_as_user.represented_users.all())
-    # redirect to non-public view if there is none because the results have not been published
-    if not evaluation.can_publish_rating_results and view == 'public':
-        view = 'full'
+    view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
     evaluation_result = collect_results(evaluation)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
@@ -218,6 +203,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     if evaluation.state != 'published':
         evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[0]
 
+    is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
+
     template_data = dict(
         evaluation=evaluation,
         course=evaluation.course,
@@ -227,11 +214,13 @@ def evaluation_detail(request, semester_id, evaluation_id):
         contributor_contribution_results=contributor_results,
         is_reviewer=view_as_user.is_reviewer,
         is_contributor=evaluation.is_user_contributor(view_as_user),
-        is_responsible_or_contributor_or_delegate=evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user),
+        is_responsible_or_contributor_or_delegate=is_responsible_or_contributor_or_delegate,
         can_download_grades=view_as_user.can_download_grades,
+        can_export_text_answers=(view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)),
         view=view,
         view_as_user=view_as_user,
         contributors_with_omitted_results=contributors_with_omitted_results,
+        contributor_id=contributor_id,
     )
     return render(request, "results_evaluation_detail.html", template_data)
 
@@ -249,6 +238,11 @@ def remove_textanswers_that_the_user_must_not_see(evaluation_result, user, repre
             result for result in questionnaire_result.question_results
             if not isinstance(result, TextResult) or len(result.answers) > 0
         ]
+
+
+def filter_text_answers(evaluation_result):
+    for questionnaire_result in evaluation_result.questionnaire_results:
+        questionnaire_result.question_results = [result for result in questionnaire_result.question_results if isinstance(result, TextResult)]
 
 
 def filter_empty_headings(evaluation_result):
@@ -340,3 +334,65 @@ def add_warnings(evaluation, evaluation_result):
 
         for rating_result in rating_results:
             rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+
+
+def evaluation_detail_parse_get_parameters(request, evaluation):
+    if not evaluation.can_results_page_be_seen_by(request.user):
+        raise PermissionDenied
+
+    if request.user.is_reviewer:
+        view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
+    else:
+        view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
+    if view not in ['public', 'full', 'export']:
+        view = 'public'
+
+    view_as_user = request.user
+    contributor_id = int(request.GET.get('contributor_id', request.user.id))
+    if view == 'export' and request.user.is_staff:
+        view_as_user = UserProfile.objects.get(id=contributor_id)
+    contributor_id = contributor_id if contributor_id != request.user.id else None
+
+    represented_users = [view_as_user]
+    if view != 'export':
+        represented_users += list(view_as_user.represented_users.all())
+    # redirect to non-public view if there is none because the results have not been published
+    if not evaluation.can_publish_rating_results and view == 'public':
+        view = 'full'
+
+    return view, view_as_user, represented_users, contributor_id
+
+
+def extract_evaluation_answer_data(request, evaluation):
+    # TextAnswerExcelExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
+
+    view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
+
+    evaluation_result = collect_results(evaluation)
+    filter_text_answers(evaluation_result)
+    remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
+
+    results = TextAnswerExcelExporter.InputData(evaluation_result.contribution_results)
+
+    return results, contributor_id
+
+
+def evaluation_text_answers_export(request, evaluation_id):
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    results, contributor_id = extract_evaluation_answer_data(request, evaluation)
+    contributor_name = UserProfile.objects.get(id=contributor_id).full_name if contributor_id is not None else None
+
+    filename = "Evaluation-Text-Answers-{}-{}-{}.xls".format(
+        evaluation.course.semester.short_name,
+        evaluation.full_name,
+        translation.get_language()
+    )
+
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+
+    TextAnswerExcelExporter(evaluation.full_name, evaluation.course.semester.name,
+                            evaluation.course.responsibles_names, results, contributor_name).export(response)
+
+    return response
