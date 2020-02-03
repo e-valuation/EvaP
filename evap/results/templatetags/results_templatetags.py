@@ -19,3 +19,8 @@ def evaluation_results_cache_timeout(evaluation):
     if evaluation.state == 'published':
         return None  # cache forever
     return 0  # don't cache at all
+
+
+@register.filter(name='participationclass')
+def participationclass(number_of_voters, number_of_participants):
+    return round((number_of_voters/number_of_participants)*10)

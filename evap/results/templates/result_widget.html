@@ -2,12 +2,12 @@
 
 {% spaceless %}
     {% if question_result.has_answers %}
-        <div class="result-widget d-flex{% if question_result.warning %} participants-warning{% endif %}"
+        <div class="result-widget d-flex"
             data-toggle="tooltip" data-placement="left" data-fallback-placement='["left", "bottom"]'
             title="{% include 'result_widget_tooltip.html' with question_result=question_result %}"
         >
             {% if not single_result %}
-                <div class="badge-participants mr-2 mr-lg-3">
+                <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} mr-2 mr-lg-3">
                     <span class="fas fa-user"></span> {{ question_result.count_sum }}
                 </div>
             {% endif %}

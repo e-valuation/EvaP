@@ -1,7 +1,7 @@
 {% load results_templatetags %}
 {% load evaluation_filters %}
 
-<div class="distribution-bar-container">
+<div class="distribution-bar-container{% if question_result.warning %} participants-warning{% endif %}">
     <div class="distribution-bar {{ question_result.choices.cssClass }}"
         {% if question_result.question.is_bipolar_likert_question %} style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"{% endif %}
     >
@@ -28,7 +28,7 @@
         <span class="right">{{ weight|percentage:weight_sum }}</span>
     {% endif %}
 </div>
-<div class="badge-grade ml-2" style="background-color: {{ average|gradecolor }}">
+<div class="badge-grade ml-2{% if question_result.warning %} participants-warning{% endif %}" style="background-color: {{ average|gradecolor }}">
     {% if question_result.question.is_yes_no_question %}
         {{ question_result.approval_count|percentage:question_result.count_sum }}
     {% else %}
