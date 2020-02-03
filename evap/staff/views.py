@@ -191,7 +191,7 @@ class RevertToNewOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.revert_to_new()
-            evaluation.save()
+            evaluation.save(request=request)
         messages.success(request, ungettext("Successfully reverted {} evaluation to in preparation.",
             "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
 
@@ -216,7 +216,7 @@ class MoveToPreparedOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.ready_for_editors()
-            evaluation.save()
+            evaluation.save(request=request)
         messages.success(request, ungettext("Successfully enabled {} evaluation for editor review.",
             "Successfully enabled {} evaluations for editor review.", len(evaluations)).format(len(evaluations)))
         if email_template:
@@ -244,7 +244,7 @@ class StartEvaluationOperation(EvaluationOperation):
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
             evaluation.evaluation_begin()
-            evaluation.save()
+            evaluation.save(request=request)
         messages.success(request, ungettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
         if email_template:
@@ -270,7 +270,7 @@ class RevertToReviewedOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.unpublish()
-            evaluation.save()
+            evaluation.save(request=request)
         messages.success(request, ungettext("Successfully unpublished {} evaluation.",
             "Successfully unpublished {} evaluations.", len(evaluations)).format(len(evaluations)))
 
@@ -295,7 +295,7 @@ class PublishOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.publish()
-            evaluation.save()
+            evaluation.save(request=request)
         messages.success(request, ungettext("Successfully published {} evaluation.",
             "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
 
@@ -558,7 +558,7 @@ def semester_questionnaire_assign(request, semester_id):
             if form.cleaned_data['All contributors']:
                 for contribution in evaluation.contributions.exclude(contributor=None):
                     contribution.questionnaires.set(form.cleaned_data['All contributors'])
-            evaluation.save()
+            evaluation.save(request=request)
 
         messages.success(request, _("Successfully assigned questionnaires."))
         return redirect('staff:semester_view', semester_id)
@@ -756,9 +756,10 @@ def evaluation_create(request, semester_id, course_id=None):
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
 
     if evaluation_form.is_valid() and formset.is_valid():
+        evaluation._request = request
         evaluation = evaluation_form.save()
         evaluation.set_last_modified(request.user)
-        evaluation.save()
+        evaluation.save(request=request)
         formset.save()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
@@ -846,12 +847,14 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         if form_has_changed:
             evaluation.set_last_modified(request.user)
+
+        evaluation._request = request
         evaluation_form.save()
         formset.save()
 
         if operation == 'approve':
             evaluation.manager_approve()
-            evaluation.save()
+            evaluation.save(request=request)
             if form_has_changed:
                 messages.success(request, _("Successfully updated and approved evaluation."))
             else:
@@ -1103,10 +1106,10 @@ def evaluation_textanswers_update_publish(request):
 
     if evaluation.state == "evaluated" and evaluation.is_fully_reviewed:
         evaluation.review_finished()
-        evaluation.save()
+        evaluation.save(request=request)
     if evaluation.state == "reviewed" and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
-        evaluation.save()
+        evaluation.save(request=request)
 
     return HttpResponse()  # 200 OK
 

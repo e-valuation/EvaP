@@ -1,0 +1,10 @@
+{% load static %}
+{% load i18n %}
+
+{{ message }}
+
+<ul>
+    {% for field in fields.values %}
+    <li>{{ field.2 }}: {{ field.0 }} &#8594; {{ field.1 }}</li>
+    {% endfor %}
+</ul>

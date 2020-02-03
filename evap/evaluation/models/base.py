@@ -10,20 +10,42 @@ from django.db import IntegrityError, models
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django.forms.models import model_to_dict
 
 from evap.evaluation.tools import (clean_email, date_to_datetime,
                                    is_external_email, translate)
+from django.db.models.signals import m2m_changed
 
 class LoggedModel(models.Model):
     class Meta:
         abstract = True
 
-    def log_action(self, action, data=None, user=None, save=True):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._initial = self._dict
+
+    @property
+    def _dict(self):
+        return model_to_dict(self, fields=[field.name for field in self._meta.fields])
+
+    @property
+    def diff(self):
+        d1 = self._initial
+        d2 = self._dict
+        diffs = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k]]
+        return dict(diffs)
+
+    def log_action(self, action, data="{}", user=None):
         from .log import LogEntry
 
         logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
-        if save:
-            logentry.save()
+        logentry.save()
+
+        # TODO
+        # sometimes, a model instance is saved multiple times. Either we find these places (e.g. a second save to add
+        # `last_modified_user`) or reset the diff like here or overwrite a previous log entry by keeping track
+        # of the log entry associated with the model instance (which would track all changes done with this instance)
+        self._initial = self._dict
 
     def all_logentries(self):
         from .log import LogEntry

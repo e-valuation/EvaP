@@ -4,7 +4,6 @@ import logging
 import random
 import uuid
 import operator
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
@@ -23,12 +22,14 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
+import json
+
 from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
 
 logger = logging.getLogger(__name__)
 
 
-from .base import LoggedModel, UserProfile
+from . import LoggedModel, UserProfile
 
 
 class NotArchiveable(Exception):
@@ -342,7 +343,7 @@ class Course(models.Model):
         return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
 
 
-class Evaluation(models.Model):
+class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
 
     state = FSMField(default='new', protected=True)
@@ -401,6 +402,10 @@ class Evaluation(models.Model):
         return self.full_name
 
     def save(self, *args, **kw):
+        request = kw.get('request', getattr(self, '_request', None))
+        if 'request' in kw:
+            del kw['request']
+
         super().save(*args, **kw)
 
         # make sure there is a general contribution
@@ -409,6 +414,13 @@ class Evaluation(models.Model):
             del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
+
+        from .log import log_serialize
+        self.log_action('evap.evaluation.changed' if 'id' in self._initial and self._initial['id'] else
+                        'evap.evaluation.created',
+                user=request and request.user,
+                data=json.dumps(self.diff, default=log_serialize)
+        )
 
         if hasattr(self, 'state_change'):
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
