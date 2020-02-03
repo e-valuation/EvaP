@@ -140,7 +140,7 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_graded', 'is_private', 'last_modified_time',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_private', 'last_modified_time',
                   'last_modified_user_name', 'semester')
         field_classes = {
             'responsibles': UserModelMultipleChoiceField,
@@ -185,7 +185,7 @@ class EvaluationForm(forms.ModelForm):
         model = Evaluation
         fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
                   'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time', 'last_modified_user_name')
+                  'last_modified_time', 'last_modified_user_name', 'wait_for_grade_upload_before_publishing')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,

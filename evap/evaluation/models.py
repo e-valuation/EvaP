@@ -275,9 +275,6 @@ class Course(models.Model):
     # e.g. Bachelor, Master
     degrees = models.ManyToManyField(Degree, verbose_name=_("degrees"), related_name="courses")
 
-    # default is True as that's the more restrictive option
-    is_graded = models.BooleanField(verbose_name=_("is graded"), default=True)
-
     # defines whether results can only be seen by contributors and participants
     is_private = models.BooleanField(verbose_name=_("is private"), default=False)
 
@@ -386,6 +383,9 @@ class Evaluation(models.Model):
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
 
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
+    
+    # whether to wait for grade uploading before publishing results
+    wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
 
     class Meta:
         unique_together = (
@@ -715,7 +715,7 @@ class Evaluation(models.Model):
                     evaluation.evaluation_end()
                     if evaluation.is_fully_reviewed:
                         evaluation.review_finished()
-                        if not evaluation.course.is_graded or evaluation.course.final_grade_documents.exists() or evaluation.course.gets_no_grade_documents:
+                        if not evaluation.wait_for_grade_upload_before_publishing or evaluation.course.final_grade_documents.exists() or evaluation.course.gets_no_grade_documents:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
