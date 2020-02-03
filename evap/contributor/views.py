@@ -49,7 +49,7 @@ def index(request):
             evaluation.delegated_evaluation = True
         displayed_evaluations |= delegated_evaluations - displayed_evaluations
     displayed_evaluations = list(displayed_evaluations)
-    displayed_evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
+    displayed_evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
     for evaluation in displayed_evaluations:
         if evaluation.state == "published":
