@@ -4,7 +4,12 @@
 {{ message }}
 
 <ul>
-    {% for field in fields.values %}
-    <li>{{ field.2 }}: {{ field.0 }} &#8594; {{ field.1 }}</li>
+    {% for meta, data in fields %}
+    {% if meta.type == "m2m" %}
+    <li>{{ meta.label }}: {{ data }}
+    </li>
+    {% else %}
+    <li>{{ meta.label }}: {{ data.0 }} &#8594; {{ data.1 }}</li>
+    {% endif %}
     {% endfor %}
 </ul>

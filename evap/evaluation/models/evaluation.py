@@ -402,10 +402,6 @@ class Evaluation(LoggedModel):
         return self.full_name
 
     def save(self, *args, **kw):
-        request = kw.get('request', getattr(self, '_request', None))
-        if 'request' in kw:
-            del kw['request']
-
         super().save(*args, **kw)
 
         # make sure there is a general contribution
@@ -414,13 +410,6 @@ class Evaluation(LoggedModel):
             del self.general_contribution  # invalidate cached property
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
-
-        from .log import log_serialize
-        self.log_action('evap.evaluation.changed' if 'id' in self._initial and self._initial['id'] else
-                        'evap.evaluation.created',
-                user=request and request.user,
-                data=json.dumps(self.diff, default=log_serialize)
-        )
 
         if hasattr(self, 'state_change'):
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.

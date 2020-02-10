@@ -14,13 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 import json
 from django.template.loader import render_to_string
 
-# logentry_display = Signal()
-"""
-To display an instance of the ``LogEntry`` model to a human user,
-``evap.evaluation.models.logentry_display`` will be sent out with a ``logentry`` argument.
-The first received response that is not ``None`` will be used to display the log entry
-to the user. The receivers are expected to return plain text.
-"""
+from collections import defaultdict
 
 
 class LogEntry(models.Model):
@@ -37,18 +31,29 @@ class LogEntry(models.Model):
 
     def display(self):
         if self.action_type in ('evap.evaluation.changed', 'evap.evaluation.created'):
-            fields = json.loads(self.data)
-            for field_name in fields.keys():
+            field_data = json.loads(self.data)
+            field_meta = defaultdict(dict)
+            for field_name in field_data.keys():
                 try:
-                    model_field = self.content_type.model_class()._meta.get_field(field_name)
-                    fields[field_name].append(getattr(model_field, "verbose_name", field_name))
+                    model = self.content_type.model_class()
+                    model_field = model._meta.get_field(field_name)
+                    field_meta[field_name]['label'] = getattr(model_field, "verbose_name", field_name)
+                    if model_field.many_to_many:
+                        field_meta[field_name]['type'] = 'm2m'
+                        for m2m_action in field_data[field_name]:
+                            if m2m_action not in 'add remove':
+                                continue
+                            field_data[field_name][m2m_action] = [str(obj) for obj in
+                            model_field.related_model.objects.filter(pk__in=field_data[field_name][m2m_action])]
+
                 except FieldDoesNotExist:
-                    fields[field_name].append(field_name)
+                    field_meta[field_name]['label'] = field_name
+                    field_meta[field_name]['type'] = 'default'
 
             return render_to_string("log/changed_fields_entry.html", {
                 'message': {'evap.evaluation.changed': _("The evaluation was changed."),
                             'evap.evaluation.created': _("The evaluation was created.")}[self.action_type],
-                'fields': fields
+                'fields': zip(field_meta.values(), field_data.values()),
             })
 
         if self.action_type == 'evap.evaluation.created':

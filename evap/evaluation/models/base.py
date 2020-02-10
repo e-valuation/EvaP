@@ -15,6 +15,9 @@ from django.forms.models import model_to_dict
 from evap.evaluation.tools import (clean_email, date_to_datetime,
                                    is_external_email, translate)
 from django.db.models.signals import m2m_changed
+import json
+
+from collections import defaultdict
 
 class LoggedModel(models.Model):
     class Meta:
@@ -23,33 +26,77 @@ class LoggedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._initial = self._dict
+        self._m2m_diff = defaultdict(lambda: defaultdict(list))
+        self._logentry = None
+        
+        for field in type(self)._meta.many_to_many:
+            self.register_logged_m2m_field(field)
+
+    def register_logged_m2m_field(self, field):
+        through = getattr(type(self), field.name).through  # converting from field to its descriptor
+        m2m_changed.connect(
+                LoggedModel.m2m_changed,
+                sender=through,
+                dispatch_uid="m2m_log-{!r}-{!r}".format(type(self), field)
+        )
+
+    @staticmethod
+    def m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+        if reverse:
+            return
+
+        # import pdb
+        # pdb.set_trace()
+
+        field_name = next((field.name for field in type(instance)._meta.many_to_many
+                                     if getattr(type(instance), field.name).through == sender), None)
+
+        if action == 'pre_remove':
+            instance._m2m_diff[field_name]['remove'] += list(pk_set)
+        elif action == 'pre_add':
+            instance._m2m_diff[field_name]['add'] += list(pk_set)
+        elif action == 'pre_clear':
+            instance._m2m_diff[field_name]['cleared'] = None
+
+        if "pre" in action:
+            instance.update_log()
+
+        print(f"changed {field_name} by f{pk_set}")
 
     @property
     def _dict(self):
-        return model_to_dict(self, fields=[field.name for field in self._meta.fields])
+        return model_to_dict(self)
 
     @property
     def diff(self):
         d1 = self._initial
         d2 = self._dict
-        diffs = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k]]
-        return dict(diffs)
+        changes = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k]]
+        diff = dict(changes)
+        diff.update(self._m2m_diff)
+        return diff
 
-    def log_action(self, action, data="{}", user=None):
-        from .log import LogEntry
+    def update_log(self, user=None):
+        from .log import log_serialize, LogEntry
+        data = json.dumps(self.diff, default=log_serialize)
+        if not self._logentry:
+            action = 'evap.evaluation.changed' if 'id' in self._initial and self._initial['id'] else 'evap.evaluation.created'
+            self._logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
+        else:
+            self._logentry.data = data
+        self._logentry.save()
 
-        logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
-        logentry.save()
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
 
-        # TODO
-        # sometimes, a model instance is saved multiple times. Either we find these places (e.g. a second save to add
-        # `last_modified_user`) or reset the diff like here or overwrite a previous log entry by keeping track
-        # of the log entry associated with the model instance (which would track all changes done with this instance)
-        self._initial = self._dict
+        request = kw.get('request', getattr(self, '_request', None))
+        if 'request' in kw:
+            del kw['request']
+        user = request and request.user or None
+        self.update_log(user=user)
 
     def all_logentries(self):
         from .log import LogEntry
-
         return LogEntry.objects.filter(
             content_type=ContentType.objects.get_for_model(type(self)), object_id=self.pk,
         ).select_related("user")
