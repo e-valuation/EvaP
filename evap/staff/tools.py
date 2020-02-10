@@ -8,8 +8,8 @@ from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
 from django.conf import settings
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.grades.models import GradeDocument
@@ -68,6 +68,10 @@ def delete_navbar_cache_for_users(users):
         cache.delete(key)
 
 
+def create_user_list_html_string_for_message(users):
+    return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
+
+
 def bulk_delete_users(request, username_file, test_run):
     usernames = [u.decode().strip() for u in username_file.readlines()]
     users = UserProfile.objects.exclude(username__in=usernames)
@@ -77,10 +81,8 @@ def bulk_delete_users(request, username_file, test_run):
     messages.info(request, _('The uploaded text file contains {} usernames. {} other users have been found in the database. '
                            'Of those, {} will be deleted and {} will be marked inactive.')
                   .format(len(usernames), len(users), len(deletable_users), len(users_to_mark_inactive)))
-    messages.info(request, mark_safe(_('Users to be deleted are:<br />{}')
-                  .format('<br />'.join([u.username for u in deletable_users]))))
-    messages.info(request, mark_safe(_('Users to be marked inactive are:<br />{}')
-                  .format('<br />'.join([u.username for u in users_to_mark_inactive]))))
+    messages.info(request, format_html(_('Users to be deleted are:{}'), create_user_list_html_string_for_message(deletable_users)))
+    messages.info(request, format_html(_('Users to be marked inactive are:{}'), create_user_list_html_string_for_message(users_to_mark_inactive)))
 
     if test_run:
         messages.info(request, _('No users were deleted or marked inactive in this test run.'))

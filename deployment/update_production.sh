@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e # abort on error
-cd `dirname $0`/.. # change to project root directory
+cd $(dirname $0)/.. # change to project root directory
 
 echo $PWD
 

@@ -358,7 +358,7 @@ class TestSemesterView(WebTest):
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         self.assertGreater(position_evaluation1, position_evaluation2)
-        self.app.reset() # language is only loaded on login, so we're forcing a re-login here
+        self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
 
         UserProfile.objects.filter(username='manager').update(language='de')
         page = self.app.get(self.url, user='manager').body.decode("utf-8")
@@ -494,6 +494,7 @@ class TestSemesterDeleteView(WebTest):
         self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
         self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
+
 
 class TestSemesterAssignView(WebTest):
     url = '/staff/semester/1/assign'

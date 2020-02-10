@@ -1,7 +1,7 @@
 from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
 import logging
-import random
+import secrets
 import uuid
 import operator
 
@@ -1382,7 +1382,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return
 
         while True:
-            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            key = secrets.choice(range(0, UserProfile.MAX_LOGIN_KEY))
             try:
                 self.login_key = key
                 self.reset_login_key_validity()

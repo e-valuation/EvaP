@@ -40,12 +40,12 @@ class RewardPointRedemptionEvent(models.Model):
         return redemptions_dict
 
 
-"""
-The two following objects handle reward point amounts. As reward points might be connected to monetary transactions,
-these objects may not be altered or deleted after creation.
-"""
-
 class RewardPointGranting(models.Model):
+    """
+    Handles reward point amounts. As reward points might be connected to monetary transactions,
+    instances may not be altered or deleted after creation.
+    """
+
     user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_grantings")
     semester = models.ForeignKey(Semester, models.PROTECT, related_name="reward_point_grantings")
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
@@ -55,6 +55,11 @@ class RewardPointGranting(models.Model):
 
 
 class RewardPointRedemption(models.Model):
+    """
+    Handles reward point amounts. As reward points might be connected to monetary transactions,
+    instances may not be altered or deleted after creation.
+    """
+
     user_profile = models.ForeignKey(UserProfile, models.CASCADE, related_name="reward_point_redemptions")
     redemption_time = models.DateTimeField(verbose_name=_("redemption time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
