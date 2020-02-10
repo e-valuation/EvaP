@@ -227,3 +227,10 @@ a:not([href]):not(.disabled) {
         }
     }
 }
+
+.btn-area {
+    margin-bottom: -0.25rem;
+    .btn {
+        margin-bottom: 0.25rem;
+    }
+}
