@@ -13,9 +13,11 @@ from django.test.utils import CaptureQueriesContext
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire, RatingAnswerCounter,
+from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire,
+                                    RatingAnswerCounter,
                                     Semester, UserProfile)
 from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
+from evap.results.exporters import TextAnswerExcelExporter
 from evap.results.views import get_evaluations_with_prefetched_data
 
 
@@ -717,3 +719,36 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user='manager', status=200)
         self.app.get(url, user='reviewer', status=403)
         self.app.get(url, user='student_external', status=403)
+
+
+class TestTextAnswerExportView(WebTest):
+
+    @classmethod
+    def setUpTestData(cls):
+        baker.make(UserProfile, username="reviewer", groups=[Group.objects.get(name="Reviewer")])
+        evaluation = baker.make(Evaluation)
+        cls.url = f"/results/evaluation/{evaluation.id}/text_answers_export"
+
+    def test_file_sent(self):
+        def mock(_self, res):
+            res.write(b"1337")
+
+        with patch.object(TextAnswerExcelExporter, "export", mock):
+            response = self.app.get(self.url, user="reviewer", status=200)
+            self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
+            self.assertEqual(response.content, b"1337")
+
+    @patch("evap.results.exporters.TextAnswerExcelExporter.export")
+    def test_permission_denied(self, export_method):
+        baker.make(UserProfile, username="student")
+        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+
+        self.app.get(self.url, user="student", status=403)
+        export_method.assert_not_called()
+
+        self.app.get(self.url, user="reviewer", status=200)
+        export_method.assert_called_once()
+
+        export_method.reset_mock()
+        self.app.get(self.url, user="manager", status=200)
+        export_method.assert_called_once()
