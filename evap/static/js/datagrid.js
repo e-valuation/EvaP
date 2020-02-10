@@ -48,7 +48,7 @@ class DataGrid {
                 for (const column of this.sortableHeaders.keys()) {
                     const cell = $(row).find(`[data-col=${column}]`);
                     if (cell.is("[data-order]")) {
-                        orderValues.set(column, cell.data("order"));
+                        orderValues.set(column, cell.attr("data-order"));
                     } else {
                         orderValues.set(column, cell.html().trim());
                     }
