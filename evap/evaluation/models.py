@@ -385,8 +385,6 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
-        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
@@ -467,7 +465,7 @@ class Evaluation(models.Model):
 
     @property
     def all_contributions_have_questionnaires(self):
-        return self.general_contribution and (all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and not self.contributions.annotate(Count('questionnaires')).filter(questionnaires__count=0).exists()
 
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""

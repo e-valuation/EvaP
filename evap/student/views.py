@@ -41,7 +41,7 @@ def index(request):
         evaluation.participates_in = request.user in evaluation.participants.all()
         evaluation.voted_for = request.user in evaluation.voters.all()
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
-    evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
+    evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
     semesters = Semester.objects.all()
     semester_list = [dict(
