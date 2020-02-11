@@ -44,9 +44,18 @@
     @include media-breakpoint-up(lg) {
         width: 50px;
     }
+
+    @include bar-shadow($evap-dark-blue);
+}
+
+@for $i from 0 through 10 {
+    .badge-participants-#{$i} {
+        background-color: mix($evap-dark-blue, $evap-light-blue, $i * 10%);
+    }
 }
 
 .badge-disabled {
     background-color: $light-gray;
     color: lighten($medium-gray, 5%);
+    text-shadow: none;
 }

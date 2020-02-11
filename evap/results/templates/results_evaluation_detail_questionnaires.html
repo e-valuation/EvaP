@@ -18,7 +18,7 @@
             <div class="row print-no-break">
                 <div class="col-question col-lg-broad col-lg-7 my-auto">{{ question_result.question.text }}</div>
                 <div class="col-answer col-lg-broad col-lg-5 my-auto">
-                    {% include 'result_widget.html' with question_result=question_result %}
+                    {% include 'result_widget.html' with question_result=question_result num_voters=evaluation.num_voters %}
                 </div>
             </div>
         {% elif question_result.question.is_text_question %}

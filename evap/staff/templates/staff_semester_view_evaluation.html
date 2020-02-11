@@ -178,8 +178,8 @@
         </a>
     </td>
 {% endif %}
-{% if not info_only %}
-    <td>
+<td>
+    {% if not info_only %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Send email' %}">
                 <span class="fas fa-envelope" aria-hidden="true"></span>
@@ -203,7 +203,7 @@
                 <span class="fas fa-trash" aria-hidden="true"></span>
             </button>
         {% endif %}
-    </td>
-{% endif %}
+    {% endif %}
+</td>
 
 {% endwith %}

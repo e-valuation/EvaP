@@ -57,3 +57,13 @@ a.no-underline:hover {
     text-align: center;
     width: #{20rem / 16};
 }
+
+.bg-debug {
+    background: repeating-linear-gradient(
+        118deg,
+        lighten($darker-gray, 6%),
+        lighten($darker-gray, 6%) 3.5em,
+        $darker-gray 3.5em,
+        $darker-gray 7em
+    );
+}

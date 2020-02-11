@@ -10,7 +10,7 @@
 {% block content %}
     {{ block.super }}
     <div class="row mb-3 align-items-center">
-        <div class="col">
+        <div class="col btn-area">
             <a href="{% url 'staff:user_import' %}" class="btn btn-sm btn-light">{% trans 'Import users' %}</a>
             <a href="{% url 'staff:user_merge_selection' %}" class="btn btn-sm btn-light">{% trans 'Merge users' %}</a>
             <a href="{% url 'staff:user_bulk_delete' %}" class="btn btn-sm btn-light">{% trans 'Bulk delete users' %}</a>
