@@ -179,7 +179,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     evaluation_result = collect_results(evaluation)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
-    filter_empty_headings(evaluation_result)
+    exclude_empty_headings(evaluation_result)
     remove_empty_questionnaire_and_contribution_results(evaluation_result)
     add_warnings(evaluation, evaluation_result)
 
@@ -245,7 +245,7 @@ def filter_text_answers(evaluation_result):
         questionnaire_result.question_results = [result for result in questionnaire_result.question_results if isinstance(result, TextResult)]
 
 
-def filter_empty_headings(evaluation_result):
+def exclude_empty_headings(evaluation_result):
     for questionnaire_result in evaluation_result.questionnaire_results:
         filtered_question_results = []
         for i, question_result in enumerate(questionnaire_result.question_results):
