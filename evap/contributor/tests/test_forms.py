@@ -65,6 +65,30 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
+    def test_existing_contributors_are_in_queryset(self):
+        """
+            Asserts that users that should normally not be in the contributor queryset are in it when they are already set.
+            Regression test for #1414.
+        """
+        evaluation = baker.make(Evaluation)
+        non_proxy_user = baker.make(UserProfile)
+        proxy_user = baker.make(UserProfile, is_proxy_user=True)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=non_proxy_user, questionnaires=[])
+
+        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
+
+        self.assertEqual({non_proxy_user}, set(formset.forms[0].fields['contributor'].queryset))
+
+        # now a manager adds the proxy user as a contributor.
+        contribution1.contributor = proxy_user
+        contribution1.save()
+
+        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
+
+        self.assertEqual({proxy_user, non_proxy_user}, set(formset.forms[0].fields['contributor'].queryset))
+
 
 class ContributionFormsetWebTests(WebTest):
     csrf_checks = False

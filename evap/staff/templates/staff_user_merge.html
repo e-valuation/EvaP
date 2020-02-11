@@ -186,7 +186,7 @@
                         <td{% if participation_list|length > 0 %} class="info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
-                        {% regroup merged_user.evaluations_participating_in by course.semester as participation_list %}
+                        {% regroup merged_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
                         <td{% if participation_list|length > 0 %} class="success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
@@ -202,7 +202,7 @@
                         <td{% if voting_list|length > 0 %} class="info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
-                        {% regroup merged_user.evaluations_voted_for by course.semester as voting_list %}
+                        {% regroup merged_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
                         <td{% if voting_list|length > 0 %} class="success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>

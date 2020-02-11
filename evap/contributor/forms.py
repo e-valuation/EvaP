@@ -68,9 +68,13 @@ class EditorContributionForm(ContributionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        existing_contributor_pk = self.instance.contributor.pk if self.instance.contributor else None
+
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
             Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
-        self.fields['contributor'].queryset = UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
+        self.fields['contributor'].queryset = UserProfile.objects.filter(
+            (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)
+        )
 
 
 class DelegatesForm(forms.ModelForm):

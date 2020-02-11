@@ -97,9 +97,13 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
         """ Regression test for #1248 """
         participants = baker.make(UserProfile, _quantity=2)
-        evaluation = baker.make(Evaluation,
-            state='published', _participant_count=2, _voter_count=2,
-            participants=participants, voters=participants
+        evaluation = baker.make(
+            Evaluation,
+            state='published',
+            _participant_count=2,
+            _voter_count=2,
+            participants=participants,
+            voters=participants,
         )
         participants[0].delete()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
@@ -494,7 +498,7 @@ class TestResultsTextanswerVisibility(WebTest):
 
     def test_textanswer_visibility_info_is_shown(self):
         page = self.app.get("/results/semester/1/evaluation/1", user='contributor')
-        self.assertIn("can be seen by: contributor user", page)
+        self.assertRegex(page.body.decode(), r"can be seen by:<br />\s*contributor user")
 
     def test_textanswer_visibility_info_for_proxy_user(self):
         page = self.app.get("/results/semester/1/evaluation/1", user='responsible')

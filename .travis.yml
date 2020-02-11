@@ -13,6 +13,7 @@ before_script:
   - psql -c 'create database evap;' -U postgres
 install:
   - pip install -r requirements-travis.txt
+  - echo 'SECRET_KEY = "evap-travis-secret-key"' >> evap/localsettings.py
 script:
   - coverage run manage.py test --keepdb
   - pylint evap

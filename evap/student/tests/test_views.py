@@ -271,4 +271,4 @@ class TestVoteView(WebTest):
 
     def test_textanswer_visibility_is_shown(self):
         page = self.app.get(self.url, user=self.voting_user1.username, status=200)
-        self.assertIn("can be seen by: {}".format(self.contributor1.full_name), page)
+        self.assertRegex(page.body.decode(), r"can be seen by:<br />\s*{}".format(self.contributor1.full_name))

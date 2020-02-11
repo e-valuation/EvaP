@@ -94,9 +94,11 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 def get_evaluations_with_prefetched_data(evaluations):
     if isinstance(evaluations, QuerySet):
-        participant_counts = evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-        voter_counts = evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
-        course_evaluations_counts = evaluations.annotate(num_course_evaluations=Count("course__evaluations")).values_list("num_course_evaluations", flat=True)
+        # these annotates and the zip below could be replaced by something like this, but it was 2x slower:
+        # annotate(num_participants=Coalesce('_participant_count', Count("participants", distinct=True)))
+        participant_counts = evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
+        voter_counts = evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
+        course_evaluations_counts = evaluations.annotate(num_course_evaluations=Count("course__evaluations")).order_by('pk').values_list("num_course_evaluations", flat=True)
         evaluations = (evaluations
             .select_related("course__type")
             .prefetch_related(
@@ -200,6 +202,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     )
 
     course_evaluations = get_evaluations_of_course(evaluation.course, request)
+    course_evaluations.sort(key=lambda evaluation: evaluation.name)
 
     contributors_with_omitted_results = []
     if view == 'export':

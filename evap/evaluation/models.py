@@ -1,7 +1,7 @@
 from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
 import logging
-import random
+import secrets
 import uuid
 import operator
 
@@ -385,8 +385,6 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
-        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
@@ -467,7 +465,7 @@ class Evaluation(models.Model):
 
     @property
     def all_contributions_have_questionnaires(self):
-        return self.general_contribution and (all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and not self.contributions.annotate(Count('questionnaires')).filter(questionnaires__count=0).exists()
 
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
@@ -1259,7 +1257,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
                 name = self.title + " " + name
             return name
 
-        return self.username.replace(" ", "\u00A0")  # replace spaces with non-breaking spaces
+        return self.username
 
     @property
     def full_name_with_username(self):
@@ -1382,7 +1380,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return
 
         while True:
-            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            key = secrets.choice(range(0, UserProfile.MAX_LOGIN_KEY))
             try:
                 self.login_key = key
                 self.reset_login_key_validity()

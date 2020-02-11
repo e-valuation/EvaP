@@ -74,15 +74,15 @@ def get_evaluations_with_prefetched_data(semester):
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
             num_course_evaluations=Count("course__evaluations", distinct=True),
         )
-    )
+    ).order_by('pk')
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
 
     # these could be done with an annotation like this:
     # num_voters_annotated=Count("voters", distinct=True), or more completely
     # evaluations.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
     # but that was prohibitively slow.
-    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
+    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
 
     for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
         evaluation.general_contribution = evaluation.general_contribution[0]
@@ -325,7 +325,9 @@ def semester_evaluation_operation(request, semester_id):
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
-    evaluations = annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
+    evaluations = list(annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids)))
+    evaluations.sort(key=lambda evaluation: evaluation.full_name)
+
     operation = EVALUATION_OPERATIONS[target_state]
 
     if request.method == 'POST':
@@ -1435,7 +1437,8 @@ def user_index(request):
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for'))
+        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for')
+        .order_by('last_name', 'first_name', 'username'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 

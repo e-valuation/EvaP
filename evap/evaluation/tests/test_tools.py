@@ -40,8 +40,12 @@ class TestLanguageSignalReceiver(WebTest):
         self.assertEqual(user.language, 'de')
 
 
+class SaboteurException(Exception):
+    """ An exception class used for making sure that our mock is raising the exception and not some other unrelated code"""
+
+
 class TestLogExceptionsDecorator(TestCase):
-    @patch('evap.evaluation.models.Evaluation.update_evaluations', side_effect=Exception())
+    @patch('evap.evaluation.models.Evaluation.update_evaluations', side_effect=SaboteurException())
     @patch('evap.evaluation.management.commands.tools.logger.exception')
     def test_log_exceptions_decorator(self, mock_logger, __):
         """
@@ -50,10 +54,9 @@ class TestLogExceptionsDecorator(TestCase):
             One could create a mock management command and call its handle method manually,
             but to me it seemed safer to use a real one.
         """
-        try:
+        with self.assertRaises(SaboteurException):
             management.call_command('update_evaluation_states')
-        except Exception:  # pylint: disable=broad-except
-            pass
+
         self.assertTrue(mock_logger.called)
         self.assertIn("failed. Traceback follows:", mock_logger.call_args[0][0])
 
