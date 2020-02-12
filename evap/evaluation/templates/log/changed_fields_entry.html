@@ -4,12 +4,21 @@
 {{ message }}
 
 <ul>
-    {% for meta, data in fields %}
-    {% if meta.type == "m2m" %}
-    <li>{{ meta.label }}: {{ data }}
-    </li>
-    {% else %}
-    <li>{{ meta.label }}: {{ data.0 }} &#8594; {{ data.1 }}</li>
-    {% endif %}
+    {% for field_name, actions in fields.items %}
+        {% for action in actions %}
+            <li>
+                {% if action.type == "add" %}
+                {{ action.label}} {% trans "added" %}: {{ action.items|join:", " }}
+                {% elif action.type == "remove" %}
+                {{ action.label}} {% trans "removed" %}: {{ action.items|join:", " }}
+                {% elif action.type == "clear" %}
+                {{ action.label}} {% trans "cleared" %}
+                {% elif action.type == "change" %}
+                {{ action.label}} {% trans "changed" %}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
+                {% else %}
+                {{ action.label}} {% trans "modified" %}: {{ action.items|join:", " }}
+                {% endif %}
+            </li>
+        {% endfor %}
     {% endfor %}
 </ul>

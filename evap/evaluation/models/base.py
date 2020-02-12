@@ -26,7 +26,7 @@ class LoggedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._initial = self._dict
-        self._m2m_diff = defaultdict(lambda: defaultdict(list))
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
         
         for field in type(self)._meta.many_to_many:
@@ -52,33 +52,32 @@ class LoggedModel(models.Model):
                                      if getattr(type(instance), field.name).through == sender), None)
 
         if action == 'pre_remove':
-            instance._m2m_diff[field_name]['remove'] += list(pk_set)
+            instance._m2m_changes[field_name]['remove'] += list(pk_set)
         elif action == 'pre_add':
-            instance._m2m_diff[field_name]['add'] += list(pk_set)
+            instance._m2m_changes[field_name]['add'] += list(pk_set)
         elif action == 'pre_clear':
-            instance._m2m_diff[field_name]['cleared'] = None
+            instance._m2m_changes[field_name]['cleared'] = None
 
         if "pre" in action:
             instance.update_log()
-
-        print(f"changed {field_name} by f{pk_set}")
 
     @property
     def _dict(self):
         return model_to_dict(self)
 
     @property
-    def diff(self):
+    def changes(self):
         d1 = self._initial
         d2 = self._dict
         changes = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k]]
-        diff = dict(changes)
-        diff.update(self._m2m_diff)
-        return diff
+        changes = {field_name: {'change': [old_value, d2[field_name]]} for field_name, old_value in d1.items()
+                                                                       if old_value != d2[field_name]}
+        changes.update(self._m2m_changes)
+        return changes
 
     def update_log(self, user=None):
         from .log import log_serialize, LogEntry
-        data = json.dumps(self.diff, default=log_serialize)
+        data = json.dumps(self.changes, default=log_serialize)
         if not self._logentry:
             action = 'evap.evaluation.changed' if 'id' in self._initial and self._initial['id'] else 'evap.evaluation.created'
             self._logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
