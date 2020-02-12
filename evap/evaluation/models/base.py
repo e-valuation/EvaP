@@ -45,9 +45,6 @@ class LoggedModel(models.Model):
         if reverse:
             return
 
-        # import pdb
-        # pdb.set_trace()
-
         field_name = next((field.name for field in type(instance)._meta.many_to_many
                                      if getattr(type(instance), field.name).through == sender), None)
 
@@ -56,7 +53,7 @@ class LoggedModel(models.Model):
         elif action == 'pre_add':
             instance._m2m_changes[field_name]['add'] += list(pk_set)
         elif action == 'pre_clear':
-            instance._m2m_changes[field_name]['cleared'] = None
+            instance._m2m_changes[field_name]['cleared'] = []
 
         if "pre" in action:
             instance.update_log()
