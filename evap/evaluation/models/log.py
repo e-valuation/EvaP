@@ -17,6 +17,9 @@ from django.template.loader import render_to_string
 from collections import defaultdict, namedtuple
 
 
+FieldAction = namedtuple("FieldAction", "label type items")
+
+
 class LogEntry(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
@@ -30,22 +33,19 @@ class LogEntry(models.Model):
         ordering = ("-datetime", "-id")
 
     def _evaluation_log_template_context(self, data):
-        FieldAction = namedtuple("FieldAction", "label type items")
         fields = defaultdict(list)
-        print(data)
         for field_name, actions in data.items():
             for action_type, items in actions.items():
                 try:
                     model = self.content_type.model_class()
-                    model_field = model._meta.get_field(field_name)
-                    label = getattr(model_field, "verbose_name", field_name)
-                    if model_field.many_to_many or model_field.many_to_one:
-                        items = [str(obj) for obj in model_field.related_model.objects.filter(pk__in=items)]
+                    field = model._meta.get_field(field_name)
+                    label = getattr(field, "verbose_name", field_name)
+                    if field.many_to_many or field.many_to_one or field.one_to_one:
+                        items = [str(obj) for obj in field.related_model.objects.filter(pk__in=items)]
                 except FieldDoesNotExist:
                     label = field_name
                 finally:
                     fields[field_name].append(FieldAction(label, action_type, items))
-        print("result:", dict(fields))
         return dict(fields)
 
     def display(self):
