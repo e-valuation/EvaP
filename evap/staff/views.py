@@ -814,7 +814,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     # The @receiver will only live as long as the request is processed
     # as the callback is captured by a weak reference in the Django Framework
     # and no other strong references are being kept.
-    # See https://github.com/fsr-de/EvaP/issues/1361 for more information and discussion.
+    # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         for granting in grantings:

@@ -543,7 +543,7 @@ class TestEmailTemplate(TestCase):
     def test_missing_email_address():
         """
         Tests send_to_user when the user has no email address.
-        Regression test to https://github.com/fsr-de/EvaP/issues/825
+        Regression test to https://github.com/e-valuation/EvaP/issues/825
         """
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
