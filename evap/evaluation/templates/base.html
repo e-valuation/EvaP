@@ -18,9 +18,13 @@
             <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
             <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}scss/evap.scss" />
         {% endcompress %}
-        <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png" />
+        {% if debug %}
+            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_gray.png" />
+        {% else %}
+            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png" />
+            <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png" />
+            <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png" />
+        {% endif %}
     {% endblock %}
 </head>
 <body>
