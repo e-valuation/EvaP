@@ -70,7 +70,7 @@ cp $REPO_FOLDER/deployment/localsettings.template.py $REPO_FOLDER/evap/localsett
 sed -i -e "s/\${SECRET_KEY}/$(sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" $REPO_FOLDER/evap/localsettings.py
 
 # setup vm auto-completion
-sudo cp /vagrant/deployment/manage_autocompletion.sh /etc/bash_completion.d/
+sudo cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
 # setup evap
 cd /$USER
