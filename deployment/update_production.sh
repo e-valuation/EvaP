@@ -19,9 +19,9 @@ if [ $# -eq 1 ]
         BACKUP_TITLE=$1
 fi
 
-FILENAME="${TIMESTAMP}_${COMMIT_HASH}_${BACKUP_TITLE}.json"
+FILENAME="${BACKUP_TITLE}_${TIMESTAMP}_${COMMIT_HASH}.json"
 
-[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] && echo "Overriding Automatic Filename"
+[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || echo "Overriding Automatic Filename"
 [[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || FILENAME="${BACKUP_TITLE}"
 
 echo "Backup will be stored in $FILENAME"
