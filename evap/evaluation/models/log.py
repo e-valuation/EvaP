@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from django.core.exceptions import FieldDoesNotExist
 import datetime
-from . import Course, Evaluation
+from . import Course, Evaluation, Contribution
 
 from django.utils.formats import localize
 from django.utils.translation import ugettext_lazy as _
@@ -41,7 +41,9 @@ class LogEntry(models.Model):
                     field = model._meta.get_field(field_name)
                     label = getattr(field, "verbose_name", field_name)
                     if field.many_to_many or field.many_to_one or field.one_to_one:
-                        items = [str(obj) for obj in field.related_model.objects.filter(pk__in=items)]
+                        related_objects = field.related_model.objects.filter(pk__in=items)
+                        bool(related_objects)  # force queryset evaluation
+                        items = [str(related_objects.get(pk=item)) if item is not None else "" for item in items]
                 except FieldDoesNotExist:
                     label = field_name
                 finally:
@@ -49,15 +51,19 @@ class LogEntry(models.Model):
         return dict(fields)
 
     def display(self):
-        if self.action_type in ('evap.evaluation.changed', 'evap.evaluation.created'):
+        message = None
+
+        if self.action_type == 'changed':
+            message = _("The {cls} {obj} was changed.")
+        elif self.action_type == 'created':
+            message = _("The {cls} {obj} was created.")
+
+        if message: 
             field_data = json.loads(self.data)
             return render_to_string("log/changed_fields_entry.html", {
-                'message': _("The evaluation was changed."),
+                'message': message.format(cls=str(type(self.content_object)), obj=str(self.content_object)),
                 'fields': self._evaluation_log_template_context(field_data),
             })
-
-        if self.action_type == 'evap.evaluation.created':
-            return _("The evaluation was created.")
 
         return self.action_type +": " + self.data
 

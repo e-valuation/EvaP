@@ -22,6 +22,7 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
+from django.contrib.contenttypes.models import ContentType
 import json
 
 from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
@@ -427,6 +428,14 @@ class Evaluation(LoggedModel):
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
 
+    def all_logentries(self):
+        from .log import LogEntry
+        return LogEntry.objects.filter(
+            content_type__in=[ContentType.objects.get_for_model(Contribution),
+                              ContentType.objects.get_for_model(Evaluation)],
+            object_id__in=[o['pk'] for o in self.contributions.all().values('pk')] + [self.pk]
+        ).select_related("user")
+
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
@@ -753,7 +762,7 @@ def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info('Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
-class Contribution(models.Model):
+class Contribution(LoggedModel):
     """A contributor who is assigned to an evaluation and his questionnaires."""
 
     OWN_TEXTANSWERS = 'OWN'

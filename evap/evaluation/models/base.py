@@ -19,6 +19,11 @@ import json
 
 from collections import defaultdict
 
+
+
+FIELD_BLACKLIST = {'id'}
+
+
 class LoggedModel(models.Model):
     class Meta:
         abstract = True
@@ -66,9 +71,9 @@ class LoggedModel(models.Model):
     def changes(self):
         d1 = self._initial
         d2 = self._dict
-        changes = [(k, (v, d2[k])) for k, v in d1.items() if v != d2[k]]
         changes = {field_name: {'change': [old_value, d2[field_name]]} for field_name, old_value in d1.items()
-                                                                       if old_value != d2[field_name]}
+                                                                       if old_value != d2[field_name]
+                                                                       and field_name not in FIELD_BLACKLIST}
         changes.update(self._m2m_changes)
         return changes
 
@@ -76,19 +81,16 @@ class LoggedModel(models.Model):
         from .log import log_serialize, LogEntry
         data = json.dumps(self.changes, default=log_serialize)
         if not self._logentry:
-            action = 'evap.evaluation.changed' if 'id' in self._initial and self._initial['id'] else 'evap.evaluation.created'
+            action = 'changed' if 'id' in self._initial and self._initial['id'] else 'created'
             self._logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
         else:
             self._logentry.data = data
         self._logentry.save()
 
     def save(self, *args, **kw):
+        request = kw.pop('request', getattr(self, '_request', None))
+        user = request and request.user or self._logentry and self._logentry.user or None
         super().save(*args, **kw)
-
-        request = kw.get('request', getattr(self, '_request', None))
-        if 'request' in kw:
-            del kw['request']
-        user = request and request.user or None
         self.update_log(user=user)
 
     def all_logentries(self):
@@ -96,6 +98,7 @@ class LoggedModel(models.Model):
         return LogEntry.objects.filter(
             content_type=ContentType.objects.get_for_model(type(self)), object_id=self.pk,
         ).select_related("user")
+
 
 
 class UserProfileManager(BaseUserManager):
