@@ -94,6 +94,11 @@ class LoggedModel(models.Model):
         self.update_log(user=user)
 
     def all_logentries(self):
+        """
+        Return a queryset with all logentries that should be shown with this model. By default, show logentries
+        related to self. Overwrite this to e.g. also show logentries from related objects that don't have their
+        own detail page.
+        """
         from .log import LogEntry
         return LogEntry.objects.filter(
             content_type=ContentType.objects.get_for_model(type(self)), object_id=self.pk,
