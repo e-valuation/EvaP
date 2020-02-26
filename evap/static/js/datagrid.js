@@ -9,7 +9,7 @@ class DataGrid {
         });
         this.container = container;
         this.searchInput = searchInput;
-        this.rows = this.fetchRowData();
+        this.rows = this.fetchRows();
         this.restoreStateFromStorage();
         this.bindEvents();
     }
@@ -39,27 +39,42 @@ class DataGrid {
         }
     }
 
-    fetchRowData() {
-        return this.container.children().get()
-            .map(row => {
-                const searchWords = this.findSearchableCells($(row))
-                    .flatMap(element => this.searchWordsOf($(element).text()));
-                let orderValues = new Map();
-                for (const column of this.sortableHeaders.keys()) {
-                    const cell = $(row).find(`[data-col=${column}]`);
-                    if (cell.is("[data-order]")) {
-                        orderValues.set(column, cell.attr("data-order"));
-                    } else {
-                        orderValues.set(column, cell.html().trim());
-                    }
-                }
-                return {
-                    element: row,
-                    searchWords,
-                    filterValues: this.fetchRowFilterValues(row),
-                    orderValues,
-                };
-            });
+    NUMBER_REGEX = /^[+-]?\d+([.,]\d*)?$/;
+
+    fetchRows() {
+        let rows = this.container.children().get().map(row => {
+            const searchWords = this.findSearchableCells($(row))
+                .flatMap(element => this.searchWordsOf($(element).text()));
+            return {
+                element: row,
+                searchWords,
+                filterValues: this.fetchRowFilterValues(row),
+                orderValues: this.fetchRowOrderValues(row),
+            };
+        });
+        for (const column of this.sortableHeaders.keys()) {
+            const isNumericalColumn = rows.every(row => this.NUMBER_REGEX.test(row.orderValues.get(column)));
+            if (isNumericalColumn) {
+                rows.forEach(row => {
+                    const numberString = row.orderValues.get(column).replace(",", ".");
+                    row.orderValues.set(column, parseFloat(numberString));
+                })
+            }
+        }
+        return rows;
+    }
+
+    fetchRowOrderValues(row) {
+        let orderValues = new Map();
+        for (const column of this.sortableHeaders.keys()) {
+            const cell = $(row).find(`[data-col=${column}]`);
+            if (cell.is("[data-order]")) {
+                orderValues.set(column, cell.attr("data-order"));
+            } else {
+                orderValues.set(column, cell.html().trim());
+            }
+        }
+        return orderValues;
     }
 
     searchWordsOf(string) {
