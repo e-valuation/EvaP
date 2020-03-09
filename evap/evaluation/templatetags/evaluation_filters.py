@@ -176,6 +176,7 @@ def hours_and_minutes(time_left_for_evaluation):
 def has_nonresponsible_editor(evaluation):
     return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()
 
+
 @register.filter
 def order_by(evaluations, attribute):
     return sorted(evaluations, key=lambda evaluation: getattr(evaluation, attribute))
