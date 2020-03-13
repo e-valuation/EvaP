@@ -238,7 +238,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.slogan"
+                "evap.context_processors.slogan",
+                "evap.context_processors.debug",
             ],
             'builtins': ['django.templatetags.i18n'],
         },
