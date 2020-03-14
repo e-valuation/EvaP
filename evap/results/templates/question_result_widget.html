@@ -6,25 +6,21 @@
             data-toggle="tooltip" data-placement="left" data-fallback-placement='["left", "bottom"]'
             title="{% include 'result_widget_tooltip.html' with question_result=question_result %}"
         >
-            {% if not single_result %}
-                <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} mr-2 mr-lg-3">
-                    <span class="fas fa-user"></span> {{ question_result.count_sum }}
-                </div>
-            {% endif %}
+            <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} mr-2 mr-lg-3">
+                <span class="fas fa-user"></span> {{ question_result.count_sum }}
+            </div>
 
             {% include 'distribution_with_grade.html' with question_result=question_result distribution=question_result.counts|normalized_distribution average=question_result.average %}
         </div>
     {% else %}
         <div class="d-flex" data-toggle="tooltip" data-placement="left" data-fallback-placement='["left", "bottom"]' title="{% trans 'Not enough answers were given.' %}">
-            {% if not single_result %}
-                <div class="badge-participants badge-disabled mr-2 mr-lg-3">
-                    {% if question_result.is_published %}
-                        <span class="fas fa-user"></span> {{ question_result.count_sum }}
-                    {% else %}
-                        <span class="far fa-eye-slash"></span>
-                    {% endif %}
-                </div>
-            {% endif %}
+            <div class="badge-participants badge-disabled mr-2 mr-lg-3">
+                {% if question_result.is_published %}
+                    <span class="fas fa-user"></span> {{ question_result.count_sum }}
+                {% else %}
+                    <span class="far fa-eye-slash"></span>
+                {% endif %}
+            </div>
 
             {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
         </div>

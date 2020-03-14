@@ -61,11 +61,7 @@
     {% endif %}
 
     <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
-        {% if evaluation.is_single_result %}
-            {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
-        {% else %}
-            {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
-        {% endif %}
+        {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
     </div>
 </{% if links_to_results_page %}a{% else %}div{% endif %}>
 

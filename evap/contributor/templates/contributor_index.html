@@ -95,7 +95,7 @@
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
                                             </div>
                                         {% else %}
-                                            {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
+                                            {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -195,10 +195,8 @@
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                             </div>
-                                        {% elif evaluation.state == 'published' and not evaluation.is_single_result %}
-                                            {% include 'distribution_widget.html' with distribution=evaluation.distribution average=evaluation.avg_grade weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
                                         {% elif evaluation.state == 'published' %}
-                                            {% include 'result_widget.html' with question_result=evaluation.single_result_rating_result single_result=True weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                            {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                         {% endif %}
                                     </td>
                                 </tr>
