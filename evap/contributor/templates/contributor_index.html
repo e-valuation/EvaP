@@ -193,7 +193,7 @@
                                             {% endif %}
                                         {% elif evaluation.state != 'published' and evaluation.is_single_result %}
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
-                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight=evaluation.weight weight_sum=evaluation.course.evaluation_weight_sum %}
+                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
                                             </div>
                                         {% elif evaluation.state == 'published' %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}

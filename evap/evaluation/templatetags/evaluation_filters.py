@@ -98,6 +98,17 @@ def to_colors(choices):
 
 
 @register.filter
+def weight_info(evaluation):
+    try:
+        course = evaluation.course
+    except AttributeError:
+        return None
+    if course.evaluation_weight_sum and course.evaluation_count > 1:
+        return percentage(evaluation.weight, course.evaluation_weight_sum)
+    return None
+
+
+@register.filter
 def statename(state):
     return STATE_NAMES.get(state)
 
