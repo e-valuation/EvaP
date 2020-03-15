@@ -50,7 +50,7 @@ class Semester(models.Model):
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
     class Meta:
-        ordering = ('-created_at', 'name_de')
+        ordering = ('-created_at', 'pk')
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
 
@@ -173,7 +173,7 @@ class Questionnaire(models.Model):
     objects = QuestionnaireManager()
 
     class Meta:
-        ordering = ('type', 'order', 'name_de')
+        ordering = ('type', 'order', 'pk')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
@@ -181,10 +181,10 @@ class Questionnaire(models.Model):
         return self.name
 
     def __lt__(self, other):
-        return (self.type, self.order, self.name_de) < (other.type, other.order, self.name_de)
+        return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
 
     def __gt__(self, other):
-        return (self.type, self.order, self.name_de) > (other.type, other.order, self.name_de)
+        return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
     @property
     def is_above_contributors(self):
@@ -288,7 +288,6 @@ class Course(models.Model):
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="courses_last_modified+")
 
     class Meta:
-        ordering = ('name_de',)
         unique_together = (
             ('semester', 'name_de'),
             ('semester', 'name_en'),
