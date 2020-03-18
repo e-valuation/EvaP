@@ -1563,7 +1563,6 @@ class EmailTemplate(models.Model):
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
         template = cls.objects.get(name=cls.STUDENT_REMINDER)
-        due_evaluations = due_evaluations.order_by("full_name_de")
         subject_params = {'user': user, 'first_due_in_days': first_due_in_days}
         body_params = {'user': user, 'first_due_in_days': first_due_in_days, 'due_evaluations': due_evaluations}
 
@@ -1582,6 +1581,7 @@ class EmailTemplate(models.Model):
     def send_contributor_publish_notifications(cls, evaluations, template=None):
         if not template:
             template = cls.objects.get(name=cls.PUBLISHING_NOTICE_CONTRIBUTOR)
+
         evaluations_per_contributor = defaultdict(set)
         for evaluation in evaluations:
             # for evaluations with published averaged grade, all contributors get a notification
@@ -1608,6 +1608,7 @@ class EmailTemplate(models.Model):
     def send_participant_publish_notifications(cls, evaluations, template=None):
         if not template:
             template = cls.objects.get(name=cls.PUBLISHING_NOTICE_PARTICIPANT)
+
         evaluations_per_participant = defaultdict(set)
         for evaluation in evaluations:
             # for evaluations with published averaged grade, participants get a notification
