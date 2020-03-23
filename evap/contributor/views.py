@@ -221,7 +221,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
     # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
     # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
-    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
+    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_users=[request.user])
 
     messages.add_message(
         request,

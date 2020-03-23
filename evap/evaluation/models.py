@@ -1503,7 +1503,7 @@ class EmailTemplate(models.Model):
             body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': user.get_sorted_due_evaluations()}
             self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
 
-    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
+    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
@@ -1516,16 +1516,11 @@ class EmailTemplate(models.Model):
                 logger.error(warning_message)
             return
 
-        cc_users = set()
-
-        if additional_cc_user:
-            cc_users.add(additional_cc_user)
+        cc_users = set(additional_cc_users)
 
         if use_cc:
-            cc_users |= set(user.delegates.all() | user.cc_users.all())
-
-            if additional_cc_user:
-                cc_users |= set(additional_cc_user.delegates.all() | additional_cc_user.cc_users.all())
+            users = {user, *additional_cc_users}
+            cc_users |= set(UserProfile.objects.filter(Q(represented_users__in=users) | Q(ccing_users__in=users)))
 
         cc_addresses = [p.email for p in cc_users if p.email]
 
