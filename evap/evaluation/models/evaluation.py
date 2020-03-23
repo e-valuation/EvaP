@@ -428,14 +428,6 @@ class Evaluation(LoggedModel):
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
 
-    def all_logentries(self):
-        from .log import LogEntry
-        return LogEntry.objects.filter(
-            content_type__in=[ContentType.objects.get_for_model(Contribution),
-                              ContentType.objects.get_for_model(Evaluation)],
-            object_id__in=[o['pk'] for o in self.contributions.all().values('pk')] + [self.pk]
-        ).select_related("user")
-
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
@@ -797,6 +789,12 @@ class Contribution(LoggedModel):
     def is_general(self):
         return self.contributor_id is None
 
+    @property
+    def object_to_attach_logentries_to(self):
+        try:
+            return self.evaluation
+        except:  # TODO: needed for loading testdata, but wrong
+            return self
 
 class Question(models.Model):
     """A question including a type."""

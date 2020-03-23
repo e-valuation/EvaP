@@ -21,9 +21,12 @@ FieldAction = namedtuple("FieldAction", "label type items")
 
 
 class LogEntry(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(db_index=True)
-    content_object = GenericForeignKey("content_type", "object_id")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="log_entries_about_me")
+    content_object_id = models.PositiveIntegerField(db_index=True)
+    content_object = GenericForeignKey("content_type", "content_object_id")
+    attached_to_object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="log_entries_shown_to_me")
+    attached_to_object_id = models.PositiveIntegerField(db_index=True)
+    attached_to_object = GenericForeignKey("attached_to_object_type", "attached_to_object_id")
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255)
@@ -46,26 +49,32 @@ class LogEntry(models.Model):
                         items = [str(related_objects.get(pk=item)) if item is not None else "" for item in items]
                 except FieldDoesNotExist:
                     label = field_name
+                except Exception:
+                    pass  # TODO: remove when everything works
                 finally:
                     fields[field_name].append(FieldAction(label, action_type, items))
         return dict(fields)
 
     def display(self):
+        if self.action_type not in ("changed", "created", "deleted"): 
+            return self.action_type +": " + self.data
+
         message = None
+        field_data = json.loads(self.data)
 
         if self.action_type == 'changed':
             message = _("The {cls} {obj} was changed.")
         elif self.action_type == 'created':
             message = _("The {cls} {obj} was created.")
+        elif self.action_type == 'deleted':
+            message = _("A {cls} was deleted.").format(
+                    cls=ContentType.objects.get_for_id(field_data.pop('_content_type')).model_class(),
+            )
 
-        if message: 
-            field_data = json.loads(self.data)
-            return render_to_string("log/changed_fields_entry.html", {
-                'message': message.format(cls=str(type(self.content_object)), obj=str(self.content_object)),
-                'fields': self._evaluation_log_template_context(field_data),
-            })
-
-        return self.action_type +": " + self.data
+        return render_to_string("log/changed_fields_entry.html", {
+            'message': message.format(cls=str(type(self.content_object)), obj=str(self.content_object)),
+            'fields': self._evaluation_log_template_context(field_data),
+        })
 
 
 def log_serialize(obj):

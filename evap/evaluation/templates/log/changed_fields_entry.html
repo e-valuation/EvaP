@@ -13,8 +13,14 @@
                 {{ action.label}} {% trans "removed" %}: {{ action.items|join:", " }}
                 {% elif action.type == "clear" %}
                 {{ action.label}} {% trans "cleared" %}
+                {% elif action.type == "delete" %}
+                {{ action.label}} {% trans "was" %}: {{ action.items|join:", " }}
                 {% elif action.type == "change" %}
-                {{ action.label}} {% trans "changed" %}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
+                    {% if action.items.0 %}
+                    {{ action.label}} {% trans "changed" %}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
+                    {% else %}
+                    {{ action.label}} {% trans "set" %}: {{ action.items.1 }}
+                    {% endif %}
                 {% else %}
                 {{ action.label}} {% trans "modified" %}: {{ action.items|join:", " }}
                 {% endif %}

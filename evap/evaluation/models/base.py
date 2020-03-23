@@ -77,12 +77,39 @@ class LoggedModel(models.Model):
         changes.update(self._m2m_changes)
         return changes
 
-    def update_log(self, user=None):
+    @property
+    def deletion_data(self):
+        # flatten list because these might also be m2m changes
+        changes = {}
+        for field_name, old_value in self._initial.items():
+            if field_name in FIELD_BLACKLIST:
+                continue
+            field = self._meta.get_field(field_name)
+            if field.many_to_many:
+                action_items = [obj.pk for obj in getattr(self, field_name).all()]
+            else:
+                action_items = [old_value]
+            changes[field_name] = {'delete': action_items}
+        changes.update(self._m2m_changes)
+        changes.update({
+            "_content_type": ContentType.objects.get_for_model(type(self)).id
+        })
+        return changes
+
+
+    def update_log(self, user=None, delete=False):
         from .log import log_serialize, LogEntry
         data = json.dumps(self.changes, default=log_serialize)
         if not self._logentry:
-            action = 'changed' if 'id' in self._initial and self._initial['id'] else 'created'
-            self._logentry = LogEntry(content_object=self, user=user, action_type=action, data=data)
+            if delete:
+                action = 'deleted'
+                data = json.dumps(self.deletion_data, default=log_serialize)
+            elif 'id' not in self._initial or not self._initial['id']:
+                action = 'created'
+            else:
+                action = 'changed'
+            self._logentry = LogEntry(content_object=self, attached_to_object=self.object_to_attach_logentries_to, user=user, action_type=action, data=data)
+            # when importing test_data, I think looking up self.evaluation on contributions fails due to the way fixtures are imported in bulk....
         else:
             self._logentry.data = data
         self._logentry.save()
@@ -93,16 +120,25 @@ class LoggedModel(models.Model):
         super().save(*args, **kw)
         self.update_log(user=user)
 
+    def delete(self, *args, **kw):
+        request = kw.pop('request', getattr(self, '_request', None))
+        user = request and request.user or self._logentry and self._logentry.user or None
+        self.update_log(user=user, delete=True)
+        super().delete(*args, **kw)
+
     def all_logentries(self):
         """
         Return a queryset with all logentries that should be shown with this model. By default, show logentries
-        related to self. Overwrite this to e.g. also show logentries from related objects that don't have their
-        own detail page.
+        related to self.
         """
         from .log import LogEntry
         return LogEntry.objects.filter(
-            content_type=ContentType.objects.get_for_model(type(self)), object_id=self.pk,
+            attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
         ).select_related("user")
+
+    @property
+    def object_to_attach_logentries_to(self):
+        return self
 
 
 
