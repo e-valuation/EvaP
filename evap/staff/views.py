@@ -600,6 +600,7 @@ def semester_grade_reminder(request, semester_id):
 
     courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
+    courses.sort(key=lambda course: course.name)
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
