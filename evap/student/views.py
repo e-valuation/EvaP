@@ -17,7 +17,7 @@ from evap.student.tools import question_id
 
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                textanswers_visible_to)
+                                textanswers_visible_to, normalized_distribution)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -35,9 +35,10 @@ def index(request):
         if evaluation.state == "published":
             if not evaluation.is_single_result:
                 evaluation.distribution = calculate_average_distribution(evaluation)
-                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
             else:
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
         evaluation.participates_in = request.user in evaluation.participants.all()
         evaluation.voted_for = request.user in evaluation.voters.all()
     evaluations = get_evaluations_with_course_result_attributes(evaluations)

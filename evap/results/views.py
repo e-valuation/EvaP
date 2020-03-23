@@ -15,7 +15,7 @@ from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, Use
 from evap.evaluation.auth import internal_required
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, TextResult, can_textanswer_be_seen_by)
+                                HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -115,9 +115,10 @@ def get_evaluations_with_prefetched_data(evaluations):
     for evaluation in evaluations:
         if not evaluation.is_single_result:
             evaluation.distribution = calculate_average_distribution(evaluation)
-            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
         else:
             evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+            evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+        evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
     return evaluations
 
 

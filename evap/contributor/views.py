@@ -14,7 +14,8 @@ from evap.evaluation.models import Contribution, Course, CourseType, Degree, Eva
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result)
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
+                                normalized_distribution)
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -55,9 +56,10 @@ def index(request):
         if evaluation.state == "published":
             if not evaluation.is_single_result:
                 evaluation.distribution = calculate_average_distribution(evaluation)
-                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
             else:
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
     displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
