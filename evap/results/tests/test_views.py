@@ -230,6 +230,24 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user='student', status=403)
 
+    def test_preview_without_rating_answers(self):
+        evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
+        self.app.get(url, user='manager')
+
+    def test_preview_with_rating_answers(self):
+        evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
+        evaluation.general_contribution.questionnaires.set([questionnaire])
+        participants = baker.make(UserProfile, _quantity=20)
+        evaluation.participants.set(participants)
+        evaluation.voters.set(participants)
+        baker.make(RatingAnswerCounter, question=likert_question, contribution=evaluation.general_contribution, answer=1, count=20)
+
+        url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
+        self.app.get(url, user='manager')
+
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
