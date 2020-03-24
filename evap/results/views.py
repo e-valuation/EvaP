@@ -216,7 +216,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     # if the evaluation is not published, the rendered results are not cached, so we need to attach distribution
     # information for rendering the distribution bar
     if evaluation.state != 'published':
-        evaluation = get_evaluations_with_prefetched_data([evaluation])[0]
+        evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[0]
 
     template_data = dict(
         evaluation=evaluation,
