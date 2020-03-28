@@ -652,3 +652,32 @@ class EvaluationFormTests(TestCase):
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course2)
             self.assertEqual(delete_call.call_count, 2)
             self.assertEqual(warmup_call.call_count, 2)
+
+    def test_locked_questionnaire(self):
+        """
+            Asserts that locked (general) questionnaires can be changed by staff.
+        """
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
+        locked_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS)
+
+        semester = baker.make(Semester)
+        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester))
+        evaluation.general_contribution.questionnaires.add(questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=semester)
+        form_data["general_questionnaires"] = [questionnaire.pk, locked_questionnaire.pk]  # add locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation, semester=semester)
+
+        # Assert form is valid and locked questionnaire is added
+        form.save()
+        self.assertEqual({questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=semester)
+        form_data["general_questionnaires"] = [questionnaire.pk]  # remove locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation, semester=semester)
+
+        # Assert form is valid and locked questionnaire is removed
+        form.save()
+        self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))

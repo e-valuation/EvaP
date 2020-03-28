@@ -3,7 +3,7 @@ from model_bakery import baker
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 
-from evap.contributor.forms import DelegatesForm, EditorContributionForm
+from evap.contributor.forms import DelegatesForm, EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
@@ -64,6 +64,36 @@ class ContributionFormsetTests(TestCase):
         expected = set([questionnaire, questionnaire_managers_only])
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
+
+    def test_locked_questionnaire(self):
+        """
+            Asserts that locked (general) questionnaires cannot be changed.
+        """
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
+        locked_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS)
+
+        evaluation = baker.make(Evaluation)
+        evaluation.general_contribution.questionnaires.add(questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk, locked_questionnaire.pk]  # add locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not added
+        form.save()
+        self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+
+        evaluation.general_contribution.questionnaires.add(locked_questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk]  # remove locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not removed
+        form.save()
+        self.assertEqual({questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
 
     def test_existing_contributors_are_in_queryset(self):
         """

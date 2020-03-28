@@ -1222,7 +1222,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ['visibility', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+        editable_fields = ['visibility', 'is_locked', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
 
         for name, field in form.fields.items():
             if name not in editable_fields:
@@ -1371,6 +1371,17 @@ def questionnaire_visibility(request):
         raise SuspiciousOperation("Invalid visibility choice")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     questionnaire.visibility = visibility
+    questionnaire.save()
+    return HttpResponse()
+
+
+@require_POST
+@manager_required
+def questionnaire_set_locked(request):
+    questionnaire_id = request.POST.get("questionnaire_id")
+    is_locked = bool(int(request.POST.get("is_locked")))
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire.is_locked = is_locked
     questionnaire.save()
     return HttpResponse()
 

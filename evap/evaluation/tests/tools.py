@@ -55,9 +55,9 @@ class WebTestWith200Check(WebTest):
             self.app.get(self.url, user=user, status=200)
 
 
-def get_form_data_from_instance(FormClass, instance):
+def get_form_data_from_instance(FormClass, instance, **kwargs):
     assert FormClass._meta.model == type(instance)
-    form = FormClass(instance=instance)
+    form = FormClass(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
 

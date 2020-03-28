@@ -164,7 +164,13 @@ class Questionnaire(models.Model):
 
     visibility = models.IntegerField(choices=Visibility.choices, verbose_name=_('visibility'), default=Visibility.MANAGERS)
 
+    is_locked = models.BooleanField(verbose_name=_("is locked"), default=False)
+
     objects = QuestionnaireManager()
+
+    def clean(self):
+        if self.type == self.Type.CONTRIBUTOR and self.is_locked:
+            raise ValidationError({'is_locked': _('Contributor questionnaires cannot be locked.')})
 
     class Meta:
         ordering = ('type', 'order', 'pk')
