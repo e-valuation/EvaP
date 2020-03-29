@@ -30,7 +30,7 @@
                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
             </div>
         {% else %}
-            {% include 'distribution_widget.html' with distribution=course.distribution average=course.avg_grade %}
+            {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}
         {% endif %}
     </div>
 </div>

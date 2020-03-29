@@ -3,20 +3,13 @@ import xlrd
 
 from django.conf import settings
 from django.db import transaction
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy, ugettext as _
-from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-
-
-def create_user_list_string_for_message(users):
-    msg = ""
-    for user in users:
-        msg += "<br />"
-        msg += "{} {} ({})".format(user.first_name, user.last_name, user.email)
-    return msg
+from evap.staff.tools import create_user_list_html_string_for_message
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
@@ -191,32 +184,33 @@ class ExcelImporter():
 
     @staticmethod
     def _create_user_string(user):
-        return "{} {} {}, {}".format(user.title or "", user.first_name, user.last_name, user.email or "")
+        return format_html("{} {} {}, {}", user.title or "", user.first_name, user.last_name, user.email or "")
 
     @staticmethod
     def _create_user_data_mismatch_warning(user, user_data, test_run):
         if test_run:
-            msg = _("The existing user would be overwritten with the following data:")
+            msg = format_html(_("The existing user would be overwritten with the following data:"))
         else:
-            msg = _("The existing user was overwritten with the following data:")
-        return (mark_safe(msg
-            + "<br /> - " + ExcelImporter._create_user_string(user) + _(" (existing)")
-            + "<br /> - " + ExcelImporter._create_user_string(user_data) + _(" (new)")))
+            msg = format_html(_("The existing user was overwritten with the following data:"))
+        return (msg
+            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user), _("existing"))
+            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user_data), _("new")))
 
     @staticmethod
     def _create_user_inactive_warning(user, test_run):
+        user_string = ExcelImporter._create_user_string(user)
         if test_run:
-            msg = _("The following user is currently marked inactive and will be marked active upon importing:")
-        else:
-            msg = _("The following user was previously marked inactive and is now marked active upon importing:")
-        return mark_safe((msg) + " " + ExcelImporter._create_user_string(user))
+            return format_html(_("The following user is currently marked inactive and will be marked active upon importing: {}"), user_string)
+
+        return format_html(_("The following user was previously marked inactive and is now marked active upon importing: {}"), user_string)
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
-        warningstring = _("An existing user has the same first and last name as a new user:")
+        warningstring = format_html(_("An existing user has the same first and last name as a new user:"))
         for user in users_with_same_names:
-            warningstring += "<br /> - " + self._create_user_string(user) + _(" (existing)")
-        warningstring += "<br /> - " + self._create_user_string(user_data) + _(" (new)")
-        self.warnings[self.W_DUPL].append(mark_safe(warningstring))
+            warningstring += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
+        warningstring += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("new"))
+
+        self.warnings[self.W_DUPL].append(warningstring)
 
     def check_user_data_sanity(self, test_run):
         for user_data in self.users.values():
@@ -341,18 +335,18 @@ class EnrollmentImporter(ExcelImporter):
                 student = UserProfile.objects.get(email=student_data.email)
                 evaluation.participants.add(student)
 
-        msg = _("Successfully created {} courses/evaluations, {} students and {} contributors:").format(
+        msg = format_html(_("Successfully created {} courses/evaluations, {} students and {} contributors:"),
             len(self.evaluations), len(students_created), len(responsibles_created))
-        msg += create_user_list_string_for_message(students_created + responsibles_created)
-        self.success_messages.append(mark_safe(msg))
+        msg += create_user_list_html_string_for_message(students_created + responsibles_created)
+        self.success_messages.append(msg)
 
     def create_test_success_messages(self):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        msg = _("The import run will create {} courses/evaluations and {} users:").format(len(self.evaluations), len(filtered_users))
-        msg += create_user_list_string_for_message(filtered_users)
-        self.success_messages.append(mark_safe(msg))
+        msg = format_html(_("The import run will create {} courses/evaluations and {} users:"), len(self.evaluations), len(filtered_users))
+        msg += create_user_list_html_string_for_message(filtered_users)
+        self.success_messages.append(msg)
 
     @classmethod
     def process(cls, excel_content, semester, vote_start_datetime, vote_end_date, test_run):
@@ -440,9 +434,9 @@ class UserImporter(ExcelImporter):
                                          " The error message has been: '%(error)s'") % dict(error=e))
                     raise
 
-        msg = _("Successfully created {} users:").format(len(created_users))
-        msg += create_user_list_string_for_message(created_users)
-        self.success_messages.append(mark_safe(msg))
+        msg = format_html(_("Successfully created {} users:"), len(created_users))
+        msg += create_user_list_html_string_for_message(created_users)
+        self.success_messages.append(msg)
         return new_participants
 
     def get_user_profile_list(self):
@@ -459,9 +453,9 @@ class UserImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
-        msg = _("The import run will create {} users:").format(len(filtered_users))
-        msg += create_user_list_string_for_message(filtered_users)
-        self.success_messages.append(mark_safe(msg))
+        msg = format_html(_("The import run will create {} users:"), len(filtered_users))
+        msg += create_user_list_html_string_for_message(filtered_users)
+        self.success_messages.append(msg)
 
     @classmethod
     def process(cls, excel_content, test_run):
@@ -513,26 +507,26 @@ class PersonImporter:
         users_to_add = [user for user in user_list if user not in evaluation_participants]
 
         if already_related:
-            msg = _("The following {} users are already participants in evaluation {}:").format(len(already_related), evaluation.name)
-            msg += create_user_list_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
+            msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
+            msg += create_user_list_html_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(msg)
 
         if not test_run:
             evaluation.participants.add(*users_to_add)
-            msg = _("{} participants added to the evaluation {}:").format(len(users_to_add), evaluation.name)
+            msg = format_html(_("{} participants added to the evaluation {}:"), len(users_to_add), evaluation.name)
         else:
-            msg = _("{} participants would be added to the evaluation {}:").format(len(users_to_add), evaluation.name)
-        msg += create_user_list_string_for_message(users_to_add)
+            msg = format_html(_("{} participants would be added to the evaluation {}:"), len(users_to_add), evaluation.name)
+        msg += create_user_list_html_string_for_message(users_to_add)
 
-        self.success_messages.append(mark_safe(msg))
+        self.success_messages.append(msg)
 
     def process_contributors(self, evaluation, test_run, user_list):
         already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
-            msg = _("The following {} users are already contributing to evaluation {}:").format(len(already_related), evaluation.name)
-            msg += create_user_list_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(mark_safe(msg))
+            msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
+            msg += create_user_list_html_string_for_message(already_related)
+            self.warnings[ExcelImporter.W_GENERAL].append(msg)
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)
@@ -542,12 +536,12 @@ class PersonImporter:
             for user in users_to_add:
                 order = Contribution.objects.filter(evaluation=evaluation).count()
                 Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
-            msg = _("{} contributors added to the evaluation {}:").format(len(users_to_add), evaluation.name)
+            msg = format_html(_("{} contributors added to the evaluation {}:"), len(users_to_add), evaluation.name)
         else:
-            msg = _("{} contributors would be added to the evaluation {}:").format(len(users_to_add), evaluation.name)
-        msg += create_user_list_string_for_message(users_to_add)
+            msg = format_html(_("{} contributors would be added to the evaluation {}:"), len(users_to_add), evaluation.name)
+        msg += create_user_list_html_string_for_message(users_to_add)
 
-        self.success_messages.append(mark_safe(msg))
+        self.success_messages.append(msg)
 
     @classmethod
     def process_file_content(cls, import_type, evaluation, test_run, file_content):

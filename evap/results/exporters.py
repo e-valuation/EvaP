@@ -280,7 +280,7 @@ def writec(exporter, label, style_name, rows=1, cols=1):
 
 def _write(exporter, label, style, rows, cols):
     if rows > 1 or cols > 1:
-        exporter.sheet.write_merge(exporter.row, exporter.row+rows-1, exporter.col, exporter.col+cols-1, label, style)
+        exporter.sheet.write_merge(exporter.row, exporter.row + rows - 1, exporter.col, exporter.col + cols - 1, label, style)
         exporter.col += cols - 1
     else:
         exporter.sheet.write(exporter.row, exporter.col, label, style)

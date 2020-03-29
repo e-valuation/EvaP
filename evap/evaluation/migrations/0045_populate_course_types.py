@@ -14,7 +14,6 @@ def populate_course_types(apps, _schema_editor):
 
 def revert_course_types(apps, _schema_editor):
     Course = apps.get_model('evaluation', 'Course')
-    CourseType = apps.get_model('evaluation', 'CourseType')
 
     for course in Course.objects.all():
         course.type_old = course.type.name_de

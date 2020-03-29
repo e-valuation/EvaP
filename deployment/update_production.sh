@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e # abort on error
-cd `dirname $0`/.. # change to project root directory
+cd $(dirname $0)/.. # change to project root directory
 
 echo $PWD
 
@@ -33,7 +33,7 @@ sudo -H -u $USERNAME git fetch
 
 # Note that apache should not be running during most of the upgrade,
 # since then e.g. the backup might be incomplete or the code does not
-# match the database layout, or https://github.com/fsr-de/EvaP/issues/1237.
+# match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 stop
 
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output $FILENAME

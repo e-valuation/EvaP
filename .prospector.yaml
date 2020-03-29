@@ -21,7 +21,11 @@ pep8:
     - N806  # variable in function should be lowercase - lots of false positives, mostly Formset classes made from factories
     - N804  # first argument of a classmethod should be named 'cls' - one false positive and pylint does it better
     - E266  # too many leading '#' for block comment - that's used in settings on purpose
-    - F999  # prospector can not parse >python3.5
+pyflakes:
+  disable:
+    - F999  # python >3.5 triggers this
     - E701  # type annotations trigger this.
     - F403  # pylint handles this.
     - F401  # pylint handles this.
+pylint:
+  run: false # we run pylint on travis

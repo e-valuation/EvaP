@@ -1,3 +1,5 @@
+#! /usr/bin/env bash
+
 set -x # print executed commands
 
 USER="evap"
@@ -51,7 +53,7 @@ cp $REPO_FOLDER/deployment/apache.template.conf /etc/apache2/sites-available/eva
 a2ensite evap.conf
 a2dissite 000-default.conf
 # this comments in some line in some apache config file to fix the locale.
-# see https://github.com/fsr-de/EvaP/issues/626
+# see https://github.com/e-valuation/EvaP/issues/626
 # and https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/modwsgi/#if-you-get-a-unicodeencodeerror
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2

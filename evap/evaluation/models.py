@@ -1,7 +1,7 @@
 from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
 import logging
-import random
+import secrets
 import uuid
 import operator
 
@@ -50,7 +50,7 @@ class Semester(models.Model):
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
     class Meta:
-        ordering = ('-created_at', 'name_de')
+        ordering = ('-created_at', 'pk')
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
 
@@ -173,7 +173,7 @@ class Questionnaire(models.Model):
     objects = QuestionnaireManager()
 
     class Meta:
-        ordering = ('type', 'order', 'name_de')
+        ordering = ('type', 'order', 'pk')
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
@@ -181,10 +181,10 @@ class Questionnaire(models.Model):
         return self.name
 
     def __lt__(self, other):
-        return (self.type, self.order, self.name_de) < (other.type, other.order, self.name_de)
+        return (self.type, self.order, self.pk) < (other.type, other.order, other.pk)
 
     def __gt__(self, other):
-        return (self.type, self.order, self.name_de) > (other.type, other.order, self.name_de)
+        return (self.type, self.order, self.pk) > (other.type, other.order, other.pk)
 
     @property
     def is_above_contributors(self):
@@ -288,7 +288,6 @@ class Course(models.Model):
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="courses_last_modified+")
 
     class Meta:
-        ordering = ('name_de',)
         unique_together = (
             ('semester', 'name_de'),
             ('semester', 'name_en'),
@@ -385,8 +384,6 @@ class Evaluation(models.Model):
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     class Meta:
-        # we need an explicit order for, e.g., staff.views.get_evaluations_with_prefetched_data
-        ordering = ('pk',)
         unique_together = (
             ('course', 'name_de'),
             ('course', 'name_en'),
@@ -467,7 +464,7 @@ class Evaluation(models.Model):
 
     @property
     def all_contributions_have_questionnaires(self):
-        return self.general_contribution and (all(self.contributions.annotate(Count('questionnaires')).values_list("questionnaires__count", flat=True)))
+        return self.general_contribution and not self.contributions.annotate(Count('questionnaires')).filter(questionnaires__count=0).exists()
 
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
@@ -1259,7 +1256,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
                 name = self.title + " " + name
             return name
 
-        return self.username.replace(" ", "\u00A0")  # replace spaces with non-breaking spaces
+        return self.username
 
     @property
     def full_name_with_username(self):
@@ -1382,7 +1379,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return
 
         while True:
-            key = random.randrange(0, UserProfile.MAX_LOGIN_KEY)
+            key = secrets.choice(range(0, UserProfile.MAX_LOGIN_KEY))
             try:
                 self.login_key = key
                 self.reset_login_key_validity()
@@ -1506,7 +1503,7 @@ class EmailTemplate(models.Model):
             body_params = {'user': user, 'evaluations': user_evaluations, 'due_evaluations': user.get_sorted_due_evaluations()}
             self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
 
-    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_user=None, request=None):
+    def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
             warning_message = "{} has no email address defined. Could not send email.".format(user.username)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
@@ -1519,16 +1516,11 @@ class EmailTemplate(models.Model):
                 logger.error(warning_message)
             return
 
-        cc_users = set()
-
-        if additional_cc_user:
-            cc_users.add(additional_cc_user)
+        cc_users = set(additional_cc_users)
 
         if use_cc:
-            cc_users |= set(user.delegates.all() | user.cc_users.all())
-
-            if additional_cc_user:
-                cc_users |= set(additional_cc_user.delegates.all() | additional_cc_user.cc_users.all())
+            users = {user, *additional_cc_users}
+            cc_users |= set(UserProfile.objects.filter(Q(represented_users__in=users) | Q(ccing_users__in=users)))
 
         cc_addresses = [p.email for p in cc_users if p.email]
 

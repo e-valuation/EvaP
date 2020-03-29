@@ -74,15 +74,15 @@ def get_evaluations_with_prefetched_data(semester):
             num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
             num_course_evaluations=Count("course__evaluations", distinct=True),
         )
-    )
+    ).order_by('pk')
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
 
     # these could be done with an annotation like this:
     # num_voters_annotated=Count("voters", distinct=True), or more completely
     # evaluations.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
     # but that was prohibitively slow.
-    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).values_list("num_participants", flat=True)
-    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).values_list("num_voters", flat=True)
+    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
+    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
 
     for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
         evaluation.general_contribution = evaluation.general_contribution[0]
@@ -220,7 +220,18 @@ class MoveToPreparedOperation(EvaluationOperation):
         messages.success(request, ungettext("Successfully enabled {} evaluation for editor review.",
             "Successfully enabled {} evaluations for editor review.", len(evaluations)).format(len(evaluations)))
         if email_template:
-            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.EDITORS], use_cc=True, request=request)
+            evaluations_by_responsible = {}
+            for evaluation in evaluations:
+                for responsible in evaluation.course.responsibles.all():
+                    evaluations_by_responsible.setdefault(responsible, []).append(evaluation)
+
+            for responsible, responsible_evaluations in evaluations_by_responsible.items():
+                body_params = {'user': responsible, 'evaluations': responsible_evaluations}
+                editors = UserProfile.objects \
+                    .filter(contributions__evaluation__in=responsible_evaluations, contributions__can_edit=True) \
+                    .exclude(pk=responsible.pk)
+                email_template.send_to_user(responsible, subject_params={}, body_params=body_params,
+                                            use_cc=True, additional_cc_users=editors, request=request)
 
 
 class StartEvaluationOperation(EvaluationOperation):
@@ -325,7 +336,9 @@ def semester_evaluation_operation(request, semester_id):
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
-    evaluations = annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
+    evaluations = list(annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids)))
+    evaluations.sort(key=lambda evaluation: evaluation.full_name)
+
     operation = EVALUATION_OPERATIONS[target_state]
 
     if request.method == 'POST':
@@ -597,6 +610,7 @@ def semester_grade_reminder(request, semester_id):
 
     courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
+    courses.sort(key=lambda course: course.name)
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
@@ -811,7 +825,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     # The @receiver will only live as long as the request is processed
     # as the callback is captured by a weak reference in the Django Framework
     # and no other strong references are being kept.
-    # See https://github.com/fsr-de/EvaP/issues/1361 for more information and discussion.
+    # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         for granting in grantings:
@@ -1434,7 +1448,8 @@ def user_index(request):
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for'))
+        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for')
+        .order_by('last_name', 'first_name', 'username'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 

@@ -94,8 +94,7 @@ class Command(BaseCommand):
                 + "folder.")
 
         while len(fake_usernames) < len(user_profiles):
-            fake_usernames.add(
-                (random.choice(first_names), random.choice(last_names)))
+            fake_usernames.add((random.choice(first_names), random.choice(last_names)))  # nosec
 
         for i, user in enumerate(user_profiles):
             # Give users unique temporary names to counter identity errors due to the names being unique
@@ -125,7 +124,7 @@ class Command(BaseCommand):
                 user.valid_until = None
                 user.ensure_valid_login_key()
                 # Invalidate some keys
-                user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)
+                user.valid_until = date.today() + random.choice([1, -1]) * timedelta(365 * 100)  # nosec
 
             user.save()
 
@@ -142,7 +141,7 @@ class Command(BaseCommand):
         # Randomize course types
         self.stdout.write("Randomizing course types...")
         for course in Course.objects.all():
-            course.type = random.choice(all_course_types)
+            course.type = random.choice(all_course_types)  # nosec
             course.save()
 
         # Randomize names
@@ -241,12 +240,12 @@ class Command(BaseCommand):
                     for value in missing_values:
                         counters.append(RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0))
 
-                    generated_counts = [random.random() for c in counters]
+                    generated_counts = [random.random() for c in counters]  # nosec
                     generated_sum = sum(generated_counts)
                     generated_counts = [floor(count / generated_sum * original_sum) for count in generated_counts]
 
                     to_add = original_sum - sum(generated_counts)
-                    index = random.randint(0, len(generated_counts) - 1)
+                    index = random.randint(0, len(generated_counts) - 1)  # nosec
                     generated_counts[index] += to_add
 
                     for counter, generated_count in zip(counters, generated_counts):

@@ -14,7 +14,8 @@ from evap.evaluation.models import Contribution, Course, CourseType, Degree, Eva
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result)
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
+                                normalized_distribution)
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -49,15 +50,16 @@ def index(request):
             evaluation.delegated_evaluation = True
         displayed_evaluations |= delegated_evaluations - displayed_evaluations
     displayed_evaluations = list(displayed_evaluations)
-    displayed_evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
+    displayed_evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
     for evaluation in displayed_evaluations:
         if evaluation.state == "published":
             if not evaluation.is_single_result:
                 evaluation.distribution = calculate_average_distribution(evaluation)
-                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
             else:
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
     displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
@@ -221,7 +223,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
     # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
     # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
-    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
+    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_users=[request.user])
 
     messages.add_message(
         request,
