@@ -659,7 +659,7 @@ class TestSemesterImportView(WebTest):
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
+        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')

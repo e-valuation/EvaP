@@ -18,7 +18,7 @@ from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition

@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import xlwt
 

@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from django.forms import TypedChoiceField
 from django.template import Library
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
 from evap.rewards.tools import can_reward_points_be_used_by

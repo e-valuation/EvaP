@@ -9,7 +9,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.conf import settings
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.grades.models import GradeDocument

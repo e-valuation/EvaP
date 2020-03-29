@@ -8,7 +8,7 @@ from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
