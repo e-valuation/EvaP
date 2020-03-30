@@ -33,9 +33,9 @@ class TestVoteView(WebTest):
 
         cls.evaluation = baker.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
 
-        cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
-        cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.BOTTOM)
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
         cls.contributor_heading_question = baker.make(Question, questionnaire=cls.contributor_questionnaire, order=0, type=Question.HEADING)
         cls.contributor_text_question = baker.make(Question, questionnaire=cls.contributor_questionnaire, order=1, type=Question.TEXT)

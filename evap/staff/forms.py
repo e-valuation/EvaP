@@ -189,7 +189,7 @@ class CourseForm(forms.ModelForm):
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
+        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
@@ -211,7 +211,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
+            Q(visibility=Questionnaire.Visibility.MANAGERS) | Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude(is_active=False)
 
@@ -369,10 +369,10 @@ class SingleResultForm(forms.ModelForm):
 
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
-    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
+    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.Responsibility.choices)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
+        Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
@@ -382,7 +382,7 @@ class ContributionForm(forms.ModelForm):
     class Meta:
         model = Contribution
         fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
+        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TextAnswerVisibility.choices)}
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
@@ -394,15 +394,15 @@ class ContributionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance.can_edit:
-            self.fields['responsibility'].initial = Contribution.IS_EDITOR
+            self.fields['responsibility'].initial = Contribution.Responsibility.IS_EDITOR
         else:
-            self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
+            self.fields['responsibility'].initial = Contribution.Responsibility.IS_CONTRIBUTOR
 
         if self.instance.contributor:
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
+            Q(visibility=Questionnaire.Visibility.MANAGERS) | Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
 
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
@@ -417,13 +417,13 @@ class ContributionForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
-        is_editor = responsibility == Contribution.IS_EDITOR
+        is_editor = responsibility == Contribution.Responsibility.IS_EDITOR
         self.instance.can_edit = is_editor
         return super().save(*args, **kwargs)
 
 
 class EvaluationEmailForm(forms.Form):
-    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.EMAIL_RECIPIENTS, label=_("Send email to"))
+    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.Recipients.choices, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
@@ -619,8 +619,8 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN))
-        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN)
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN))
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN)
         self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 

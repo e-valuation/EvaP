@@ -112,7 +112,7 @@ class EvaluationData(CommonEqualityMixin):
             course=course,
         )
         evaluation.save()
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
 
 class ExcelImporter():

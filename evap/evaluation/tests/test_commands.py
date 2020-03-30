@@ -58,8 +58,8 @@ class TestAnonymizeCommand(TestCase):
             name_en="History of Unicode 😄",
         )
 
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
         cls.contributor_questions = baker.make(Question, _quantity=10,
                 questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))

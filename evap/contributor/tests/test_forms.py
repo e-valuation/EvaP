@@ -40,10 +40,10 @@ class ContributionFormsetTests(TestCase):
             Regression test for #593.
         """
         evaluation = baker.make(Evaluation)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
-        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS)
+        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS)
         # one hidden questionnaire that should never be shown
-        baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
+        baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
 
         # just the normal questionnaire should be shown.
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
@@ -103,9 +103,9 @@ class ContributionFormsetWebTests(WebTest):
         evaluation = baker.make(Evaluation, pk=1, state="prepared")
         user1 = baker.make(UserProfile)
         user2 = baker.make(UserProfile)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
+        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

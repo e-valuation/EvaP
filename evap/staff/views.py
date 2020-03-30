@@ -56,8 +56,8 @@ def index(request):
 
 def annotate_evaluations_with_grade_document_counts(evaluations):
     return evaluations.annotate(
-        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.MIDTERM_GRADES), distinct=True),
-        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.FINAL_GRADES), distinct=True)
+        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.MIDTERM_GRADES), distinct=True),
+        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.FINAL_GRADES), distinct=True)
     )
 
 
@@ -71,7 +71,7 @@ def get_evaluations_with_prefetched_data(semester):
         ).annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
-            num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED), distinct=True),
+            num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED), distinct=True),
             num_course_evaluations=Count("course__evaluations", distinct=True),
         )
     ).order_by('pk')
@@ -259,7 +259,7 @@ class StartEvaluationOperation(EvaluationOperation):
         messages.success(request, ngettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
         if email_template:
-            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=request)
+            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
 class RevertToReviewedOperation(EvaluationOperation):
@@ -1038,7 +1038,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
             for question in questionnaire.text_questions:
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
                 if filter_textanswers:
-                    answers = answers.filter(state=TextAnswer.NOT_REVIEWED)
+                    answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)
                 if answers:
                     text_results.append(TextResult(question=question, answers=answers))
 
@@ -1166,8 +1166,8 @@ def questionnaire_index(request):
     contributor_questionnaires = Questionnaire.objects.contributor_questionnaires()
 
     if filter_questionnaires:
-        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.HIDDEN)
-        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.HIDDEN)
+        general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
+        contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
 
     general_questionnaires_top = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors]
     general_questionnaires_bottom = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors]
@@ -1233,10 +1233,10 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
                     field.disabled = True
 
         # disallow type changed from and to contributor
-        if questionnaire.type == Questionnaire.CONTRIBUTOR:
-            form.fields['type'].choices = [choice for choice in Questionnaire.TYPE_CHOICES if choice[0] == Questionnaire.CONTRIBUTOR]
+        if questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
+            form.fields['type'].choices = [choice for choice in Questionnaire.Type.choices if choice[0] == Questionnaire.Type.CONTRIBUTOR]
         else:
-            form.fields['type'].choices = [choice for choice in Questionnaire.TYPE_CHOICES if choice[0] != Questionnaire.CONTRIBUTOR]
+            form.fields['type'].choices = [choice for choice in Questionnaire.Type.choices if choice[0] != Questionnaire.Type.CONTRIBUTOR]
 
     return form, formset
 
@@ -1321,7 +1321,7 @@ def questionnaire_new_version(request, questionnaire_id):
                 # Change old name before checking Form.
                 old_questionnaire.name_de = new_name_de
                 old_questionnaire.name_en = new_name_en
-                old_questionnaire.visibility = Questionnaire.HIDDEN
+                old_questionnaire.visibility = Questionnaire.Visibility.HIDDEN
                 old_questionnaire.save()
 
                 if not form.is_valid() or not formset.is_valid():
@@ -1367,7 +1367,7 @@ def questionnaire_update_indices(request):
 def questionnaire_visibility(request):
     questionnaire_id = request.POST.get("questionnaire_id")
     visibility = int(request.POST.get("visibility"))
-    if visibility not in [Questionnaire.HIDDEN, Questionnaire.MANAGERS, Questionnaire.EDITORS]:
+    if visibility not in Questionnaire.Visibility.values:
         raise SuspiciousOperation("Invalid visibility choice")
     questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
     questionnaire.visibility = visibility

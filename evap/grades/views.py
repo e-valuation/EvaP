@@ -83,11 +83,11 @@ def upload_grades(request, semester_id, course_id):
 
     grade_document = GradeDocument(course=course)
     if final_grades:
-        grade_document.type = GradeDocument.FINAL_GRADES
+        grade_document.type = GradeDocument.Type.FINAL_GRADES
         grade_document.description_en = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN
         grade_document.description_de = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE
     else:
-        grade_document.type = GradeDocument.MIDTERM_GRADES
+        grade_document.type = GradeDocument.Type.MIDTERM_GRADES
         grade_document.description_en = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN
         grade_document.description_de = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE
 
