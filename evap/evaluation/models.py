@@ -8,6 +8,7 @@ import operator
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
+from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
@@ -225,6 +226,7 @@ class Degree(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = translate(en='name_en', de='name_de')
+    import_names = ArrayField(models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True)
 
     order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
@@ -246,6 +248,7 @@ class CourseType(models.Model):
     name_de = models.CharField(max_length=1024, verbose_name=_("name (german)"), unique=True)
     name_en = models.CharField(max_length=1024, verbose_name=_("name (english)"), unique=True)
     name = translate(en='name_en', de='name_de')
+    import_names = ArrayField(models.CharField(max_length=1024), default=list, verbose_name=_("import names"), blank=True)
 
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 

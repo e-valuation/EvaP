@@ -157,10 +157,14 @@ class ImporterWarning(Enum):
 class EvaluationDataFactory:
     def __init__(self):
         self.degrees = {
-            degree.name_de: degree for degree in Degree.objects.all()
+            import_name.lower(): degree
+            for degree in Degree.objects.all()
+            for import_name in degree.import_names
         }
         self.course_types = {
-            course_type.name_de: course_type for course_type in CourseType.objects.all()
+            import_name.lower(): course_type
+            for course_type in CourseType.objects.all()
+            for import_name in course_type.import_names
         }
 
     def create(self, name_de, name_en, degree_names, course_type_name, is_graded, responsible_email):
@@ -181,14 +185,14 @@ class EvaluationDataFactory:
 
     def get_degree_or_add_error(self, degree_name, errors):
         try:
-            return self.degrees[degree_name.strip()]
+            return self.degrees[degree_name.strip().lower()]
         except KeyError:
             errors.setdefault('degrees', set()).add(degree_name)
             return None
 
     def get_course_or_add_error(self, course_type_name, errors):
         try:
-            return self.course_types[course_type_name.strip()]
+            return self.course_types[course_type_name.strip().lower()]
         except KeyError:
             errors['course_type'] = course_type_name
             return None
@@ -398,11 +402,11 @@ class EnrollmentImporter(ExcelImporter):
 
         for degree_name in degree_names:
             self.errors[ImporterError.DEGREE_MISSING].append(
-                _("Error: The degree \"{}\" does not exist yet. Please manually create it first.")
+                _("Error: No degree is associated with the import name \"{}\". Please manually create it first.")
                 .format(degree_name))
         for course_type_name in course_type_names:
             self.errors[ImporterError.COURSE_TYPE_MISSING].append(
-                _("Error: The course type \"{}\" does not exist yet. Please manually create it first.")
+                _("Error: No course type is associated with the import name \"{}\". Please manually create it first.")
                 .format(course_type_name))
 
     def check_enrollment_data_sanity(self):

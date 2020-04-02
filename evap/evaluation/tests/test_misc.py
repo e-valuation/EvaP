@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from model_bakery import baker
 
-from evap.evaluation.models import Semester, UserProfile, CourseType
+from evap.evaluation.models import Semester, UserProfile, CourseType, Degree
 from evap.evaluation.tests.tools import WebTest
 
 
@@ -21,8 +21,14 @@ class SampleXlsTests(WebTest):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
         baker.make(UserProfile, username="user", groups=[Group.objects.get(name="Manager")])
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
+        baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
+        baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
+        degree_bachelor = Degree.objects.get(name_de="Bachelor")
+        degree_bachelor.import_names = ["Bachelor", "B. Sc."]
+        degree_bachelor.save()
+        degree_master = Degree.objects.get(name_de="Master")
+        degree_master.import_names = ["Master", "M. Sc."]
+        degree_master.save()
 
     def test_sample_xls(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user='user')

@@ -679,8 +679,8 @@ class TestSemesterImportView(WebTest):
     def setUpTestData(cls):
         baker.make(Semester, pk=1)
         baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
+        baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
+        baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
 
     def test_import_valid_file(self):
         original_user_count = UserProfile.objects.count()
@@ -744,6 +744,10 @@ class TestSemesterImportView(WebTest):
         reply = form.submit(name="operation", value="test")
         general_error = 'Errors occurred while parsing the input data. No data was imported.'
         self.assertContains(reply, general_error)
+        degree_error = 'Error: No degree is associated with the import name &quot;Diploma&quot;. Please manually create it first.'
+        self.assertContains(reply, degree_error)
+        course_type_error = 'Error: No course type is associated with the import name &quot;Praktikum&quot;. Please manually create it first.'
+        self.assertContains(reply, course_type_error)
         is_graded_error = '&quot;is_graded&quot; of course Deal is maybe, but must be yes or no'
         self.assertContains(reply, is_graded_error)
         user_error = 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data'\
@@ -755,7 +759,8 @@ class TestSemesterImportView(WebTest):
         def index(text):
             return reply.body.decode().index(text)
 
-        self.assertTrue(index(general_error) < index(is_graded_error) < index(user_error))
+        self.assertTrue(index(general_error) < index(degree_error) < index(course_type_error) <
+                        index(is_graded_error) < index(user_error))
 
         self.assertNotContains(reply, 'Import previously uploaded file')
 
@@ -2103,8 +2108,8 @@ class TestCourseTypeMergeView(WebTest):
     @classmethod
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type")
-        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type")
+        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type", import_names=['M'])
+        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type", import_names=['O'])
         baker.make(Course, type=cls.main_type)
         baker.make(Course, type=cls.other_type)
 
@@ -2115,6 +2120,8 @@ class TestCourseTypeMergeView(WebTest):
         self.assertIn("Successfully", str(response))
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
+        self.main_type.refresh_from_db()
+        self.assertEqual(self.main_type.import_names, ['M', 'O'])
         self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
         for course in Course.objects.all():
             self.assertTrue(course.type == self.main_type)

@@ -1450,6 +1450,8 @@ def course_type_merge(request, main_type_id, other_type_id):
     other_type = get_object_or_404(CourseType, id=other_type_id)
 
     if request.method == 'POST':
+        main_type.import_names += other_type.import_names
+        main_type.save()
         Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()
         messages.success(request, _("Successfully merged course types."))

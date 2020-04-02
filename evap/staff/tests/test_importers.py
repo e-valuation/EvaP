@@ -124,6 +124,7 @@ class TestUserImporter(TestCase):
 class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
     filename_valid_degree_merge = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_degree_merge.xls")
+    filename_valid_import_names = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_import_names.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
@@ -132,8 +133,14 @@ class TestEnrollmentImporter(TestCase):
         cls.semester = baker.make(Semester)
         cls.vote_start_datetime = datetime(2017, 1, 10)
         cls.vote_end_date = date(2017, 3, 10)
-        baker.make(CourseType, name_de="Seminar")
-        baker.make(CourseType, name_de="Vorlesung")
+        baker.make(CourseType, name_de="Seminar", import_names=["Seminar", "S"])
+        baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
+        degree_bachelor = Degree.objects.get(name_de="Bachelor")
+        degree_bachelor.import_names = ["Bachelor", "B. Sc."]
+        degree_bachelor.save()
+        degree_master = Degree.objects.get(name_de="Master")
+        degree_master.import_names = ["Master", "M. Sc."]
+        degree_master.save()
 
     def test_valid_file_import(self):
         with open(self.filename_valid, "rb") as excel_file:
@@ -180,6 +187,23 @@ class TestEnrollmentImporter(TestCase):
 
         course = Course.objects.get(name_de="Bauen")
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
+
+    def test_course_type_and_degrees_are_retrieved_with_import_names(self):
+        with open(self.filename_valid_import_names, "rb") as excel_file:
+            excel_content = excel_file.read()
+
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        self.assertIn("Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages))
+        self.assertEqual(errors, {})
+        self.assertEqual(warnings, {})
+
+        self.assertEqual(Course.objects.all().count(), 2)
+        course_spelling = Course.objects.get(name_en="Spelling")
+        self.assertEqual(course_spelling.type.name_de, "Vorlesung")
+        self.assertEqual(list(course_spelling.degrees.values_list("name_en", flat=True)), ["Bachelor"])
+        course_build = Course.objects.get(name_en="Build")
+        self.assertEqual(course_build.type.name_de, "Seminar")
+        self.assertEqual(list(course_build.degrees.values_list("name_en", flat=True)), ["Master"])
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
@@ -230,9 +254,9 @@ class TestEnrollmentImporter(TestCase):
             'Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.',
             'Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.'})
         self.assertEqual(errors_test[ImporterError.DEGREE_MISSING], [
-            'Error: The degree "Diploma" does not exist yet. Please manually create it first.'])
+            'Error: No degree is associated with the import name "Diploma". Please manually create it first.'])
         self.assertEqual(errors_test[ImporterError.COURSE_TYPE_MISSING], [
-            'Error: The course type "Praktikum" does not exist yet. Please manually create it first.'])
+            'Error: No course type is associated with the import name "Praktikum". Please manually create it first.'])
         self.assertEqual(errors_test[ImporterError.IS_GRADED], [
             '"is_graded" of course Deal is maybe, but must be yes or no'])
         self.assertEqual(errors_test[ImporterError.GENERAL], [
