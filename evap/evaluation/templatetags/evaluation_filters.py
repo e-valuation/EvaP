@@ -192,4 +192,3 @@ def has_nonresponsible_editor(evaluation):
 @register.filter
 def order_by(evaluations, attribute):
     return sorted(evaluations, key=lambda evaluation: getattr(evaluation, attribute))
-
