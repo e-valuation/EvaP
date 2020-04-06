@@ -6,7 +6,6 @@ from django.db.models import Count, QuerySet
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
@@ -389,8 +388,7 @@ def evaluation_text_answers_export(request, evaluation_id):
         translation.get_language()
     )
 
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
     TextAnswerExcelExporter(evaluation.full_name, evaluation.course.semester.name,
                             evaluation.course.responsibles_names, results, contributor_name).export(response)

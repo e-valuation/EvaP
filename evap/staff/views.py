@@ -24,7 +24,7 @@ from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
@@ -495,8 +495,8 @@ def semester_export(request, semester_id):
             selection_list.append((form.cleaned_data['selected_degrees'], form.cleaned_data['selected_course_types']))
 
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+        response = FileResponse(filename, content_type="application/vnd.ms-excel")
+
         ExcelExporter().export(
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
@@ -510,8 +510,7 @@ def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
@@ -535,8 +534,7 @@ def semester_participation_export(_request, semester_id):
     participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("username")
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required evaluations voted for'),
@@ -1011,9 +1009,7 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
     filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(evaluation=evaluation, semester=semester)
-
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Last name'), _('First name'), _('Email'), _('Login key')])
@@ -1677,8 +1673,7 @@ def download_sample_xls(_request, filename):
                 if email_placeholder in value:
                     write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
 
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     write_book.save(response)
     return response
 

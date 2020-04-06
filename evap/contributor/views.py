@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -11,7 +10,7 @@ from django.views.decorators.http import require_POST
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
@@ -236,8 +235,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 def export_contributor_results(contributor):
     filename = "Evaluation_{}.xls".format(contributor.full_name)
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     ExcelExporter().export(
         response,
         Semester.objects.all(),
