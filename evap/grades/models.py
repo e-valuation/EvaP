@@ -2,7 +2,7 @@ import os
 
 from django.conf import settings
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
 
@@ -18,13 +18,11 @@ class GradeDocument(models.Model):
     course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("course"))
     file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
 
-    MIDTERM_GRADES = 'MID'
-    FINAL_GRADES = 'FIN'
-    GRADE_DOCUMENT_TYPES = (
-        (MIDTERM_GRADES, _('midterm grades')),
-        (FINAL_GRADES, _('final grades')),
-    )
-    type = models.CharField(max_length=3, choices=GRADE_DOCUMENT_TYPES, verbose_name=_('grade type'), default=MIDTERM_GRADES)
+    class Type(models.TextChoices):
+        MIDTERM_GRADES = 'MID', _('midterm grades')
+        FINAL_GRADES = 'FIN', _('final grades')
+
+    type = models.CharField(max_length=3, choices=Type.choices, verbose_name=_('grade type'), default=Type.MIDTERM_GRADES)
 
     description_de = models.CharField(max_length=255, verbose_name=_("description (german)"))
     description_en = models.CharField(max_length=255, verbose_name=_("description (english)"))

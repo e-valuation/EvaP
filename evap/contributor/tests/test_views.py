@@ -18,7 +18,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         cls.editor = baker.make(UserProfile)
         cls.non_editor = baker.make(UserProfile, email="a@b.c")
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_editor.id}

@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
 from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import date_to_datetime
@@ -31,7 +31,7 @@ class EvaluationForm(forms.ModelForm):
         self.fields['name_en_field'].initial = self.instance.full_name_en
 
         self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
+            Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -71,7 +71,7 @@ class EditorContributionForm(ContributionForm):
         existing_contributor_pk = self.instance.contributor.pk if self.instance.contributor else None
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
+            Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
         self.fields['contributor'].queryset = UserProfile.objects.filter(
             (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)
         )

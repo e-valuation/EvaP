@@ -9,7 +9,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.conf import settings
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.grades.models import GradeDocument
@@ -188,6 +188,6 @@ def find_next_unreviewed_evaluation(semester, excluded):
     return semester.evaluations.exclude(pk__in=excluded) \
         .exclude(state='published') \
         .exclude(can_publish_text_results=False) \
-        .filter(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED) \
+        .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()

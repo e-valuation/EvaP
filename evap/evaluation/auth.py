@@ -4,7 +4,6 @@ import unicodedata
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.views import redirect_to_login
-from django.utils.decorators import available_attrs
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
@@ -40,7 +39,7 @@ def user_passes_test(test_func):
     that takes the user object and returns True if the user passes.
     """
     def decorator(view_func):
-        @wraps(view_func, assigned=available_attrs(view_func))
+        @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             if not request.user.is_authenticated:
                 return redirect_to_login(request.get_full_path())

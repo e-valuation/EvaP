@@ -4,7 +4,7 @@ import xlrd
 from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import gettext_lazy, gettext as _
 from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
@@ -112,7 +112,7 @@ class EvaluationData(CommonEqualityMixin):
             course=course,
         )
         evaluation.save()
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
 
 class ExcelImporter():
@@ -581,11 +581,11 @@ class PersonImporter:
 
 # Dictionary to translate internal keys to UI strings.
 WARNING_DESCRIPTIONS = {
-    ExcelImporter.W_NAME: ugettext_lazy("Name mismatches"),
-    ExcelImporter.W_INACTIVE: ugettext_lazy("Inactive users"),
-    ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
-    ExcelImporter.W_IGNORED: ugettext_lazy("Ignored duplicates"),
-    ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
-    EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
-    EnrollmentImporter.W_MANY: ugettext_lazy("Unusually high number of enrollments")
+    ExcelImporter.W_NAME: gettext_lazy("Name mismatches"),
+    ExcelImporter.W_INACTIVE: gettext_lazy("Inactive users"),
+    ExcelImporter.W_DUPL: gettext_lazy("Possible duplicates"),
+    ExcelImporter.W_IGNORED: gettext_lazy("Ignored duplicates"),
+    ExcelImporter.W_GENERAL: gettext_lazy("General warnings"),
+    EnrollmentImporter.W_DEGREE: gettext_lazy("Degree mismatches"),
+    EnrollmentImporter.W_MANY: gettext_lazy("Unusually high number of enrollments")
 }
