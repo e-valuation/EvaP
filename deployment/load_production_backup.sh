@@ -7,7 +7,7 @@ set -e # abort on error
 cd $(dirname $0)/.. # change to root directory
 
 USERNAME="evap"
-ENVDIR="/home/evap/env"
+ENVDIR="/opt/evap/env"
 ADDITIONAL_ARGUMENTS=""
 [[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7 && ADDITIONAL_ARGUMENTS=" --noinput"
 
