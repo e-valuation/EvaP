@@ -26,34 +26,18 @@ def disable_all_fields(form):
 
 
 class ImportForm(forms.Form):
+    use_required_attribute = False
+
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
     vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.excel_file_required = False
-        self.vote_dates_required = False
-
-    def clean(self):
-        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
-            raise ValidationError(_("Please select an Excel file."))
-        if self.vote_dates_required:
-            if self.cleaned_data['vote_start_datetime'] is None or self.cleaned_data['vote_end_date'] is None:
-                raise ValidationError(_("Please enter an evaluation period."))
-
 
 class UserImportForm(forms.Form):
+    use_required_attribute = False
+
     excel_file = forms.FileField(label=_("Excel file"), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.excel_file_required = False
-
-    def clean(self):
-        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
-            raise ValidationError(_("Please select an Excel file."))
 
 
 class EvaluationParticipantCopyForm(forms.Form):
@@ -79,15 +63,9 @@ class EvaluationParticipantCopyForm(forms.Form):
 
 
 class UserBulkUpdateForm(forms.Form):
+    use_required_attribute = False
+
     username_file = forms.FileField(label=_("Username file"), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.file_required = False
-
-    def clean(self):
-        if self.file_required and self.cleaned_data['username_file'] is None:
-            raise ValidationError(_("Please select a file."))
 
 
 class SemesterForm(forms.ModelForm):

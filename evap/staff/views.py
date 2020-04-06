@@ -452,7 +452,7 @@ def semester_import(request, semester_id):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -462,7 +462,8 @@ def semester_import(request, semester_id):
 
         elif operation == 'import':
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            excel_form.vote_dates_required = True
+            excel_form.fields['vote_start_datetime'].required = True
+            excel_form.fields['vote_end_date'].required = True
             if excel_form.is_valid():
                 vote_start_datetime = excel_form.cleaned_data['vote_start_datetime']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
@@ -971,7 +972,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
         if 'test' in operation:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -1483,7 +1484,7 @@ def user_import(request):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -1560,7 +1561,7 @@ def user_bulk_update(request):
 
         if test_run:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            form.file_required = True
+            form.fields['username_file'].required = True
             if form.is_valid():
                 username_file = form.cleaned_data['username_file']
                 file_content = username_file.read()

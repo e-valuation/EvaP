@@ -405,7 +405,7 @@ class TestUserImportView(WebTest):
         form = page.forms["user-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
@@ -777,7 +777,7 @@ class TestSemesterImportView(WebTest):
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
@@ -802,7 +802,7 @@ class TestSemesterImportView(WebTest):
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="import")
 
-        self.assertContains(page, 'Please enter an evaluation period')
+        self.assertContains(page, 'This field is required.')
         self.assertContains(page, 'Import previously uploaded file')
 
 
@@ -1703,7 +1703,7 @@ class TestEvaluationImportPersonsView(WebTest):
         form = page.forms["contributor-import-form"]
         page = form.submit(name="operation", value="test-contributors")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_participant_upload_operation(self):
@@ -1712,7 +1712,7 @@ class TestEvaluationImportPersonsView(WebTest):
         form = page.forms["participant-import-form"]
         page = form.submit(name="operation", value="test-participants")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_contributor_import_operation(self):
