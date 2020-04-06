@@ -36,7 +36,7 @@ class ImportType(Enum):
 
 
 def generate_import_filename(user_id, import_type):
-    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls' + '.' + import_type.value
+    return os.path.join(settings.MEDIA_ROOT, 'temp_import_files', f"{user_id}.{import_type.value}.xls")
 
 
 def save_import_file(excel_file, user_id, import_type):

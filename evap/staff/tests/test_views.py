@@ -1,6 +1,5 @@
 import datetime
 import os
-import glob
 from unittest.mock import patch
 
 from django.conf import settings
@@ -19,17 +18,17 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     UserProfile)
 from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
-from evap.staff.tools import generate_import_filename
+from evap.staff.tools import generate_import_filename, ImportType
 from evap.staff.views import get_evaluations_with_prefetched_data
 
 
 def helper_delete_all_import_files(user_id):
-    class AllFiles:
-        value = "*"  # used for globbing all existing files in tests.
-
-    file_filter = generate_import_filename(user_id, AllFiles)
-    for filename in glob.glob(file_filter):
-        os.remove(filename)
+    for import_type in ImportType:
+        filename = generate_import_filename(user_id, import_type)
+        try:
+            os.remove(filename)
+        except FileNotFoundError:
+            pass
 
 
 class TestDownloadSampleXlsView(WebTest):
@@ -218,12 +217,12 @@ class TestUserBulkUpdateView(WebTest):
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     def test_multiple_email_matches_trigger_error(self):
         baker.make(UserProfile, email='testremove@institution.example.com')
-        baker.make(UserProfile, email='testuser1@institution.example.com')
+        baker.make(UserProfile, first_name="Elisabeth", last_name="Fröhlich", email='testuser1@institution.example.com')
 
         error_string = (
             'Multiple users match the email testuser1@institution.example.com:'
-            + '<br />None None (testuser1@institution.example.com)'
-            + '<br />None None (testuser1@internal.example.com)'
+            + '<br />Elisabeth Fröhlich (testuser1@institution.example.com)'
+            + '<br />Tony Kuchenbuch (testuser1@internal.example.com)'
         )
         button_substring = 'value="bulk_update"'
 
@@ -236,8 +235,9 @@ class TestUserBulkUpdateView(WebTest):
 
         self.assertIn(button_substring, response)
         self.assertNotIn(error_string, response)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
-        new_user = baker.make(UserProfile, email='testuser1@internal.example.com')
+        new_user = baker.make(UserProfile, first_name="Tony", last_name="Kuchenbuch", email='testuser1@internal.example.com')
         expected_users.add(new_user)
 
         page = self.app.get(self.url, user='manager')
@@ -247,7 +247,6 @@ class TestUserBulkUpdateView(WebTest):
 
         self.assertNotIn(button_substring, response)
         self.assertIn(error_string, response)
-
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
