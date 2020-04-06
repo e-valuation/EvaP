@@ -1,7 +1,10 @@
 import datetime
+from urllib.parse import quote
+
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.dispatch import receiver
+from django.http import HttpResponse
 from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
@@ -54,3 +57,16 @@ def clean_email(email):
             if email.endswith(original_domain):
                 return email[:-len(original_domain)] + replaced_domain
     return email
+
+
+class FileResponse(HttpResponse):
+    def __init__(self, filename, content_type=None, **kwargs):
+        super().__init__(content_type=content_type, **kwargs)
+        self.set_content_disposition(filename)
+
+    def set_content_disposition(self, filename):
+        try:
+            filename.encode("ascii")
+            self["Content-Disposition"] = f"attachment; filename=\"{filename}\""
+        except UnicodeEncodeError:
+            self["Content-Disposition"] = f"attachment; filename*=utf-8''{quote(filename)}"
