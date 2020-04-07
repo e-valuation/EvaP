@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import UserProfile

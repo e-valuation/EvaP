@@ -163,13 +163,13 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         # Normal evaluation with responsible and contributor.
         cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester))
 
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=contributor, can_edit=True)
 
     def test_questionnaire_ordering(self):
-        top_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
-        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.BOTTOM)
+        top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
         top_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
         top_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
@@ -229,6 +229,24 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         evaluation = baker.make(Evaluation, state='reviewed', course=baker.make(Course, semester=self.semester))
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user='student', status=403)
+
+    def test_preview_without_rating_answers(self):
+        evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
+        self.app.get(url, user='manager')
+
+    def test_preview_with_rating_answers(self):
+        evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
+        evaluation.general_contribution.questionnaires.set([questionnaire])
+        participants = baker.make(UserProfile, _quantity=20)
+        evaluation.participants.set(participants)
+        evaluation.voters.set(participants)
+        baker.make(RatingAnswerCounter, question=likert_question, contribution=evaluation.general_contribution, answer=1, count=20)
+
+        url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
+        self.app.get(url, user='manager')
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
@@ -317,7 +335,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, responsible_contributor])
         private_evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
         private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        baker.make(Contribution, evaluation=private_evaluation, contributor=responsible_contributor, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=private_evaluation, contributor=responsible_contributor, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         baker.make(Contribution, evaluation=private_evaluation, contributor=contributor, can_edit=True)
 
         url = '/results/'
@@ -516,11 +534,11 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         cls.other_contributor_1 = baker.make(UserProfile, username='other contributor 1')
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_1, questionnaires=[questionnaire], textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS)
         cls.other_contributor_2 = baker.make(UserProfile, username='other contributor 2')
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.OWN_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.other_contributor_2, questionnaires=[questionnaire], textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS)
 
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
@@ -668,7 +686,7 @@ class TestArchivedResults(WebTest):
         course = baker.make(Course, semester=cls.semester, degrees=[baker.make(Degree)], responsibles=[responsible])
         cls.evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external], voters=[student, student_external])
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, contributor=responsible)
+        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, contributor=responsible)
         cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=contributor)
 
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))

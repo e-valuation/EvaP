@@ -18,7 +18,7 @@ from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
@@ -123,24 +123,21 @@ class Semester(models.Model):
 
 class QuestionnaireManager(Manager):
     def general_questionnaires(self):
-        return super().get_queryset().exclude(type=Questionnaire.CONTRIBUTOR)
+        return super().get_queryset().exclude(type=Questionnaire.Type.CONTRIBUTOR)
 
     def contributor_questionnaires(self):
-        return super().get_queryset().filter(type=Questionnaire.CONTRIBUTOR)
+        return super().get_queryset().filter(type=Questionnaire.Type.CONTRIBUTOR)
 
 
 class Questionnaire(models.Model):
     """A named collection of questions."""
 
-    TOP = 10
-    CONTRIBUTOR = 20
-    BOTTOM = 30
-    TYPE_CHOICES = (
-        (TOP, _('Top questionnaire')),
-        (CONTRIBUTOR, _('Contributor questionnaire')),
-        (BOTTOM, _('Bottom questionnaire')),
-    )
-    type = models.IntegerField(choices=TYPE_CHOICES, verbose_name=_('type'), default=TOP)
+    class Type(models.IntegerChoices):
+        TOP = 10, _('Top questionnaire')
+        CONTRIBUTOR = 20, _('Contributor questionnaire')
+        BOTTOM = 30, _('Bottom questionnaire')
+
+    type = models.IntegerField(choices=Type.choices, verbose_name=_('type'), default=Type.TOP)
 
     name_de = models.CharField(max_length=1024, unique=True, verbose_name=_("name (german)"))
     name_en = models.CharField(max_length=1024, unique=True, verbose_name=_("name (english)"))
@@ -160,15 +157,12 @@ class Questionnaire(models.Model):
 
     order = models.IntegerField(verbose_name=_("ordering index"), default=0)
 
-    HIDDEN = 0
-    MANAGERS = 1
-    EDITORS = 2
-    VISIBILITY_CHOICES = (
-        (HIDDEN, _("Don't show")),
-        (MANAGERS, _("Managers only")),
-        (EDITORS, _("Managers and editors")),
-    )
-    visibility = models.IntegerField(choices=VISIBILITY_CHOICES, verbose_name=_('visibility'), default=MANAGERS)
+    class Visibility(models.IntegerChoices):
+        HIDDEN = 0, _("Don't show")
+        MANAGERS = 1, _("Managers only")
+        EDITORS = 2, _("Managers and editors")
+
+    visibility = models.IntegerField(choices=Visibility.choices, verbose_name=_('visibility'), default=Visibility.MANAGERS)
 
     objects = QuestionnaireManager()
 
@@ -188,11 +182,11 @@ class Questionnaire(models.Model):
 
     @property
     def is_above_contributors(self):
-        return self.type == self.TOP
+        return self.type == self.Type.TOP
 
     @property
     def is_below_contributors(self):
-        return self.type == self.BOTTOM
+        return self.type == self.Type.BOTTOM
 
     @property
     def can_be_edited_by_manager(self):
@@ -316,14 +310,14 @@ class Course(models.Model):
         # We think it's better to use the imported constant here instead of using some workaround
         # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
-        return self.grade_documents.filter(type=GradeDocument.FINAL_GRADES)
+        return self.grade_documents.filter(type=GradeDocument.Type.FINAL_GRADES)
 
     @property
     def midterm_grade_documents(self):
         # We think it's better to use the imported constant here instead of using some workaround
         # pylint: disable=import-outside-toplevel
         from evap.grades.models import GradeDocument
-        return self.grade_documents.filter(type=GradeDocument.MIDTERM_GRADES)
+        return self.grade_documents.filter(type=GradeDocument.Type.MIDTERM_GRADES)
 
     @cached_property
     def responsibles_names(self):
@@ -604,7 +598,7 @@ class Evaluation(models.Model):
         if not self.can_publish_text_results:
             self.textanswer_set.delete()
         else:
-            self.textanswer_set.filter(state=TextAnswer.HIDDEN).delete()
+            self.textanswer_set.filter(state=TextAnswer.State.HIDDEN).delete()
             self.textanswer_set.update(original_answer=None)
 
     @transition(field=state, source='published', target='reviewed')
@@ -680,11 +674,11 @@ class Evaluation(models.Model):
 
     @property
     def unreviewed_textanswer_set(self):
-        return self.textanswer_set.filter(state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.filter(state=TextAnswer.State.NOT_REVIEWED)
 
     @property
     def reviewed_textanswer_set(self):
-        return self.textanswer_set.exclude(state=TextAnswer.NOT_REVIEWED)
+        return self.textanswer_set.exclude(state=TextAnswer.State.NOT_REVIEWED)
 
     @cached_property
     def num_reviewed_textanswers(self):
@@ -719,7 +713,7 @@ class Evaluation(models.Model):
                 logger.exception('An error occured when updating the state of evaluation "{}" (id {}).'.format(evaluation, evaluation.id))
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
-        template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None)
+        template.send_to_users_in_evaluations(evaluations_new_in_evaluation, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=None)
 
         EmailTemplate.send_participant_publish_notifications(evaluation_results_evaluations)
         EmailTemplate.send_contributor_publish_notifications(evaluation_results_evaluations)
@@ -749,24 +743,19 @@ def log_state_transition(instance, name, source, target, **_kwargs):
 class Contribution(models.Model):
     """A contributor who is assigned to an evaluation and his questionnaires."""
 
-    OWN_TEXTANSWERS = 'OWN'
-    GENERAL_TEXTANSWERS = 'GENERAL'
-    TEXTANSWER_VISIBILITY_CHOICES = (
-        (OWN_TEXTANSWERS, _('Own')),
-        (GENERAL_TEXTANSWERS, _('Own and general')),
-    )
-    IS_CONTRIBUTOR = 'CONTRIBUTOR'
-    IS_EDITOR = 'EDITOR'
-    RESPONSIBILITY_CHOICES = (
-        (IS_CONTRIBUTOR, _('Contributor')),
-        (IS_EDITOR, _('Editor')),
-    )
+    class TextAnswerVisibility(models.TextChoices):
+        OWN_TEXTANSWERS = 'OWN', _('Own')
+        GENERAL_TEXTANSWERS = 'GENERAL', _('Own and general')
+
+    class Responsibility(models.TextChoices):
+        IS_CONTRIBUTOR = 'CONTRIBUTOR', _('Contributor')
+        IS_EDITOR = 'EDITOR', _('Editor')
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
-    textanswer_visibility = models.CharField(max_length=10, choices=TEXTANSWER_VISIBILITY_CHOICES, verbose_name=_('text answer visibility'), default=OWN_TEXTANSWERS)
+    textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
@@ -1086,17 +1075,13 @@ class TextAnswer(Answer):
     answer = models.TextField(verbose_name=_("answer"))
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
-    HIDDEN = 'HI'
-    PUBLISHED = 'PU'
-    PRIVATE = 'PR'
-    NOT_REVIEWED = 'NR'
-    TEXTANSWER_STATES = (
-        (HIDDEN, _('hidden')),
-        (PUBLISHED, _('published')),
-        (PRIVATE, _('private')),
-        (NOT_REVIEWED, _('not reviewed')),
-    )
-    state = models.CharField(max_length=2, choices=TEXTANSWER_STATES, verbose_name=_('state of answer'), default=NOT_REVIEWED)
+    class State(models.TextChoices):
+        HIDDEN = 'HI', _('hidden')
+        PUBLISHED = 'PU', _('published')
+        PRIVATE = 'PR', _('private')
+        NOT_REVIEWED = 'NR', _('not reviewed')
+
+    state = models.CharField(max_length=2, choices=State.choices, verbose_name=_('state of answer'), default=State.NOT_REVIEWED)
 
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
@@ -1107,35 +1092,35 @@ class TextAnswer(Answer):
 
     @property
     def is_hidden(self):
-        return self.state == self.HIDDEN
+        return self.state == self.State.HIDDEN
 
     @property
     def is_private(self):
-        return self.state == self.PRIVATE
+        return self.state == self.State.PRIVATE
 
     @property
     def is_published(self):
-        return self.state == self.PUBLISHED
+        return self.state == self.State.PUBLISHED
 
     @property
     def is_reviewed(self):
-        return self.state != self.NOT_REVIEWED
+        return self.state != self.State.NOT_REVIEWED
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         assert self.answer != self.original_answer
 
     def publish(self):
-        self.state = self.PUBLISHED
+        self.state = self.State.PUBLISHED
 
     def hide(self):
-        self.state = self.HIDDEN
+        self.state = self.State.HIDDEN
 
     def make_private(self):
-        self.state = self.PRIVATE
+        self.state = self.State.PRIVATE
 
     def unreview(self):
-        self.state = self.NOT_REVIEWED
+        self.state = self.State.NOT_REVIEWED
 
 
 class FaqSection(models.Model):
@@ -1444,34 +1429,27 @@ class EmailTemplate(models.Model):
     EVALUATION_STARTED = "Evaluation Started"
     DIRECT_DELEGATION = "Direct Delegation"
 
-    ALL_PARTICIPANTS = 'all_participants'
-    DUE_PARTICIPANTS = 'due_participants'
-    RESPONSIBLE = 'responsible'
-    EDITORS = 'editors'
-    CONTRIBUTORS = 'contributors'
-
-    EMAIL_RECIPIENTS = (
-        (ALL_PARTICIPANTS, _('all participants')),
-        (DUE_PARTICIPANTS, _('due participants')),
-        (RESPONSIBLE, _('responsible person')),
-        (EDITORS, _('all editors')),
-        (CONTRIBUTORS, _('all contributors'))
-    )
+    class Recipients(models.TextChoices):
+        ALL_PARTICIPANTS = 'all_participants', _('all participants')
+        DUE_PARTICIPANTS = 'due_participants', _('due participants')
+        RESPONSIBLE = 'responsible', _('responsible person')
+        EDITORS = 'editors', _('all editors')
+        CONTRIBUTORS = 'contributors', _('all contributors')
 
     @classmethod
     def recipient_list_for_evaluation(cls, evaluation, recipient_groups, filter_users_in_cc):
         recipients = set()
 
-        if cls.CONTRIBUTORS in recipient_groups or cls.EDITORS in recipient_groups or cls.RESPONSIBLE in recipient_groups:
+        if cls.Recipients.CONTRIBUTORS in recipient_groups or cls.Recipients.EDITORS in recipient_groups or cls.Recipients.RESPONSIBLE in recipient_groups:
             recipients.update(evaluation.course.responsibles.all())
-            if cls.CONTRIBUTORS in recipient_groups:
+            if cls.Recipients.CONTRIBUTORS in recipient_groups:
                 recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation))
-            elif cls.EDITORS in recipient_groups:
+            elif cls.Recipients.EDITORS in recipient_groups:
                 recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation, contributions__can_edit=True))
 
-        if cls.ALL_PARTICIPANTS in recipient_groups:
+        if cls.Recipients.ALL_PARTICIPANTS in recipient_groups:
             recipients.update(evaluation.participants.all())
-        elif cls.DUE_PARTICIPANTS in recipient_groups:
+        elif cls.Recipients.DUE_PARTICIPANTS in recipient_groups:
             recipients.update(evaluation.due_participants)
 
         if filter_users_in_cc:

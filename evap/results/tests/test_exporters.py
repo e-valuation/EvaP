@@ -37,10 +37,10 @@ class TestExporters(TestCase):
             _voter_count=2
         )
 
-        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.TOP)
-        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.TOP)
-        questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
-        questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
+        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
+        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
+        questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.BOTTOM)
+        questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.BOTTOM)
 
         question_1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_1)
         question_2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_2)
@@ -220,8 +220,8 @@ class TestExporters(TestCase):
         contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=contributor)
         other_contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=other_contributor)
 
-        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
-        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         general_question = baker.make(Question, type=Question.LIKERT, questionnaire=general_questionnaire)
         contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 

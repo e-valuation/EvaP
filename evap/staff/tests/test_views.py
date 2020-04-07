@@ -505,13 +505,13 @@ class TestSemesterAssignView(WebTest):
         cls.semester = baker.make(Semester, pk=1)
         lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
         seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         evaluation1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=seminar_type))
         baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation1,
-                   can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         evaluation2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=lecture_type))
         baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation2,
-                   can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
     def test_assign_questionnaires(self):
         page = self.app.get(self.url, user="manager")
@@ -538,7 +538,7 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
     def test_preparation_reminder(self):
         user = baker.make(UserProfile, username='user_to_find')
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester, responsibles=[user]), state='prepared', name_en='name_to_find', name_de='name_to_find')
-        baker.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
         response = self.app.get(self.url, user='manager')
         self.assertContains(response, 'user_to_find')
@@ -572,7 +572,7 @@ class TestSendReminderView(WebTest):
         cls.semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile, pk=3, email='a.b@example.com')
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, responsibles=[responsible]), state='prepared')
-        baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
     def test_form(self):
         page = self.app.get(self.url, user='manager')
@@ -659,7 +659,7 @@ class TestSemesterImportView(WebTest):
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#39;s data (email: bastius.quid@external.example.com) differs from it&#39;s data in a previous row.')
+        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
         self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
@@ -811,8 +811,8 @@ class TestSemesterParticipationDataExportView(WebTest):
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Evaluation 1", is_rewarded=True)
         cls.evaluation2 = baker.make(Evaluation, course=baker.make(Course, type=cls.course_type, semester=cls.semester), participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Evaluation 2", is_rewarded=False)
-        baker.make(Contribution, evaluation=cls.evaluation1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=cls.evaluation2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
@@ -1154,8 +1154,8 @@ class TestEvaluationCreateView(WebTest):
     def setUpTestData(cls):
         cls.manager_user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
-        cls.q1 = baker.make(Questionnaire, type=Questionnaire.TOP)
-        cls.q2 = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
     def test_evaluation_create(self):
         """
@@ -1177,8 +1177,8 @@ class TestEvaluationCreateView(WebTest):
         form['contributions-0-contributor'] = self.manager_user.pk
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = Contribution.IS_EDITOR
-        form['contributions-0-textanswer_visibility'] = Contribution.GENERAL_TEXTANSWERS
+        form['contributions-0-responsibility'] = Contribution.Responsibility.IS_EDITOR
+        form['contributions-0-textanswer_visibility'] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
 
         form.submit()
         self.assertFalse(Evaluation.objects.exists())
@@ -1268,7 +1268,7 @@ class TestEvaluationEditView(WebTest):
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
         baker.make(Questionnaire, questions=[baker.make(Question)])
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, order=0, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, order=0, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, order=1, can_edit=True)
 
     def setUp(self):
@@ -1279,7 +1279,7 @@ class TestEvaluationEditView(WebTest):
 
         # remove editor rights
         form = page.forms["evaluation-form"]
-        form['contributions-1-responsibility'] = Contribution.IS_CONTRIBUTOR
+        form['contributions-1-responsibility'] = Contribution.Responsibility.IS_CONTRIBUTOR
         form.submit("operation", value="save")
         self.assertFalse(self.evaluation.contributions.get(contributor=self.editor).can_edit)
 
@@ -1444,7 +1444,7 @@ class TestSingleResultEditView(WebTestWith200Check):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, responsibles=[responsible]), pk=1)
         contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True,
-                                  textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
+                                  textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
 
         question = Questionnaire.single_result_questionnaire().questions.get()
         baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
@@ -1688,7 +1688,7 @@ class TestEvaluationTextAnswerView(WebTest):
         student1 = baker.make(UserProfile)
         cls.student2 = baker.make(UserProfile)
         cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = baker.make(Questionnaire)
@@ -1728,7 +1728,7 @@ class TestEvaluationTextAnswerEditView(WebTest):
         student1 = baker.make(UserProfile)
         cls.student2 = baker.make(UserProfile)
         cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
-        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = baker.make(Questionnaire)
@@ -1813,7 +1813,7 @@ class TestQuestionnaireCreateView(WebTest):
         questionnaire_form['questions-0-text_en'] = "Question 1"
         questionnaire_form['questions-0-type'] = Question.TEXT
         questionnaire_form['order'] = 0
-        questionnaire_form['type'] = Questionnaire.TOP
+        questionnaire_form['type'] = Questionnaire.Type.TOP
         questionnaire_form.submit().follow()
 
         # retrieve new questionnaire
@@ -1842,9 +1842,9 @@ class TestQuestionnaireIndexView(WebTest):
     @classmethod
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
-        cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.BOTTOM)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
     def test_ordering(self):
         content = self.app.get(self.url, user="manager").body.decode()
@@ -1870,7 +1870,7 @@ class TestQuestionnaireEditView(WebTestWith200Check):
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         # top to bottom
-        self.questionnaire.type = Questionnaire.TOP
+        self.questionnaire.type = Questionnaire.Type.TOP
         self.questionnaire.save()
 
         page = self.app.get(self.url, user='manager')
@@ -1878,7 +1878,7 @@ class TestQuestionnaireEditView(WebTestWith200Check):
         self.assertEqual(form['type'].options, [('10', True, 'Top questionnaire'), ('30', False, 'Bottom questionnaire')])
 
         # bottom to top
-        self.questionnaire.type = Questionnaire.BOTTOM
+        self.questionnaire.type = Questionnaire.Type.BOTTOM
         self.questionnaire.save()
 
         page = self.app.get(self.url, user='manager')
@@ -1886,7 +1886,7 @@ class TestQuestionnaireEditView(WebTestWith200Check):
         self.assertEqual(form['type'].options, [('10', False, 'Top questionnaire'), ('30', True, 'Bottom questionnaire')])
 
         # contributor has no other possible type
-        self.questionnaire.type = Questionnaire.CONTRIBUTOR
+        self.questionnaire.type = Questionnaire.Type.CONTRIBUTOR
         self.questionnaire.save()
 
         page = self.app.get(self.url, user='manager')
@@ -2040,7 +2040,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.student1 = baker.make(UserProfile)
         cls.student2 = baker.make(UserProfile)
         cls.evaluation = baker.make(Evaluation, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
-        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
@@ -2056,15 +2056,15 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish", expect_errors=True)
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
 
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
         # now reviewing should work
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PUBLISHED, "publish")
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.HIDDEN, "hide")
-        self.helper(TextAnswer.NOT_REVIEWED, TextAnswer.PRIVATE, "make_private")
-        self.helper(TextAnswer.PUBLISHED, TextAnswer.NOT_REVIEWED, "unreview")
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
+        self.helper(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
 
 
 class ParticipationArchivingTests(WebTest):
@@ -2142,13 +2142,13 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.course_type_1 = baker.make(CourseType)
         cls.course_type_2 = baker.make(CourseType)
         cls.responsible = baker.make(UserProfile)
-        cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.TOP)
-        cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.TOP)
-        cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.evaluation_1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]))
         cls.evaluation_2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]))
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user="manager", status=200)

@@ -10,7 +10,7 @@ BACKUP_TITLE="backup"
 TIMESTAMP="$(date +%Y-%m-%d_%H:%M:%S)"
 
 USERNAME="evap"
-ENVDIR="/home/evap/env"
+ENVDIR="/opt/evap/env"
 [[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7
 
 # argument 1 is the title for the backupfile.
@@ -19,9 +19,9 @@ if [ $# -eq 1 ]
         BACKUP_TITLE=$1
 fi
 
-FILENAME="${TIMESTAMP}_${COMMIT_HASH}_${BACKUP_TITLE}.json"
+FILENAME="${BACKUP_TITLE}_${TIMESTAMP}_${COMMIT_HASH}.json"
 
-[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] && echo "Overriding Automatic Filename"
+[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || echo "Overriding Automatic Filename"
 [[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || FILENAME="${BACKUP_TITLE}"
 
 echo "Backup will be stored in $FILENAME"
