@@ -909,7 +909,7 @@ CHOICES = {
             _("Neutral"),
             _("Disagree"),
             _("Strongly\ndisagree"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_UNIPOLAR_CHOICES
     ),
@@ -920,7 +920,7 @@ CHOICES = {
             "3",
             "4",
             "5",
-            _("no answer")
+            _("No answer")
         ],
         **BASE_UNIPOLAR_CHOICES
     ),
@@ -935,7 +935,7 @@ CHOICES = {
             _("Slightly too\ndifficult"),
             _("Too\ndifficult"),
             _("Way too\ndifficult"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -950,7 +950,7 @@ CHOICES = {
             _("Slightly too\nmany"),
             _("Too\nmany"),
             _("Way too\nmany"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -965,7 +965,7 @@ CHOICES = {
             _("Slightly too\nmuch"),
             _("Too\nmuch"),
             _("Way too\nmuch"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -980,7 +980,7 @@ CHOICES = {
             _("Slightly too\nlarge"),
             _("Too\nlarge"),
             _("Way too\nlarge"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -995,7 +995,7 @@ CHOICES = {
             _("Slightly too\nfast"),
             _("Too\nfast"),
             _("Way too\nfast"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -1010,7 +1010,7 @@ CHOICES = {
             _("Slightly too\nlong"),
             _("Too\nlong"),
             _("Way too\nlong"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_BIPOLAR_CHOICES
     ),
@@ -1018,7 +1018,7 @@ CHOICES = {
         names=[
             _("Yes"),
             _("No"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_YES_NO_CHOICES
     ),
@@ -1026,7 +1026,7 @@ CHOICES = {
         names=[
             _("No"),
             _("Yes"),
-            _("no answer")
+            _("No answer")
         ],
         **BASE_YES_NO_CHOICES
     )
