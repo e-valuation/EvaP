@@ -229,9 +229,13 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(errors_test[ImporterError.COURSE], {
             'Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.',
             'Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.'})
+        self.assertEqual(errors_test[ImporterError.DEGREE_MISSING], [
+            'Error: The degree "Diploma" does not exist yet. Please manually create it first.'])
+        self.assertEqual(errors_test[ImporterError.COURSE_TYPE_MISSING], [
+            'Error: The course type "Praktikum" does not exist yet. Please manually create it first.'])
         self.assertEqual(errors_test[ImporterError.GENERAL], [
             'Errors occurred while parsing the input data. No data was imported.'])
-        self.assertEqual(len(errors_test), 3)
+        self.assertEqual(len(errors_test), 5)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):

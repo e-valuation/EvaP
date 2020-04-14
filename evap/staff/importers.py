@@ -1,5 +1,7 @@
 from collections import OrderedDict, defaultdict
+from dataclasses import dataclass
 from enum import Enum
+from typing import Set, Dict
 import xlrd
 
 from django.conf import settings
@@ -70,46 +72,42 @@ class UserData(CommonEqualityMixin):
         user.clean_fields()
 
 
-class EvaluationData(CommonEqualityMixin):
+@dataclass
+class EvaluationData:
     """
         Holds information about an evaluation, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, type_name, degree_names, is_graded, responsible_email):
-        self.name_de = name_de.strip()
-        self.name_en = name_en.strip()
-        self.type_name = type_name.strip()
-        self.is_graded = is_graded.strip()
-        self.responsible_email = responsible_email
+    name_de: str
+    name_en: str
+    degrees: Set[Degree]
+    course_type: CourseType
+    is_graded: bool
+    responsible_email: str
+    errors: Dict
 
-        degree_names = degree_names.split(',')
-        for degree_name in degree_names:
-            degree_name = degree_name.strip()
-        self.degree_names = degree_names
-
-    def equals_except_for_degree_names(self, other):
+    def equals_except_for_degrees(self, other):
         return (
-            set(self.degree_names) != set(other.degree_names)
+            self.degrees != other.degrees
             and self.name_de == other.name_de
             and self.name_en == other.name_en
-            and self.type_name == other.type_name
+            and self.course_type == other.course_type
             and self.is_graded == other.is_graded
             and self.responsible_email == other.responsible_email
         )
 
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
-        course_type = CourseType.objects.get(name_de=self.type_name)
+        assert not self.errors
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course = Course(
             name_de=self.name_de,
             name_en=self.name_en,
-            type=course_type,
+            type=self.course_type,
             semester=semester,
         )
         course.save()
         course.responsibles.set([responsible_dbobj])
-        for degree_name in self.degree_names:
-            course.degrees.add(Degree.objects.get(name_de=degree_name))
+        course.degrees.set(self.degrees)
         evaluation = Evaluation(
             vote_start_datetime=vote_start_datetime,
             vote_end_date=vote_end_date,
@@ -154,6 +152,45 @@ class ImporterWarning(Enum):
 
     DEGREE = ('degree', gettext_lazy("Degree mismatches"), 5)
     MANY = ('too_many_enrollments', gettext_lazy("Unusually high number of enrollments"), 6)
+
+
+class EvaluationDataFactory:
+    def __init__(self):
+        self.degrees = {
+            degree.name_de: degree for degree in Degree.objects.all()
+        }
+        self.course_types = {
+            course_type.name_de: course_type for course_type in CourseType.objects.all()
+        }
+
+    def create(self, name_de, name_en, degree_names, course_type_name, is_graded, responsible_email):
+        errors = {}
+        degrees = {self.get_degree_or_add_error(degree_name, errors) for degree_name in degree_names.split(',')}
+        course_type = self.get_course_or_add_error(course_type_name, errors)
+
+        return EvaluationData(
+            name_de=name_de.strip(),
+            name_en=name_en.strip(),
+            degrees=degrees,
+            course_type=course_type,
+            is_graded=is_graded.strip(),
+            responsible_email=responsible_email,
+            errors=errors,
+        )
+
+    def get_degree_or_add_error(self, degree_name, errors):
+        try:
+            return self.degrees[degree_name.strip()]
+        except KeyError:
+            errors.setdefault('degrees', set()).add(degree_name)
+            return None
+
+    def get_course_or_add_error(self, course_type_name, errors):
+        try:
+            return self.course_types[course_type_name.strip()]
+        except KeyError:
+            errors['course_type'] = course_type_name
+            return None
 
 
 class ExcelImporter():
@@ -283,11 +320,19 @@ class EnrollmentImporter(ExcelImporter):
         self.evaluations = {}
         self.enrollments = []
         self.names_de = set()
+        self.evaluation_data_factory = EvaluationDataFactory()
 
     def read_one_enrollment(self, data, sheet, row):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
+        evaluation_data = self.evaluation_data_factory.create(
+            name_de=data[6],
+            name_en=data[7],
+            degree_names=data[0],
+            course_type_name=data[4],
+            is_graded=data[5],
+            responsible_email=responsible_data.email,
+        )
         self.associations[(sheet.name, row)] = (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
@@ -301,13 +346,13 @@ class EnrollmentImporter(ExcelImporter):
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if evaluation_data.equals_except_for_degree_names(self.evaluations[evaluation_id]):
+            if evaluation_data.equals_except_for_degrees(self.evaluations[evaluation_id]):
                 self.warnings[ImporterWarning.DEGREE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row.'
                       ' Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
                 )
-                self.evaluations[evaluation_id].degree_names.extend(evaluation_data.degree_names)
+                self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
             elif evaluation_data != self.evaluations[evaluation_id]:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.')
@@ -321,6 +366,8 @@ class EnrollmentImporter(ExcelImporter):
             self.enrollments.append((evaluation_data, student_data))
 
     def check_evaluation_data_correctness(self, semester):
+        degree_names = set()
+        course_type_names = set()
         for evaluation_data in self.evaluations.values():
             if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
                 self.errors[ImporterError.COURSE].append(
@@ -328,22 +375,19 @@ class EnrollmentImporter(ExcelImporter):
             if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
                 self.errors[ImporterError.COURSE].append(
                     _("Course {} does already exist in this semester.").format(evaluation_data.name_de))
+            if 'degrees' in evaluation_data.errors:
+                degree_names |= evaluation_data.errors['degrees']
+            if 'course_type' in evaluation_data.errors:
+                course_type_names.add(evaluation_data.errors['course_type'])
 
-        degree_names = set()
-        for evaluation_data in self.evaluations.values():
-            degree_names.update(evaluation_data.degree_names)
         for degree_name in degree_names:
-            if not Degree.objects.filter(name_de=degree_name).exists():
-                self.errors[ImporterError.DEGREE_MISSING].append(
-                    _("Error: The degree \"{}\" does not exist yet. Please manually create it first.")
-                    .format(degree_name))
-
-        course_type_names = set(evaluation_data.type_name for evaluation_data in self.evaluations.values())
+            self.errors[ImporterError.DEGREE_MISSING].append(
+                _("Error: The degree \"{}\" does not exist yet. Please manually create it first.")
+                .format(degree_name))
         for course_type_name in course_type_names:
-            if not CourseType.objects.filter(name_de=course_type_name).exists():
-                self.errors[ImporterError.COURSE_TYPE_MISSING].append(
-                    _("Error: The course type \"{}\" does not exist yet. Please manually create it first.")
-                    .format(course_type_name))
+            self.errors[ImporterError.COURSE_TYPE_MISSING].append(
+                _("Error: The course type \"{}\" does not exist yet. Please manually create it first.")
+                .format(course_type_name))
 
     def process_graded_column(self):
         for evaluation_data in self.evaluations.values():

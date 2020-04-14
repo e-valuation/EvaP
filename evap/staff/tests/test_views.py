@@ -679,11 +679,10 @@ class TestSemesterImportView(WebTest):
     def setUpTestData(cls):
         baker.make(Semester, pk=1)
         baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
-
-    def test_import_valid_file(self):
         baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
         baker.make(CourseType, name_de="Seminar", name_en="Seminar")
 
+    def test_import_valid_file(self):
         original_user_count = UserProfile.objects.count()
 
         page = self.app.get(self.url, user='manager')
@@ -804,9 +803,6 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_missing_evaluation_period(self):
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-
         page = self.app.get(self.url, user='manager')
 
         form = page.forms["semester-import-form"]
