@@ -175,14 +175,6 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
         )
         return user
 
-    @staticmethod
-    def update_user(user, claims):
-        user.email = claims.get('email')
-        user.first_name = claims.get('given_name', '')
-        user.last_name = claims.get('family_name', '')
-        user.save()
-        return user
-
 
 def generate_username_from_email(email):
     return unicodedata.normalize('NFKC', email).split('@')[0].lower()
