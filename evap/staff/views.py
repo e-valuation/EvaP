@@ -34,7 +34,7 @@ from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activat
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
                               EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
+                              FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
@@ -1406,7 +1406,8 @@ def questionnaire_set_locked(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
+    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet,
+                                         can_delete=True, extra=1)
     formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -1421,7 +1422,8 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
+    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet,
+                                             can_delete=True, extra=1)
     formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
