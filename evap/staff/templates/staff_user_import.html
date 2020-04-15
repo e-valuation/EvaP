@@ -33,7 +33,7 @@
                     <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import', 'import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>
@@ -42,9 +42,9 @@
 
 {% block modals %}
 {{ block.super }}
-    {% trans 'Import User' as title %}
-    {% blocktrans asvar question %}Do you really want to import the users? {% endblocktrans %}
-    {% trans 'Import User' as action_text %}
+    {% trans 'Import Users' as title %}
+    {% blocktrans asvar question %}Do you really want to import users from the Excel file? {% endblocktrans %}
+    {% trans 'Import Users' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importUserModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
         function importUserModalAction(dataId) {
@@ -52,8 +52,7 @@
                .attr("type", "hidden")
                .attr("name", "operation").val(dataId);
             $('#user-import-form').append(input);
-            $('#user-import-form').submit();
-            
+            $('#user-import-form').submit();   
         };
     </script>
 

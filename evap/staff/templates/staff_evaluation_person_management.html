@@ -28,7 +28,7 @@
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="form-submit-btn-divider"></div>
-                            <button name="operation" value="import-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                            <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -45,7 +45,7 @@
                         {% include 'bootstrap_form.html' with form=participant_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
+                        <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
                     </div>
                 </div>
             </form>
@@ -74,7 +74,7 @@
                         {% else %}
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="form-submit-btn-divider"></div>
-                            <button name="operation" value="import-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                            <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -91,7 +91,7 @@
                         {% include 'bootstrap_form.html' with form=contributor_copy_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
-                        <button name="operation" value="copy-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
+                        <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
                     </div>
                 </div>
             </form>
@@ -118,6 +118,66 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+    {% trans 'Import participants' as title %}
+    {% blocktrans asvar question %}Do you really want to upload the Excel file with participant data? {% endblocktrans %}
+    {% trans 'Import participants' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function importParticipantsModalAction(dataId) {
+            var input = $("<input>")
+               .attr("type", "hidden")
+               .attr("name", "operation").val(dataId);
+            $('#participant-import-form').append(input);
+            $('#participant-import-form').submit();
+        };
+    </script>
+
+    {% trans 'Copy participants' as title %}
+    {% blocktrans asvar question %}Do you really want to copy participants? {% endblocktrans %}
+    {% trans 'Copy participants' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='copyParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function copyParticipantsModalAction(dataId) {
+            var input = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "operation").val(dataId);
+            $('#participant-copy-form').append(input);
+            $('#participant-copy-form').submit();  
+        };
+    </script>
+
+    {% trans 'Import contributors' as title %}
+    {% blocktrans asvar question %}Do you really want to upload the Excel file with contributor data? {% endblocktrans %}
+    {% trans 'Import contributors' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='importContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function importContributorsModalAction(dataId) {
+            var input = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "operation").val(dataId);
+            $('#contributor-import-form').append(input);
+            $('#contributor-import-form').submit(); 
+        };
+    </script>
+
+    {% trans 'Copy contributors' as title %}
+    {% blocktrans asvar question %}Do you really want to copy participants? {% endblocktrans %}
+    {% trans 'Copy contributors' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function copyContributorsModalAction(dataId) {
+            var input = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "operation").val(dataId);
+            $('#contributor-copy-form').append(input);
+            $('#contributor-copy-form').submit(); 
+        };
+    </script>
+
 {% endblock %}
 
 {% block additional_javascript %}
