@@ -744,6 +744,8 @@ class TestSemesterImportView(WebTest):
         reply = form.submit(name="operation", value="test")
         general_error = 'Errors occurred while parsing the input data. No data was imported.'
         self.assertContains(reply, general_error)
+        is_graded_error = '&quot;is_graded&quot; of course Deal is maybe, but must be yes or no'
+        self.assertContains(reply, is_graded_error)
         user_error = 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data'\
                      ' (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.'
         self.assertContains(reply, user_error)
@@ -753,7 +755,7 @@ class TestSemesterImportView(WebTest):
         def index(text):
             return reply.body.decode().index(text)
 
-        self.assertTrue(index(general_error) < index(user_error))
+        self.assertTrue(index(general_error) < index(is_graded_error) < index(user_error))
 
         self.assertNotContains(reply, 'Import previously uploaded file')
 

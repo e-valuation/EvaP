@@ -233,9 +233,11 @@ class TestEnrollmentImporter(TestCase):
             'Error: The degree "Diploma" does not exist yet. Please manually create it first.'])
         self.assertEqual(errors_test[ImporterError.COURSE_TYPE_MISSING], [
             'Error: The course type "Praktikum" does not exist yet. Please manually create it first.'])
+        self.assertEqual(errors_test[ImporterError.IS_GRADED], [
+            '"is_graded" of course Deal is maybe, but must be yes or no'])
         self.assertEqual(errors_test[ImporterError.GENERAL], [
             'Errors occurred while parsing the input data. No data was imported.'])
-        self.assertEqual(len(errors_test), 5)
+        self.assertEqual(len(errors_test), 6)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):

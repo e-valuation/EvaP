@@ -167,13 +167,14 @@ class EvaluationDataFactory:
         errors = {}
         degrees = {self.get_degree_or_add_error(degree_name, errors) for degree_name in degree_names.split(',')}
         course_type = self.get_course_or_add_error(course_type_name, errors)
+        is_graded = self.parse_is_graded_or_add_error(is_graded, errors)
 
         return EvaluationData(
             name_de=name_de.strip(),
             name_en=name_en.strip(),
             degrees=degrees,
             course_type=course_type,
-            is_graded=is_graded.strip(),
+            is_graded=is_graded,
             responsible_email=responsible_email,
             errors=errors,
         )
@@ -191,6 +192,16 @@ class EvaluationDataFactory:
         except KeyError:
             errors['course_type'] = course_type_name
             return None
+
+    @staticmethod
+    def parse_is_graded_or_add_error(is_graded, errors):
+        is_graded = is_graded.strip()
+        if is_graded == settings.IMPORTER_GRADED_YES:
+            return True
+        if is_graded == settings.IMPORTER_GRADED_NO:
+            return False
+        errors['is_graded'] = is_graded
+        return None
 
 
 class ExcelImporter():
@@ -379,6 +390,11 @@ class EnrollmentImporter(ExcelImporter):
                 degree_names |= evaluation_data.errors['degrees']
             if 'course_type' in evaluation_data.errors:
                 course_type_names.add(evaluation_data.errors['course_type'])
+            if 'is_graded' in evaluation_data.errors:
+                self.errors[ImporterError.IS_GRADED].append(
+                    _('"is_graded" of course {} is {}, but must be {} or {}')
+                    .format(evaluation_data.name_en, evaluation_data.errors['is_graded'],
+                            settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
 
         for degree_name in degree_names:
             self.errors[ImporterError.DEGREE_MISSING].append(
@@ -388,19 +404,6 @@ class EnrollmentImporter(ExcelImporter):
             self.errors[ImporterError.COURSE_TYPE_MISSING].append(
                 _("Error: The course type \"{}\" does not exist yet. Please manually create it first.")
                 .format(course_type_name))
-
-    def process_graded_column(self):
-        for evaluation_data in self.evaluations.values():
-            if evaluation_data.is_graded == settings.IMPORTER_GRADED_YES:
-                evaluation_data.is_graded = True
-            elif evaluation_data.is_graded == settings.IMPORTER_GRADED_NO:
-                evaluation_data.is_graded = False
-            else:
-                self.errors[ImporterError.IS_GRADED].append(
-                    _('"is_graded" of course {} is {}, but must be {} or {}')
-                    .format(evaluation_data.name_en, evaluation_data.is_graded,
-                            settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
-                evaluation_data.is_graded = True
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -465,7 +468,6 @@ class EnrollmentImporter(ExcelImporter):
 
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.process_graded_column()
             importer.check_user_data_correctness()
             importer.check_evaluation_data_correctness(semester)
             importer.check_enrollment_data_sanity()
