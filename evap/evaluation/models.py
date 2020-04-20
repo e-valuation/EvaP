@@ -11,8 +11,7 @@ from datetime import date, datetime, time, timedelta
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
-                                        Group, PermissionsMixin)
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
@@ -1339,7 +1338,6 @@ class TextAnswer(Answer):
 class FaqSection(models.Model):
     """Section in the frequently asked questions"""
 
-
     order = models.IntegerField(verbose_name=_("section order"), default=-1)
 
     title_de = models.CharField(max_length=255, verbose_name=_("section title (german)"))
@@ -1395,7 +1393,7 @@ class UserProfileManager(BaseUserManager):
         )
         user.is_superuser = True
         user.save()
-        user.groups.add(Group.objects.get(name="Manager"))
+        user.groups.add(Group.objects.get(name='Manager'))
         return user
 
 
@@ -1433,11 +1431,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ("last_name", "first_name", "username")
-        verbose_name = _("user")
-        verbose_name_plural = _("users")
+        ordering = ('last_name', 'first_name', 'username')
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
 
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
@@ -1474,15 +1472,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @cached_property
     def is_manager(self):
-        return self.groups.filter(name="Manager").exists()
+        return self.groups.filter(name='Manager').exists()
 
     @cached_property
     def is_reviewer(self):
-        return self.is_manager or self.groups.filter(name="Reviewer").exists()
+        return self.is_manager or self.groups.filter(name='Reviewer').exists()
 
     @cached_property
     def is_grade_publisher(self):
-        return self.groups.filter(name="Grade publisher").exists()
+        return self.groups.filter(name='Grade publisher').exists()
 
     @property
     def can_be_marked_inactive_by_manager(self):
@@ -1602,23 +1600,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def login_url(self):
         if not self.needs_login_key:
             return ""
-        return settings.PAGE_URL + reverse("evaluation:login_key_authentication", args=[self.login_key])
+        return settings.PAGE_URL + reverse('evaluation:login_key_authentication', args=[self.login_key])
 
     def get_sorted_courses_responsible_for(self):
-        return self.courses_responsible_for.order_by("semester__created_at", "name_de")
+        return self.courses_responsible_for.order_by('semester__created_at', 'name_de')
 
     def get_sorted_contributions(self):
-        return self.contributions.order_by("evaluation__course__semester__created_at", "evaluation__name_de")
+        return self.contributions.order_by('evaluation__course__semester__created_at', 'evaluation__name_de')
 
     def get_sorted_evaluations_participating_in(self):
-        return self.evaluations_participating_in.order_by("course__semester__created_at", "name_de")
+        return self.evaluations_participating_in.order_by('course__semester__created_at', 'name_de')
 
     def get_sorted_evaluations_voted_for(self):
-        return self.evaluations_voted_for.order_by("course__semester__created_at", "name_de")
+        return self.evaluations_voted_for.order_by('course__semester__created_at', 'name_de')
 
     def get_sorted_due_evaluations(self):
         due_evaluations = dict()
-        for evaluation in Evaluation.objects.filter(participants=self, state="in_evaluation").exclude(voters=self):
+        for evaluation in Evaluation.objects.filter(participants=self, state='in_evaluation').exclude(voters=self):
             due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
 
         # Sort evaluations by number of days left for evaluation and bring them to following format:
