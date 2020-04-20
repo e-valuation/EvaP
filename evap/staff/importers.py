@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import create_user_list_html_string_for_message
+from evap.staff.tools import create_user_list_html_string_for_message, ImportType
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
@@ -549,9 +549,10 @@ class PersonImporter:
 
         # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
-        if import_type == 'participant':
+        if import_type == ImportType.Participant:
             importer.process_participants(evaluation, test_run, user_list)
-        else:  # import_type == 'contributor'
+        else:
+            assert import_type == ImportType.Contributor
             importer.process_contributors(evaluation, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
@@ -560,10 +561,11 @@ class PersonImporter:
     def process_source_evaluation(cls, import_type, evaluation, test_run, source_evaluation):
         importer = cls()
 
-        if import_type == 'participant':
+        if import_type == ImportType.Participant:
             user_list = list(source_evaluation.participants.all())
             importer.process_participants(evaluation, test_run, user_list)
-        else:  # import_type == 'contributor'
+        else:
+            assert import_type == ImportType.Contributor
             user_list = list(UserProfile.objects.filter(contributions__evaluation=source_evaluation))
             importer.process_contributors(evaluation, test_run, user_list)
 

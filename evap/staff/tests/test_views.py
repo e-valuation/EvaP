@@ -1,6 +1,5 @@
 import datetime
 import os
-import glob
 from unittest.mock import patch
 
 from django.conf import settings
@@ -19,14 +18,17 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     UserProfile)
 from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
-from evap.staff.tools import generate_import_filename
+from evap.staff.tools import generate_import_filename, ImportType
 from evap.staff.views import get_evaluations_with_prefetched_data
 
 
 def helper_delete_all_import_files(user_id):
-    file_filter = generate_import_filename(user_id, "*")
-    for filename in glob.glob(file_filter):
-        os.remove(filename)
+    for import_type in ImportType:
+        filename = generate_import_filename(user_id, import_type)
+        try:
+            os.remove(filename)
+        except FileNotFoundError:
+            pass
 
 
 class TestDownloadSampleXlsView(WebTest):
@@ -185,64 +187,139 @@ class TestUserMergeView(WebTestWith200Check):
         baker.make(UserProfile, pk=4)
 
 
-class TestUserBulkDeleteView(WebTest):
-    url = '/staff/user/bulk_delete'
-    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
+class TestUserBulkUpdateView(WebTest):
+    url = '/staff/user/bulk_update'
+    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_update_file.txt')
+    filename_random = os.path.join(settings.BASE_DIR, 'staff/fixtures/random.random')
+    filename_xls = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_enrollment_data.xls')
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user='manager')
-        form = page.forms['user-bulk-delete-form']
+        form = page.forms['user-bulk-update-form']
 
         form['username_file'] = (self.filename,)
 
         baker.make(UserProfile, is_active=False)
-        users_before = UserProfile.objects.count()
+        users_before = set(UserProfile.objects.all())
 
         reply = form.submit(name='operation', value='test')
 
-        # Not getting redirected after.
         self.assertEqual(reply.status_code, 200)
         # No user got deleted.
-        self.assertEqual(users_before, UserProfile.objects.count())
+        self.assertEqual(users_before, set(UserProfile.objects.all()))
 
-    def test_deletes_users(self):
-        baker.make(UserProfile, username='testuser1')
-        baker.make(UserProfile, username='testuser2')
-        contribution1 = baker.make(Contribution)
-        semester = baker.make(Semester, participations_are_archived=True)
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester), _participant_count=0, _voter_count=0)
-        contribution2 = baker.make(Contribution, evaluation=evaluation)
-        baker.make(UserProfile, username='contributor1', contributions=[contribution1])
-        baker.make(UserProfile, username='contributor2', contributions=[contribution2])
+        helper_delete_all_import_files(self.user.id)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
+    def test_multiple_email_matches_trigger_error(self):
+        baker.make(UserProfile, email='testremove@institution.example.com')
+        baker.make(UserProfile, first_name="Elisabeth", last_name="Fröhlich", email='testuser1@institution.example.com')
+
+        error_string = (
+            'Multiple users match the email testuser1@institution.example.com:'
+            + '<br />Elisabeth Fröhlich (testuser1@institution.example.com)'
+            + '<br />Tony Kuchenbuch (testuser1@internal.example.com)'
+        )
+        button_substring = 'value="bulk_update"'
+
+        expected_users = set(UserProfile.objects.all())
 
         page = self.app.get(self.url, user='manager')
-        form = page.forms["user-bulk-delete-form"]
-
+        form = page.forms["user-bulk-update-form"]
         form["username_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
 
-        user_count_before = UserProfile.objects.count()
+        self.assertIn(button_substring, response)
+        self.assertNotIn(error_string, response)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
-        reply = form.submit(name="operation", value="bulk_delete")
+        new_user = baker.make(UserProfile, first_name="Tony", last_name="Kuchenbuch", email='testuser1@internal.example.com')
+        expected_users.add(new_user)
 
-        # Getting redirected after.
-        self.assertEqual(reply.status_code, 302)
+        page = self.app.get(self.url, user='manager')
+        form = page.forms["user-bulk-update-form"]
+        form["username_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
 
-        # Assert only one user got deleted and one was marked inactive
-        self.assertTrue(UserProfile.objects.filter(username='testuser1').exists())
-        self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
+        self.assertNotIn(button_substring, response)
+        self.assertIn(error_string, response)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
+    def test_handles_users(self):
+        baker.make(UserProfile, email='testuser1@institution.example.com')
+        baker.make(UserProfile, email='testuser2@institution.example.com')
+        baker.make(UserProfile, email='testupdate@institution.example.com')
+        contribution1 = baker.make(Contribution)
+        semester = baker.make(Semester, participations_are_archived=True)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester),
+            _participant_count=0,
+            _voter_count=0,
+        )
+        contribution2 = baker.make(Contribution, evaluation=evaluation)
+        baker.make(UserProfile, email='contributor1@institution.example.com', contributions=[contribution1])
+        baker.make(UserProfile, email='contributor2@institution.example.com', contributions=[contribution2])
+
+        expected_users = set(UserProfile.objects.exclude(email='testuser2@institution.example.com'))
+
+        page = self.app.get(self.url, user='manager')
+        form = page.forms["user-bulk-update-form"]
+        form["username_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
+
+        self.assertIn(
+            '1 will be updated, 1 will be deleted and 1 will be marked inactive. 1 new users will be created.',
+            response
+        )
+        self.assertIn('testupdate@institution.example.com > testupdate@internal.example.com', response)
+
+        form = response.forms["user-bulk-update-form"]
+        response = form.submit(name="operation", value="bulk_update")
+
+        # testuser1 is in the file and must not be deleted
+        self.assertTrue(UserProfile.objects.filter(email='testuser1@institution.example.com').exists())
+        # testuser2 is not in the file and must be deleted
+        self.assertFalse(UserProfile.objects.filter(email='testuser2@institution.example.com').exists())
+        # manager is not in the file but still must not be deleted
         self.assertTrue(UserProfile.objects.filter(username='manager').exists())
+        # testusernewinternal is a new internal user and should be created
+        self.assertTrue(UserProfile.objects.filter(email='testusernewinternal@institution.example.com').exists())
+        expected_users.add(UserProfile.objects.get(email='testusernewinternal@institution.example.com'))
+        # testusernewexternal is an external user and should not be created
+        self.assertFalse(UserProfile.objects.filter(email='testusernewexternal@example.com').exists())
+        # testupdate should have been renamed
+        self.assertFalse(UserProfile.objects.filter(email='testupdate@institution.example.com').exists())
+        self.assertTrue(UserProfile.objects.filter(email='testupdate@internal.example.com').exists())
 
-        self.assertTrue(UserProfile.objects.filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.exclude(is_active=False).filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.filter(username='contributor2').exists())
-        self.assertFalse(UserProfile.objects.exclude(is_active=False).filter(username='contributor2').exists())
+        # contributor1 should still be active, contributor2 should have been set to inactive
+        self.assertTrue(UserProfile.objects.get(email='contributor1@institution.example.com').is_active)
+        self.assertFalse(UserProfile.objects.get(email='contributor2@institution.example.com').is_active)
+        # all should be active except for contributor2
+        self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 1)
 
-        self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
-        self.assertEqual(UserProfile.objects.exclude(is_active=False).count(), user_count_before - 2)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+
+    @override_settings(DEBUG=False)
+    def test_wrong_files_dont_crash(self):
+        page = self.app.get(self.url, user='manager')
+        form = page.forms['user-bulk-update-form']
+        form['username_file'] = (self.filename_random,)
+        reply = form.submit(name='operation', value='test')
+        self.assertEqual(reply.status_code, 200)
+        self.assertIn("An error happened when processing the file", reply)
+
+        page = self.app.get(self.url, user='manager')
+        form = page.forms['user-bulk-update-form']
+        form['username_file'] = (self.filename_xls,)
+        reply = form.submit(name='operation', value='test')
+        self.assertEqual(reply.status_code, 200)
+        self.assertIn("An error happened when processing the file", reply)
 
 
 class TestUserImportView(WebTest):
@@ -327,7 +404,7 @@ class TestUserImportView(WebTest):
         form = page.forms["user-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
@@ -699,7 +776,7 @@ class TestSemesterImportView(WebTest):
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
@@ -724,7 +801,7 @@ class TestSemesterImportView(WebTest):
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="import")
 
-        self.assertContains(page, 'Please enter an evaluation period')
+        self.assertContains(page, 'This field is required.')
         self.assertContains(page, 'Import previously uploaded file')
 
 
@@ -1625,7 +1702,7 @@ class TestEvaluationImportPersonsView(WebTest):
         form = page.forms["contributor-import-form"]
         page = form.submit(name="operation", value="test-contributors")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_participant_upload_operation(self):
@@ -1634,7 +1711,7 @@ class TestEvaluationImportPersonsView(WebTest):
         form = page.forms["participant-import-form"]
         page = form.submit(name="operation", value="test-participants")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_contributor_import_operation(self):
