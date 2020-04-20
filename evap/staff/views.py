@@ -401,6 +401,21 @@ def semester_create(request):
     return render(request, "staff_semester_form.html", dict(form=form))
 
 
+@require_POST
+@manager_required
+@transaction.atomic
+def semester_make_active(request):
+    semester_id = request.POST.get("semester_id")
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    Semester.objects.update(is_active_semester=None)
+
+    semester.is_active_semester = True
+    semester.save()
+
+    return HttpResponse()
+
+
 @manager_required
 def semester_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)

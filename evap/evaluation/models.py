@@ -61,7 +61,13 @@ class Semester(models.Model):
 
     @property
     def can_be_deleted_by_manager(self):
-        return self.evaluations.count() == 0 or (self.participations_are_archived and self.grade_documents_are_deleted and self.results_are_archived)
+        if self.is_active:
+            return False
+
+        if self.evaluations.count() == 0:
+            return True
+
+        return self.participations_are_archived and self.grade_documents_are_deleted and self.results_are_archived
 
     @property
     def participations_can_be_archived(self):

@@ -42,6 +42,7 @@ urlpatterns = [
     path("semester/archive_results", views.semester_archive_results, name="semester_archive_results"),
     path("semester/course_delete", views.course_delete, name="course_delete"),
     path("semester/evaluation_delete", views.evaluation_delete, name="evaluation_delete"),
+    path("semester/make_active", views.semester_make_active, name="semester_make_active"),
 
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
 
