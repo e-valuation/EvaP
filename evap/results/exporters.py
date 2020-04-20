@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import xlwt
 
@@ -161,7 +161,7 @@ class ExcelExporter():
                 self.write_empty_cell_with_borders()
 
             for questionnaire in used_questionnaires:
-                if contributor and questionnaire.type == Questionnaire.CONTRIBUTOR:
+                if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
                     writen(self, "{} ({})".format(questionnaire.name, contributor.full_name), "bold")
                 else:
                     writen(self, questionnaire.name, "bold")
@@ -280,7 +280,7 @@ def writec(exporter, label, style_name, rows=1, cols=1):
 
 def _write(exporter, label, style, rows, cols):
     if rows > 1 or cols > 1:
-        exporter.sheet.write_merge(exporter.row, exporter.row+rows-1, exporter.col, exporter.col+cols-1, label, style)
+        exporter.sheet.write_merge(exporter.row, exporter.row + rows - 1, exporter.col, exporter.col + cols - 1, label, style)
         exporter.col += cols - 1
     else:
         exporter.sheet.write(exporter.row, exporter.col, label, style)

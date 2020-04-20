@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e # abort on error
-cd `dirname $0`/.. # change to project root directory
+cd $(dirname $0)/.. # change to project root directory
 
 echo $PWD
 
@@ -10,7 +10,7 @@ BACKUP_TITLE="backup"
 TIMESTAMP="$(date +%Y-%m-%d_%H:%M:%S)"
 
 USERNAME="evap"
-ENVDIR="/home/evap/env"
+ENVDIR="/opt/evap/env"
 [[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7
 
 # argument 1 is the title for the backupfile.
@@ -19,9 +19,9 @@ if [ $# -eq 1 ]
         BACKUP_TITLE=$1
 fi
 
-FILENAME="${TIMESTAMP}_${COMMIT_HASH}_${BACKUP_TITLE}.json"
+FILENAME="${BACKUP_TITLE}_${TIMESTAMP}_${COMMIT_HASH}.json"
 
-[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] && echo "Overriding Automatic Filename"
+[[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || echo "Overriding Automatic Filename"
 [[ -z "$EVAP_OVERRIDE_BACKUP_FILENAME" ]] || FILENAME="${BACKUP_TITLE}"
 
 echo "Backup will be stored in $FILENAME"
@@ -33,7 +33,7 @@ sudo -H -u $USERNAME git fetch
 
 # Note that apache should not be running during most of the upgrade,
 # since then e.g. the backup might be incomplete or the code does not
-# match the database layout, or https://github.com/fsr-de/EvaP/issues/1237.
+# match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
 [[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 stop
 
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output $FILENAME

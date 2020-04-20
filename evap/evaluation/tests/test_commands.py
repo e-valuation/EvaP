@@ -58,8 +58,8 @@ class TestAnonymizeCommand(TestCase):
             name_en="History of Unicode 😄",
         )
 
-        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
         cls.contributor_questions = baker.make(Question, _quantity=10,
                 questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))
@@ -108,7 +108,7 @@ class TestAnonymizeCommand(TestCase):
         for question in chain(self.contributor_questions, self.general_questions):
             choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
             for answer in choices:
-                count = random.randint(10, 100)
+                count = random.randint(10, 100)  # nosec
                 baker.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer)
                 answers_per_question[question] += count
 
@@ -128,7 +128,7 @@ class TestAnonymizeCommand(TestCase):
         choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
         random.seed(0)
         for answer in choices:
-            count = random.randint(50, 100)
+            count = random.randint(50, 100)  # nosec
             baker.make(RatingAnswerCounter, question=question, contribution=single_result.general_contribution, count=count, answer=answer)
             answer_count_before += count
 

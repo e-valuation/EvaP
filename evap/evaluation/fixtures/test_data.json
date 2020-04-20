@@ -207,7 +207,7 @@
     "public_name_de": "\u00dcbungsleiter/in",
     "public_name_en": "Exercise supervisor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
-    "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
+    "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
     "visibility": 2
   }
@@ -241,7 +241,7 @@
     "public_name_de": "Seminarleiter/in",
     "public_name_en": "Seminar lecturer",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
-    "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
+    "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
     "visibility": 0
   }
@@ -275,7 +275,7 @@
     "public_name_de": "Projektbetreuer/in",
     "public_name_en": "Project's supervisor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
-    "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
+    "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
     "visibility": 2
   }
@@ -309,7 +309,7 @@
     "public_name_de": "Tutor/in",
     "public_name_en": "Tutor",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
-    "teaser_en": "Please select \"no answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
+    "teaser_en": "Please select \"No answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
     "visibility": 0
   }
@@ -564,7 +564,7 @@
     "public_name_de": "Seminarleiter/in",
     "public_name_en": "Seminar lecturer",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
-    "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
+    "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
     "visibility": 2
   }
@@ -581,7 +581,7 @@
     "public_name_de": "Coach",
     "public_name_en": "Coach",
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
-    "teaser_en": "Please select \"no answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
+    "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
     "visibility": 2
   }
@@ -107524,8 +107524,8 @@
     "order": 1,
     "question_de": "Was ist EvaP?",
     "question_en": "What is EvaP?",
-    "answer_de": "EvaP ist eine Evaluierungsplattform f\u00fcr Lehrveranstaltungen an Universit\u00e4ten.<br />Entwickelt wurde sie urspr\u00fcnglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universit\u00e4t Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/fsr-de/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ \u2013 eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung \u2013 im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufw\u00e4ndig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
-    "answer_en": "EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/fsr-de/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ \u2013 a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
+    "answer_de": "EvaP ist eine Evaluierungsplattform f\u00fcr Lehrveranstaltungen an Universit\u00e4ten.<br />Entwickelt wurde sie urspr\u00fcnglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universit\u00e4t Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ \u2013 eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung \u2013 im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufw\u00e4ndig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
+    "answer_en": "EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ \u2013 a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
   }
 },
 {
@@ -107621,7 +107621,7 @@
     "question_de": "Welche Arten von Fragen gibt es?",
     "question_en": "What types of questions are asked?",
     "answer_de": "Grunds\u00e4tzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer f\u00fcnfstufigen Skala ermitteln. Es ist auch m\u00f6glich, mit \u201ekeine Angabe\u201c zu stimmen.</li><li>Textfragen, auf die man in einem Textfeld antworten kann.</li></ul>",
-    "answer_en": "There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"no answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
+    "answer_en": "There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"No answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
   }
 },
 {
@@ -107681,7 +107681,7 @@
     "question_de": "Warum sind manche Noten nicht sichtbar?",
     "question_en": "Why are not all grades visible?",
     "answer_de": "Um zumindest eine grundlegende Aussagekraft zu haben, werden Noten erst dann angezeigt, wenn 20% der Teilnehmer der Lehrveranstaltung \u2013 mindestens aber zwei Teilnehmer \u2013 die entsprechende Frage beantwortet haben (\u201ekeine Angabe\u201c z\u00e4hlt dabei nicht als Stimme). Eine Gesamtnote wird ebenfalls erst ab dieser Grenze angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen unabh\u00e4ngig von der Grenze alle Noten sehen, die sie selbst betreffen. Der Verantwortliche einer Lehrveranstaltung kann alle Noten einsehen.",
-    "answer_en": "To get at least a basic significance, grades are only shown when at least 20% of the participants of a course \u2013 and not less than two participants \u2013 answered the related question (\"no answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
+    "answer_en": "To get at least a basic significance, grades are only shown when at least 20% of the participants of a course \u2013 and not less than two participants \u2013 answered the related question (\"No answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
   }
 },
 {

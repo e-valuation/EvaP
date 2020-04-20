@@ -23,13 +23,13 @@ class TestEvaluations(WebTest):
 
         with patch('evap.evaluation.models.evaluation.EmailTemplate') as mock:
             mock.EVALUATION_STARTED = EmailTemplate.EVALUATION_STARTED
-            mock.ALL_PARTICIPANTS = EmailTemplate.ALL_PARTICIPANTS
+            mock.Recipients.ALL_PARTICIPANTS = EmailTemplate.Recipients.ALL_PARTICIPANTS
             mock.objects.get.return_value = mock
             Evaluation.update_evaluations()
 
         self.assertEqual(mock.objects.get.call_args_list[0][1]['name'], EmailTemplate.EVALUATION_STARTED)
         mock.send_to_users_in_evaluations.assert_called_once_with(
-            [evaluation], [EmailTemplate.ALL_PARTICIPANTS], use_cc=False, request=None
+            [evaluation], [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=None
         )
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
@@ -136,7 +136,7 @@ class TestEvaluations(WebTest):
 
         editor_contribution = baker.make(
                 Contribution, evaluation=evaluation, contributor=baker.make(UserProfile),
-                can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
@@ -165,7 +165,7 @@ class TestEvaluations(WebTest):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, is_single_result=True)
         contribution = baker.make(Contribution,
-            evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
+            evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -189,7 +189,7 @@ class TestEvaluations(WebTest):
         responsible = baker.make(UserProfile)
         single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = baker.make(Contribution,
-            evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS,
+            evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             questionnaires=[Questionnaire.single_result_questionnaire()]
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
@@ -202,7 +202,7 @@ class TestEvaluations(WebTest):
         student2 = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
         evaluation.save()
-        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
@@ -216,7 +216,7 @@ class TestEvaluations(WebTest):
     def test_textanswers_get_deleted_if_they_cannot_be_published(self):
         student = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
@@ -229,7 +229,7 @@ class TestEvaluations(WebTest):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
         baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution)
@@ -242,12 +242,12 @@ class TestEvaluations(WebTest):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="hidden", state=TextAnswer.HIDDEN)
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published", state=TextAnswer.PUBLISHED)
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="private", state=TextAnswer.PRIVATE)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="hidden", state=TextAnswer.State.HIDDEN)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published", state=TextAnswer.State.PUBLISHED)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="private", state=TextAnswer.State.PRIVATE)
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
         evaluation.publish()
@@ -258,10 +258,10 @@ class TestEvaluations(WebTest):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.PUBLISHED)
+        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.State.PUBLISHED)
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         self.assertFalse(TextAnswer.objects.get().original_answer is None)
@@ -482,7 +482,7 @@ class ParticipationArchivingTests(TestCase):
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         evaluation.course.semester.archive_participations()
@@ -499,7 +499,7 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.evaluation = baker.make(Evaluation)
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
         cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
 
@@ -508,7 +508,7 @@ class TestLoginUrlEmail(TestCase):
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], EmailTemplate.CONTRIBUTORS, use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], EmailTemplate.Recipients.CONTRIBUTORS, use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -517,7 +517,7 @@ class TestLoginUrlEmail(TestCase):
 
     def test_no_login_url_when_cc_users_in_cc(self):
         self.user.cc_users.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -526,28 +526,97 @@ class TestLoginUrlEmail(TestCase):
 
     def test_login_url_when_nobody_in_cc(self):
         # message is not sent to others in cc
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.CONTRIBUTORS], use_cc=False, request=None)
+        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=False, request=None)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
 
+@override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class TestEmailTemplate(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(UserProfile, email='user@example.com')
+        cls.additional_cc = baker.make(UserProfile, email='additional@example.com')
+        cls.template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
+
     @staticmethod
     def test_missing_email_address():
         """
         Tests send_to_user when the user has no email address.
-        Regression test to https://github.com/fsr-de/EvaP/issues/825
+        Regression test to https://github.com/e-valuation/EvaP/issues/825
         """
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         template.send_to_user(user, {}, {}, False, None)
+
+    def test_put_delegates_in_cc(self):
+        delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
+        delegate_b = baker.make(UserProfile, email='delegate-b@example.com')
+        self.user.delegates.add(delegate_a, delegate_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {delegate_a.email, delegate_b.email})
+
+    def test_put_cc_users_in_cc(self):
+        cc_a = baker.make(UserProfile, email='cc-a@example.com')
+        cc_b = baker.make(UserProfile, email='cc-b@example.com')
+        self.user.cc_users.add(cc_a, cc_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {cc_a.email, cc_b.email})
+
+    def test_put_additional_cc_users_in_cc(self):
+        additional_cc_b = baker.make(UserProfile, email='additional-b@example.com')
+        self.template.send_to_user(self.user, {}, {}, use_cc=True,
+                                   additional_cc_users=[self.additional_cc, additional_cc_b])
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, additional_cc_b.email})
+
+    def test_put_delegates_of_additional_cc_user_in_cc(self):
+        additional_delegate_a = baker.make(UserProfile, email='additional-delegate-a@example.com')
+        additional_delegate_b = baker.make(UserProfile, email='additional-delegate-b@example.com')
+        self.additional_cc.delegates.add(additional_delegate_a, additional_delegate_b)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc),
+            {self.additional_cc.email, additional_delegate_a.email, additional_delegate_b.email})
+
+    def test_cc_does_not_contain_duplicates(self):
+        user_a = baker.make(UserProfile, email='a@example.com')
+        user_b = baker.make(UserProfile, email='b@example.com')
+        user_c = baker.make(UserProfile, email='c@example.com')
+        self.user.delegates.add(user_a)
+        self.user.cc_users.add(self.additional_cc, user_b)
+        self.additional_cc.delegates.add(user_b, user_c)
+        self.additional_cc.cc_users.add(user_a, user_c)
+        self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox[0].cc), 4)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, user_a.email, user_b.email, user_c.email})
+
+    def test_disable_cc(self):
+        delegate = baker.make(UserProfile, email='delegate@example.com')
+        cc_user = baker.make(UserProfile, email='cc@example.com')
+        self.user.delegates.add(delegate)
+        self.user.cc_users.add(cc_user)
+        self.additional_cc.delegates.add(delegate)
+        self.additional_cc.cc_users.add(cc_user)
+        self.template.send_to_user(self.user, {}, {}, use_cc=False, additional_cc_users=[self.additional_cc])
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
 
 
 class TestEmailRecipientList(TestCase):
@@ -567,19 +636,19 @@ class TestEmailRecipientList(TestCase):
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.RESPONSIBLE], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.RESPONSIBLE], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [responsible])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.EDITORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.EDITORS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [responsible, editor])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [responsible, editor, contributor])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.ALL_PARTICIPANTS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.ALL_PARTICIPANTS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [participant1, participant2])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.DUE_PARTICIPANTS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.DUE_PARTICIPANTS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [participant2])
 
     def test_recipient_list_filtering(self):
@@ -592,21 +661,21 @@ class TestEmailRecipientList(TestCase):
         baker.make(Contribution, evaluation=evaluation, contributor=contributor2)
 
         # no-one should get filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [contributor1, contributor2])
 
         # contributor1 is in cc of contributor2 and gets filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=True)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
         self.assertCountEqual(recipient_list, [contributor2])
 
         contributor3 = baker.make(UserProfile, delegates=[contributor2])
         baker.make(Contribution, evaluation=evaluation, contributor=contributor3)
 
         # again, no-one should get filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [contributor1, contributor2, contributor3])
 
         # contributor1 is in cc of contributor2 and gets filtered.
         # contributor2 is in cc of contributor3 but is not filtered since contributor1 wouldn't get an email at all then.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.CONTRIBUTORS], filter_users_in_cc=True)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
         self.assertCountEqual(recipient_list, [contributor2, contributor3])

@@ -40,10 +40,10 @@ class ContributionFormsetTests(TestCase):
             Regression test for #593.
         """
         evaluation = baker.make(Evaluation)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
-        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS)
+        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS)
         # one hidden questionnaire that should never be shown
-        baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
+        baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
 
         # just the normal questionnaire should be shown.
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
@@ -65,6 +65,30 @@ class ContributionFormsetTests(TestCase):
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
 
+    def test_existing_contributors_are_in_queryset(self):
+        """
+            Asserts that users that should normally not be in the contributor queryset are in it when they are already set.
+            Regression test for #1414.
+        """
+        evaluation = baker.make(Evaluation)
+        non_proxy_user = baker.make(UserProfile)
+        proxy_user = baker.make(UserProfile, is_proxy_user=True)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=non_proxy_user, questionnaires=[])
+
+        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
+
+        self.assertEqual({non_proxy_user}, set(formset.forms[0].fields['contributor'].queryset))
+
+        # now a manager adds the proxy user as a contributor.
+        contribution1.contributor = proxy_user
+        contribution1.save()
+
+        InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+        formset = InlineContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation})
+
+        self.assertEqual({proxy_user, non_proxy_user}, set(formset.forms[0].fields['contributor'].queryset))
+
 
 class ContributionFormsetWebTests(WebTest):
     csrf_checks = False
@@ -79,9 +103,9 @@ class ContributionFormsetWebTests(WebTest):
         evaluation = baker.make(Evaluation, pk=1, state="prepared")
         user1 = baker.make(UserProfile)
         user2 = baker.make(UserProfile)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
+        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

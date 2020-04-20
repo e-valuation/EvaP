@@ -1,7 +1,7 @@
 {% load static %}
 {% load evaluation_filters %}
 
-<nav class="navbar navbar-dark bg-dark {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} pl-0">
+<nav class="navbar navbar-dark {% if debug %}bg-debug{% else %}bg-dark{% endif %} {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} pl-0">
     <a class="d-block {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-none{% else %}d-lg-none{% endif %}" href="/"><img class="brand-image" src="{% get_static_prefix %}images/evap.png" /></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>

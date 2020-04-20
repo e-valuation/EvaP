@@ -180,6 +180,10 @@
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
+                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
+                                data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
+                                <span class="fas fa-comment icon-red"></span>
+                            </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-yellow"></span>
@@ -195,7 +199,7 @@
                                 <span class="fas fa-chart-bar icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
+                                data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}">
                                 <span class="fas fa-chart-bar icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"

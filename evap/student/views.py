@@ -7,7 +7,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Evaluation, Course, NO_ANSWER, Semester
@@ -17,7 +17,7 @@ from evap.student.tools import question_id
 
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                textanswers_visible_to)
+                                textanswers_visible_to, normalized_distribution)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -35,13 +35,14 @@ def index(request):
         if evaluation.state == "published":
             if not evaluation.is_single_result:
                 evaluation.distribution = calculate_average_distribution(evaluation)
-                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
             else:
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
         evaluation.participates_in = request.user in evaluation.participants.all()
         evaluation.voted_for = request.user in evaluation.voters.all()
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
-    evaluations.sort(key=lambda evaluation: evaluation.full_name)  # evaluations must be sorted for regrouping them in the template
+    evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
     semesters = Semester.objects.all()
     semester_list = [dict(

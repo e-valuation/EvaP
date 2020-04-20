@@ -9,7 +9,7 @@ class DataGrid {
         });
         this.container = container;
         this.searchInput = searchInput;
-        this.rows = this.fetchRowData();
+        this.rows = this.fetchRows();
         this.restoreStateFromStorage();
         this.bindEvents();
     }
@@ -39,27 +39,42 @@ class DataGrid {
         }
     }
 
-    fetchRowData() {
-        return this.container.children().get()
-            .map(row => {
-                const searchWords = this.findSearchableCells($(row))
-                    .flatMap(element => this.searchWordsOf($(element).text()));
-                let orderValues = new Map();
-                for (const column of this.sortableHeaders.keys()) {
-                    const cell = $(row).find(`[data-col=${column}]`);
-                    if (cell.is("[data-order]")) {
-                        orderValues.set(column, cell.data("order"));
-                    } else {
-                        orderValues.set(column, cell.html().trim());
-                    }
-                }
-                return {
-                    element: row,
-                    searchWords,
-                    filterValues: this.fetchRowFilterValues(row),
-                    orderValues,
-                };
-            });
+    NUMBER_REGEX = /^[+-]?\d+([.,]\d*)?$/;
+
+    fetchRows() {
+        let rows = this.container.children().get().map(row => {
+            const searchWords = this.findSearchableCells($(row))
+                .flatMap(element => this.searchWordsOf($(element).text()));
+            return {
+                element: row,
+                searchWords,
+                filterValues: this.fetchRowFilterValues(row),
+                orderValues: this.fetchRowOrderValues(row),
+            };
+        });
+        for (const column of this.sortableHeaders.keys()) {
+            const isNumericalColumn = rows.every(row => this.NUMBER_REGEX.test(row.orderValues.get(column)));
+            if (isNumericalColumn) {
+                rows.forEach(row => {
+                    const numberString = row.orderValues.get(column).replace(",", ".");
+                    row.orderValues.set(column, parseFloat(numberString));
+                })
+            }
+        }
+        return rows;
+    }
+
+    fetchRowOrderValues(row) {
+        let orderValues = new Map();
+        for (const column of this.sortableHeaders.keys()) {
+            const cell = $(row).find(`[data-col=${column}]`);
+            if (cell.is("[data-order]")) {
+                orderValues.set(column, cell.attr("data-order"));
+            } else {
+                orderValues.set(column, cell.html().trim());
+            }
+        }
+        return orderValues;
     }
 
     searchWordsOf(string) {
@@ -232,6 +247,34 @@ export class EvaluationGrid extends TableGrid {
             const activeEvaluationState = this.state.filter.get("evaluationState")[0];
             this.filterButtons.filter(`[data-filter="${activeEvaluationState}"]`).addClass("active");
         }
+    }
+}
+
+export class QuestionnaireGrid extends TableGrid {
+    init({updateUrl, ...options}) {
+        this.updateUrl = updateUrl;
+        super.init(options);
+    }
+
+    bindEvents() {
+        super.bindEvents();
+        this.container.sortable({
+            handle: ".fa-arrows-alt-v",
+            draggable: ".sortable",
+            scrollSensitivity: 70,
+            onUpdate: event => {
+                this.reorderRow(event.oldIndex, event.newIndex);
+                const questionnaireIndices = this.rows.map((row, index) => [$(row.element).data("id"), index]);
+                $.post(this.updateUrl, Object.fromEntries(questionnaireIndices));
+            }
+        });
+    }
+
+    reorderRow(oldPosition, newPosition) {
+        const displayedRows = this.rows.map((row, index) => ({row, index}))
+            .filter(({row}) => row.isDisplayed);
+        this.rows.splice(displayedRows[oldPosition].index, 1);
+        this.rows.splice(displayedRows[newPosition].index, 0, displayedRows[oldPosition].row);
     }
 }
 

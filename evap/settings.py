@@ -94,9 +94,6 @@ ADMINS = [
 # The page URL that is used in email templates.
 PAGE_URL = "localhost:8000"
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'k9-)vh3c_dtm6bpi7j(!*s_^91v0!ekjt_#o&0i$e22tnn^-vb'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -241,7 +238,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.slogan"
+                "evap.context_processors.slogan",
+                "evap.context_processors.debug",
             ],
             'builtins': ['django.templatetags.i18n'],
         },
@@ -338,8 +336,8 @@ COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
 # the backend used for downloading attachments
-# see https://github.com/johnsensible/django-sendfile for further information
-SENDFILE_BACKEND = 'sendfile.backends.simple'
+# see https://github.com/moggers87/django-sendfile2 for further information
+SENDFILE_BACKEND = 'django_sendfile.backends.simple'
 
 
 ### Slogans
@@ -429,8 +427,10 @@ if TESTING:
 if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += ['debug_toolbar']
     MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+
     def show_toolbar(request):
         return True
+
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
         'JQUERY_URL': '',

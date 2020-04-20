@@ -32,8 +32,8 @@ class GradeUploadTest(WebTest):
         )
 
         contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
-                                  textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
-        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
+                                  textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
 
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
@@ -135,9 +135,9 @@ class GradeUploadTest(WebTest):
             voters=[self.student, self.student2]
         )
         contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(username="editor"),
-                                    can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+                                    can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
         contribution.save()
-        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
+        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
 
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 

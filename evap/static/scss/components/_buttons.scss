@@ -102,7 +102,6 @@ a:not([href]):not(.disabled) {
 
 .btn-switch-navbar {
     display: inline-flex;
-    background-color: $darker-gray;
     padding: 0.5rem 0.75rem;
 
     .btn-group {
@@ -225,5 +224,12 @@ a:not([href]):not(.disabled) {
             background-color: $color;
             color: change-color($color, $lightness: 30%);
         }
+    }
+}
+
+.btn-area {
+    margin-bottom: -0.25rem;
+    .btn {
+        margin-bottom: 0.25rem;
     }
 }

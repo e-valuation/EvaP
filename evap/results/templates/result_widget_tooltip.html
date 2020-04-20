@@ -1,13 +1,26 @@
 {% load evaluation_filters %}
 
-{% if question_result.warning %}{% trans 'Only a few participants answered this question.' %}</br></br>{% endif %}
-{% with question_result.question.is_bipolar_likert_question as is_bipolar %}
-    {% for count, name, color, value in question_result.counts|zip_choices:question_result.choices %}
-        <span class='vote-text-{{ color }} fas fa-fw-absolute
-            {% if is_bipolar and value < 0 %}fa-caret-down pole-icon
-            {% elif is_bipolar and value > 0 %}fa-caret-up pole-icon
-            {% else %}fa-square{% endif %}'></span>
-        {{ name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
-        {% if not forloop.last %}</br>{% endif %}
-    {% endfor %}
-{% endwith %}
+{% if weight_info %}
+    <p>
+        {% blocktrans with percentage=weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %}
+    </p>
+{% endif %}
+{% if question_result %}
+    {% if question_result.warning %}
+        <p>
+            {% trans 'Only a few participants answered this question.' %}
+        </p>
+    {% endif %}
+    {% with question_result.question.is_bipolar_likert_question as is_bipolar %}
+        <p>
+            {% for count, name, color, value in question_result.counts|zip_choices:question_result.choices %}
+                <span class='vote-text-{{ color }} fas fa-fw-absolute
+                    {% if is_bipolar and value < 0 %}fa-caret-down pole-icon
+                    {% elif is_bipolar and value > 0 %}fa-caret-up pole-icon
+                    {% else %}fa-square{% endif %}'></span>
+                {{ name }}: {{ count }}/{{ question_result.count_sum }} ({{ count|percentage_one_decimal:question_result.count_sum }})
+                {% if not forloop.last %}</br>{% endif %}
+            {% endfor %}
+        </p>
+    {% endwith %}
+{% endif %}
