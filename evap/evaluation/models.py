@@ -49,7 +49,7 @@ class Semester(models.Model):
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
-    is_active_semester = models.BooleanField(default=None, unique=True, blank=True, null=True, verbose_name=_("semester is active"))
+    is_active = models.BooleanField(default=None, unique=True, blank=True, null=True, verbose_name=_("semester is active"))
 
     class Meta:
         ordering = ('-created_at', 'pk')
@@ -118,7 +118,7 @@ class Semester(models.Model):
 
     @classmethod
     def active_semester(cls):
-        return cls.objects.filter(is_active_semester=True).first()
+        return cls.objects.filter(is_active=True).first()
 
     @property
     def evaluations(self):

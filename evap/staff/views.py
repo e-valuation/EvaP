@@ -408,9 +408,9 @@ def semester_make_active(request):
     semester_id = request.POST.get("semester_id")
     semester = get_object_or_404(Semester, id=semester_id)
 
-    Semester.objects.update(is_active_semester=None)
+    Semester.objects.update(is_active=None)
 
-    semester.is_active_semester = True
+    semester.is_active = True
     semester.save()
 
     return HttpResponse()

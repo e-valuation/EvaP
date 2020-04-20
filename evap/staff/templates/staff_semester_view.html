@@ -14,7 +14,7 @@
             <button
                 onClick="makeActiveSemesterModalShow({{ semester.id }})" class="btn btn-sm btn-light"
                 id="makeActiveSemesterButton" type="button"
-                {% if semester.is_active_semester %}
+                {% if semester.is_active %}
                     disabled
                     data-toggle="tooltip" data-placement="top"
                     title="{% blocktrans %}This is the active semester{% endblocktrans %}"

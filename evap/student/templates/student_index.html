@@ -32,7 +32,7 @@
 
     {% for semester in semester_list %}
         {% if semester.evaluations %}
-            <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.is_active_semester %} card-outline-primary{% endif %}">
+            <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.is_active %} card-outline-primary{% endif %}">
                 <div class="card-header">
                     {{ semester.semester_name }}
                 </div>
