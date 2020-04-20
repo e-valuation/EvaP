@@ -1282,6 +1282,11 @@ class TestSingleResultCreateView(WebTest):
         cls.manager_user = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
 
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user='manager', status=200)
+        form = response.context['form']
+        self.assertEqual(form['course'].initial, self.course.pk)
+
     def test_single_result_create(self):
         """
             Tests the single result creation view with one valid and one invalid input dataset.
@@ -1313,6 +1318,11 @@ class TestEvaluationCreateView(WebTest):
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
         cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user='manager', status=200)
+        form = response.context['evaluation_form']
+        self.assertEqual(form['course'].initial, self.course.pk)
 
     def test_evaluation_create(self):
         """
