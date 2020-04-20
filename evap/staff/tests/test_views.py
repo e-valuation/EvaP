@@ -148,7 +148,7 @@ class TestUserEditView(WebTest):
         self.assertTrue(UserProfile.objects.filter(username='lfo9e7bmxp1xi').exists())
 
     def test_reward_points_granting_message(self):
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, course__semester__is_active_semester=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
         student = baker.make(UserProfile, email="foo@institution.example.com",
