@@ -19,12 +19,19 @@ logger = logging.getLogger(__name__)
 
 
 def redirect_user_to_start_page(user):
+    # pylint: disable=too-many-return-statements
+    active_semester = Semester.active_semester()
+
     if user.is_reviewer:
-        return redirect('staff:semester_view', Semester.active_semester().id)
-    if user.is_manager:
+        if active_semester is not None:
+            return redirect('staff:semester_view', active_semester.id)
         return redirect('staff:index')
+
     if user.is_grade_publisher:
-        return redirect('grades:semester_view', Semester.active_semester().id)
+        if active_semester is not None:
+            return redirect('grades:semester_view', active_semester.id)
+        return redirect('grades:index')
+
     if user.is_student:
         return redirect('student:index')
     if user.is_responsible_or_contributor_or_delegate:
