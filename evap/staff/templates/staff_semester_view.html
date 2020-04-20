@@ -132,15 +132,9 @@
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
-                        <div class="btn-group" role="group">
-                            <button type="button" id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</button>
-                            <div class="dropdown-menu" aria-labelledby="btnAdd">
-                                <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}"><span class="fas fa-fw fa-chalkboard-teacher"></span> {% trans 'Create course' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:evaluation_create' semester.id %}"><span class="fas fa-fw fa-clipboard-check"></span> {% trans 'Create evaluation' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}"><span class="fas fa-fw fa-poll"></span> {% trans 'Create single result' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}"><span class="fas fa-fw fa-file-import"></span> {% trans 'Import courses and evaluations' %}</a>
-                            </div>
-                        </div>
+                        <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
+                            {% trans 'Import' %}
+                        </a>
                     {% endif %}
                     <div class="btn-group ml-2" role="group">
                         <button type="button" id="btnExport" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</button>
@@ -158,6 +152,24 @@
         </div>
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
+                <div class="row align-items-center mb-3">
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                            {% trans 'Create evaluation' %}
+                        </a>
+                        <a class="btn btn-sm btn-dark ml-2" href="{% url 'staff:single_result_create' semester.id %}">
+                            {% trans 'Create single result' %}
+                        </a>
+                    </div>
+                    <div class="col-3 input-group">
+                        <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
+                        <div class="input-group-append">
+                            <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                                <span class="fas fa-backspace"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="btn-switch mb-2" id="evaluation-filter-buttons">
                     <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
                     <div>
@@ -221,14 +233,6 @@
                                 <span class="fas fa-chart-bar icon-green"></span>
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div class="input-group ml-auto mb-3 w-25">
-                    <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
-                    <div class="input-group-append">
-                        <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
-                            <span class="fas fa-backspace"></span>
-                        </button>
                     </div>
                 </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
@@ -315,12 +319,19 @@
                 </form>
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
-                <div class="input-group ml-auto mb-3 w-25">
-                    <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
-                    <div class="input-group-append">
-                        <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
-                            <span class="fas fa-backspace"></span>
-                        </button>
+                <div class="row align-items-center mb-3">
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
+                            {% trans 'Create course' %}
+                        </a>
+                    </div>
+                    <div class="col-3 input-group">
+                        <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
+                        <div class="input-group-append">
+                            <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                                <span class="fas fa-backspace"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
