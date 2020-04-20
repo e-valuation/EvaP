@@ -4,9 +4,10 @@ import logging
 import operator
 import random
 import secrets
+import threading
 import uuid
 from collections import defaultdict, namedtuple
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -81,7 +82,6 @@ class LogEntry(models.Model):
         if self.action_type not in ("changed", "created", "deleted"): 
             return self.action_type +": " + self.data
 
-        message = None
         field_data = json.loads(self.data)
 
         if self.action_type == 'changed':
@@ -89,12 +89,20 @@ class LogEntry(models.Model):
         elif self.action_type == 'created':
             message = _("The {cls} {obj} was created.")
         elif self.action_type == 'deleted':
-            message = _("A {cls} was deleted.").format(
-                    cls=ContentType.objects.get_for_id(field_data.pop('_content_type')).model_class(),
-            )
+            message = _("A {cls} was deleted.")
+        
+        if self.action_type == 'deleted':
+            cls = ContentType.objects.get_for_id(field_data.pop('_content_type')).model_class()._meta.verbose_name_raw
+        elif self.content_object:
+            cls = type(self.content_object)._meta.verbose_name_raw
+        else:
+            cls = "object"
 
         return render_to_string("log/changed_fields_entry.html", {
-            'message': message.format(cls=str(type(self.content_object)), obj=str(self.content_object)),
+            'message': message.format(
+                cls=cls,
+                obj=f"\"{self.content_object!s}\"" if self.content_object else "",
+            ),
             'fields': self._evaluation_log_template_context(field_data),
         })
 
@@ -102,7 +110,7 @@ class LogEntry(models.Model):
 def log_serialize(obj):
     if obj is None:
         return ""
-    if type(obj) in (datetime.date, datetime.time, datetime.datetime):
+    if type(obj) in (date, time, datetime):
         return localize(obj)
     return str(obj)
 
@@ -110,6 +118,7 @@ def log_serialize(obj):
 FIELD_BLACKLIST = {'id'}
 
 class LoggedModel(models.Model):
+    thread = threading.local()
     class Meta:
         abstract = True
 
@@ -182,7 +191,7 @@ class LoggedModel(models.Model):
         return changes
 
 
-    def update_log(self, user=None, delete=False):
+    def update_log(self, delete=False):
         data = json.dumps(self.changes, default=log_serialize)
         if not self._logentry:
             if delete:
@@ -192,6 +201,12 @@ class LoggedModel(models.Model):
                 action = 'created'
             else:
                 action = 'changed'
+
+            try:
+                user = self.thread.request.user
+            except AttributeError:
+                user = None
+
             self._logentry = LogEntry(content_object=self, attached_to_object=self.object_to_attach_logentries_to, user=user, action_type=action, data=data)
             # when importing test_data, I think looking up self.evaluation on contributions fails due to the way fixtures are imported in bulk....
         else:
@@ -199,15 +214,11 @@ class LoggedModel(models.Model):
         self._logentry.save()
 
     def save(self, *args, **kw):
-        request = kw.pop('request', getattr(self, '_request', None))
-        user = request and request.user or self._logentry and self._logentry.user or None
         super().save(*args, **kw)
-        self.update_log(user=user)
+        self.update_log()
 
     def delete(self, *args, **kw):
-        request = kw.pop('request', getattr(self, '_request', None))
-        user = request and request.user or self._logentry and self._logentry.user or None
-        self.update_log(user=user, delete=True)
+        self.update_log(delete=True)
         super().delete(*args, **kw)
 
     def all_logentries(self):

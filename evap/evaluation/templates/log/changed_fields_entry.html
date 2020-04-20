@@ -8,21 +8,26 @@
         {% for action in actions %}
             <li>
                 {% if action.type == "add" %}
-                {{ action.label}} {% trans "added" %}: {{ action.items|join:", " }}
+                    {{ action.label}} {% trans "added" %}: {{ action.items|join:", " }}
                 {% elif action.type == "remove" %}
-                {{ action.label}} {% trans "removed" %}: {{ action.items|join:", " }}
+                    {{ action.label}} {% trans "removed" %}: {{ action.items|join:", " }}
                 {% elif action.type == "clear" %}
-                {{ action.label}} {% trans "cleared" %}
+                    {{ action.label}} {% trans "cleared" %}
                 {% elif action.type == "delete" %}
-                {{ action.label}} {% trans "was" %}: {{ action.items|join:", " }}
+                    {% if action.items|length > 1 %}
+                        {{ action.label}} {% trans "were" %}:
+                    {% else %}
+                        {{ action.label}} {% trans "was" %}:
+                    {% endif %}
+                    {{ action.items|join:", " }}
                 {% elif action.type == "change" %}
                     {% if action.items.0 %}
-                    {{ action.label}} {% trans "changed" %}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
+                        {{ action.label}} {% trans "changed" %}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
                     {% else %}
-                    {{ action.label}} {% trans "set" %}: {{ action.items.1 }}
+                        {{ action.label}} {% trans "set" %}: {{ action.items.1 }}
                     {% endif %}
                 {% else %}
-                {{ action.label}} {% trans "modified" %}: {{ action.items|join:", " }}
+                    {{ action.label}} {% trans "modified" %}: {{ action.items|join:", " }}
                 {% endif %}
             </li>
         {% endfor %}
