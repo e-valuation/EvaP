@@ -327,18 +327,18 @@
                     <tbody>
                         {% for course in courses %}
                             <tr id="course-row-{{ course.id }}">
-                                <td style="width: 40%" data-col="name" data-order="{{ course.name }}">
+                                <td style="width: 40%" data-col="name" data-order="{{ course.name|lower }}">
                                     <div>
                                         <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
                                     </div>
                                     {% include 'course_badges.html' %}
                                 </td>
-                                <td style="width: 40%;" data-col="responsible">
+                                <td style="width: 40%;" data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     <div class="font-italic">
                                         {{ course.responsibles_names }}
                                     </div>
                                 </td>
-                                <td style="width: 10%;" data-col="evaluation-count">
+                                <td style="width: 10%;" data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
                                     {% if course.evaluations.count == 0 %}
                                         <span class="badge badge-warning">{% trans 'No evaluations' %}</span>
                                     {% else %}
