@@ -21,7 +21,7 @@ class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):
         evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now())
 
-        with patch('evap.evaluation.models.evaluation.EmailTemplate') as mock:
+        with patch('evap.evaluation.models.EmailTemplate') as mock:
             mock.EVALUATION_STARTED = EmailTemplate.EVALUATION_STARTED
             mock.Recipients.ALL_PARTICIPANTS = EmailTemplate.Recipients.ALL_PARTICIPANTS
             mock.objects.get.return_value = mock
