@@ -114,7 +114,7 @@ def log_serialize(obj):
     return str(obj)
 
 
-FIELD_BLACKLIST = {'id'}
+FIELD_BLACKLIST = {'id', 'last_modified_time', 'last_modified_user'}
 
 class LoggedModel(models.Model):
     thread = threading.local()
