@@ -36,6 +36,7 @@
                         <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                         title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}">
                         {% trans 'Export' context 'view mode' %}
+                        </a>
                     {% endif %}
                     <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
                     title="{% trans 'Shows all results available for you.' %}">
