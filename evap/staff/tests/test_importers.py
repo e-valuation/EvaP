@@ -7,6 +7,7 @@ from model_bakery import baker
 
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
 from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter, PersonImporter
+from evap.staff.tools import ImportType
 
 
 class TestUserImporter(TestCase):
@@ -260,11 +261,13 @@ class TestPersonImporter(TestCase):
     def test_import_existing_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=True, source_evaluation=self.evaluation1)
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+                                                                                  test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=False, source_evaluation=self.evaluation1)
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+                                                                                  test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
@@ -274,13 +277,15 @@ class TestPersonImporter(TestCase):
     def test_import_new_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=True, source_evaluation=self.evaluation2)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+                                                                            test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation('contributor', self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+                                                                            test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
@@ -288,11 +293,13 @@ class TestPersonImporter(TestCase):
         self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1, self.contributor2]))
 
     def test_import_existing_participant(self):
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=True, source_evaluation=self.evaluation1)
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+                                                                                  test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=False, source_evaluation=self.evaluation1)
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+                                                                                  test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
 
@@ -300,11 +307,12 @@ class TestPersonImporter(TestCase):
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)
 
     def test_import_new_participant(self):
-        success_messages, __, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=True, source_evaluation=self.evaluation2)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+                                                                            test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation('participant', self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 participants added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 

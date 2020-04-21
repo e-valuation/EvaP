@@ -24,7 +24,7 @@ from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
@@ -35,12 +35,12 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
                               EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
                               FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
-from evap.staff.tools import (bulk_delete_users, delete_import_file, delete_navbar_cache_for_users,
+from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation)
+                              save_import_file, find_next_unreviewed_evaluation, ImportType)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -439,7 +439,7 @@ def semester_import(request, semester_id):
         raise PermissionDenied
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    import_type = 'semester'
+    import_type = ImportType.Semester
 
     errors = []
     warnings = {}
@@ -452,7 +452,7 @@ def semester_import(request, semester_id):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -462,7 +462,8 @@ def semester_import(request, semester_id):
 
         elif operation == 'import':
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            excel_form.vote_dates_required = True
+            excel_form.fields['vote_start_datetime'].required = True
+            excel_form.fields['vote_end_date'].required = True
             if excel_form.is_valid():
                 vote_start_datetime = excel_form.cleaned_data['vote_start_datetime']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
@@ -494,8 +495,8 @@ def semester_export(request, semester_id):
             selection_list.append((form.cleaned_data['selected_degrees'], form.cleaned_data['selected_course_types']))
 
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+        response = FileResponse(filename, content_type="application/vnd.ms-excel")
+
         ExcelExporter().export(
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
@@ -509,8 +510,7 @@ def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
@@ -534,8 +534,7 @@ def semester_participation_export(_request, semester_id):
     participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("username")
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Username'), _('Can use reward points'), _('#Required evaluations voted for'),
@@ -965,13 +964,13 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = 'participant' if 'participants' in operation else 'contributor'
+        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
         if 'test' in operation:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -994,8 +993,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
-    participant_test_passed = import_file_exists(request.user.id, 'participant')
-    contributor_test_passed = import_file_exists(request.user.id, 'contributor')
+    participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
@@ -1010,9 +1009,7 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
     filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(evaluation=evaluation, semester=semester)
-
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Last name'), _('First name'), _('Email'), _('Login key')])
@@ -1470,7 +1467,7 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    import_type = 'user'
+    import_type = ImportType.User
 
     errors = []
     warnings = {}
@@ -1483,7 +1480,7 @@ def user_import(request):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -1548,23 +1545,40 @@ def user_delete(request):
 
 
 @manager_required
-def user_bulk_delete(request):
-    form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
+def user_bulk_update(request):
+    form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
+    test_run = operation == 'test'
+    import_type = ImportType.UserBulkUpdate
 
-    if form.is_valid():
-        if operation not in ('test', 'bulk_delete'):
+    if request.POST:
+        if operation not in ('test', 'bulk_update'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        test_run = operation == 'test'
-        username_file = form.cleaned_data['username_file']
-        bulk_delete_users(request, username_file, test_run)
-
         if test_run:
-            return render(request, "staff_user_bulk_delete.html", dict(form=form))
-        return redirect('staff:user_index')
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            form.fields['username_file'].required = True
+            if form.is_valid():
+                username_file = form.cleaned_data['username_file']
+                file_content = username_file.read()
+                success = False
+                try:
+                    success = bulk_update_users(request, file_content, test_run)
+                except Exception:  # pylint: disable=broad-except
+                    if settings.DEBUG:
+                        raise
+                    messages.error(request, _("An error happened when processing the file. Make sure the file meets the requirements."))
 
-    return render(request, "staff_user_bulk_delete.html", dict(form=form))
+                if success:
+                    save_import_file(username_file, request.user.id, import_type)
+        else:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            bulk_update_users(request, file_content, test_run)
+            delete_import_file(request.user.id, import_type)
+            return redirect('staff:user_index')
+
+    test_passed = import_file_exists(request.user.id, import_type)
+    return render(request, "staff_user_bulk_update.html", dict(form=form, test_passed=test_passed))
 
 
 @manager_required
@@ -1659,8 +1673,7 @@ def download_sample_xls(_request, filename):
                 if email_placeholder in value:
                     write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
 
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     write_book.save(response)
     return response
 

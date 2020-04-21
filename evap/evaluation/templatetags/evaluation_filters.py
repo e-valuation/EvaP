@@ -187,3 +187,13 @@ def hours_and_minutes(time_left_for_evaluation):
 @register.filter
 def has_nonresponsible_editor(evaluation):
     return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()
+
+
+@register.filter
+def order_by(iterable, attribute):
+    return sorted(iterable, key=lambda item: getattr(item, attribute))
+
+
+@register.filter
+def order_due_evaluations_by(due_evaluations, attribute):
+    return sorted(due_evaluations, key=lambda due_evaluation: getattr(due_evaluation[1], attribute))

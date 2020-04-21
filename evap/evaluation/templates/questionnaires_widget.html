@@ -3,7 +3,7 @@
 <ul class="list-unstyled">
     {% for choice, questionnaire in field|zip:field.field.queryset %}
         {% ifchanged questionnaire.type %}
-            {% if questionnaire.type != questionnaire.TOP and questionnaire.type != questionnaire.CONTRIBUTOR %}
+            {% if questionnaire.type == questionnaire.Type.BOTTOM %}
                 <hr class="mb-1 mt-1" />
             {% endif %}
         {% endifchanged %}
