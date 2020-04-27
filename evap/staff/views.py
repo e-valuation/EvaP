@@ -624,8 +624,8 @@ def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     courses = semester.courses.filter(
-            evaluations__state__in=['evaluated', 'reviewed', 'published'], 
-            evaluations__wait_for_grade_upload_before_publishing=True, 
+            evaluations__state__in=['evaluated', 'reviewed', 'published'],
+            evaluations__wait_for_grade_upload_before_publishing=True,
             gets_no_grade_documents=False
         ).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]

@@ -383,7 +383,7 @@ class Evaluation(models.Model):
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
 
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
-    
+
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
 
