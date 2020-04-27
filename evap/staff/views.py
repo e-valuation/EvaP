@@ -456,7 +456,7 @@ def semester_import(request, semester_id):
     excel_form = ImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.Semester
 
-    errors = []
+    errors = {}
     warnings = {}
     success_messages = []
 
@@ -491,7 +491,7 @@ def semester_import(request, semester_id):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_semester_import.html", dict(semester=semester,
-        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
         excel_form=excel_form, test_passed=test_passed))
 
 
@@ -973,8 +973,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None)
     contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None)
 
-    errors = []
-    warnings = defaultdict(list)
+    errors = {}
+    warnings = {}
     success_messages = []
 
     if request.method == "POST":
@@ -1018,7 +1018,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
-        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
 
 
@@ -1499,7 +1499,7 @@ def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
     import_type = ImportType.User
 
-    errors = []
+    errors = {}
     warnings = {}
     success_messages = []
 
@@ -1528,7 +1528,7 @@ def user_import(request):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_user_import.html", dict(excel_form=excel_form,
-        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
         test_passed=test_passed))
 
 

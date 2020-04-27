@@ -7,13 +7,27 @@
     </div>
 {% endfor %}
 
-{% for error in errors %}
-    <div class="alert alert-danger alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-            <span class="fas fa-times"></span>
-        </button>
-        {{ error }}
-    </div>
+{% for key, errorlist in errors.items %}
+      <div class="card collapsible card-outline-danger mb-3">
+          <div class="card-header">
+              <a class="collapse-toggle" data-toggle="collapse" href="#{{ key.value }}Card" aria-expanded="false"
+                  aria-controls="{{ key.value }}Card">
+                  {{ key.label }}
+              </a>
+          </div>
+          <div class="collapse show" id="{{ key.value }}Card">
+              <div class="card-body">
+                  {% for error in errorlist %}
+                      <div class="alert alert-danger alert-dismissable">
+                          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                              <span class="fas fa-times"></span>
+                          </button>
+                          {{ error }}
+                      </div>
+                  {% endfor %}
+              </div>
+          </div>
+      </div>
 {% endfor %}
 
 {% for key, warninglist in warnings.items %}

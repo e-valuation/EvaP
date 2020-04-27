@@ -5,7 +5,7 @@ from django.conf import settings
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
-from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterWarning
+from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterError, ImporterWarning
 from evap.staff.tools import ImportType
 
 
@@ -54,7 +54,7 @@ class TestUserImporter(TestCase):
         self.assertIn('Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)', success_messages)
         self.assertIn('Successfully read Excel file.', success_messages)
         self.assertEqual(warnings, {})
-        self.assertEqual(errors, [])
+        self.assertEqual(errors, {})
 
         self.assertEqual(len(user_list), 2)
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
@@ -89,8 +89,8 @@ class TestUserImporter(TestCase):
         __, __, __, errors_no_test = UserImporter.process(self.random_excel_content, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
-        self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
-                " Expected BOF record; found b'42\\n'", errors_test)
+        self.assertEqual(errors_test[ImporterError.SCHEMA], [
+            "Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"])
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
@@ -100,8 +100,9 @@ class TestUserImporter(TestCase):
         __, __, __, errors_no_test = UserImporter.process(self.invalid_excel_content, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
-        self.assertIn('Sheet "Sheet1", row 2: Email address is missing.', errors_test)
-        self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
+        self.assertEqual(errors_test[ImporterError.USER], ['Sheet "Sheet1", row 2: Email address is missing.'])
+        self.assertEqual(errors_test[ImporterError.GENERAL], [
+            'Errors occurred while parsing the input data. No data was imported.'])
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
@@ -142,7 +143,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
-        self.assertEqual(errors, [])
+        self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
         old_user_count = UserProfile.objects.all().count()
@@ -150,7 +151,7 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
-        self.assertEqual(errors, [])
+        self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
         self.assertEqual(Evaluation.objects.all().count(), 23)
@@ -163,7 +164,7 @@ class TestEnrollmentImporter(TestCase):
 
         success_messages, warnings_test, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
-        self.assertEqual(errors, [])
+        self.assertEqual(errors, {})
         self.assertEqual(warnings_test[ImporterWarning.DEGREE], [
             'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. '
             'Both degrees have been set for the course.'])
@@ -171,7 +172,7 @@ class TestEnrollmentImporter(TestCase):
 
         success_messages, warnings_no_test, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages))
-        self.assertEqual(errors, [])
+        self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
 
         self.assertEqual(Course.objects.all().count(), 1)
@@ -207,8 +208,8 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
-        self.assertIn("Couldn't read the file. Error: Unsupported format, or corrupt file:"
-                " Expected BOF record; found b'42\\n'", errors_test)
+        self.assertEqual(errors_test[ImporterError.SCHEMA], [
+            "Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"])
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
@@ -221,12 +222,16 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
-        self.assertIn('Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 7: Email address is missing.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 10: Email address is missing.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.', errors_test)
-        self.assertIn('Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.', errors_test)
-        self.assertIn('Errors occurred while parsing the input data. No data was imported.', errors_test)
+        self.assertCountEqual(errors_test[ImporterError.USER], {
+            'Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) differs from it\'s data in a previous row.',
+            'Sheet "MA Belegungen", row 7: Email address is missing.',
+            'Sheet "MA Belegungen", row 10: Email address is missing.'})
+        self.assertCountEqual(errors_test[ImporterError.COURSE], {
+            'Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.',
+            'Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.'})
+        self.assertEqual(errors_test[ImporterError.GENERAL], [
+            'Errors occurred while parsing the input data. No data was imported.'])
+        self.assertEqual(len(errors_test), 3)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
@@ -239,8 +244,9 @@ class TestEnrollmentImporter(TestCase):
 
         __, __, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
 
-        self.assertIn("Course Stehlen does already exist in this semester.", errors)
-        self.assertIn("Course Shine does already exist in this semester.", errors)
+        self.assertCountEqual(errors[ImporterError.COURSE], {
+            "Course Stehlen does already exist in this semester.",
+            "Course Shine does already exist in this semester."})
 
 
 class TestPersonImporter(TestCase):
