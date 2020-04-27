@@ -20,7 +20,7 @@ from django.core.mail import EmailMessage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Manager, Q
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_init
 from django.dispatch import Signal, receiver
 from django.forms.models import model_to_dict
 from django.template import Context, Template
@@ -130,6 +130,16 @@ class LoggedModel(models.Model):
         for field in type(self)._meta.many_to_many:
             self.register_logged_m2m_field(field)
 
+"""
+# I get infinite recursion running the tests :/                     TODO
+        post_init.connect(LoggedModel.post_init)
+
+    @staticmethod
+    def post_init(sender, instance, **kwargs):
+        if sender == LoggedModel:
+            instance._initial = instance._dict
+"""
+
     def register_logged_m2m_field(self, field):
         through = getattr(type(self), field.name).through  # converting from field to its descriptor
         m2m_changed.connect(
@@ -189,13 +199,14 @@ class LoggedModel(models.Model):
         })
         return changes
 
-
     def update_log(self, delete=False):
-        data = json.dumps(self.changes, default=log_serialize)
+        if delete:
+            data = json.dumps(self.deletion_data, default=log_serialize)
+        else:
+            data = json.dumps(self.changes, default=log_serialize)
         if not self._logentry:
             if delete:
                 action = 'deleted'
-                data = json.dumps(self.deletion_data, default=log_serialize)
             elif 'id' not in self._initial or not self._initial['id']:
                 action = 'created'
             else:

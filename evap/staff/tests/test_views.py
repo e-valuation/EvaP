@@ -101,7 +101,7 @@ class TestUserIndexView(WebTest):
         evaluation = baker.make(Evaluation, state="published", course=baker.make(Course, semester=semester), _participant_count=1, _voter_count=1)
         baker.make(UserProfile, _quantity=num_users, evaluations_participating_in=[evaluation])
 
-        with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
+        with self.assertNumQueries(FuzzyInt(0, 3 * num_users)):
             self.app.get(self.url, user="manager")
 
 
