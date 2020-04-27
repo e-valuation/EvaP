@@ -31,14 +31,32 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="import" type="button" onclick="importSemesterModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>
     </form>
+{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+    {% trans 'Import semester data' as title %}
+    {% trans 'Do you really want to import semester data from the Excel file?' as question %}
+    {% trans 'Import semester data' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='importSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function importSemesterModalAction(dataId) {
+            var input = $("<input>")
+               .attr("type", "hidden")
+               .attr("name", "operation").val(dataId);
+            $('#semester-import-form').append(input);
+            $('#semester-import-form').submit();   
+        };
+    </script>
+
 {% endblock %}
 
 {% block additional_javascript %}
