@@ -31,6 +31,18 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
 
+class EmailAuthenticationBackend(ModelBackend):
+    def authenticate(self, request, email=None, password=None):
+        try:
+            user = UserProfile.objects.get(email=email)
+        except UserProfile.DoesNotExist:
+            return None
+        else:
+            if user.check_password(password):
+                return user
+        return None
+
+
 def user_passes_test(test_func):
     """
     Decorator for views that checks whether users are authenticated
