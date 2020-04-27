@@ -1254,11 +1254,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     @property
-    def full_name_with_username(self):
+    def full_name_with_additional_info(self):
         name = self.full_name
-        if self.username not in name:
-            name += " (" + self.username + ")"
-        return name
+        if self.is_external:
+            return name + " [ext.]"
+        if '@' in self.email:
+            return name + " (" + self.email.split('@')[0] + ")"
+        return name + " (" + self.email + ")"
 
     def __str__(self):
         return self.full_name

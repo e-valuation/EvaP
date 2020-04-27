@@ -6,11 +6,11 @@ from django.views.decorators.debug import sensitive_variables
 from evap.evaluation.models import UserProfile
 
 
-class LoginUsernameForm(forms.Form):
-    """Form encapsulating the login with username and password, for example from an Active Directory.
+class LoginEmailForm(forms.Form):
+    """Form encapsulating the login with email and password, for example from an Active Directory.
     """
 
-    username = forms.CharField(label=_("Username"), max_length=254)
+    email = forms.CharField(label=_("Email"), max_length=254)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
     def __init__(self, request, *args, **kwargs):
@@ -26,15 +26,15 @@ class LoginUsernameForm(forms.Form):
 
     @sensitive_variables('password')
     def clean_password(self):
-        username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
 
-        username = username.lower()
+        email = email.lower()
 
-        if username and password:
-            self.user_cache = authenticate(username=username, password=password)
+        if email and password:
+            self.user_cache = authenticate(email=email, password=password)
             if self.user_cache is None:
-                raise forms.ValidationError(_("Please enter a correct username and password."))
+                raise forms.ValidationError(_("Please enter a correct email and password."))
         self.check_for_test_cookie()
         return password
 
@@ -82,9 +82,9 @@ class NewKeyForm(forms.Form):
 
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.full_name_with_username
+        return obj.full_name_with_additional_info
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return obj.full_name_with_username
+        return obj.full_name_with_additional_info

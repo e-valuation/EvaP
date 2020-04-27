@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import NewKeyForm, LoginUsernameForm
+from evap.evaluation.forms import NewKeyForm, LoginEmailForm
 from evap.evaluation.models import FaqSection, EmailTemplate, Semester
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def index(request):
     # parse the form data into the respective form
     submit_type = request.POST.get("submit_type", "no_submit")
     new_key_form = NewKeyForm(request.POST if submit_type == "new_key" else None)
-    login_username_form = LoginUsernameForm(request, request.POST if submit_type == "login_username" else None)
+    login_email_form = LoginEmailForm(request, request.POST if submit_type == "login_email" else None)
 
     # process form data
     if request.method == 'POST':
@@ -66,9 +66,9 @@ def index(request):
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
             return redirect('evaluation:index')
 
-        if login_username_form.is_valid():
+        if login_email_form.is_valid():
             # user would like to login with username and password and passed password test
-            auth.login(request, login_username_form.get_user())
+            auth.login(request, login_email_form.get_user())
 
             # clean up our test cookie
             if request.session.test_cookie_worked():
@@ -81,7 +81,7 @@ def index(request):
 
         template_data = dict(
             new_key_form=new_key_form,
-            login_username_form=login_username_form,
+            login_email_form=login_email_form,
             openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
         )
         return render(request, "index.html", template_data)

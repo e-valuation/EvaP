@@ -253,6 +253,7 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
     'evap.evaluation.auth.OpenIDAuthenticationBackend',
+    'evap.evaluation.auth.EmailAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

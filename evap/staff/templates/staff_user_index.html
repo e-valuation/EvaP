@@ -45,8 +45,8 @@
                 <thead>
                     <tr>
                         <th style="width: 25%">{% trans 'Name' %}</th>
-                        <th style="width: 25%">{% trans 'Username' %}</th>
-                        <th style="width: 40%">{% trans 'Information' %}</th>
+                        <th style="width: 35%">{% trans 'Email' %}</th>
+                        <th style="width: 30%">{% trans 'Information' %}</th>
                         <th style="width: 10%">{% trans 'Actions' %}</th>
                     </tr>
                 </thead>
@@ -54,7 +54,7 @@
                 {% for user in users %}
                     <tr id="user-row-{{ user.id }}">
                         <td>{{ user.full_name }}</td>
-                        <td>{{ user.username }}</td>
+                        <td>{% if user.email %}{{ user.email }}{% endif %}</td>
                         <td>{% include 'staff_user_badges.html' with user=user %}</td>
                         <td>
                             <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>

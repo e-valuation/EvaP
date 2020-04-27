@@ -13,10 +13,10 @@ class TestIndexView(WebTest):
 
     def test_passworduser_login(self):
         """ Tests whether a user can login with an incorrect and a correct password. """
-        baker.make(UserProfile, username='password.user', password=make_password('evap'))
+        baker.make(UserProfile, email='password.user', password=make_password('evap'))
         response = self.app.get(self.url)
         password_form = response.forms[0]
-        password_form['username'] = 'password.user'
+        password_form['email'] = 'password.user'
         password_form['password'] = 'asd'
         self.assertEqual(password_form.submit().status_code, 200)
         password_form['password'] = 'evap'
