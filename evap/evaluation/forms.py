@@ -82,9 +82,9 @@ class NewKeyForm(forms.Form):
 
 class UserModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return obj.full_name_with_username
+        return obj.full_name_with_additional_info
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return obj.full_name_with_username
+        return obj.full_name_with_additional_info
