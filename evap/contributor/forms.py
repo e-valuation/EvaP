@@ -39,6 +39,10 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
+        if not self.instance.allow_editors_to_edit:
+            for field in self._meta.fields:
+                self.fields[field].disabled = True
+
     def clean(self):
         super().clean()
 
