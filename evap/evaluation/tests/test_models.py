@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
@@ -679,3 +680,9 @@ class TestEmailRecipientList(TestCase):
         # contributor2 is in cc of contributor3 but is not filtered since contributor1 wouldn't get an email at all then.
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
+
+
+class QuestionnaireTests(TestCase):
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)

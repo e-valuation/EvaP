@@ -78,4 +78,36 @@
             });
         });
     </script>
+
+    <script type="text/javascript">
+        function changeVisibility(element) {
+            const questionnaire = element.parents(".questionnaire");
+            const visibility = element.data("visibility");
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:questionnaire_visibility' %}",
+                data: {"questionnaire_id": questionnaire.data("id"), "visibility": visibility},
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
+                success: function(){
+                    questionnaire.find(`button[data-visibility]`).removeClass("active");
+                    questionnaire.find(`button[data-visibility="${visibility}"]`).addClass("active");
+                }
+            });
+        }
+
+        function changeLocked(element) {
+            const questionnaire = element.parents(".questionnaire");
+            const is_locked = element.data("is-locked");
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:questionnaire_set_locked' %}",
+                data: {"questionnaire_id": questionnaire.data("id"), "is_locked": is_locked},
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
+                success: function(){
+                    questionnaire.find(`button[data-is-locked]`).removeClass("active");
+                    questionnaire.find(`button[data-is-locked="${is_locked}"]`).addClass("active");
+                }
+            });
+        }
+    </script>
 {% endblock %}

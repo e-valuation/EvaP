@@ -472,7 +472,7 @@ class QuestionnaireForm(forms.ModelForm):
         widgets = {'order': forms.HiddenInput()}
         fields = ('type', 'name_de', 'name_en', 'description_de', 'description_en',
                   'public_name_de', 'public_name_en', 'teaser_de', 'teaser_en', 'order',
-                  'visibility')
+                  'visibility', 'is_locked')
 
     def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database

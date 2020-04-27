@@ -11,7 +11,12 @@
                     <thead>
                         <tr class="table-header">
                             <th class="movable" style="width: 3%"></th>
-                            <th style="width: 62%">{% trans 'Questionnaire' %}</th>
+                            <th style="width: 52%">{% trans 'Questionnaire' %}</th>
+                            <th style="width: 10%">
+                                {% if type != 'contributor' %}
+                                    {% trans 'Locked' %}
+                                {% endif %}
+                            </th>
                             <th style="width: 15%">{% trans 'Visibility' %}</th>
                             <th style="width: 20%">{% trans 'Actions' %}</th>
                         </tr>
@@ -25,6 +30,14 @@
                                 <br />
                                 {% blocktrans count questionnaire.questions.all.count as count %}{{ count }} question{% plural %}{{ count }} questions{% endblocktrans %},
                                 {% blocktrans count questionnaire.contributions.count as count %}used {{ count }} time{% plural %}used {{ count }} times{% endblocktrans %}
+                            </td>
+                            <td>
+                                {% if type != 'contributor' %}
+                                    <div class="btn-switch btn-group icon-buttons">
+                                        <button data-is-locked="0" type="button" onclick="changeLocked($(this));" class="btn btn-sm btn-light{% if questionnaire.is_locked == False %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Allow editors to change the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock-open" aria-hidden="true"></span></button>
+                                        <button data-is-locked="1" type="button" onclick="changeLocked($(this));" class="btn btn-sm btn-light{% if questionnaire.is_locked == True %} active{% endif %}" data-toggle="tooltip" data-placement="top" title="{% trans 'Prevent editors from changing the selection of this questionnaire' %}"><span class="fas fa-fw fa-lock" aria-hidden="true"></span></button>
+                                    </div>
+                                {% endif %}
                             </td>
                             <td>
                                 <div class="btn-group icon-buttons">
@@ -57,22 +70,3 @@
         </div>
     </div>
 {% endif %}
-
-{% block additional_javascript %}
-    <script type="text/javascript">
-        function changeVisibility(element) {
-            var id = element.parents(".questionnaire").data("id");
-            var visibility = element.data("visibility");
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:questionnaire_visibility' %}",
-                data: {"questionnaire_id": id, "visibility": visibility},
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); },
-                success: function(){
-                    $(`#questionnaire-row-${id} button[data-visibility]`).removeClass("active");
-                    $(`#questionnaire-row-${id} button[data-visibility="${visibility}"]`).addClass("active");
-                }
-            });
-        }
-    </script>
-{% endblock %}
