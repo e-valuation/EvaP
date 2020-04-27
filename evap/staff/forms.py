@@ -184,7 +184,7 @@ class EvaluationForm(forms.ModelForm):
     class Meta:
         model = Evaluation
         fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
-                  'wait_for_grade_upload_before_publishing', 'vote_start_datetime', 'vote_end_date', 
+                  'wait_for_grade_upload_before_publishing', 'vote_start_datetime', 'vote_end_date',
                   'participants', 'general_questionnaires', 'last_modified_time', 'last_modified_user_name')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
