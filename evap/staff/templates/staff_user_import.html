@@ -20,8 +20,8 @@
             <div class="card-body">
                 <p>
                     {% trans 'Upload Excel file' %}
-                    (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'download sample file' %}</a>,
-                    <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'copy headers to clipboard' %}</button>).
+                    (<a href="{% url 'staff:download_sample_xls' 'sample_user.xls' %}">{% trans 'Download sample file' %}</a>,
+                    <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all contained users.' %}
                 </p>
                 {% include 'bootstrap_form.html' with form=excel_form %}
@@ -30,10 +30,10 @@
         <div class="card card-submit-area{% if test_passed %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
                 {% if not test_passed %}
-                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                 {% else %}
                     <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import', 'users');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                    <button name="operation" value="import" type="button" onclick="importUserModalShow('import');" class="btn btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                 {% endif %}
             </div>
         </div>
@@ -43,7 +43,7 @@
 {% block modals %}
 {{ block.super }}
     {% trans 'Import Users' as title %}
-    {% blocktrans asvar question %}Do you really want to import <strong id="data-label"></strong> from the Excel file? {% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to import the users from the Excel file?{% endblocktrans %}
     {% trans 'Import Users' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importUserModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
