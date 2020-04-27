@@ -13,6 +13,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginEmailForm
+from evap.middleware import no_login_required
 from evap.evaluation.models import FaqSection, EmailTemplate, Semester
 
 logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ def redirect_user_to_start_page(user):
     return redirect('results:index')
 
 
+@no_login_required
 @sensitive_post_parameters("password")
 def index(request):
     """Main entry page into EvaP providing all the login options available. The username/password
@@ -94,6 +96,7 @@ def index(request):
     return redirect_user_to_start_page(request.user)
 
 
+@no_login_required
 def login_key_authentication(request, key):
     user = auth.authenticate(request, key=key)
 
@@ -133,10 +136,12 @@ def login_key_authentication(request, key):
     return redirect('evaluation:index')
 
 
+@no_login_required
 def faq(request):
     return render(request, "faq.html", dict(sections=FaqSection.objects.all()))
 
 
+@no_login_required
 def legal_notice(request):
     return render(request, "legal_notice.html", dict())
 
@@ -164,6 +169,7 @@ def contact(request):
     return HttpResponseBadRequest()
 
 
+@no_login_required
 @require_POST
 def set_lang(request):
     if request.user.is_authenticated:
