@@ -133,7 +133,7 @@ class UserFormTests(TestCase):
 
     def test_user_cannot_be_removed_from_evaluation_already_voted_for(self):
         student = baker.make(UserProfile)
-        baker.make(Evaluation, participants=[student], voters=[student])
+        baker.make(Evaluation, participants=[student], voters=[student], course__semester__is_active=True)
 
         form_data = get_form_data_from_instance(UserForm, student)
         form_data["evaluations_participating_in"] = []

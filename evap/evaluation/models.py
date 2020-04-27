@@ -49,6 +49,8 @@ class Semester(models.Model):
 
     created_at = models.DateField(verbose_name=_("created at"), auto_now_add=True)
 
+    is_active = models.BooleanField(default=None, unique=True, blank=True, null=True, verbose_name=_("semester is active"))
+
     class Meta:
         ordering = ('-created_at', 'pk')
         verbose_name = _("semester")
@@ -59,7 +61,13 @@ class Semester(models.Model):
 
     @property
     def can_be_deleted_by_manager(self):
-        return self.evaluations.count() == 0 or (self.participations_are_archived and self.grade_documents_are_deleted and self.results_are_archived)
+        if self.is_active:
+            return False
+
+        if self.evaluations.count() == 0:
+            return True
+
+        return self.participations_are_archived and self.grade_documents_are_deleted and self.results_are_archived
 
     @property
     def participations_can_be_archived(self):
@@ -110,11 +118,7 @@ class Semester(models.Model):
 
     @classmethod
     def active_semester(cls):
-        return cls.objects.order_by("created_at").last()
-
-    @property
-    def is_active_semester(self):
-        return self == Semester.active_semester()
+        return cls.objects.filter(is_active=True).first()
 
     @property
     def evaluations(self):

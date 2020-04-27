@@ -148,7 +148,7 @@ class TestUserEditView(WebTest):
         self.assertTrue(UserProfile.objects.filter(username='lfo9e7bmxp1xi').exists())
 
     def test_reward_points_granting_message(self):
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
         student = baker.make(UserProfile, email="foo@institution.example.com",
@@ -571,6 +571,13 @@ class TestSemesterDeleteView(WebTest):
         self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
         self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
+
+    def test_failure_if_active(self):
+        semester = baker.make(Semester, is_active=True)
+        response = self.app.post(self.url, user="manager", expect_errors=True, params={
+            "semester_id": semester.id,
+        })
+        self.assertEqual(response.status_code, 400)
 
 
 class TestSemesterAssignView(WebTest):
@@ -2241,3 +2248,26 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
         self.assertEqual(set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
         self.assertEqual(set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
+
+
+class TestSemesterActiveStateBehaviour(WebTest):
+    url = "/staff/semester/make_active"
+    csrf_checks = False
+
+    def test_make_other_semester_active(self):
+        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+
+        semester1 = baker.make(Semester, is_active=True)
+        semester2 = baker.make(Semester)
+
+        self.assertFalse(semester2.is_active)
+
+        self.app.post(self.url, user="manager", status=200, params={
+            "semester_id": semester2.id,
+        })
+
+        semester1.refresh_from_db()
+        semester2.refresh_from_db()
+
+        self.assertFalse(semester1.is_active)
+        self.assertTrue(semester2.is_active)

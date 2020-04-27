@@ -65,7 +65,7 @@ def index(request):
     semester_list = [dict(
         semester_name=semester.name,
         id=semester.id,
-        is_active_semester=semester.is_active_semester,
+        is_active=semester.is_active,
         evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
