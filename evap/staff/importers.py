@@ -1,4 +1,5 @@
 from collections import OrderedDict, defaultdict
+from enum import Enum
 import xlrd
 
 from django.conf import settings
@@ -10,6 +11,10 @@ from django.core.exceptions import ValidationError
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
 from evap.staff.tools import create_user_list_html_string_for_message, ImportType
+
+
+def sorted_messages(messages):
+    return OrderedDict(sorted(messages.items(), key=lambda item: item[0].order))
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
@@ -115,12 +120,25 @@ class EvaluationData(CommonEqualityMixin):
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
 
+class ImporterWarning(Enum):
+    def __new__(cls, value, label, order):
+        variant = object.__new__(cls)
+        variant._value_ = value
+        variant.label = label
+        variant.order = order
+        return variant
+
+    GENERAL = ('general', gettext_lazy("General warnings"), 0)
+    NAME = ('name', gettext_lazy("Name mismatches"), 1)
+    INACTIVE = ('inactive', gettext_lazy("Inactive users"), 2)
+    DUPL = ('duplicate', gettext_lazy("Possible duplicates"), 3)
+    IGNORED = ('ignored', gettext_lazy("Ignored duplicates"), 4)
+
+    DEGREE = ('degree', gettext_lazy("Degree mismatches"), 5)
+    MANY = ('too_many_enrollments', gettext_lazy("Unusually high number of enrollments"), 6)
+
+
 class ExcelImporter():
-    W_NAME = 'name'
-    W_DUPL = 'duplicate'
-    W_IGNORED = 'ignored'
-    W_GENERAL = 'general'
-    W_INACTIVE = 'inactive'
 
     def __init__(self):
         self.associations = OrderedDict()
@@ -155,7 +173,8 @@ class ExcelImporter():
                     row_function(sheet.row_values(row), sheet, row)
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
-                self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
+                self.warnings[ImporterWarning.GENERAL].append(
+                    _("A problem occured while reading sheet {}.").format(sheet.name))
                 raise
         self.success_messages.append(_("Successfully read Excel file."))
 
@@ -210,7 +229,7 @@ class ExcelImporter():
             warningstring += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
         warningstring += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("new"))
 
-        self.warnings[self.W_DUPL].append(warningstring)
+        self.warnings[ImporterWarning.DUPL].append(warningstring)
 
     def check_user_data_sanity(self, test_run):
         for user_data in self.users.values():
@@ -219,9 +238,10 @@ class ExcelImporter():
                 if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data, test_run))
+                    self.warnings[ImporterWarning.NAME].append(
+                        self._create_user_data_mismatch_warning(user, user_data, test_run))
                 if not user.is_active:
-                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user, test_run))
+                    self.warnings[ImporterWarning.INACTIVE].append(self._create_user_inactive_warning(user, test_run))
             except UserProfile.DoesNotExist:
                 pass
 
@@ -233,10 +253,6 @@ class ExcelImporter():
 
 
 class EnrollmentImporter(ExcelImporter):
-    # extension of ExcelImporter.warnings keys
-    W_DEGREE = 'degree'
-    W_MANY = 'too_many_enrollments'
-
     def __init__(self):
         super().__init__()
         # this is a dictionary to not let this become O(n^2)
@@ -260,8 +276,9 @@ class EnrollmentImporter(ExcelImporter):
                 self.names_de.add(evaluation_data.name_de)
         else:
             if evaluation_data.equals_except_for_degree_names(self.evaluations[evaluation_id]):
-                self.warnings[self.W_DEGREE].append(
-                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.')
+                self.warnings[ImporterWarning.DEGREE].append(
+                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row.'
+                      ' Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
                 )
                 self.evaluations[evaluation_id].degree_names.extend(evaluation_data.degree_names)
@@ -312,7 +329,8 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[index].append(enrollment)
         for email, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
-                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(email, len(enrollments)))
+                self.warnings[ImporterWarning.MANY].append(
+                    _("Warning: User {} has {} enrollments, which is a lot.").format(email, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_datetime, vote_end_date):
         students_created = []
@@ -408,7 +426,7 @@ class UserImporter(ExcelImporter):
                     orig_sheet=orig_sheet,
                     orig_row=orig_row + 1,
             )
-            self.warnings[self.W_IGNORED].append(warningstring)
+            self.warnings[ImporterWarning.IGNORED].append(warningstring)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -509,7 +527,7 @@ class PersonImporter:
         if already_related:
             msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
             msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(msg)
+            self.warnings[ImporterWarning.GENERAL].append(msg)
 
         if not test_run:
             evaluation.participants.add(*users_to_add)
@@ -526,7 +544,7 @@ class PersonImporter:
         if already_related:
             msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
             msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(msg)
+            self.warnings[ImporterWarning.GENERAL].append(msg)
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)
@@ -579,15 +597,3 @@ class PersonImporter:
             if not user.is_active:
                 user.is_active = True
                 user.save()
-
-
-# Dictionary to translate internal keys to UI strings.
-WARNING_DESCRIPTIONS = {
-    ExcelImporter.W_NAME: gettext_lazy("Name mismatches"),
-    ExcelImporter.W_INACTIVE: gettext_lazy("Inactive users"),
-    ExcelImporter.W_DUPL: gettext_lazy("Possible duplicates"),
-    ExcelImporter.W_IGNORED: gettext_lazy("Ignored duplicates"),
-    ExcelImporter.W_GENERAL: gettext_lazy("General warnings"),
-    EnrollmentImporter.W_DEGREE: gettext_lazy("Degree mismatches"),
-    EnrollmentImporter.W_MANY: gettext_lazy("Unusually high number of enrollments")
-}

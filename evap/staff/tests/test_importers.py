@@ -1,12 +1,11 @@
 import os
-from collections import defaultdict
 from datetime import date, datetime
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
-from evap.staff.importers import UserImporter, EnrollmentImporter, ExcelImporter, PersonImporter
+from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterWarning
 from evap.staff.tools import ImportType
 
 
@@ -70,17 +69,18 @@ class TestUserImporter(TestCase):
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
-        self.assertIn("An existing user has the same first and last name as a new user:<br />"
-                " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
-                warnings_test[ExcelImporter.W_DUPL])
+        self.assertEqual(warnings_test[ImporterWarning.DUPL], [
+            "An existing user has the same first and last name as a new user:<br />"
+            " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)"])
 
     def test_ignored_duplicate_warning(self):
         __, __, warnings_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
-        self.assertTrue(any("The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3." in warning for warning in warnings_test[ExcelImporter.W_IGNORED]))
+        self.assertEqual(warnings_test[ImporterWarning.IGNORED], [
+            "The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3."])
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
@@ -108,14 +108,14 @@ class TestUserImporter(TestCase):
         baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The following user is currently marked inactive and will be marked active upon importing: "
-                      " None None, lucilia.manilium@institution.example.com",
-                      warnings_test[ExcelImporter.W_INACTIVE])
+        self.assertEqual(warnings_test[ImporterWarning.INACTIVE], [
+            "The following user is currently marked inactive and will be marked active upon importing: "
+            " None None, lucilia.manilium@institution.example.com"])
 
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("The following user was previously marked inactive and is now marked active upon importing: "
-            " None None, lucilia.manilium@institution.example.com",
-            warnings_no_test[ExcelImporter.W_INACTIVE])
+        self.assertEqual(warnings_no_test[ImporterWarning.INACTIVE], [
+            "The following user was previously marked inactive and is now marked active upon importing: "
+            " None None, lucilia.manilium@institution.example.com"])
 
         self.assertEqual(UserProfile.objects.count(), 2)
 
@@ -161,20 +161,18 @@ class TestEnrollmentImporter(TestCase):
         with open(self.filename_valid_degree_merge, "rb") as excel_file:
             excel_content = excel_file.read()
 
-        expected_warnings = defaultdict(list)
-        expected_warnings[EnrollmentImporter.W_DEGREE].append(
-            'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.'
-        )
-
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, warnings_test, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
         self.assertEqual(errors, [])
-        self.assertEqual(warnings, expected_warnings)
+        self.assertEqual(warnings_test[ImporterWarning.DEGREE], [
+            'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. '
+            'Both degrees have been set for the course.'])
+        self.assertEqual(len(warnings_test), 1)
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        success_messages, warnings_no_test, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages))
         self.assertEqual(errors, [])
-        self.assertEqual(warnings, expected_warnings)
+        self.assertEqual(warnings_no_test, warnings_test)
 
         self.assertEqual(Course.objects.all().count(), 1)
         self.assertEqual(Evaluation.objects.all().count(), 1)
@@ -191,13 +189,13 @@ class TestEnrollmentImporter(TestCase):
         __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
-        warnings_many = warnings_test[EnrollmentImporter.W_MANY]
-        self.assertIn("Warning: User ipsum.lorem@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User lucilia.manilium@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User diam.synephebos@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User torquate.metrodorus@institution.example.com has 6 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User latinas.menandri@institution.example.com has 5 enrollments, which is a lot.", warnings_many)
-        self.assertIn("Warning: User bastius.quid@external.example.com has 4 enrollments, which is a lot.", warnings_many)
+        self.assertCountEqual(warnings_test[ImporterWarning.MANY], {
+            "Warning: User ipsum.lorem@institution.example.com has 6 enrollments, which is a lot.",
+            "Warning: User lucilia.manilium@institution.example.com has 6 enrollments, which is a lot.",
+            "Warning: User diam.synephebos@institution.example.com has 6 enrollments, which is a lot.",
+            "Warning: User torquate.metrodorus@institution.example.com has 6 enrollments, which is a lot.",
+            "Warning: User latinas.menandri@institution.example.com has 5 enrollments, which is a lot.",
+            "Warning: User bastius.quid@external.example.com has 4 enrollments, which is a lot."})
 
     def test_random_file_error(self):
         with open(self.filename_random, "rb") as excel_file:
@@ -264,12 +262,12 @@ class TestPersonImporter(TestCase):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
                                                                                   test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
                                                                                   test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
         self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1]))
@@ -296,12 +294,12 @@ class TestPersonImporter(TestCase):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
                                                                                   test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
                                                                                   test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already participants in evaluation", warnings[ExcelImporter.W_GENERAL][0])
+        self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
 
         self.assertEqual(self.evaluation1.participants.count(), 1)
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)

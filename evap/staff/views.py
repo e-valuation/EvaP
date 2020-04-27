@@ -37,7 +37,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionF
                               FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
                               save_import_file, find_next_unreviewed_evaluation, ImportType)
@@ -491,7 +491,7 @@ def semester_import(request, semester_id):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_semester_import.html", dict(semester=semester,
-        success_messages=success_messages, errors=errors, warnings=dict(warnings),
+        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
         excel_form=excel_form, test_passed=test_passed))
 
 
@@ -1018,7 +1018,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
-        success_messages=success_messages, warnings=dict(warnings), errors=errors,
+        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
 
 
@@ -1528,7 +1528,8 @@ def user_import(request):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_user_import.html", dict(excel_form=excel_form,
-        success_messages=success_messages, warnings=dict(warnings), errors=errors, test_passed=test_passed))
+        success_messages=success_messages, errors=errors, warnings=sorted_messages(warnings),
+        test_passed=test_passed))
 
 
 @manager_required
