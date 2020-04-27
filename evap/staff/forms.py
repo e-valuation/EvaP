@@ -254,8 +254,10 @@ class EvaluationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
-        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(visibility=Questionnaire.Visibility.MANAGERS) | Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
+        visible_questionnaires = Q(visibility__in=(Questionnaire.Visibility.MANAGERS, Questionnaire.Visibility.EDITORS))
+        if self.instance.pk is not None:
+            visible_questionnaires |= Q(contributions__evaluation=self.instance)
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude(is_active=False)
 
