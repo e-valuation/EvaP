@@ -24,11 +24,11 @@
                     </div>
                     <div class="card-footer text-center">
                         {% if not participant_test_passed %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                         {% else %}
-                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="form-submit-btn-divider"></div>
-                            <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants', 'participant data');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                            <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -70,11 +70,11 @@
                     </div>
                     <div class="card-footer text-center">
                         {% if not contributor_test_passed %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                         {% else %}
-                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-secondary form-submit-btn">{% trans 'Upload and test' %}</button>
+                            <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="form-submit-btn-divider"></div>
-                            <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors', 'contributor data');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                            <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
                         {% endif %}
                     </div>
                 </div>
@@ -123,7 +123,7 @@
 {% block modals %}
 {{ block.super }}
     {% trans 'Import participants' as title %}
-    {% blocktrans asvar question %}Do you really want to import the Excel file with <strong id="data-label"></strong>? {% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to import the Excel file with participant data?{% endblocktrans %}
     {% trans 'Import participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
@@ -137,7 +137,7 @@
     </script>
 
     {% trans 'Copy participants' as title %}
-    {% blocktrans asvar question %}Do you really want to copy participants? {% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to copy the participants?{% endblocktrans %}
     {% trans 'Copy participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyParticipantsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
@@ -151,7 +151,7 @@
     </script>
 
     {% trans 'Import contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to import the Excel file with <strong id="data-label"></strong>? {% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to import the Excel file with contributor data?{% endblocktrans %}
     {% trans 'Import contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='importContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
@@ -165,7 +165,7 @@
     </script>
 
     {% trans 'Copy contributors' as title %}
-    {% blocktrans asvar question %}Do you really want to copy contributors? {% endblocktrans %}
+    {% blocktrans asvar question %}Do you really want to copy the contributors?{% endblocktrans %}
     {% trans 'Copy contributors' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyContributorsModal' title=title question=question action_text=action_text btn_type='primary' %}
     <script type="text/javascript">
