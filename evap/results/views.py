@@ -107,7 +107,7 @@ def get_evaluations_with_prefetched_data(evaluations):
                 "course__degrees",
                 "course__semester",
                 "course__responsibles",
-            )
+            ).order_by('pk')
         )
         for evaluation, participant_count, voter_count, course_evaluations_count in zip(evaluations, participant_counts, voter_counts, course_evaluations_counts):
             if evaluation._participant_count is None:
