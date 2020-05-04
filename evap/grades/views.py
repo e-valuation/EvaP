@@ -43,7 +43,10 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = semester.courses.filter(is_graded=True).exclude(evaluations__state='new')
+    courses = (semester.courses
+        .filter(evaluations__wait_for_grade_upload_before_publishing=True)
+        .exclude(evaluations__state='new')
+        .distinct())
     courses = prefetch_data(courses)
 
     template_data = dict(

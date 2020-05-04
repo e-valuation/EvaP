@@ -99,7 +99,6 @@ class EvaluationData(CommonEqualityMixin):
             name_de=self.name_de,
             name_en=self.name_en,
             type=course_type,
-            is_graded=self.is_graded,
             semester=semester,
         )
         course.save()
@@ -110,6 +109,7 @@ class EvaluationData(CommonEqualityMixin):
             vote_start_datetime=vote_start_datetime,
             vote_end_date=vote_end_date,
             course=course,
+            wait_for_grade_upload_before_publishing=self.is_graded,
         )
         evaluation.save()
         evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)

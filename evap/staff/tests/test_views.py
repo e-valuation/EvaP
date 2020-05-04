@@ -719,7 +719,6 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(check_course.name_de, "Wählen")
         self.assertEqual(check_course.responsibles.count(), 1)
         self.assertEqual(check_course.responsibles.first().full_name, "Prof. Dr. Sit Dolor")
-        self.assertFalse(check_course.is_graded)
         self.assertFalse(check_course.is_private)
         self.assertEqual(check_course.type.name_de, "Vorlesung")
         self.assertEqual(check_course.degrees.count(), 1)
@@ -732,6 +731,7 @@ class TestSemesterImportView(WebTest):
         self.assertTrue(check_evaluation.is_rewarded)
         self.assertFalse(check_evaluation.is_midterm_evaluation)
         self.assertEqual(check_evaluation.participants.count(), 2)
+        self.assertFalse(check_evaluation.wait_for_grade_upload_before_publishing)
 
     def test_error_handling(self):
         """
@@ -1187,7 +1187,6 @@ class TestCourseCreateView(WebTest):
         form["name_en"] = ""  # empty name to get a validation error
         form["type"] = self.course_type.pk
         form["degrees"] = [self.degree.pk]
-        form["is_graded"] = True
         form["is_private"] = False
         form["responsibles"] = [self.responsible.pk]
 
@@ -1253,6 +1252,7 @@ class TestEvaluationCreateView(WebTest):
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questionnaires"] = [self.q1.pk]
+        form["wait_for_grade_upload_before_publishing"] = True
 
         form['contributions-TOTAL_FORMS'] = 1
         form['contributions-INITIAL_FORMS'] = 0
