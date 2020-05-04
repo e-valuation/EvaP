@@ -55,20 +55,6 @@ class SampleXlsTests(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 2)
 
 
-class TestDataTest(TestCase):
-
-    def load_test_data(self):
-        """
-            Asserts that the test data still load cleanly.
-            This test does not have the "test_" prefix, as it is meant
-            to be started manually e.g. by Travis.
-        """
-        try:
-            call_command("loaddata", "test_data", verbosity=0)
-        except Exception:  # pylint: disable=broad-except
-            self.fail("Test data failed to load.")
-
-
 class TestMissingMigrations(TestCase):
     def test_for_missing_migrations(self):
         output = StringIO()
