@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/e-valuation/EvaP.svg?branch=master)](https://travis-ci.org/e-valuation/EvaP)
 [![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=master)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
-[![Coverage Status](https://coveralls.io/repos/github/e-valuation/EvaP/badge.svg?branch=master)](https://coveralls.io/github/e-valuation/EvaP?branch=master)
+[![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
 
 ## What is EvaP?
