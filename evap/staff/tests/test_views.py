@@ -679,11 +679,10 @@ class TestSemesterImportView(WebTest):
     def setUpTestData(cls):
         baker.make(Semester, pk=1)
         baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+        baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
+        baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
 
     def test_import_valid_file(self):
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-
         original_user_count = UserProfile.objects.count()
 
         page = self.app.get(self.url, user='manager')
@@ -743,10 +742,25 @@ class TestSemesterImportView(WebTest):
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.')
+        general_error = 'Errors occurred while parsing the input data. No data was imported.'
+        self.assertContains(reply, general_error)
+        degree_error = 'Error: No degree is associated with the import name &quot;Diploma&quot;. Please manually create it first.'
+        self.assertContains(reply, degree_error)
+        course_type_error = 'Error: No course type is associated with the import name &quot;Praktikum&quot;. Please manually create it first.'
+        self.assertContains(reply, course_type_error)
+        is_graded_error = '&quot;is_graded&quot; of course Deal is maybe, but must be yes or no'
+        self.assertContains(reply, is_graded_error)
+        user_error = 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data'\
+                     ' (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.'
+        self.assertContains(reply, user_error)
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
-        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+
+        def index(text):
+            return reply.body.decode().index(text)
+
+        self.assertTrue(index(general_error) < index(degree_error) < index(course_type_error) <
+                        index(is_graded_error) < index(user_error))
 
         self.assertNotContains(reply, 'Import previously uploaded file')
 
@@ -796,9 +810,6 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_missing_evaluation_period(self):
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-
         page = self.app.get(self.url, user='manager')
 
         form = page.forms["semester-import-form"]
@@ -2053,6 +2064,12 @@ class TestCourseTypeView(WebTest):
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
+
     def test_page_displays_something(self):
         CourseType.objects.create(name_de='uZJcsl0rNc', name_en='uZJcsl0rNc')
         page = self.app.get(self.url, user="manager", status=200)
@@ -2062,16 +2079,25 @@ class TestCourseTypeView(WebTest):
         """
             Adds a course type via the staff form and verifies that the type was created in the db.
         """
-        page = self.app.get(self.url, user="manager", status=200)
-        form = page.forms["course-type-form"]
-        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
+        page = self.app.get(self.url, user='manager', status=200)
+        form = page.forms['course-type-form']
+        form['form-0-name_de'].value = "Vorlesung"
+        form['form-0-name_en'].value = "Lecture"
+        self.set_import_names(form['form-0-import_names'], ["Vorlesung", "V"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
+
+        self.assertEqual(CourseType.objects.count(), 1)
+        self.assertTrue(CourseType.objects.filter(name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung", "V"]).exists())
+
+    def test_import_names_duplicated_error(self):
+        baker.make(CourseType, _quantity=2)
+        page = self.app.get(self.url, user='manager', status=200)
+        form = page.forms['course-type-form']
+        self.set_import_names(form['form-0-import_names'], ["Vorlesung", "v"])
+        self.set_import_names(form['form-1-import_names'], ["Veranstaltung", "V"])
         response = form.submit()
-        self.assertIn("Successfully", str(response))
-
-        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
-
+        self.assertContains(response, 'Import name &quot;V&quot; is duplicated. Import names are not case sensitive.')
 
 class TestCourseTypeMergeSelectionView(WebTest):
     url = "/staff/course_types/merge"
@@ -2097,8 +2123,8 @@ class TestCourseTypeMergeView(WebTest):
     @classmethod
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type")
-        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type")
+        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type", import_names=['M'])
+        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type", import_names=['O'])
         baker.make(Course, type=cls.main_type)
         baker.make(Course, type=cls.other_type)
 
@@ -2109,6 +2135,8 @@ class TestCourseTypeMergeView(WebTest):
         self.assertIn("Successfully", str(response))
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
+        self.main_type.refresh_from_db()
+        self.assertEqual(self.main_type.import_names, ['M', 'O'])
         self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
         for course in Course.objects.all():
             self.assertTrue(course.type == self.main_type)
@@ -2201,19 +2229,37 @@ class TestDegreeView(WebTest):
     def setUpTestData(cls):
         baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
 
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
+
     def test_degree_form(self):
         """
             Adds a degree via the staff form and verifies that the degree was created in the db.
         """
+        degree_count_before = Degree.objects.count()
         page = self.app.get(self.url, user="manager", status=200)
         form = page.forms["degree-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
+        form[f'form-{last_form_id}-name_de'].value = "Diplom"
+        form[f'form-{last_form_id}-name_en'].value = "Diploma"
+        self.set_import_names(form[f'form-{last_form_id}-import_names'], ["Diplom", "D"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
 
-        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+        self.assertEqual(Degree.objects.count(), degree_count_before + 1)
+        self.assertTrue(Degree.objects.filter(name_de="Diplom", name_en="Diploma", import_names=["Diplom", "D"]).exists())
+
+    def test_import_names_duplicated_error(self):
+        baker.make(Degree, _quantity=2)
+        page = self.app.get(self.url, user='manager', status=200)
+        form = page.forms['degree-form']
+        self.set_import_names(form['form-0-import_names'], ["Master of Arts", "M"])
+        self.set_import_names(form['form-1-import_names'], ["Master of Science", "M"])
+        response = form.submit()
+        self.assertContains(response, 'Import name &quot;M&quot; is duplicated.')
 
 
 class TestSemesterQuestionnaireAssignment(WebTest):

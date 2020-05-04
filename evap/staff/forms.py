@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import logging
 
 from django import forms
@@ -23,6 +24,55 @@ logger = logging.getLogger(__name__)
 def disable_all_fields(form):
     for field in form.fields.values():
         field.disabled = True
+
+
+class CharArrayField(forms.Field):
+    hidden_widget = forms.MultipleHiddenInput
+    widget = forms.SelectMultiple
+    default_error_messages = {
+        'invalid_list': _("Enter a list of values."),
+    }
+
+    def __init__(self, base_field, *, max_length=None, **kwargs):
+        super().__init__(**kwargs)
+        assert isinstance(base_field, forms.CharField)
+        assert max_length is None
+
+    def to_python(self, value):
+        if not value:
+            return []
+        if not isinstance(value, Iterable):
+            raise ValidationError(self.error_messages['invalid_list'], code='invalid_list')
+        return [str(val) for val in value]
+
+    def get_bound_field(self, form, field_name):
+        return BoundCharArrayField(form, self, field_name)
+
+
+class BoundCharArrayField(forms.BoundField):
+    def as_widget(self, widget=None, attrs=None, only_initial=False):
+        widget = widget or self.field.widget
+        # Inject all current values as choices so they don’t get discarded
+        if self.value():
+            widget.choices = [(value, value) for value in self.value()]
+        return super().as_widget(widget, attrs, only_initial)
+
+
+class ModelWithImportNamesFormSet(forms.BaseModelFormSet):
+    """
+        A form set which validates that import names are not duplicated
+    """
+    def clean(self):
+        super().clean()
+        import_names = set()
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            for import_name in form.cleaned_data.get('import_names', []):
+                if import_name.lower() in import_names:
+                    form.add_error('import_names',
+                        _('Import name "{}" is duplicated. Import names are not case sensitive.').format(import_name))
+                import_names.add(import_name.lower())
 
 
 class ImportForm(forms.Form):
@@ -88,7 +138,10 @@ class DegreeForm(forms.ModelForm):
 
     class Meta:
         model = Degree
-        fields = ('name_de', 'name_en', 'order')
+        fields = ('name_de', 'name_en', 'import_names', 'order')
+        field_classes = {
+            'import_names': CharArrayField,
+        }
 
     def clean(self):
         super().clean()
@@ -110,7 +163,10 @@ class CourseTypeForm(forms.ModelForm):
 
     class Meta:
         model = CourseType
-        fields = ('name_de', 'name_en', 'order')
+        fields = ('name_de', 'name_en', 'import_names', 'order')
+        field_classes = {
+            'import_names': CharArrayField,
+        }
 
     def clean(self):
         super().clean()

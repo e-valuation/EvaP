@@ -4,16 +4,26 @@
 
 .card-outline-primary {
     border-color: rgba($evap-dark-blue, 0.5);
-}
-.card-outline-primary > .card-header {
-    background-color: $evap-light-blue;
+
+    > .card-header {
+        background-color: $evap-light-blue;
+    }
 }
 
 .card-outline-warning {
     border-color: $evap-yellow;
+
+    > .card-header {
+        background-color: rgba($evap-yellow, 0.5);
+    }
 }
-.card-outline-warning > .card-header {
-    background-color: rgba($evap-yellow, 0.5);
+
+.card-outline-danger {
+    border-color: $evap-red;
+
+    > .card-header {
+        background-color: rgba($evap-red, 0.5);
+    }
 }
 
 .card-noflex {

@@ -662,6 +662,7 @@
   "fields": {
     "name_de": "Bachelor",
     "name_en": "Bachelor",
+    "import_names": "[\"Bachelor\", \"B. Sc.\", \"BA\"]",
     "order": 1
   }
 },
@@ -671,6 +672,7 @@
   "fields": {
     "name_de": "Master",
     "name_en": "Master",
+    "import_names": "[\"Master\", \"M. Sc.\", \"MA\"]",
     "order": 2
   }
 },
@@ -680,6 +682,7 @@
   "fields": {
     "name_de": "Sonstige",
     "name_en": "Other",
+    "import_names": "[\"Sonstige\"]",
     "order": 3
   }
 },
@@ -689,6 +692,7 @@
   "fields": {
     "name_de": "Projektseminar",
     "name_en": "Project seminar",
+    "import_names": "[\"Projektseminar\", \"P/S\"]",
     "order": 3
   }
 },
@@ -698,6 +702,7 @@
   "fields": {
     "name_de": "Vorlesung",
     "name_en": "Lecture",
+    "import_names": "[\"Vorlesung\", \"V\", \"V/\\u00dc\"]",
     "order": 1
   }
 },
@@ -707,6 +712,7 @@
   "fields": {
     "name_de": "Seminar",
     "name_en": "Seminar",
+    "import_names": "[\"Seminar\", \"S\"]",
     "order": 2
   }
 },
@@ -716,6 +722,7 @@
   "fields": {
     "name_de": "Bachelorprojekt",
     "name_en": "Bachelor's project",
+    "import_names": "[\"Bachelorprojekt\"]",
     "order": 4
   }
 },
@@ -725,6 +732,7 @@
   "fields": {
     "name_de": "Masterprojekt",
     "name_en": "Master's project",
+    "import_names": "[\"Masterprojekt\"]",
     "order": 5
   }
 },

@@ -41,6 +41,18 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
     width: 1px;
 }
 
+.select2-container .select2-selection--multiple .select2-selection__rendered {
+    // When displaying long items, they should be wrapped into multiple lines instead of cutting them of
+    white-space: normal;
+}
+
+.select2-container .select2-search--inline {
+    &, > input {
+        // When inputting long items, the input should not grow beyond the size of the selection
+        max-width: 100%;
+    }
+}
+
 
 // datetimepicker adjustments
 .bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {
