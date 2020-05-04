@@ -19,6 +19,5 @@ env:
   - COMMAND="coverage run manage.py test && coveralls"
   - COMMAND="python manage.py test --debug-mode"
   - COMMAND="python manage.py test --reverse"
-  - COMMAND="python manage.py test evap.evaluation.tests.test_misc.TestDataTest.load_test_data"
 script:
   - eval $COMMAND
