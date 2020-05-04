@@ -1,12 +1,12 @@
+os: linux
 language: python
 python: "3.7"
 dist: xenial
-sudo: required
 cache: pip
 
 services:
   - postgresql
-  - redis-server
+  - redis
 before_script:
   - psql -c 'create database evap;' -U postgres
 install:
