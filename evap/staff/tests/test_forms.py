@@ -9,6 +9,7 @@ from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_
                                          to_querydict)
 from evap.staff.forms import (ContributionForm, ContributionFormSet, CourseForm, EvaluationEmailForm, EvaluationForm,
                               QuestionnaireForm, SingleResultForm, UserForm)
+from evap.results.tools import collect_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
@@ -142,6 +143,31 @@ class UserFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('evaluations_participating_in', form.errors)
         self.assertIn("Evaluations for which the user already voted can't be removed", form.errors['evaluations_participating_in'][0])
+
+    def test_results_cache_refreshed(self):
+        contributor = baker.make(UserProfile, first_name="Peter")
+        evaluation = baker.make(Evaluation, state="published")
+        baker.make(Contribution, contributor=contributor,
+                   evaluation=evaluation)
+
+        results_before = collect_results(evaluation)
+
+        form_data = get_form_data_from_instance(UserForm, contributor)
+        form_data["first_name"] = "Patrick"
+        form = UserForm(form_data, instance=contributor)
+        form.save()
+
+        results_after = collect_results(evaluation)
+
+        self.assertEqual(
+            results_before.contribution_results[0].contributor.first_name,
+            "Peter"
+        )
+
+        self.assertEqual(
+            results_after.contribution_results[0].contributor.first_name,
+            "Patrick"
+        )
 
 
 class SingleResultFormTests(TestCase):
