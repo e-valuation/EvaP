@@ -11,7 +11,7 @@
 {% endif %}
 {% if evaluation.is_midterm_evaluation %}<span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
 {% if mode == 'manager' and not evaluation.is_single_result %}
-    {% if not evaluation.course.is_graded %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
+    {% if not evaluation.wait_for_grade_upload_before_publishing %}<span class="badge badge-dark">{% trans 'not graded' %}</span>{% endif %}
     {% if not evaluation.is_rewarded %}<span class="badge badge-dark">{% trans 'not rewarded' %}</span>{% endif %}
     {% if evaluation.course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}
     {% if evaluation.course.has_external_responsible %}

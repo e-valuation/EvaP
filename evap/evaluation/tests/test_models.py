@@ -59,9 +59,9 @@ class TestEvaluations(WebTest):
 
     def test_in_evaluation_to_published(self):
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
-        course = baker.make(Course, is_graded=False)
+        course = baker.make(Course)
         evaluation = baker.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1))
+                            vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
 
         with patch('evap.evaluation.models.EmailTemplate.send_participant_publish_notifications') as participant_mock,\
                 patch('evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications') as contributor_mock:
@@ -101,13 +101,13 @@ class TestEvaluations(WebTest):
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
-        course_1 = baker.make(Course, is_graded=False)
-        course_2 = baker.make(Course, is_graded=False)
+        course_1 = baker.make(Course)
+        course_2 = baker.make(Course)
         baker.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today() - timedelta(days=1))
+                   vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
         # This evaluation is not.
         baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today())
+                   vote_end_date=date.today(), wait_for_grade_upload_before_publishing=False)
 
         with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
             Evaluation.update_evaluations()

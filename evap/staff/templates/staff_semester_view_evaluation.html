@@ -63,7 +63,7 @@
         <span class="fas fa-chart-bar icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}"></span>
     </td>
 {% elif state == 'reviewed' %}
-    {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.course.is_graded %}
+    {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.wait_for_grade_upload_before_publishing %}
         <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
             <span class="fas fa-chart-bar icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
         </td>
@@ -145,7 +145,7 @@
                 </span>
                 <br />
             {% endif %}
-            {% if evaluation.course.is_graded %}
+            {% if evaluation.wait_for_grade_upload_before_publishing %}
                 {% if info_only or not request.user.is_manager %}
                     <span data-toggle="tooltip" data-placement="left" title="{% trans 'Grade documents (Midterm, Final)' %}">
                         <span class="fas fa-file"></span>
