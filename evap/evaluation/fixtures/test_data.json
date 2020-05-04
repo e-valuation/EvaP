@@ -31,7 +31,8 @@
     "participations_are_archived": true,
     "grade_documents_are_deleted": true,
     "results_are_archived": true,
-    "created_at": "2013-01-24"
+    "created_at": "2013-01-24",
+    "is_active": null
   }
 },
 {
@@ -45,7 +46,8 @@
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
-    "created_at": "2013-04-22"
+    "created_at": "2013-04-22",
+    "is_active": null
   }
 },
 {
@@ -59,7 +61,8 @@
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
-    "created_at": "2014-01-08"
+    "created_at": "2014-01-08",
+    "is_active": null
   }
 },
 {
@@ -73,7 +76,8 @@
     "participations_are_archived": false,
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
-    "created_at": "2014-06-02"
+    "created_at": "2014-06-02",
+    "is_active": null
   }
 },
 {
@@ -90,7 +94,8 @@
     "teaser_de": null,
     "teaser_en": null,
     "order": 0,
-    "visibility": 0
+    "visibility": 0,
+    "is_locked": false
   }
 },
 {
@@ -107,7 +112,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 0,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -124,7 +130,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 3,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -141,7 +148,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -158,7 +166,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 2,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -175,7 +184,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 1,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -192,7 +202,8 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -209,7 +220,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -226,7 +238,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 4,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -243,7 +256,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "visibility": 0
+    "visibility": 0,
+    "is_locked": false
   }
 },
 {
@@ -260,7 +274,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 8,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -277,7 +292,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Projektbetreuerin/der Projektbetreuer ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe supervisor of the project ...",
     "order": 45,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -294,7 +310,8 @@
     "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -311,7 +328,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Tutorin / der Tutor ...",
     "teaser_en": "Please select \"No answer\" if you cannot evaluate this person.\r\n\r\nThe tutor ...",
     "order": 35,
-    "visibility": 0
+    "visibility": 0,
+    "is_locked": false
   }
 },
 {
@@ -328,7 +346,8 @@
     "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -345,7 +364,8 @@
     "teaser_de": "Falls weitere, unten nicht genannte Personen an der Lehrveranstaltung beteiligt waren, kannst du hier deine Kommentare zu ihnen hinterlassen.",
     "teaser_en": "If more people contributed to the course than those named below, please leave your feedback for them here.",
     "order": 9,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -362,7 +382,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 10,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -379,7 +400,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 11,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -396,7 +418,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 12,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -413,7 +436,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 13,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -430,7 +454,8 @@
     "teaser_de": "Die Dozentin/der Dozent ...",
     "teaser_en": "The lecturer ...",
     "order": 15,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -447,7 +472,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 14,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -464,7 +490,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 15,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -481,7 +508,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 16,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -498,7 +526,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 17,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -515,7 +544,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 5,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -532,7 +562,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 6,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -549,7 +580,8 @@
     "teaser_de": "",
     "teaser_en": "",
     "order": 7,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -566,7 +598,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Seminarleiterin/der Seminarleiter ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe lecturer of the seminar...",
     "order": 25,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -583,7 +616,8 @@
     "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDer Coach...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe coach...",
     "order": 25,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -600,7 +634,8 @@
     "teaser_de": "1 ist die beste Note, 5 die schlechteste",
     "teaser_en": "1 is the best grade, 5 the worst",
     "order": 2,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -617,7 +652,8 @@
     "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
-    "visibility": 2
+    "visibility": 2,
+    "is_locked": false
   }
 },
 {
@@ -140599,6 +140635,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2007-02-01T00:00:00",
     "vote_end_date": "2014-06-02",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.498",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -140661,6 +140698,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.291",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -140729,6 +140767,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-08",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.339",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -140779,6 +140818,7 @@
     "_voter_count": 7,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-03-01",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.574",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -140862,6 +140902,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.597",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -140972,6 +141013,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-03-01T00:00:00",
     "vote_end_date": "2012-03-18",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.361",
     "last_modified_user": [
       "luann.schulz"
@@ -141048,6 +141090,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2012-02-29T00:00:00",
     "vote_end_date": "2012-03-07",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.626",
     "last_modified_user": [
       "luann.schulz"
@@ -141121,6 +141164,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-03-12T00:00:00",
     "vote_end_date": "2012-03-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.827",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141161,6 +141205,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.333",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141400,6 +141445,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.679",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141471,6 +141517,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.592",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141581,6 +141628,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.199",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141670,6 +141718,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T10:28:15.171",
     "last_modified_user": [
       "evap"
@@ -141749,6 +141798,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.661",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -141817,6 +141867,7 @@
     "_voter_count": 35,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.390",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -142131,6 +142182,7 @@
     "_voter_count": 36,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-09",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.587",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -142499,6 +142551,7 @@
     "_voter_count": 14,
     "vote_start_datetime": "2012-04-12T00:00:00",
     "vote_end_date": "2012-04-26",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.503",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -142675,6 +142728,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2012-03-27T00:00:00",
     "vote_end_date": "2012-04-04",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.551",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -142737,6 +142791,7 @@
     "_voter_count": 41,
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T10:15:58.567",
     "last_modified_user": [
       "evap"
@@ -143125,6 +143180,7 @@
     "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T10:14:40.767",
     "last_modified_user": [
       "evap"
@@ -143537,6 +143593,7 @@
     "_voter_count": 11,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.228",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -143641,6 +143698,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2012-01-22T00:00:00",
     "vote_end_date": "2012-01-23",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.756",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -143699,6 +143757,7 @@
     "_voter_count": 44,
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.562",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -144079,6 +144138,7 @@
     "_voter_count": 27,
     "vote_start_datetime": "2012-07-09T00:00:00",
     "vote_end_date": "2012-07-29",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.166",
     "last_modified_user": [
       "matthias.kober"
@@ -144410,6 +144470,7 @@
     "_voter_count": 32,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.154",
     "last_modified_user": [
       "viola.barringer"
@@ -144780,6 +144841,7 @@
     "_voter_count": 32,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.493",
     "last_modified_user": [
       "matthias.kober"
@@ -145228,6 +145290,7 @@
     "_voter_count": 34,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-11",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.603",
     "last_modified_user": [
       "matthias.kober"
@@ -145586,6 +145649,7 @@
     "_voter_count": 10,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.244",
     "last_modified_user": [
       "denna.lester"
@@ -145722,6 +145786,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.572",
     "last_modified_user": [
       "kyra.hart"
@@ -145810,6 +145875,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.666",
     "last_modified_user": [
       "denna.lester"
@@ -145880,6 +145946,7 @@
     "_voter_count": 11,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.615",
     "last_modified_user": [
       "matthias.kober"
@@ -146001,6 +146068,7 @@
     "_voter_count": 14,
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.337",
     "last_modified_user": [
       "matthias.kober"
@@ -146152,6 +146220,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.619",
     "last_modified_user": [
       "matthias.kober"
@@ -146246,6 +146315,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.547",
     "last_modified_user": [
       "matthias.kober"
@@ -146358,6 +146428,7 @@
     "_voter_count": 10,
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.569",
     "last_modified_user": [
       "matthias.kober"
@@ -146500,6 +146571,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.289",
     "last_modified_user": [
       "matthias.kober"
@@ -146558,6 +146630,7 @@
     "_voter_count": 7,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.612",
     "last_modified_user": [
       "matthias.kober"
@@ -146640,6 +146713,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.266",
     "last_modified_user": [
       "matthias.kober"
@@ -146758,6 +146832,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.649",
     "last_modified_user": [
       "matthias.kober"
@@ -146828,6 +146903,7 @@
     "_voter_count": 0,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.655",
     "last_modified_user": [
       "matthias.kober"
@@ -146864,6 +146940,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.524",
     "last_modified_user": [
       "matthias.kober"
@@ -146928,6 +147005,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.594",
     "last_modified_user": [
       "laurence.tipton"
@@ -146974,6 +147052,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.531",
     "last_modified_user": [
       "matthias.kober"
@@ -147035,6 +147114,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.577",
     "last_modified_user": [
       "kyra.hart"
@@ -147090,6 +147170,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2012-08-17T00:00:00",
     "vote_end_date": "2012-08-24",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.248",
     "last_modified_user": [
       "matthias.kober"
@@ -147175,6 +147256,7 @@
     "_voter_count": 23,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.637",
     "last_modified_user": [
       "arron.tran"
@@ -147488,6 +147570,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.527",
     "last_modified_user": [
       "matthias.kober"
@@ -147525,6 +147608,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.522",
     "last_modified_user": [
       "evap"
@@ -147616,6 +147700,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.495",
     "last_modified_user": [
       "gwyn.lloyd"
@@ -147665,6 +147750,7 @@
     "_voter_count": 27,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.668",
     "last_modified_user": [
       "evap"
@@ -147948,6 +148034,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.624",
     "last_modified_user": [
       "hsiu.page"
@@ -148003,6 +148090,7 @@
     "_voter_count": 7,
     "vote_start_datetime": "2013-04-01T00:00:00",
     "vote_end_date": "2013-04-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.542",
     "last_modified_user": [
       "evap"
@@ -148142,6 +148230,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T10:21:35.449",
     "last_modified_user": [
       "evap"
@@ -148254,6 +148343,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.539",
     "last_modified_user": [
       "delegate"
@@ -148339,6 +148429,7 @@
     "_voter_count": 27,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.159",
     "last_modified_user": [
       "evap"
@@ -148688,6 +148779,7 @@
     "_voter_count": 37,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.187",
     "last_modified_user": [
       "evap"
@@ -149076,6 +149168,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.657",
     "last_modified_user": [
       "delegate"
@@ -149182,6 +149275,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2019-10-28T19:16:36.113",
     "vote_end_date": "2020-09-18",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-10-28T19:16:19.471",
     "last_modified_user": [
       "evap"
@@ -149233,6 +149327,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
+    "allow_editors_to_edit": false,
     "last_modified_time": "2019-01-28T10:29:20.273",
     "last_modified_user": [
       "evap"
@@ -149284,6 +149379,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.797",
     "last_modified_user": [
       "fritz.joe"
@@ -149344,6 +149440,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.605",
     "last_modified_user": [
       "evap"
@@ -149423,6 +149520,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.852",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -149467,6 +149565,7 @@
     "_voter_count": 6,
     "vote_start_datetime": "2013-02-04T00:00:00",
     "vote_end_date": "2013-02-17",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.276",
     "last_modified_user": [
       "harriet.rushing"
@@ -149543,6 +149642,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.859",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -149580,6 +149680,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.810",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -149623,6 +149724,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.182",
     "last_modified_user": [
       "trudie.huntley"
@@ -149756,6 +149858,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-28",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.589",
     "last_modified_user": [
       "hsiu.page"
@@ -149826,6 +149929,7 @@
     "_voter_count": 10,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.647",
     "last_modified_user": [
       "lisandra.grace.ext"
@@ -149959,6 +150063,7 @@
     "_voter_count": 20,
     "vote_start_datetime": "2013-01-26T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.346",
     "last_modified_user": [
       "britteny.easley"
@@ -150227,6 +150332,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-03-20",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.370",
     "last_modified_user": [
       "evap"
@@ -150318,6 +150424,7 @@
     "_voter_count": 15,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.507",
     "last_modified_user": [
       "britteny.easley"
@@ -150511,6 +150618,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.731",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -150551,6 +150659,7 @@
     "_voter_count": 10,
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.565",
     "last_modified_user": [
       "britteny.easley"
@@ -150693,6 +150802,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2013-02-25T00:00:00",
     "vote_end_date": "2013-03-03",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.197",
     "last_modified_user": [
       "harriet.rushing"
@@ -150859,6 +150969,7 @@
     "_voter_count": 11,
     "vote_start_datetime": "2013-06-28T00:00:00",
     "vote_end_date": "2013-07-04",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.644",
     "last_modified_user": [
       "evap"
@@ -150974,6 +151085,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-22",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.804",
     "last_modified_user": [
       "qiana.briscoe.ext"
@@ -151037,6 +151149,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2099-08-01T00:00:00",
     "vote_end_date": "2099-08-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T11:11:46.247",
     "last_modified_user": [
       "evap"
@@ -151100,6 +151213,7 @@
     "_voter_count": 25,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.579",
     "last_modified_user": [
       "laurence.tipton"
@@ -151488,6 +151602,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-30",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.652",
     "last_modified_user": [
       "laurence.tipton"
@@ -151537,6 +151652,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.529",
     "last_modified_user": [
       "laurence.tipton"
@@ -151637,6 +151753,7 @@
     "_voter_count": 6,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.641",
     "last_modified_user": [
       "laurence.tipton"
@@ -151719,6 +151836,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2013-09-01T00:00:00",
     "vote_end_date": "2013-09-15",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.279",
     "last_modified_user": [
       "evap"
@@ -151759,6 +151877,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2013-08-12T00:00:00",
     "vote_end_date": "2013-08-23",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.236",
     "last_modified_user": [
       "evap"
@@ -151898,6 +152017,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.663",
     "last_modified_user": [
       "britteny.easley"
@@ -151953,6 +152073,7 @@
     "_voter_count": 0,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.610",
     "last_modified_user": [
       "evap"
@@ -151992,6 +152113,7 @@
     "_voter_count": 26,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-18",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.582",
     "last_modified_user": [
       "kindra.hancock.ext"
@@ -152419,6 +152541,7 @@
     "_voter_count": 6,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.659",
     "last_modified_user": [
       "evap"
@@ -152510,6 +152633,7 @@
     "_voter_count": 29,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.560",
     "last_modified_user": [
       "evap"
@@ -152871,6 +152995,7 @@
     "_voter_count": 12,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T11:07:08.968",
     "last_modified_user": [
       "evap"
@@ -153013,6 +153138,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.274",
     "last_modified_user": [
       "evap"
@@ -153080,6 +153206,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.505",
     "last_modified_user": [
       "evap"
@@ -153213,6 +153340,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.297",
     "last_modified_user": [
       "evap"
@@ -153286,6 +153414,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.556",
     "last_modified_user": [
       "evap"
@@ -153347,6 +153476,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.856",
     "last_modified_user": [
       "evap"
@@ -153390,6 +153520,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.794",
     "last_modified_user": [
       "evap"
@@ -153429,6 +153560,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2013-07-12T00:00:00",
     "vote_end_date": "2013-07-29",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.511",
     "last_modified_user": [
       "evap"
@@ -153490,6 +153622,7 @@
     "_voter_count": 6,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.621",
     "last_modified_user": [
       "lizabeth.steward"
@@ -153554,6 +153687,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.671",
     "last_modified_user": [
       "evap"
@@ -153606,6 +153740,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.212",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -153671,6 +153806,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.786",
     "last_modified_user": [
       "denna.lester"
@@ -153701,6 +153837,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.553",
     "last_modified_user": [
       "arnold.lane"
@@ -153756,6 +153893,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.823",
     "last_modified_user": [
       "denna.lester"
@@ -153852,6 +153990,7 @@
     "_voter_count": 0,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.842",
     "last_modified_user": [
       "evap"
@@ -153885,6 +154024,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.768",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -153916,6 +154056,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.631",
     "last_modified_user": [
       "evap"
@@ -153983,6 +154124,7 @@
     "_voter_count": 2,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.629",
     "last_modified_user": [
       "chieko.lehman"
@@ -154026,6 +154168,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T11:15:24.373",
     "last_modified_user": [
       "evap"
@@ -154069,6 +154212,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.363",
     "last_modified_user": [
       "evap"
@@ -154115,6 +154259,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2021-05-08",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-10-28T19:21:52.830",
     "last_modified_user": [
       "evap"
@@ -154151,6 +154296,7 @@
     "_voter_count": 6,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.673",
     "last_modified_user": [
       "lizabeth.steward"
@@ -154230,6 +154376,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.322",
     "last_modified_user": [
       "lizabeth.steward"
@@ -154285,6 +154432,7 @@
     "_voter_count": 0,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.917",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -154322,6 +154470,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.567",
     "last_modified_user": [
       "sergio.reichert.ext"
@@ -154377,6 +154526,7 @@
     "_voter_count": 4,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-16",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.170",
     "last_modified_user": [
       "hue.fontenot.ext"
@@ -154438,6 +154588,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.681",
     "last_modified_user": [
       "hue.fontenot.ext"
@@ -154478,6 +154629,7 @@
     "_voter_count": 17,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.382",
     "last_modified_user": [
       "lahoma.gage"
@@ -154671,6 +154823,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.801",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -154708,6 +154861,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.600",
     "last_modified_user": [
       "lahoma.gage"
@@ -154751,6 +154905,7 @@
     "_voter_count": 3,
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.268",
     "last_modified_user": [
       "lahoma.gage"
@@ -154806,6 +154961,7 @@
     "_voter_count": 1,
     "vote_start_datetime": "2014-02-11T00:00:00",
     "vote_end_date": "2014-02-16",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.874",
     "last_modified_user": [
       "evap"
@@ -154867,6 +155023,7 @@
     "_voter_count": 11,
     "vote_start_datetime": "2014-01-28T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.607",
     "last_modified_user": [
       "tonita.gallardo"
@@ -154988,6 +155145,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.255",
     "last_modified_user": [
       "salena.soriano"
@@ -155109,6 +155267,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.785",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -155152,6 +155311,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
+    "allow_editors_to_edit": false,
     "last_modified_time": "2018-06-03T10:22:16.388",
     "last_modified_user": [
       "evap"
@@ -155216,6 +155376,7 @@
     "_voter_count": 51,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-05",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.544",
     "last_modified_user": [
       "evap"
@@ -155649,6 +155810,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2015-01-01T00:00:00",
     "vote_end_date": "2099-12-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.329",
     "last_modified_user": [
       "evap"
@@ -155698,6 +155860,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.898",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -155738,6 +155901,7 @@
     "_voter_count": 10,
     "vote_start_datetime": "2014-03-07T00:00:00",
     "vote_end_date": "2014-03-16",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.585",
     "last_modified_user": [
       "evap"
@@ -155853,6 +156017,7 @@
     "_voter_count": 28,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-07",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.558",
     "last_modified_user": [
       "evap"
@@ -156208,6 +156373,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
+    "allow_editors_to_edit": false,
     "last_modified_time": "2016-02-22T22:08:19.840",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -156254,6 +156420,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.836",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -156295,6 +156462,7 @@
     "_voter_count": 17,
     "vote_start_datetime": "2014-02-04T00:00:00",
     "vote_end_date": "2014-02-16",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.634",
     "last_modified_user": [
       "amos.benoit"
@@ -156518,6 +156686,7 @@
     "_voter_count": 8,
     "vote_start_datetime": "2014-02-05T00:00:00",
     "vote_end_date": "2014-02-12",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.639",
     "last_modified_user": [
       "lisandra.grace.ext"
@@ -156624,6 +156793,7 @@
     "_voter_count": 32,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.549",
     "last_modified_user": [
       "odis.cantu.ext"
@@ -156976,6 +157146,7 @@
     "_voter_count": 5,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.311",
     "last_modified_user": [
       "denna.lester"
@@ -157055,6 +157226,7 @@
     "_voter_count": 16,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.510",
     "last_modified_user": [
       "denna.lester"
@@ -157215,6 +157387,7 @@
     "_voter_count": 39,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.534",
     "last_modified_user": [
       "evap"
@@ -157603,6 +157776,7 @@
     "_voter_count": 9,
     "vote_start_datetime": "2014-04-06T00:00:00",
     "vote_end_date": "2014-04-13",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.519",
     "last_modified_user": [
       "evap"
@@ -157802,6 +157976,7 @@
     "_voter_count": 42,
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-14",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-06T09:06:22.676",
     "last_modified_user": [
       "hugh.runyon"
@@ -158196,6 +158371,7 @@
     "_voter_count": null,
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2016-02-22T22:08:19.766",
     "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
@@ -158242,6 +158418,7 @@
     "_voter_count": 31,
     "vote_start_datetime": "2015-11-01T00:00:00",
     "vote_end_date": "2015-11-01",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2018-06-03T10:22:16.380",
     "last_modified_user": [
       "evap"
@@ -158268,6 +158445,7 @@
     "_voter_count": 50,
     "vote_start_datetime": "2015-10-01T00:00:00",
     "vote_end_date": "2015-10-01",
+    "allow_editors_to_edit": false,
     "last_modified_time": "2018-06-03T10:22:16.193",
     "last_modified_user": [
       "evap"
@@ -158294,6 +158472,7 @@
     "_voter_count": 23,
     "vote_start_datetime": "2014-06-20T00:00:00",
     "vote_end_date": "2014-06-20",
+    "allow_editors_to_edit": true,
     "last_modified_time": "2019-01-28T10:34:37.254",
     "last_modified_user": [
       "evap"

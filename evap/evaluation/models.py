@@ -378,6 +378,9 @@ class Evaluation(models.Model):
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
+    # Disable to prevent editors from changing evaluation data
+    allow_editors_to_edit = models.BooleanField(verbose_name=("allow editors to edit"), default=True)
+
     # who last modified this evaluation
     last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
     last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")

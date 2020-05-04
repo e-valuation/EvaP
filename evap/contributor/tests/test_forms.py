@@ -9,6 +9,20 @@ from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
 
 
+class EvaluationFormTests(TestCase):
+    def test_fields_disabled_when_editors_disallowed_to_edit(self):
+        evaluation = baker.make(Evaluation)
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertFalse(all(form.fields[field].disabled for field in form.fields))
+
+        evaluation.allow_editors_to_edit = False
+        evaluation.save()
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertTrue(all(form.fields[field].disabled for field in form.fields))
+
+
 class UserFormTests(TestCase):
 
     def test_settings_form(self):

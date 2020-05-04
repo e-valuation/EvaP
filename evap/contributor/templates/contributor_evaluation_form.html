@@ -61,6 +61,16 @@
         </div>
         <div class="card mb-3">
             <div class="card-body">
+                <div class="d-flex">
+                    <h5 class="card-title mr-auto">{% trans 'Evaluation data' %}</h5>
+                    {% if not evaluation.allow_editors_to_edit %}
+                        <div>
+                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationRequestModalButton">
+                                {% trans 'Request changes' %}
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
                 {% include 'evaluation_form_general_questionnaires.html' with evaluation=evaluation evaluation_form=form %}
             </div>
         </div>
@@ -136,12 +146,18 @@
             $('#evaluation-form').submit();
         };
     </script>
+
     {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request participant changes for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
     {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
+
     {% trans 'Request account creation' as title %}
     {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
+
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request evaluation changes for {{ evaluation_name }}{% endblocktrans %}
+    {% trans 'Please tell us what changes to the evaluation we should make.' as teaser %}
+    {% include 'contact_modal.html' with modal_id='changeEvaluationRequestModal' user=request.user title=title teaser=teaser %}
 {% endblock %}
 
 {% block additional_javascript %}
