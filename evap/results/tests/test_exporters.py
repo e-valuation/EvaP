@@ -212,6 +212,47 @@ class TestExporters(TestCase):
 
         self.assertEqual(len(workbook.sheets()), 2)
 
+    @staticmethod
+    def get_export_sheet(semester, degree, course_types, include_unpublished=True, include_not_enough_voters=True):
+        binary_content = BytesIO()
+        ExcelExporter().export(
+            binary_content,
+            [semester],
+            [([degree.id], course_types)],
+            include_unpublished=include_unpublished,
+            include_not_enough_voters=include_not_enough_voters,
+        )
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+        return workbook.sheets()[0]
+
+    def test_include_unpublished(self):
+        semester = baker.make(Semester)
+        degree = baker.make(Degree)
+        published_evaluation = baker.make(Evaluation, state="published", course__semester=semester, course__degrees=[degree], course__type__order=1)
+        unpublished_evaluation = baker.make(Evaluation, state="reviewed", course__semester=semester, course__degrees=[degree], course__type__order=2)
+        course_types = [published_evaluation.course.type.id, unpublished_evaluation.course.type.id]
+
+        # First, make sure that the unpublished does not appear
+        sheet = self.get_export_sheet(include_unpublished=False, semester=semester, degree=degree, course_types=course_types)
+        self.assertEqual(len(sheet.row_values(0)), 2)
+        self.assertEqual(
+            sheet.row_values(0)[1][:-1],
+            published_evaluation.full_name
+        )
+
+        # Now, make sure that it appears when wanted
+        sheet = self.get_export_sheet(include_unpublished=True, semester=semester, degree=degree, course_types=course_types)
+        self.assertEqual(len(sheet.row_values(0)), 3)
+        # These two should be ordered according to evaluation.course.type.order
+        self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
+        self.assertEqual(sheet.row_values(0)[2][:-1], unpublished_evaluation.full_name)
+
+
+
+
+
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
