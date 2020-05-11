@@ -202,6 +202,16 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(0)[1], evaluation_2.full_name + "\n")
         self.assertEqual(workbook.sheets()[0].row_values(0)[2], evaluation_1.full_name + "\n")
 
+    def test_multiple_sheets(self):
+        binary_content = BytesIO()
+        semester = baker.make(Semester)
+        ExcelExporter().export(binary_content, [semester], [([], []), ([], [])])
+
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+
+        self.assertEqual(len(workbook.sheets()), 2)
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
