@@ -893,7 +893,7 @@ class Question(models.Model):
 
 
 Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))
-BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))  # pylint: disable=invalid-name
+BipolarChoices = namedtuple('BipolarChoices', Choices._fields + ('plus_name', 'minus_name'))
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
