@@ -31,9 +31,11 @@ from evap.results.tools import calculate_average_distribution, distribution_to_g
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
+                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
-                              EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
+                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
+                              FaqQuestionForm,
                               FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
@@ -803,6 +805,37 @@ def evaluation_create(request, semester_id, course_id=None):
     return render(request, "staff_evaluation_form.html", dict(
         semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True,
         editable=True, state=""
+    ))
+
+
+@manager_required
+def evaluation_copy(request, semester_id, evaluation_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+
+    form = EvaluationCopyForm(request.POST or None, evaluation)
+
+    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionCopyFormSet,
+                                                      form=ContributionCopyForm, extra=1)
+    formset = InlineContributionFormset(request.POST or None, instance=evaluation, new_instance=form.instance)
+
+    if form.is_valid() and formset.is_valid():
+        copied_evaluation = form.save()
+        copied_evaluation.set_last_modified(request.user)
+        copied_evaluation.save()
+        formset.save()
+        update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
+
+        messages.success(request, _("Successfully created evaluation."))
+        return redirect('staff:semester_view', semester_id)
+
+    return render(request, "staff_evaluation_form.html", dict(
+        semester=semester,
+        evaluation_form=form,
+        formset=formset,
+        manager=True,
+        editable=True,
+        state="",
     ))
 
 

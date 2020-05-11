@@ -182,8 +182,13 @@
         </a>
     </td>
 {% endif %}
-<td>
+<td class="icon-buttons">
     {% if not info_only %}
+        {% if not evaluation.is_single_result %}
+            <a href="{% url 'staff:evaluation_copy' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" title="{% trans "Copy" %}">
+                <span class="far fa-copy"></span>
+            </a>
+        {% endif %}
         {% if request.user.is_manager %}
             <a href="{% url 'staff:evaluation_email' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Send email' %}">
                 <span class="fas fa-envelope" aria-hidden="true"></span>

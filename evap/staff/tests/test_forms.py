@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import datetime
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
@@ -7,7 +8,8 @@ from evap.evaluation.models import (Contribution, Course, Degree, EmailTemplate,
                                     Questionnaire, Semester, UserProfile)
 from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_editor, get_form_data_from_instance,
                                          to_querydict)
-from evap.staff.forms import (ContributionForm, ContributionFormSet, CourseForm, EvaluationEmailForm, EvaluationForm,
+from evap.staff.forms import (ContributionForm, ContributionCopyForm, ContributionFormSet, CourseForm,
+                              EvaluationEmailForm, EvaluationForm, EvaluationCopyForm,
                               QuestionnaireForm, SingleResultForm, UserForm)
 from evap.results.tools import collect_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
@@ -175,6 +177,52 @@ class SingleResultFormTests(TestCase):
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.num_participants, 10)
         self.assertEqual(evaluation.num_voters, 10)
+
+
+class ContributionCopyFormTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.evaluation = baker.make(Evaluation)
+        cls.contributor = baker.make(UserProfile)
+        cls.contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.contributor,
+            order=2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            label='Teacher',
+        )
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2)
+        cls.contribution.questionnaires.set(cls.questionnaires)
+
+    def test_initial_from_original(self):
+        evaluation = Evaluation()
+        form = ContributionCopyForm(None, instance=self.contribution, evaluation=evaluation)
+        self.assertEqual(form['evaluation'].initial, None)
+        self.assertEqual(form['contributor'].initial, self.contributor.pk)
+        self.assertCountEqual(form['questionnaires'].initial, self.questionnaires)
+        self.assertEqual(form['order'].initial, 2)
+        self.assertEqual(form['role'].initial, Contribution.Role.EDITOR)
+        self.assertEqual(form['textanswer_visibility'].initial, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        self.assertEqual(form['label'].initial, 'Teacher')
+        self.assertEqual(form.evaluation, evaluation)
+
+    def test_no_original_given(self):
+        new_evaluation = Evaluation()
+        form = ContributionCopyForm(None, instance=None, evaluation=new_evaluation)
+        self.assertEqual(form.evaluation, new_evaluation)
+
+    def test_copy_contribution(self):
+        # To simulate the life-cycle of the form, first give the form an unsaved evaluation.
+        new_evaluation = baker.prepare(Evaluation, _save_related=True)
+        form_data = get_form_data_from_instance(ContributionCopyForm, self.contribution, evaluation=new_evaluation)
+        # Just before saving the form, save the evaluation instance.
+        new_evaluation.save()
+        form = ContributionCopyForm(form_data, instance=self.contribution, evaluation=new_evaluation)
+        self.assertTrue(form.is_valid())
+        copied_contribution = form.save()
+        self.assertEqual(copied_contribution.evaluation, new_evaluation)
 
 
 class ContributionFormsetTests(TestCase):
@@ -706,3 +754,51 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+
+class EvaluationCopyFormTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = baker.make(Semester)
+        cls.course = baker.make(Course, semester=cls.semester)
+        cls.participants = baker.make(UserProfile, _quantity=8)
+        cls.evaluation = baker.make(
+            Evaluation,
+            course=cls.course,
+            name_de="Das Original",
+            name_en="The Original",
+            last_modified_time=datetime(2020, 1, 1),
+            last_modified_user=baker.make(UserProfile),
+            participants=cls.participants,
+            voters=cls.participants[:6],
+        )
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
+
+    def test_initial_from_original(self):
+        form = EvaluationCopyForm(None, self.evaluation)
+        self.assertEqual(form['course'].initial, self.course.pk)
+        self.assertCountEqual(form.fields['course'].queryset, self.semester.courses.all())
+        self.assertEqual(form['name_de'].initial, "Das Original")
+        self.assertEqual(form['name_en'].initial, "The Original")
+        self.assertCountEqual(form['participants'].initial, self.participants)
+        self.assertGreater(form['last_modified_time'].initial, self.evaluation.last_modified_time)
+        self.assertEqual(form['last_modified_user_name'].initial, None)
+        self.assertCountEqual(form['general_questionnaires'].initial, self.general_questionnaires)
+
+    def test_not_changing_name_fails(self):
+        form_data = EvaluationCopyForm(None, self.evaluation).initial
+        form = EvaluationCopyForm(form_data, self.evaluation)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['name_de'], ["Evaluation with this Course and Name (german) already exists."])
+        self.assertEqual(form.errors['name_en'], ["Evaluation with this Course and Name (english) already exists."])
+
+    def test_save_makes_a_copy(self):
+        form_data = get_form_data_from_instance(EvaluationCopyForm, self.evaluation)
+        form_data['name_de'] = "Eine Kopie"
+        form_data['name_en'] = "A Copy"
+        form = EvaluationCopyForm(form_data, self.evaluation)
+        self.assertTrue(form.is_valid())
+        copied_evaluation = form.save()
+        self.assertNotEqual(copied_evaluation, self.evaluation)
+        self.assertEqual(Evaluation.objects.count(), 2)
