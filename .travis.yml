@@ -16,7 +16,7 @@ install:
 env:
   - COMMAND="pylint evap -j 0"
   - COMMAND="deployment/test_backup_and_restore_on_travis.sh"
-  - COMMAND="coverage run manage.py test && coveralls"
+  - COMMAND="coverage run manage.py test && codecov -X gcov"
   - COMMAND="python manage.py test --debug-mode"
   - COMMAND="python manage.py test --reverse"
 script:
