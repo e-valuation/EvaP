@@ -248,10 +248,43 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
         self.assertEqual(sheet.row_values(0)[2][:-1], unpublished_evaluation.full_name)
 
+    def test_include_not_enough_voters(self):
+        semester = baker.make(Semester)
+        degree = baker.make(Degree)
+        enough_voters_evaluation = baker.make(
+            Evaluation,
+            state="published",
+            course__semester=semester,
+            course__degrees=[degree],
+            _voter_count=1000,
+            _participant_count=1000,
+        )
+        not_enough_voters_evaluation = baker.make(
+            Evaluation,
+            state="published",
+            course__semester=semester,
+            course__degrees=[degree],
+            _voter_count=1,
+            _participant_count=1000,
+        )
 
+        course_types = [enough_voters_evaluation.course.type.id, not_enough_voters_evaluation.course.type.id]
 
+        # First, make sure that the one with only a single voter does not appear
+        sheet = self.get_export_sheet(semester, degree, course_types, include_not_enough_voters=False)
+        self.assertEqual(len(sheet.row_values(0)), 2)
+        self.assertEqual(
+            sheet.row_values(0)[1][:-1],
+            enough_voters_evaluation.full_name
+        )
 
-
+        # Now, check with the option enabled
+        sheet = self.get_export_sheet(semester, degree, course_types, include_not_enough_voters=True)
+        self.assertEqual(len(sheet.row_values(0)), 3)
+        self.assertEqual(
+                {enough_voters_evaluation.full_name, not_enough_voters_evaluation.full_name},
+                {sheet.row_values(0)[1][:-1], sheet.row_values(0)[2][:-1]}
+        )
 
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
