@@ -426,11 +426,15 @@ class TestUserProfile(TestCase):
         semester_contributed_to.created_at = date.today() - timedelta(days=1)
         semester_contributed_to.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertTrue(user.is_student)
 
         semester_participated_in.created_at = date.today() - timedelta(days=2)
         semester_participated_in.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertFalse(user.is_student)
 
     def test_can_be_deleted_by_manager(self):

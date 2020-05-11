@@ -20,7 +20,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
-from evap.evaluation.auth import reviewer_required, manager_required
+from evap.evaluation.auth import reviewer_required, manager_required, staff_permission_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
@@ -31,6 +31,7 @@ from evap.results.tools import calculate_average_distribution, distribution_to_g
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
+from evap.staff import staff_mode
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
                               ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
@@ -1752,3 +1753,19 @@ def development_components(request):
 def export_contributor_results_view(request, contributor_id):
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)
+
+
+@require_POST
+@staff_permission_required
+def enter_staff_mode(request):
+    staff_mode.enter_staff_mode(request)
+    messages.success(request, _("Successfully entered staff mode."))
+    return redirect('/')
+
+
+@require_POST
+@staff_permission_required
+def exit_staff_mode(request):
+    staff_mode.exit_staff_mode(request)
+    messages.success(request, _("Successfully exited staff mode."))
+    return redirect('/')

@@ -10,12 +10,12 @@ from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import Semester, UserProfile, CourseType, Degree
-from evap.evaluation.tests.tools import WebTest, make_manager
+from evap.evaluation.tests.tools import make_manager
+from evap.staff.tests.utils import WebTestStaffMode
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
-class SampleXlsTests(WebTest):
-
+class SampleXlsTests(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()

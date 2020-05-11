@@ -6,12 +6,13 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile, Evaluation, Semester
-from evap.evaluation.tests.tools import WebTestWith200Check, make_manager
+from evap.evaluation.tests.tools import make_manager
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
+from evap.staff.tests.utils import WebTestStaffMode, WebTestStaffModeWith200Check
 
 
-class TestEventDeleteView(WebTest):
+class TestEventDeleteView(WebTestStaffMode):
     url = reverse('rewards:reward_point_redemption_event_delete')
     csrf_checks = False
 
@@ -77,7 +78,7 @@ class TestIndexView(WebTest):
         self.assertEqual(5, reward_points_of_user(self.student))
 
 
-class TestEventsView(WebTestWith200Check):
+class TestEventsView(WebTestStaffModeWith200Check):
     url = reverse('rewards:reward_point_redemption_events')
 
     @classmethod
@@ -88,7 +89,7 @@ class TestEventsView(WebTestWith200Check):
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
 
-class TestEventCreateView(WebTest):
+class TestEventCreateView(WebTestStaffMode):
     url = reverse('rewards:reward_point_redemption_event_create')
     csrf_checks = False
 
@@ -111,7 +112,7 @@ class TestEventCreateView(WebTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 1)
 
 
-class TestEventEditView(WebTest):
+class TestEventEditView(WebTestStaffMode):
     url = reverse('rewards:reward_point_redemption_event_edit', args=[1])
     csrf_checks = False
 
@@ -132,7 +133,7 @@ class TestEventEditView(WebTest):
         self.assertEqual(RewardPointRedemptionEvent.objects.get(pk=self.event.pk).name, 'new name')
 
 
-class TestExportView(WebTestWith200Check):
+class TestExportView(WebTestStaffModeWith200Check):
     url = '/rewards/reward_point_redemption_event/1/export'
 
     @classmethod
@@ -143,7 +144,7 @@ class TestExportView(WebTestWith200Check):
         baker.make(RewardPointRedemption, value=1, event=event)
 
 
-class TestSemesterActivationView(WebTest):
+class TestSemesterActivationView(WebTestStaffMode):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
 
