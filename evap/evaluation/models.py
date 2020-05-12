@@ -724,9 +724,7 @@ class Evaluation(models.Model):
         if self.state != "evaluated":
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
-        if (self.course.final_grade_documents
-                or self.course.gets_no_grade_documents
-                or not self.wait_for_grade_upload_before_publishing):
+        if self.grading_process_is_finished:
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -734,6 +732,12 @@ class Evaluation(models.Model):
     @property
     def ratinganswer_counters(self):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
+
+    @property
+    def grading_process_is_finished(self):
+        return (not self.wait_for_grade_upload_before_publishing
+                or self.course.gets_no_grade_documents
+                or self.course.final_grade_documents.exists())
 
     @classmethod
     def update_evaluations(cls):
@@ -752,7 +756,7 @@ class Evaluation(models.Model):
                     evaluation.evaluation_end()
                     if evaluation.is_fully_reviewed:
                         evaluation.review_finished()
-                        if not evaluation.wait_for_grade_upload_before_publishing or evaluation.course.final_grade_documents.exists() or evaluation.course.gets_no_grade_documents:
+                        if evaluation.grading_process_is_finished:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
