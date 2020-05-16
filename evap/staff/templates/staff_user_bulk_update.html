@@ -14,7 +14,7 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <p>{% blocktrans %}Upload a text file containing one user per line formatted as "{username},{email}". Users in this file will be updated or created. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive.{% endblocktrans %}</p>
+                <p>{% blocktrans %}Upload a text file containing one user per line formatted as "username,email". Users in this file will be updated or created. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive.{% endblocktrans %}</p>
                 {% include 'bootstrap_form.html' with form=form %}
             </div>
         </div>
