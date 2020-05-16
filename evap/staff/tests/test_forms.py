@@ -707,3 +707,15 @@ class EvaluationFormTests(TestCase):
         # Assert form is valid and locked questionnaire is removed
         form.save()
         self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+
+    def test_unused_questionnaire_visibility(self):
+        evaluation = baker.make(Evaluation)
+        questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.HIDDEN, type=Questionnaire.Type.TOP)
+
+        form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
+        self.assertNotIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+        evaluation.general_contribution.questionnaires.add(questionnaire)
+
+        form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
+        self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
