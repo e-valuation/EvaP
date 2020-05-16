@@ -1,15 +1,22 @@
 from collections import OrderedDict, defaultdict
+from dataclasses import dataclass
+from enum import Enum
+from typing import Set, Dict
 import xlrd
 
 from django.conf import settings
 from django.db import transaction
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import gettext_lazy, gettext as _
 from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import create_user_list_html_string_for_message
+from evap.staff.tools import create_user_list_html_string_for_message, ImportType
+
+
+def sorted_messages(messages):
+    return OrderedDict(sorted(messages.items(), key=lambda item: item[0].order))
 
 
 # taken from https://stackoverflow.com/questions/390250/elegant-ways-to-support-equivalence-equality-in-python-classes
@@ -65,69 +72,150 @@ class UserData(CommonEqualityMixin):
         user.clean_fields()
 
 
-class EvaluationData(CommonEqualityMixin):
+@dataclass
+class EvaluationData:
     """
         Holds information about an evaluation, retrieved from the Excel file.
     """
-    def __init__(self, name_de, name_en, type_name, degree_names, is_graded, responsible_email):
-        self.name_de = name_de.strip()
-        self.name_en = name_en.strip()
-        self.type_name = type_name.strip()
-        self.is_graded = is_graded.strip()
-        self.responsible_email = responsible_email
+    name_de: str
+    name_en: str
+    degrees: Set[Degree]
+    course_type: CourseType
+    is_graded: bool
+    responsible_email: str
+    errors: Dict
 
-        degree_names = degree_names.split(',')
-        for degree_name in degree_names:
-            degree_name = degree_name.strip()
-        self.degree_names = degree_names
-
-    def equals_except_for_degree_names(self, other):
+    def equals_except_for_degrees(self, other):
         return (
-            set(self.degree_names) != set(other.degree_names)
+            self.degrees != other.degrees
             and self.name_de == other.name_de
             and self.name_en == other.name_en
-            and self.type_name == other.type_name
+            and self.course_type == other.course_type
             and self.is_graded == other.is_graded
             and self.responsible_email == other.responsible_email
         )
 
     def store_in_database(self, vote_start_datetime, vote_end_date, semester):
-        course_type = CourseType.objects.get(name_de=self.type_name)
+        assert not self.errors
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         course = Course(
             name_de=self.name_de,
             name_en=self.name_en,
-            type=course_type,
-            is_graded=self.is_graded,
+            type=self.course_type,
             semester=semester,
         )
         course.save()
         course.responsibles.set([responsible_dbobj])
-        for degree_name in self.degree_names:
-            course.degrees.add(Degree.objects.get(name_de=degree_name))
+        course.degrees.set(self.degrees)
         evaluation = Evaluation(
             vote_start_datetime=vote_start_datetime,
             vote_end_date=vote_end_date,
             course=course,
+            wait_for_grade_upload_before_publishing=self.is_graded,
         )
         evaluation.save()
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+
+class ImporterError(Enum):
+    def __new__(cls, value, label, order):
+        variant = object.__new__(cls)
+        variant._value_ = value
+        variant.label = label
+        variant.order = order
+        return variant
+
+    GENERAL = ('general', gettext_lazy("General errors"), 0)
+    SCHEMA = ('schema', gettext_lazy("Incorrect Excel format"), 1)
+    USER = ('user', gettext_lazy("Invalid user data"), 6)
+
+    DEGREE_MISSING = ('missing_degree', gettext_lazy("Missing degrees"), 2)
+    COURSE_TYPE_MISSING = ('missing_course_type', gettext_lazy("Missing course types"), 3)
+    COURSE = ('course', gettext_lazy("Course issues"), 4)
+    IS_GRADED = ('is_graded', gettext_lazy("Invalid values"), 5)
+
+
+class ImporterWarning(Enum):
+    def __new__(cls, value, label, order):
+        variant = object.__new__(cls)
+        variant._value_ = value
+        variant.label = label
+        variant.order = order
+        return variant
+
+    GENERAL = ('general', gettext_lazy("General warnings"), 0)
+    NAME = ('name', gettext_lazy("Name mismatches"), 1)
+    INACTIVE = ('inactive', gettext_lazy("Inactive users"), 2)
+    DUPL = ('duplicate', gettext_lazy("Possible duplicates"), 3)
+    IGNORED = ('ignored', gettext_lazy("Ignored duplicates"), 4)
+
+    DEGREE = ('degree', gettext_lazy("Degree mismatches"), 5)
+    MANY = ('too_many_enrollments', gettext_lazy("Unusually high number of enrollments"), 6)
+
+
+class EvaluationDataFactory:
+    def __init__(self):
+        self.degrees = {
+            import_name.lower(): degree
+            for degree in Degree.objects.all()
+            for import_name in degree.import_names
+        }
+        self.course_types = {
+            import_name.lower(): course_type
+            for course_type in CourseType.objects.all()
+            for import_name in course_type.import_names
+        }
+
+    def create(self, name_de, name_en, degree_names, course_type_name, is_graded, responsible_email):
+        errors = {}
+        degrees = {self.get_degree_or_add_error(degree_name, errors) for degree_name in degree_names.split(',')}
+        course_type = self.get_course_or_add_error(course_type_name, errors)
+        is_graded = self.parse_is_graded_or_add_error(is_graded, errors)
+
+        return EvaluationData(
+            name_de=name_de.strip(),
+            name_en=name_en.strip(),
+            degrees=degrees,
+            course_type=course_type,
+            is_graded=is_graded,
+            responsible_email=responsible_email,
+            errors=errors,
+        )
+
+    def get_degree_or_add_error(self, degree_name, errors):
+        try:
+            return self.degrees[degree_name.strip().lower()]
+        except KeyError:
+            errors.setdefault('degrees', set()).add(degree_name)
+            return None
+
+    def get_course_or_add_error(self, course_type_name, errors):
+        try:
+            return self.course_types[course_type_name.strip().lower()]
+        except KeyError:
+            errors['course_type'] = course_type_name
+            return None
+
+    @staticmethod
+    def parse_is_graded_or_add_error(is_graded, errors):
+        is_graded = is_graded.strip()
+        if is_graded == settings.IMPORTER_GRADED_YES:
+            return True
+        if is_graded == settings.IMPORTER_GRADED_NO:
+            return False
+        errors['is_graded'] = is_graded
+        return None
 
 
 class ExcelImporter():
-    W_NAME = 'name'
-    W_DUPL = 'duplicate'
-    W_IGNORED = 'ignored'
-    W_GENERAL = 'general'
-    W_INACTIVE = 'inactive'
 
     def __init__(self):
         self.associations = OrderedDict()
         self.book = None
         self.skip_first_n_rows = 1  # first line contains the header
-        self.errors = []
         self.success_messages = []
+        self.errors = defaultdict(list)
         self.warnings = defaultdict(list)
 
         # this is a dictionary to not let this become O(n^2)
@@ -139,14 +227,16 @@ class ExcelImporter():
         try:
             self.book = xlrd.open_workbook(file_contents=file_content)
         except xlrd.XLRDError as e:
-            self.errors.append(_("Couldn't read the file. Error: {}").format(e))
+            self.errors[ImporterError.SCHEMA].append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book.sheets():
             if sheet.nrows <= self.skip_first_n_rows:
                 continue
             if sheet.ncols != expected_column_count:
-                self.errors.append(_("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(sheet.name, expected_column_count, sheet.ncols))
+                self.errors[ImporterError.SCHEMA].append(
+                    _("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}")
+                    .format(sheet.name, expected_column_count, sheet.ncols))
 
     def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book.sheets():
@@ -155,32 +245,37 @@ class ExcelImporter():
                     row_function(sheet.row_values(row), sheet, row)
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
-                self.warnings[self.W_GENERAL].append(_("A problem occured while reading sheet {}.").format(sheet.name))
+                self.warnings[ImporterWarning.GENERAL].append(
+                    _("A problem occured while reading sheet {}.").format(sheet.name))
                 raise
         self.success_messages.append(_("Successfully read Excel file."))
 
     def process_user(self, user_data, sheet, row):
         curr_email = user_data.email
         if curr_email == "":
-            self.errors.append(_('Sheet "{}", row {}: Email address is missing.').format(sheet, row + 1))
+            self.errors[ImporterError.USER].append(
+                _('Sheet "{}", row {}: Email address is missing.').format(sheet, row + 1))
             return
         if curr_email not in self.users:
             self.users[curr_email] = user_data
         else:
             if not user_data == self.users[curr_email]:
-                self.errors.append(_('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.').format(sheet, row + 1, curr_email))
+                self.errors[ImporterError.USER].append(
+                    _('Sheet "{}", row {}: The users\'s data (email: {}) differs from it\'s data in a previous row.')
+                    .format(sheet, row + 1, curr_email))
 
     def check_user_data_correctness(self):
         for user_data in self.users.values():
             try:
                 user_data.validate()
             except ValidationError as e:
-                self.errors.append(_('User {}: Error when validating: {}').format(user_data.email, e))
+                self.errors[ImporterError.USER].append(
+                    _('User {}: Error when validating: {}').format(user_data.email, e))
 
             if user_data.first_name == "":
-                self.errors.append(_('User {}: First name is missing.').format(user_data.email))
+                self.errors[ImporterError.USER].append(_('User {}: First name is missing.').format(user_data.email))
             if user_data.last_name == "":
-                self.errors.append(_('User {}: Last name is missing.').format(user_data.email))
+                self.errors[ImporterError.USER].append(_('User {}: Last name is missing.').format(user_data.email))
 
     @staticmethod
     def _create_user_string(user):
@@ -210,7 +305,7 @@ class ExcelImporter():
             warningstring += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
         warningstring += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("new"))
 
-        self.warnings[self.W_DUPL].append(warningstring)
+        self.warnings[ImporterWarning.DUPL].append(warningstring)
 
     def check_user_data_sanity(self, test_run):
         for user_data in self.users.values():
@@ -219,9 +314,10 @@ class ExcelImporter():
                 if ((user.title is not None and user.title != user_data.title)
                         or user.first_name != user_data.first_name
                         or user.last_name != user_data.last_name):
-                    self.warnings[self.W_NAME].append(self._create_user_data_mismatch_warning(user, user_data, test_run))
+                    self.warnings[ImporterWarning.NAME].append(
+                        self._create_user_data_mismatch_warning(user, user_data, test_run))
                 if not user.is_active:
-                    self.warnings[self.W_INACTIVE].append(self._create_user_inactive_warning(user, test_run))
+                    self.warnings[ImporterWarning.INACTIVE].append(self._create_user_inactive_warning(user, test_run))
             except UserProfile.DoesNotExist:
                 pass
 
@@ -233,40 +329,49 @@ class ExcelImporter():
 
 
 class EnrollmentImporter(ExcelImporter):
-    # extension of ExcelImporter.warnings keys
-    W_DEGREE = 'degree'
-    W_MANY = 'too_many_enrollments'
-
     def __init__(self):
         super().__init__()
         # this is a dictionary to not let this become O(n^2)
         self.evaluations = {}
         self.enrollments = []
         self.names_de = set()
+        self.evaluation_data_factory = EvaluationDataFactory()
 
     def read_one_enrollment(self, data, sheet, row):
         student_data = UserData(first_name=data[2], last_name=data[1], email=data[3], title='', is_responsible=False)
         responsible_data = UserData(first_name=data[10], last_name=data[9], title=data[8], email=data[11], is_responsible=True)
-        evaluation_data = EvaluationData(name_de=data[6], name_en=data[7], type_name=data[4], is_graded=data[5], degree_names=data[0], responsible_email=responsible_data.email)
+        evaluation_data = self.evaluation_data_factory.create(
+            name_de=data[6],
+            name_en=data[7],
+            degree_names=data[0],
+            course_type_name=data[4],
+            is_graded=data[5],
+            responsible_email=responsible_data.email,
+        )
         self.associations[(sheet.name, row)] = (student_data, responsible_data, evaluation_data)
 
     def process_evaluation(self, evaluation_data, sheet, row):
         evaluation_id = evaluation_data.name_en
         if evaluation_id not in self.evaluations:
             if evaluation_data.name_de in self.names_de:
-                self.errors.append(_('Sheet "{}", row {}: The German name for course "{}" already exists for another course.').format(sheet, row + 1, evaluation_data.name_en))
+                self.errors[ImporterError.COURSE].append(
+                    _('Sheet "{}", row {}: The German name for course "{}" already exists for another course.')
+                    .format(sheet, row + 1, evaluation_data.name_en))
             else:
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if evaluation_data.equals_except_for_degree_names(self.evaluations[evaluation_id]):
-                self.warnings[self.W_DEGREE].append(
-                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row. Both degrees have been set for the course.')
+            if evaluation_data.equals_except_for_degrees(self.evaluations[evaluation_id]):
+                self.warnings[ImporterWarning.DEGREE].append(
+                    _('Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row.'
+                      ' Both degrees have been set for the course.')
                     .format(sheet, row + 1, evaluation_data.name_en)
                 )
-                self.evaluations[evaluation_id].degree_names.extend(evaluation_data.degree_names)
+                self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
             elif evaluation_data != self.evaluations[evaluation_id]:
-                self.errors.append(_('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(sheet, row + 1, evaluation_data.name_en))
+                self.errors[ImporterError.COURSE].append(
+                    _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.')
+                    .format(sheet, row + 1, evaluation_data.name_en))
 
     def consolidate_enrollment_data(self):
         for (sheet, row), (student_data, responsible_data, evaluation_data) in self.associations.items():
@@ -276,34 +381,33 @@ class EnrollmentImporter(ExcelImporter):
             self.enrollments.append((evaluation_data, student_data))
 
     def check_evaluation_data_correctness(self, semester):
+        degree_names = set()
+        course_type_names = set()
         for evaluation_data in self.evaluations.values():
             if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
-                self.errors.append(_("Course {} does already exist in this semester.").format(evaluation_data.name_en))
+                self.errors[ImporterError.COURSE].append(
+                    _("Course {} does already exist in this semester.").format(evaluation_data.name_en))
             if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
-                self.errors.append(_("Course {} does already exist in this semester.").format(evaluation_data.name_de))
+                self.errors[ImporterError.COURSE].append(
+                    _("Course {} does already exist in this semester.").format(evaluation_data.name_de))
+            if 'degrees' in evaluation_data.errors:
+                degree_names |= evaluation_data.errors['degrees']
+            if 'course_type' in evaluation_data.errors:
+                course_type_names.add(evaluation_data.errors['course_type'])
+            if 'is_graded' in evaluation_data.errors:
+                self.errors[ImporterError.IS_GRADED].append(
+                    _('"is_graded" of course {} is {}, but must be {} or {}')
+                    .format(evaluation_data.name_en, evaluation_data.errors['is_graded'],
+                            settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
 
-        degree_names = set()
-        for evaluation_data in self.evaluations.values():
-            degree_names.update(evaluation_data.degree_names)
         for degree_name in degree_names:
-            if not Degree.objects.filter(name_de=degree_name).exists():
-                self.errors.append(_("Error: The degree \"{}\" does not exist yet. Please manually create it first.").format(degree_name))
-
-        course_type_names = set(evaluation_data.type_name for evaluation_data in self.evaluations.values())
+            self.errors[ImporterError.DEGREE_MISSING].append(
+                _("Error: No degree is associated with the import name \"{}\". Please manually create it first.")
+                .format(degree_name))
         for course_type_name in course_type_names:
-            if not CourseType.objects.filter(name_de=course_type_name).exists():
-                self.errors.append(_("Error: The course type \"{}\" does not exist yet. Please manually create it first.").format(course_type_name))
-
-    def process_graded_column(self):
-        for evaluation_data in self.evaluations.values():
-            if evaluation_data.is_graded == settings.IMPORTER_GRADED_YES:
-                evaluation_data.is_graded = True
-            elif evaluation_data.is_graded == settings.IMPORTER_GRADED_NO:
-                evaluation_data.is_graded = False
-            else:
-                self.errors.append(_('"is_graded" of course {} is {}, but must be {} or {}').format(
-                    evaluation_data.name_en, evaluation_data.is_graded, settings.IMPORTER_GRADED_YES, settings.IMPORTER_GRADED_NO))
-                evaluation_data.is_graded = True
+            self.errors[ImporterError.COURSE_TYPE_MISSING].append(
+                _("Error: No course type is associated with the import name \"{}\". Please manually create it first.")
+                .format(course_type_name))
 
     def check_enrollment_data_sanity(self):
         enrollments_per_user = defaultdict(list)
@@ -312,7 +416,8 @@ class EnrollmentImporter(ExcelImporter):
             enrollments_per_user[index].append(enrollment)
         for email, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
-                self.warnings[self.W_MANY].append(_("Warning: User {} has {} enrollments, which is a lot.").format(email, len(enrollments)))
+                self.warnings[ImporterWarning.MANY].append(
+                    _("Warning: User {} has {} enrollments, which is a lot.").format(email, len(enrollments)))
 
     def write_enrollments_to_db(self, semester, vote_start_datetime, vote_end_date):
         students_created = []
@@ -362,26 +467,26 @@ class EnrollmentImporter(ExcelImporter):
             importer.check_column_count(12)
 
             if importer.errors:
-                importer.errors.append(_("The input data is malformed. No data was imported."))
+                importer.errors[ImporterError.GENERAL].append(_("The input data is malformed. No data was imported."))
                 return importer.success_messages, importer.warnings, importer.errors
 
             importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
             importer.consolidate_enrollment_data()
-            importer.process_graded_column()
             importer.check_user_data_correctness()
             importer.check_evaluation_data_correctness(semester)
             importer.check_enrollment_data_sanity()
             importer.check_user_data_sanity(test_run)
 
             if importer.errors:
-                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
+                importer.errors[ImporterError.GENERAL].append(
+                    _("Errors occurred while parsing the input data. No data was imported."))
             elif test_run:
                 importer.create_test_success_messages()
             else:
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
@@ -408,7 +513,7 @@ class UserImporter(ExcelImporter):
                     orig_sheet=orig_sheet,
                     orig_row=orig_row + 1,
             )
-            self.warnings[self.W_IGNORED].append(warningstring)
+            self.warnings[ImporterWarning.IGNORED].append(warningstring)
 
     def consolidate_user_data(self):
         for (sheet, row), (user_data) in self.associations.items():
@@ -429,9 +534,10 @@ class UserImporter(ExcelImporter):
                     if created:
                         created_users.append(user)
 
-                except Exception as e:
-                    self.errors.append(_("A problem occured while writing the entries to the database."
-                                         " The error message has been: '%(error)s'") % dict(error=e))
+                except Exception as error:
+                    self.errors[ImporterError.GENERAL].append(
+                        _("A problem occured while writing the entries to the database."
+                          " The error message has been: '{}'").format(error=error))
                     raise
 
         msg = format_html(_("Successfully created {} users:"), len(created_users))
@@ -471,7 +577,7 @@ class UserImporter(ExcelImporter):
 
             importer.check_column_count(4)
             if importer.errors:
-                importer.errors.append(_("The input data is malformed. No data was imported."))
+                importer.errors[ImporterError.GENERAL].append(_("The input data is malformed. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
 
             importer.for_each_row_in_excel_file_do(importer.read_one_user)
@@ -480,7 +586,8 @@ class UserImporter(ExcelImporter):
             importer.check_user_data_sanity(test_run)
 
             if importer.errors:
-                importer.errors.append(_("Errors occurred while parsing the input data. No data was imported."))
+                importer.errors[ImporterError.GENERAL].append(
+                    _("Errors occurred while parsing the input data. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
             if test_run:
                 importer.create_test_success_messages()
@@ -489,7 +596,7 @@ class UserImporter(ExcelImporter):
             return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors.append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
@@ -499,7 +606,7 @@ class PersonImporter:
     def __init__(self):
         self.success_messages = []
         self.warnings = defaultdict(list)
-        self.errors = []
+        self.errors = defaultdict(list)
 
     def process_participants(self, evaluation, test_run, user_list):
         evaluation_participants = evaluation.participants.all()
@@ -509,7 +616,7 @@ class PersonImporter:
         if already_related:
             msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
             msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(msg)
+            self.warnings[ImporterWarning.GENERAL].append(msg)
 
         if not test_run:
             evaluation.participants.add(*users_to_add)
@@ -526,7 +633,7 @@ class PersonImporter:
         if already_related:
             msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
             msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ExcelImporter.W_GENERAL].append(msg)
+            self.warnings[ImporterWarning.GENERAL].append(msg)
 
         # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
         # makes anything relying on hashes unusable here (for a faster list difference)
@@ -549,9 +656,10 @@ class PersonImporter:
 
         # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
-        if import_type == 'participant':
+        if import_type == ImportType.Participant:
             importer.process_participants(evaluation, test_run, user_list)
-        else:  # import_type == 'contributor'
+        else:
+            assert import_type == ImportType.Contributor
             importer.process_contributors(evaluation, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
@@ -560,10 +668,11 @@ class PersonImporter:
     def process_source_evaluation(cls, import_type, evaluation, test_run, source_evaluation):
         importer = cls()
 
-        if import_type == 'participant':
+        if import_type == ImportType.Participant:
             user_list = list(source_evaluation.participants.all())
             importer.process_participants(evaluation, test_run, user_list)
-        else:  # import_type == 'contributor'
+        else:
+            assert import_type == ImportType.Contributor
             user_list = list(UserProfile.objects.filter(contributions__evaluation=source_evaluation))
             importer.process_contributors(evaluation, test_run, user_list)
 
@@ -577,15 +686,3 @@ class PersonImporter:
             if not user.is_active:
                 user.is_active = True
                 user.save()
-
-
-# Dictionary to translate internal keys to UI strings.
-WARNING_DESCRIPTIONS = {
-    ExcelImporter.W_NAME: ugettext_lazy("Name mismatches"),
-    ExcelImporter.W_INACTIVE: ugettext_lazy("Inactive users"),
-    ExcelImporter.W_DUPL: ugettext_lazy("Possible duplicates"),
-    ExcelImporter.W_IGNORED: ugettext_lazy("Ignored duplicates"),
-    ExcelImporter.W_GENERAL: ugettext_lazy("General warnings"),
-    EnrollmentImporter.W_DEGREE: ugettext_lazy("Degree mismatches"),
-    EnrollmentImporter.W_MANY: ugettext_lazy("Unusually high number of enrollments")
-}

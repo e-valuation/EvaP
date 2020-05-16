@@ -75,14 +75,16 @@
                                 {{ form.delegates }}
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <strong>{% trans 'You are a delegate of' %}</strong><br />
-                                    {% for delegate in delegate_of %}
-                                        {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
-                                    {% endfor %}
-                                </td>
-                            </tr>
+                            {% if delegate_of %}
+                                <tr>
+                                    <td>
+                                        <strong>{% trans 'You are a delegate of' %}</strong><br />
+                                        {% for delegate in delegate_of %}
+                                            {{ delegate.full_name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endif %}
                         </table>
                     </div>
                     <div class="card-footer text-center">

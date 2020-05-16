@@ -24,8 +24,8 @@
             <span class="pole-icon fas fa-caret-up"></span>
         </div>
     {% endif %}
-    {% if weight_sum and evaluation.course.evaluation_count > 1 %}
-        <span class="right">{{ weight|percentage:weight_sum }}</span>
+    {% if weight_info %}
+        <span class="right">{{ weight_info }}</span>
     {% endif %}
 </div>
 <div class="badge-grade ml-2{% if question_result.warning %} participants-warning{% endif %}" style="background-color: {{ average|gradecolor }}">

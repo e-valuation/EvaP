@@ -1,0 +1,4 @@
+testuser1,testuser1@institution.example.com
+testusernewinternal,testusernewinternal@institution.example.com
+testusernewexternal,testusernewexternal@example.com
+testupdate,testupdate@internal.example.com

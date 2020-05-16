@@ -1,4 +1,5 @@
 from io import BytesIO
+
 from model_bakery import baker
 from django.test import TestCase
 from django.utils import translation
@@ -7,8 +8,10 @@ import xlrd
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
-                                    RatingAnswerCounter, Semester, UserProfile)
-from evap.results.exporters import ExcelExporter
+                                    RatingAnswerCounter, Semester, UserProfile, TextAnswer)
+from evap.results.exporters import ExcelExporter, TextAnswerExcelExporter
+from evap.results.tools import collect_results
+from evap.results.views import filter_text_answers
 
 
 class TestExporters(TestCase):
@@ -37,10 +40,10 @@ class TestExporters(TestCase):
             _voter_count=2
         )
 
-        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.TOP)
-        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.TOP)
-        questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.BOTTOM)
-        questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.BOTTOM)
+        questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
+        questionnaire_2 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.TOP)
+        questionnaire_3 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.BOTTOM)
+        questionnaire_4 = baker.make(Questionnaire, order=4, type=Questionnaire.Type.BOTTOM)
 
         question_1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_1)
         question_2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_2)
@@ -220,8 +223,8 @@ class TestExporters(TestCase):
         contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=contributor)
         other_contribution = baker.make(Contribution, evaluation=evaluation_2, contributor=other_contributor)
 
-        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.TOP)
-        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
+        general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         general_question = baker.make(Question, type=Question.LIKERT, questionnaire=general_questionnaire)
         contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
@@ -254,3 +257,39 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
         self.assertEqual(workbook.sheets()[0].row_values(10)[0], "Overall Average Grade")
         self.assertEqual(workbook.sheets()[0].row_values(10)[2], 3.25)
+
+    def test_text_answer_export(self):
+        evaluation = baker.make(Evaluation, can_publish_text_results=True)
+        questions = [baker.make(Question, questionnaire__type=t, type=Question.TEXT) for t in Questionnaire.Type.values]
+
+        for idx in [0, 1, 2, 2, 0]:
+            baker.make(
+                TextAnswer,
+                question=questions[idx],
+                contribution__evaluation=evaluation,
+                contribution__questionnaires=[questions[idx].questionnaire],
+                state=TextAnswer.State.PUBLISHED
+            )
+
+        evaluation_result = collect_results(evaluation)
+        filter_text_answers(evaluation_result)
+
+        results = TextAnswerExcelExporter.InputData(evaluation_result.contribution_results)
+
+        binary_content = BytesIO()
+        TextAnswerExcelExporter(evaluation.name, evaluation.course.semester.name,
+                                evaluation.course.responsibles_names,
+                                results, None).export(binary_content)
+        binary_content.seek(0)
+        workbook = xlrd.open_workbook(file_contents=binary_content.read())
+        sheet = workbook.sheets()[0]
+
+        # Sheet headline
+        self.assertEqual(sheet.row_values(0)[0], evaluation.name)
+        self.assertEqual(sheet.row_values(1)[0], evaluation.course.semester.name)
+        self.assertEqual(sheet.row_values(2)[0], evaluation.course.responsibles_names)
+
+        # Questions are ordered by questionnaire type, answers keep their order respectively
+        self.assertEqual(sheet.row_values(3)[0], questions[0].text)
+        self.assertEqual(sheet.row_values(5)[0], questions[1].text)
+        self.assertEqual(sheet.row_values(6)[0], questions[2].text)

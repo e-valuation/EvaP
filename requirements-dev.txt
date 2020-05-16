@@ -2,4 +2,4 @@
 coverage
 django-debug-toolbar>=1.6
 pylint==2.4.4
-pylint-django==2.0.13
+pylint-django==2.0.14

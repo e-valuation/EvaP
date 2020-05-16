@@ -2,11 +2,11 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST, require_GET
 
-from sendfile import sendfile
+from django_sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
 from evap.evaluation.models import Course, Semester, EmailTemplate
@@ -43,7 +43,10 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = semester.courses.filter(is_graded=True).exclude(evaluations__state='new')
+    courses = (semester.courses
+        .filter(evaluations__wait_for_grade_upload_before_publishing=True)
+        .exclude(evaluations__state='new')
+        .distinct())
     courses = prefetch_data(courses)
 
     template_data = dict(
@@ -83,11 +86,11 @@ def upload_grades(request, semester_id, course_id):
 
     grade_document = GradeDocument(course=course)
     if final_grades:
-        grade_document.type = GradeDocument.FINAL_GRADES
+        grade_document.type = GradeDocument.Type.FINAL_GRADES
         grade_document.description_en = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_EN
         grade_document.description_de = settings.DEFAULT_FINAL_GRADES_DESCRIPTION_DE
     else:
-        grade_document.type = GradeDocument.MIDTERM_GRADES
+        grade_document.type = GradeDocument.Type.MIDTERM_GRADES
         grade_document.description_en = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_EN
         grade_document.description_de = settings.DEFAULT_MIDTERM_GRADES_DESCRIPTION_DE
 

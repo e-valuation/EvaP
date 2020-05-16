@@ -224,6 +224,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',
+    'evap.middleware.RequireLoginMiddleware',
 ]
 
 TEMPLATES = [
@@ -238,7 +239,8 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.slogan"
+                "evap.context_processors.slogan",
+                "evap.context_processors.debug",
             ],
             'builtins': ['django.templatetags.i18n'],
         },
@@ -252,6 +254,7 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 AUTHENTICATION_BACKENDS = [
     'evap.evaluation.auth.RequestAuthUserBackend',
     'evap.evaluation.auth.OpenIDAuthenticationBackend',
+    'evap.evaluation.auth.EmailAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -335,8 +338,8 @@ COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
 # the backend used for downloading attachments
-# see https://github.com/johnsensible/django-sendfile for further information
-SENDFILE_BACKEND = 'sendfile.backends.simple'
+# see https://github.com/moggers87/django-sendfile2 for further information
+SENDFILE_BACKEND = 'django_sendfile.backends.simple'
 
 
 ### Slogans

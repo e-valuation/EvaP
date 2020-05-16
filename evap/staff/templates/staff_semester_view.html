@@ -11,6 +11,16 @@
         {% if request.user.is_manager %}
             &nbsp;
             <a href="{% url 'staff:semester_edit' semester.id %}" class="btn btn-sm btn-secondary">{% trans 'Edit' %}</a>
+            <button
+                onClick="makeActiveSemesterModalShow({{ semester.id }})" class="btn btn-sm btn-light"
+                id="makeActiveSemesterButton" type="button"
+                {% if semester.is_active %}
+                    disabled
+                    data-toggle="tooltip" data-placement="top"
+                    title="{% blocktrans %}This is the active semester{% endblocktrans %}"
+                {% endif %}>
+                {% trans 'Make active' %}
+            </button>
             <button type="button" id="deleteSemesterButton"{% if not semester.can_be_deleted_by_manager %} disabled{% endif %} onclick="deleteSemesterModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
         {% endif %}
     </h3>
@@ -180,6 +190,10 @@
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
+                            <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
+                                data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
+                                <span class="fas fa-comment icon-red"></span>
+                            </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-yellow"></span>
@@ -195,7 +209,7 @@
                                 <span class="fas fa-chart-bar icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although they probably could be' %}">
+                                data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}">
                                 <span class="fas fa-chart-bar icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
@@ -323,18 +337,18 @@
                     <tbody>
                         {% for course in courses %}
                             <tr id="course-row-{{ course.id }}">
-                                <td style="width: 40%" data-col="name" data-order="{{ course.name }}">
+                                <td style="width: 40%" data-col="name" data-order="{{ course.name|lower }}">
                                     <div>
                                         <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
                                     </div>
                                     {% include 'course_badges.html' %}
                                 </td>
-                                <td style="width: 40%;" data-col="responsible">
+                                <td style="width: 40%;" data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     <div class="font-italic">
                                         {{ course.responsibles_names }}
                                     </div>
                                 </td>
-                                <td style="width: 10%;" data-col="evaluation-count">
+                                <td style="width: 10%;" data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
                                     {% if course.evaluations.count == 0 %}
                                         <span class="badge badge-warning">{% trans 'No evaluations' %}</span>
                                     {% else %}
@@ -361,6 +375,24 @@
 
 {% block modals %}
     {{ block.super }}
+    {% trans 'Make this the active semester' as title %}
+    {% trans 'Do you want to make this the active semester?' as question %}
+    {% trans 'Make active' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='makeActiveSemesterModal' title=title question=question action_text=action_text btn_type='primary' %}
+    <script type="text/javascript">
+        function makeActiveSemesterModalAction(dataId) {
+            var makeActiveSemesterButton = $('#makeActiveSemesterButton');
+            makeActiveSemesterButton.prop('disabled', true);
+            makeActiveSemesterButton.text("{% trans 'Activating...' %}");
+            $.ajax({
+                type: "POST",
+                url: "{% url 'staff:semester_make_active' %}",
+                data: {"semester_id": dataId},
+                success: function() { location.reload(); },
+                error: function() { window.alert("{% trans 'The server is not responding.' %}") },
+            })
+        }
+    </script>
     {% trans 'Delete semester' as title %}
     {% trans 'Do you really want to delete the semester <strong id="data-label"></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.' as question %}
     {% trans 'Delete semester' as action_text %}

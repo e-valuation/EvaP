@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from django.forms import TypedChoiceField
 from django.template import Library
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
 from evap.rewards.tools import can_reward_points_be_used_by
@@ -98,6 +98,17 @@ def to_colors(choices):
 
 
 @register.filter
+def weight_info(evaluation):
+    try:
+        course = evaluation.course
+    except AttributeError:
+        return None
+    if course.evaluation_weight_sum and course.evaluation_count > 1:
+        return percentage(evaluation.weight, course.evaluation_weight_sum)
+    return None
+
+
+@register.filter
 def statename(state):
     return STATE_NAMES.get(state)
 
@@ -176,3 +187,13 @@ def hours_and_minutes(time_left_for_evaluation):
 @register.filter
 def has_nonresponsible_editor(evaluation):
     return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()
+
+
+@register.filter
+def order_by(iterable, attribute):
+    return sorted(iterable, key=lambda item: getattr(item, attribute))
+
+
+@register.filter
+def order_due_evaluations_by(due_evaluations, attribute):
+    return sorted(due_evaluations, key=lambda due_evaluation: getattr(due_evaluation[1], attribute))

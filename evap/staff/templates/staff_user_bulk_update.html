@@ -1,0 +1,32 @@
+{% extends 'staff_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item"><a href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
+    <li class="breadcrumb-item">{% trans 'Bulk update' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>{% trans 'Bulk update users' %}</h3>
+
+    <form id="user-bulk-update-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
+        {% csrf_token %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <p>{% blocktrans %}Upload a text file containing one user per line formatted as "username,email". Users in this file will be updated or created. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive.{% endblocktrans %}</p>
+                {% include 'bootstrap_form.html' with form=form %}
+            </div>
+        </div>
+        <div class="card card-submit-area card-submit-area-2 text-center mb-3">
+            <div class="card-body">
+                {% if not test_passed %}
+                    <button name="operation" value="test" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Upload and test' %}</button>
+                {% else %}
+                    <button name="operation" value="test" type="submit" class="btn btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
+                    <button name="operation" value="bulk_update" type="submit" class="btn btn-primary form-submit-btn">{% trans 'Bulk update with uploaded file' %}</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+{% endblock %}

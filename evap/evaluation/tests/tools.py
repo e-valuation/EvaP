@@ -55,9 +55,9 @@ class WebTestWith200Check(WebTest):
             self.app.get(self.url, user=user, status=200)
 
 
-def get_form_data_from_instance(FormClass, instance):
+def get_form_data_from_instance(FormClass, instance, **kwargs):
     assert FormClass._meta.model == type(instance)
-    form = FormClass(instance=instance)
+    form = FormClass(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
 
@@ -78,7 +78,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
-    baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True, questionnaires=[baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)])
-    evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.TOP)])
+    baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True, questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
+    evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
     return evaluation

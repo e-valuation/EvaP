@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import logging
 
 from django import forms
@@ -8,12 +9,13 @@ from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
+from evap.results.tools import collect_results
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
 
@@ -25,35 +27,68 @@ def disable_all_fields(form):
         field.disabled = True
 
 
+class CharArrayField(forms.Field):
+    hidden_widget = forms.MultipleHiddenInput
+    widget = forms.SelectMultiple
+    default_error_messages = {
+        'invalid_list': _("Enter a list of values."),
+    }
+
+    def __init__(self, base_field, *, max_length=None, **kwargs):
+        super().__init__(**kwargs)
+        assert isinstance(base_field, forms.CharField)
+        assert max_length is None
+
+    def to_python(self, value):
+        if not value:
+            return []
+        if not isinstance(value, Iterable):
+            raise ValidationError(self.error_messages['invalid_list'], code='invalid_list')
+        return [str(val) for val in value]
+
+    def get_bound_field(self, form, field_name):
+        return BoundCharArrayField(form, self, field_name)
+
+
+class BoundCharArrayField(forms.BoundField):
+    def as_widget(self, widget=None, attrs=None, only_initial=False):
+        widget = widget or self.field.widget
+        # Inject all current values as choices so they don’t get discarded
+        if self.value():
+            widget.choices = [(value, value) for value in self.value()]
+        return super().as_widget(widget, attrs, only_initial)
+
+
+class ModelWithImportNamesFormSet(forms.BaseModelFormSet):
+    """
+        A form set which validates that import names are not duplicated
+    """
+    def clean(self):
+        super().clean()
+        import_names = set()
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            for import_name in form.cleaned_data.get('import_names', []):
+                if import_name.lower() in import_names:
+                    form.add_error('import_names',
+                        _('Import name "{}" is duplicated. Import names are not case sensitive.').format(import_name))
+                import_names.add(import_name.lower())
+
+
 class ImportForm(forms.Form):
+    use_required_attribute = False
+
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
     vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.excel_file_required = False
-        self.vote_dates_required = False
-
-    def clean(self):
-        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
-            raise ValidationError(_("Please select an Excel file."))
-        if self.vote_dates_required:
-            if self.cleaned_data['vote_start_datetime'] is None or self.cleaned_data['vote_end_date'] is None:
-                raise ValidationError(_("Please enter an evaluation period."))
-
 
 class UserImportForm(forms.Form):
+    use_required_attribute = False
+
     excel_file = forms.FileField(label=_("Excel file"), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.excel_file_required = False
-
-    def clean(self):
-        if self.excel_file_required and self.cleaned_data['excel_file'] is None:
-            raise ValidationError(_("Please select an Excel file."))
 
 
 class EvaluationParticipantCopyForm(forms.Form):
@@ -78,8 +113,10 @@ class EvaluationParticipantCopyForm(forms.Form):
             raise ValidationError(_("Please select an evaluation from the dropdown menu."))
 
 
-class UserBulkDeleteForm(forms.Form):
-    username_file = forms.FileField(label=_("Username file"))
+class UserBulkUpdateForm(forms.Form):
+    use_required_attribute = False
+
+    username_file = forms.FileField(label=_("Username file"), required=False)
 
 
 class SemesterForm(forms.ModelForm):
@@ -102,7 +139,10 @@ class DegreeForm(forms.ModelForm):
 
     class Meta:
         model = Degree
-        fields = ('name_de', 'name_en', 'order')
+        fields = ('name_de', 'name_en', 'import_names', 'order')
+        field_classes = {
+            'import_names': CharArrayField,
+        }
 
     def clean(self):
         super().clean()
@@ -124,7 +164,10 @@ class CourseTypeForm(forms.ModelForm):
 
     class Meta:
         model = CourseType
-        fields = ('name_de', 'name_en', 'order')
+        fields = ('name_de', 'name_en', 'import_names', 'order')
+        field_classes = {
+            'import_names': CharArrayField,
+        }
 
     def clean(self):
         super().clean()
@@ -154,7 +197,7 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_graded', 'is_private', 'last_modified_time',
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_private', 'last_modified_time',
                   'last_modified_user_name', 'semester')
         field_classes = {
             'responsibles': UserModelMultipleChoiceField,
@@ -189,7 +232,7 @@ class CourseForm(forms.ModelForm):
 
 class EvaluationForm(forms.ModelForm):
     general_questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
+        Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
@@ -197,7 +240,8 @@ class EvaluationForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ('course', 'name_de', 'name_en', 'weight', 'is_rewarded', 'is_midterm_evaluation',
+        fields = ('course', 'name_de', 'name_en', 'weight', 'allow_editors_to_edit', 'is_rewarded',
+                  'is_midterm_evaluation', 'wait_for_grade_upload_before_publishing',
                   'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
                   'last_modified_time', 'last_modified_user_name')
         localized_fields = ('vote_start_datetime', 'vote_end_date')
@@ -210,8 +254,10 @@ class EvaluationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['course'].queryset = Course.objects.filter(semester=semester)
 
-        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
+        visible_questionnaires = Q(visibility__in=(Questionnaire.Visibility.MANAGERS, Questionnaire.Visibility.EDITORS))
+        if self.instance.pk is not None:
+            visible_questionnaires |= Q(contributions__evaluation=self.instance)
+        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
 
         self.fields['participants'].queryset = UserProfile.objects.exclude(is_active=False)
 
@@ -369,10 +415,10 @@ class SingleResultForm(forms.ModelForm):
 
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
-    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.RESPONSIBILITY_CHOICES)
+    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.Responsibility.choices)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
-        Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN),
+        Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         required=False,
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
@@ -382,7 +428,7 @@ class ContributionForm(forms.ModelForm):
     class Meta:
         model = Contribution
         fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TEXTANSWER_VISIBILITY_CHOICES)}
+        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TextAnswerVisibility.choices)}
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
@@ -394,15 +440,15 @@ class ContributionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance.can_edit:
-            self.fields['responsibility'].initial = Contribution.IS_EDITOR
+            self.fields['responsibility'].initial = Contribution.Responsibility.IS_EDITOR
         else:
-            self.fields['responsibility'].initial = Contribution.IS_CONTRIBUTOR
+            self.fields['responsibility'].initial = Contribution.Responsibility.IS_CONTRIBUTOR
 
         if self.instance.contributor:
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
 
         self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(visibility=Questionnaire.MANAGERS) | Q(visibility=Questionnaire.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
+            Q(visibility=Questionnaire.Visibility.MANAGERS) | Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
 
         if self.instance.pk:
             self.fields['does_not_contribute'].initial = not self.instance.questionnaires.exists()
@@ -417,13 +463,13 @@ class ContributionForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         responsibility = self.cleaned_data['responsibility']
-        is_editor = responsibility == Contribution.IS_EDITOR
+        is_editor = responsibility == Contribution.Responsibility.IS_EDITOR
         self.instance.can_edit = is_editor
         return super().save(*args, **kwargs)
 
 
 class EvaluationEmailForm(forms.Form):
-    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.EMAIL_RECIPIENTS, label=_("Send email to"))
+    recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.Recipients.choices, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
     body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
 
@@ -486,7 +532,7 @@ class QuestionnaireForm(forms.ModelForm):
         widgets = {'order': forms.HiddenInput()}
         fields = ('type', 'name_de', 'name_en', 'description_de', 'description_en',
                   'public_name_de', 'public_name_en', 'teaser_de', 'teaser_en', 'order',
-                  'visibility')
+                  'visibility', 'is_locked')
 
     def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
@@ -619,8 +665,8 @@ class QuestionnairesAssignForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         for course_type in course_types:
-            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.HIDDEN))
-        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.HIDDEN)
+            self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN))
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN)
         self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 
@@ -714,6 +760,11 @@ class UserForm(forms.ModelForm):
             self.instance.groups.remove(reviewer_group)
 
         self.instance.is_active = not self.cleaned_data.get('is_inactive')
+
+        # refresh results cache
+        for evaluation in Evaluation.objects.filter(contributions__contributor=self.instance).distinct():
+            if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+                collect_results(evaluation, force_recalculation=True)
 
         self.instance.save()
 

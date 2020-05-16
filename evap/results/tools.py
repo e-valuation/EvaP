@@ -150,7 +150,7 @@ def _collect_results_impl(evaluation):
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters))
                 elif question.is_text_question and evaluation.can_publish_text_results:
-                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.PRIVATE, TextAnswer.PUBLISHED])
+                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED])
                     results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
                 elif question.is_heading_question:
                     results.append(HeadingResult(question=question))
@@ -291,7 +291,7 @@ def get_grade_color(grade):
 def textanswers_visible_to(contribution):
     if contribution.is_general:
         contributors = UserProfile.objects.filter(
-            Q(contributions__evaluation=contribution.evaluation, contributions__textanswer_visibility=Contribution.GENERAL_TEXTANSWERS) |
+            Q(contributions__evaluation=contribution.evaluation, contributions__textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS) |
             Q(courses_responsible_for__in=[contribution.evaluation.course])
         ).distinct().order_by('last_name', 'first_name')
     else:
@@ -303,7 +303,7 @@ def textanswers_visible_to(contribution):
 
 def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
     # pylint: disable=too-many-return-statements
-    assert textanswer.state in [TextAnswer.PRIVATE, TextAnswer.PUBLISHED]
+    assert textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
     contributor = textanswer.contribution.contributor
 
     if view == 'public':
@@ -329,7 +329,7 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
         # users can see text answers from general contributions if one of their represented users has text answer
         # visibility GENERAL_TEXTANSWERS for the evaluation
         if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS).exists():
+                contributor__in=represented_users, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS).exists():
             return True
         # the people responsible for a course can see all general text answers for all its evaluations
         if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):

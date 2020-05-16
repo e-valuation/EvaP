@@ -35,3 +35,6 @@ htmlcov
 
 # pip puts editable packages here
 src
+
+# python env subdir
+env/

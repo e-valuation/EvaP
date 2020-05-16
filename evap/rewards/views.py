@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from django.http import HttpResponse
 from django.views.decorators.http import require_POST
@@ -10,6 +10,7 @@ from django.core.exceptions import SuspiciousOperation
 
 from evap.evaluation.auth import reward_user_required, manager_required
 from evap.evaluation.models import Semester
+from evap.evaluation.tools import FileResponse
 
 from evap.staff.views import semester_view
 
@@ -108,9 +109,7 @@ def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
     filename = _("RewardPoints") + "-%s-%s-%s.xls" % (event.date, event.name, get_language())
-
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"%s\"" % filename
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
     ExcelExporter(event.redemptions_by_user()).export(response)
 

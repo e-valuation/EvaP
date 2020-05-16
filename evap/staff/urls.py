@@ -42,6 +42,7 @@ urlpatterns = [
     path("semester/archive_results", views.semester_archive_results, name="semester_archive_results"),
     path("semester/course_delete", views.course_delete, name="course_delete"),
     path("semester/evaluation_delete", views.evaluation_delete, name="evaluation_delete"),
+    path("semester/make_active", views.semester_make_active, name="semester_make_active"),
 
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
 
@@ -54,6 +55,7 @@ urlpatterns = [
     path("questionnaire/delete", views.questionnaire_delete, name="questionnaire_delete"),
     path("questionnaire/update_indices", views.questionnaire_update_indices, name="questionnaire_update_indices"),
     path("questionnaire/questionnaire_visibility", views.questionnaire_visibility, name="questionnaire_visibility"),
+    path("questionnaire/questionnaire_set_locked", views.questionnaire_set_locked, name="questionnaire_set_locked"),
 
     path("degrees/", views.degree_index, name="degree_index"),
 
@@ -67,7 +69,7 @@ urlpatterns = [
     path("user/<int:user_id>/edit", views.user_edit, name="user_edit"),
 
     path("user/delete", views.user_delete, name="user_delete"),
-    path("user/bulk_delete", views.user_bulk_delete, name="user_bulk_delete"),
+    path("user/bulk_update", views.user_bulk_update, name="user_bulk_update"),
     path("user/merge", views.user_merge_selection, name="user_merge_selection"),
     path("user/<int:main_user_id>/merge/<int:other_user_id>", views.user_merge, name="user_merge"),
 

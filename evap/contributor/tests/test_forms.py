@@ -3,10 +3,24 @@ from model_bakery import baker
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 
-from evap.contributor.forms import DelegatesForm, EditorContributionForm
+from evap.contributor.forms import DelegatesForm, EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
+
+
+class EvaluationFormTests(TestCase):
+    def test_fields_disabled_when_editors_disallowed_to_edit(self):
+        evaluation = baker.make(Evaluation)
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertFalse(all(form.fields[field].disabled for field in form.fields))
+
+        evaluation.allow_editors_to_edit = False
+        evaluation.save()
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertTrue(all(form.fields[field].disabled for field in form.fields))
 
 
 class UserFormTests(TestCase):
@@ -40,10 +54,10 @@ class ContributionFormsetTests(TestCase):
             Regression test for #593.
         """
         evaluation = baker.make(Evaluation)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.EDITORS)
-        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.MANAGERS)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS)
+        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS)
         # one hidden questionnaire that should never be shown
-        baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR, visibility=Questionnaire.HIDDEN)
+        baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
 
         # just the normal questionnaire should be shown.
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
@@ -64,6 +78,36 @@ class ContributionFormsetTests(TestCase):
         expected = set([questionnaire, questionnaire_managers_only])
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
+
+    def test_locked_questionnaire(self):
+        """
+            Asserts that locked (general) questionnaires cannot be changed.
+        """
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
+        locked_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS)
+
+        evaluation = baker.make(Evaluation)
+        evaluation.general_contribution.questionnaires.add(questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk, locked_questionnaire.pk]  # add locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not added
+        form.save()
+        self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+
+        evaluation.general_contribution.questionnaires.add(locked_questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk]  # remove locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not removed
+        form.save()
+        self.assertEqual({questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
 
     def test_existing_contributors_are_in_queryset(self):
         """
@@ -103,9 +147,9 @@ class ContributionFormsetWebTests(WebTest):
         evaluation = baker.make(Evaluation, pk=1, state="prepared")
         user1 = baker.make(UserProfile)
         user2 = baker.make(UserProfile)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
+        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

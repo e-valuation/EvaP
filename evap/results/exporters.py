@@ -1,7 +1,7 @@
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 import xlwt
 
@@ -161,7 +161,7 @@ class ExcelExporter():
                 self.write_empty_cell_with_borders()
 
             for questionnaire in used_questionnaires:
-                if contributor and questionnaire.type == Questionnaire.CONTRIBUTOR:
+                if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
                     writen(self, "{} ({})".format(questionnaire.name, contributor.full_name), "bold")
                 else:
                     writen(self, questionnaire.name, "bold")
@@ -284,3 +284,68 @@ def _write(exporter, label, style, rows, cols):
         exporter.col += cols - 1
     else:
         exporter.sheet.write(exporter.row, exporter.col, label, style)
+
+
+class TextAnswerExcelExporter:
+    # pylint: disable=too-many-instance-attributes
+
+    class InputData:
+        def __init__(self, contribution_results):
+            self.questionnaires = defaultdict(list)
+
+            for contribution_result in contribution_results:
+                contributor_name = contribution_result.contributor.full_name if contribution_result.contributor is not None else ""
+                for questionnaire_result in contribution_result.questionnaire_results:
+                    for result in questionnaire_result.question_results:
+                        q_type = result.question.questionnaire.type
+                        answers = [answer.answer for answer in result.answers]
+                        self.questionnaires[q_type].append((contributor_name, result.question, answers))
+
+    def __init__(self, evaluation_name, semester_name, responsibles, results, contributor_name):
+        self.evaluation_name = evaluation_name
+        self.semester_name = semester_name
+        self.responsibles = responsibles
+        assert isinstance(results, TextAnswerExcelExporter.InputData)
+        self.results = results
+        self.contributor_name = contributor_name
+
+        self.styles = {
+            "default": xlwt.Style.default_style,
+            "border_top": xlwt.easyxf("borders: top medium"),
+        }
+
+        self.workbook = xlwt.Workbook()
+        self.sheet = self.workbook.add_sheet(_("Text Answers"))
+        self.row = 0
+        self.col = 0
+        self.sheet.col(0).width = 10000
+        self.sheet.col(1).width = 40000
+
+    def export(self, response):
+        writec(self, self.evaluation_name, "default")
+        writen(self, self.semester_name, "default")
+        writen(self, self.responsibles, "default")
+        if self.contributor_name is not None:
+            writen(self, _("Export for {}").format(self.contributor_name), "default")
+
+        for questionnaire_type in Questionnaire.Type.values:
+            # The first line of every questionnaire type should have an overline.
+            line_style = "border_top"
+
+            for (contributor_name, question, answers) in self.results.questionnaires[questionnaire_type]:
+                # The first line of every question should contain the
+                # question text and contributor name (if present).
+                first_cell = ""
+                if contributor_name:
+                    first_cell += f"{contributor_name}: "
+                first_cell += question.text
+
+                for answer in answers:
+                    writen(self, first_cell, line_style)
+                    writec(self, answer, line_style)
+
+                    # after the first line, these should reset to their defaults
+                    first_cell = ""
+                    line_style = "default"
+
+        self.workbook.save(response)

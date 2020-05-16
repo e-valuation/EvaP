@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
@@ -9,9 +10,10 @@ from django.db import transaction
 from django.db.models import Count
 from django.conf import settings
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
+from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
 
@@ -25,8 +27,16 @@ def forward_messages(request, success_messages, warnings):
             messages.warning(request, warning)
 
 
+class ImportType(Enum):
+    User = 'user'
+    Contributor = 'contributor'
+    Participant = 'participant'
+    Semester = 'semester'
+    UserBulkUpdate = 'user_bulk_update'
+
+
 def generate_import_filename(user_id, import_type):
-    return settings.MEDIA_ROOT + '/temp_import_files/' + str(user_id) + '.xls' + '.' + import_type
+    return os.path.join(settings.MEDIA_ROOT, 'temp_import_files', f"{user_id}.{import_type.value}.xls")
 
 
 def save_import_file(excel_file, user_id, import_type):
@@ -72,29 +82,121 @@ def create_user_list_html_string_for_message(users):
     return format_html_join("", "<br />{} {} ({})", ((user.first_name, user.last_name, user.email) for user in users))
 
 
-def bulk_delete_users(request, username_file, test_run):
-    usernames = [u.decode().strip() for u in username_file.readlines()]
-    users = UserProfile.objects.exclude(username__in=usernames)
-    deletable_users = [u for u in users if u.can_be_deleted_by_manager]
-    users_to_mark_inactive = [u for u in users if u.is_active and not u.can_be_deleted_by_manager and u.can_be_marked_inactive_by_manager]
+def find_matching_internal_user_for_email(request, email):
+    # for internal users only the part before the @ must be the same to match a user to an email
+    matching_users = [
+        user for user
+        in UserProfile.objects.filter(email__startswith=email.split('@')[0] + '@').order_by('id')
+        if not user.is_external
+    ]
 
-    messages.info(request, _('The uploaded text file contains {} usernames. {} other users have been found in the database. '
-                           'Of those, {} will be deleted and {} will be marked inactive.')
-                  .format(len(usernames), len(users), len(deletable_users), len(users_to_mark_inactive)))
-    messages.info(request, format_html(_('Users to be deleted are:{}'), create_user_list_html_string_for_message(deletable_users)))
-    messages.info(request, format_html(_('Users to be marked inactive are:{}'), create_user_list_html_string_for_message(users_to_mark_inactive)))
+    if not matching_users:
+        return None
+
+    if len(matching_users) > 1:
+        raise UserProfile.MultipleObjectsReturned(matching_users)
+
+    return matching_users[0]
+
+
+def bulk_update_users(request, user_file_content, test_run):
+    # pylint: disable=too-many-branches,too-many-locals
+    # user_file must have one user per line in the format "{username},{email}"
+    imported_emails = {clean_email(line.decode().split(',')[1]) for line in user_file_content.splitlines()}
+
+    emails_of_users_to_be_created = []
+    users_to_be_updated = []
+    skipped_external_emails_counter = 0
+
+    for imported_email in imported_emails:
+        if is_external_email(imported_email):
+            skipped_external_emails_counter += 1
+            continue
+        try:
+            matching_user = find_matching_internal_user_for_email(request, imported_email)
+        except UserProfile.MultipleObjectsReturned as e:
+            messages.error(
+                request,
+                format_html(
+                    _('Multiple users match the email {}:{}'),
+                    imported_email,
+                    create_user_list_html_string_for_message(e.args[0])
+                )
+            )
+            return False
+
+        if not matching_user:
+            emails_of_users_to_be_created.append(imported_email)
+        elif matching_user.email != imported_email:
+            users_to_be_updated.append((matching_user, imported_email))
+
+    emails_of_non_obsolete_users = set(imported_emails) | {user.email for user, _ in users_to_be_updated}
+    deletable_users, users_to_mark_inactive = [], []
+    for user in UserProfile.objects.exclude(email__in=emails_of_non_obsolete_users):
+        if user.can_be_deleted_by_manager:
+            deletable_users.append(user)
+        elif user.is_active and user.can_be_marked_inactive_by_manager:
+            users_to_mark_inactive.append(user)
+
+    messages.info(
+        request,
+        _('The uploaded text file contains {} internal and {} external users. The external users will be ignored. '
+        '{} users are currently in the database. Of those, {} will be updated, {} will be deleted and {} will be '
+        'marked inactive. {} new users will be created.')
+        .format(len(imported_emails)-skipped_external_emails_counter, skipped_external_emails_counter,
+            UserProfile.objects.count(), len(users_to_be_updated), len(deletable_users), len(users_to_mark_inactive),
+            len(emails_of_users_to_be_created))
+    )
+    if users_to_be_updated:
+        messages.info(request,
+            format_html(
+                _('Users to be updated are:{}'),
+                format_html_join('', '<br />{} {} ({} > {})',
+                    ((user.first_name, user.last_name, user.email, email) for user, email in users_to_be_updated)
+                )
+            )
+        )
+    if deletable_users:
+        messages.info(request,
+            format_html(
+                _('Users to be deleted are:{}'),
+                create_user_list_html_string_for_message(deletable_users)
+            )
+        )
+    if users_to_mark_inactive:
+        messages.info(request,
+            format_html(
+                _('Users to be marked inactive are:{}'),
+                create_user_list_html_string_for_message(users_to_mark_inactive)
+            )
+        )
+    if emails_of_users_to_be_created:
+        messages.info(request,
+            format_html(
+                _('Users to be created are:{}'),
+                format_html_join('', '<br />{}', ((email, ) for email in emails_of_users_to_be_created))
+            )
+        )
 
     if test_run:
-        messages.info(request, _('No users were deleted or marked inactive in this test run.'))
+        messages.info(request, _('No data was changed in this test run.'))
     else:
-        for user in deletable_users:
-            user.delete()
-        for user in users_to_mark_inactive:
-            user.is_active = False
-            user.save()
+        with transaction.atomic():
+            for user in deletable_users:
+                user.delete()
+            for user in users_to_mark_inactive:
+                user.is_active = False
+                user.save()
+            for user, email in users_to_be_updated:
+                user.email = email
+                user.save()
+            userprofiles_to_create = []
+            for email in emails_of_users_to_be_created:
+                userprofiles_to_create.append(UserProfile(email=email, username=email))
+            UserProfile.objects.bulk_create(userprofiles_to_create)
+            messages.success(request, _('Users have been successfully updated.'))
 
-        messages.info(request, _('{} users have been deleted').format(len(deletable_users)))
-        messages.info(request, _('{} users have been marked inactive').format(len(users_to_mark_inactive)))
+    return True
 
 
 @transaction.atomic
@@ -188,6 +290,6 @@ def find_next_unreviewed_evaluation(semester, excluded):
     return semester.evaluations.exclude(pk__in=excluded) \
         .exclude(state='published') \
         .exclude(can_publish_text_results=False) \
-        .filter(contributions__textanswer_set__state=TextAnswer.NOT_REVIEWED) \
+        .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()

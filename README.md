@@ -1,21 +1,21 @@
 # EvaP - Evaluation Platform
 
-[![Build Status](https://travis-ci.org/fsr-de/EvaP.svg?branch=master)](https://travis-ci.org/fsr-de/EvaP)
-[![Requirements Status](https://requires.io/github/fsr-de/EvaP/requirements.svg?branch=master)](https://requires.io/github/fsr-de/EvaP/requirements/?branch=master)
+[![Build Status](https://travis-ci.org/e-valuation/EvaP.svg?branch=master)](https://travis-ci.org/e-valuation/EvaP)
+[![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=master)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
-[![Coverage Status](https://coveralls.io/repos/github/fsr-de/EvaP/badge.svg?branch=master)](https://coveralls.io/github/fsr-de/EvaP?branch=master)
+[![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
 
 ## What is EvaP?
 
 EvaP is the course evaluation system used internally at Hasso Plattner Institute at the University of Potsdam.
 
-For the documentation, please see our [wiki](https://github.com/fsr-de/EvaP/wiki).
+For the documentation, please see our [wiki](https://github.com/e-valuation/EvaP/wiki).
 
 
 ## Installation
 
-The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/fsr-de/EvaP/wiki/Installation).
+The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](https://www.virtualbox.org) is shown here. For manual installation instructions and production deployment please see the [wiki page on installation](https://github.com/e-valuation/EvaP/wiki/Installation).
 
 0. Install [git](https://git-scm.com/downloads), [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 

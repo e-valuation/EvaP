@@ -3,18 +3,18 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result)
+                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
+                                normalized_distribution)
 from evap.staff.forms import ContributionFormSet
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -55,16 +55,17 @@ def index(request):
         if evaluation.state == "published":
             if not evaluation.is_single_result:
                 evaluation.distribution = calculate_average_distribution(evaluation)
-                evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
             else:
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
     displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
     semester_list = [dict(
         semester_name=semester.name,
         id=semester.id,
-        is_active_semester=semester.is_active_semester,
+        is_active=semester.is_active,
         evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
@@ -221,7 +222,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
     # we don't provide the request here since send_to_user only uses it to display a warning message in case the user does not have
     # an email address. In this special case, we don't want that warning. Instead, we want a mail to the admins.
-    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_user=request.user)
+    template.send_to_user(delegate_user, subject_params, body_params, use_cc=True, additional_cc_users=[request.user])
 
     messages.add_message(
         request,
@@ -234,8 +235,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 def export_contributor_results(contributor):
     filename = "Evaluation_{}.xls".format(contributor.full_name)
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     ExcelExporter().export(
         response,
         Semester.objects.all(),
