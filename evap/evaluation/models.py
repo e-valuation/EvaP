@@ -382,7 +382,7 @@ class Evaluation(models.Model):
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # Disable to prevent editors from changing evaluation data
-    allow_editors_to_edit = models.BooleanField(verbose_name=("allow editors to edit"), default=True)
+    allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
     # who last modified this evaluation
     last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))

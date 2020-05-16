@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-16 18:30+0200\n"
-"PO-Revision-Date: 2020-05-16 18:38+0200\n"
+"POT-Creation-Date: 2020-05-16 19:20+0200\n"
+"PO-Revision-Date: 2020-05-16 19:21+0200\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -761,6 +761,10 @@ msgstr "Beginn der Evaluierung"
 #: evap/evaluation/models.py:382
 msgid "last day of evaluation"
 msgstr "letzter Evaluierungstag"
+
+#: evap/evaluation/models.py:385
+msgid "allow editors to edit"
+msgstr "Bearbeitung durch Bearbeiter erlauben"
 
 #: evap/evaluation/models.py:394
 msgid "wait for grade upload before publishing"
