@@ -313,6 +313,19 @@ class TestExporters(TestCase):
         self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
         self.assertNotIn(unused_question.text, sheet.col_values(0))
 
+    def test_multiple_evaluations(self):
+        semester = baker.make(Semester)
+        degree = baker.make(Degree)
+        evaluation1 = baker.make(Evaluation, course__semester=semester, course__degrees=[degree], state="published")
+        evaluation2 = baker.make(Evaluation, course__semester=semester, course__degrees=[degree], state="published")
+
+        sheet = self.get_export_sheet(semester, degree, [evaluation1.course.type.id, evaluation2.course.type.id])
+
+        self.assertEqual(
+            set(sheet.row_values(0)[1:]),
+            set((evaluation1.full_name + "\n", evaluation2.full_name + "\n"))
+        )
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
