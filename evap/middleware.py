@@ -17,6 +17,9 @@ class RequireLoginMiddleware:
         if "no_login_required" in view_func.__dict__ and view_func.no_login_required:
             return None
 
+        if view_func.__name__ in ["OIDCAuthenticationRequestView", "OIDCAuthenticationCallbackView"]:
+            return None
+
         return redirect_to_login(request.get_full_path())
 
 
