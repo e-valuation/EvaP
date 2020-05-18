@@ -129046,28 +129046,6 @@
   }
 },
 {
-  "model": "evaluation.userprofile",
-  "fields": {
-    "password": "",
-    "last_login": "2019-10-28T17:52:34.380",
-    "is_superuser": false,
-    "username": "richard.ebeling",
-    "email": "richard.ebeling@student.hpi.de",
-    "title": null,
-    "first_name": "Richard",
-    "last_name": "Ebeling",
-    "language": "en",
-    "is_proxy_user": false,
-    "login_key": null,
-    "login_key_valid_until": null,
-    "is_active": true,
-    "groups": [],
-    "user_permissions": [],
-    "delegates": [],
-    "cc_users": []
-  }
-},
-{
   "model": "evaluation.emailtemplate",
   "pk": 1,
   "fields": {
