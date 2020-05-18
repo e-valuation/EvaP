@@ -291,6 +291,12 @@ class TestExporters(TestCase):
         with self.assertRaises(AssertionError):
             ExcelExporter().export(BytesIO(), [evaluation.course.semester], [])
 
+    def test_exclude_single_result(self):
+        degree = baker.make(Degree)
+        evaluation = baker.make(Evaluation, is_single_result=True, state="published", course__degrees=[degree])
+        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        self.assertEqual(len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description")
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
