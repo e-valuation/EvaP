@@ -297,6 +297,22 @@ class TestExporters(TestCase):
         sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
         self.assertEqual(len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description")
 
+    def test_exclude_used_but_unanswered_questionnaires(self):
+        degree = baker.make(Degree)
+        evaluation = baker.make(Evaluation, _voter_count=10, _participant_count=10, state="published", course__degrees=[degree])
+        used_questionnaire = baker.make(Questionnaire)
+        used_question = baker.make(Question, type=Question.LIKERT, questionnaire=used_questionnaire)
+        unused_questionnaire = baker.make(Questionnaire)
+        unused_question = baker.make(Question, type=Question.LIKERT, questionnaire=unused_questionnaire)
+        baker.make(RatingAnswerCounter, question=used_question, contribution=evaluation.general_contribution, answer=3, count=10)
+        evaluation.general_contribution.questionnaires.set([used_questionnaire, unused_questionnaire])
+
+        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        self.assertEqual(sheet.row_values(4)[0], used_questionnaire.name)
+        self.assertEqual(sheet.row_values(5)[0], used_question.text)
+        self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
+        self.assertNotIn(unused_question.text, sheet.col_values(0))
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
