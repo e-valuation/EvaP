@@ -286,6 +286,11 @@ class TestExporters(TestCase):
                 {sheet.row_values(0)[1][:-1], sheet.row_values(0)[2][:-1]}
         )
 
+    def test_no_degree_or_course_type(self):
+        evaluation = baker.make(Evaluation)
+        with self.assertRaises(AssertionError):
+            ExcelExporter().export(BytesIO(), [evaluation.course.semester], [])
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)

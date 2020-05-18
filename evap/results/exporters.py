@@ -85,6 +85,10 @@ class ExcelExporter():
         # always be tightly coupled based on the layout of the sheet. We thus think that one big method
         # containing the business logic is okay here
         # pylint: disable=too-many-locals, too-many-nested-blocks, too-many-branches, too-many-statements
+
+        # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
+        assert len(selection_list) > 0
+
         workbook = xlwt.Workbook()
         self.init_styles(workbook)
         counter = 1
