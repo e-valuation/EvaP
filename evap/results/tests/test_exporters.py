@@ -326,6 +326,29 @@ class TestExporters(TestCase):
             set((evaluation1.full_name + "\n", evaluation2.full_name + "\n"))
         )
 
+    def test_correct_grades_and_bottom_numbers(self):
+        degree = baker.make(Degree)
+        evaluation = baker.make(Evaluation, _voter_count=5, _participant_count=10, course__degrees=[degree], state="published")
+        questionnaire1 = baker.make(Questionnaire, order=1)
+        questionnaire2 = baker.make(Questionnaire, order=2)
+        question1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire1)
+        question2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire2)
+        baker.make(RatingAnswerCounter, answer=1, count=1, question=question1, contribution=evaluation.general_contribution)
+        baker.make(RatingAnswerCounter, answer=3, count=1, question=question1, contribution=evaluation.general_contribution)
+        baker.make(RatingAnswerCounter, answer=2, count=1, question=question2, contribution=evaluation.general_contribution)
+        baker.make(RatingAnswerCounter, answer=4, count=1, question=question2, contribution=evaluation.general_contribution)
+
+        evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
+
+        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+
+        self.assertEqual(sheet.row_values(5)[1], 2.0)       # question 1 average
+        self.assertEqual(sheet.row_values(8)[1], 3.0)       # question 2 average
+        self.assertEqual(sheet.row_values(10)[1], 2.5)      # Average grade
+        self.assertEqual(sheet.row_values(11)[1], "5/10")   # Voters / Participants
+        self.assertEqual(sheet.row_values(12)[1], "50%")    # Voter percentage
+
+
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
         contributor = baker.make(UserProfile)
