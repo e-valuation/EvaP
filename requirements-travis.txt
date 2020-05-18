@@ -1,4 +1,4 @@
 -r requirements.txt
 codecov
-pylint==2.4.4
-pylint-django==2.0.14
+pylint==2.5.2
+pylint-django==2.0.15
