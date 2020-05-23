@@ -24,7 +24,7 @@ class Command(BaseCommand):
     lastnames_filename = 'last_names.txt'
     lorem_ipsum_filename = 'lorem_ipsum.txt'
 
-    ignore_emails = ['evap', 'student', 'contributor', 'delegate', 'responsible']
+    ignore_email_usernames = ['evap', 'student', 'contributor', 'delegate', 'responsible']
 
     previous_institution_domains = ['hpi.uni-potsdam.de', 'institution.example.com', 'hpi.de', 'student.hpi.de']
     new_institution_domain = settings.INSTITUTION_EMAIL_DOMAINS[0]
@@ -99,7 +99,7 @@ class Command(BaseCommand):
         for i, user in enumerate(user_profiles):
             # Give users unique temporary emails to counter identity errors due to the emails being unique
             if user.email:
-                if user.email.split('@')[0] in Command.ignore_emails:
+                if user.email.split('@')[0] in Command.ignore_email_usernames:
                     continue
                 user.email = f"<User.{i}>@{user.email.split('@')[1]}"
                 user.save()
@@ -107,7 +107,7 @@ class Command(BaseCommand):
         # Actually replace all the real user data
         self.stdout.write("Replacing email addresses and login keys with fake ones...")
         for user, name in zip(user_profiles, fake_usernames):
-            if user.email and user.email.split('@')[0] in Command.ignore_emails:
+            if user.email and user.email.split('@')[0] in Command.ignore_email_usernames:
                 continue
             user.first_name = name[0]
             user.last_name = name[1]

@@ -272,8 +272,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
-    def helper_test_answer_visibility_one_voter(self, user, expect_page_not_visible=False):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user, expect_errors=expect_page_not_visible)
+    def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
+        page = self.app.get("/results/semester/2/evaluation/22", user=user_email, expect_errors=expect_page_not_visible)
         if expect_page_not_visible:
             self.assertEqual(page.status_code, 403)
         else:
@@ -285,8 +285,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
             number_of_disabled_grade_badges = str(page).count("badge-grade badge-disabled")
             self.assertEqual(number_of_disabled_grade_badges, 5)
 
-    def helper_test_answer_visibility_two_voters(self, user):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user)
+    def helper_test_answer_visibility_two_voters(self, user_email):
+        page = self.app.get("/results/semester/2/evaluation/22", user=user_email)
         number_of_grade_badges = str(page).count("badge-grade")
         self.assertEqual(number_of_grade_badges, 5)  # 1 evaluation overview and 4 questions
         number_of_visible_grade_badges = str(page).count("background-color")

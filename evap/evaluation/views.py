@@ -150,7 +150,8 @@ def legal_notice(request):
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
-    subject = "[EvaP] Message from {}".format(request.user.email)
+    email = request.user.email or f"User {request.user.id}"
+    subject = f"[EvaP] Message from {email}"
 
     if message:
         mail = EmailMessage(

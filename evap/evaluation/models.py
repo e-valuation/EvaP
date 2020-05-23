@@ -1177,9 +1177,6 @@ class FaqQuestion(models.Model):
 
 class UserProfileManager(BaseUserManager):
     def create_user(self, email, password=None, first_name=None, last_name=None):
-        if not email:
-            raise ValueError(_('Users must have an email'))
-
         user = self.model(
             email=self.normalize_email(email),
             first_name=first_name,
@@ -1253,7 +1250,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
                 name = self.title + " " + name
             return name
 
-        return self.email.split('@')[0] if self.email else "<unnamed>"
+        name = "<unnamed>"
+        if self.email:
+            name = self.email.split('@')[0]
+        if self.is_external:
+            name += f" (User {self.id})"
+        return name
 
     @property
     def full_name_with_additional_info(self):
