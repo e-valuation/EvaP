@@ -19,7 +19,7 @@ class TestGrantRewardPoints(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = baker.make(UserProfile, username='student', email='foo@institution.example.com')
+        cls.student = baker.make(UserProfile, email='student@institution.example.com')
         cls.evaluation = baker.make(Evaluation, state='in_evaluation', participants=[cls.student])
 
         questionnaire = baker.make(Questionnaire)
@@ -27,7 +27,7 @@ class TestGrantRewardPoints(WebTest):
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
-        response = self.app.get(reverse("student:vote", args=[self.evaluation.pk]), user="student")
+        response = self.app.get(reverse("student:vote", args=[self.evaluation.pk]), user="student@institution.example.com")
 
         self.form = response.forms["student-vote-form"]
         for key in self.form.fields.keys():
@@ -75,7 +75,7 @@ class TestGrantRewardPointsParticipationChange(TestCase):
         cls.evaluation = baker.make(Evaluation)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=cls.evaluation.course.semester))
         SemesterActivation.objects.create(semester=cls.evaluation.course.semester, is_active=True)
-        cls.student = baker.make(UserProfile, username="student", email="foo@institution.example.com",
+        cls.student = baker.make(UserProfile, email="student@institution.example.com",
             evaluations_participating_in=[cls.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
 
     def test_participant_removed_from_evaluation(self):

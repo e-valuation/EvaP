@@ -317,14 +317,14 @@ class TestCalculateAverageDistribution(TestCase):
 class TestTextAnswerVisibilityInfo(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.delegate1 = baker.make(UserProfile, username="delegate1")
-        cls.delegate2 = baker.make(UserProfile, username="delegate2")
-        cls.contributor_own = baker.make(UserProfile, username="contributor_own", delegates=[cls.delegate1])
-        cls.contributor_general = baker.make(UserProfile, username="contributor_general", delegates=[cls.delegate2])
-        cls.responsible1 = baker.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_general])
-        cls.responsible2 = baker.make(UserProfile, username="responsible2")
-        cls.responsible_without_contribution = baker.make(UserProfile, username="responsible_without_contribution")
-        cls.other_user = baker.make(UserProfile, username="other_user")
+        cls.delegate1 = baker.make(UserProfile, email="delegate1@institution.example.com")
+        cls.delegate2 = baker.make(UserProfile, email="delegate2@institution.example.com")
+        cls.contributor_own = baker.make(UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1])
+        cls.contributor_general = baker.make(UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2])
+        cls.responsible1 = baker.make(UserProfile, email="responsible1@institution.example.com", delegates=[cls.delegate1, cls.contributor_general])
+        cls.responsible2 = baker.make(UserProfile, email="responsible2@institution.example.com")
+        cls.responsible_without_contribution = baker.make(UserProfile, email="responsible_without_contribution@institution.example.com")
+        cls.other_user = baker.make(UserProfile, email="other_user@institution.example.com")
 
         cls.evaluation = baker.make(Evaluation, course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state='published', can_publish_text_results=True)
         cls.questionnaire = baker.make(Questionnaire)

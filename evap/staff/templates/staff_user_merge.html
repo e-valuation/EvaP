@@ -24,12 +24,6 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>{% trans 'Username' %}</strong></td>
-                        <td{% if main_user.username == merged_user.username %} class="table-info"{% endif %}>{{ main_user.username }}</td>
-                        <td{% if other_user.username == merged_user.username %} class="table-info"{% endif %}>{{ other_user.username }}</td>
-                        <td{% if merged_user.username %} class="table-success"{% endif %}>{{ merged_user.username }}</td>
-                    </tr>
-                    <tr>
                         <td><strong>{% trans 'Title' %}</strong></td>
                         <td{% if main_user.title == merged_user.title %} class="table-info"{% endif %}>{{ main_user.title|default_if_none:"" }}</td>
                         <td{% if other_user.title == merged_user.title %} class="table-info"{% endif %}>{{ other_user.title|default_if_none:"" }}</td>

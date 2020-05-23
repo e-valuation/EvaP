@@ -199,8 +199,8 @@ class TestEvaluations(WebTest):
         single_result.publish()  # used to crash
 
     def test_second_vote_sets_can_publish_text_results_to_true(self):
-        student1 = baker.make(UserProfile)
-        student2 = baker.make(UserProfile)
+        student1 = baker.make(UserProfile, email="student1@institution.example.com")
+        student2 = baker.make(UserProfile, email="student2@example.com")
         evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)

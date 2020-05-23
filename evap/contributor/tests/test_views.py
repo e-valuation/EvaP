@@ -16,8 +16,8 @@ class TestContributorDirectDelegationView(WebTest):
     def setUpTestData(cls):
         cls.evaluation = baker.make(Evaluation, state='prepared')
 
-        cls.editor = baker.make(UserProfile)
-        cls.non_editor = baker.make(UserProfile, email="a@b.c")
+        cls.editor = baker.make(UserProfile, email="editor@institution.example.com")
+        cls.non_editor = baker.make(UserProfile, email="non_editor@institution.example.com")
         baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
 
     def test_direct_delegation_request(self):
@@ -56,7 +56,7 @@ class TestContributorDirectDelegationView(WebTest):
 
 class TestContributorView(WebTestWith200Check):
     url = '/contributor/'
-    test_users = ['editor', 'responsible']
+    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
@@ -72,17 +72,17 @@ class TestContributorSettingsView(WebTest):
 
     def test_save_settings(self):
         user = baker.make(UserProfile)
-        page = self.app.get(self.url, user="responsible", status=200)
+        page = self.app.get(self.url, user="responsible@institution.example.com", status=200)
         form = page.forms["settings-form"]
         form["delegates"] = [user.pk]
         form.submit()
 
-        self.assertEqual(list(UserProfile.objects.get(username='responsible').delegates.all()), [user])
+        self.assertEqual(list(UserProfile.objects.get(email='responsible@institution.example.com').delegates.all()), [user])
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
     url = '/contributor/evaluation/%s' % TESTING_COURSE_ID
-    test_users = ['editor', 'responsible']
+    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
@@ -94,20 +94,20 @@ class TestContributorEvaluationView(WebTestWith200Check):
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
         self.evaluation.save()
-        self.app.get(self.url, user='responsible', status=403)
+        self.app.get(self.url, user="responsible@institution.example.com", status=403)
 
     def test_information_message(self):
         self.evaluation.editor_approve()
         self.evaluation.save()
 
-        page = self.app.get(self.url, user='editor')
+        page = self.app.get(self.url, user="editor@institution.example.com")
         self.assertContains(page, "You cannot edit this evaluation because it has already been approved")
         self.assertNotContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
     url = '/contributor/evaluation/%s/preview' % TESTING_COURSE_ID
-    test_users = ['editor', 'responsible']
+    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
@@ -119,7 +119,7 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
         self.evaluation.save()
-        self.app.get(self.url, user='responsible', status=403)
+        self.app.get(self.url, user="responsible@institution.example.com", status=403)
 
 
 class TestContributorEvaluationEditView(WebTest):
@@ -145,7 +145,7 @@ class TestContributorEvaluationEditView(WebTest):
             that is required for a specific view gets a 403.
             Regression test for #483
         """
-        self.app.get(self.url, user='student', status=403)
+        self.app.get(self.url, user="student@institution.example.com", status=403)
 
     def test_wrong_state(self):
         """
@@ -155,14 +155,14 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation.editor_approve()
         self.evaluation.save()
 
-        self.app.get(self.url, user='responsible', status=403)
+        self.app.get(self.url, user="responsible@institution.example.com", status=403)
 
     def test_contributor_evaluation_edit(self):
         """
             Tests whether the "save" button in the contributor's evaluation edit view does not
             change the evaluation's state, and that the "approve" button does that.
         """
-        page = self.app.get(self.url, user="responsible", status=200)
+        page = self.app.get(self.url, user="responsible@institution.example.com", status=200)
         form = page.forms["evaluation-form"]
         form["vote_start_datetime"] = "2098-01-01 11:43:12"
         form["vote_end_date"] = "2099-01-01"
@@ -183,7 +183,7 @@ class TestContributorEvaluationEditView(WebTest):
         """
             Asserts that the preview button either renders a preview or shows an error.
         """
-        page = self.app.get(self.url, user="responsible")
+        page = self.app.get(self.url, user="responsible@institution.example.com")
         form = page.forms["evaluation-form"]
         form["vote_start_datetime"] = "2099-01-01 11:43:12"
         form["vote_end_date"] = "2098-01-01"
@@ -206,7 +206,7 @@ class TestContributorEvaluationEditView(WebTest):
         """
         self.evaluation.name_en = "Adam & Eve"
         self.evaluation.save()
-        page = self.app.get(self.url, user="responsible", status=200)
+        page = self.app.get(self.url, user="responsible@institution.example.com", status=200)
 
         self.assertIn("changeParticipantRequestModalLabel", page)
 
@@ -215,7 +215,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertNotIn("Adam & Eve", page)
 
     def test_information_message(self):
-        page = self.app.get(self.url, user='editor')
+        page = self.app.get(self.url, user="editor@institution.example.com")
         self.assertNotContains(page, "You cannot edit this evaluation because it has already been approved")
         self.assertContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
 
@@ -227,7 +227,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertEqual(self.evaluation.last_modified_user, None)
         last_modified_time_before = self.evaluation.last_modified_time
 
-        page = self.app.get(self.url, user='responsible', status=200)
+        page = self.app.get(self.url, user="responsible@institution.example.com", status=200)
         form = page.forms["evaluation-form"]
 
         # Change label of the first contribution
@@ -236,7 +236,7 @@ class TestContributorEvaluationEditView(WebTest):
 
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
         self.assertEqual(self.evaluation.state, 'editor_approved')
-        self.assertEqual(self.evaluation.last_modified_user.username, 'responsible')
+        self.assertEqual(self.evaluation.last_modified_user.email, 'responsible@institution.example.com')
         self.assertGreater(self.evaluation.last_modified_time, last_modified_time_before)
 
     def test_last_modified_unchanged(self):
@@ -246,7 +246,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertIsNone(self.evaluation.last_modified_user)
         last_modified_time_before = self.evaluation.last_modified_time
 
-        page = self.app.get(self.url, user='responsible', status=200)
+        page = self.app.get(self.url, user="responsible@institution.example.com", status=200)
         form = page.forms["evaluation-form"]
         form.submit(name="operation", value="approve")
 

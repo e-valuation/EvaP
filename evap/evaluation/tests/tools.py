@@ -34,7 +34,7 @@ class FuzzyInt(int):
 
 def let_user_vote_for_evaluation(app, user, evaluation):
     url = '/student/vote/{}'.format(evaluation.id)
-    page = app.get(url, user=user, status=200)
+    page = app.get(url, user=user.email, status=200)
     form = page.forms["student-vote-form"]
     for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         for questionnaire in contribution.questionnaires.all():
@@ -62,8 +62,8 @@ def get_form_data_from_instance(FormClass, instance, **kwargs):
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    responsible = baker.make(UserProfile, username='responsible')
-    editor = baker.make(UserProfile, username='editor')
+    responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+    editor = baker.make(UserProfile, email='editor@institution.example.com')
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
