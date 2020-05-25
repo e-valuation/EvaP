@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -92,3 +93,11 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         'responsible': responsible,
         'editor': editor,
     }
+
+
+def make_manager():
+    return baker.make(
+        UserProfile,
+        email='manager@institution.example.com',
+        groups=[Group.objects.get(name='Manager')]
+    )

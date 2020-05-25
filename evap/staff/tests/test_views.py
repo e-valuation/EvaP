@@ -16,7 +16,7 @@ import xlrd
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqSection,
                                     FaqQuestion, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check, make_manager
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename, ImportType
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
@@ -38,11 +38,7 @@ class TestDownloadSampleXlsView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_sample_file_correctness(self):
         page = self.app.get(self.url, user=self.manager)
@@ -66,7 +62,7 @@ class TestStaffIndexView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
 
 
 class TestStaffFAQView(WebTestWith200Check):
@@ -75,7 +71,7 @@ class TestStaffFAQView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
 
 
 class TestStaffFAQEditView(WebTestWith200Check):
@@ -84,7 +80,7 @@ class TestStaffFAQEditView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         section = baker.make(FaqSection, pk=1)
         baker.make(FaqQuestion, section=section)
 
@@ -94,11 +90,7 @@ class TestUserIndexView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_num_queries_is_constant(self):
         """
@@ -112,7 +104,7 @@ class TestUserIndexView(WebTest):
         evaluation = baker.make(
             Evaluation,
             state="published",
-            course=baker.make(Course, semester=semester),
+            course__semester=semester,
             _participant_count=1,
             _voter_count=1
         )
@@ -127,11 +119,7 @@ class TestUserCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_user_is_created(self):
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -155,11 +143,7 @@ class TestUserEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         baker.make(UserProfile, pk=3)
 
     def test_questionnaire_edit(self):
@@ -194,7 +178,7 @@ class TestUserMergeSelectionView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         baker.make(UserProfile)
 
 
@@ -204,7 +188,7 @@ class TestUserMergeView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         baker.make(UserProfile, pk=3)
         baker.make(UserProfile, pk=4)
 
@@ -217,11 +201,7 @@ class TestUserBulkUpdateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_testrun_deletes_no_users(self):
         page = self.app.get(self.url, user=self.manager)
@@ -356,11 +336,7 @@ class TestUserImportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_success_handling(self):
         """
@@ -452,11 +428,7 @@ class TestSemesterView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.evaluation1 = baker.make(
             Evaluation,
@@ -527,22 +499,22 @@ class TestSemesterView(WebTest):
         baker.make(TextAnswer, contribution=evaluation.general_contribution)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
-        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
         expected_count = page.body.decode().count('no_textanswers')
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_NEEDED
-        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
         # + 1 because the buttons at the top of the page contain it two times (once for _urgent)
         self.assertEqual(page.body.decode().count('unreviewed_textanswers'), expected_count + 1)
         self.assertEqual(page.body.decode().count('no_textanswers'), 1)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_URGENT
-        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
         self.assertEqual(page.body.decode().count('unreviewed_textanswers_urgent'), expected_count)
         self.assertEqual(page.body.decode().count('no_textanswers'), 1)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEWED
-        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
         self.assertEqual(page.body.decode().count('textanswers_reviewed'), expected_count)
         self.assertEqual(page.body.decode().count('no_textanswers'), 1)
 
@@ -559,11 +531,7 @@ class TestSemesterCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_create(self):
         name_de = 'name_de'
@@ -587,11 +555,7 @@ class TestSemesterEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1, name_de='old_name', name_en='old_name')
 
     def test_name_change(self):
@@ -617,11 +581,7 @@ class TestSemesterDeleteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_failure(self):
         semester = baker.make(Semester)
@@ -683,11 +643,7 @@ class TestSemesterAssignView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
         seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
@@ -730,11 +686,7 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')],
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
 
     def test_preparation_reminder(self):
@@ -782,24 +734,13 @@ class TestSendReminderView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile, pk=3, email='a.b@example.com')
-        evaluation = baker.make(
+        baker.make(
             Evaluation,
             course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
             state='prepared'
-        )
-        baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=responsible,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
     def test_form(self):
@@ -821,12 +762,8 @@ class TestSemesterImportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         baker.make(Semester, pk=1)
-        cls.manager = baker.make(
-            UserProfile,
-            email="manager@institution.example.com",
-            groups=[Group.objects.get(name="Manager")]
-        )
         baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
         baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
 
@@ -976,11 +913,7 @@ class TestSemesterExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.degree = baker.make(Degree)
         cls.course_type = baker.make(CourseType)
@@ -1013,11 +946,7 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType, name_en="Type")
 
@@ -1053,11 +982,7 @@ class TestSemesterParticipationDataExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.student_user = baker.make(UserProfile, email='student@example.com')
         cls.student_user2 = baker.make(UserProfile, email='student2@example.com')
         cls.semester = baker.make(Semester, pk=1)
@@ -1110,12 +1035,7 @@ class TestLoginKeyExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
-
+        cls.manager = make_manager()
         cls.external_user = baker.make(UserProfile, email="user@external.com")
         cls.internal_user = baker.make(UserProfile, email="user@institution.example.com")
 
@@ -1123,7 +1043,7 @@ class TestLoginKeyExportView(WebTest):
         baker.make(
             Evaluation,
             pk=1,
-            course=baker.make(Course, semester=semester),
+            course__semester=semester,
             participants=[cls.external_user, cls.internal_user],
             voters=[cls.external_user, cls.internal_user]
         )
@@ -1147,11 +1067,7 @@ class TestEvaluationOperationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.responsible = baker.make(UserProfile, email='responsible@example.com')
         cls.course = baker.make(Course, semester=cls.semester, responsibles=[cls.responsible])
@@ -1379,11 +1295,7 @@ class TestCourseCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType)
         cls.degree = baker.make(Degree)
@@ -1418,15 +1330,11 @@ class TestSingleResultCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
 
     def test_course_is_prefilled(self):
-        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager_user, status=200)
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager, status=200)
         form = response.context['form']
         self.assertEqual(form['course'].initial, self.course.pk)
 
@@ -1457,17 +1365,13 @@ class TestEvaluationCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
         cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
 
     def test_course_is_prefilled(self):
-        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager_user, status=200)
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager, status=200)
         form = response.context['evaluation_form']
         self.assertEqual(form['course'].initial, self.course.pk)
 
@@ -1554,11 +1458,7 @@ class TestCourseEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         degree = baker.make(Degree)
         responsible = baker.make(UserProfile)
@@ -1630,11 +1530,7 @@ class TestEvaluationEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         degree = baker.make(Degree)
         responsible = baker.make(UserProfile)
@@ -1832,7 +1728,7 @@ class TestSingleResultEditView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         semester = baker.make(Semester, pk=1)
 
         responsible = baker.make(UserProfile)
@@ -1860,7 +1756,7 @@ class TestEvaluationPreviewView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         semester = baker.make(Semester, pk=1)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester), pk=1)
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -1875,11 +1771,7 @@ class TestEvaluationImportPersonsView(WebTest):
     @classmethod
     def setUpTestData(cls):
         semester = baker.make(Semester, pk=1)
-        cls.manager = baker.make(
-            UserProfile,
-            email="manager@institution.example.com",
-            groups=[Group.objects.get(name="Manager")]
-        )
+        cls.manager = make_manager()
         cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester))
         profiles = baker.make(UserProfile, _quantity=42)
         cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles)
@@ -2065,11 +1957,7 @@ class TestEvaluationEmailView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
@@ -2091,14 +1979,11 @@ class TestEvaluationTextAnswerView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         student1 = baker.make(UserProfile, email="student@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
+
         cls.evaluation = baker.make(
             Evaluation,
             pk=1,
@@ -2110,6 +1995,7 @@ class TestEvaluationTextAnswerView(WebTest):
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
+
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         contribution = baker.make(
@@ -2145,11 +2031,7 @@ class TestEvaluationTextAnswerView(WebTest):
 class TestEvaluationTextAnswerEditView(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
 
@@ -2207,11 +2089,7 @@ class TestQuestionnaireNewVersionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email="manager@institution.example.com",
-            groups=[Group.objects.get(name="Manager")]
-        )
+        cls.manager = make_manager()
         cls.name_de_orig = 'kurzer name'
         cls.name_en_orig = 'short name'
         questionnaire = baker.make(Questionnaire, id=2, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
@@ -2250,11 +2128,7 @@ class TestQuestionnaireCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_create_questionnaire(self):
         page = self.app.get(self.url, user=self.manager)
@@ -2296,11 +2170,7 @@ class TestQuestionnaireIndexView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
@@ -2320,11 +2190,7 @@ class TestQuestionnaireEditView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         evaluation = baker.make(Evaluation, state='in_evaluation')
         cls.questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
@@ -2363,11 +2229,11 @@ class TestQuestionnaireViewView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
+        make_manager()
         questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
-        baker.make(UserProfile, email="manager@institution.example.com", groups=[Group.objects.get(name="Manager")])
 
 
 class TestQuestionnaireCopyView(WebTest):
@@ -2375,11 +2241,7 @@ class TestQuestionnaireCopyView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Question, questionnaire=questionnaire)
 
@@ -2408,11 +2270,7 @@ class TestQuestionnaireDeletionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.q1 = baker.make(Questionnaire)
         cls.q2 = baker.make(Questionnaire)
         baker.make(Contribution, questionnaires=[cls.q1])
@@ -2447,11 +2305,7 @@ class TestCourseTypeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     @staticmethod
     def set_import_names(field, value):
@@ -2494,11 +2348,7 @@ class TestCourseTypeMergeSelectionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.main_type = baker.make(CourseType, name_en="A course type")
         cls.other_type = baker.make(CourseType, name_en="Obsolete course type")
 
@@ -2516,11 +2366,7 @@ class TestCourseTypeMergeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.main_type = baker.make(CourseType, pk=1, name_en="A course type", import_names=['M'])
         cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type", import_names=['O'])
         baker.make(Course, type=cls.main_type)
@@ -2546,13 +2392,10 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
+
         cls.evaluation = baker.make(
             Evaluation,
             participants=[cls.student1, cls.student2],
@@ -2594,11 +2437,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 class ParticipationArchivingTests(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_raise_403(self):
         """
@@ -2620,11 +2459,7 @@ class TestTemplateEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_emailtemplate(self):
         """
@@ -2648,11 +2483,7 @@ class TestDegreeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     @staticmethod
     def set_import_names(field, value):
@@ -2692,11 +2523,7 @@ class TestSemesterQuestionnaireAssignment(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=1)
         cls.course_type_1 = baker.make(CourseType)
         cls.course_type_2 = baker.make(CourseType)
@@ -2748,11 +2575,7 @@ class TestSemesterActiveStateBehaviour(WebTest):
     csrf_checks = False
 
     def test_make_other_semester_active(self):
-        manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        manager = make_manager()
 
         semester1 = baker.make(Semester, is_active=True)
         semester2 = baker.make(Semester)

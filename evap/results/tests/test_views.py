@@ -16,7 +16,7 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter,
                                     Semester, UserProfile)
-from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
+from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation, make_manager
 from evap.results.exporters import TextAnswerExcelExporter
 from evap.results.views import get_evaluations_with_prefetched_data
 
@@ -121,11 +121,7 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=3)
         contributor = baker.make(UserProfile)
 
@@ -172,11 +168,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=2)
 
         contributor = baker.make(UserProfile, email='contributor@institution.example.com')
@@ -285,8 +277,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
+        make_manager()
         cls.semester = baker.make(Semester, id=2)
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
         cls.student1 = baker.make(UserProfile, email='student1@institution.example.com')
         cls.student2 = baker.make(UserProfile, email='student2@example.com')
@@ -355,7 +347,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_evaluation(self):
         semester = baker.make(Semester)
-        manager = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        manager = make_manager()
         student = baker.make(UserProfile, email="student@institution.example.com")
         student_external = baker.make(UserProfile, email="student_external@example.com")
         contributor = baker.make(UserProfile, email="contributor@institution.example.com")
@@ -401,11 +393,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
@@ -613,11 +601,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1?view=export", user="responsible@institution.example.com")
@@ -740,11 +724,7 @@ class TestArchivedResults(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.reviewer = baker.make(UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name='Reviewer')])
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.student_external = baker.make(UserProfile, email="student_external@example.com")
@@ -823,8 +803,8 @@ class TestTextAnswerExportView(WebTest):
 
     @patch("evap.results.exporters.TextAnswerExcelExporter.export")
     def test_permission_denied(self, export_method):
+        manager = make_manager()
         student = baker.make(UserProfile, email="student@institution.example.com")
-        manager = baker.make(UserProfile, email="manager@institution.example.com", groups=[Group.objects.get(name="Manager")])
 
         self.app.get(self.url, user=student, status=403)
         export_method.assert_not_called()

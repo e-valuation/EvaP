@@ -1,13 +1,12 @@
 from datetime import date, timedelta
 
-from django.contrib.auth.models import Group
 from django.urls import reverse
 
 from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile, Evaluation, Semester
-from evap.evaluation.tests.tools import WebTestWith200Check
+from evap.evaluation.tests.tools import WebTestWith200Check, make_manager
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
 
@@ -18,11 +17,7 @@ class TestEventDeleteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_deletion_success(self):
         event = baker.make(RewardPointRedemptionEvent)
@@ -88,7 +83,7 @@ class TestEventsView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
@@ -99,11 +94,7 @@ class TestEventCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
 
     def test_create_redemption_event(self):
         """ submits a newly created redemption event and checks that the event has been created """
@@ -126,11 +117,7 @@ class TestEventEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.event = baker.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
@@ -151,7 +138,7 @@ class TestExportView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        make_manager()
         event = baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemption, value=1, event=event)
 
@@ -162,11 +149,7 @@ class TestSemesterActivationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager = baker.make(
-            UserProfile,
-            email='manager@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
 
     def test_activate(self):
