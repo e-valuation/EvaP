@@ -27,7 +27,7 @@ class TestGrantRewardPoints(WebTest):
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
 
     def setUp(self):
-        response = self.app.get(reverse("student:vote", args=[self.evaluation.pk]), user="student@institution.example.com")
+        response = self.app.get(reverse("student:vote", args=[self.evaluation.pk]), user=self.student)
 
         self.form = response.forms["student-vote-form"]
         for key in self.form.fields.keys():

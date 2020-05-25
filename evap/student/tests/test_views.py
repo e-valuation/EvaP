@@ -59,7 +59,7 @@ class TestVoteView(WebTest):
         cls.evaluation.general_contribution.questionnaires.set([cls.top_general_questionnaire, cls.bottom_general_questionnaire])
 
     def test_question_ordering(self):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
 
         top_heading_index = page.body.decode().index(self.top_heading_question.text)
         top_text_index = page.body.decode().index(self.top_text_question.text)
@@ -123,7 +123,7 @@ class TestVoteView(WebTest):
             Submits a student vote, verifies that an error message is displayed if not all rating questions about
             contributors have been answered and that all given answers stay selected/filled.
         """
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_contributors_complete=False)
         response = form.submit()
@@ -146,13 +146,13 @@ class TestVoteView(WebTest):
         self.assertEqual(form[question_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)].value, "some more text")
 
     def test_answer(self):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         response = form.submit()
         self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
-        page = self.app.get(self.url, user=self.voting_user2.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user2, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         response = form.submit()
@@ -197,12 +197,12 @@ class TestVoteView(WebTest):
         self.assertEqual(list(answers), ["some bottom text"] * 2)
 
     def test_user_cannot_vote_multiple_times(self):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         form.submit()
 
-        self.app.get(self.url, user=self.voting_user1.email, status=403)
+        self.app.get(self.url, user=self.voting_user1, status=403)
 
     def test_user_cannot_vote_for_themselves(self):
         response = self.app.get(self.url, user=self.contributor1, status=200)
@@ -215,39 +215,39 @@ class TestVoteView(WebTest):
             "Regular students should see the questionnaire about a contributor")
 
     def test_user_logged_out(self):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
-        page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1.email, status=302)
+        page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1, status=302)
         response = form.submit()
         self.assertEqual(response.status_code, 302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
 
     def test_midterm_evaluation_warning(self):
         evaluation_warning = "The results of this evaluation will be published while the course is still running."
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         self.assertNotIn(evaluation_warning, page)
 
         self.evaluation.is_midterm_evaluation = True
         self.evaluation.save()
 
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         self.assertIn(evaluation_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=5)
     def test_small_evaluation_size_warning_shown(self):
         small_evaluation_size_warning = "Only a small number of people can take part in this evaluation."
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         self.assertIn(small_evaluation_size_warning, page)
 
     @override_settings(SMALL_COURSE_SIZE=2)
     def test_small_evaluation_size_warning_not_shown(self):
         small_evaluation_size_warning = "Only a small number of people can take part in this evaluation."
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         self.assertNotIn(small_evaluation_size_warning, page)
 
     def helper_test_answer_publish_confirmation(self, form_element):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         if form_element:
@@ -270,7 +270,7 @@ class TestVoteView(WebTest):
         self.helper_test_answer_publish_confirmation(None)
 
     def test_textanswer_visibility_is_shown(self):
-        page = self.app.get(self.url, user=self.voting_user1.email, status=200)
+        page = self.app.get(self.url, user=self.voting_user1, status=200)
         self.assertRegex(
             page.body.decode(),
             r"can be seen by:<br />\s*{}".format(self.contributor1.full_name.replace('(', '\\(').replace(')', '\\)'))

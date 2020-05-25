@@ -87,4 +87,8 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
     )
     evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
-    return evaluation
+    return {
+        'evaluation': evaluation,
+        'responsible': responsible,
+        'editor': editor,
+    }
