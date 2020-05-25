@@ -239,7 +239,6 @@
   "pk": 2,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "responsible",
     "first_name": "responsible",
     "last_name": "user",
     "last_login": "2014-09-16T22:51:39.584",
@@ -257,12 +256,11 @@
   "pk": 3,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "delegate_for_responsible",
     "first_name": "delegate_for_responsible",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:04.981",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "delegate@institution.example.com",
+    "email": "delegate_for_responsible@institution.example.com",
     "title": "",
     "cc_users": [],
     "delegates": [],
@@ -275,12 +273,11 @@
   "pk": 4,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "delegate_for_contributor",
     "first_name": "delegate_for_contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:27.021",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "cc@institution.example.com",
+    "email": "delegate_for_contributor@institution.example.com",
     "title": "",
     "cc_users": [],
     "delegates": [],
@@ -293,7 +290,6 @@
   "pk": 5,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "student",
     "first_name": "student",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",
@@ -311,7 +307,6 @@
   "pk": 6,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "contributor",
     "first_name": "contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
@@ -329,12 +324,11 @@
   "pk": 7,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "contributor_general_textanswers",
     "first_name": "contributor_general_textanswers",
     "last_name": "user",
     "last_login": "2014-09-16T22:53:02.506",
     "password": "pbkdf2_sha256$12000$oyxddVrECuLk$ayPgZNkTANvBcWbTvPGaR4NBlqPELpElG7C4M1UN210=",
-    "email": "contributor_evaluation_textanswers@institution.example.com",
+    "email": "contributor_general_textanswers@institution.example.com",
     "title": "",
     "cc_users": [],
     "delegates": [],
@@ -347,7 +341,6 @@
   "pk": 9,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "responsible_contributor",
     "first_name": "responsible_contributor",
     "last_name": "user",
     "last_login": "2014-09-16T22:51:39.584",
@@ -365,7 +358,6 @@
   "pk": 10,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "student_external",
     "first_name": "student_external",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",
@@ -383,7 +375,6 @@
   "pk": 11,
   "model": "evaluation.userprofile",
   "fields": {
-    "username": "proxy_delegate",
     "first_name": "proxy_delegate",
     "last_name": "user",
     "last_login": "2014-09-16T22:52:46.611",

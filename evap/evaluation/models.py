@@ -305,7 +305,7 @@ class Course(models.Model):
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
-        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
 
     @property
     def can_be_edited_by_manager(self):
@@ -433,7 +433,7 @@ class Evaluation(models.Model):
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
-        logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.username))
+        logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
 
     @property
     def full_name(self):
@@ -1176,12 +1176,8 @@ class FaqQuestion(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    def create_user(self, username, email=None, password=None, first_name=None, last_name=None):
-        if not username:
-            raise ValueError(_('Users must have a username'))
-
+    def create_user(self, email, password=None, first_name=None, last_name=None):
         user = self.model(
-            username=username,
             email=self.normalize_email(email),
             first_name=first_name,
             last_name=last_name
@@ -1190,9 +1186,8 @@ class UserProfileManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, username, password, email=None, first_name=None, last_name=None):
+    def create_superuser(self, email, password, first_name=None, last_name=None):
         user = self.create_user(
-            username=username,
             password=password,
             email=self.normalize_email(email),
             first_name=first_name,
@@ -1205,8 +1200,6 @@ class UserProfileManager(BaseUserManager):
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=255, unique=True, verbose_name=_('username'))
-
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
 
@@ -1234,11 +1227,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ('last_name', 'first_name', 'username')
+        ordering = ('last_name', 'first_name', 'email')
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     objects = UserProfileManager()
@@ -1257,7 +1250,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
                 name = self.title + " " + name
             return name
 
-        return self.username
+        name = "<unnamed>"
+        if self.email:
+            name = self.email.split('@')[0]
+        if self.is_external:
+            name += f" (User {self.id})"
+        return name
 
     @property
     def full_name_with_additional_info(self):
@@ -1501,7 +1499,7 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
-            warning_message = "{} has no email address defined. Could not send email.".format(user.username)
+            warning_message = "{} has no email address defined. Could not send email.".format(user.full_name_with_additional_info)
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
             # If a request exists, the page is displayed in the browser and the message can be shown on the page (messages.warning).
@@ -1542,11 +1540,11 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info(('Sent email "{}" to {}.').format(subject, user.username))
+            logger.info(('Sent email "{}" to {}.').format(subject, user.full_name_with_additional_info))
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
-            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.username, mail.message()))
+            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
@@ -1563,7 +1561,7 @@ class EmailTemplate(models.Model):
         body_params = {'user': user, 'login_url': user.login_url}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
-        logger.info(('Sent login url to {}.').format(user.username))
+        logger.info(('Sent login url to {}.').format(user.email))
 
     @classmethod
     def send_contributor_publish_notifications(cls, evaluations, template=None):

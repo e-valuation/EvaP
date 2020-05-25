@@ -54,10 +54,8 @@ REWARD_POINTS = [
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 
 # email domains for the internal users of the hosting institution used to
-# figure out who can login with username and password and who needs a login key
+# figure out who is an internal user
 INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
-
-INTERNAL_USERNAMES_MAX_LENGTH = 20
 
 # List of tuples defining email domains that should be replaced on saving UserProfiles.
 # Emails ending on the first value will have this part replaced by the second value.
@@ -293,14 +291,6 @@ FORMAT_MODULE_PATH = ['evap.locale']
 LANGUAGES = [
     ('en', "English"),
     ('de', "Deutsch"),
-]
-
-USERNAME_REPLACEMENTS = [
-    (' ', ''),
-    ('ä', 'ae'),
-    ('ö', 'oe'),
-    ('ü', 'ue'),
-    ('ß', 'ss'),
 ]
 
 

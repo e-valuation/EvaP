@@ -72,9 +72,9 @@ def get_import_file_content_or_raise(user_id, import_type):
 def delete_navbar_cache_for_users(users):
     # delete navbar cache from base.html
     for user in users:
-        key = make_template_fragment_key('navbar', [user.username, 'de'])
+        key = make_template_fragment_key('navbar', [user.email, 'de'])
         cache.delete(key)
-        key = make_template_fragment_key('navbar', [user.username, 'en'])
+        key = make_template_fragment_key('navbar', [user.email, 'en'])
         cache.delete(key)
 
 
@@ -192,7 +192,7 @@ def bulk_update_users(request, user_file_content, test_run):
                 user.save()
             userprofiles_to_create = []
             for email in emails_of_users_to_be_created:
-                userprofiles_to_create.append(UserProfile(email=email, username=email))
+                userprofiles_to_create.append(UserProfile(email=email))
             UserProfile.objects.bulk_create(userprofiles_to_create)
             messages.success(request, _('Users have been successfully updated.'))
 
@@ -206,7 +206,6 @@ def merge_users(main_user, other_user, preview=False):
     # pylint: disable=too-many-statements
 
     merged_user = dict()
-    merged_user['username'] = main_user.username
     merged_user['is_active'] = main_user.is_active or other_user.is_active
     merged_user['title'] = main_user.title or other_user.title or ""
     merged_user['first_name'] = main_user.first_name or other_user.first_name or ""

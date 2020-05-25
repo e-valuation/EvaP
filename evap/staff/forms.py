@@ -116,7 +116,7 @@ class EvaluationParticipantCopyForm(forms.Form):
 class UserBulkUpdateForm(forms.Form):
     use_required_attribute = False
 
-    username_file = forms.FileField(label=_("Username file"), required=False)
+    user_file = forms.FileField(label=_("User file"), required=False)
 
 
 class SemesterForm(forms.ModelForm):
@@ -679,7 +679,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
+        fields = ('title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
         field_classes = {
             'delegates': UserModelMultipleChoiceField,
             'cc_users': UserModelMultipleChoiceField,
@@ -697,18 +697,6 @@ class UserForm(forms.ModelForm):
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
             self.fields['is_inactive'].initial = not self.instance.is_active
-
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        user_with_same_name = UserProfile.objects.filter(username__iexact=username)
-
-        # make sure we don't take the instance itself into account
-        if self.instance and self.instance.pk:
-            user_with_same_name = user_with_same_name.exclude(pk=self.instance.pk)
-
-        if user_with_same_name.exists():
-            raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
-        return username.lower()
 
     def clean_evaluations_participating_in(self):
         evaluations_participating_in = self.cleaned_data.get('evaluations_participating_in')

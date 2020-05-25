@@ -44,10 +44,9 @@ def redirect_user_to_start_page(user):
 @no_login_required
 @sensitive_post_parameters("password")
 def index(request):
-    """Main entry page into EvaP providing all the login options available. The username/password
-       login is thought to be used for internal users, e.g. by connecting to a LDAP directory.
-       The login key mechanism is meant to be used to include external participants, e.g. visiting
-       students or visiting contributors.
+    """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
+       internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
+       students or visiting contributors. A login with email and password is available if OpenID is deactivated.
     """
 
     # parse the form data into the respective form
@@ -69,7 +68,7 @@ def index(request):
             return redirect('evaluation:index')
 
         if login_email_form.is_valid():
-            # user would like to login with username and password and passed password test
+            # user would like to login with email and password and passed password test
             auth.login(request, login_email_form.get_user())
 
             # clean up our test cookie
@@ -151,12 +150,13 @@ def legal_notice(request):
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
-    subject = "[EvaP] Message from {}".format(request.user.username)
+    email = request.user.email or f"User {request.user.id}"
+    subject = f"[EvaP] Message from {email}"
 
     if message:
         mail = EmailMessage(
             subject=subject,
-            body="{}\n{} ({})\n\n{}".format(title, request.user.username, request.user.email, message),
+            body="{}\n{}\n\n{}".format(title, request.user.email, message),
             to=[settings.CONTACT_EMAIL])
         try:
             mail.send()

@@ -62,8 +62,8 @@ def get_form_data_from_instance(FormClass, instance, **kwargs):
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    responsible = baker.make(UserProfile, username='responsible')
-    editor = baker.make(UserProfile, username='editor')
+    responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+    editor = baker.make(UserProfile, email='editor@institution.example.com')
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date

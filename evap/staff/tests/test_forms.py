@@ -84,12 +84,12 @@ class UserFormTests(TestCase):
             Tests the UserForm with one valid and one invalid input dataset.
         """
         user = baker.make(UserProfile)
-        another_user = baker.make(UserProfile)
-        data = {"username": "mklqoep50x2", "email": "a@b.ce"}
+        another_user = baker.make(UserProfile, email="another_user@institution.example.com")
+        data = {"email": "a@b.ce"}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
-        data = {"username": another_user.username, "email": "a@b.c"}
+        data = {"email": another_user.email}
         form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
@@ -101,34 +101,15 @@ class UserFormTests(TestCase):
         """
         user = baker.make(UserProfile, email="uiae@example.com")
 
-        data = {"username": "uiae", "email": user.email}
+        data = {"email": user.email}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
 
-        data = {"username": "uiae", "email": user.email.upper()}
+        data = {"email": user.email.upper()}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
 
-        data = {"username": "uiae", "email": user.email.upper()}
-        form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_user_with_same_username(self):
-        """
-            Tests whether the user form correctly handles usernames
-            that already exist in the database
-        """
-        user = baker.make(UserProfile)
-
-        data = {"username": user.username}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
+        data = {"email": user.email.upper()}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 

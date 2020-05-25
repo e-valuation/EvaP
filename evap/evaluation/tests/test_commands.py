@@ -23,7 +23,6 @@ class TestAnonymizeCommand(TestCase):
     def setUpTestData(cls):
         baker.make(EmailTemplate, name="name", subject="Subject", body="Body.")
         baker.make(UserProfile,
-          username="secret.username",
           email="secret.email@hpi.de",
           title="Prof.",
           first_name="Secret",

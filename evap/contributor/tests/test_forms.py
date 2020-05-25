@@ -29,10 +29,10 @@ class UserFormTests(TestCase):
         """
             Tests whether the settings form can be submitted without errors
         """
-        user = baker.make(UserProfile, username="testuser")
-        delegate = baker.make(UserProfile, username="delegate")
+        user = baker.make(UserProfile, email="testuser@institution.example.com")
+        delegate = baker.make(UserProfile, email="delegate@institution.example.com")
 
-        self.assertFalse(user.delegates.filter(username="delegate").exists())
+        self.assertFalse(user.delegates.filter(email="delegate@institution.example.com").exists())
 
         form_data = get_form_data_from_instance(DelegatesForm, user)
         form_data["delegates"] = [delegate.pk]  # add delegate
@@ -41,8 +41,8 @@ class UserFormTests(TestCase):
         self.assertTrue(form.is_valid())
         form.save()
 
-        user = UserProfile.objects.get(username="testuser")
-        self.assertTrue(user.delegates.filter(username="delegate").exists())
+        user = UserProfile.objects.get(email="testuser@institution.example.com")
+        self.assertTrue(user.delegates.filter(email="delegate@institution.example.com").exists())
 
 
 class ContributionFormsetTests(TestCase):
@@ -145,8 +145,8 @@ class ContributionFormsetWebTests(WebTest):
             Regression test for #456.
         """
         evaluation = baker.make(Evaluation, pk=1, state="prepared")
-        user1 = baker.make(UserProfile)
-        user2 = baker.make(UserProfile)
+        user1 = baker.make(UserProfile, email="user1@institution.example.com")
+        user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
         contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
