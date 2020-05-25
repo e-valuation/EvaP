@@ -701,6 +701,13 @@ class Evaluation(models.Model):
         return self.reviewed_textanswer_set.count()
 
     @property
+    def text_answer_review_is_urgent(self):
+        if self.state != "evaluated":
+            return False
+
+        return self.course.final_grade_documents or self.course.gets_no_grade_documents or not self.wait_for_grade_upload_before_publishing
+
+    @property
     def ratinganswer_counters(self):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
 

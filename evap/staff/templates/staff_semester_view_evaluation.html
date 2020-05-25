@@ -43,7 +43,7 @@
         <span class="fas fa-comment icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}"></span>
     </td>
 {% elif evaluation.num_textanswers > evaluation.num_reviewed_textanswers %}
-    {% if evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.course.is_graded %}
+    {% if evaluation.text_answer_review_is_urgent %}
         <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
             <span class="fas fa-comment icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}"></span>
         </td>

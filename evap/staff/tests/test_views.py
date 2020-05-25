@@ -421,7 +421,7 @@ class TestSemesterView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        cls.user = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         cls.semester = baker.make(Semester, pk=1)
         cls.evaluation1 = baker.make(Evaluation, name_de="Evaluation 1", name_en="Evaluation 1",
             course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester))
@@ -464,6 +464,28 @@ class TestSemesterView(WebTest):
         responsible.save()
         response = self.app.get(self.url, user="manager@institution.example.com")
         self.assertContains(response, 'External responsible')
+
+    def test_text_answer_review_urgent(self):
+        evaluation = baker.make(
+            Evaluation,
+            state="in_evaluation",
+            can_publish_text_results=True,
+            wait_for_grade_upload_before_publishing=False,
+            course__semester=self.semester,
+        )
+        baker.make(TextAnswer, contribution=evaluation.general_contribution)
+
+        page = self.app.get('/staff/semester/1', user=self.user)
+        # It will already be in the page as the buttons to filter this tag obviously contain the tag.
+        occurrences_before = page.body.decode().count('unreviewed_textanswers_urgent')
+
+        evaluation.evaluation_end()
+        evaluation.save()
+
+        page = self.app.get('/staff/semester/1', user=self.user)
+        occurrences_after = page.body.decode().count('unreviewed_textanswers_urgent')
+
+        self.assertEqual(occurrences_before + 1, occurrences_after)
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
