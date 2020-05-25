@@ -148,8 +148,24 @@ class ContributionFormsetWebTests(WebTest):
         user1 = baker.make(UserProfile, email="user1@institution.example.com")
         user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        contribution1 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+            order=1,
+        )
+        contribution2 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+            order=2,
+        )
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

@@ -112,7 +112,12 @@ class EvaluationData:
             wait_for_grade_upload_before_publishing=self.is_graded,
         )
         evaluation.save()
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(
+            evaluation=evaluation,
+            contributor=responsible_dbobj,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
 
 class ImporterError(Enum):

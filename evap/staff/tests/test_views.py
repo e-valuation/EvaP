@@ -590,11 +590,21 @@ class TestSemesterAssignView(WebTest):
         seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         evaluation1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=seminar_type))
-        baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation1,
-                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=evaluation1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         evaluation2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=lecture_type))
-        baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation2,
-                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=evaluation2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_assign_questionnaires(self):
         page = self.app.get(self.url, user="manager@institution.example.com")
@@ -621,7 +631,13 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
     def test_preparation_reminder(self):
         user = baker.make(UserProfile, email='user_to_find@institution.example.com')
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester, responsibles=[user]), state='prepared', name_en='name_to_find', name_de='name_to_find')
-        baker.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
         response = self.app.get(self.url, user="manager@institution.example.com")
         self.assertContains(response, 'user_to_find')
@@ -655,7 +671,13 @@ class TestSendReminderView(WebTest):
         cls.semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile, pk=3, email='a.b@example.com')
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, responsibles=[responsible]), state='prepared')
-        baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_form(self):
         page = self.app.get(self.url, user="manager@institution.example.com")
@@ -905,8 +927,18 @@ class TestSemesterParticipationDataExportView(WebTest):
             voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Evaluation 1", is_rewarded=True)
         cls.evaluation2 = baker.make(Evaluation, course=baker.make(Course, type=cls.course_type, semester=cls.semester), participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2", name_en="Evaluation 2", is_rewarded=False)
-        baker.make(Contribution, evaluation=cls.evaluation1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=cls.evaluation2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
@@ -1147,8 +1179,8 @@ class TestEvaluationOperationView(WebTest):
         editor_a = baker.make(UserProfile, email='editor-a@example.com')
         editor_b = baker.make(UserProfile, email='editor-b@example.com')
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=editor_a, can_edit=True)
-        baker.make(Contribution, evaluation=evaluation, contributor=editor_b, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_a, role=Contribution.Role.EDITOR)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_b, role=Contribution.Role.EDITOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1157,7 +1189,7 @@ class TestEvaluationOperationView(WebTest):
 
     def test_operation_prepare_does_not_put_responsible_into_cc(self):
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, role=Contribution.Role.EDITOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1167,7 +1199,7 @@ class TestEvaluationOperationView(WebTest):
     def test_operation_prepare_does_not_send_email_to_contributors(self):
         contributor = baker.make(UserProfile, email='contributor@example.com')
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=contributor, can_edit=False)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor, role=Contribution.Role.CONTRIBUTOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1271,7 +1303,7 @@ class TestEvaluationCreateView(WebTest):
         form['contributions-0-contributor'] = self.manager_user.pk
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = Contribution.Responsibility.IS_EDITOR
+        form['contributions-0-role'] = Contribution.Role.EDITOR
         form['contributions-0-textanswer_visibility'] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
 
         form.submit()
@@ -1362,8 +1394,21 @@ class TestEvaluationEditView(WebTest):
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
         baker.make(Questionnaire, questions=[baker.make(Question)])
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, order=0, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, order=1, can_edit=True)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=responsible,
+            order=0,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.editor,
+            order=1,
+            role=Contribution.Role.EDITOR,
+        )
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -1373,9 +1418,9 @@ class TestEvaluationEditView(WebTest):
 
         # remove editor rights
         form = page.forms["evaluation-form"]
-        form['contributions-1-responsibility'] = Contribution.Responsibility.IS_CONTRIBUTOR
+        form['contributions-1-role'] = Contribution.Role.CONTRIBUTOR
         form.submit("operation", value="save")
-        self.assertFalse(self.evaluation.contributions.get(contributor=self.editor).can_edit)
+        self.assertEqual(self.evaluation.contributions.get(contributor=self.editor).role, Contribution.Role.CONTRIBUTOR)
 
     def test_participant_removal_reward_point_granting_message(self):
         already_evaluated = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=self.evaluation.course.semester))
@@ -1537,8 +1582,14 @@ class TestSingleResultEditView(WebTestWith200Check):
 
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, responsibles=[responsible]), pk=1)
-        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True,
-                                  textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+        )
 
         question = Questionnaire.single_result_questionnaire().questions.get()
         baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
@@ -2276,8 +2327,20 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.evaluation_1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]))
         cls.evaluation_2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]))
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_questionnaire_assignment(self):
         page = self.app.get(self.url, user="manager@institution.example.com", status=200)

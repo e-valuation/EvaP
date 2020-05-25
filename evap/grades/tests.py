@@ -31,9 +31,14 @@ class GradeUploadTest(WebTest):
             voters=[cls.student, cls.student2],
         )
 
-        contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=editor, can_edit=True,
-                                  textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=editor,
+            questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
@@ -134,10 +139,14 @@ class GradeUploadTest(WebTest):
             participants=[self.student, self.student2, self.student3],
             voters=[self.student, self.student2]
         )
-        contribution = Contribution(evaluation=evaluation, contributor=UserProfile.objects.get(email="editor@institution.example.com"),
-                                    can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        contribution.save()
-        contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=UserProfile.objects.get(email="editor@institution.example.com"),
+            questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 

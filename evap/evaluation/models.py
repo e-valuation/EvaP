@@ -665,7 +665,7 @@ class Evaluation(models.Model):
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
         represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks, can_edit=True).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
@@ -763,14 +763,14 @@ class Contribution(models.Model):
         OWN_TEXTANSWERS = 'OWN', _('Own')
         GENERAL_TEXTANSWERS = 'GENERAL', _('Own and general')
 
-    class Responsibility(models.TextChoices):
-        IS_CONTRIBUTOR = 'CONTRIBUTOR', _('Contributor')
-        IS_EDITOR = 'EDITOR', _('Editor')
+    class Role(models.IntegerChoices):
+        CONTRIBUTOR = 0, _('Contributor')
+        EDITOR = 1, _('Editor')
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
     contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
-    can_edit = models.BooleanField(verbose_name=_("can edit"), default=False)
+    role = models.IntegerField(choices=Role.choices, verbose_name=_("role"), default=Role.CONTRIBUTOR)
     textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
@@ -1338,7 +1338,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_editor(self):
-        return self.contributions.filter(can_edit=True).exists() or self.is_responsible
+        return self.contributions.filter(role=Contribution.Role.EDITOR).exists() or self.is_responsible
 
     @property
     def is_responsible(self):
@@ -1461,7 +1461,10 @@ class EmailTemplate(models.Model):
             if cls.Recipients.CONTRIBUTORS in recipient_groups:
                 recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation))
             elif cls.Recipients.EDITORS in recipient_groups:
-                recipients.update(UserProfile.objects.filter(contributions__evaluation=evaluation, contributions__can_edit=True))
+                recipients.update(UserProfile.objects.filter(
+                    contributions__evaluation=evaluation,
+                    contributions__role=Contribution.Role.EDITOR,
+                ))
 
         if cls.Recipients.ALL_PARTICIPANTS in recipient_groups:
             recipients.update(evaluation.participants.all())

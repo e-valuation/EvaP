@@ -130439,7 +130439,7 @@
   "fields": {
     "evaluation": 34,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130457,7 +130457,7 @@
     "contributor": [
       "chieko.lehman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130472,7 +130472,7 @@
   "fields": {
     "evaluation": 310,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130492,7 +130492,7 @@
     "contributor": [
       "ellsworth.thornburg@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130508,7 +130508,7 @@
   "fields": {
     "evaluation": 311,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130526,7 +130526,7 @@
     "contributor": [
       "ellsworth.thornburg@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130541,7 +130541,7 @@
   "fields": {
     "evaluation": 318,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130561,7 +130561,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130576,7 +130576,7 @@
   "fields": {
     "evaluation": 327,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130598,7 +130598,7 @@
     "contributor": [
       "arnold.lane@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130613,7 +130613,7 @@
   "fields": {
     "evaluation": 329,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130633,7 +130633,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130648,7 +130648,7 @@
   "fields": {
     "evaluation": 332,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130668,7 +130668,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130683,7 +130683,7 @@
   "fields": {
     "evaluation": 333,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130702,7 +130702,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130717,7 +130717,7 @@
   "fields": {
     "evaluation": 334,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130739,7 +130739,7 @@
     "contributor": [
       "viola.barringer@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130755,7 +130755,7 @@
   "fields": {
     "evaluation": 336,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130774,7 +130774,7 @@
     "contributor": [
       "luciana.graves@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130790,7 +130790,7 @@
   "fields": {
     "evaluation": 345,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130809,7 +130809,7 @@
     "contributor": [
       "sunni.hollingsworth@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130824,7 +130824,7 @@
   "fields": {
     "evaluation": 347,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130845,7 +130845,7 @@
     "contributor": [
       "sandee.coker@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130860,7 +130860,7 @@
   "fields": {
     "evaluation": 348,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130880,7 +130880,7 @@
     "contributor": [
       "sandee.coker@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -130895,7 +130895,7 @@
   "fields": {
     "evaluation": 350,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130914,7 +130914,7 @@
     "contributor": [
       "ranae.fry@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130929,7 +130929,7 @@
   "fields": {
     "evaluation": 356,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130951,7 +130951,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -130967,7 +130967,7 @@
   "fields": {
     "evaluation": 358,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -130989,7 +130989,7 @@
     "contributor": [
       "amelia.handy@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131005,7 +131005,7 @@
   "fields": {
     "evaluation": 359,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131024,7 +131024,7 @@
     "contributor": [
       "luciana.graves@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131040,7 +131040,7 @@
   "fields": {
     "evaluation": 363,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131060,7 +131060,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131075,7 +131075,7 @@
   "fields": {
     "evaluation": 370,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131095,7 +131095,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131111,7 +131111,7 @@
   "fields": {
     "evaluation": 372,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131132,7 +131132,7 @@
     "contributor": [
       "sunni.hollingsworth@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131148,7 +131148,7 @@
   "fields": {
     "evaluation": 375,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131167,7 +131167,7 @@
     "contributor": [
       "ranae.fry@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131182,7 +131182,7 @@
   "fields": {
     "evaluation": 478,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131206,7 +131206,7 @@
     "contributor": [
       "denisha.chance@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131228,7 +131228,7 @@
     "contributor": [
       "luann.schulz@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 2,
@@ -131245,7 +131245,7 @@
     "contributor": [
       "laurence.tipton@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131263,7 +131263,7 @@
     "contributor": [
       "britteny.easley@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131282,7 +131282,7 @@
     "contributor": [
       "hipolito.morse@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131300,7 +131300,7 @@
     "contributor": [
       "sharon.cress@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131318,7 +131318,7 @@
     "contributor": [
       "laurence.tipton@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131336,7 +131336,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131353,7 +131353,7 @@
     "contributor": [
       "kayce.grigsby@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131370,7 +131370,7 @@
     "contributor": [
       "concha.ezell@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -131387,7 +131387,7 @@
     "contributor": [
       "odessa.mcmullen@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -131404,7 +131404,7 @@
     "contributor": [
       "joella.naquin@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131420,7 +131420,7 @@
   "fields": {
     "evaluation": 482,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131439,7 +131439,7 @@
     "contributor": [
       "viola.barringer@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131457,7 +131457,7 @@
     "contributor": [
       "starla.lyons@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -131475,7 +131475,7 @@
     "contributor": [
       "yolanda.farley@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -131493,7 +131493,7 @@
     "contributor": [
       "chanelle.perales@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -131511,7 +131511,7 @@
     "contributor": [
       "ozella.hooper@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -131529,7 +131529,7 @@
     "contributor": [
       "meagan.steed@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -131547,7 +131547,7 @@
     "contributor": [
       "kathyrn.linder@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
@@ -131565,7 +131565,7 @@
     "contributor": [
       "kyra.hart@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131583,7 +131583,7 @@
     "contributor": [
       "doria.matthews@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131601,7 +131601,7 @@
     "contributor": [
       "al.jean@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131619,7 +131619,7 @@
     "contributor": [
       "fay.westmoreland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131636,7 +131636,7 @@
     "contributor": [
       "jeannie.guffey@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -131653,7 +131653,7 @@
     "contributor": [
       "karine.prater@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131671,7 +131671,7 @@
     "contributor": [
       "kacy.galvan@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131689,7 +131689,7 @@
     "contributor": [
       "reyna.masterson@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131707,7 +131707,7 @@
     "contributor": [
       "pamula.sims@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131725,7 +131725,7 @@
     "contributor": [
       "beau.saunders@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131743,7 +131743,7 @@
     "contributor": [
       "yong.shuler@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131761,7 +131761,7 @@
     "contributor": [
       "earline.hills@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131778,7 +131778,7 @@
     "contributor": [
       "mandy.harman@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131795,7 +131795,7 @@
     "contributor": [
       "tonie.helms@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -131812,7 +131812,7 @@
     "contributor": [
       "vanetta.fleck@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131830,7 +131830,7 @@
     "contributor": [
       "kassie.lockett@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131847,7 +131847,7 @@
     "contributor": [
       "valery.bassett@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131864,7 +131864,7 @@
     "contributor": [
       "randee.griffith@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -131881,7 +131881,7 @@
     "contributor": [
       "merle.higdon@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131899,7 +131899,7 @@
     "contributor": [
       "millard.heath@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131917,7 +131917,7 @@
     "contributor": [
       "shayne.scruggs@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -131935,7 +131935,7 @@
     "contributor": [
       "donetta.huffman@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -131951,7 +131951,7 @@
   "fields": {
     "evaluation": 641,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -131972,7 +131972,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -131990,7 +131990,7 @@
     "contributor": [
       "viola.barringer@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -132006,7 +132006,7 @@
   "fields": {
     "evaluation": 648,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132025,7 +132025,7 @@
   "fields": {
     "evaluation": 652,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132047,7 +132047,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132063,7 +132063,7 @@
   "fields": {
     "evaluation": 654,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132082,7 +132082,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132098,7 +132098,7 @@
   "fields": {
     "evaluation": 655,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132117,7 +132117,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132132,7 +132132,7 @@
   "fields": {
     "evaluation": 657,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132151,7 +132151,7 @@
     "contributor": [
       "ranae.fry@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132167,7 +132167,7 @@
   "fields": {
     "evaluation": 663,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132186,7 +132186,7 @@
     "contributor": [
       "gaylene.timmons@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132201,7 +132201,7 @@
   "fields": {
     "evaluation": 664,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132222,7 +132222,7 @@
     "contributor": [
       "hugh.runyon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132238,7 +132238,7 @@
   "fields": {
     "evaluation": 665,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132257,7 +132257,7 @@
     "contributor": [
       "donnetta.casillas@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132273,7 +132273,7 @@
   "fields": {
     "evaluation": 666,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132292,7 +132292,7 @@
     "contributor": [
       "darlena.holliman@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132308,7 +132308,7 @@
   "fields": {
     "evaluation": 669,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132329,7 +132329,7 @@
     "contributor": [
       "hugh.runyon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132345,7 +132345,7 @@
   "fields": {
     "evaluation": 675,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132365,7 +132365,7 @@
     "contributor": [
       "henriette.park@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132381,7 +132381,7 @@
   "fields": {
     "evaluation": 682,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132400,7 +132400,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132415,7 +132415,7 @@
   "fields": {
     "evaluation": 686,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132434,7 +132434,7 @@
     "contributor": [
       "charity.leonard@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132449,7 +132449,7 @@
   "fields": {
     "evaluation": 690,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132465,7 +132465,7 @@
   "fields": {
     "evaluation": 695,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132487,7 +132487,7 @@
     "contributor": [
       "chieko.lehman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132504,7 +132504,7 @@
   "fields": {
     "evaluation": 697,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132526,7 +132526,7 @@
     "contributor": [
       "evie.martz@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132542,7 +132542,7 @@
   "fields": {
     "evaluation": 698,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132561,7 +132561,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132577,7 +132577,7 @@
   "fields": {
     "evaluation": 702,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132596,7 +132596,7 @@
     "contributor": [
       "ranae.fry@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132612,7 +132612,7 @@
   "fields": {
     "evaluation": 709,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132631,7 +132631,7 @@
     "contributor": [
       "junie.hicks@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -132649,7 +132649,7 @@
     "contributor": [
       "britteny.easley@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132668,7 +132668,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -132686,7 +132686,7 @@
     "contributor": [
       "juanita.kimbrough@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -132704,7 +132704,7 @@
     "contributor": [
       "reyna.mondragon@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -132722,7 +132722,7 @@
     "contributor": [
       "janna.langlois@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -132740,7 +132740,7 @@
     "contributor": [
       "darnell.aguilera@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -132758,7 +132758,7 @@
     "contributor": [
       "oscar.christie@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -132776,7 +132776,7 @@
     "contributor": [
       "melania.wolfe@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
@@ -132794,7 +132794,7 @@
     "contributor": [
       "kayce.grigsby@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 8,
@@ -132812,7 +132812,7 @@
     "contributor": [
       "concha.ezell@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 9,
@@ -132830,7 +132830,7 @@
     "contributor": [
       "odessa.mcmullen@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 10,
@@ -132848,7 +132848,7 @@
     "contributor": [
       "sunni.patten@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132866,7 +132866,7 @@
     "contributor": [
       "january.copeland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -132884,7 +132884,7 @@
     "contributor": [
       "luann.schulz@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -132902,7 +132902,7 @@
     "contributor": [
       "lakisha.tisdale@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -132920,7 +132920,7 @@
     "contributor": [
       "esther.ulrich@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -132938,7 +132938,7 @@
     "contributor": [
       "arturo.heflin@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -132956,7 +132956,7 @@
     "contributor": [
       "chrissy.rector@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -132974,7 +132974,7 @@
     "contributor": [
       "jen.jacoby@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -132992,7 +132992,7 @@
     "contributor": [
       "inell.bolden@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -133010,7 +133010,7 @@
     "contributor": [
       "wes.eaton@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -133028,7 +133028,7 @@
     "contributor": [
       "qiana.briscoe@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133046,7 +133046,7 @@
     "contributor": [
       "dorla.hudgins@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133064,7 +133064,7 @@
     "contributor": [
       "zita.marshall@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133082,7 +133082,7 @@
     "contributor": [
       "madaline.marcum@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133101,7 +133101,7 @@
     "contributor": [
       "sindy.boisvert@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133119,7 +133119,7 @@
     "contributor": [
       "miles.huntington@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133137,7 +133137,7 @@
     "contributor": [
       "wyatt.fairchild@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133155,7 +133155,7 @@
     "contributor": [
       "randolph.patrick@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133173,7 +133173,7 @@
     "contributor": [
       "georgann.mcneill@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133191,7 +133191,7 @@
     "contributor": [
       "lindsy.clement@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133209,7 +133209,7 @@
     "contributor": [
       "bailey.roybal@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133227,7 +133227,7 @@
     "contributor": [
       "catharine.medeiros@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133243,7 +133243,7 @@
   "fields": {
     "evaluation": 643,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133264,7 +133264,7 @@
     "contributor": [
       "harriet.rushing@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133282,7 +133282,7 @@
     "contributor": [
       "gabriela.carlisle@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133300,7 +133300,7 @@
     "contributor": [
       "eboni.maldonado@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133318,7 +133318,7 @@
     "contributor": [
       "errol.simon@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -133336,7 +133336,7 @@
     "contributor": [
       "damion.navarrete@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -133354,7 +133354,7 @@
     "contributor": [
       "sharon.cress@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133372,7 +133372,7 @@
     "contributor": [
       "kindra.hancock@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -133389,7 +133389,7 @@
     "contributor": [
       "doria.matthews@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133408,7 +133408,7 @@
     "contributor": [
       "olivia.trevino@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133426,7 +133426,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -133443,7 +133443,7 @@
     "contributor": [
       "kyra.hart@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133461,7 +133461,7 @@
     "contributor": [
       "malika.hansen@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133479,7 +133479,7 @@
     "contributor": [
       "tequila.huang@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133497,7 +133497,7 @@
     "contributor": [
       "beth.carlton@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -133515,7 +133515,7 @@
     "contributor": [
       "alix.mancini@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -133533,7 +133533,7 @@
     "contributor": [
       "kyra.hart@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133551,7 +133551,7 @@
     "contributor": [
       "malika.hansen@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133569,7 +133569,7 @@
     "contributor": [
       "xavier.luciano@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -133587,7 +133587,7 @@
     "contributor": [
       "sherlene.bobbitt@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133605,7 +133605,7 @@
     "contributor": [
       "olivia.trevino@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -133623,7 +133623,7 @@
     "contributor": [
       "tonita.gallardo@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133639,7 +133639,7 @@
   "fields": {
     "evaluation": 730,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133658,7 +133658,7 @@
     "contributor": [
       "sonia.dominguez@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133674,7 +133674,7 @@
   "fields": {
     "evaluation": 1454,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133696,7 +133696,7 @@
     "contributor": [
       "arron.tran@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133712,7 +133712,7 @@
   "fields": {
     "evaluation": 1460,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133730,7 +133730,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133746,7 +133746,7 @@
   "fields": {
     "evaluation": 1463,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133764,7 +133764,7 @@
     "contributor": [
       "mariann.locke@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133780,7 +133780,7 @@
   "fields": {
     "evaluation": 1468,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133798,7 +133798,7 @@
     "contributor": [
       "henriette.park@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133814,7 +133814,7 @@
   "fields": {
     "evaluation": 1472,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133835,7 +133835,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133851,7 +133851,7 @@
   "fields": {
     "evaluation": 1474,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133872,7 +133872,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133889,7 +133889,7 @@
   "fields": {
     "evaluation": 1479,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133907,7 +133907,7 @@
     "contributor": [
       "luciana.graves@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133922,7 +133922,7 @@
   "fields": {
     "evaluation": 1480,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133945,7 +133945,7 @@
     "contributor": [
       "evie.martz@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133961,7 +133961,7 @@
   "fields": {
     "evaluation": 1485,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -133979,7 +133979,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -133994,7 +133994,7 @@
   "fields": {
     "evaluation": 1488,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134015,7 +134015,7 @@
     "contributor": [
       "kindra.hancock@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134031,7 +134031,7 @@
   "fields": {
     "evaluation": 1494,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134052,7 +134052,7 @@
     "contributor": [
       "amelia.handy@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134068,7 +134068,7 @@
   "fields": {
     "evaluation": 1497,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134085,7 +134085,7 @@
   "fields": {
     "evaluation": 1498,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134102,7 +134102,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 2,
@@ -134115,7 +134115,7 @@
   "fields": {
     "evaluation": 1499,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134134,7 +134134,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134150,7 +134150,7 @@
   "fields": {
     "evaluation": 1500,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134168,7 +134168,7 @@
     "contributor": [
       "sandee.coker@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134184,7 +134184,7 @@
   "fields": {
     "evaluation": 1502,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134201,7 +134201,7 @@
     "contributor": [
       "mariann.locke@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134217,7 +134217,7 @@
   "fields": {
     "evaluation": 1503,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134236,7 +134236,7 @@
     "contributor": [
       "lizabeth.steward@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134252,7 +134252,7 @@
   "fields": {
     "evaluation": 1504,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134271,7 +134271,7 @@
     "contributor": [
       "harriet.rushing@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134286,7 +134286,7 @@
   "fields": {
     "evaluation": 1506,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134303,7 +134303,7 @@
     "contributor": [
       "henriette.park@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134316,7 +134316,7 @@
   "fields": {
     "evaluation": 1507,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134333,7 +134333,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134346,7 +134346,7 @@
   "fields": {
     "evaluation": 1508,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134367,7 +134367,7 @@
     "contributor": [
       "trudie.huntley@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134383,7 +134383,7 @@
   "fields": {
     "evaluation": 1510,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134402,7 +134402,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134419,7 +134419,7 @@
   "fields": {
     "evaluation": 1513,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134439,7 +134439,7 @@
     "contributor": [
       "merle.higdon@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134455,7 +134455,7 @@
   "fields": {
     "evaluation": 1514,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134476,7 +134476,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134491,7 +134491,7 @@
   "fields": {
     "evaluation": 1518,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134509,7 +134509,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134524,7 +134524,7 @@
   "fields": {
     "evaluation": 1520,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134542,7 +134542,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134558,7 +134558,7 @@
   "fields": {
     "evaluation": 1525,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134577,7 +134577,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134593,7 +134593,7 @@
   "fields": {
     "evaluation": 1531,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134611,7 +134611,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -134629,7 +134629,7 @@
     "contributor": [
       "juanita.kimbrough@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -134647,7 +134647,7 @@
     "contributor": [
       "darnell.aguilera@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134666,7 +134666,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -134685,7 +134685,7 @@
     "contributor": [
       "janna.langlois@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -134704,7 +134704,7 @@
     "contributor": [
       "elbert.baber@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134722,7 +134722,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134740,7 +134740,7 @@
     "contributor": [
       "melania.wolfe@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -134758,7 +134758,7 @@
     "contributor": [
       "tanna.worsham@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134777,7 +134777,7 @@
     "contributor": [
       "willena.hemphill@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134795,7 +134795,7 @@
     "contributor": [
       "tanna.worsham@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -134814,7 +134814,7 @@
     "contributor": [
       "laurence.tipton@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134832,7 +134832,7 @@
     "contributor": [
       "olivia.trevino@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134851,7 +134851,7 @@
     "contributor": [
       "junie.hicks@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -134870,7 +134870,7 @@
     "contributor": [
       "doria.matthews@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134888,7 +134888,7 @@
     "contributor": [
       "toi.grantham@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -134906,7 +134906,7 @@
     "contributor": [
       "sharee.hoskins@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -134924,7 +134924,7 @@
     "contributor": [
       "xavier.luciano@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134942,7 +134942,7 @@
     "contributor": [
       "karan.bloom@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134960,7 +134960,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -134977,7 +134977,7 @@
     "contributor": [
       "elias.troy@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -134995,7 +134995,7 @@
     "contributor": [
       "lisandra.grace@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135013,7 +135013,7 @@
     "contributor": [
       "jen.jacoby@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135031,7 +135031,7 @@
     "contributor": [
       "verdell.joyner@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135049,7 +135049,7 @@
     "contributor": [
       "chrissy.rector@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -135067,7 +135067,7 @@
     "contributor": [
       "wes.eaton@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -135085,7 +135085,7 @@
     "contributor": [
       "inell.bolden@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -135103,7 +135103,7 @@
     "contributor": [
       "rubin.gaston@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -135121,7 +135121,7 @@
     "contributor": [
       "antwan.brady@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -135139,7 +135139,7 @@
     "contributor": [
       "reyna.masterson@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135156,7 +135156,7 @@
     "contributor": [
       "kacy.galvan@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135173,7 +135173,7 @@
     "contributor": [
       "leola.parrott@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135193,7 +135193,7 @@
     "contributor": [
       "al.jean@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135213,7 +135213,7 @@
     "contributor": [
       "fay.westmoreland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -135232,7 +135232,7 @@
     "contributor": [
       "maegan.mccorkle@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -135251,7 +135251,7 @@
     "contributor": [
       "gabriela.carlisle@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -135268,7 +135268,7 @@
     "contributor": [
       "lois.seibert@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135285,7 +135285,7 @@
     "contributor": [
       "january.copeland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135303,7 +135303,7 @@
     "contributor": [
       "sunni.patten@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135321,7 +135321,7 @@
     "contributor": [
       "tabitha.sutter@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -135339,7 +135339,7 @@
     "contributor": [
       "rey.stamper@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -135357,7 +135357,7 @@
     "contributor": [
       "pearline.ellington@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -135373,7 +135373,7 @@
   "fields": {
     "evaluation": 1534,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135391,7 +135391,7 @@
     "contributor": [
       "charity.leonard@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135410,7 +135410,7 @@
     "contributor": [
       "harriet.rushing@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 2,
@@ -135428,7 +135428,7 @@
     "contributor": [
       "jolene.squires@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -135446,7 +135446,7 @@
     "contributor": [
       "leola.parrott@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -135464,7 +135464,7 @@
     "contributor": [
       "eboni.maldonado@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -135482,7 +135482,7 @@
     "contributor": [
       "damion.navarrete@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -135500,7 +135500,7 @@
     "contributor": [
       "errol.simon@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
@@ -135518,7 +135518,7 @@
     "contributor": [
       "vanetta.fleck@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 8,
@@ -135536,7 +135536,7 @@
     "contributor": [
       "al.jean@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 9,
@@ -135552,7 +135552,7 @@
   "fields": {
     "evaluation": 1540,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135572,7 +135572,7 @@
     "contributor": [
       "henriette.park@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135588,7 +135588,7 @@
   "fields": {
     "evaluation": 1544,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135608,7 +135608,7 @@
     "contributor": [
       "qiana.briscoe@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135624,7 +135624,7 @@
   "fields": {
     "evaluation": 1545,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135643,7 +135643,7 @@
     "contributor": [
       "qiana.briscoe@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135659,7 +135659,7 @@
   "fields": {
     "evaluation": 1547,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135681,7 +135681,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135697,7 +135697,7 @@
   "fields": {
     "evaluation": 1548,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135715,7 +135715,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135730,7 +135730,7 @@
   "fields": {
     "evaluation": 1549,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135749,7 +135749,7 @@
     "contributor": [
       "wyatt.fairchild@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -135765,7 +135765,7 @@
   "fields": {
     "evaluation": 1550,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135784,7 +135784,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135799,7 +135799,7 @@
   "fields": {
     "evaluation": 1554,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135818,7 +135818,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135833,7 +135833,7 @@
   "fields": {
     "evaluation": 1559,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135851,7 +135851,7 @@
     "contributor": [
       "darlena.holliman@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135867,7 +135867,7 @@
   "fields": {
     "evaluation": 1563,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135889,7 +135889,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135905,7 +135905,7 @@
   "fields": {
     "evaluation": 1564,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135924,7 +135924,7 @@
     "contributor": [
       "amelia.handy@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135940,7 +135940,7 @@
   "fields": {
     "evaluation": 1568,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135962,7 +135962,7 @@
     "contributor": [
       "kindra.hancock@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -135978,7 +135978,7 @@
   "fields": {
     "evaluation": 1569,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -135997,7 +135997,7 @@
     "contributor": [
       "sunni.hollingsworth@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136013,7 +136013,7 @@
   "fields": {
     "evaluation": 1570,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136034,7 +136034,7 @@
     "contributor": [
       "sunni.hollingsworth@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136050,7 +136050,7 @@
   "fields": {
     "evaluation": 1571,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136069,7 +136069,7 @@
     "contributor": [
       "mariann.locke@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136085,7 +136085,7 @@
   "fields": {
     "evaluation": 1575,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136105,7 +136105,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136120,7 +136120,7 @@
   "fields": {
     "evaluation": 1577,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136142,7 +136142,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136158,7 +136158,7 @@
   "fields": {
     "evaluation": 1580,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136178,7 +136178,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136193,7 +136193,7 @@
   "fields": {
     "evaluation": 1583,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136212,7 +136212,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136227,7 +136227,7 @@
   "fields": {
     "evaluation": 1585,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136248,7 +136248,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136264,7 +136264,7 @@
   "fields": {
     "evaluation": 1586,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136283,7 +136283,7 @@
     "contributor": [
       "emilee.beavers@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
@@ -136299,7 +136299,7 @@
   "fields": {
     "evaluation": 1587,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136319,7 +136319,7 @@
     "contributor": [
       "harriet.rushing@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136335,7 +136335,7 @@
   "fields": {
     "evaluation": 1595,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136356,7 +136356,7 @@
     "contributor": [
       "lizabeth.steward@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136372,7 +136372,7 @@
   "fields": {
     "evaluation": 1598,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136393,7 +136393,7 @@
     "contributor": [
       "brian.david@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136409,7 +136409,7 @@
   "fields": {
     "evaluation": 1600,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136428,7 +136428,7 @@
     "contributor": [
       "chieko.lehman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136444,7 +136444,7 @@
   "fields": {
     "evaluation": 1603,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136463,7 +136463,7 @@
     "contributor": [
       "chieko.lehman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136479,7 +136479,7 @@
   "fields": {
     "evaluation": 1605,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136498,7 +136498,7 @@
     "contributor": [
       "arnold.lane@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136514,7 +136514,7 @@
   "fields": {
     "evaluation": 1610,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136533,7 +136533,7 @@
     "contributor": [
       "sonia.dominguez@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136549,7 +136549,7 @@
   "fields": {
     "evaluation": 1613,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136569,7 +136569,7 @@
     "contributor": [
       "sandee.coker@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136585,7 +136585,7 @@
   "fields": {
     "evaluation": 1614,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136604,7 +136604,7 @@
     "contributor": [
       "sandee.coker@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136620,7 +136620,7 @@
   "fields": {
     "evaluation": 1618,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136638,7 +136638,7 @@
     "contributor": [
       "jospeh.thorp@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -136656,7 +136656,7 @@
     "contributor": [
       "vania.talbert@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136674,7 +136674,7 @@
     "contributor": [
       "pamala.galbraith@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136692,7 +136692,7 @@
     "contributor": [
       "latosha.moon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -136710,7 +136710,7 @@
     "contributor": [
       "gabriela.carlisle@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136728,7 +136728,7 @@
     "contributor": [
       "juanita.kimbrough@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136746,7 +136746,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136764,7 +136764,7 @@
     "contributor": [
       "trudie.huntley@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136782,7 +136782,7 @@
     "contributor": [
       "silva.couture@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136800,7 +136800,7 @@
     "contributor": [
       "beau.saunders@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136818,7 +136818,7 @@
     "contributor": [
       "millard.heath@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136836,7 +136836,7 @@
     "contributor": [
       "anglea.akers@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136854,7 +136854,7 @@
     "contributor": [
       "hyon.sherry@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136872,7 +136872,7 @@
     "contributor": [
       "elissa.fowler@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136890,7 +136890,7 @@
     "contributor": [
       "criselda.henry@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136908,7 +136908,7 @@
     "contributor": [
       "eugenia.bauer@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -136926,7 +136926,7 @@
     "contributor": [
       "mirtha.cleveland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -136944,7 +136944,7 @@
     "contributor": [
       "lindsy.clement@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136962,7 +136962,7 @@
     "contributor": [
       "ricki.canada@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -136980,7 +136980,7 @@
     "contributor": [
       "laurence.tipton@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -136998,7 +136998,7 @@
     "contributor": [
       "lashaunda.benoit@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137016,7 +137016,7 @@
     "contributor": [
       "lashaunda.benoit@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137034,7 +137034,7 @@
     "contributor": [
       "randolph.patrick@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137052,7 +137052,7 @@
     "contributor": [
       "joella.naquin@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -137070,7 +137070,7 @@
     "contributor": [
       "randee.griffith@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137088,7 +137088,7 @@
     "contributor": [
       "charlsie.pressley@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137106,7 +137106,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 0,
@@ -137123,7 +137123,7 @@
     "contributor": [
       "albina.dibble@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137141,7 +137141,7 @@
     "contributor": [
       "aline.canady@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137159,7 +137159,7 @@
     "contributor": [
       "velvet.paradis@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -137177,7 +137177,7 @@
     "contributor": [
       "carlo.breaux@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137195,7 +137195,7 @@
     "contributor": [
       "domingo.mcnutt@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137213,7 +137213,7 @@
     "contributor": [
       "candie.glaser@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137231,7 +137231,7 @@
     "contributor": [
       "lita.regan@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -137249,7 +137249,7 @@
     "contributor": [
       "jen.jacoby@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -137267,7 +137267,7 @@
     "contributor": [
       "chrissy.rector@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -137285,7 +137285,7 @@
     "contributor": [
       "trey.ruby@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -137303,7 +137303,7 @@
     "contributor": [
       "rubin.gaston@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -137321,7 +137321,7 @@
     "contributor": [
       "willena.hemphill@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137339,7 +137339,7 @@
     "contributor": [
       "fernande.edwards@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137357,7 +137357,7 @@
     "contributor": [
       "sharee.hoskins@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137375,7 +137375,7 @@
     "contributor": [
       "malika.hansen@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137393,7 +137393,7 @@
     "contributor": [
       "timika.angel@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137411,7 +137411,7 @@
     "contributor": [
       "shanae.sam@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137429,7 +137429,7 @@
     "contributor": [
       "royce.vann@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137447,7 +137447,7 @@
     "contributor": [
       "doria.matthews@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137465,7 +137465,7 @@
     "contributor": [
       "sharee.hoskins@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137483,7 +137483,7 @@
     "contributor": [
       "toi.grantham@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -137501,7 +137501,7 @@
     "contributor": [
       "shanae.sam@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -137519,7 +137519,7 @@
     "contributor": [
       "errol.simon@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137538,7 +137538,7 @@
     "contributor": [
       "damion.navarrete@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -137554,7 +137554,7 @@
   "fields": {
     "evaluation": 1624,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137575,7 +137575,7 @@
     "contributor": [
       "chieko.lehman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137591,7 +137591,7 @@
   "fields": {
     "evaluation": 1625,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137610,7 +137610,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137625,7 +137625,7 @@
   "fields": {
     "evaluation": 1629,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137646,7 +137646,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137662,7 +137662,7 @@
   "fields": {
     "evaluation": 1634,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137684,7 +137684,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137700,7 +137700,7 @@
   "fields": {
     "evaluation": 1638,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137719,7 +137719,7 @@
     "contributor": [
       "lizabeth.steward@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137735,7 +137735,7 @@
   "fields": {
     "evaluation": 1641,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137754,7 +137754,7 @@
     "contributor": [
       "lizabeth.steward@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137769,7 +137769,7 @@
   "fields": {
     "evaluation": 1646,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137786,7 +137786,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137799,7 +137799,7 @@
   "fields": {
     "evaluation": 1647,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137818,7 +137818,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137834,7 +137834,7 @@
   "fields": {
     "evaluation": 1648,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137857,7 +137857,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137873,7 +137873,7 @@
   "fields": {
     "evaluation": 1649,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137893,7 +137893,7 @@
     "contributor": [
       "elena.kline@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137909,7 +137909,7 @@
   "fields": {
     "evaluation": 1651,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137929,7 +137929,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137944,7 +137944,7 @@
   "fields": {
     "evaluation": 1653,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137959,7 +137959,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -137972,7 +137972,7 @@
   "fields": {
     "evaluation": 1655,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -137991,7 +137991,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138006,7 +138006,7 @@
   "fields": {
     "evaluation": 1656,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138027,7 +138027,7 @@
     "contributor": [
       "lahoma.gage@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138043,7 +138043,7 @@
   "fields": {
     "evaluation": 1657,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138063,7 +138063,7 @@
     "contributor": [
       "lyndia.higdon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138079,7 +138079,7 @@
   "fields": {
     "evaluation": 1660,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138102,7 +138102,7 @@
     "contributor": [
       "evie.martz@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138118,7 +138118,7 @@
   "fields": {
     "evaluation": 1663,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138139,7 +138139,7 @@
     "contributor": [
       "salena.soriano@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138154,7 +138154,7 @@
   "fields": {
     "evaluation": 1668,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138169,7 +138169,7 @@
     "contributor": [
       "salena.soriano@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138182,7 +138182,7 @@
   "fields": {
     "evaluation": 1673,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138201,7 +138201,7 @@
     "contributor": [
       "henriette.park@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
@@ -138217,7 +138217,7 @@
   "fields": {
     "evaluation": 1679,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138239,7 +138239,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138255,7 +138255,7 @@
   "fields": {
     "evaluation": 1682,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138275,7 +138275,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": "",
     "order": 1,
@@ -138291,7 +138291,7 @@
   "fields": {
     "evaluation": 1683,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138308,7 +138308,7 @@
     "contributor": [
       "ingeborg.herring@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138321,7 +138321,7 @@
   "fields": {
     "evaluation": 1684,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138340,7 +138340,7 @@
     "contributor": [
       "sonia.dominguez@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138356,7 +138356,7 @@
   "fields": {
     "evaluation": 1687,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138377,7 +138377,7 @@
     "contributor": [
       "sunni.hollingsworth@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138393,7 +138393,7 @@
   "fields": {
     "evaluation": 1693,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138414,7 +138414,7 @@
     "contributor": [
       "evap@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138430,7 +138430,7 @@
   "fields": {
     "evaluation": 1694,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138449,7 +138449,7 @@
     "contributor": [
       "responsible@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138465,7 +138465,7 @@
   "fields": {
     "evaluation": 1695,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138486,7 +138486,7 @@
     "contributor": [
       "amos.benoit@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138502,7 +138502,7 @@
   "fields": {
     "evaluation": 1696,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138522,7 +138522,7 @@
     "contributor": [
       "lisandra.grace@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138538,7 +138538,7 @@
   "fields": {
     "evaluation": 1697,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138560,7 +138560,7 @@
     "contributor": [
       "odis.cantu@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138575,7 +138575,7 @@
   "fields": {
     "evaluation": 1698,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138593,7 +138593,7 @@
     "contributor": [
       "mariann.locke@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138609,7 +138609,7 @@
   "fields": {
     "evaluation": 1701,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138630,7 +138630,7 @@
     "contributor": [
       "xuan.bustamante@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138646,7 +138646,7 @@
   "fields": {
     "evaluation": 1706,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138668,7 +138668,7 @@
     "contributor": [
       "amelia.handy@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138683,7 +138683,7 @@
   "fields": {
     "evaluation": 1707,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138702,7 +138702,7 @@
     "contributor": [
       "luciana.graves@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138720,7 +138720,7 @@
     "contributor": [
       "justa.baughman@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138738,7 +138738,7 @@
     "contributor": [
       "sudie.phelan@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138756,7 +138756,7 @@
     "contributor": [
       "oscar.christie@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138775,7 +138775,7 @@
     "contributor": [
       "lynn.baptiste@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -138793,7 +138793,7 @@
     "contributor": [
       "karly.clapp@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -138811,7 +138811,7 @@
     "contributor": [
       "concha.ezell@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -138829,7 +138829,7 @@
     "contributor": [
       "catharine.medeiros@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -138847,7 +138847,7 @@
     "contributor": [
       "doria.matthews@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138865,7 +138865,7 @@
     "contributor": [
       "merle.higdon@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138881,7 +138881,7 @@
   "fields": {
     "evaluation": 1710,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -138900,7 +138900,7 @@
     "contributor": [
       "hugh.runyon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -138917,7 +138917,7 @@
     "contributor": [
       "antony.landry@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -138935,7 +138935,7 @@
     "contributor": [
       "marilynn.oconnor@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -138953,7 +138953,7 @@
     "contributor": [
       "hilda.rocha@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -138971,7 +138971,7 @@
     "contributor": [
       "mirtha.cleveland@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -138989,7 +138989,7 @@
     "contributor": [
       "ali.best@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -139007,7 +139007,7 @@
     "contributor": [
       "virgina.carrasco@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
@@ -139025,7 +139025,7 @@
     "contributor": [
       "wyatt.fairchild@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139043,7 +139043,7 @@
     "contributor": [
       "lashaunda.benoit@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139061,7 +139061,7 @@
     "contributor": [
       "fernande.edwards@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -139079,7 +139079,7 @@
     "contributor": [
       "errol.simon@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139098,7 +139098,7 @@
     "contributor": [
       "wyatt.fairchild@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139116,7 +139116,7 @@
     "contributor": [
       "lindsy.clement@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139134,7 +139134,7 @@
     "contributor": [
       "wyatt.fairchild@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139152,7 +139152,7 @@
     "contributor": [
       "anglea.akers@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139169,7 +139169,7 @@
     "contributor": [
       "val.crocker@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139187,7 +139187,7 @@
     "contributor": [
       "sergio.reichert@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139205,7 +139205,7 @@
     "contributor": [
       "hue.fontenot@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139223,7 +139223,7 @@
     "contributor": [
       "hue.fontenot@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139242,7 +139242,7 @@
     "contributor": [
       "elias.troy@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139260,7 +139260,7 @@
     "contributor": [
       "latosha.moon@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139278,7 +139278,7 @@
     "contributor": [
       "brian.david@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139296,7 +139296,7 @@
     "contributor": [
       "lyndsey.lattimore@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -139314,7 +139314,7 @@
     "contributor": [
       "diane.carlton@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 3,
@@ -139332,7 +139332,7 @@
     "contributor": [
       "veta.branson@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 4,
@@ -139350,7 +139350,7 @@
     "contributor": [
       "karine.prater@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 5,
@@ -139368,7 +139368,7 @@
     "contributor": [
       "adriane.strain@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 6,
@@ -139386,7 +139386,7 @@
     "contributor": [
       "vanetta.fleck@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 7,
@@ -139404,7 +139404,7 @@
     "contributor": [
       "vania.talbert@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139422,7 +139422,7 @@
     "contributor": [
       "pamala.galbraith@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139440,7 +139440,7 @@
     "contributor": [
       "kacy.galvan@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139458,7 +139458,7 @@
     "contributor": [
       "reyna.masterson@external.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
@@ -139474,7 +139474,7 @@
   "fields": {
     "evaluation": 1712,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139496,7 +139496,7 @@
     "contributor": [
       "corinne.tolliver@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL",
     "label": null,
     "order": 1,
@@ -139514,7 +139514,7 @@
     "contributor": [
       "editor@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 2,
@@ -139532,7 +139532,7 @@
     "contributor": [
       "contributor@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139550,7 +139550,7 @@
     "contributor": [
       "evap@institution.example.com"
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139568,7 +139568,7 @@
     "contributor": [
       "nolan.pope@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": "Guest lecturer",
     "order": 0,
@@ -139586,7 +139586,7 @@
     "contributor": [
       "elbert.baber@external.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": "Assistant",
     "order": 0,
@@ -139602,7 +139602,7 @@
   "fields": {
     "evaluation": 1713,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139617,7 +139617,7 @@
   "fields": {
     "evaluation": 1714,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 0,
@@ -139632,7 +139632,7 @@
   "fields": {
     "evaluation": 1715,
     "contributor": null,
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": -1,
@@ -139647,7 +139647,7 @@
     "contributor": [
       "keva.cheng@institution.example.com"
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN",
     "label": null,
     "order": 1,
