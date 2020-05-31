@@ -17,7 +17,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
-from evap.results.tools import collect_results
+from evap.results.tools import collect_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
 
@@ -129,7 +129,7 @@ class SemesterForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         semester = super().save(*args, **kwargs)
         if 'short_name_en' in self.changed_data or 'short_name_de' in self.changed_data:
-            update_template_cache(semester.evaluations.filter(state="published"))
+            update_template_cache(semester.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
         return semester
 
 
@@ -154,7 +154,7 @@ class DegreeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         degree = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state="published", course__degrees__in=[degree]))
+            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__degrees__in=[degree]))
         return degree
 
 
@@ -179,7 +179,7 @@ class CourseTypeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         course_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state="published", course__type=course_type))
+            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type))
         return course_type
 
 
@@ -782,8 +782,12 @@ class UserForm(forms.ModelForm):
         self.remove_messages = [] if self.instance.is_active else remove_user_from_represented_and_ccing_users(self.instance)
 
         # refresh results cache
-        for evaluation in Evaluation.objects.filter(contributions__contributor=self.instance).distinct():
-            if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+        if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+            evaluations = Evaluation.objects.filter(
+                contributions__contributor=self.instance,
+                state__in=STATES_WITH_RESULTS_CACHING
+            ).distinct()
+            for evaluation in evaluations:
                 collect_results(evaluation, force_recalculation=True)
 
         self.instance.save()

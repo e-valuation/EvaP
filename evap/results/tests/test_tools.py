@@ -32,6 +32,18 @@ class TestCalculateResults(TestCase):
 
         self.assertIsNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
 
+    def test_caching_works_after_multiple_transitions(self):
+        evaluation = baker.make(Evaluation, state='in_evaluation')
+
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+        evaluation.evaluation_end()
+        evaluation.review_finished()
+        evaluation.publish()
+        evaluation.save()
+
+        self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
+
     def test_calculation_unipolar_results(self):
         contributor1 = baker.make(UserProfile)
         student = baker.make(UserProfile)

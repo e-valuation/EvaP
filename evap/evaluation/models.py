@@ -422,21 +422,30 @@ class Evaluation(models.Model):
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
-        if hasattr(self, 'state_change'):
+        if hasattr(self, 'state_change_source'):
+            state_changed_to = lambda self, state_set: self.state_change_source not in state_set and self.state in state_set
+            state_changed_from = lambda self, state_set: self.state_change_source in state_set and self.state not in state_set
+
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
             # pylint: disable=import-outside-toplevel
-            if self.state_change == "published":
+            from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+
+            if state_changed_to(self, STATES_WITH_RESULTS_CACHING):
                 from evap.results.tools import collect_results
-                from evap.results.views import update_template_cache_of_published_evaluations_in_course
                 collect_results(self)
-                update_template_cache_of_published_evaluations_in_course(self.course)
-            elif self.state_change == "unpublished":
+            elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
                 from evap.results.tools import get_collect_results_cache_key
-                from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
                 caches['results'].delete(get_collect_results_cache_key(self))
+
+            if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
+                from evap.results.views import update_template_cache_of_published_evaluations_in_course
+                update_template_cache_of_published_evaluations_in_course(self.course)
+            elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
+                from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
+            del self.state_change_source
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -773,17 +782,11 @@ class Evaluation(models.Model):
 
 
 @receiver(post_transition, sender=Evaluation)
-def course_was_published(instance, target, **_kwargs):
+def evaluation_state_change(instance, source, **_kwargs):
     """ Evaluation.save checks whether caches must be updated based on this value """
-    if target == 'published':
-        instance.state_change = "published"
-
-
-@receiver(post_transition, sender=Evaluation)
-def course_was_unpublished(instance, source, **_kwargs):
-    """ Evaluation.save checks whether caches must be updated based on this value """
-    if source == 'published':
-        instance.state_change = "unpublished"
+    # if multiple state changes are happening, state_change_source should be the first source
+    if not hasattr(instance, 'state_change_source'):
+        instance.state_change_source = source
 
 
 @receiver(post_transition, sender=Evaluation)

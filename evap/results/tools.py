@@ -11,6 +11,10 @@ from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
         Evaluation
 
 
+STATES_WITH_RESULTS_CACHING = {'published'}
+STATES_WITH_RESULT_TEMPLATE_CACHING = {'published'}
+
+
 GRADE_COLORS = {
     1: (136, 191, 74),
     2: (187, 209, 84),
@@ -129,7 +133,7 @@ def get_collect_results_cache_key(evaluation):
 
 
 def collect_results(evaluation, force_recalculation=False):
-    if evaluation.state != "published":
+    if evaluation.state not in STATES_WITH_RESULTS_CACHING:
         return _collect_results_impl(evaluation)
 
     cache_key = get_collect_results_cache_key(evaluation)
