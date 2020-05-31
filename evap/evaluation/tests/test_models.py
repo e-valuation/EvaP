@@ -14,7 +14,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, EmailTempl
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.grades.models import GradeDocument
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
-from evap.results.tools import calculate_average_distribution
+from evap.results.tools import calculate_average_distribution, cache_results
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
@@ -547,12 +547,14 @@ class ParticipationArchivingTests(TestCase):
         self.assertTrue(self.evaluation.participations_are_archived)
 
     def test_archiving_participations_does_not_change_results(self):
+        cache_results(self.evaluation)
         distribution = calculate_average_distribution(self.evaluation)
 
         self.semester.archive_participations()
         self.refresh_evaluation()
         caches['results'].clear()
 
+        cache_results(self.evaluation)
         new_distribution = calculate_average_distribution(self.evaluation)
         self.assertEqual(new_distribution, distribution)
 

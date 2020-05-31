@@ -1,5 +1,4 @@
 from collections import OrderedDict, defaultdict, namedtuple
-from functools import partial
 from math import ceil, modf
 
 from django.conf import settings
@@ -128,21 +127,25 @@ def get_single_result_rating_result(evaluation):
     return RatingResult(question, answer_counters)
 
 
-def get_collect_results_cache_key(evaluation):
-    return 'evap.staff.results.tools.collect_results-{:d}'.format(evaluation.id)
+def get_results_cache_key(evaluation):
+    return 'evap.staff.results.tools.get_results-{:d}'.format(evaluation.id)
 
 
-def collect_results(evaluation, force_recalculation=False):
-    if evaluation.state not in STATES_WITH_RESULTS_CACHING:
-        return _collect_results_impl(evaluation)
-
-    cache_key = get_collect_results_cache_key(evaluation)
-    if force_recalculation:
-        caches['results'].delete(cache_key)
-    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, evaluation))
+def cache_results(evaluation):
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING
+    cache_key = get_results_cache_key(evaluation)
+    caches['results'].set(cache_key, _get_results_impl(evaluation))
 
 
-def _collect_results_impl(evaluation):
+def get_results(evaluation):
+    cache_key = get_results_cache_key(evaluation)
+    result = caches['results'].get(cache_key)
+    if result is None:
+        result = _get_results_impl(evaluation)
+    return result
+
+
+def _get_results_impl(evaluation):
     contributor_contribution_results = []
     for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         questionnaire_results = []
@@ -269,7 +272,7 @@ def calculate_average_distribution(evaluation):
 
     # will contain a list of question results for each contributor and one for the evaluation (where contributor is None)
     grouped_results = defaultdict(list)
-    for contribution_result in collect_results(evaluation).contribution_results:
+    for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 

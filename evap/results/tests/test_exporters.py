@@ -10,7 +10,7 @@ from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile, TextAnswer)
 from evap.results.exporters import ResultsExporter, TextAnswerExporter
-from evap.results.tools import collect_results
+from evap.results.tools import get_results
 from evap.results.views import filter_text_answers
 
 
@@ -468,7 +468,7 @@ class TestExporters(TestCase):
                 state=TextAnswer.State.PUBLISHED
             )
 
-        evaluation_result = collect_results(evaluation)
+        evaluation_result = get_results(evaluation)
         filter_text_answers(evaluation_result)
 
         results = TextAnswerExporter.InputData(evaluation_result.contribution_results)

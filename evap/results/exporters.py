@@ -9,7 +9,7 @@ import xlwt
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.evaluation.tools import ExcelExporter
-from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
+from evap.results.tools import (get_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
 
@@ -108,7 +108,7 @@ class ResultsExporter(ExcelExporter):
             if not evaluation.can_publish_rating_results and not include_not_enough_voters:
                 continue
             results = OrderedDict()
-            for contribution_result in collect_results(evaluation).contribution_results:
+            for contribution_result in get_results(evaluation).contribution_results:
                 for questionnaire_result in contribution_result.questionnaire_results:
                     # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
                     if all(not question_result.question.is_rating_question or question_result.counts is None or sum(question_result.counts) == 0 for question_result in questionnaire_result.question_results):

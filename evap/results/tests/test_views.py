@@ -796,7 +796,8 @@ class TestTextAnswerExportView(WebTest):
             email="reviewer@institution.example.com",
             groups=[Group.objects.get(name="Reviewer")],
         )
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, state='published')
+
         cls.url = f"/results/evaluation/{evaluation.id}/text_answers_export"
 
     def test_file_sent(self):

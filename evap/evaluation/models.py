@@ -432,11 +432,11 @@ class Evaluation(models.Model):
             from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 
             if state_changed_to(self, STATES_WITH_RESULTS_CACHING):
-                from evap.results.tools import collect_results
-                collect_results(self)
+                from evap.results.tools import cache_results
+                cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
-                from evap.results.tools import get_collect_results_cache_key
-                caches['results'].delete(get_collect_results_cache_key(self))
+                from evap.results.tools import get_results_cache_key
+                caches['results'].delete(get_results_cache_key(self))
 
             if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
                 from evap.results.views import update_template_cache_of_published_evaluations_in_course

@@ -3,7 +3,7 @@ from django.core.serializers.base import ProgressBar
 from django.core.cache import caches
 
 from evap.evaluation.models import Evaluation
-from evap.results.tools import collect_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 from evap.results.views import warm_up_template_cache
 
 
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         progress_bar = ProgressBar(self.stdout, evaluations.count())
         for counter, evaluation in enumerate(evaluations):
             progress_bar.update(counter + 1)
-            collect_results(evaluation)
+            cache_results(evaluation)
 
         self.stdout.write("Prerendering result index page...\n")
 

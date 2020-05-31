@@ -15,7 +15,7 @@ from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, Use
 from evap.evaluation.auth import internal_required
 from evap.evaluation.tools import FileResponse
 from evap.results.exporters import TextAnswerExporter
-from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
+from evap.results.tools import (get_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
                                 HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution, STATES_WITH_RESULT_TEMPLATE_CACHING)
 
@@ -176,7 +176,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
-    evaluation_result = collect_results(evaluation)
+    evaluation_result = get_results(evaluation)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
     exclude_empty_headings(evaluation_result)
     remove_empty_questionnaire_and_contribution_results(evaluation_result)
@@ -367,7 +367,7 @@ def extract_evaluation_answer_data(request, evaluation):
 
     view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
-    evaluation_result = collect_results(evaluation)
+    evaluation_result = get_results(evaluation)
     filter_text_answers(evaluation_result)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
 

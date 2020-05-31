@@ -17,7 +17,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.tools import remove_user_from_represented_and_ccing_users
-from evap.results.tools import collect_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
 
@@ -788,7 +788,7 @@ class UserForm(forms.ModelForm):
                 state__in=STATES_WITH_RESULTS_CACHING
             ).distinct()
             for evaluation in evaluations:
-                collect_results(evaluation, force_recalculation=True)
+                cache_results(evaluation)
 
         self.instance.save()
 
