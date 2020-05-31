@@ -79,6 +79,8 @@ def on_grading_process_finished(course):
     evaluations = course.evaluations.all()
     if all(evaluation.state == 'reviewed' for evaluation in evaluations):
         for evaluation in evaluations:
+            assert evaluation.grading_process_is_finished
+        for evaluation in evaluations:
             evaluation.publish()
             evaluation.save()
 
