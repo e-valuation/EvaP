@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
+    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
     name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
@@ -69,6 +69,9 @@ class EvaluationForm(forms.ModelForm):
             not_locked = list(self.cleaned_data.get('general_questionnaires').filter(is_locked=False))
 
         locked = list(self.instance.general_contribution.questionnaires.filter(is_locked=True))
+
+        if not not_locked + locked:
+            self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
 
         return not_locked + locked
 
