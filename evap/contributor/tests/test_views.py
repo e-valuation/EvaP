@@ -1,16 +1,12 @@
-from unittest.mock import patch
-import operator
-
 from django.core import mail
 
 from django_webtest import WebTest
 from model_bakery import baker
-import webtest
 
 from evap.evaluation.models import Evaluation, UserProfile, Contribution, Questionnaire, Course
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
-TESTING_COURSE_ID = 2
+TESTING_EVALUATION_ID = 2
 
 
 class TestContributorDirectDelegationView(WebTest):
@@ -96,15 +92,15 @@ class TestContributorSettingsView(WebTest):
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s' % TESTING_EVALUATION_ID
     test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -121,15 +117,15 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s/preview' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s/preview' % TESTING_EVALUATION_ID
     test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -137,67 +133,22 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
         self.app.get(self.url, user="responsible@institution.example.com", status=403)
 
 
-# A submit function which conforms to the specification to not submit disabled fields.
-# See https://github.com/Pylons/webtest/issues/138
-def submit_fields_without_disabled(self, name=None, index=None, submit_value=None):
-    submit = []
-    # Use another name here so we can keep function param the same for BWC.
-    submit_name = name
-    if index is not None and submit_value is not None:
-        raise ValueError("Can't specify both submit_value and index.")
-
-    # If no particular button was selected, use the first one
-    if index is None and submit_value is None:
-        index = 0
-
-    # This counts all fields with the submit name not just submit fields.
-    current_index = 0
-    for name, field in self.field_order:
-        if name is None:
-            continue
-        if submit_name is not None and name == submit_name:
-            if index is not None and current_index == index:
-                submit.append((field.pos, name, field.value_if_submitted()))
-            if submit_value is not None and \
-                    field.value_if_submitted() == submit_value:
-                submit.append((field.pos, name, field.value_if_submitted()))
-            current_index += 1
-        else:
-            value = field.value
-            if value is None or 'disabled' in field.attrs:
-                continue
-            if isinstance(field, webtest.forms.File):
-                submit.append((field.pos, name, field))
-                continue
-            if isinstance(field, webtest.forms.Radio):
-                if field.selectedIndex is not None:
-                    submit.append((field.optionPositions[field.selectedIndex], name, value))
-                    continue
-            if isinstance(value, list):
-                for item in value:
-                    submit.append((field.pos, name, item))
-            else:
-                submit.append((field.pos, name, value))
-    submit.sort(key=operator.itemgetter(0))
-    return [x[1:] for x in submit]
-
-
 class TestContributorEvaluationEditView(WebTest):
-    url = '/contributor/evaluation/%s/edit' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_not_authenticated(self):
         """
             Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
-        self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_COURSE_ID)
+        self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID)
 
     def test_wrong_usergroup(self):
         """
@@ -239,7 +190,6 @@ class TestContributorEvaluationEditView(WebTest):
         response = form.submit(expect_errors=True)
         self.assertEqual(response.status_code, 403)
 
-    @patch.object(webtest.Form, 'submit_fields', submit_fields_without_disabled)
     def test_single_locked_questionnaire(self):
         locked_questionnaire = baker.make(
             Questionnaire,
@@ -252,16 +202,20 @@ class TestContributorEvaluationEditView(WebTest):
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
             state='prepared',
+            pk=TESTING_EVALUATION_ID+1
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
         page = self.app.get(f'/contributor/evaluation/{evaluation.pk}/edit', user=responsible, status=200)
         form = page.forms['evaluation-form']
-        response = form.submit(name='operation', value='save')
-        # TODO: Somehow assert that the form was submitted successfully.
-        # follow works in this case, but does not quite hit the point
-        response.follow()
 
+        # see https://github.com/Pylons/webtest/issues/138
+        for name_field_tuple in form.field_order[:]:
+            if 'disabled' in name_field_tuple[1].attrs:
+                form.field_order.remove(name_field_tuple)
+
+        response = form.submit(name='operation', value='save')
+        self.assertIn("Successfully updated evaluation", response.follow())
 
     def test_contributor_evaluation_edit_preview(self):
         """
