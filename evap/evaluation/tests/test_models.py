@@ -12,6 +12,7 @@ from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.grades.models import GradeDocument
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
@@ -306,6 +307,81 @@ class TestEvaluations(WebTest):
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
+
+    # pylint: disable=invalid-name
+    def assert_textanswer_review_state(
+            self,
+            evaluation,
+            expected_default_value,
+            expected_value_with_gets_no_grade_documents,
+            expected_value_with_wait_for_grade_upload_before_publishing,
+            expected_value_after_grade_upload):
+
+        self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
+
+        evaluation.course.gets_no_grade_documents = True
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_with_gets_no_grade_documents)
+        evaluation.course.gets_no_grade_documents = False
+
+        evaluation.wait_for_grade_upload_before_publishing = True
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_with_wait_for_grade_upload_before_publishing)
+
+        grade_document = baker.make(GradeDocument, type=GradeDocument.Type.FINAL_GRADES, course=evaluation.course)
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_after_grade_upload)
+        grade_document.delete()
+
+        evaluation.wait_for_grade_upload_before_publishing = False
+
+    def test_textanswer_review_state(self):
+        evaluation = baker.make(
+            Evaluation,
+            state="in_evaluation",
+            can_publish_text_results=True,
+            wait_for_grade_upload_before_publishing=False
+        )
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+        )
+
+        textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
+        del evaluation.num_textanswers  # reset cached_property cache
+
+        # text_answer_review_state should be REVIEW_NEEDED as long as we are still in_evaluation
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+        )
+
+        evaluation.evaluation_end()
+        evaluation.save()
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,  # course has `gets_no_grade_documents`
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,  # still waiting for grades
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,  # grades were uploaded
+        )
+
+        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.save()
+        del evaluation.num_reviewed_textanswers  # reset cached_property cache
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+        )
 
 
 class TestCourse(TestCase):

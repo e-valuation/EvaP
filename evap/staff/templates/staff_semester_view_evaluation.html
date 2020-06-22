@@ -38,20 +38,18 @@
     </td>
 {% endif %}
 
-{% if evaluation.num_textanswers == 0 %}
+{% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS %}
     <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_textanswers">
         <span class="fas fa-comment icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}"></span>
     </td>
-{% elif evaluation.num_textanswers > evaluation.num_reviewed_textanswers %}
-    {% if evaluation.text_answer_review_is_urgent %}
-        <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
-            <span class="fas fa-comment icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}"></span>
-        </td>
-    {% else %}
-        <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
-            <span class="fas fa-comment icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}"></span>
-        </td>
-    {% endif %}
+{% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
+    <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
+        <span class="fas fa-comment icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}"></span>
+    </td>
+{% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_NEEDED %}
+    <td class="icon" data-col="state-textanswers" data-order="2" data-filter="unreviewed_textanswers">
+        <span class="fas fa-comment icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers awaiting review' %}"></span>
+    </td>
 {% else %}
     <td class="icon" data-col="state-textanswers" data-order="4" data-filter="textanswers_reviewed">
         <span class="fas fa-comment icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Text answers reviewed' %}"></span>
