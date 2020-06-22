@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
+    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
     name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
@@ -64,10 +64,14 @@ class EvaluationForm(forms.ModelForm):
 
     def clean_general_questionnaires(self):
         # Ensure all locked questionnaires still have the same status (included or not)
-        locked_qs = self.fields['general_questionnaires'].queryset.filter(is_locked=True)
+        not_locked = []
+        if self.cleaned_data.get('general_questionnaires'):
+            not_locked = list(self.cleaned_data.get('general_questionnaires').filter(is_locked=False))
 
-        not_locked = [q for q in self.cleaned_data.get('general_questionnaires') if q not in locked_qs]
-        locked = [q.pk for q in self.instance.general_contribution.questionnaires.filter(is_locked=True)]
+        locked = list(self.instance.general_contribution.questionnaires.filter(is_locked=True))
+
+        if not not_locked + locked:
+            self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
 
         return not_locked + locked
 

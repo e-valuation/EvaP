@@ -27,7 +27,7 @@
             </ul>
             {% endspaceless %}">
             <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
-                autocomplete="off"{% if choice.data.selected %} checked{% endif %}
+                autocomplete="off"{% if choice.data.selected or questionnaire.is_locked and not manager and choice.data.value in field.initial %} checked{% endif %}
                     {% if field.field.disabled or questionnaire.is_locked and not manager %} disabled{% endif %} />
             <label class="form-check-label" for="{{ choice.id_for_label }}">
                 {{ choice.choice_label }}

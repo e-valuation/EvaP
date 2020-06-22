@@ -3,10 +3,10 @@ from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, UserProfile, Contribution
+from evap.evaluation.models import Evaluation, UserProfile, Contribution, Questionnaire, Course
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
-TESTING_COURSE_ID = 2
+TESTING_EVALUATION_ID = 2
 
 
 class TestContributorDirectDelegationView(WebTest):
@@ -92,15 +92,15 @@ class TestContributorSettingsView(WebTest):
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s' % TESTING_EVALUATION_ID
     test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -117,15 +117,15 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s/preview' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s/preview' % TESTING_EVALUATION_ID
     test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -134,21 +134,21 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
 
 
 class TestContributorEvaluationEditView(WebTest):
-    url = '/contributor/evaluation/%s/edit' % TESTING_COURSE_ID
+    url = '/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_COURSE_ID)
+        create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
 
     def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_COURSE_ID)
+        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_not_authenticated(self):
         """
             Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
-        self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_COURSE_ID)
+        self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID)
 
     def test_wrong_usergroup(self):
         """
@@ -189,6 +189,33 @@ class TestContributorEvaluationEditView(WebTest):
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)
         self.assertEqual(response.status_code, 403)
+
+    def test_single_locked_questionnaire(self):
+        locked_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.TOP,
+            is_locked=True,
+            visibility=Questionnaire.Visibility.EDITORS,
+        )
+        responsible = UserProfile.objects.get(email='responsible@institution.example.com')
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, responsibles=[responsible]),
+            state='prepared',
+            pk=TESTING_EVALUATION_ID+1
+        )
+        evaluation.general_contribution.questionnaires.set([locked_questionnaire])
+
+        page = self.app.get(f'/contributor/evaluation/{evaluation.pk}/edit', user=responsible, status=200)
+        form = page.forms['evaluation-form']
+
+        # see https://github.com/Pylons/webtest/issues/138
+        for name_field_tuple in form.field_order[:]:
+            if 'disabled' in name_field_tuple[1].attrs:
+                form.field_order.remove(name_field_tuple)
+
+        response = form.submit(name='operation', value='save')
+        self.assertIn("Successfully updated evaluation", response.follow())
 
     def test_contributor_evaluation_edit_preview(self):
         """
