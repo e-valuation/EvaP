@@ -11,13 +11,15 @@ from evap.student.views import SUCCESS_MAGIC_STRING
 
 
 class TestStudentIndexView(WebTestWith200Check):
-    test_users = ['student@institution.example.com']
     url = '/student/'
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # View is only visible to users participating in at least one evaluation.
         user = baker.make(UserProfile, email='student@institution.example.com')
         baker.make(Evaluation, participants=[user])
+
+        cls.test_users = [user]
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])

@@ -79,11 +79,11 @@ class TestIndexView(WebTest):
 
 class TestEventsView(WebTestWith200Check):
     url = reverse('rewards:reward_point_redemption_events')
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
@@ -134,11 +134,11 @@ class TestEventEditView(WebTest):
 
 class TestExportView(WebTestWith200Check):
     url = '/rewards/reward_point_redemption_event/1/export'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         event = baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemption, value=1, event=event)
 

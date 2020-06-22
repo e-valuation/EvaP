@@ -57,30 +57,28 @@ class TestDownloadSampleXlsView(WebTest):
 
 
 class TestStaffIndexView(WebTestWith200Check):
-    test_users = ['manager@institution.example.com']
     url = '/staff/'
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
 
 
 class TestStaffFAQView(WebTestWith200Check):
     url = '/staff/faq/'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
 
 
 class TestStaffFAQEditView(WebTestWith200Check):
     url = '/staff/faq/1'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         section = baker.make(FaqSection, pk=1)
         baker.make(FaqQuestion, section=section)
 
@@ -174,21 +172,21 @@ class TestUserEditView(WebTest):
 
 class TestUserMergeSelectionView(WebTestWith200Check):
     url = "/staff/user/merge"
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         baker.make(UserProfile)
 
 
 class TestUserMergeView(WebTestWith200Check):
     url = "/staff/user/3/merge/4"
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         baker.make(UserProfile, pk=3)
         baker.make(UserProfile, pk=4)
 
@@ -681,13 +679,14 @@ class TestSemesterAssignView(WebTest):
 
 class TestSemesterPreparationReminderView(WebTestWith200Check):
     url = '/staff/semester/1/preparation_reminder'
-    test_users = ['manager@institution.example.com']
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
+
+        cls.test_users = [cls.manager]
 
     def test_preparation_reminder(self):
         user = baker.make(UserProfile, email='user_to_find@institution.example.com')
@@ -942,13 +941,14 @@ class TestSemesterExportView(WebTest):
 
 class TestSemesterRawDataExportView(WebTestWith200Check):
     url = '/staff/semester/1/raw_export'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType, name_en="Type")
+
+        cls.test_users = [cls.manager]
 
     def test_view_downloads_csv_file(self):
         student_user = baker.make(UserProfile, email='student@institution.example.com')
@@ -1724,13 +1724,12 @@ class TestEvaluationEditView(WebTest):
 
 class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/evaluation/1/edit'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
-        semester = baker.make(Semester, pk=1)
+        cls.test_users = [make_manager()]
 
+        semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, responsibles=[responsible]), pk=1)
         contribution = baker.make(
@@ -1752,11 +1751,11 @@ class TestSingleResultEditView(WebTestWith200Check):
 
 class TestEvaluationPreviewView(WebTestWith200Check):
     url = '/staff/semester/1/evaluation/1/preview'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         semester = baker.make(Semester, pk=1)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester), pk=1)
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -2186,11 +2185,12 @@ class TestQuestionnaireIndexView(WebTest):
 
 class TestQuestionnaireEditView(WebTestWith200Check):
     url = '/staff/questionnaire/2/edit'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        cls.test_users = [cls.manager]
+
         evaluation = baker.make(Evaluation, state='in_evaluation')
         cls.questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
@@ -2225,11 +2225,11 @@ class TestQuestionnaireEditView(WebTestWith200Check):
 
 class TestQuestionnaireViewView(WebTestWith200Check):
     url = '/staff/questionnaire/2'
-    test_users = ['manager@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        make_manager()
+        cls.test_users = [make_manager()]
+
         questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)

@@ -75,11 +75,11 @@ class TestContributorDirectDelegationView(WebTest):
 
 class TestContributorView(WebTestWith200Check):
     url = '/contributor/'
-    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
-        create_evaluation_with_responsible_and_editor()
+        users = create_evaluation_with_responsible_and_editor()
+        cls.test_users = [users['editor'], users['responsible']]
 
 
 class TestContributorSettingsView(WebTest):
@@ -102,14 +102,15 @@ class TestContributorSettingsView(WebTest):
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s' % TESTING_EVALUATION_ID
-    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
+    url = f'/contributor/evaluation/{TESTING_EVALUATION_ID}'
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
         cls.responsible = result['responsible']
         cls.editor = result['editor']
+
+        cls.test_users = [cls.editor, cls.responsible]
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
@@ -129,13 +130,14 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
-    url = '/contributor/evaluation/%s/preview' % TESTING_EVALUATION_ID
-    test_users = ['editor@institution.example.com', 'responsible@institution.example.com']
+    url = f'/contributor/evaluation/{TESTING_EVALUATION_ID}/preview'
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
         cls.responsible = result['responsible']
+
+        cls.test_users = [result['editor'], result['responsible']]
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)

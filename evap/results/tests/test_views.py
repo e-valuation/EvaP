@@ -164,7 +164,6 @@ class TestResultsViewContributionWarning(WebTest):
 
 class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
     url = '/results/semester/2/evaluation/21'
-    test_users = ['manager@institution.example.com', 'contributor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
@@ -173,6 +172,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 
         contributor = baker.make(UserProfile, email='contributor@institution.example.com')
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+
+        cls.test_users = [cls.manager, contributor, responsible]
 
         # Normal evaluation with responsible and contributor.
         cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester))
