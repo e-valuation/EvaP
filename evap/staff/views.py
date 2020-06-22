@@ -227,9 +227,12 @@ class MoveToPreparedOperation(EvaluationOperation):
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {'user': responsible, 'evaluations': responsible_evaluations}
-                editors = UserProfile.objects \
-                    .filter(contributions__evaluation__in=responsible_evaluations, contributions__can_edit=True) \
-                    .exclude(pk=responsible.pk)
+                editors = (UserProfile.objects
+                    .filter(
+                        contributions__evaluation__in=responsible_evaluations,
+                        contributions__role=Contribution.Role.EDITOR,
+                    )
+                    .exclude(pk=responsible.pk))
                 email_template.send_to_user(responsible, subject_params={}, body_params=body_params,
                                             use_cc=True, additional_cc_users=editors, request=request)
 

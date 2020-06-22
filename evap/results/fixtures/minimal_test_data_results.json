@@ -397,7 +397,7 @@
     "questionnaires": [
       2
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN"
   }
 },
@@ -410,7 +410,7 @@
     "questionnaires": [
       1
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "OWN"
   }
 },
@@ -423,7 +423,7 @@
     "questionnaires": [
       1
     ],
-    "can_edit": false,
+    "role": 0,
     "textanswer_visibility": "GENERAL"
   }
 },
@@ -436,7 +436,7 @@
     "questionnaires": [
       1
     ],
-    "can_edit": true,
+    "role": 1,
     "textanswer_visibility": "GENERAL"
   }
 },

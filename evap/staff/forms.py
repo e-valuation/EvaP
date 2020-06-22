@@ -415,7 +415,6 @@ class SingleResultForm(forms.ModelForm):
 
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
-    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.Responsibility.choices)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
@@ -427,8 +426,10 @@ class ContributionForm(forms.ModelForm):
 
     class Meta:
         model = Contribution
-        fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TextAnswerVisibility.choices)}
+        fields = ('evaluation', 'contributor', 'questionnaires', 'role', 'textanswer_visibility', 'label', 'order')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
@@ -438,11 +439,6 @@ class ContributionForm(forms.ModelForm):
             self.evaluation = kwargs['instance'].evaluation
 
         super().__init__(*args, **kwargs)
-
-        if self.instance.can_edit:
-            self.fields['responsibility'].initial = Contribution.Responsibility.IS_EDITOR
-        else:
-            self.fields['responsibility'].initial = Contribution.Responsibility.IS_CONTRIBUTOR
 
         if self.instance.contributor:
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
@@ -460,12 +456,6 @@ class ContributionForm(forms.ModelForm):
     def clean(self):
         if not self.cleaned_data.get('does_not_contribute') and not self.cleaned_data.get('questionnaires'):
             self.add_error('does_not_contribute', _("Select either this option or at least one questionnaire!"))
-
-    def save(self, *args, **kwargs):
-        responsibility = self.cleaned_data['responsibility']
-        is_editor = responsibility == Contribution.Responsibility.IS_EDITOR
-        self.instance.can_edit = is_editor
-        return super().save(*args, **kwargs)
 
 
 class EvaluationEmailForm(forms.Form):

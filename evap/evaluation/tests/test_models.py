@@ -136,8 +136,12 @@ class TestEvaluations(WebTest):
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
         editor_contribution = baker.make(
-                Contribution, evaluation=evaluation, contributor=baker.make(UserProfile),
-                can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+            Contribution,
+            evaluation=evaluation,
+            contributor=baker.make(UserProfile),
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
@@ -165,9 +169,13 @@ class TestEvaluations(WebTest):
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, is_single_result=True)
-        contribution = baker.make(Contribution,
-            evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[Questionnaire.single_result_questionnaire()]
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
         evaluation.single_result_created()
@@ -189,9 +197,13 @@ class TestEvaluations(WebTest):
         """ Regression test for #1238 """
         responsible = baker.make(UserProfile)
         single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(Contribution,
-            evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[Questionnaire.single_result_questionnaire()]
+        contribution = baker.make(
+            Contribution,
+            evaluation=single_result,
+            contributor=responsible,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
@@ -483,7 +495,13 @@ class ParticipationArchivingTests(TestCase):
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         evaluation.course.semester.archive_participations()
@@ -500,7 +518,13 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.evaluation = baker.make(Evaluation)
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
         cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
 
@@ -627,7 +651,7 @@ class TestEmailRecipientList(TestCase):
         editor = baker.make(UserProfile)
         contributor = baker.make(UserProfile)
         evaluation.course.responsibles.set([responsible])
-        baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor, role=Contribution.Role.EDITOR)
         baker.make(Contribution, evaluation=evaluation, contributor=contributor)
 
         participant1 = baker.make(UserProfile, evaluations_participating_in=[evaluation])

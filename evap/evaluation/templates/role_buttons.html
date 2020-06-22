@@ -1,12 +1,12 @@
 {% load evaluation_filters %}
 
 <div class="btn-group btn-group-toggle" data-toggle="buttons">
-    {% for choice in form.responsibility %}
-        {% if choice.data.value == 'EDITOR' %}
+    {% for choice in form.role %}
+        {% if choice.data.value == form.instance.Role.EDITOR %}
             {% trans 'Able to edit the evaluation for preparation.' as tooltip %}
-        {% elif choice.data.value == 'CONTRIBUTOR' %}
+        {% elif choice.data.value == form.instance.Role.CONTRIBUTOR %}
             {% trans 'Default value. No special rights.' as tooltip %}
         {% endif %}
-        {% include 'choice_button.html' with formelement=form.responsibility choice=choice tooltip=tooltip %}
+        {% include 'choice_button.html' with formelement=form.role choice=choice tooltip=tooltip %}
     {% endfor %}
 </div>

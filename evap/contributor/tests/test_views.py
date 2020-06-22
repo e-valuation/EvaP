@@ -18,7 +18,13 @@ class TestContributorDirectDelegationView(WebTest):
 
         cls.editor = baker.make(UserProfile, email="editor@institution.example.com")
         cls.non_editor = baker.make(UserProfile, email="non_editor@institution.example.com")
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.editor,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_editor.id}
@@ -30,12 +36,17 @@ class TestContributorDirectDelegationView(WebTest):
         )
 
         contribution = Contribution.objects.get(contributor=self.non_editor)
-        self.assertTrue(contribution.can_edit)
+        self.assertEqual(contribution.role, Contribution.Role.EDITOR)
 
         self.assertEqual(len(mail.outbox), 1)
 
     def test_direct_delegation_request_with_existing_contribution(self):
-        contribution = baker.make(Contribution, evaluation=self.evaluation, contributor=self.non_editor, can_edit=False)
+        contribution = baker.make(
+            Contribution,
+            evaluation=self.evaluation,
+            contributor=self.non_editor,
+            role=Contribution.Role.CONTRIBUTOR,
+        )
         old_contribution_count = Contribution.objects.count()
 
         data = {"delegate_to": self.non_editor.id}
@@ -49,7 +60,7 @@ class TestContributorDirectDelegationView(WebTest):
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
 
         contribution.refresh_from_db()
-        self.assertTrue(contribution.can_edit)
+        self.assertEqual(contribution.role, Contribution.Role.EDITOR)
 
         self.assertEqual(len(mail.outbox), 1)
 
