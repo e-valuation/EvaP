@@ -185,10 +185,27 @@ class TestUserMergeView(WebTestWith200Check):
 
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
 
-        baker.make(UserProfile, pk=3)
-        baker.make(UserProfile, pk=4)
+        cls.main_user = baker.make(UserProfile, pk=3)
+        cls.other_user = baker.make(UserProfile, pk=4)
+
+    def test_shows_evaluations_participating_in(self):
+        evaluation = baker.make(Evaluation, name_en="The journey of unit-testing", participants=[self.main_user])
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, evaluation.name_en, count=2,
+                            msg_prefix="The evaluation name should be displayed twice: "
+                                       "in the column of the participant and in the column of the merged data")
+
+    def test_shows_evaluations_voted_for(self):
+        evaluation = baker.make(Evaluation, name_en="Voting theory", voters=[self.main_user])
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, evaluation.name_en, count=2,
+                            msg_prefix="The evaluation name should be displayed twice: "
+                                       "in the column of the voter and in the column of the merged data")
 
 
 class TestUserBulkUpdateView(WebTest):
