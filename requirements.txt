@@ -10,6 +10,6 @@ django-webtest == 1.9.7
 WebTest == 2.0.35
 model-bakery == 1.1.0
 django-extensions == 2.2.9
-django-sendfile2 == 0.5.1
+django-sendfile2 == 0.6.0
 django-compressor == 2.4
 mozilla-django-oidc == 1.2.3
