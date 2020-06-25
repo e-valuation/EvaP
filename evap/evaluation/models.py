@@ -1,5 +1,6 @@
 from collections import namedtuple, defaultdict
 from datetime import datetime, date, timedelta
+from enum import Enum, auto
 import logging
 import secrets
 import uuid
@@ -393,6 +394,13 @@ class Evaluation(models.Model):
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
 
+    class TextAnswerReviewState(Enum):
+        do_not_call_in_templates = True
+        NO_TEXTANSWERS = auto()
+        REVIEW_NEEDED = auto()
+        REVIEW_URGENT = auto()
+        REVIEWED = auto()
+
     class Meta:
         unique_together = (
             ('course', 'name_de'),
@@ -699,6 +707,24 @@ class Evaluation(models.Model):
     @cached_property
     def num_reviewed_textanswers(self):
         return self.reviewed_textanswer_set.count()
+
+    @property
+    def textanswer_review_state(self):
+        if self.num_textanswers == 0:
+            return self.TextAnswerReviewState.NO_TEXTANSWERS
+
+        if self.num_textanswers == self.num_reviewed_textanswers:
+            return self.TextAnswerReviewState.REVIEWED
+
+        if self.state != "evaluated":
+            return self.TextAnswerReviewState.REVIEW_NEEDED
+
+        if (self.course.final_grade_documents
+                or self.course.gets_no_grade_documents
+                or not self.wait_for_grade_upload_before_publishing):
+            return self.TextAnswerReviewState.REVIEW_URGENT
+
+        return self.TextAnswerReviewState.REVIEW_NEEDED
 
     @property
     def ratinganswer_counters(self):

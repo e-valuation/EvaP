@@ -1,6 +1,6 @@
 import datetime
 import os
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -421,7 +421,7 @@ class TestSemesterView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        cls.user = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         cls.semester = baker.make(Semester, pk=1)
         cls.evaluation1 = baker.make(Evaluation, name_de="Evaluation 1", name_en="Evaluation 1",
             course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester))
@@ -464,6 +464,38 @@ class TestSemesterView(WebTest):
         responsible.save()
         response = self.app.get(self.url, user="manager@institution.example.com")
         self.assertContains(response, 'External responsible')
+
+    @patch("evap.evaluation.models.Evaluation.textanswer_review_state", new_callable=PropertyMock)
+    def test_textanswer_review_state_tags(self, textanswer_review_state_mock):
+        """ Regression test for #1465 """
+
+        evaluation = baker.make(
+            Evaluation,
+            state="in_evaluation",
+            can_publish_text_results=True,
+            course__semester=self.semester,
+        )
+        baker.make(TextAnswer, contribution=evaluation.general_contribution)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        expected_count = page.body.decode().count('no_textanswers')
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_NEEDED
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        # + 1 because the buttons at the top of the page contain it two times (once for _urgent)
+        self.assertEqual(page.body.decode().count('unreviewed_textanswers'), expected_count + 1)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_URGENT
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        self.assertEqual(page.body.decode().count('unreviewed_textanswers_urgent'), expected_count)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEWED
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.user)
+        self.assertEqual(page.body.decode().count('textanswers_reviewed'), expected_count)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
