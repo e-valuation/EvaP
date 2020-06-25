@@ -33,7 +33,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
         vagrant ssh
         ./manage.py run
 
-4. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
+4. Open your browser at http://localhost:8000/ and login with email ``evap@institution.example.com`` and password ``evap``
 
 
 That's it!

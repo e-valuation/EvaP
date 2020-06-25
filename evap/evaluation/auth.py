@@ -1,5 +1,4 @@
 from functools import wraps
-import unicodedata
 
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
@@ -176,13 +175,8 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
 
     def create_user(self, claims):
         user = self.UserModel.objects.create(
-            username=generate_username_from_email(claims.get('email')),
             email=claims.get('email'),
             first_name=claims.get('given_name', ''),
             last_name=claims.get('family_name', ''),
         )
         return user
-
-
-def generate_username_from_email(email):
-    return unicodedata.normalize('NFKC', email).split('@')[0].lower()

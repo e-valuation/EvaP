@@ -20,7 +20,7 @@ class SampleXlsTests(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
-        baker.make(UserProfile, username="user", groups=[Group.objects.get(name="Manager")])
+        baker.make(UserProfile, email="user@institution.example.com", groups=[Group.objects.get(name="Manager")])
         baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
         baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
         degree_bachelor = Degree.objects.get(name_de="Bachelor")
@@ -31,7 +31,7 @@ class SampleXlsTests(WebTest):
         degree_master.save()
 
     def test_sample_xls(self):
-        page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user='user')
+        page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user="user@institution.example.com")
 
         original_user_count = UserProfile.objects.count()
 
@@ -47,7 +47,7 @@ class SampleXlsTests(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
 
     def test_sample_user_xls(self):
-        page = self.app.get("/staff/user/import", user='user')
+        page = self.app.get("/staff/user/import", user="user@institution.example.com")
 
         original_user_count = UserProfile.objects.count()
 

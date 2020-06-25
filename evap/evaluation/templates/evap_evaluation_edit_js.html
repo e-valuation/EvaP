@@ -12,11 +12,11 @@
                     questionnaireChanged = true;
             })
 
-            responsibilityChanged = ! row.find("input[id$=-responsibility_0]").parent().hasClass("active");
+            roleChanged = ! row.find("input[id$=-role_0]").parent().hasClass("active");
             commVisibilityChanged = ! row.find("input[id$=_visibility_0]").parent().hasClass("active");
             labelChanged = row.find("input[id$=-label]").val();
 
-            return idChanged || nameChanged || questionnaireChanged || responsibilityChanged || commVisibilityChanged || labelChanged;
+            return idChanged || nameChanged || questionnaireChanged || roleChanged || commVisibilityChanged || labelChanged;
         };
 
         rowAdded = function(row) {
@@ -62,7 +62,7 @@
         var count = getContributorCount();
         for(var i = 0; i < count; i++)
         {
-            $("input[name=contributions-" + i + "-responsibility]").parent().click(makeDisabledClickHandler());
+            $("input[name=contributions-" + i + "-role]").parent().click(makeDisabledClickHandler());
             $("input[name=contributions-" + i + "-textanswer_visibility]").parent().click(makeDisabledClickHandler());
             $("input[name=contributions-" + i + "-does_not_contribute]").parent().change(makeDoesNotContributeChangeHandler(i));
         }

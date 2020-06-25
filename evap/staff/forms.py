@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from datetime import datetime
 import logging
 
 from django import forms
@@ -116,7 +117,7 @@ class EvaluationParticipantCopyForm(forms.Form):
 class UserBulkUpdateForm(forms.Form):
     use_required_attribute = False
 
-    username_file = forms.FileField(label=_("Username file"), required=False)
+    user_file = forms.FileField(label=_("User file"), required=False)
 
 
 class SemesterForm(forms.ModelForm):
@@ -326,6 +327,15 @@ class EvaluationForm(forms.ModelForm):
         return evaluation
 
 
+class EvaluationCopyForm(EvaluationForm):
+    def __init__(self, data=None, instance=None):
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+        initial['last_modified_time'] = datetime.now()
+        initial['general_questionnaires'] = instance.general_contribution.questionnaires.all()
+        super().__init__(data=data, initial=initial, semester=instance.course.semester)
+
+
 class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
@@ -415,7 +425,6 @@ class SingleResultForm(forms.ModelForm):
 
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
-    responsibility = forms.ChoiceField(widget=forms.RadioSelect(), choices=Contribution.Responsibility.choices)
     evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
@@ -427,8 +436,10 @@ class ContributionForm(forms.ModelForm):
 
     class Meta:
         model = Contribution
-        fields = ('evaluation', 'contributor', 'questionnaires', 'order', 'responsibility', 'textanswer_visibility', 'label')
-        widgets = {'order': forms.HiddenInput(), 'textanswer_visibility': forms.RadioSelect(choices=Contribution.TextAnswerVisibility.choices)}
+        fields = ('evaluation', 'contributor', 'questionnaires', 'role', 'textanswer_visibility', 'label', 'order')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, evaluation=None, **kwargs):
         self.evaluation = evaluation
@@ -438,11 +449,6 @@ class ContributionForm(forms.ModelForm):
             self.evaluation = kwargs['instance'].evaluation
 
         super().__init__(*args, **kwargs)
-
-        if self.instance.can_edit:
-            self.fields['responsibility'].initial = Contribution.Responsibility.IS_EDITOR
-        else:
-            self.fields['responsibility'].initial = Contribution.Responsibility.IS_CONTRIBUTOR
 
         if self.instance.contributor:
             self.fields['contributor'].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
@@ -461,11 +467,17 @@ class ContributionForm(forms.ModelForm):
         if not self.cleaned_data.get('does_not_contribute') and not self.cleaned_data.get('questionnaires'):
             self.add_error('does_not_contribute', _("Select either this option or at least one questionnaire!"))
 
-    def save(self, *args, **kwargs):
-        responsibility = self.cleaned_data['responsibility']
-        is_editor = responsibility == Contribution.Responsibility.IS_EDITOR
-        self.instance.can_edit = is_editor
-        return super().save(*args, **kwargs)
+
+class ContributionCopyForm(ContributionForm):
+    def __init__(self, data=None, instance=None, evaluation=None, **kwargs):
+        initial = None
+        copied_instance = Contribution(evaluation=evaluation)
+        if instance:
+            opts = self._meta
+            initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+            del initial['evaluation']
+            initial['does_not_contribute'] = not instance.questionnaires.exists()
+        super().__init__(data, initial=initial, instance=copied_instance, evaluation=evaluation, **kwargs)
 
 
 class EvaluationEmailForm(forms.Form):
@@ -646,6 +658,21 @@ class ContributionFormSet(BaseInlineFormSet):
                 found_contributor.add(contributor)
 
 
+class ContributionCopyFormSet(ContributionFormSet):
+    def __init__(self, data, instance, new_instance):
+        # First, pass the old evaluation instance to create a ContributionCopyForm for each contribution
+        super().__init__(data, instance=instance, form_kwargs={'evaluation': new_instance})
+        # Then, use the new evaluation instance as target for validation and saving purposes
+        self.instance = new_instance
+
+    def save(self, commit=True):
+        # As the contained ContributionCopyForm have not-yet-saved instances,
+        # they’d be skipped when saving the formset.
+        # To circumvent this, explicitly note that all forms should be saved as new instance.
+        self.save_as_new = True
+        super().save(commit)
+
+
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
@@ -679,7 +706,7 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ('username', 'title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
+        fields = ('title', 'first_name', 'last_name', 'email', 'delegates', 'cc_users', 'is_proxy_user')
         field_classes = {
             'delegates': UserModelMultipleChoiceField,
             'cc_users': UserModelMultipleChoiceField,
@@ -697,18 +724,6 @@ class UserForm(forms.ModelForm):
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
             self.fields['is_inactive'].initial = not self.instance.is_active
-
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        user_with_same_name = UserProfile.objects.filter(username__iexact=username)
-
-        # make sure we don't take the instance itself into account
-        if self.instance and self.instance.pk:
-            user_with_same_name = user_with_same_name.exclude(pk=self.instance.pk)
-
-        if user_with_same_name.exists():
-            raise forms.ValidationError(_("A user with the username '%s' already exists") % username)
-        return username.lower()
 
     def clean_evaluations_participating_in(self):
         evaluations_participating_in = self.cleaned_data.get('evaluations_participating_in')

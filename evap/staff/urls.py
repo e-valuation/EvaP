@@ -25,6 +25,7 @@ urlpatterns = [
     path("semester/<int:semester_id>/evaluation/create", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/create/<int:course_id>", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/edit", views.evaluation_edit, name="evaluation_edit"),
+    path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/copy", views.evaluation_copy, name="evaluation_copy"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/email", views.evaluation_email, name="evaluation_email"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/preview", views.evaluation_preview, name="evaluation_preview"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/person_management", views.evaluation_person_management, name="evaluation_person_management"),

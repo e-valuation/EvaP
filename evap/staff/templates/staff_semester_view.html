@@ -132,15 +132,9 @@
             {% if request.user.is_manager %}
                 <div class="ml-auto">
                     {% if not semester.participations_are_archived %}
-                        <div class="btn-group" role="group">
-                            <button type="button" id="btnAdd" role="button" class="btn btn-sm btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Create/Import' %}</button>
-                            <div class="dropdown-menu" aria-labelledby="btnAdd">
-                                <a class="dropdown-item" href="{% url 'staff:course_create' semester.id %}"><span class="fas fa-fw fa-chalkboard-teacher"></span> {% trans 'Create course' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:evaluation_create' semester.id %}"><span class="fas fa-fw fa-clipboard-check"></span> {% trans 'Create evaluation' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:single_result_create' semester.id %}"><span class="fas fa-fw fa-poll"></span> {% trans 'Create single result' %}</a>
-                                <a class="dropdown-item" href="{% url 'staff:semester_import' semester.id %}"><span class="fas fa-fw fa-file-import"></span> {% trans 'Import courses and evaluations' %}</a>
-                            </div>
-                        </div>
+                        <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
+                            {% trans 'Import' %}
+                        </a>
                     {% endif %}
                     <div class="btn-group ml-2" role="group">
                         <button type="button" id="btnExport" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</button>
@@ -158,6 +152,24 @@
         </div>
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
+                <div class="row align-items-center mb-3">
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                            {% trans 'Create evaluation' %}
+                        </a>
+                        <a class="btn btn-sm btn-dark ml-2" href="{% url 'staff:single_result_create' semester.id %}">
+                            {% trans 'Create single result' %}
+                        </a>
+                    </div>
+                    <div class="col-3 input-group">
+                        <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
+                        <div class="input-group-append">
+                            <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                                <span class="fas fa-backspace"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="btn-switch mb-2" id="evaluation-filter-buttons">
                     <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
                     <div>
@@ -223,14 +235,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="input-group ml-auto mb-3 w-25">
-                    <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
-                    <div class="input-group-append">
-                        <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
-                            <span class="fas fa-backspace"></span>
-                        </button>
-                    </div>
-                </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
                     <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                         {% if num_evaluations > 0 %}
@@ -240,10 +244,10 @@
                                 <col style="width: 1.25em" />
                                 <col style="width: 1.25em" />
                                 <col style="width: 1.25em" />
-                                <col style="" />
+                                <col />
                                 <col style="width: 12.25em" />
                                 <col style="width: 12em" />
-                                <col style="width: 9em" />
+                                <col style="width: 10.5em" />
                             </colgroup>
                             <thead>
                                 <tr>
@@ -315,47 +319,70 @@
                 </form>
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
-                <div class="input-group ml-auto mb-3 w-25">
-                    <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
-                    <div class="input-group-append">
-                        <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
-                            <span class="fas fa-backspace"></span>
-                        </button>
+                <div class="row align-items-center mb-3">
+                    <div class="col-9">
+                        <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
+                            {% trans 'Create course' %}
+                        </a>
+                    </div>
+                    <div class="col-3 input-group">
+                        <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
+                        <div class="input-group-append">
+                            <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+                                <span class="fas fa-backspace"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
                     {% if courses %}
+                        <colgroup>
+                            <col />
+                            <col style="width: 14em" />
+                            <col style="width: 12em" />
+                            <col style="width: 9em" />
+                        </colgroup>
                         <thead>
                             <tr role="row">
-                                <th style="width: 40%" class="col-order" data-col="name">{% trans 'Course' %}</th>
-                                <th style="width: 40%" class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
-                                <th style="width: 12%" class="col-order" data-col="evaluation-count">{% trans '#Evaluations' %}</th>
-                                <th style="width: 8%"></th>
+                                <th class="col-order" data-col="name">{% trans 'Course' %}</th>
+                                <th class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
+                                <th class="col-order" data-col="evaluation-count">{% trans '#Evaluations' %}</th>
+                                <th></th>
                             </tr>
                         </thead>
                     {% endif %}
                     <tbody>
                         {% for course in courses %}
                             <tr id="course-row-{{ course.id }}">
-                                <td style="width: 40%" data-col="name" data-order="{{ course.name|lower }}">
+                                <td data-col="name" data-order="{{ course.name|lower }}">
                                     <div>
                                         <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
                                     </div>
                                     {% include 'course_badges.html' %}
                                 </td>
-                                <td style="width: 40%;" data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
+                                <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     <div class="font-italic">
                                         {{ course.responsibles_names }}
                                     </div>
                                 </td>
-                                <td style="width: 10%;" data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
+                                <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
                                     {% if course.evaluations.count == 0 %}
                                         <span class="badge badge-warning">{% trans 'No evaluations' %}</span>
                                     {% else %}
                                         {{ course.evaluations.count }}
                                     {% endif %}
                                 </td>
-                                <td class="text-right" style="width: 10%;">
+                                <td class="icon-buttons">
+                                    <a class="btn btn-sm btn-dark" data-toggle="tooltip"
+                                        href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                        title="{% trans "Create evaluation for this course" %}">
+                                        <span class="fas fa-clipboard-check"></span>
+                                    </a>
+                                    <a class="btn btn-sm btn-dark" data-toggle="tooltip"
+                                        href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                        title="{% trans "Create single result for this course" %}">
+                                        <span class="fas fa-poll"></span>
+                                    </a>
                                     {% if course.can_be_deleted_by_manager %}
                                         <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
                                             <span class="fas fa-trash" aria-hidden="true"></span>

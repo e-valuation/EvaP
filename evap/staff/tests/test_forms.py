@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from datetime import datetime
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
@@ -7,7 +8,8 @@ from evap.evaluation.models import (Contribution, Course, Degree, EmailTemplate,
                                     Questionnaire, Semester, UserProfile)
 from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_editor, get_form_data_from_instance,
                                          to_querydict)
-from evap.staff.forms import (ContributionForm, ContributionFormSet, CourseForm, EvaluationEmailForm, EvaluationForm,
+from evap.staff.forms import (ContributionForm, ContributionCopyForm, ContributionFormSet, CourseForm,
+                              EvaluationEmailForm, EvaluationForm, EvaluationCopyForm,
                               QuestionnaireForm, SingleResultForm, UserForm)
 from evap.results.tools import collect_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
@@ -84,12 +86,12 @@ class UserFormTests(TestCase):
             Tests the UserForm with one valid and one invalid input dataset.
         """
         user = baker.make(UserProfile)
-        another_user = baker.make(UserProfile)
-        data = {"username": "mklqoep50x2", "email": "a@b.ce"}
+        another_user = baker.make(UserProfile, email="another_user@institution.example.com")
+        data = {"email": "a@b.ce"}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
-        data = {"username": another_user.username, "email": "a@b.c"}
+        data = {"email": another_user.email}
         form = UserForm(instance=user, data=data)
         self.assertFalse(form.is_valid())
 
@@ -101,34 +103,15 @@ class UserFormTests(TestCase):
         """
         user = baker.make(UserProfile, email="uiae@example.com")
 
-        data = {"username": "uiae", "email": user.email}
+        data = {"email": user.email}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
 
-        data = {"username": "uiae", "email": user.email.upper()}
+        data = {"email": user.email.upper()}
         form = UserForm(data=data)
         self.assertFalse(form.is_valid())
 
-        data = {"username": "uiae", "email": user.email.upper()}
-        form = UserForm(instance=user, data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_user_with_same_username(self):
-        """
-            Tests whether the user form correctly handles usernames
-            that already exist in the database
-        """
-        user = baker.make(UserProfile)
-
-        data = {"username": user.username}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
-        form = UserForm(data=data)
-        self.assertFalse(form.is_valid())
-
-        data = {"username": user.username.upper()}
+        data = {"email": user.email.upper()}
         form = UserForm(instance=user, data=data)
         self.assertTrue(form.is_valid())
 
@@ -196,6 +179,52 @@ class SingleResultFormTests(TestCase):
         self.assertEqual(evaluation.num_voters, 10)
 
 
+class ContributionCopyFormTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.evaluation = baker.make(Evaluation)
+        cls.contributor = baker.make(UserProfile)
+        cls.contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.contributor,
+            order=2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            label='Teacher',
+        )
+        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2)
+        cls.contribution.questionnaires.set(cls.questionnaires)
+
+    def test_initial_from_original(self):
+        evaluation = Evaluation()
+        form = ContributionCopyForm(None, instance=self.contribution, evaluation=evaluation)
+        self.assertEqual(form['evaluation'].initial, None)
+        self.assertEqual(form['contributor'].initial, self.contributor.pk)
+        self.assertCountEqual(form['questionnaires'].initial, self.questionnaires)
+        self.assertEqual(form['order'].initial, 2)
+        self.assertEqual(form['role'].initial, Contribution.Role.EDITOR)
+        self.assertEqual(form['textanswer_visibility'].initial, Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        self.assertEqual(form['label'].initial, 'Teacher')
+        self.assertEqual(form.evaluation, evaluation)
+
+    def test_no_original_given(self):
+        new_evaluation = Evaluation()
+        form = ContributionCopyForm(None, instance=None, evaluation=new_evaluation)
+        self.assertEqual(form.evaluation, new_evaluation)
+
+    def test_copy_contribution(self):
+        # To simulate the life-cycle of the form, first give the form an unsaved evaluation.
+        new_evaluation = baker.prepare(Evaluation, _save_related=True)
+        form_data = get_form_data_from_instance(ContributionCopyForm, self.contribution, evaluation=new_evaluation)
+        # Just before saving the form, save the evaluation instance.
+        new_evaluation.save()
+        form = ContributionCopyForm(form_data, instance=self.contribution, evaluation=new_evaluation)
+        self.assertTrue(form.is_valid())
+        copied_contribution = form.save()
+        self.assertEqual(copied_contribution.evaluation, new_evaluation)
+
+
 class ContributionFormsetTests(TestCase):
     def test_contribution_form_set(self):
         """
@@ -216,7 +245,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-0-role': Contribution.Role.EDITOR,
             'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         })
         # no contributor
@@ -234,7 +263,7 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
         # two contributors
         data['contributions-1-contributor'] = user2.pk
-        data['contributions-1-responsibility'] = Contribution.Responsibility.IS_EDITOR
+        data['contributions-1-role'] = Contribution.Role.EDITOR
         self.assertTrue(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data).is_valid())
 
     def test_dont_validate_deleted_contributions(self):
@@ -259,19 +288,19 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': "",
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-0-role': Contribution.Role.EDITOR,
             'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
-            'contributions-1-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-1-role': Contribution.Role.EDITOR,
             'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user2.pk,
             'contributions-2-evaluation': evaluation.pk,
             'contributions-2-questionnaires': "",
             'contributions-2-order': 1,
-            'contributions-2-responsibility': "CONTRIBUTOR",
+            'contributions-2-role': Contribution.Role.CONTRIBUTOR,
             'contributions-2-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
             'contributions-2-contributor': user2.pk,
         })
@@ -307,13 +336,13 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-0-role': Contribution.Role.EDITOR,
             'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-1-evaluation': evaluation.pk,
             'contributions-1-questionnaires': "",
             'contributions-1-order': -1,
-            'contributions-1-responsibility': "CONTRIBUTOR",
+            'contributions-1-role': Contribution.Role.CONTRIBUTOR,
             'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
             'contributions-1-contributor': "",
         })
@@ -326,7 +355,7 @@ class ContributionFormsetTests(TestCase):
 
         # delete first, change data in extra formset
         data['contributions-0-DELETE'] = 'on'
-        data['contributions-1-responsibility'] = Contribution.Responsibility.IS_EDITOR
+        data['contributions-1-role'] = Contribution.Role.EDITOR
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         formset.is_valid()
 
@@ -339,7 +368,7 @@ class ContributionFormsetTests(TestCase):
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True,
+        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, role=Contribution.Role.EDITOR,
                                    textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire])
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -352,7 +381,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-0-evaluation': evaluation.pk,
             'contributions-0-questionnaires': questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-0-role': Contribution.Role.EDITOR,
             'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': user1.pk,
             'contributions-0-DELETE': 'on',
@@ -360,7 +389,7 @@ class ContributionFormsetTests(TestCase):
             'contributions-1-questionnaires': questionnaire.pk,
             'contributions-1-order': 0,
             'contributions-1-id': '',
-            'contributions-1-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-1-role': Contribution.Role.EDITOR,
             'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-1-contributor': user1.pk,
         })
@@ -434,7 +463,13 @@ class ContributionFormset775RegressionTests(TestCase):
         cls.user2 = baker.make(UserProfile)
         baker.make(UserProfile)
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.contribution1 = baker.make(Contribution, contributor=cls.user1, evaluation=cls.evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        cls.contribution1 = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.user1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         cls.contribution2 = baker.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
         cls.contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
@@ -448,14 +483,14 @@ class ContributionFormset775RegressionTests(TestCase):
             'contributions-0-evaluation': self.evaluation.pk,
             'contributions-0-questionnaires': self.questionnaire.pk,
             'contributions-0-order': 0,
-            'contributions-0-responsibility': Contribution.Responsibility.IS_EDITOR,
+            'contributions-0-role': Contribution.Role.EDITOR,
             'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             'contributions-0-contributor': self.user1.pk,
             'contributions-1-id': str(self.contribution2.pk),
             'contributions-1-evaluation': self.evaluation.pk,
             'contributions-1-questionnaires': self.questionnaire.pk,
             'contributions-1-order': 0,
-            'contributions-1-responsibility': "CONTRIBUTOR",
+            'contributions-1-role': Contribution.Role.CONTRIBUTOR,
             'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
             'contributions-1-contributor': self.user2.pk,
         })
@@ -489,7 +524,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-TOTAL_FORMS'] = 3
         self.data['contributions-2-id'] = ""
         self.data['contributions-2-order'] = -1
-        self.data['contributions-2-responsibility'] = "CONTRIBUTOR"
+        self.data['contributions-2-role'] = Contribution.Role.CONTRIBUTOR
         self.data['contributions-2-textanswer_visibility'] = Contribution.TextAnswerVisibility.OWN_TEXTANSWERS
         formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
         self.assertTrue(formset.is_valid())
@@ -504,7 +539,7 @@ class ContributionFormset775RegressionTests(TestCase):
         self.data['contributions-1-contributor'] = self.user1.pk
         self.data['contributions-1-id'] = ""
         self.data['contributions-1-order'] = -1
-        self.data['contributions-1-responsibility'] = "CONTRIBUTOR"
+        self.data['contributions-1-role'] = Contribution.Role.CONTRIBUTOR
         self.data['contributions-1-textanswer_visibility'] = Contribution.TextAnswerVisibility.OWN_TEXTANSWERS
 
         formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
@@ -719,3 +754,51 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+
+class EvaluationCopyFormTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = baker.make(Semester)
+        cls.course = baker.make(Course, semester=cls.semester)
+        cls.participants = baker.make(UserProfile, _quantity=8)
+        cls.evaluation = baker.make(
+            Evaluation,
+            course=cls.course,
+            name_de="Das Original",
+            name_en="The Original",
+            last_modified_time=datetime(2020, 1, 1),
+            last_modified_user=baker.make(UserProfile),
+            participants=cls.participants,
+            voters=cls.participants[:6],
+        )
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
+
+    def test_initial_from_original(self):
+        form = EvaluationCopyForm(None, self.evaluation)
+        self.assertEqual(form['course'].initial, self.course.pk)
+        self.assertCountEqual(form.fields['course'].queryset, self.semester.courses.all())
+        self.assertEqual(form['name_de'].initial, "Das Original")
+        self.assertEqual(form['name_en'].initial, "The Original")
+        self.assertCountEqual(form['participants'].initial, self.participants)
+        self.assertGreater(form['last_modified_time'].initial, self.evaluation.last_modified_time)
+        self.assertEqual(form['last_modified_user_name'].initial, None)
+        self.assertCountEqual(form['general_questionnaires'].initial, self.general_questionnaires)
+
+    def test_not_changing_name_fails(self):
+        form_data = EvaluationCopyForm(None, self.evaluation).initial
+        form = EvaluationCopyForm(form_data, self.evaluation)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors['name_de'], ["Evaluation with this Course and Name (german) already exists."])
+        self.assertEqual(form.errors['name_en'], ["Evaluation with this Course and Name (english) already exists."])
+
+    def test_save_makes_a_copy(self):
+        form_data = get_form_data_from_instance(EvaluationCopyForm, self.evaluation)
+        form_data['name_de'] = "Eine Kopie"
+        form_data['name_en'] = "A Copy"
+        form = EvaluationCopyForm(form_data, self.evaluation)
+        self.assertTrue(form.is_valid())
+        copied_evaluation = form.save()
+        self.assertNotEqual(copied_evaluation, self.evaluation)
+        self.assertEqual(Evaluation.objects.count(), 2)

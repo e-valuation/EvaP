@@ -31,9 +31,11 @@ from evap.results.tools import calculate_average_distribution, distribution_to_g
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
+                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
-                              EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
+                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
+                              FaqQuestionForm,
                               FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
@@ -227,9 +229,12 @@ class MoveToPreparedOperation(EvaluationOperation):
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {'user': responsible, 'evaluations': responsible_evaluations}
-                editors = UserProfile.objects \
-                    .filter(contributions__evaluation__in=responsible_evaluations, contributions__can_edit=True) \
-                    .exclude(pk=responsible.pk)
+                editors = (UserProfile.objects
+                    .filter(
+                        contributions__evaluation__in=responsible_evaluations,
+                        contributions__role=Contribution.Role.EDITOR,
+                    )
+                    .exclude(pk=responsible.pk))
                 email_template.send_to_user(responsible, subject_params={}, body_params=body_params,
                                             use_cc=True, additional_cc_users=editors, request=request)
 
@@ -546,13 +551,13 @@ def semester_raw_export(_request, semester_id):
 @manager_required
 def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("username")
+    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    writer.writerow([_('Username'), _('Can use reward points'), _('#Required evaluations voted for'),
+    writer.writerow([_('Email'), _('Can use reward points'), _('#Required evaluations voted for'),
         _('#Required evaluations'), _('#Optional evaluations voted for'), _('#Optional evaluations'), _('Earned reward points')])
     for participant in participants:
         number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
@@ -561,7 +566,7 @@ def semester_participation_export(_request, semester_id):
         number_of_optional_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
-            participant.username, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
+            participant.email, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
             number_of_required_evaluations, number_of_optional_evaluations_voted_for, number_of_optional_evaluations,
             earned_reward_points
         ])
@@ -804,6 +809,37 @@ def evaluation_create(request, semester_id, course_id=None):
 
 
 @manager_required
+def evaluation_copy(request, semester_id, evaluation_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+
+    form = EvaluationCopyForm(request.POST or None, evaluation)
+
+    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionCopyFormSet,
+                                                      form=ContributionCopyForm, extra=1)
+    formset = InlineContributionFormset(request.POST or None, instance=evaluation, new_instance=form.instance)
+
+    if form.is_valid() and formset.is_valid():
+        copied_evaluation = form.save()
+        copied_evaluation.set_last_modified(request.user)
+        copied_evaluation.save()
+        formset.save()
+        update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
+
+        messages.success(request, _("Successfully created evaluation."))
+        return redirect('staff:semester_view', semester_id)
+
+    return render(request, "staff_evaluation_form.html", dict(
+        semester=semester,
+        evaluation_form=form,
+        formset=formset,
+        manager=True,
+        editable=True,
+        state="",
+    ))
+
+
+@manager_required
 def single_result_create(request, semester_id, course_id=None):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -850,8 +886,8 @@ def helper_evaluation_edit(request, semester, evaluation):
         for granting in grantings:
             messages.info(request,
                 ngettext(
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward point for the semester.',
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward points for the semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
                     granting.value
                 ).format(granting=granting)
             )
@@ -1481,7 +1517,7 @@ def user_index(request):
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for')
-        .order_by('last_name', 'first_name', 'username'))
+        .order_by('last_name', 'first_name', 'email'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
@@ -1545,8 +1581,8 @@ def user_edit(request, user_id):
 
         messages.info(request,
             ngettext(
-                'The removal of evaluations has granted the user "{granting.user_profile.username}" {granting.value} reward point for the active semester.',
-                'The removal of evaluations has granted the user "{granting.user_profile.username}" {granting.value} reward points for the active semester.',
+                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
+                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
                 grantings[0].value
             ).format(granting=grantings[0])
         )
@@ -1592,10 +1628,10 @@ def user_bulk_update(request):
 
         if test_run:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            form.fields['username_file'].required = True
+            form.fields['user_file'].required = True
             if form.is_valid():
-                username_file = form.cleaned_data['username_file']
-                file_content = username_file.read()
+                user_file = form.cleaned_data['user_file']
+                file_content = user_file.read()
                 success = False
                 try:
                     success = bulk_update_users(request, file_content, test_run)
@@ -1605,7 +1641,7 @@ def user_bulk_update(request):
                     messages.error(request, _("An error happened when processing the file. Make sure the file meets the requirements."))
 
                 if success:
-                    save_import_file(username_file, request.user.id, import_type)
+                    save_import_file(user_file, request.user.id, import_type)
         else:
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
             bulk_update_users(request, file_content, test_run)

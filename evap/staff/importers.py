@@ -39,14 +39,12 @@ class UserData(CommonEqualityMixin):
         self.last_name = last_name.strip()
         self.title = title.strip()
         self.email = clean_email(email)
-        self.username = self.email
         self.is_responsible = is_responsible
 
     def store_in_database(self):
         user, created = UserProfile.objects.update_or_create(
             email=self.email,
             defaults={
-                'username': self.username,
                 'first_name': self.first_name,
                 'last_name': self.last_name,
                 'title': self.title,
@@ -60,7 +58,6 @@ class UserData(CommonEqualityMixin):
 
     def get_user_profile_object(self):
         user = UserProfile()
-        user.username = self.username
         user.first_name = self.first_name
         user.last_name = self.last_name
         user.email = self.email
@@ -115,7 +112,12 @@ class EvaluationData:
             wait_for_grade_upload_before_publishing=self.is_graded,
         )
         evaluation.save()
-        evaluation.contributions.create(contributor=responsible_dbobj, evaluation=evaluation, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        evaluation.contributions.create(
+            evaluation=evaluation,
+            contributor=responsible_dbobj,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
 
 class ImporterError(Enum):

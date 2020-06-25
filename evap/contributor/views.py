@@ -41,7 +41,10 @@ def index(request):
         delegated_courses = Course.objects.filter(
             Q(evaluations__state__in=contributor_visible_states) & (
                 Q(responsibles__in=represented_users) |
-                Q(evaluations__contributions__can_edit=True, evaluations__contributions__contributor__in=represented_users)
+                Q(
+                    evaluations__contributions__role=Contribution.Role.EDITOR,
+                    evaluations__contributions__contributor__in=represented_users,
+                )
             )
         )
         delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user))
@@ -211,7 +214,11 @@ def evaluation_direct_delegation(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
 
-    contribution, created = Contribution.objects.update_or_create(evaluation=evaluation, contributor=delegate_user, defaults={'can_edit': True})
+    contribution, created = Contribution.objects.update_or_create(
+        evaluation=evaluation,
+        contributor=delegate_user,
+        defaults={'role': Contribution.Role.EDITOR},
+    )
     if created:
         contribution.order = evaluation.contributions.all().aggregate(Max('order'))['order__max'] + 1
         contribution.save()

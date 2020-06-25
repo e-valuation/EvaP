@@ -62,8 +62,8 @@ def get_form_data_from_instance(FormClass, instance, **kwargs):
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    responsible = baker.make(UserProfile, username='responsible')
-    editor = baker.make(UserProfile, username='editor')
+    responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+    editor = baker.make(UserProfile, email='editor@institution.example.com')
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
@@ -78,7 +78,13 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
-    baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True, questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
+    baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=editor,
+        questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
+        role=Contribution.Role.EDITOR,
+    )
     evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
     return evaluation

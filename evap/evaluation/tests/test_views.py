@@ -53,8 +53,8 @@ class TestContactEmail(WebTest):
     csrf_checks = False
 
     def test_sends_mail(self):
-        user = baker.make(UserProfile)
-        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user=user.username)
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user=user.email)
         self.assertEqual(len(mail.outbox), 1)
 
 
@@ -63,9 +63,9 @@ class TestChangeLanguageView(WebTest):
     csrf_checks = False
 
     def test_changes_language(self):
-        user = baker.make(UserProfile, username='tester', language='de')
+        user = baker.make(UserProfile, email='tester@institution.example.com', language='de')
 
-        self.app.post(self.url, params={'language': 'en'}, user='tester')
+        self.app.post(self.url, params={'language': 'en'}, user='tester@institution.example.com')
 
         user.refresh_from_db()
         self.assertEqual(user.language, 'en')

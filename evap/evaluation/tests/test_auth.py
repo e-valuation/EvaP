@@ -1,9 +1,14 @@
+from unittest.mock import patch
+import urllib
+
 from django.urls import reverse
 from django.core import mail
+from django.conf import settings
 from django.test import override_settings
 
 from model_bakery import baker
 
+from evap.evaluation import auth
 from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
@@ -18,8 +23,20 @@ class LoginTests(WebTest):
         cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
         evaluation = baker.make(Evaluation, state='published')
-        baker.make(Contribution, evaluation=evaluation, contributor=cls.external_user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=evaluation, contributor=cls.inactive_external_user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=cls.external_user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=cls.inactive_external_user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     @override_settings(PAGE_URL='https://example.com')
     def test_login_url_generation(self):
@@ -78,3 +95,43 @@ class LoginTests(WebTest):
         self.assertEqual(old_key, new_key)
         self.assertEqual(len(mail.outbox), 1)  # a login key was sent
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
+
+    @override_settings(
+        OIDC_OP_AUTHORIZATION_ENDPOINT='https://oidc.example.com/auth',
+        ACTIVATE_OPEN_ID_LOGIN=True,
+    )
+    def test_oidc_login(self):
+        # This should send them to /oidc/authenticate
+        page = self.app.get("/").click("Login")
+
+        # which should then redirect them to OIDC_OP_AUTHORIZTATION_ENDPOINT
+        location = page.headers['location']
+        self.assertIn(settings.OIDC_OP_AUTHORIZATION_ENDPOINT, location)
+
+        parse_result = urllib.parse.urlparse(location)
+        parsed_query = urllib.parse.parse_qs(parse_result.query)
+
+        self.assertIn("email", parsed_query["scope"][0].split(" "))
+        self.assertIn("/oidc/callback/", parsed_query["redirect_uri"][0])
+
+        state = parsed_query["state"][0]
+
+        user = baker.make(UserProfile)
+        # usually, the browser would now open that page and login. Then, they'd be redirected to /oidc/callback
+        with patch.object(auth.OIDCAuthenticationBackend, 'authenticate', return_value=user, __name__='authenticate'):
+            page = self.app.get(f"/oidc/callback/?code=secret-code&state={state}")
+            # The oidc module will now send a request to the oidc provider, asking whether the code is valid.
+            # We've mocked the method that does that and will just return a UserProfile.
+
+        # Thus, at this point, the user should be logged in and be redirected back to the start page.
+        location = page.headers['location']
+        parse_result = urllib.parse.urlparse(location)
+        self.assertEqual(parse_result.path, "/")
+
+        page = self.app.get(location)
+        # A GET here should then redirect to the users real start page.
+        # This should be a 403 since the user is external and has no course participation
+        page = page.follow(expect_errors=True)
+
+        # user should see the Logout button then.
+        self.assertIn('Logout', page.body.decode())
