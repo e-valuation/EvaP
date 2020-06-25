@@ -31,7 +31,7 @@ class TestContributorDirectDelegationView(WebTest):
         page = self.app.post(
             f'/contributor/evaluation/{self.evaluation.id}/direct_delegation',
             params=data,
-            user=self.editor
+            user=self.editor,
         ).follow()
 
         self.assertContains(
@@ -57,7 +57,7 @@ class TestContributorDirectDelegationView(WebTest):
         page = self.app.post(
             f'/contributor/evaluation/{self.evaluation.id}/direct_delegation',
             params=data,
-            user=self.editor
+            user=self.editor,
         ).follow()
 
         self.assertContains(

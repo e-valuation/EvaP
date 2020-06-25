@@ -134,7 +134,7 @@ class TestResultsViewContributionWarning(WebTest):
             state='published',
             course=baker.make(Course, semester=cls.semester),
             participants=[student1, student2],
-            voters=[student1, student2]
+            voters=[student1, student2],
         )
         questionnaire = baker.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
@@ -142,7 +142,7 @@ class TestResultsViewContributionWarning(WebTest):
             Contribution,
             evaluation=cls.evaluation,
             questionnaires=[questionnaire],
-            contributor=contributor
+            contributor=contributor,
         )
         cls.likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = '/results/semester/%s/evaluation/%s' % (cls.semester.id, cls.evaluation.id)
@@ -788,7 +788,7 @@ class TestTextAnswerExportView(WebTest):
         cls.reviewer = baker.make(
             UserProfile,
             email="reviewer@institution.example.com",
-            groups=[Group.objects.get(name="Reviewer")]
+            groups=[Group.objects.get(name="Reviewer")],
         )
         evaluation = baker.make(Evaluation)
         cls.url = f"/results/evaluation/{evaluation.id}/text_answers_export"

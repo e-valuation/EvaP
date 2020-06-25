@@ -17,7 +17,7 @@ class GradeUploadTest(WebTest):
         cls.grade_publisher = baker.make(
             UserProfile,
             email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")]
+            groups=[Group.objects.get(name="Grade publisher")],
         )
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@institution.example.com")
@@ -189,7 +189,7 @@ class GradeDocumentIndexTest(WebTest):
         cls.grade_publisher = baker.make(
             UserProfile,
             email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")]
+            groups=[Group.objects.get(name="Grade publisher")],
         )
         cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
         cls.archived_semester = baker.make(Semester, grade_documents_are_deleted=True)
@@ -208,7 +208,7 @@ class GradeSemesterViewTest(WebTest):
         cls.grade_publisher = baker.make(
             UserProfile,
             email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")]
+            groups=[Group.objects.get(name="Grade publisher")],
         )
 
     def test_does_not_crash(self):
@@ -231,7 +231,7 @@ class GradeCourseViewTest(WebTest):
         cls.grade_publisher = baker.make(
             UserProfile,
             email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")]
+            groups=[Group.objects.get(name="Grade publisher")],
         )
 
     def test_does_not_crash(self):

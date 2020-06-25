@@ -99,5 +99,5 @@ def make_manager():
     return baker.make(
         UserProfile,
         email='manager@institution.example.com',
-        groups=[Group.objects.get(name='Manager')]
+        groups=[Group.objects.get(name='Manager')],
     )

@@ -104,7 +104,7 @@ class TestUserIndexView(WebTest):
             state="published",
             course__semester=semester,
             _participant_count=1,
-            _voter_count=1
+            _voter_count=1,
         )
         baker.make(UserProfile, _quantity=num_users, evaluations_participating_in=[evaluation])
 
@@ -432,13 +432,13 @@ class TestSemesterView(WebTest):
             Evaluation,
             name_de="Evaluation 1",
             name_en="Evaluation 1",
-            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester)
+            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester),
         )
         cls.evaluation2 = baker.make(
             Evaluation,
             name_de="Evaluation 2",
             name_en="Evaluation 2",
-            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester)
+            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
         )
 
     def test_view_list_sorting(self):
@@ -461,7 +461,7 @@ class TestSemesterView(WebTest):
         reviewer = baker.make(
             UserProfile,
             email='reviewer@institution.example.com',
-            groups=[Group.objects.get(name='Reviewer')]
+            groups=[Group.objects.get(name='Reviewer')],
         )
         baker.make(Semester, pk=2, results_are_archived=True)
 
@@ -587,7 +587,7 @@ class TestSemesterDeleteView(WebTest):
             Evaluation,
             course=baker.make(Course, semester=semester),
             state='in_evaluation',
-            voters=[baker.make(UserProfile)]
+            voters=[baker.make(UserProfile)],
         )
         self.assertFalse(semester.can_be_deleted_by_manager)
 
@@ -739,7 +739,7 @@ class TestSendReminderView(WebTest):
         baker.make(
             Evaluation,
             course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
-            state='prepared'
+            state='prepared',
         )
 
     def test_form(self):
@@ -995,7 +995,7 @@ class TestSemesterParticipationDataExportView(WebTest):
             voters=[cls.student_user],
             name_de="Veranstaltung 1",
             name_en="Evaluation 1",
-            is_rewarded=True
+            is_rewarded=True,
         )
         cls.evaluation2 = baker.make(
             Evaluation,
@@ -1003,7 +1003,7 @@ class TestSemesterParticipationDataExportView(WebTest):
             participants=[cls.student_user, cls.student_user2],
             name_de="Veranstaltung 2",
             name_en="Evaluation 2",
-            is_rewarded=False
+            is_rewarded=False,
         )
         baker.make(
             Contribution,
@@ -1045,7 +1045,7 @@ class TestLoginKeyExportView(WebTest):
             pk=1,
             course__semester=semester,
             participants=[cls.external_user, cls.internal_user],
-            voters=[cls.external_user, cls.internal_user]
+            voters=[cls.external_user, cls.internal_user],
         )
 
     def test_login_key_export_works_as_expected(self):
@@ -1470,7 +1470,7 @@ class TestCourseEditView(WebTest):
             responsibles=[responsible],
             pk=1,
             last_modified_user=cls.manager,
-            last_modified_time=datetime.datetime(2000, 1, 1, 0, 0)
+            last_modified_time=datetime.datetime(2000, 1, 1, 0, 0),
         )
 
     def setUp(self):
@@ -1541,7 +1541,7 @@ class TestEvaluationEditView(WebTest):
             pk=1,
             last_modified_user=cls.manager,
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
-            vote_end_date=datetime.date(2099, 12, 31)
+            vote_end_date=datetime.date(2099, 12, 31),
         )
         baker.make(Questionnaire, questions=[baker.make(Question)])
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -2001,7 +2001,7 @@ class TestEvaluationTextAnswerView(WebTest):
             Contribution,
             evaluation=cls.evaluation,
             contributor=baker.make(UserProfile),
-            questionnaires=[questionnaire]
+            questionnaires=[questionnaire],
         )
         cls.answer = 'should show up'
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
@@ -2053,13 +2053,13 @@ class TestEvaluationTextAnswerEditView(WebTest):
             Contribution,
             evaluation=cls.evaluation,
             contributor=baker.make(UserProfile),
-            questionnaires=[questionnaire]
+            questionnaires=[questionnaire],
         )
         cls.text_answer = baker.make(
             TextAnswer,
             contribution=contribution,
             question=question,
-            answer='test answer text'
+            answer='test answer text',
         )
 
         cls.url = f'/staff/semester/1/evaluation/1/textanswer/{cls.text_answer.id}/edit'
@@ -2285,7 +2285,7 @@ class TestQuestionnaireDeletionView(WebTest):
             "/staff/questionnaire/delete",
             params={"questionnaire_id": self.q1.pk},
             user=self.manager,
-            expect_errors=True
+            expect_errors=True,
         )
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
@@ -2294,7 +2294,7 @@ class TestQuestionnaireDeletionView(WebTest):
         response = self.app.post(
             "/staff/questionnaire/delete",
             params={"questionnaire_id": self.q2.pk},
-            user=self.manager
+            user=self.manager,
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
@@ -2400,7 +2400,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             Evaluation,
             participants=[cls.student1, cls.student2],
             voters=[cls.student1],
-            state="in_evaluation"
+            state="in_evaluation",
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
@@ -2412,7 +2412,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             self.url,
             params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
             user=self.manager,
-            expect_errors=expect_errors
+            expect_errors=expect_errors,
         )
         if expect_errors:
             self.assertEqual(response.status_code, 403)
@@ -2533,11 +2533,11 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.evaluation_1 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible])
+            course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]),
         )
         cls.evaluation_2 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible])
+            course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]),
         )
         baker.make(
             Contribution,
