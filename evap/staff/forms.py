@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from datetime import datetime
 import logging
 
 from django import forms
@@ -326,6 +327,15 @@ class EvaluationForm(forms.ModelForm):
         return evaluation
 
 
+class EvaluationCopyForm(EvaluationForm):
+    def __init__(self, data=None, instance=None):
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+        initial['last_modified_time'] = datetime.now()
+        initial['general_questionnaires'] = instance.general_contribution.questionnaires.all()
+        super().__init__(data=data, initial=initial, semester=instance.course.semester)
+
+
 class SingleResultForm(forms.ModelForm):
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
@@ -456,6 +466,18 @@ class ContributionForm(forms.ModelForm):
     def clean(self):
         if not self.cleaned_data.get('does_not_contribute') and not self.cleaned_data.get('questionnaires'):
             self.add_error('does_not_contribute', _("Select either this option or at least one questionnaire!"))
+
+
+class ContributionCopyForm(ContributionForm):
+    def __init__(self, data=None, instance=None, evaluation=None, **kwargs):
+        initial = None
+        copied_instance = Contribution(evaluation=evaluation)
+        if instance:
+            opts = self._meta
+            initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+            del initial['evaluation']
+            initial['does_not_contribute'] = not instance.questionnaires.exists()
+        super().__init__(data, initial=initial, instance=copied_instance, evaluation=evaluation, **kwargs)
 
 
 class EvaluationEmailForm(forms.Form):
@@ -634,6 +656,21 @@ class ContributionFormSet(BaseInlineFormSet):
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             if contributor:
                 found_contributor.add(contributor)
+
+
+class ContributionCopyFormSet(ContributionFormSet):
+    def __init__(self, data, instance, new_instance):
+        # First, pass the old evaluation instance to create a ContributionCopyForm for each contribution
+        super().__init__(data, instance=instance, form_kwargs={'evaluation': new_instance})
+        # Then, use the new evaluation instance as target for validation and saving purposes
+        self.instance = new_instance
+
+    def save(self, commit=True):
+        # As the contained ContributionCopyForm have not-yet-saved instances,
+        # they’d be skipped when saving the formset.
+        # To circumvent this, explicitly note that all forms should be saved as new instance.
+        self.save_as_new = True
+        super().save(commit)
 
 
 class QuestionForm(forms.ModelForm):

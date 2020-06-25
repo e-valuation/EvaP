@@ -19,6 +19,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
 from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename, ImportType
+from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
 from evap.staff.views import get_evaluations_with_prefetched_data
 
 
@@ -1282,6 +1283,11 @@ class TestSingleResultCreateView(WebTest):
         cls.manager_user = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
 
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager_user, status=200)
+        form = response.context['form']
+        self.assertEqual(form['course'].initial, self.course.pk)
+
     def test_single_result_create(self):
         """
             Tests the single result creation view with one valid and one invalid input dataset.
@@ -1313,6 +1319,11 @@ class TestEvaluationCreateView(WebTest):
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
         cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager_user, status=200)
+        form = response.context['evaluation_form']
+        self.assertEqual(form['course'].initial, self.course.pk)
 
     def test_evaluation_create(self):
         """
@@ -1346,6 +1357,50 @@ class TestEvaluationCreateView(WebTest):
 
         form.submit()
         self.assertEqual(Evaluation.objects.get().name_de, "lfo9e7bmxp1xi")
+
+
+class TestEvaluationCopyView(WebTest):
+    url = '/staff/semester/1/evaluation/1/copy'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        cls.semester = baker.make(Semester, pk=1)
+        cls.course = baker.make(Course, semester=cls.semester)
+        cls.evaluation = baker.make(
+            Evaluation,
+            pk=1,
+            course=cls.course,
+            name_de="Das Original",
+            name_en="The Original",
+        )
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
+        for __ in range(3):
+            baker.make(
+                Contribution,
+                evaluation=cls.evaluation,
+                contributor=baker.make(UserProfile),
+            )
+
+    def test_copy_forms_are_used(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIsInstance(response.context['evaluation_form'], EvaluationCopyForm)
+        self.assertIsInstance(response.context['formset'], ContributionCopyFormSet)
+        self.assertTrue(issubclass(response.context['formset'].form, ContributionCopyForm))
+
+    def test_evaluation_copy(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms['evaluation-form']
+        form['name_de'] = "Eine Kopie"
+        form['name_en'] = "A Copy"
+        form.submit()
+
+        # As we checked previously that the respective copy forms were used,
+        # we don’t have to check for individual attributes, as those are checked in the respective form tests
+        self.assertEqual(Evaluation.objects.count(), 2)
+        copied_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
+        self.assertEqual(copied_evaluation.contributions.count(), 4)
 
 
 class TestCourseEditView(WebTest):
