@@ -38,7 +38,7 @@
                     <td>
                         {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
-                        <div class="form-check mt-2" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if this person does not visibly contribute and if no questions about this person shall be included in the evaluation's questionnaire. This can be used if the person is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
+                        <div class="form-check mt-2" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
                             <input class="form-check-input" id="{{ form.does_not_contribute.id_for_label }}" name="{{ form.does_not_contribute.html_name }}"
                                 type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %}
                                 {% if form.does_not_contribute.field.disabled %} disabled{% endif %} />

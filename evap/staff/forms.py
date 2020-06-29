@@ -432,7 +432,7 @@ class ContributionForm(forms.ModelForm):
         widget=CheckboxSelectMultiple,
         label=_("Questionnaires")
     )
-    does_not_contribute = forms.BooleanField(required=False, label=_("Does not contribute to evaluation"))
+    does_not_contribute = forms.BooleanField(required=False, label=_("Add person without questions"))
 
     class Meta:
         model = Contribution
