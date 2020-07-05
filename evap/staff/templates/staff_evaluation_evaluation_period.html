@@ -1,43 +1,38 @@
+{% load evaluation_filters %}
+
 {% if evaluation.is_single_result %}
-    {{ evaluation.vote_start_datetime|date:"Y-m-d" }}
+    <div class="evaluation-period">
+        {{ evaluation.vote_start_datetime|date:"Y-m-d" }}
+    </div>
 {% else %}
-    {{ evaluation.vote_start_datetime }}{% if not start_only %} &ndash;<br />
-    {{ evaluation.vote_end_date }}{% endif %}<br />
-    {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
-        {% if evaluation.days_until_evaluation < 0 %}
-            <span class="badge badge-pill badge-danger" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation should already have started' %}">
-                {% trans 'overdue' %}
-            </span>
-        {% endif %}
-    {% endif %}
-    {% if evaluation.days_until_evaluation == 0 %}
-        <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will start later today' %}">
-            <span class="fas fa-pause"></span> {% trans 'today' %}
-        </span>
-    {% elif evaluation.days_until_evaluation == 1 %}
-        <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will start tomorrow' %}">
-            <span class="fas fa-pause"></span> {% trans 'tomorrow' %}
-        </span>
-    {% elif evaluation.days_until_evaluation > 1 %}
-        <span class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="left"
-            title="{% blocktrans with days=evaluation.days_until_evaluation %}Evaluation will start in {{ days }} days{% endblocktrans %}">
-            <span class="fas fa-pause"></span> {{ evaluation.days_until_evaluation }}
-        </span>
-    {% endif %}
-    {% if state == 'in_evaluation' %}
-        {% if evaluation.days_left_for_evaluation == 0 %}
-            <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will end today' %}">
-                <span class="fas fa-play"></span> {% trans 'today' %}
-            </span>
-        {% elif evaluation.days_left_for_evaluation == 1 %}
-            <span class="badge badge-pill badge-warning" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation will end tomorrow' %}">
-                <span class="fas fa-play"></span> {% trans 'tomorrow' %}
-            </span>
-        {% elif evaluation.days_left_for_evaluation > 1 %}
-            <span class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="left"
-                title="{% blocktrans with days=evaluation.days_left_for_evaluation %}Evaluation will end in {{ days }} days{% endblocktrans %}">
-                <span class="fas fa-play"></span> {{ evaluation.days_left_for_evaluation }}
-            </span>
-        {% endif %}
-    {% endif %}
+    <div class="evaluation-period">
+        {{ evaluation.vote_start_datetime }}{% if not start_only %} &ndash;<br />
+        {{ evaluation.vote_end_date }}{% endif %}<br />
+    </div>
+    <div class="evaluation-period-bar-container {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}{% if days_until_evaluation < 0 %}state-overdue{% elif days_until_evaluation <= 7 %}state-starting-soon{% else %}state-waiting{% endif %}{% elif state == 'in_evaluation' %}{% if days_left_for_evaluation <= 3 %}state-ending-soon{% else %}state-running{% endif %}{% elif state == 'evaluated' or state == 'reviewed' or state == 'published' %}state-done{% endif %}">
+        <div class="bar">&nbsp;</div>
+        <div class="overlay">
+            <div class="icon icon-pause">
+                <span class="fas fa-pause"></span>
+            </div>
+            <div class="text">
+                {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
+                    {{ days_until_evaluation }}
+                {% endif %}
+            </div>
+            <div class="icon icon-play">
+                <span class="fas fa-play"></span>
+            </div>
+            <div class="text">
+                {% if days_left_for_evaluation >= 0 and days_until_evaluation > 0 %}
+                    {{ days_left_for_evaluation|subtract:days_until_evaluation }}
+                {% elif days_left_for_evaluation >= 0 %}
+                    {{ days_left_for_evaluation }}
+                {% endif %}
+            </div>
+            <div class="icon icon-stop">
+                <span class="fas fa-stop"></span>
+            </div>
+        </div>
+    </div>
 {% endif %}

@@ -1,0 +1,120 @@
+.evaluation-period {
+    font-size: 0.8rem;
+}
+
+.evaluation-period-bar-container {
+    position: relative;
+    border-radius: 3px;
+    flex-grow: 1;
+    background: $lighter-gray;
+    box-shadow: inset 0 0 0 1px $light-gray;
+    @include no-user-select;
+
+    .icon {
+        flex: 0 0 15%;
+        max-width: 15%;
+        text-align: center;
+        font-size: 0.8rem;
+
+        color: $white;
+        @include bar-shadow($medium-gray);
+    }
+
+    .text {
+        flex: 0 0 27.5%;
+        max-width: 27.5%;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+
+    .bar {
+        @include no-user-select;
+        white-space: nowrap;
+        border-radius: 3px;
+        position: relative;
+        background-color: $evap-dark-blue;
+        width: 20%;
+    }
+
+    .overlay {
+        width: 100%;
+        display: flex;
+        position: absolute;
+        top: 0.1rem;
+        color: $darker-gray;
+        font-size: 0.9rem;
+        @include bar-shadow($white);
+    }
+
+    &.state-overdue {
+        .icon-pause {
+            color: $evap-red;
+        }
+        .icon-play {
+            color: $evap-light-red;
+        }
+        .bar {
+            width: calc(50%);
+            background-color: $evap-light-red;
+        }
+    }
+
+    &.state-starting-soon {
+        .icon-pause {
+            color: $evap-yellow;
+        }
+        .bar {
+            width: 35%;
+            background-color: $evap-light-yellow;
+        }
+    }
+
+    &.state-waiting {
+        .icon-pause {
+            color: $evap-dark-blue;
+        }
+        .bar {
+            width: 1.5rem;
+            background-color: $evap-light-blue;
+        }
+    }
+
+    &.state-running {
+        .icon-pause {
+            opacity: 0.25;
+        }
+        .icon-play {
+            color: $evap-dark-blue;
+        }
+        .bar {
+            width: calc(50% + 0.8rem);
+            background-color: $evap-light-blue;
+        }
+    }
+
+    &.state-ending-soon {
+        .icon-pause {
+            opacity: 0.25;
+        }
+        .icon-play {
+            color: $evap-dark-blue;
+        }
+        .bar {
+            width: calc(100% - 1.5rem);
+            background-color: $evap-light-blue;
+        }
+    }
+
+    &.state-done {
+        .icon-pause, .icon-play {
+            opacity: 0.25;
+        }
+        .icon-stop {
+            color: $evap-green;
+        }
+        .bar {
+            width: 100%;
+            background-color: $evap-light-green;
+        }
+    }
+}

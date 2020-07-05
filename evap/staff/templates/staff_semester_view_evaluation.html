@@ -115,7 +115,7 @@
     {% endif %}
 </td>
 <td data-col="period" data-order="{{ evaluation|ordering_index }}">
-    {% include 'staff_evaluation_evaluation_period.html' %}
+    {% include 'staff_evaluation_evaluation_period.html' with days_left_for_evaluation=evaluation.days_left_for_evaluation days_until_evaluation=evaluation.days_until_evaluation %}
 </td>
 {% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
     {% if not evaluation.is_single_result %}
