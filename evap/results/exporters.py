@@ -85,6 +85,10 @@ class ExcelExporter():
         # always be tightly coupled based on the layout of the sheet. We thus think that one big method
         # containing the business logic is okay here
         # pylint: disable=too-many-locals, too-many-nested-blocks, too-many-branches, too-many-statements
+
+        # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
+        assert len(selection_list) > 0
+
         workbook = xlwt.Workbook()
         self.init_styles(workbook)
         counter = 1
@@ -114,7 +118,8 @@ class ExcelExporter():
                 results = OrderedDict()
                 for contribution_result in collect_results(evaluation).contribution_results:
                     for questionnaire_result in contribution_result.questionnaire_results:
-                        if all(not question_result.question.is_rating_question or question_result.counts is None for question_result in questionnaire_result.question_results):
+                        # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
+                        if all(not question_result.question.is_rating_question or question_result.counts is None or sum(question_result.counts) == 0 for question_result in questionnaire_result.question_results):
                             continue
                         if not contributor or contribution_result.contributor is None or contribution_result.contributor == contributor:
                             results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
