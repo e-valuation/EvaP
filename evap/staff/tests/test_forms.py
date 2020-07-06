@@ -69,7 +69,7 @@ class EvaluationEmailFormTests(TestCase):
         """
             Tests the EvaluationEmailForm with one valid and one invalid input dataset.
         """
-        evaluation = create_evaluation_with_responsible_and_editor()
+        evaluation = create_evaluation_with_responsible_and_editor()['evaluation']
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.Recipients.DUE_PARTICIPANTS]}
         form = EvaluationEmailForm(evaluation=evaluation, data=data)
         self.assertTrue(form.is_valid())

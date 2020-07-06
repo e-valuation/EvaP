@@ -14,7 +14,11 @@ class GradeUploadTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email="grade_publisher@institution.example.com", groups=[Group.objects.get(name="Grade publisher")])
+        cls.grade_publisher = baker.make(
+            UserProfile,
+            email="grade_publisher@institution.example.com",
+            groups=[Group.objects.get(name="Grade publisher")],
+        )
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@institution.example.com")
         cls.student3 = baker.make(UserProfile, email="student3@institution.example.com")
@@ -57,7 +61,7 @@ class GradeUploadTest(WebTest):
         response = self.app.post(
             "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
             params={"description_en": "Grades", "description_de": "Grades"},
-            user="grade_publisher@institution.example.com",
+            user=self.grade_publisher,
             content_type='multipart/form-data',
             upload_files=upload_files,
         ).follow()
@@ -69,7 +73,7 @@ class GradeUploadTest(WebTest):
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user="student@institution.example.com")
+        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student)
         self.assertEqual(response.status_code, 200)
 
         # tear down
@@ -152,7 +156,7 @@ class GradeUploadTest(WebTest):
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher@institution.example.com")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertTrue(evaluation.course.gets_no_grade_documents)
@@ -160,7 +164,7 @@ class GradeUploadTest(WebTest):
         self.assertEqual(evaluation.state, "published")
         self.assertEqual(len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user="grade_publisher@institution.example.com")
+        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
@@ -171,10 +175,10 @@ class GradeUploadTest(WebTest):
         self.assertGreater(self.course.midterm_grade_documents.count(), 0)
 
         url = "/grades/download/" + str(self.course.midterm_grade_documents.first().id)
-        self.app.get(url, user="student@institution.example.com", status=200)  # grades should be downloadable
+        self.app.get(url, user=self.student, status=200)  # grades should be downloadable
 
         self.semester.delete_grade_documents()
-        self.app.get(url, user="student@institution.example.com", status=404)  # grades should not be downloadable anymore
+        self.app.get(url, user=self.student, status=404)  # grades should not be downloadable anymore
 
 
 class GradeDocumentIndexTest(WebTest):
@@ -182,12 +186,16 @@ class GradeDocumentIndexTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email="grade_publisher@institution.example.com", groups=[Group.objects.get(name="Grade publisher")])
+        cls.grade_publisher = baker.make(
+            UserProfile,
+            email="grade_publisher@institution.example.com",
+            groups=[Group.objects.get(name="Grade publisher")],
+        )
         cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
         cls.archived_semester = baker.make(Semester, grade_documents_are_deleted=True)
 
     def test_visible_semesters(self):
-        page = self.app.get(self.url, user="grade_publisher@institution.example.com", status=200)
+        page = self.app.get(self.url, user=self.grade_publisher, status=200)
         self.assertIn(self.semester.name, page)
         self.assertNotIn(self.archived_semester.name, page)
 
@@ -197,18 +205,22 @@ class GradeSemesterViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email="grade_publisher@institution.example.com", groups=[Group.objects.get(name="Grade publisher")])
+        cls.grade_publisher = baker.make(
+            UserProfile,
+            email="grade_publisher@institution.example.com",
+            groups=[Group.objects.get(name="Grade publisher")],
+        )
 
     def test_does_not_crash(self):
         semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
         course = baker.make(Course, semester=semester)
         baker.make(Evaluation, course=course, state="prepared")
-        page = self.app.get(self.url, user="grade_publisher@institution.example.com", status=200)
+        page = self.app.get(self.url, user=self.grade_publisher, status=200)
         self.assertIn(course.name, page)
 
     def test_403_on_deleted(self):
         baker.make(Semester, pk=1, grade_documents_are_deleted=True)
-        self.app.get('/grades/semester/1', user="grade_publisher@institution.example.com", status=403)
+        self.app.get('/grades/semester/1', user=self.grade_publisher, status=403)
 
 
 class GradeCourseViewTest(WebTest):
@@ -216,14 +228,18 @@ class GradeCourseViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email="grade_publisher@institution.example.com", groups=[Group.objects.get(name="Grade publisher")])
+        cls.grade_publisher = baker.make(
+            UserProfile,
+            email="grade_publisher@institution.example.com",
+            groups=[Group.objects.get(name="Grade publisher")],
+        )
 
     def test_does_not_crash(self):
         semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
         baker.make(Evaluation, course=baker.make(Course, pk=1, semester=semester), state="prepared")
-        self.app.get('/grades/semester/1/course/1', user="grade_publisher@institution.example.com", status=200)
+        self.app.get('/grades/semester/1/course/1', user=self.grade_publisher, status=200)
 
     def test_403_on_archived_semester(self):
         archived_semester = baker.make(Semester, pk=1, grade_documents_are_deleted=True)
         baker.make(Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state="prepared")
-        self.app.get('/grades/semester/1/course/1', user="grade_publisher@institution.example.com", status=403)
+        self.app.get('/grades/semester/1/course/1', user=self.grade_publisher, status=403)
