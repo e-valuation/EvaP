@@ -353,37 +353,43 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         student_external = baker.make(UserProfile, email="student_external@example.com")
         contributor = baker.make(UserProfile, email="contributor@institution.example.com")
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
-        responsible_contributor = baker.make(UserProfile, email="responsible_contributor@institution.example.com")
-        test1 = baker.make(UserProfile, email="test1@institution.example.com")
-        test2 = baker.make(UserProfile, email="test2@institution.example.com")
-        uninitialized = baker.make(UserProfile, email="uninitialized@institution.example.com")
+        editor = baker.make(UserProfile, email="editor@institution.example.com")
+        voter1 = baker.make(UserProfile, email="voter1@institution.example.com")
+        voter2 = baker.make(UserProfile, email="voter2@institution.example.com")
+        non_participant = baker.make(UserProfile, email="non_participant@institution.example.com")
         degree = baker.make(Degree)
-        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, responsible_contributor])
-        private_evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
+        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor])
+        private_evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state='published',
+            participants=[student, student_external, voter1, voter2],
+            voters=[voter1, voter2]
+        )
         private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
         baker.make(
             Contribution,
             evaluation=private_evaluation,
-            contributor=responsible_contributor,
+            contributor=editor,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(Contribution, evaluation=private_evaluation, contributor=contributor, role=Contribution.Role.EDITOR)
 
         url = '/results/'
-        self.assertNotIn(private_evaluation.full_name, self.app.get(url, user=uninitialized))
+        self.assertNotIn(private_evaluation.full_name, self.app.get(url, user=non_participant))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=student))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=responsible))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user=responsible_contributor))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user=editor))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=contributor))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=manager))
         self.app.get(url, user=student_external, status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (semester.id, private_evaluation.id)
-        self.app.get(url, user=uninitialized, status=403)
+        self.app.get(url, user=non_participant, status=403)
         self.app.get(url, user=student, status=200)
         self.app.get(url, user=responsible, status=200)
-        self.app.get(url, user=responsible_contributor, status=200)
+        self.app.get(url, user=editor, status=200)
         self.app.get(url, user=contributor, status=200)
         self.app.get(url, user=manager, status=200)
         self.app.get(url, user=student_external, status=200)  # this external user participates in the evaluation and can see the results
