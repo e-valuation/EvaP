@@ -1599,6 +1599,15 @@ class EmailTemplate(models.Model):
 
         evaluations_per_contributor = defaultdict(set)
         for evaluation in evaluations:
+            # an average grade is published or a general text answer exists
+            relevant_information_published_for_responsibles = (
+                evaluation.can_publish_average_grade
+                or evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
+            )
+            if relevant_information_published_for_responsibles:
+                for responsible in evaluation.course.responsibles.all():
+                    evaluations_per_contributor[responsible].add(evaluation)
+
             # for evaluations with published averaged grade, all contributors get a notification
             # we don't send a notification if the significance threshold isn't met
             if evaluation.can_publish_average_grade:
@@ -1611,9 +1620,6 @@ class EmailTemplate(models.Model):
                 for textanswer in evaluation.textanswer_set:
                     if textanswer.contribution.contributor:
                         evaluations_per_contributor[textanswer.contribution.contributor].add(evaluation)
-
-                for contributor in evaluation.course.responsibles.all():
-                    evaluations_per_contributor[contributor].add(evaluation)
 
         for contributor, evaluation_set in evaluations_per_contributor.items():
             body_params = {'user': contributor, 'evaluations': list(evaluation_set)}

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, date
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -718,6 +718,58 @@ class TestEmailTemplate(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
+
+    @staticmethod
+    def test_send_contributor_publish_notifications():
+        responsible1 = baker.make(UserProfile)
+        responsible2 = baker.make(UserProfile)
+        # use is_single_result to get can_publish_average_grade to become true
+        evaluation1 = baker.make(Evaluation, course__responsibles=[responsible1], is_single_result=True)
+        evaluation2 = baker.make(Evaluation, course__responsibles=[responsible2])
+
+        editor1 = baker.make(UserProfile)
+        contributor1 = baker.make(UserProfile)
+
+        contributor2 = baker.make(UserProfile)
+        editor2 = baker.make(UserProfile)
+        contributor_both = baker.make(UserProfile)
+
+        # Contributions for evaluation1
+        baker.make(Contribution, evaluation=evaluation1, contributor=responsible1, role=Contribution.Role.CONTRIBUTOR)
+        baker.make(Contribution, evaluation=evaluation1, contributor=editor1, role=Contribution.Role.EDITOR)
+        baker.make(Contribution, evaluation=evaluation1, contributor=contributor1, role=Contribution.Role.CONTRIBUTOR)
+        baker.make(Contribution, evaluation=evaluation1, contributor=contributor_both, role=Contribution.Role.CONTRIBUTOR)
+
+        # Contributions for evaluation2
+        baker.make(Contribution, evaluation=evaluation2, contributor=editor2, role=Contribution.Role.EDITOR)
+        contributor_both_contribution = baker.make(Contribution, evaluation=evaluation2, contributor=contributor_both, role=Contribution.Role.CONTRIBUTOR)
+        contributor2_contribution = baker.make(Contribution, evaluation=evaluation2, contributor=contributor2, role=Contribution.Role.CONTRIBUTOR)
+
+        baker.make(TextAnswer, contribution=contributor_both_contribution)
+        baker.make(TextAnswer, contribution=contributor2_contribution)
+
+        expected_calls = [
+            # these 4 are included since they are contributors for evaluation1 which can publish the average grade
+            call(responsible1, {}, {'user': responsible1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(editor1, {}, {'user': editor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor1, {}, {'user': contributor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor_both, {}, {'user': contributor_both, 'evaluations': [evaluation1, evaluation2]}, use_cc=True),
+            # contributor2 has textanswers, so they are notified
+            call(contributor2, {}, {'user': contributor2, 'evaluations': [evaluation2]}, use_cc=True),
+        ]
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            # Assert that all expected publish notifications are sent to contributors.
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
+
+        # if general textanswers for an evaluation exist, all responsibles should also be notified
+        baker.make(TextAnswer, contribution=evaluation2.general_contribution)
+        expected_calls.append(call(responsible2, {}, {'user': responsible2, 'evaluations': [evaluation2]}, use_cc=True))
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
 
 class TestEmailRecipientList(TestCase):
