@@ -72,7 +72,7 @@ class LogEntry(models.Model):
                 except FieldDoesNotExist:
                     label = field_name
                 finally:
-                    fields[field_name].append(FieldAction(label.title(), field_action_type, items))
+                    fields[field_name].append(FieldAction(label.capitalize(), field_action_type, items))
         return dict(fields)
 
     def display(self):
@@ -211,7 +211,6 @@ class LoggedModel(models.Model):
 
         try:
             user = self.thread.request.user
-            print(id(self.thread.request))
         except AttributeError:
             user = None
 

@@ -52,7 +52,7 @@ class TestLoggedModel(TestCase):
         self.assertEqual(self.logentry._evaluation_log_template_context(json.loads(self.logentry.data)), {
             'vote_start_datetime': [
                 FieldAction(
-                    "start of evaluation",
+                    "Start of evaluation",
                     "change",
                     [log_serialize(self.old_start_date), log_serialize(self.new_start_date)]
                 )
