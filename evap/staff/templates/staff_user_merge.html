@@ -141,15 +141,15 @@
                     <tr{% if 'courses_responsible_for' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Courses responsible for' %}</strong></td>
                         {% regroup main_user.get_sorted_courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if course_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup other_user.get_sorted_courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if course_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                         {% regroup merged_user.courses_responsible_for by semester as course_list %}
-                        <td{% if course_list|length > 0 %} class="success"{% endif %}>
+                        <td{% if course_list|length > 0 %} class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=course_list %}
                         </td>
                     </tr>
@@ -157,15 +157,15 @@
                     <tr{% if 'contributions' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Contributions' %}</strong></td>
                         {% regroup main_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if contribution_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup other_user.get_sorted_contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if contribution_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                         {% regroup merged_user.contributions by evaluation.course.semester as contribution_list %}
-                        <td{% if contribution_list|length > 0 %} class="success"{% endif %}>
+                        <td{% if contribution_list|length > 0 %} class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=contribution_list %}
                         </td>
                     </tr>
@@ -173,15 +173,15 @@
                     <tr{% if 'evaluations_participating_in' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Participated in' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if participation_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if participation_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
-                        {% regroup merged_user.get_sorted_evaluations_participating_in by course.semester as participation_list %}
-                        <td{% if participation_list|length > 0 %} class="success"{% endif %}>
+                        {% regroup merged_user.evaluations_participating_in by course.semester as participation_list %}
+                        <td{% if participation_list|length > 0 %} class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=participation_list %}
                         </td>
                     </tr>
@@ -189,15 +189,15 @@
                     <tr{% if 'evaluations_voted_for' in errors %} class="table-danger"{% endif %}>
                         <td><strong>{% trans 'Voted for' %}</strong></td>
                         {% regroup main_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if voting_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                         {% regroup other_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="info"{% endif %}>
+                        <td{% if voting_list|length > 0 %} class="table-info"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
-                        {% regroup merged_user.get_sorted_evaluations_voted_for by course.semester as voting_list %}
-                        <td{% if voting_list|length > 0 %} class="success"{% endif %}>
+                        {% regroup merged_user.evaluations_voted_for by course.semester as voting_list %}
+                        <td{% if voting_list|length > 0 %} class="table-success"{% endif %}>
                             {% include "staff_user_merge_grouped_list.html" with grouped_list=voting_list %}
                         </td>
                     </tr>
