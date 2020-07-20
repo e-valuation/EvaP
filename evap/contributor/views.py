@@ -11,7 +11,7 @@ from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContribu
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
-from evap.results.exporters import ExcelExporter
+from evap.results.exporters import ResultsExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
                                 normalized_distribution)
@@ -243,7 +243,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 def export_contributor_results(contributor):
     filename = "Evaluation_{}.xls".format(contributor.full_name)
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
-    ExcelExporter().export(
+    ResultsExporter().export(
         response,
         Semester.objects.all(),
         [(Degree.objects.all(), CourseType.objects.all())],
