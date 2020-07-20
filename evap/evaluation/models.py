@@ -59,10 +59,10 @@ class LogEntry(models.Model):
 
     def _evaluation_log_template_context(self, data):
         fields = defaultdict(list)
+        model = self.content_type.model_class()
         for field_name, actions in data.items():
             for field_action_type, items in actions.items():
                 try:
-                    model = self.content_type.model_class()
                     field = model._meta.get_field(field_name)
                     label = getattr(field, "verbose_name", field_name)
                     if field.many_to_many or field.many_to_one or field.one_to_one:
@@ -159,8 +159,10 @@ class LoggedModel(models.Model):
     def _as_dict(self):
         fields = type(self)._meta.get_fields()
         fields = list(filter(lambda field: field.name not in self.ignore_field_names_logging, fields))
-        # fields = list(filter(lambda field: not field.many_to_many, fields))
-        # fields = list(filter(lambda field: not field.one_to_many, fields))
+
+        # m2m fields are dealt with using signals
+        fields = list(filter(lambda field: not field.many_to_many, fields))
+
         fields = list(map(lambda field: field.name, fields))
         return model_to_dict(self, fields)
 
@@ -222,7 +224,6 @@ class LoggedModel(models.Model):
                     action_type=action,
                     data=data)
         else:
-            # todo update data
             self._logentry.data = data
 
         if mode == "create":
@@ -239,7 +240,9 @@ class LoggedModel(models.Model):
             raise ValueError("Unknown mode: '{}'".format(mode))
 
     def save(self, *args, **kw):
-        mode = "change" if self.pk else "create"
+        # Are we creating a new instance?
+        # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
+        mode = "change" if not self._state.adding else "create"
         self.update_log(mode, *args, **kw)
 
     def delete(self, *args, **kw):
@@ -256,6 +259,10 @@ class LoggedModel(models.Model):
 
     @property
     def object_to_attach_logentries_to(self):
+        """
+        Return a model instance for which this logentry should be shown. By default, show it to objects described
+        by the logentry itself.
+        """
         return self
 
 
