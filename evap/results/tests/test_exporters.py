@@ -356,6 +356,35 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(11)[1], "5/10")   # Voters / Participants
         self.assertEqual(sheet.row_values(12)[1], "50%")    # Voter percentage
 
+    def test_course_grade(self):
+        degree = baker.make(Degree)
+        course = baker.make(Course, degrees=[degree])
+        evaluations = [
+            baker.make(Evaluation, course=course,
+                       name_en=f"eval{i}", name_de=f"eval{i}",
+                       state="published", _voter_count=5, _participant_count=10)
+            for i in range(3)
+        ]
+
+        grades_per_eval = [
+            [1, 2],
+            [2, 3],
+            [1, 3]
+        ]
+        expected_average = 2.0
+
+        questionnaire = baker.make(Questionnaire)
+        question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
+        for grades, e in zip(grades_per_eval, evaluations):
+            for grade in grades:
+                baker.make(RatingAnswerCounter, answer=grade, count=1, question=question, contribution=e.general_contribution)
+            e.general_contribution.questionnaires.set([questionnaire])
+
+        sheet = self.get_export_sheet(course.semester, degree, [course.type.id])
+        self.assertEqual(sheet.row_values(12)[1], expected_average)
+        self.assertEqual(sheet.row_values(12)[2], expected_average)
+        self.assertEqual(sheet.row_values(12)[3], expected_average)
+
 
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
