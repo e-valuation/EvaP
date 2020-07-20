@@ -60,7 +60,7 @@ class LogEntry(models.Model):
     def _evaluation_log_template_context(self, data):
         fields = defaultdict(list)
         for field_name, actions in data.items():
-            for action_type, items in actions.items():
+            for field_action_type, items in actions.items():
                 try:
                     model = self.content_type.model_class()
                     field = model._meta.get_field(field_name)
@@ -71,26 +71,24 @@ class LogEntry(models.Model):
                         items = [str(related_objects.get(pk=item)) if item is not None else "" for item in items]
                 except FieldDoesNotExist:
                     label = field_name
-                except Exception:
-                    pass  # TODO: remove when everything works
                 finally:
-                    fields[field_name].append(FieldAction(label, action_type, items))
+                    fields[field_name].append(FieldAction(label.title(), field_action_type, items))
         return dict(fields)
 
     def display(self):
-        if self.action_type not in ("changed", "created", "deleted"): 
-            return self.action_type +": " + self.data
+        if self.action_type not in ("change", "create", "delete"): 
+            raise ValueError("Unknown action type: '{}'!".format(self.action_type))
 
         field_data = json.loads(self.data)
 
-        if self.action_type == 'changed':
+        if self.action_type == 'change':
             message = _("The {cls} {obj} was changed.")
-        elif self.action_type == 'created':
+        elif self.action_type == 'create':
             message = _("The {cls} {obj} was created.")
-        elif self.action_type == 'deleted':
+        elif self.action_type == 'delete':
             message = _("A {cls} was deleted.")
         
-        if self.action_type == 'deleted':
+        if self.action_type == 'delete':
             cls = ContentType.objects.get_for_id(field_data.pop('_content_type')).model_class()._meta.verbose_name_raw
         elif self.content_object:
             cls = type(self.content_object)._meta.verbose_name_raw
@@ -114,8 +112,6 @@ def log_serialize(obj):
     return str(obj)
 
 
-FIELD_BLACKLIST = {'id', 'last_modified_time', 'last_modified_user'}
-
 class LoggedModel(models.Model):
     thread = threading.local()
     class Meta:
@@ -123,22 +119,11 @@ class LoggedModel(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._initial = self._dict
         self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
         
         for field in type(self)._meta.many_to_many:
             self.register_logged_m2m_field(field)
-
-"""
-# I get infinite recursion running the tests :/                     TODO
-        post_init.connect(LoggedModel.post_init)
-
-    @staticmethod
-    def post_init(sender, instance, **kwargs):
-        if sender == LoggedModel:
-            instance._initial = instance._dict
-"""
 
     def register_logged_m2m_field(self, field):
         through = getattr(type(self), field.name).through  # converting from field to its descriptor
@@ -161,75 +146,105 @@ class LoggedModel(models.Model):
         elif action == 'pre_add':
             instance._m2m_changes[field_name]['add'] += list(pk_set)
         elif action == 'pre_clear':
-            instance._m2m_changes[field_name]['cleared'] = []
+            instance._m2m_changes[field_name]['clear'] = []
 
         if "pre" in action:
-            instance.update_log()
+            instance.update_log("m2m")
 
     @property
-    def _dict(self):
-        return model_to_dict(self)
+    def ignore_field_names_logging(self):
+        """Specify a list of field names so that these fields don't get logged."""
+        return ['id', 'last_modified_time', 'last_modified_user', 'order']
 
-    @property
-    def changes(self):
-        d1 = self._initial
-        d2 = self._dict
-        changes = {field_name: {'change': [old_value, d2[field_name]]} for field_name, old_value in d1.items()
-                                                                       if old_value != d2[field_name]
-                                                                       and field_name not in FIELD_BLACKLIST}
-        changes.update(self._m2m_changes)
-        return changes
+    def _as_dict(self):
+        fields = type(self)._meta.get_fields()
+        fields = list(filter(lambda field: field.name not in self.ignore_field_names_logging, fields))
+        # fields = list(filter(lambda field: not field.many_to_many, fields))
+        # fields = list(filter(lambda field: not field.one_to_many, fields))
+        fields = list(map(lambda field: field.name, fields))
+        return model_to_dict(self, fields)
 
-    @property
-    def deletion_data(self):
-        # flatten list because these might also be m2m changes
-        changes = {}
-        for field_name, old_value in self._initial.items():
-            if field_name in FIELD_BLACKLIST:
-                continue
-            field = self._meta.get_field(field_name)
-            if field.many_to_many:
-                action_items = [obj.pk for obj in getattr(self, field_name).all()]
-            else:
-                action_items = [old_value]
-            changes[field_name] = {'delete': action_items}
-        changes.update(self._m2m_changes)
-        changes.update({
-            "_content_type": ContentType.objects.get_for_model(type(self)).id
-        })
-        return changes
-
-    def update_log(self, delete=False):
-        if delete:
-            data = json.dumps(self.deletion_data, default=log_serialize)
+    def _change_data(self, action_type):
+        self_dict = self._as_dict()
+        if action_type == "create":
+            changes = {field_name: {'change': [None, created_value]} for field_name, created_value in self_dict.items()}
+        elif action_type == "change":
+            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            changes = {field_name: {'change': [old_value, self_dict[field_name]]}
+                    for field_name, old_value in old_dict.items()
+                    if old_value != self_dict[field_name]}
+        elif action_type == "delete":
+            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            changes = {}
+            for field_name, old_value in old_dict.items():
+                field = self._meta.get_field(field_name)
+                if field.many_to_many:
+                    action_items = [obj.pk for obj in getattr(self, field_name).all()]
+                else:
+                    action_items = [old_value]
+                changes[field_name] = {'delete': action_items}
+            changes.update({
+                "_content_type": ContentType.objects.get_for_model(type(self)).id
+            })
         else:
-            data = json.dumps(self.changes, default=log_serialize)
+            raise ValueError("Unknown action type: '{}'".format(action_type))
+
+        changes.update(self._m2m_changes)
+        return changes
+
+    def update_log(self, mode, *args, **kw):
+        if mode == "create":
+            super().save(*args, **kw)
+
+        action = {
+                'delete': 'delete',
+                'create': 'create',
+                'change': 'change',
+                'm2m'   : 'change',
+                }[mode]
+
+        changes = self._change_data(action)
+        if not changes:
+            return
+
+        data = json.dumps(changes, default=log_serialize)
+
+        try:
+            user = self.thread.request.user
+            print(id(self.thread.request))
+        except AttributeError:
+            user = None
+
         if not self._logentry:
-            if delete:
-                action = 'deleted'
-            elif 'id' not in self._initial or not self._initial['id']:
-                action = 'created'
-            else:
-                action = 'changed'
-
-            try:
-                user = self.thread.request.user
-            except AttributeError:
-                user = None
-
-            self._logentry = LogEntry(content_object=self, attached_to_object=self.object_to_attach_logentries_to, user=user, action_type=action, data=data)
-            # when importing test_data, I think looking up self.evaluation on contributions fails due to the way fixtures are imported in bulk....
+            self._logentry = LogEntry(
+                    content_object=self,
+                    attached_to_object=self.object_to_attach_logentries_to,
+                    user=user,
+                    action_type=action,
+                    data=data)
         else:
+            # todo update data
             self._logentry.data = data
-        self._logentry.save()
+
+        if mode == "create":
+            self._logentry.save()
+        elif mode == "change":
+            super().save(*args, **kw)
+            self._logentry.save()
+        elif mode == "delete":
+            self._logentry.save()
+            super().delete(*args, **kw)
+        elif mode == "m2m":
+            self._logentry.save()
+        else:
+            raise ValueError("Unknown mode: '{}'".format(mode))
 
     def save(self, *args, **kw):
-        super().save(*args, **kw)
-        self.update_log()
+        mode = "change" if self.pk else "create"
+        self.update_log(mode, *args, **kw)
 
     def delete(self, *args, **kw):
-        self.update_log(delete=True)
-        super().delete(*args, **kw)
+        self.update_log(mode="delete", *args, **kw)
 
     def all_logentries(self):
         """
@@ -551,7 +566,6 @@ class Course(models.Model):
 
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
-
     state = FSMField(default='new', protected=True)
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
@@ -604,6 +618,11 @@ class Evaluation(LoggedModel):
 
     def __str__(self):
         return self.full_name
+
+    @property
+    def ignore_field_names_logging(self):
+        return super().ignore_field_names_logging + ["voters"]
+
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
@@ -993,6 +1012,13 @@ class Contribution(LoggedModel):
             return self.evaluation
         except:  # TODO: needed for loading testdata, but wrong
             return self
+
+    def __str__(self):
+        if self.contributor:
+            return _("Contribution by") + " " + self.contributor.full_name
+        else:
+            return str(_("General Contribution"))
+
 
 class Question(models.Model):
     """A question including a type."""
