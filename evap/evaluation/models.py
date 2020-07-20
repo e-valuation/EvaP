@@ -261,6 +261,29 @@ class LoggedModel(models.Model):
             attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
         ).select_related("user")
 
+    def grouped_logentries(self):
+        """
+        Returns a list of lists of logentries. Logentries are grouped if they were at the same point in time by the same user.
+        """
+        groups = []
+        group = []
+        for entry in self.all_logentries():
+            if not group:
+                group.append(entry)
+                continue
+            user_matches = group[0].user == entry.user
+            time_matches = abs(group[0].datetime - entry.datetime) < timedelta(seconds=10)
+            if user_matches and time_matches:
+                group.append(entry)
+            else:
+                groups.append(group)
+                group = [entry]
+
+        if group:
+            groups.append(group)
+
+        return groups
+
     @property
     def object_to_attach_logentries_to(self):
         """

@@ -2,12 +2,12 @@
 {% load i18n %}
 
 <ul class="list-group">
-    {% for log in obj.all_logentries %}
+    {% for log_group in obj.grouped_logentries %}
         <li class="list-group-item">
             <p>
-                <span class="fa fa-clock" aria-hidden="true"></span> {{ log.datetime|date:"SHORT_DATETIME_FORMAT" }}
-                {% if log.user %}
-                    {% if log.user.is_manager %}
+                <span class="fa fa-clock" aria-hidden="true"></span> {{ log_group.0.datetime|date:"SHORT_DATETIME_FORMAT" }}
+                {% if log_group.0.user %}
+                    {% if log_group.0.user.is_manager %}
                         <span class="fa fa-id-card fa-danger fa-fw"
                                 data-toggle="tooltip"
                                 title="{% trans "This change was performed by a manager." %}">
@@ -15,13 +15,15 @@
                     {% else %}
                         <span class="fa fa-user fa-fw"></span>
                     {% endif %}
-                    {{ log.user.full_name }}
+                    {{ log_group.0.user.full_name }}
                 {% endif %}
             </p>
 
-            <p>
-                {{ log.display }}
-            </p>
+            {% for log in log_group %}
+                <p>
+                    {{ log.display }}
+                </p>
+            {% endfor %}
         </li>
     {% endfor %}
 </ul>
