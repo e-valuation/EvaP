@@ -66,6 +66,7 @@ class LogEntry(models.Model):
                     field = model._meta.get_field(field_name)
                     label = getattr(field, "verbose_name", field_name)
                     if field.many_to_many or field.many_to_one or field.one_to_one:
+                        # TODO don't get these objects in a loop maybe?
                         related_objects = field.related_model.objects.filter(pk__in=items)
                         bool(related_objects)  # force queryset evaluation
                         items = [str(related_objects.get(pk=item)) if item is not None else "" for item in items]
@@ -95,11 +96,13 @@ class LogEntry(models.Model):
         else:
             cls = "object"
 
-        return render_to_string("log/changed_fields_entry.html", {
-            'message': message.format(
+        message = message.format(
                 cls=cls,
                 obj=f"\"{self.content_object!s}\"" if self.content_object else "",
-            ),
+        )
+
+        return render_to_string("log/changed_fields_entry.html", {
+            'message': message,
             'fields': self._evaluation_log_template_context(field_data),
         })
 
@@ -209,14 +212,12 @@ class LoggedModel(models.Model):
         if not changes:
             return
 
-        data = json.dumps(changes, default=log_serialize)
-
-        try:
-            user = self.thread.request.user
-        except AttributeError:
-            user = None
-
         if not self._logentry:
+            try:
+                user = self.thread.request.user
+            except AttributeError:
+                user = None
+            data = json.dumps(changes, default=log_serialize)
             self._logentry = LogEntry(
                     content_object=self,
                     attached_to_object=self.object_to_attach_logentries_to,
@@ -224,6 +225,9 @@ class LoggedModel(models.Model):
                     action_type=action,
                     data=data)
         else:
+            previous_changes = json.loads(self._logentry.data)
+            previous_changes.update(changes)
+            data = json.dumps(previous_changes, default=log_serialize)
             self._logentry.data = data
 
         if mode == "create":
