@@ -1,4 +1,5 @@
 from collections import OrderedDict, defaultdict
+from itertools import chain, repeat
 
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -291,8 +292,7 @@ def _write(exporter, label, style, rows, cols):
         exporter.sheet.write(exporter.row, exporter.col, label, style)
 
 
-class TextAnswerExcelExporter:
-    # pylint: disable=too-many-instance-attributes
+class TextAnswerExcelExporter(ExcelExporter):
 
     class InputData:
         def __init__(self, contribution_results):
@@ -306,7 +306,10 @@ class TextAnswerExcelExporter:
                         answers = [answer.answer for answer in result.answers]
                         self.questionnaires[q_type].append((contributor_name, result.question, answers))
 
+    default_sheet_name = _("Text Answers")
+
     def __init__(self, evaluation_name, semester_name, responsibles, results, contributor_name):
+        super().__init__()
         self.evaluation_name = evaluation_name
         self.semester_name = semester_name
         self.responsibles = responsibles
@@ -314,43 +317,25 @@ class TextAnswerExcelExporter:
         self.results = results
         self.contributor_name = contributor_name
 
-        self.styles = {
-            "default": xlwt.Style.default_style,
-            "border_top": xlwt.easyxf("borders: top medium"),
-        }
+    def export_impl(self):
+        self.cur_sheet.col(0).width = 10000
+        self.cur_sheet.col(1).width = 40000
 
-        self.workbook = xlwt.Workbook()
-        self.sheet = self.workbook.add_sheet(_("Text Answers"))
-        self.row = 0
-        self.col = 0
-        self.sheet.col(0).width = 10000
-        self.sheet.col(1).width = 40000
+        self.write_row([self.evaluation_name])
+        self.write_row([self.semester_name])
+        self.write_row([self.responsibles])
 
-    def export(self, response):
-        writec(self, self.evaluation_name, "default")
-        writen(self, self.semester_name, "default")
-        writen(self, self.responsibles, "default")
         if self.contributor_name is not None:
-            writen(self, _("Export for {}").format(self.contributor_name), "default")
+            self.write_row([_("Export for {}").format(self.contributor_name)])
 
         for questionnaire_type in Questionnaire.Type.values:
             # The first line of every questionnaire type should have an overline.
-            line_style = "border_top"
-
-            for (contributor_name, question, answers) in self.results.questionnaires[questionnaire_type]:
+            line_styles = chain(["border_top"], repeat("default"))
+            for contributor_name, question, answers in self.results.questionnaires[questionnaire_type]:
                 # The first line of every question should contain the
                 # question text and contributor name (if present).
-                first_cell = ""
-                if contributor_name:
-                    first_cell += f"{contributor_name}: "
-                first_cell += question.text
+                question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
+                first_col = chain([question_title], repeat(""))
 
-                for answer in answers:
-                    writen(self, first_cell, line_style)
-                    writec(self, answer, line_style)
-
-                    # after the first line, these should reset to their defaults
-                    first_cell = ""
-                    line_style = "default"
-
-        self.workbook.save(response)
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles):
+                    self.write_row([first_cell, answer], style=line_style)
