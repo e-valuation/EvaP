@@ -1,0 +1,28 @@
+{% load evaluation_filters %}
+
+{% if evaluation.state == 'prepared' or evaluation.state == 'editor_approved' %}
+    <span class="small text-secondary" data-toggle="tooltip" data-placement="left"
+        title="{% trans 'The evaluation is currently prepared by the lecturers and the evaluation team.' %} {% trans 'You will receive an email when the evaluation period begins.' %}">
+        <i>{% trans 'In preparation' %}</i>
+    </span>
+{% elif evaluation.state == 'approved' %}
+    <span class="small{%if evaluation.hours_until_evaluation < 12 %} text-primary{% endif %}" data-toggle="tooltip" data-placement="left"
+        title="{% trans 'Evaluation period' %}:<br />{{ evaluation.vote_start_datetime }} &ndash; {{ evaluation.vote_end_date }}<br /><br />{% trans 'You will receive an email when the evaluation period begins.' %}">
+        <span class="far fa-clock"></span>
+        {% trans 'Begins in' %} {{ evaluation.vote_start_datetime|timeuntil }}
+    </span>
+{% elif evaluation.state == 'in_evaluation' and not evaluation.voted_for %}
+    {% if evaluation.hours_left_for_evaluation < evaluation_end_warning_period %}
+        <span class="small badge badge-danger" data-toggle="tooltip" data-placement="left"
+            title="{% trans 'Evaluation period' %}:<br />{{ evaluation.vote_start_datetime }} &ndash; {{ evaluation.vote_end_date }}<br /><br />{% trans 'The evaluation period will end soon. You only have a few hours left.' %}">
+            <span class="far fa-clock"></span>
+            {% trans 'Ends in' %} {{ evaluation.vote_end_datetime|timeuntil }}
+        </span>
+    {% else %}
+        <span class="small{% if evaluation.display_hours_left_for_evaluation < 48 %} badge badge-warning{% endif %}" data-toggle="tooltip" data-placement="left"
+            title="{% trans 'Evaluation period' %}:<br />{{ evaluation.vote_start_datetime }} &ndash; {{ evaluation.vote_end_date }}">
+            <span class="far fa-clock"></span>
+            {% trans 'Ends in' %} {{ evaluation.display_vote_end_datetime|timeuntil }}
+        </span>
+    {% endif %}
+{% endif %}

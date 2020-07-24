@@ -48,15 +48,28 @@ def index(request):
     semester_list = [dict(
         semester_name=semester.name,
         id=semester.id,
-        is_active=semester.is_active,
         results_are_archived=semester.results_are_archived,
         grade_documents_are_deleted=semester.grade_documents_are_deleted,
         evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
+    unfinished_evaluations = list(Evaluation.objects.filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation']).exclude(voters=request.user))
+
+    # available evaluations come first, ordered by time left for evaluation and the name
+    # evaluations in other (visible) states follow by name
+    def sorter(evaluation):
+        return (
+            evaluation.state != 'in_evaluation',
+            evaluation.vote_end_date if evaluation.state == 'in_evaluation' else None,
+            evaluation.full_name
+        )
+    unfinished_evaluations.sort(key=sorter)
+
     template_data = dict(
         semester_list=semester_list,
         can_download_grades=request.user.can_download_grades,
+        unfinished_evaluations=unfinished_evaluations,
+        evaluation_end_warning_period=settings.EVALUATION_END_WARNING_PERIOD,
     )
 
     return render(request, "student_index.html", template_data)
