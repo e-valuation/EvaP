@@ -56,6 +56,18 @@
                 {% endfor %}
             </div>
             <div class="row mb-2">
+                <div class="col"></div>
+                <div class="col">
+                    <div class="badge badge-secondary-outline">Secondary Outline</div>
+                </div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+                <div class="col"></div>
+            </div>
+            <div class="row mb-2">
                 {% for color in theme_colors %}
                     <div class="col">
                         <div class="badge badge-pill badge-{{ color }}">{{ color|title }}</div>
@@ -229,6 +241,9 @@
                 </div>
                 <div class="col-3">
                     <div class="callout callout-warning">Warning</div>
+                </div>
+                <div class="col-3">
+                    <div class="callout callout-danger">Danger</div>
                 </div>
                 <div class="col-3">
                     <div id="exampleInfobox" class="callout callout-info callout-closable">
