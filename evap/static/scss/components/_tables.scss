@@ -147,3 +147,7 @@ tr.evaluation-row:not(.heading-row) {
         border: 1px solid $dark-gray;
     }
 }
+
+.table-headerless tr:first-child td {
+    border-top-width: 0;
+}
