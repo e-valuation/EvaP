@@ -129,7 +129,7 @@
                                                 {% elif evaluation.state == 'in_evaluation' and not evaluation.voted_for %}
                                                     {% if evaluation.days_left_for_evaluation < 0 %}
                                                         <span class="badge badge-danger">
-                                                            {% blocktrans with time_string=evaluation.time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}
+                                                            {% blocktrans with time_string=evaluation.display_time_left_for_evaluation|hours_and_minutes %}ends in {{ time_string }}h{% endblocktrans %}
                                                         </span>
                                                     {% elif evaluation.days_left_for_evaluation == 0 %}
                                                         <span class="badge badge-danger">{% trans 'ends today' %}</span>

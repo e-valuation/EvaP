@@ -96,12 +96,8 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         evaluation=evaluation,
         small_evaluation_size_warning=evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
-        vote_end_datetime=evaluation.vote_end_datetime,
-        hours_left_for_evaluation=evaluation.time_left_for_evaluation.seconds // 3600,
-        minutes_left_for_evaluation=(evaluation.time_left_for_evaluation.seconds // 60) % 60,
         success_magic_string=SUCCESS_MAGIC_STRING,
         success_redirect_url=reverse('student:index'),
-        evaluation_ends_soon=evaluation.evaluation_ends_soon(),
         for_rendering_in_modal=for_rendering_in_modal,
         general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
     )

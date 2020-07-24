@@ -478,8 +478,12 @@ class Evaluation(models.Model):
         return not self.unreviewed_textanswer_set.exists()
 
     @property
+    def display_vote_end_datetime(self):
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24)
+
+    @property
     def vote_end_datetime(self):
-        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
     @property
@@ -676,10 +680,23 @@ class Evaluation(models.Model):
         return (self.vote_end_date - date.today()).days
 
     @property
+    def display_time_left_for_evaluation(self):
+        return self.display_vote_end_datetime - datetime.now()
+
+    @property
     def time_left_for_evaluation(self):
         return self.vote_end_datetime - datetime.now()
 
-    def evaluation_ends_soon(self):
+    @property
+    def display_hours_left_for_evaluation(self):
+        return self.display_time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def hours_left_for_evaluation(self):
+        return self.time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def ends_soon(self):
         return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
@@ -688,6 +705,10 @@ class Evaluation(models.Model):
         if self.vote_start_datetime < datetime.now():
             days_left -= 1
         return days_left
+
+    @property
+    def hours_until_evaluation(self):
+        return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]

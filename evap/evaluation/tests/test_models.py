@@ -75,30 +75,30 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.state, 'published')
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
-    def test_evaluation_ends_soon(self):
+    def test_ends_soon(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() + timedelta(hours=24))
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today()
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=48)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
-    def test_evaluation_ends_soon_with_offset(self):
+    def test_ends_soon_with_offset(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=24)
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=72)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
