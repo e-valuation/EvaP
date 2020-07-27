@@ -1,7 +1,7 @@
 from django.utils.deprecation import MiddlewareMixin
 
 from .models import LoggedModel
-
+import uuid
 
 class LoggingRequestMiddleware(MiddlewareMixin):
     """Expose request to LoggedModel.
@@ -14,6 +14,7 @@ class LoggingRequestMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         LoggedModel.thread.request = request
+        LoggedModel.thread.request_id = str(uuid.uuid4())
 
     def process_response(self, request, response):
         if hasattr(LoggedModel.thread, "request"):

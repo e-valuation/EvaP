@@ -52,6 +52,7 @@ class LogEntry(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255)
+    request_id = models.CharField(max_length=36, null=True, blank=True)
     data = models.TextField(default="{}")
 
     class Meta:
@@ -208,8 +209,10 @@ class LoggedModel(models.Model):
             if not self._logentry:
                 try:
                     user = self.thread.request.user
+                    request_id = self.thread.request_id
                 except AttributeError:
                     user = None
+                    request_id = None
                 data = json.dumps(changes, default=log_serialize)
                 attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
                 attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
@@ -218,6 +221,7 @@ class LoggedModel(models.Model):
                         attached_to_object_type=attached_to_object_type,
                         attached_to_object_id=attached_to_object_id,
                         user=user,
+                        request_id=request_id,
                         action_type=action,
                         data=data)
             else:
@@ -260,21 +264,24 @@ class LoggedModel(models.Model):
 
     def grouped_logentries(self):
         """
-        Returns a list of lists of logentries. Logentries are grouped if they were at the same point in time by the same user.
+        Returns a list of lists of logentries. The order is not changed.
+        Logentries are grouped if they have a matching request_id.
+        If there was no request that led to the logentry, they are grouped in a ten second timeframe.
         """
         groups = []
         group = []
         for entry in self.all_logentries():
             if not group:
                 group.append(entry)
-                continue
-            user_matches = group[0].user == entry.user
-            time_matches = abs(group[0].datetime - entry.datetime) < timedelta(seconds=10)
-            if user_matches and time_matches:
+            elif entry.request_id is not None and group[0].request_id == entry.request_id:
                 group.append(entry)
             else:
-                groups.append(group)
-                group = [entry]
+                time_matches = abs(group[0].datetime - entry.datetime) < timedelta(seconds=10)
+                if entry.request_id is None and group[0].request_id is None and time_matches:
+                    group.append(entry)
+                else:
+                    groups.append(group)
+                    group = [entry]
 
         if group:
             groups.append(group)
