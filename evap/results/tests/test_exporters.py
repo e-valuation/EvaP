@@ -385,6 +385,19 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(12)[2], expected_average)
         self.assertEqual(sheet.row_values(12)[3], expected_average)
 
+    def test_yes_no_question_result(self):
+        degree = baker.make(Degree)
+        evaluation = baker.make(Evaluation, _voter_count=6, _participant_count=10, course__degrees=[degree], state="published")
+        questionnaire = baker.make(Questionnaire)
+        question = baker.make(Question, type=Question.POSITIVE_YES_NO, questionnaire=questionnaire)
+        # 1,5 are yes, no according to RatingAnswerCounter class definition
+        baker.make(RatingAnswerCounter, answer=1, count=4, question=question, contribution=evaluation.general_contribution)
+        baker.make(RatingAnswerCounter, answer=5, count=2, question=question, contribution=evaluation.general_contribution)
+        evaluation.general_contribution.questionnaires.set([questionnaire])
+
+        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        self.assertEqual(sheet.row_values(5)[0], question.text)
+        self.assertEqual(sheet.row_values(5)[1], "67%")
 
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
