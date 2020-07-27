@@ -1,5 +1,5 @@
-from collections import namedtuple, defaultdict
-from datetime import datetime, date, timedelta
+from collections import defaultdict, namedtuple
+from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 import itertools
 import json
@@ -8,8 +8,6 @@ import operator
 import secrets
 import threading
 import uuid
-from collections import defaultdict, namedtuple
-from datetime import date, datetime, time, timedelta
 
 from django.conf import settings
 from django.contrib import messages
