@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import json
 import logging
 import operator
@@ -62,26 +63,31 @@ class LogEntry(models.Model):
         fields = defaultdict(list)
         model = self.content_type.model_class()
         for field_name, actions in data.items():
+            field = model._meta.get_field(field_name)
+            try:
+                label = getattr(field, "verbose_name", field_name)
+            except FieldDoesNotExist:
+                label = field_name
+
+            if field.many_to_many or field.many_to_one or field.one_to_one:
+                related_ids = itertools.chain(*actions.values())
+                related_objects = field.related_model.objects.filter(pk__in=related_ids)
+                bool(related_objects)  # force queryset evaluation
+
             for field_action_type, items in actions.items():
-                try:
-                    field = model._meta.get_field(field_name)
-                    label = getattr(field, "verbose_name", field_name)
-                    if field.many_to_many or field.many_to_one or field.one_to_one:
-                        # TODO don't get these objects in a loop maybe?
-                        related_objects = field.related_model.objects.filter(pk__in=items)
-                        bool(related_objects)  # force queryset evaluation
-                        new_items = []
-                        for item in items:
-                            if item is None:
-                                new_items.append(None)
-                                continue
-                            try:
-                                new_items.append(str(related_objects.get(pk=item)))
-                            except field.related_model.DoesNotExist:
-                                new_items.append("�")
-                        items = new_items
-                except FieldDoesNotExist:
-                    label = field_name
+                if field.many_to_many or field.many_to_one or field.one_to_one:
+                    # Convert item values from primary keys to string-representation for special fields
+                    new_items = []
+                    for item in items:
+                        if item is None:
+                            new_items.append(item)
+                            continue
+                        try:
+                            new_items.append(str(related_objects.get(pk=item)))
+                        except field.related_model.DoesNotExist:
+                            # The referenced model instance was deleted
+                            new_items.append("�")
+                    items = new_items
                 fields[field_name].append(FieldAction(label.capitalize(), field_action_type, items))
         return dict(fields)
 
@@ -97,16 +103,9 @@ class LogEntry(models.Model):
             message = _("The {cls} {obj} was created.")
         elif self.action_type == 'delete':
             message = _("A {cls} was deleted.")
-        
-        if self.action_type == 'delete':
-            cls = ContentType.objects.get_for_id(field_data.pop('_content_type')).model_class()._meta.verbose_name_raw
-        elif self.content_object:
-            cls = type(self.content_object)._meta.verbose_name_raw
-        else:
-            cls = "object"
 
         message = message.format(
-                cls=cls,
+                cls=self.content_type.model_class()._meta.verbose_name_raw,
                 obj=f"\"{self.content_object!s}\"" if self.content_object else "",
         )
 
@@ -192,9 +191,6 @@ class LoggedModel(models.Model):
                 else:
                     action_items = [old_value]
                 changes[field_name] = {'delete': action_items}
-            changes.update({
-                "_content_type": ContentType.objects.get_for_model(type(self)).id
-            })
         else:
             raise ValueError("Unknown action type: '{}'".format(action_type))
 
