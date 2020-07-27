@@ -70,11 +70,19 @@ class LogEntry(models.Model):
                         # TODO don't get these objects in a loop maybe?
                         related_objects = field.related_model.objects.filter(pk__in=items)
                         bool(related_objects)  # force queryset evaluation
-                        items = [str(related_objects.get(pk=item)) if item is not None else "" for item in items]
+                        new_items = []
+                        for item in items:
+                            if item is None:
+                                new_items.append(None)
+                                continue
+                            try:
+                                new_items.append(str(related_objects.get(pk=item)))
+                            except field.related_model.DoesNotExist:
+                                new_items.append("�")
+                        items = new_items
                 except FieldDoesNotExist:
                     label = field_name
-                finally:
-                    fields[field_name].append(FieldAction(label.capitalize(), field_action_type, items))
+                fields[field_name].append(FieldAction(label.capitalize(), field_action_type, items))
         return dict(fields)
 
     def display(self):
