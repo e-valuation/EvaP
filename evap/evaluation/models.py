@@ -154,11 +154,6 @@ class LoggedModel(models.Model):
         if "pre" in action:
             instance.update_log("m2m")
 
-    @property
-    def ignore_field_names_logging(self):
-        """Specify a list of field names so that these fields don't get logged."""
-        return ['id', 'last_modified_time', 'last_modified_user', 'order']
-
     def _as_dict(self):
         fields = type(self)._meta.get_fields()
         fields = list(filter(lambda field: field.name not in self.ignore_field_names_logging, fields))
@@ -209,37 +204,39 @@ class LoggedModel(models.Model):
                 }[mode]
 
         changes = self._change_data(action)
-        if not changes:
-            return
+        if changes:
+            if not self._logentry:
+                try:
+                    user = self.thread.request.user
+                except AttributeError:
+                    user = None
+                data = json.dumps(changes, default=log_serialize)
+                attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
+                attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
+                self._logentry = LogEntry(
+                        content_object=self,
+                        attached_to_object_type=attached_to_object_type,
+                        attached_to_object_id=attached_to_object_id,
+                        user=user,
+                        action_type=action,
+                        data=data)
+            else:
+                previous_changes = json.loads(self._logentry.data)
+                previous_changes.update(changes)
+                data = json.dumps(previous_changes, default=log_serialize)
+                self._logentry.data = data
 
-        if not self._logentry:
-            try:
-                user = self.thread.request.user
-            except AttributeError:
-                user = None
-            data = json.dumps(changes, default=log_serialize)
-            self._logentry = LogEntry(
-                    content_object=self,
-                    attached_to_object=self.object_to_attach_logentries_to,
-                    user=user,
-                    action_type=action,
-                    data=data)
-        else:
-            previous_changes = json.loads(self._logentry.data)
-            previous_changes.update(changes)
-            data = json.dumps(previous_changes, default=log_serialize)
-            self._logentry.data = data
-
-        if mode == "create":
-            self._logentry.save()
+        if mode in ("create", "m2m"):
+            if changes:
+                self._logentry.save()
         elif mode == "change":
             super().save(*args, **kw)
-            self._logentry.save()
+            if changes:
+                self._logentry.save()
         elif mode == "delete":
-            self._logentry.save()
+            if changes:
+                self._logentry.save()
             super().delete(*args, **kw)
-        elif mode == "m2m":
-            self._logentry.save()
         else:
             raise ValueError("Unknown mode: '{}'".format(mode))
 
@@ -287,10 +284,15 @@ class LoggedModel(models.Model):
     @property
     def object_to_attach_logentries_to(self):
         """
-        Return a model instance for which this logentry should be shown. By default, show it to objects described
-        by the logentry itself.
+        Return a model class and primary key for the object for which this logentry should be shown.
+        By default, show it to objects described by the logentry itself.
         """
-        return self
+        return type(self), self.pk
+
+    @property
+    def ignore_field_names_logging(self):
+        """Specify a list of field names so that these fields don't get logged."""
+        return ['id', 'last_modified_time', 'last_modified_user', 'order']
 
 
 class NotArchiveable(Exception):
@@ -652,11 +654,6 @@ class Evaluation(LoggedModel):
     def __str__(self):
         return self.full_name
 
-    @property
-    def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ["voters"]
-
-
     def save(self, *args, **kw):
         super().save(*args, **kw)
 
@@ -989,6 +986,11 @@ class Evaluation(LoggedModel):
 
         logger.info("update_evaluations finished.")
 
+    @property
+    def ignore_field_names_logging(self):
+        return super().ignore_field_names_logging + ["voters"]
+
+
 
 @receiver(post_transition, sender=Evaluation)
 def course_was_published(instance, target, **_kwargs):
@@ -1041,10 +1043,7 @@ class Contribution(LoggedModel):
 
     @property
     def object_to_attach_logentries_to(self):
-        try:
-            return self.evaluation
-        except:  # TODO: needed for loading testdata, but wrong
-            return self
+        return Evaluation, self.evaluation_id
 
     def __str__(self):
         if self.contributor:
