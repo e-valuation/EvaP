@@ -3,10 +3,24 @@ from model_bakery import baker
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 
-from evap.contributor.forms import DelegatesForm, EditorContributionForm
+from evap.contributor.forms import DelegatesForm, EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
+
+
+class EvaluationFormTests(TestCase):
+    def test_fields_disabled_when_editors_disallowed_to_edit(self):
+        evaluation = baker.make(Evaluation)
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertFalse(all(form.fields[field].disabled for field in form.fields))
+
+        evaluation.allow_editors_to_edit = False
+        evaluation.save()
+
+        form = EvaluationForm(instance=evaluation)
+        self.assertTrue(all(form.fields[field].disabled for field in form.fields))
 
 
 class UserFormTests(TestCase):
@@ -15,10 +29,10 @@ class UserFormTests(TestCase):
         """
             Tests whether the settings form can be submitted without errors
         """
-        user = baker.make(UserProfile, username="testuser")
-        delegate = baker.make(UserProfile, username="delegate")
+        user = baker.make(UserProfile, email="testuser@institution.example.com")
+        delegate = baker.make(UserProfile, email="delegate@institution.example.com")
 
-        self.assertFalse(user.delegates.filter(username="delegate").exists())
+        self.assertFalse(user.delegates.filter(email="delegate@institution.example.com").exists())
 
         form_data = get_form_data_from_instance(DelegatesForm, user)
         form_data["delegates"] = [delegate.pk]  # add delegate
@@ -27,8 +41,8 @@ class UserFormTests(TestCase):
         self.assertTrue(form.is_valid())
         form.save()
 
-        user = UserProfile.objects.get(username="testuser")
-        self.assertTrue(user.delegates.filter(username="delegate").exists())
+        user = UserProfile.objects.get(email="testuser@institution.example.com")
+        self.assertTrue(user.delegates.filter(email="delegate@institution.example.com").exists())
 
 
 class ContributionFormsetTests(TestCase):
@@ -64,6 +78,36 @@ class ContributionFormsetTests(TestCase):
         expected = set([questionnaire, questionnaire_managers_only])
         self.assertEqual(expected, set(formset.forms[0].fields['questionnaires'].queryset))
         self.assertEqual(expected, set(formset.forms[1].fields['questionnaires'].queryset))
+
+    def test_locked_questionnaire(self):
+        """
+            Asserts that locked (general) questionnaires cannot be changed.
+        """
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
+        locked_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS)
+
+        evaluation = baker.make(Evaluation)
+        evaluation.general_contribution.questionnaires.add(questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk, locked_questionnaire.pk]  # add locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not added
+        form.save()
+        self.assertEqual({questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+
+        evaluation.general_contribution.questionnaires.add(locked_questionnaire)
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form_data["general_questionnaires"] = [questionnaire.pk]  # remove locked questionnaire
+
+        form = EvaluationForm(form_data, instance=evaluation)
+
+        # Assert form is valid, but locked questionnaire is not removed
+        form.save()
+        self.assertEqual({questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
 
     def test_existing_contributors_are_in_queryset(self):
         """
@@ -101,11 +145,27 @@ class ContributionFormsetWebTests(WebTest):
             Regression test for #456.
         """
         evaluation = baker.make(Evaluation, pk=1, state="prepared")
-        user1 = baker.make(UserProfile)
-        user2 = baker.make(UserProfile)
+        user1 = baker.make(UserProfile, email="user1@institution.example.com")
+        user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=1)
-        contribution2 = baker.make(Contribution, evaluation=evaluation, contributor=user2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire], order=2)
+        contribution1 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+            order=1,
+        )
+        contribution2 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+            order=2,
+        )
 
         # almost everything is missing in this set of data,
         # so we're guaranteed to have some errors

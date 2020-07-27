@@ -24,23 +24,25 @@ from evap.evaluation.auth import reviewer_required, manager_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionFormSet, CourseForm, CourseTypeForm,
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
+                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
-                              EvaluationForm, EvaluationParticipantCopyForm, ExportSheetForm, FaqQuestionForm,
-                              FaqSectionForm, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkDeleteForm,
+                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
+                              FaqQuestionForm,
+                              FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter
-from evap.staff.tools import (bulk_delete_users, delete_import_file, delete_navbar_cache_for_users,
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
+from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation)
+                              save_import_file, find_next_unreviewed_evaluation, ImportType)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -227,9 +229,12 @@ class MoveToPreparedOperation(EvaluationOperation):
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {'user': responsible, 'evaluations': responsible_evaluations}
-                editors = UserProfile.objects \
-                    .filter(contributions__evaluation__in=responsible_evaluations, contributions__can_edit=True) \
-                    .exclude(pk=responsible.pk)
+                editors = (UserProfile.objects
+                    .filter(
+                        contributions__evaluation__in=responsible_evaluations,
+                        contributions__role=Contribution.Role.EDITOR,
+                    )
+                    .exclude(pk=responsible.pk))
                 email_template.send_to_user(responsible, subject_params={}, body_params=body_params,
                                             use_cc=True, additional_cc_users=editors, request=request)
 
@@ -401,6 +406,21 @@ def semester_create(request):
     return render(request, "staff_semester_form.html", dict(form=form))
 
 
+@require_POST
+@manager_required
+@transaction.atomic
+def semester_make_active(request):
+    semester_id = request.POST.get("semester_id")
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    Semester.objects.update(is_active=None)
+
+    semester.is_active = True
+    semester.save()
+
+    return HttpResponse()
+
+
 @manager_required
 def semester_edit(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -439,9 +459,9 @@ def semester_import(request, semester_id):
         raise PermissionDenied
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    import_type = 'semester'
+    import_type = ImportType.Semester
 
-    errors = []
+    errors = {}
     warnings = {}
     success_messages = []
 
@@ -452,7 +472,7 @@ def semester_import(request, semester_id):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -462,7 +482,8 @@ def semester_import(request, semester_id):
 
         elif operation == 'import':
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            excel_form.vote_dates_required = True
+            excel_form.fields['vote_start_datetime'].required = True
+            excel_form.fields['vote_end_date'].required = True
             if excel_form.is_valid():
                 vote_start_datetime = excel_form.cleaned_data['vote_start_datetime']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
@@ -475,7 +496,7 @@ def semester_import(request, semester_id):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_semester_import.html", dict(semester=semester,
-        success_messages=success_messages, errors=errors, warnings=dict(warnings),
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
         excel_form=excel_form, test_passed=test_passed))
 
 
@@ -494,8 +515,8 @@ def semester_export(request, semester_id):
             selection_list.append((form.cleaned_data['selected_degrees'], form.cleaned_data['selected_course_types']))
 
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
-        response = HttpResponse(content_type="application/vnd.ms-excel")
-        response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+        response = FileResponse(filename, content_type="application/vnd.ms-excel")
+
         ExcelExporter().export(
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
@@ -509,8 +530,7 @@ def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
@@ -531,14 +551,13 @@ def semester_raw_export(_request, semester_id):
 @manager_required
 def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("username")
+    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    writer.writerow([_('Username'), _('Can use reward points'), _('#Required evaluations voted for'),
+    writer.writerow([_('Email'), _('Can use reward points'), _('#Required evaluations voted for'),
         _('#Required evaluations'), _('#Optional evaluations voted for'), _('#Optional evaluations'), _('Earned reward points')])
     for participant in participants:
         number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
@@ -547,7 +566,7 @@ def semester_participation_export(_request, semester_id):
         number_of_optional_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=False).count()
         earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
         writer.writerow([
-            participant.username, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
+            participant.email, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
             number_of_required_evaluations, number_of_optional_evaluations_voted_for, number_of_optional_evaluations,
             earned_reward_points
         ])
@@ -609,7 +628,11 @@ def semester_preparation_reminder(request, semester_id):
 def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    courses = semester.courses.filter(evaluations__state__in=['evaluated', 'reviewed', 'published'], is_graded=True, gets_no_grade_documents=False).distinct()
+    courses = semester.courses.filter(
+        evaluations__state__in=['evaluated', 'reviewed', 'published'],
+        evaluations__wait_for_grade_upload_before_publishing=True,
+        gets_no_grade_documents=False
+    ).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
     courses.sort(key=lambda course: course.name)
 
@@ -786,6 +809,37 @@ def evaluation_create(request, semester_id, course_id=None):
 
 
 @manager_required
+def evaluation_copy(request, semester_id, evaluation_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
+
+    form = EvaluationCopyForm(request.POST or None, evaluation)
+
+    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionCopyFormSet,
+                                                      form=ContributionCopyForm, extra=1)
+    formset = InlineContributionFormset(request.POST or None, instance=evaluation, new_instance=form.instance)
+
+    if form.is_valid() and formset.is_valid():
+        copied_evaluation = form.save()
+        copied_evaluation.set_last_modified(request.user)
+        copied_evaluation.save()
+        formset.save()
+        update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
+
+        messages.success(request, _("Successfully created evaluation."))
+        return redirect('staff:semester_view', semester_id)
+
+    return render(request, "staff_evaluation_form.html", dict(
+        semester=semester,
+        evaluation_form=form,
+        formset=formset,
+        manager=True,
+        editable=True,
+        state="",
+    ))
+
+
+@manager_required
 def single_result_create(request, semester_id, course_id=None):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
@@ -832,8 +886,8 @@ def helper_evaluation_edit(request, semester, evaluation):
         for granting in grantings:
             messages.info(request,
                 ngettext(
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward point for the semester.',
-                    'The removal as participant has granted the user "{granting.user_profile.username}" {granting.value} reward points for the semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
+                    'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
                     granting.value
                 ).format(granting=granting)
             )
@@ -955,8 +1009,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
     contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None)
     contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None)
 
-    errors = []
-    warnings = defaultdict(list)
+    errors = {}
+    warnings = {}
     success_messages = []
 
     if request.method == "POST":
@@ -965,13 +1019,13 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = 'participant' if 'participants' in operation else 'contributor'
+        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
         if 'test' in operation:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -994,13 +1048,13 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
-    participant_test_passed = import_file_exists(request.user.id, 'participant')
-    contributor_test_passed = import_file_exists(request.user.id, 'contributor')
+    participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
         contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
-        success_messages=success_messages, warnings=dict(warnings), errors=errors,
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
         participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
 
 
@@ -1010,9 +1064,7 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
     filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(evaluation=evaluation, semester=semester)
-
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_('Last name'), _('First name'), _('Email'), _('Login key')])
@@ -1222,7 +1274,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ['visibility', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+        editable_fields = ['visibility', 'is_locked', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
 
         for name, field in form.fields.items():
             if name not in editable_fields:
@@ -1375,11 +1427,23 @@ def questionnaire_visibility(request):
     return HttpResponse()
 
 
+@require_POST
+@manager_required
+def questionnaire_set_locked(request):
+    questionnaire_id = request.POST.get("questionnaire_id")
+    is_locked = bool(int(request.POST.get("is_locked")))
+    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire.is_locked = is_locked
+    questionnaire.save()
+    return HttpResponse()
+
+
 @manager_required
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, can_delete=True, extra=1)
+    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet,
+                                         can_delete=True, extra=1)
     formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -1394,7 +1458,8 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, can_delete=True, extra=1)
+    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet,
+                                             can_delete=True, extra=1)
     formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
@@ -1423,6 +1488,8 @@ def course_type_merge(request, main_type_id, other_type_id):
     other_type = get_object_or_404(CourseType, id=other_type_id)
 
     if request.method == 'POST':
+        main_type.import_names += other_type.import_names
+        main_type.save()
         Course.objects.filter(type=other_type).update(type=main_type)
         other_type.delete()
         messages.success(request, _("Successfully merged course types."))
@@ -1450,7 +1517,7 @@ def user_index(request):
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
         .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for')
-        .order_by('last_name', 'first_name', 'username'))
+        .order_by('last_name', 'first_name', 'email'))
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
@@ -1470,9 +1537,9 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    import_type = 'user'
+    import_type = ImportType.User
 
-    errors = []
+    errors = {}
     warnings = {}
     success_messages = []
 
@@ -1483,7 +1550,7 @@ def user_import(request):
 
         if operation == 'test':
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
-            excel_form.excel_file_required = True
+            excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
@@ -1501,7 +1568,8 @@ def user_import(request):
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_user_import.html", dict(excel_form=excel_form,
-        success_messages=success_messages, warnings=dict(warnings), errors=errors, test_passed=test_passed))
+        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
+        test_passed=test_passed))
 
 
 @manager_required
@@ -1513,8 +1581,8 @@ def user_edit(request, user_id):
 
         messages.info(request,
             ngettext(
-                'The removal of evaluations has granted the user "{granting.user_profile.username}" {granting.value} reward point for the active semester.',
-                'The removal of evaluations has granted the user "{granting.user_profile.username}" {granting.value} reward points for the active semester.',
+                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
+                'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
                 grantings[0].value
             ).format(granting=grantings[0])
         )
@@ -1548,23 +1616,40 @@ def user_delete(request):
 
 
 @manager_required
-def user_bulk_delete(request):
-    form = UserBulkDeleteForm(request.POST or None, request.FILES or None)
+def user_bulk_update(request):
+    form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
+    test_run = operation == 'test'
+    import_type = ImportType.UserBulkUpdate
 
-    if form.is_valid():
-        if operation not in ('test', 'bulk_delete'):
+    if request.POST:
+        if operation not in ('test', 'bulk_update'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        test_run = operation == 'test'
-        username_file = form.cleaned_data['username_file']
-        bulk_delete_users(request, username_file, test_run)
-
         if test_run:
-            return render(request, "staff_user_bulk_delete.html", dict(form=form))
-        return redirect('staff:user_index')
+            delete_import_file(request.user.id, import_type)  # remove old files if still exist
+            form.fields['user_file'].required = True
+            if form.is_valid():
+                user_file = form.cleaned_data['user_file']
+                file_content = user_file.read()
+                success = False
+                try:
+                    success = bulk_update_users(request, file_content, test_run)
+                except Exception:  # pylint: disable=broad-except
+                    if settings.DEBUG:
+                        raise
+                    messages.error(request, _("An error happened when processing the file. Make sure the file meets the requirements."))
 
-    return render(request, "staff_user_bulk_delete.html", dict(form=form))
+                if success:
+                    save_import_file(user_file, request.user.id, import_type)
+        else:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            bulk_update_users(request, file_content, test_run)
+            delete_import_file(request.user.id, import_type)
+            return redirect('staff:user_index')
+
+    test_passed = import_file_exists(request.user.id, import_type)
+    return render(request, "staff_user_bulk_update.html", dict(form=form, test_passed=test_passed))
 
 
 @manager_required
@@ -1659,8 +1744,7 @@ def download_sample_xls(_request, filename):
                 if email_placeholder in value:
                     write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
 
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     write_book.save(response)
     return response
 

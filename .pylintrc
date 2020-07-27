@@ -78,9 +78,8 @@ disable=locally-disabled,            # we allow locally disabling some checks if
 #
 # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
         arguments-differ,            # currently, if a method takes *args and **kwargs and passes them to the super method,
-                                     # pylint compains - see https://github.com/PyCQA/pylint/pull/3001
-        redeclared-assigned-name,    # currently, __, a, __ = some_method() does not work
-                                     # see https://github.com/PyCQA/pylint/issues/3341
+                                     # pylint complains - see https://github.com/PyCQA/pylint/pull/3001
+        signature-differs,           # same thing as arguments-differ
 
 
 [REPORTS]

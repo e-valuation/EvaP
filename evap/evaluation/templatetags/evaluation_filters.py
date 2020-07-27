@@ -4,7 +4,7 @@ from django.forms import TypedChoiceField
 from django.template import Library
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.models import BASE_UNIPOLAR_CHOICES
+from evap.evaluation.models import BASE_UNIPOLAR_CHOICES, Contribution
 from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
 
@@ -186,4 +186,11 @@ def hours_and_minutes(time_left_for_evaluation):
 
 @register.filter
 def has_nonresponsible_editor(evaluation):
-    return evaluation.contributions.filter(can_edit=True).exclude(contributor__in=evaluation.course.responsibles.all()).exists()
+    return (evaluation.contributions.filter(role=Contribution.Role.EDITOR)
+        .exclude(contributor__in=evaluation.course.responsibles.all())
+        .exists())
+
+
+@register.filter
+def order_by(iterable, attribute):
+    return sorted(iterable, key=lambda item: getattr(item, attribute))

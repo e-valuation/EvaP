@@ -21,13 +21,13 @@
                         </div>
                     {% else %}
                         <p class="card-text">
-                            {% trans 'Log in using username and password.' %}
+                            {% trans 'Log in using email and password.' %}
                         </p>
                         <form class="d-flex flex-column" role="form"
                             action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="submit_type" value="login_username" />
-                            {% for field in login_username_form %}
+                            <input type="hidden" name="submit_type" value="login_email" />
+                            {% for field in login_email_form %}
                                 {% include 'bootstrap_form_field.html' with field=field wide=True %}
                             {% endfor %}
                             <div class="d-flex justify-content-center">
@@ -85,6 +85,6 @@
 
 {% block additional_javascript %}
     <script type="text/javascript">
-        $("#id_username").focus();
+        $("#id_email").focus();
     </script>
 {% endblock %}

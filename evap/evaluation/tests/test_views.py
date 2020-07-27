@@ -13,10 +13,10 @@ class TestIndexView(WebTest):
 
     def test_passworduser_login(self):
         """ Tests whether a user can login with an incorrect and a correct password. """
-        baker.make(UserProfile, username='password.user', password=make_password('evap'))
+        baker.make(UserProfile, email='password.user', password=make_password('evap'))
         response = self.app.get(self.url)
         password_form = response.forms[0]
-        password_form['username'] = 'password.user'
+        password_form['email'] = 'password.user'
         password_form['password'] = 'asd'
         self.assertEqual(password_form.submit().status_code, 200)
         password_form['password'] = 'evap'
@@ -53,8 +53,12 @@ class TestContactEmail(WebTest):
     csrf_checks = False
 
     def test_sends_mail(self):
-        user = baker.make(UserProfile)
-        self.app.post('/contact', params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'}, user=user.username)
+        user = baker.make(UserProfile, email="user@institution.example.com")
+        self.app.post(
+            '/contact',
+            params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'},
+            user=user,
+        )
         self.assertEqual(len(mail.outbox), 1)
 
 
@@ -63,9 +67,9 @@ class TestChangeLanguageView(WebTest):
     csrf_checks = False
 
     def test_changes_language(self):
-        user = baker.make(UserProfile, username='tester', language='de')
+        user = baker.make(UserProfile, email='tester@institution.example.com', language='de')
 
-        self.app.post(self.url, params={'language': 'en'}, user='tester')
+        self.app.post(self.url, params={'language': 'en'}, user=user)
 
         user.refresh_from_db()
         self.assertEqual(user.language, 'en')

@@ -1,7 +1,6 @@
 import datetime
 import os
-import glob
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -17,16 +16,20 @@ import xlrd
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqSection,
                                     FaqQuestion, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check, make_manager
 from evap.rewards.models import SemesterActivation, RewardPointGranting
-from evap.staff.tools import generate_import_filename
+from evap.staff.tools import generate_import_filename, ImportType
+from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
 from evap.staff.views import get_evaluations_with_prefetched_data
 
 
 def helper_delete_all_import_files(user_id):
-    file_filter = generate_import_filename(user_id, "*")
-    for filename in glob.glob(file_filter):
-        os.remove(filename)
+    for import_type in ImportType:
+        filename = generate_import_filename(user_id, import_type)
+        try:
+            os.remove(filename)
+        except FileNotFoundError:
+            pass
 
 
 class TestDownloadSampleXlsView(WebTest):
@@ -35,10 +38,10 @@ class TestDownloadSampleXlsView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_sample_file_correctness(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         found_institution_domains = 0
         book = xlrd.open_workbook(file_contents=page.body)
@@ -54,30 +57,28 @@ class TestDownloadSampleXlsView(WebTest):
 
 
 class TestStaffIndexView(WebTestWith200Check):
-    test_users = ['manager']
     url = '/staff/'
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.test_users = [make_manager()]
 
 
 class TestStaffFAQView(WebTestWith200Check):
     url = '/staff/faq/'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.test_users = [make_manager()]
 
 
 class TestStaffFAQEditView(WebTestWith200Check):
     url = '/staff/faq/1'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.test_users = [make_manager()]
+
         section = baker.make(FaqSection, pk=1)
         baker.make(FaqQuestion, section=section)
 
@@ -87,7 +88,7 @@ class TestUserIndexView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_num_queries_is_constant(self):
         """
@@ -98,11 +99,17 @@ class TestUserIndexView(WebTest):
         semester = baker.make(Semester, participations_are_archived=True)
 
         # this triggers more checks in UserProfile.can_be_deleted_by_manager
-        evaluation = baker.make(Evaluation, state="published", course=baker.make(Course, semester=semester), _participant_count=1, _voter_count=1)
+        evaluation = baker.make(
+            Evaluation,
+            state="published",
+            course__semester=semester,
+            _participant_count=1,
+            _voter_count=1,
+        )
         baker.make(UserProfile, _quantity=num_users, evaluations_participating_in=[evaluation])
 
         with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
-            self.app.get(self.url, user="manager")
+            self.app.get(self.url, user=self.manager)
 
 
 class TestUserCreateView(WebTest):
@@ -110,19 +117,18 @@ class TestUserCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_user_is_created(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["username"] = "mflkd862xmnbo5"
         form["first_name"] = "asd"
         form["last_name"] = "asd"
         form["email"] = "a@b.de"
 
         form.submit()
 
-        self.assertEqual(UserProfile.objects.order_by("pk").last().username, "mflkd862xmnbo5")
+        self.assertEqual(UserProfile.objects.order_by("pk").last().email, "a@b.de")
 
 
 @override_settings(REWARD_POINTS=[
@@ -135,24 +141,24 @@ class TestUserEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         baker.make(UserProfile, pk=3)
 
     def test_questionnaire_edit(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
-        form["username"] = "lfo9e7bmxp1xi"
+        form["email"] = "lfo9e7bmxp1xi@institution.example.com"
         form.submit()
-        self.assertTrue(UserProfile.objects.filter(username='lfo9e7bmxp1xi').exists())
+        self.assertTrue(UserProfile.objects.filter(email='lfo9e7bmxp1xi@institution.example.com').exists())
 
     def test_reward_points_granting_message(self):
-        evaluation = baker.make(Evaluation)
+        evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
         SemesterActivation.objects.create(semester=evaluation.course.semester, is_active=True)
         student = baker.make(UserProfile, email="foo@institution.example.com",
             evaluations_participating_in=[evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
 
-        page = self.app.get(reverse('staff:user_edit', args=[student.pk]), user='manager', status=200)
+        page = self.app.get(reverse('staff:user_edit', args=[student.pk]), user=self.manager, status=200)
         form = page.forms['user-form']
         form['evaluations_participating_in'] = [already_evaluated.pk]
 
@@ -161,88 +167,180 @@ class TestUserEditView(WebTest):
         student.refresh_from_db()
 
         self.assertIn("Successfully updated user.", page)
-        self.assertIn("The removal of evaluations has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.username), page)
+        self.assertIn("The removal of evaluations has granted the user &quot;{}&quot; 3 reward points for the active semester.".format(student.email), page)
 
 
 class TestUserMergeSelectionView(WebTestWith200Check):
     url = "/staff/user/merge"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.test_users = [make_manager()]
+
         baker.make(UserProfile)
 
 
 class TestUserMergeView(WebTestWith200Check):
     url = "/staff/user/3/merge/4"
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        baker.make(UserProfile, pk=3)
-        baker.make(UserProfile, pk=4)
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
+
+        cls.main_user = baker.make(UserProfile, pk=3)
+        cls.other_user = baker.make(UserProfile, pk=4)
+
+    def test_shows_evaluations_participating_in(self):
+        evaluation = baker.make(Evaluation, name_en="The journey of unit-testing", participants=[self.main_user])
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, evaluation.name_en, count=2,
+                            msg_prefix="The evaluation name should be displayed twice: "
+                                       "in the column of the participant and in the column of the merged data")
+
+    def test_shows_evaluations_voted_for(self):
+        evaluation = baker.make(Evaluation, name_en="Voting theory", voters=[self.main_user])
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertContains(page, evaluation.name_en, count=2,
+                            msg_prefix="The evaluation name should be displayed twice: "
+                                       "in the column of the voter and in the column of the merged data")
 
 
-class TestUserBulkDeleteView(WebTest):
-    url = '/staff/user/bulk_delete'
-    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_delete_file.txt')
+class TestUserBulkUpdateView(WebTest):
+    url = '/staff/user/bulk_update'
+    filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_update_file.txt')
+    filename_random = os.path.join(settings.BASE_DIR, 'staff/fixtures/random.random')
+    filename_xls = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_enrollment_data.xls')
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_testrun_deletes_no_users(self):
-        page = self.app.get(self.url, user='manager')
-        form = page.forms['user-bulk-delete-form']
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms['user-bulk-update-form']
 
-        form['username_file'] = (self.filename,)
+        form['user_file'] = (self.filename,)
 
         baker.make(UserProfile, is_active=False)
-        users_before = UserProfile.objects.count()
+        users_before = set(UserProfile.objects.all())
 
         reply = form.submit(name='operation', value='test')
 
-        # Not getting redirected after.
         self.assertEqual(reply.status_code, 200)
         # No user got deleted.
-        self.assertEqual(users_before, UserProfile.objects.count())
+        self.assertEqual(users_before, set(UserProfile.objects.all()))
 
-    def test_deletes_users(self):
-        baker.make(UserProfile, username='testuser1')
-        baker.make(UserProfile, username='testuser2')
+        helper_delete_all_import_files(self.manager.id)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
+    def test_multiple_email_matches_trigger_error(self):
+        baker.make(UserProfile, email='testremove@institution.example.com')
+        baker.make(UserProfile, first_name="Elisabeth", last_name="Fröhlich", email='testuser1@institution.example.com')
+
+        error_string = (
+            'Multiple users match the email testuser1@institution.example.com:'
+            + '<br />Elisabeth Fröhlich (testuser1@institution.example.com)'
+            + '<br />Tony Kuchenbuch (testuser1@internal.example.com)'
+        )
+        button_substring = 'value="bulk_update"'
+
+        expected_users = set(UserProfile.objects.all())
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["user-bulk-update-form"]
+        form["user_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
+
+        self.assertIn(button_substring, response)
+        self.assertNotIn(error_string, response)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+
+        new_user = baker.make(UserProfile, first_name="Tony", last_name="Kuchenbuch", email='testuser1@internal.example.com')
+        expected_users.add(new_user)
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["user-bulk-update-form"]
+        form["user_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
+
+        self.assertNotIn(button_substring, response)
+        self.assertIn(error_string, response)
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
+
+    @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
+    def test_handles_users(self):
+        baker.make(UserProfile, email='testuser1@institution.example.com')
+        baker.make(UserProfile, email='testuser2@institution.example.com')
+        baker.make(UserProfile, email='testupdate@institution.example.com')
         contribution1 = baker.make(Contribution)
         semester = baker.make(Semester, participations_are_archived=True)
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester), _participant_count=0, _voter_count=0)
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester),
+            _participant_count=0,
+            _voter_count=0,
+        )
         contribution2 = baker.make(Contribution, evaluation=evaluation)
-        baker.make(UserProfile, username='contributor1', contributions=[contribution1])
-        baker.make(UserProfile, username='contributor2', contributions=[contribution2])
+        baker.make(UserProfile, email='contributor1@institution.example.com', contributions=[contribution1])
+        baker.make(UserProfile, email='contributor2@institution.example.com', contributions=[contribution2])
 
-        page = self.app.get(self.url, user='manager')
-        form = page.forms["user-bulk-delete-form"]
+        expected_users = set(UserProfile.objects.exclude(email='testuser2@institution.example.com'))
 
-        form["username_file"] = (self.filename,)
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms["user-bulk-update-form"]
+        form["user_file"] = (self.filename,)
+        response = form.submit(name="operation", value="test")
 
-        user_count_before = UserProfile.objects.count()
+        self.assertIn(
+            '1 will be updated, 1 will be deleted and 1 will be marked inactive. 1 new users will be created.',
+            response
+        )
+        self.assertIn('testupdate@institution.example.com > testupdate@internal.example.com', response)
 
-        reply = form.submit(name="operation", value="bulk_delete")
+        form = response.forms["user-bulk-update-form"]
+        response = form.submit(name="operation", value="bulk_update")
 
-        # Getting redirected after.
-        self.assertEqual(reply.status_code, 302)
+        # testuser1 is in the file and must not be deleted
+        self.assertTrue(UserProfile.objects.filter(email='testuser1@institution.example.com').exists())
+        # testuser2 is not in the file and must be deleted
+        self.assertFalse(UserProfile.objects.filter(email='testuser2@institution.example.com').exists())
+        # manager is not in the file but still must not be deleted
+        self.assertTrue(UserProfile.objects.filter(email='manager@institution.example.com').exists())
+        # testusernewinternal is a new internal user and should be created
+        self.assertTrue(UserProfile.objects.filter(email='testusernewinternal@institution.example.com').exists())
+        expected_users.add(UserProfile.objects.get(email='testusernewinternal@institution.example.com'))
+        # testusernewexternal is an external user and should not be created
+        self.assertFalse(UserProfile.objects.filter(email='testusernewexternal@example.com').exists())
+        # testupdate should have been renamed
+        self.assertFalse(UserProfile.objects.filter(email='testupdate@institution.example.com').exists())
+        self.assertTrue(UserProfile.objects.filter(email='testupdate@internal.example.com').exists())
 
-        # Assert only one user got deleted and one was marked inactive
-        self.assertTrue(UserProfile.objects.filter(username='testuser1').exists())
-        self.assertFalse(UserProfile.objects.filter(username='testuser2').exists())
-        self.assertTrue(UserProfile.objects.filter(username='manager').exists())
+        # contributor1 should still be active, contributor2 should have been set to inactive
+        self.assertTrue(UserProfile.objects.get(email='contributor1@institution.example.com').is_active)
+        self.assertFalse(UserProfile.objects.get(email='contributor2@institution.example.com').is_active)
+        # all should be active except for contributor2
+        self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 1)
 
-        self.assertTrue(UserProfile.objects.filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.exclude(is_active=False).filter(username='contributor1').exists())
-        self.assertTrue(UserProfile.objects.filter(username='contributor2').exists())
-        self.assertFalse(UserProfile.objects.exclude(is_active=False).filter(username='contributor2').exists())
+        self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
-        self.assertEqual(UserProfile.objects.count(), user_count_before - 1)
-        self.assertEqual(UserProfile.objects.exclude(is_active=False).count(), user_count_before - 2)
+    @override_settings(DEBUG=False)
+    def test_wrong_files_dont_crash(self):
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms['user-bulk-update-form']
+        form['user_file'] = (self.filename_random,)
+        reply = form.submit(name='operation', value='test')
+        self.assertEqual(reply.status_code, 200)
+        self.assertIn("An error happened when processing the file", reply)
+
+        page = self.app.get(self.url, user=self.manager)
+        form = page.forms['user-bulk-update-form']
+        form['user_file'] = (self.filename_xls,)
+        reply = form.submit(name='operation', value='test')
+        self.assertEqual(reply.status_code, 200)
+        self.assertIn("An error happened when processing the file", reply)
 
 
 class TestUserImportView(WebTest):
@@ -253,13 +351,13 @@ class TestUserImportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+        cls.manager = make_manager()
 
     def test_success_handling(self):
         """
         Tests whether a correct excel file is correctly tested and imported and whether the success messages are displayed
         """
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-import-form"]
         form["excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test")
@@ -270,14 +368,14 @@ class TestUserImportView(WebTest):
         form = page.forms["user-import-form"]
         form.submit(name="operation", value="import")
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_error_handling(self):
         """
         Tests whether errors given from the importer are displayed
         """
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         original_user_count = UserProfile.objects.count()
 
@@ -298,7 +396,7 @@ class TestUserImportView(WebTest):
         """
         baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -308,10 +406,10 @@ class TestUserImportView(WebTest):
                 " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
                 " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
-        helper_delete_all_import_files(self.user.id)
+        helper_delete_all_import_files(self.manager.id)
 
     def test_suspicious_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -322,16 +420,16 @@ class TestUserImportView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_invalid_upload_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
         reply = form.submit(name="operation", value="import", expect_errors=True)
@@ -345,49 +443,95 @@ class TestSemesterView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
-        cls.evaluation1 = baker.make(Evaluation, name_de="Evaluation 1", name_en="Evaluation 1",
-            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester))
-        cls.evaluation2 = baker.make(Evaluation, name_de="Evaluation 2", name_en="Evaluation 2",
-            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester))
+        cls.evaluation1 = baker.make(
+            Evaluation,
+            name_de="Evaluation 1",
+            name_en="Evaluation 1",
+            course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester),
+        )
+        cls.evaluation2 = baker.make(
+            Evaluation,
+            name_de="Evaluation 2",
+            name_en="Evaluation 2",
+            course=baker.make(Course, name_de="B", name_en="A", semester=cls.semester),
+        )
 
     def test_view_list_sorting(self):
-        UserProfile.objects.filter(username='manager').update(language='en')
-        page = self.app.get(self.url, user='manager').body.decode("utf-8")
+        self.manager.language = 'en'
+        self.manager.save()
+        page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         self.assertGreater(position_evaluation1, position_evaluation2)
         self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
 
-        UserProfile.objects.filter(username='manager').update(language='de')
-        page = self.app.get(self.url, user='manager').body.decode("utf-8")
+        self.manager.language = 'de'
+        self.manager.save()
+        page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
         self.assertLess(position_evaluation1, position_evaluation2)
 
     def test_access_to_semester_with_archived_results(self):
-        baker.make(UserProfile, username='reviewer', groups=[Group.objects.get(name='Reviewer')])
+        reviewer = baker.make(
+            UserProfile,
+            email='reviewer@institution.example.com',
+            groups=[Group.objects.get(name='Reviewer')],
+        )
         baker.make(Semester, pk=2, results_are_archived=True)
 
         # reviewers shouldn't be allowed to access the semester page
-        self.app.get('/staff/semester/2', user='reviewer', status=403)
+        self.app.get('/staff/semester/2', user=reviewer, status=403)
 
         # managers can access the page
-        self.app.get('/staff/semester/2', user='manager', status=200)
+        self.app.get('/staff/semester/2', user=self.manager, status=200)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com"])
     def test_badge_for_external_responsibles(self):
         responsible = baker.make(UserProfile, email='a@institution.com')
         course = baker.make(Course, semester=self.semester, responsibles=[responsible])
         baker.make(Evaluation, course=course)
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         self.assertNotContains(response, 'External responsible')
 
         responsible.email = 'r@external.com'
         responsible.save()
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, 'External responsible')
+
+    @patch("evap.evaluation.models.Evaluation.textanswer_review_state", new_callable=PropertyMock)
+    def test_textanswer_review_state_tags(self, textanswer_review_state_mock):
+        """ Regression test for #1465 """
+
+        evaluation = baker.make(
+            Evaluation,
+            state="in_evaluation",
+            can_publish_text_results=True,
+            course__semester=self.semester,
+        )
+        baker.make(TextAnswer, contribution=evaluation.general_contribution)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
+        expected_count = page.body.decode().count('no_textanswers')
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_NEEDED
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
+        # + 1 because the buttons at the top of the page contain it two times (once for _urgent)
+        self.assertEqual(page.body.decode().count('unreviewed_textanswers'), expected_count + 1)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_URGENT
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
+        self.assertEqual(page.body.decode().count('unreviewed_textanswers_urgent'), expected_count)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEWED
+        page = self.app.get(f'/staff/semester/{evaluation.course.semester.id}', user=self.manager)
+        self.assertEqual(page.body.decode().count('textanswers_reviewed'), expected_count)
+        self.assertEqual(page.body.decode().count('no_textanswers'), 1)
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
@@ -402,7 +546,7 @@ class TestSemesterCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_create(self):
         name_de = 'name_de'
@@ -410,7 +554,7 @@ class TestSemesterCreateView(WebTest):
         name_en = 'name_en'
         short_name_en = 'short_name_en'
 
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         form = response.forms['semester-form']
         form['name_de'] = name_de
         form['short_name_de'] = short_name_de
@@ -426,7 +570,7 @@ class TestSemesterEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1, name_de='old_name', name_en='old_name')
 
     def test_name_change(self):
@@ -435,7 +579,7 @@ class TestSemesterEditView(WebTest):
         self.assertNotEqual(self.semester.name_de, new_name_de)
         self.assertNotEqual(self.semester.name_en, new_name_en)
 
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         form = response.forms['semester-form']
         form['name_de'] = new_name_de
         form['name_en'] = new_name_en
@@ -452,20 +596,26 @@ class TestSemesterDeleteView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_failure(self):
         semester = baker.make(Semester)
-        baker.make(Evaluation, course=baker.make(Course, semester=semester), state='in_evaluation', voters=[baker.make(UserProfile)])
+        baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester),
+            state='in_evaluation',
+            voters=[baker.make(UserProfile)],
+        )
         self.assertFalse(semester.can_be_deleted_by_manager)
-        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager', expect_errors=True)
+
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user=self.manager, expect_errors=True)
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
     def test_success_if_no_courses(self):
         semester = baker.make(Semester)
         self.assertTrue(semester.can_be_deleted_by_manager)
-        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user=self.manager)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
@@ -485,7 +635,7 @@ class TestSemesterDeleteView(WebTest):
         semester.archive_results()
 
         self.assertTrue(semester.can_be_deleted_by_manager)
-        response = self.app.post(self.url, params={'semester_id': semester.pk}, user='manager')
+        response = self.app.post(self.url, params={'semester_id': semester.pk}, user=self.manager)
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
         self.assertFalse(Course.objects.filter(pk=course.pk).exists())
@@ -495,26 +645,45 @@ class TestSemesterDeleteView(WebTest):
         self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
 
+    def test_failure_if_active(self):
+        semester = baker.make(Semester, is_active=True)
+        response = self.app.post(self.url, user=self.manager, expect_errors=True, params={
+            "semester_id": semester.id,
+        })
+        self.assertEqual(response.status_code, 400)
+
 
 class TestSemesterAssignView(WebTest):
     url = '/staff/semester/1/assign'
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         lecture_type = baker.make(CourseType, name_de="Vorlesung", name_en="Lecture")
         seminar_type = baker.make(CourseType, name_de="Seminar", name_en="Seminar")
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
-        evaluation1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=seminar_type))
-        baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation1,
-                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        evaluation2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=lecture_type))
-        baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation2,
-                   can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+        evaluation1 = baker.make(Evaluation, course__type=seminar_type, course__semester=cls.semester)
+        baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=evaluation1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        evaluation2 = baker.make(Evaluation, course__type=lecture_type, course__semester=cls.semester)
+
+        baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=evaluation2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_assign_questionnaires(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
         assign_form = page.forms["questionnaire-assign-form"]
         assign_form['Seminar'] = [self.questionnaire.pk]
         assign_form['Lecture'] = [self.questionnaire.pk]
@@ -527,20 +696,33 @@ class TestSemesterAssignView(WebTest):
 
 class TestSemesterPreparationReminderView(WebTestWith200Check):
     url = '/staff/semester/1/preparation_reminder'
-    test_users = ['manager']
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
 
-    def test_preparation_reminder(self):
-        user = baker.make(UserProfile, username='user_to_find')
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=self.semester, responsibles=[user]), state='prepared', name_en='name_to_find', name_de='name_to_find')
-        baker.make(Contribution, evaluation=evaluation, contributor=user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        cls.test_users = [cls.manager]
 
-        response = self.app.get(self.url, user='manager')
+    def test_preparation_reminder(self):
+        user = baker.make(UserProfile, email='user_to_find@institution.example.com')
+        evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=self.semester, responsibles=[user]),
+            state='prepared',
+            name_en='name_to_find',
+            name_de='name_to_find',
+        )
+        baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+
+        response = self.app.get(self.url, user=self.manager)
         self.assertContains(response, 'user_to_find')
         self.assertContains(response, 'name_to_find')
 
@@ -552,7 +734,7 @@ class TestSemesterPreparationReminderView(WebTestWith200Check):
         email_template_mock.objects.get.return_value = email_template_mock
         email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
-        response = self.app.post(self.url, user='manager')
+        response = self.app.post(self.url, user=self.manager)
         self.assertEqual(response.status_code, 200)
 
         subject_params = {}
@@ -568,14 +750,17 @@ class TestSendReminderView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile, pk=3, email='a.b@example.com')
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, responsibles=[responsible]), state='prepared')
-        baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
+            state='prepared',
+        )
 
     def test_form(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["send-reminder-form"]
         form["body"] = "uiae"
@@ -593,16 +778,15 @@ class TestSemesterImportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         baker.make(Semester, pk=1)
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+        baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
+        baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
 
     def test_import_valid_file(self):
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-
         original_user_count = UserProfile.objects.count()
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -635,7 +819,6 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(check_course.name_de, "Wählen")
         self.assertEqual(check_course.responsibles.count(), 1)
         self.assertEqual(check_course.responsibles.first().full_name, "Prof. Dr. Sit Dolor")
-        self.assertFalse(check_course.is_graded)
         self.assertFalse(check_course.is_private)
         self.assertEqual(check_course.type.name_de, "Vorlesung")
         self.assertEqual(check_course.degrees.count(), 1)
@@ -648,21 +831,37 @@ class TestSemesterImportView(WebTest):
         self.assertTrue(check_evaluation.is_rewarded)
         self.assertFalse(check_evaluation.is_midterm_evaluation)
         self.assertEqual(check_evaluation.participants.count(), 2)
+        self.assertFalse(check_evaluation.wait_for_grade_upload_before_publishing)
 
     def test_error_handling(self):
         """
         Tests whether errors given from the importer are displayed
         """
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test")
-        self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.')
+        general_error = 'Errors occurred while parsing the input data. No data was imported.'
+        self.assertContains(reply, general_error)
+        degree_error = 'Error: No degree is associated with the import name &quot;Diploma&quot;. Please manually create it first.'
+        self.assertContains(reply, degree_error)
+        course_type_error = 'Error: No course type is associated with the import name &quot;Praktikum&quot;. Please manually create it first.'
+        self.assertContains(reply, course_type_error)
+        is_graded_error = '&quot;is_graded&quot; of course Deal is maybe, but must be yes or no'
+        self.assertContains(reply, is_graded_error)
+        user_error = 'Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data'\
+                     ' (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row.'
+        self.assertContains(reply, user_error)
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.')
         self.assertContains(reply, 'Sheet &quot;MA Belegungen&quot;, row 10: Email address is missing.')
-        self.assertContains(reply, 'Errors occurred while parsing the input data. No data was imported.')
+
+        def index(text):
+            return reply.body.decode().index(text)
+
+        self.assertTrue(index(general_error) < index(degree_error) < index(course_type_error) <
+                        index(is_graded_error) < index(user_error))
 
         self.assertNotContains(reply, 'Import previously uploaded file')
 
@@ -672,7 +871,7 @@ class TestSemesterImportView(WebTest):
         """
         baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -683,7 +882,7 @@ class TestSemesterImportView(WebTest):
                 " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
     def test_suspicious_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -694,16 +893,16 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_invalid_upload_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="test")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_import_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
@@ -712,10 +911,7 @@ class TestSemesterImportView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_missing_evaluation_period(self):
-        baker.make(CourseType, name_de="Vorlesung", name_en="Vorlesung")
-        baker.make(CourseType, name_de="Seminar", name_en="Seminar")
-
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -724,7 +920,7 @@ class TestSemesterImportView(WebTest):
         form = page.forms["semester-import-form"]
         page = form.submit(name="operation", value="import")
 
-        self.assertContains(page, 'Please enter an evaluation period')
+        self.assertContains(page, 'This field is required.')
         self.assertContains(page, 'Import previously uploaded file')
 
 
@@ -733,7 +929,7 @@ class TestSemesterExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.degree = baker.make(Degree)
         cls.course_type = baker.make(CourseType)
@@ -743,7 +939,7 @@ class TestSemesterExportView(WebTest):
         )
 
     def test_view_downloads_excel_file(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         form = page.forms["semester-export-form"]
 
         # Check one degree and course type.
@@ -762,22 +958,23 @@ class TestSemesterExportView(WebTest):
 
 class TestSemesterRawDataExportView(WebTestWith200Check):
     url = '/staff/semester/1/raw_export'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType, name_en="Type")
 
+        cls.test_users = [cls.manager]
+
     def test_view_downloads_csv_file(self):
-        student_user = baker.make(UserProfile, username='student')
+        student_user = baker.make(UserProfile, email='student@institution.example.com')
         baker.make(Evaluation, course=baker.make(Course, type=self.course_type, semester=self.semester, name_de="1",
             name_en="Course 1"), participants=[student_user], voters=[student_user], name_de="E1", name_en="E1")
         baker.make(Evaluation, course=baker.make(Course, type=self.course_type, semester=self.semester, name_de="2",
             name_en="Course 2"), participants=[student_user])
 
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         expected_content = (
             "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
             "Course 1 – E1;;Type;False;new;1;1;0;\n"
@@ -789,7 +986,7 @@ class TestSemesterRawDataExportView(WebTestWith200Check):
         baker.make(Evaluation, course=baker.make(Course, type=self.course_type, semester=self.semester, name_de="3",
             name_en="Single Result"), _participant_count=5, _voter_count=5, is_single_result=True)
 
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         expected_content = (
             "Name;Degrees;Type;Single result;State;#Voters;#Participants;#Text answers;Average grade\n"
             "Single Result;;Type;True;new;5;5;0;\n"
@@ -802,27 +999,51 @@ class TestSemesterParticipationDataExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.student_user = baker.make(UserProfile, username='student')
-        cls.student_user2 = baker.make(UserProfile, username='student2')
+        cls.manager = make_manager()
+        cls.student_user = baker.make(UserProfile, email='student@example.com')
+        cls.student_user2 = baker.make(UserProfile, email='student2@example.com')
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType, name_en="Type")
-        cls.evaluation1 = baker.make(Evaluation, course=baker.make(Course, type=cls.course_type, semester=cls.semester), participants=[cls.student_user],
-            voters=[cls.student_user], name_de="Veranstaltung 1", name_en="Evaluation 1", is_rewarded=True)
-        cls.evaluation2 = baker.make(Evaluation, course=baker.make(Course, type=cls.course_type, semester=cls.semester), participants=[cls.student_user, cls.student_user2],
-            name_de="Veranstaltung 2", name_en="Evaluation 2", is_rewarded=False)
-        baker.make(Contribution, evaluation=cls.evaluation1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=cls.evaluation2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+
+        cls.evaluation1 = baker.make(
+            Evaluation,
+            course=baker.make(Course, type=cls.course_type, semester=cls.semester),
+            participants=[cls.student_user],
+            voters=[cls.student_user],
+            name_de="Veranstaltung 1",
+            name_en="Evaluation 1",
+            is_rewarded=True,
+        )
+        cls.evaluation2 = baker.make(
+            Evaluation,
+            course=baker.make(Course, type=cls.course_type, semester=cls.semester),
+            participants=[cls.student_user, cls.student_user2],
+            name_de="Veranstaltung 2",
+            name_en="Evaluation 2",
+            is_rewarded=False,
+        )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=23)
         baker.make(RewardPointGranting, semester=cls.semester, user_profile=cls.student_user, value=42)
 
     def test_view_downloads_csv_file(self):
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
         expected_content = (
-            "Username;Can use reward points;#Required evaluations voted for;#Required evaluations;#Optional evaluations voted for;"
+            "Email;Can use reward points;#Required evaluations voted for;#Required evaluations;#Optional evaluations voted for;"
             "#Optional evaluations;Earned reward points\n"
-            "student;False;1;1;0;1;65\n"
-            "student2;False;0;0;0;1;0\n")
+            "student2@example.com;False;0;0;0;1;0\n"
+            "student@example.com;False;1;1;0;1;65\n")
         self.assertEqual(response.content, expected_content.encode("utf-8"))
 
 
@@ -831,19 +1052,24 @@ class TestLoginKeyExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-
+        cls.manager = make_manager()
         cls.external_user = baker.make(UserProfile, email="user@external.com")
         cls.internal_user = baker.make(UserProfile, email="user@institution.example.com")
 
         semester = baker.make(Semester, pk=1)
-        baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[cls.external_user, cls.internal_user], voters=[cls.external_user, cls.internal_user])
+        baker.make(
+            Evaluation,
+            pk=1,
+            course__semester=semester,
+            participants=[cls.external_user, cls.internal_user],
+            voters=[cls.external_user, cls.internal_user],
+        )
 
     def test_login_key_export_works_as_expected(self):
         self.assertEqual(self.external_user.login_key, None)
         self.assertEqual(self.internal_user.login_key, None)
 
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
 
         self.external_user.refresh_from_db()
         self.assertNotEqual(self.external_user.login_key, None)
@@ -858,13 +1084,13 @@ class TestEvaluationOperationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.responsible = baker.make(UserProfile, email='responsible@example.com')
         cls.course = baker.make(Course, semester=cls.semester, responsibles=[cls.responsible])
 
     def helper_publish_evaluation_with_publish_notifications_for(self, evaluation, contributors=True, participants=True):
-        page = self.app.get("/staff/semester/1", user="manager")
+        page = self.app.get("/staff/semester/1", user=self.manager)
         form = page.forms["evaluation_operation_form"]
         form['evaluation'] = evaluation.pk
         response = form.submit('target_state', value="published")
@@ -910,7 +1136,7 @@ class TestEvaluationOperationView(WebTest):
         mail.outbox = []
 
     def helper_semester_state_views(self, evaluation, old_state, new_state):
-        page = self.app.get("/staff/semester/1", user="manager")
+        page = self.app.get("/staff/semester/1", user=self.manager)
         form = page.forms["evaluation_operation_form"]
         self.assertIn(evaluation.state, old_state)
         form['evaluation'] = evaluation.pk
@@ -957,7 +1183,7 @@ class TestEvaluationOperationView(WebTest):
         evaluation = baker.make(Evaluation, state='approved', course=self.course)
         urloptions = '?evaluation={}&target_state=in_evaluation'.format(evaluation.pk)
 
-        response = self.app.get(self.url + urloptions, user='manager')
+        response = self.app.get(self.url + urloptions, user=self.manager)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
 
         form = response.forms['evaluation-operation-form']
@@ -970,7 +1196,7 @@ class TestEvaluationOperationView(WebTest):
         evaluation = baker.make(Evaluation, state='new', course=self.course)
         urloptions = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
 
-        response = self.app.get(self.url + urloptions, user='manager')
+        response = self.app.get(self.url + urloptions, user=self.manager)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
         form = response.forms['evaluation-operation-form']
         form.submit()
@@ -992,7 +1218,7 @@ class TestEvaluationOperationView(WebTest):
                 'additional_cc_users': set(additional_cc_users),
             })
 
-        response = self.app.get(self.url + url_options, user='manager')
+        response = self.app.get(self.url + url_options, user=self.manager)
         form = response.forms['evaluation-operation-form']
         form['send_email'] = True
         form['email_subject'] = 'New evaluations ready for review'
@@ -1053,8 +1279,8 @@ class TestEvaluationOperationView(WebTest):
         editor_a = baker.make(UserProfile, email='editor-a@example.com')
         editor_b = baker.make(UserProfile, email='editor-b@example.com')
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=editor_a, can_edit=True)
-        baker.make(Contribution, evaluation=evaluation, contributor=editor_b, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_a, role=Contribution.Role.EDITOR)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor_b, role=Contribution.Role.EDITOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1063,7 +1289,7 @@ class TestEvaluationOperationView(WebTest):
 
     def test_operation_prepare_does_not_put_responsible_into_cc(self):
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, role=Contribution.Role.EDITOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1073,7 +1299,7 @@ class TestEvaluationOperationView(WebTest):
     def test_operation_prepare_does_not_send_email_to_contributors(self):
         contributor = baker.make(UserProfile, email='contributor@example.com')
         evaluation = baker.make(Evaluation, state='new', course=self.course)
-        baker.make(Contribution, evaluation=evaluation, contributor=contributor, can_edit=False)
+        baker.make(Contribution, evaluation=evaluation, contributor=contributor, role=Contribution.Role.CONTRIBUTOR)
         url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
@@ -1086,7 +1312,7 @@ class TestCourseCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager_user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
         cls.course_type = baker.make(CourseType)
         cls.degree = baker.make(Degree)
@@ -1096,14 +1322,13 @@ class TestCourseCreateView(WebTest):
         """
             Tests the course creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user="manager", status=200)
+        response = self.app.get(self.url, user=self.manager, status=200)
         form = response.forms["course-form"]
         form["semester"] = self.semester.pk
         form["name_de"] = "dskr4jre35m6"
         form["name_en"] = ""  # empty name to get a validation error
         form["type"] = self.course_type.pk
         form["degrees"] = [self.degree.pk]
-        form["is_graded"] = True
         form["is_private"] = False
         form["responsibles"] = [self.responsible.pk]
 
@@ -1122,14 +1347,19 @@ class TestSingleResultCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager_user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
+
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager, status=200)
+        form = response.context['form']
+        self.assertEqual(form['course'].initial, self.course.pk)
 
     def test_single_result_create(self):
         """
             Tests the single result creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user="manager", status=200)
+        response = self.app.get(self.url, user=self.manager, status=200)
         form = response.forms["single-result-form"]
         form["course"] = self.course.pk
         form["name_de"] = "qwertz"
@@ -1152,16 +1382,21 @@ class TestEvaluationCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.manager_user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.course = baker.make(Course, semester=baker.make(Semester, pk=1))
         cls.q1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.q2 = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+
+    def test_course_is_prefilled(self):
+        response = self.app.get(f'{self.url}/{self.course.pk}', user=self.manager, status=200)
+        form = response.context['evaluation_form']
+        self.assertEqual(form['course'].initial, self.course.pk)
 
     def test_evaluation_create(self):
         """
             Tests the evaluation creation view with one valid and one invalid input dataset.
         """
-        response = self.app.get(self.url, user="manager", status=200)
+        response = self.app.get(self.url, user=self.manager, status=200)
         form = response.forms["evaluation-form"]
         form["course"] = self.course.pk
         form["name_de"] = "lfo9e7bmxp1xi"
@@ -1169,15 +1404,16 @@ class TestEvaluationCreateView(WebTest):
         form["vote_start_datetime"] = "2099-01-01 00:00:00"
         form["vote_end_date"] = "2014-01-01"  # wrong order to get the validation error
         form["general_questionnaires"] = [self.q1.pk]
+        form["wait_for_grade_upload_before_publishing"] = True
 
         form['contributions-TOTAL_FORMS'] = 1
         form['contributions-INITIAL_FORMS'] = 0
         form['contributions-MAX_NUM_FORMS'] = 5
         form['contributions-0-evaluation'] = ''
-        form['contributions-0-contributor'] = self.manager_user.pk
+        form['contributions-0-contributor'] = self.manager.pk
         form['contributions-0-questionnaires'] = [self.q2.pk]
         form['contributions-0-order'] = 0
-        form['contributions-0-responsibility'] = Contribution.Responsibility.IS_EDITOR
+        form['contributions-0-role'] = Contribution.Role.EDITOR
         form['contributions-0-textanswer_visibility'] = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
 
         form.submit()
@@ -1190,23 +1426,75 @@ class TestEvaluationCreateView(WebTest):
         self.assertEqual(Evaluation.objects.get().name_de, "lfo9e7bmxp1xi")
 
 
+class TestEvaluationCopyView(WebTest):
+    url = '/staff/semester/1/evaluation/1/copy'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        cls.semester = baker.make(Semester, pk=1)
+        cls.course = baker.make(Course, semester=cls.semester)
+        cls.evaluation = baker.make(
+            Evaluation,
+            pk=1,
+            course=cls.course,
+            name_de="Das Original",
+            name_en="The Original",
+        )
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
+        for __ in range(3):
+            baker.make(
+                Contribution,
+                evaluation=cls.evaluation,
+                contributor=baker.make(UserProfile),
+            )
+
+    def test_copy_forms_are_used(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIsInstance(response.context['evaluation_form'], EvaluationCopyForm)
+        self.assertIsInstance(response.context['formset'], ContributionCopyFormSet)
+        self.assertTrue(issubclass(response.context['formset'].form, ContributionCopyForm))
+
+    def test_evaluation_copy(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms['evaluation-form']
+        form['name_de'] = "Eine Kopie"
+        form['name_en'] = "A Copy"
+        form.submit()
+
+        # As we checked previously that the respective copy forms were used,
+        # we don’t have to check for individual attributes, as those are checked in the respective form tests
+        self.assertEqual(Evaluation.objects.count(), 2)
+        copied_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
+        self.assertEqual(copied_evaluation.contributions.count(), 4)
+
+
 class TestCourseEditView(WebTest):
     url = '/staff/semester/1/course/1/edit'
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         degree = baker.make(Degree)
         responsible = baker.make(UserProfile)
-        cls.course = baker.make(Course, name_en="Some name", semester=semester, degrees=[degree],
-            responsibles=[responsible], pk=1, last_modified_user=cls.user, last_modified_time=datetime.datetime(2000, 1, 1, 0, 0))
+        cls.course = baker.make(
+            Course,
+            name_en="Some name",
+            semester=semester,
+            degrees=[degree],
+            responsibles=[responsible],
+            pk=1,
+            last_modified_user=cls.manager,
+            last_modified_time=datetime.datetime(2000, 1, 1, 0, 0),
+        )
 
     def setUp(self):
         self.course = Course.objects.get(pk=self.course.pk)
 
     def test_edit_course(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["course-form"]
         form['name_en'] = "A different name"
@@ -1218,15 +1506,15 @@ class TestCourseEditView(WebTest):
         """
             Tests whether saving only changes the last_modified_user if changes were made.
         """
-        test_user = baker.make(UserProfile, username='test_user', groups=[Group.objects.get(name='Manager')])
+        test_user = baker.make(UserProfile, email='test_user@institution.example.com', groups=[Group.objects.get(name='Manager')])
 
         old_name_en = self.course.name_en
         old_last_modified_user = self.course.last_modified_user
         old_last_modified_time = self.course.last_modified_time
-        self.assertEqual(old_last_modified_user.username, self.user.username)
+        self.assertEqual(old_last_modified_user.email, self.manager.email)
         self.assertEqual(old_last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
 
-        page = self.app.get(self.url, user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.email, status=200)
         form = page.forms["course-form"]
         # save without changes
         form.submit(name="operation", value="save")
@@ -1237,7 +1525,7 @@ class TestCourseEditView(WebTest):
         self.assertEqual(self.course.last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
         self.assertEqual(self.course.name_en, old_name_en)
 
-        page = self.app.get(self.url, user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user.email, status=200)
         form = page.forms["course-form"]
         form["name_en"] = "Test name"
         # approve after changes
@@ -1259,29 +1547,48 @@ class TestEvaluationEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         degree = baker.make(Degree)
         responsible = baker.make(UserProfile)
         cls.editor = baker.make(UserProfile)
-        cls.evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, degrees=[degree], responsibles=[responsible]), pk=1, last_modified_user=cls.user,
-            vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0), vote_end_date=datetime.date(2099, 12, 31))
+        cls.evaluation = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=semester, degrees=[degree], responsibles=[responsible]),
+            pk=1,
+            last_modified_user=cls.manager,
+            vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
+            vote_end_date=datetime.date(2099, 12, 31),
+        )
         baker.make(Questionnaire, questions=[baker.make(Question)])
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=responsible, order=0, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.editor, order=1, can_edit=True)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=responsible,
+            order=0,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.editor,
+            order=1,
+            role=Contribution.Role.EDITOR,
+        )
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
     def test_edit_evaluation(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
 
         # remove editor rights
         form = page.forms["evaluation-form"]
-        form['contributions-1-responsibility'] = Contribution.Responsibility.IS_CONTRIBUTOR
+        form['contributions-1-role'] = Contribution.Role.CONTRIBUTOR
         form.submit("operation", value="save")
-        self.assertFalse(self.evaluation.contributions.get(contributor=self.editor).can_edit)
+        self.assertEqual(self.evaluation.contributions.get(contributor=self.editor).role, Contribution.Role.CONTRIBUTOR)
 
     def test_participant_removal_reward_point_granting_message(self):
         already_evaluated = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=self.evaluation.course.semester))
@@ -1290,14 +1597,14 @@ class TestEvaluationEditView(WebTest):
         student = baker.make(UserProfile, email="foo@institution.example.com",
             evaluations_participating_in=[self.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         # remove a single participant
         form = page.forms['evaluation-form']
         form['participants'] = [other.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(student.username), page)
+        self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(student.email), page)
 
     def test_remove_participants(self):
         already_evaluated = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=self.evaluation.course.semester))
@@ -1305,10 +1612,10 @@ class TestEvaluationEditView(WebTest):
         student = baker.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
         for name in ["a", "b", "c", "d", "e"]:
-            baker.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
+            baker.make(UserProfile, email="{}@institution.example.com".format(name),
                 evaluations_participating_in=[self.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         # remove five participants
         form = page.forms['evaluation-form']
@@ -1316,7 +1623,7 @@ class TestEvaluationEditView(WebTest):
         page = form.submit('operation', value='save').follow()
 
         for name in ["a", "b", "c", "d", "e"]:
-            self.assertIn("The removal as participant has granted the user &quot;{}&quot; 3 reward points for the semester.".format(name), page)
+            self.assertIn("The removal as participant has granted the user &quot;{}@institution.example.com&quot; 3 reward points for the semester.".format(name), page)
 
     def test_remove_participants_proportional_reward_points(self):
         already_evaluated = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=self.evaluation.course.semester))
@@ -1324,38 +1631,38 @@ class TestEvaluationEditView(WebTest):
         student = baker.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
         for name, points_granted in [("a", 0), ("b", 1), ("c", 2), ("d", 3)]:
-            user = baker.make(UserProfile, username=name, email="{}@institution.example.com".format(name),
+            user = baker.make(UserProfile, email="{}@institution.example.com".format(name),
                 evaluations_participating_in=[self.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
             RewardPointGranting.objects.create(user_profile=user, semester=self.evaluation.course.semester, value=points_granted)
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         # remove four participants
         form = page.forms['evaluation-form']
         form['participants'] = [student.pk]
         page = form.submit('operation', value='save').follow()
 
-        self.assertIn("The removal as participant has granted the user &quot;a&quot; 3 reward points for the semester.", page)
-        self.assertIn("The removal as participant has granted the user &quot;b&quot; 2 reward points for the semester.", page)
-        self.assertIn("The removal as participant has granted the user &quot;c&quot; 1 reward point for the semester.", page)
-        self.assertNotIn("The removal as participant has granted the user &quot;d&quot;", page)
+        self.assertIn("The removal as participant has granted the user &quot;a@institution.example.com&quot; 3 reward points for the semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;b@institution.example.com&quot; 2 reward points for the semester.", page)
+        self.assertIn("The removal as participant has granted the user &quot;c@institution.example.com&quot; 1 reward point for the semester.", page)
+        self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
 
     def test_last_modified_user(self):
         """
             Tests whether the button "Save and approve" does only change the
             last_modified_user if changes were made.
         """
-        test_user = baker.make(UserProfile, username='approve_test_user', groups=[Group.objects.get(name='Manager')])
+        test_user = baker.make(UserProfile, email='approve_test_user@institution.example.com', groups=[Group.objects.get(name='Manager')])
 
         old_name_de = self.evaluation.name_de
         old_vote_start_datetime = self.evaluation.vote_start_datetime
         old_vote_end_date = self.evaluation.vote_end_date
         old_last_modified_user = self.evaluation.last_modified_user
         old_state = self.evaluation.state
-        self.assertEqual(old_last_modified_user.username, self.user.username)
+        self.assertEqual(old_last_modified_user.email, self.manager.email)
         self.assertEqual(old_state, "new")
 
-        page = self.app.get(self.url, user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user, status=200)
         form = page.forms["evaluation-form"]
         # approve without changes
         form.submit(name="operation", value="approve")
@@ -1371,7 +1678,7 @@ class TestEvaluationEditView(WebTest):
         self.evaluation.save()
         self.assertEqual(self.evaluation.state, "new")
 
-        page = self.app.get(self.url, user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user, status=200)
         form = page.forms["evaluation-form"]
         form["name_de"] = "Test name"
         # approve after changes
@@ -1389,15 +1696,15 @@ class TestEvaluationEditView(WebTest):
             Tests if last_modified_{user,time} is updated if only the contributor formset is changed
         """
 
-        self.assertEqual(self.evaluation.last_modified_user, self.user)
+        self.assertEqual(self.evaluation.last_modified_user, self.manager)
         last_modified_time_before = self.evaluation.last_modified_time
 
         test_user = baker.make(
             UserProfile,
-            username='approve_test_user',
+            email='approve_test_user@institution.example.com',
             groups=[Group.objects.get(name='Manager')]
         )
-        page = self.app.get(self.url, user=test_user.username, status=200)
+        page = self.app.get(self.url, user=test_user, status=200)
         form = page.forms["evaluation-form"]
 
         # Change label of the first contribution
@@ -1418,7 +1725,7 @@ class TestEvaluationEditView(WebTest):
 
         test_user = baker.make(
             UserProfile,
-            username='approve_test_user',
+            email='approve_test_user@institution.example.com',
             groups=[Group.objects.get(name='Manager')]
         )
 
@@ -1434,17 +1741,22 @@ class TestEvaluationEditView(WebTest):
 
 class TestSingleResultEditView(WebTestWith200Check):
     url = '/staff/semester/1/evaluation/1/edit'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        semester = baker.make(Semester, pk=1)
+        cls.test_users = [make_manager()]
 
+        semester = baker.make(Semester, pk=1)
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, responsibles=[responsible]), pk=1)
-        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True,
-                                  textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[Questionnaire.single_result_questionnaire()])
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+        )
 
         question = Questionnaire.single_result_questionnaire().questions.get()
         baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
@@ -1456,11 +1768,11 @@ class TestSingleResultEditView(WebTestWith200Check):
 
 class TestEvaluationPreviewView(WebTestWith200Check):
     url = '/staff/semester/1/evaluation/1/preview'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.test_users = [make_manager()]
+
         semester = baker.make(Semester, pk=1)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester), pk=1)
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -1475,7 +1787,7 @@ class TestEvaluationImportPersonsView(WebTest):
     @classmethod
     def setUpTestData(cls):
         semester = baker.make(Semester, pk=1)
-        cls.manager_user = baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+        cls.manager = make_manager()
         cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester))
         profiles = baker.make(UserProfile, _quantity=42)
         cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles)
@@ -1483,10 +1795,10 @@ class TestEvaluationImportPersonsView(WebTest):
     @classmethod
     def tearDown(cls):
         # delete the uploaded file again so other tests can start with no file guaranteed
-        helper_delete_all_import_files(cls.manager_user.id)
+        helper_delete_all_import_files(cls.manager.id)
 
     def test_import_valid_participants_file(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         original_participant_count = self.evaluation.participants.count()
 
@@ -1501,11 +1813,11 @@ class TestEvaluationImportPersonsView(WebTest):
         form.submit(name="operation", value="import-participants")
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + 2)
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_copy_participants(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         original_participant_count = self.evaluation.participants.count()
 
@@ -1516,7 +1828,7 @@ class TestEvaluationImportPersonsView(WebTest):
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count())
 
     def test_import_valid_contributors_file(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
@@ -1531,11 +1843,11 @@ class TestEvaluationImportPersonsView(WebTest):
         form.submit(name="operation", value="import-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(), original_contributor_count + 2)
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_copy_contributors(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
@@ -1550,7 +1862,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         Tests whether errors given from the importer are displayed
         """
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_invalid,)
@@ -1567,7 +1879,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -1581,7 +1893,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         Tests whether errors given from the importer are displayed
         """
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
         form["excel_file"] = (self.filename_invalid,)
@@ -1598,7 +1910,7 @@ class TestEvaluationImportPersonsView(WebTest):
         """
         baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -1609,7 +1921,7 @@ class TestEvaluationImportPersonsView(WebTest):
                 " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)")
 
     def test_suspicious_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         form["excel_file"] = (self.filename_valid,)
@@ -1620,25 +1932,25 @@ class TestEvaluationImportPersonsView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_invalid_contributor_upload_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
         page = form.submit(name="operation", value="test-contributors")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_participant_upload_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         page = form.submit(name="operation", value="test-participants")
 
-        self.assertContains(page, 'Please select an Excel file')
+        self.assertContains(page, 'This field is required.')
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_invalid_contributor_import_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
@@ -1647,7 +1959,7 @@ class TestEvaluationImportPersonsView(WebTest):
         self.assertEqual(reply.status_code, 400)
 
     def test_invalid_participant_import_operation(self):
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
@@ -1661,14 +1973,14 @@ class TestEvaluationEmailView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
         baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[participant1, participant2])
 
     def test_emails_are_sent(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["evaluation-email-form"]
         form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
@@ -1683,76 +1995,109 @@ class TestEvaluationTextAnswerView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         semester = baker.make(Semester, pk=1)
-        student1 = baker.make(UserProfile)
-        cls.student2 = baker.make(UserProfile)
-        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
+        student1 = baker.make(UserProfile, email="student@institution.example.com")
+        cls.student2 = baker.make(UserProfile, email="student2@example.com")
+
+        cls.evaluation = baker.make(
+            Evaluation,
+            pk=1,
+            course=baker.make(Course, semester=semester),
+            participants=[student1, cls.student2],
+            voters=[student1],
+            state="in_evaluation"
+        )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
+
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
-        contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=baker.make(UserProfile), questionnaires=[questionnaire])
+        contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=baker.make(UserProfile),
+            questionnaires=[questionnaire],
+        )
         cls.answer = 'should show up'
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
 
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
-        self.app.get(self.url, user='manager', status=403)
+        self.app.get(self.url, user=self.manager, status=403)
 
         # add additional voter
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
         # now it should work
-        self.app.get(self.url, user='manager', status=200)
+        self.app.get(self.url, user=self.manager, status=200)
 
     def test_textanswers_quick_view(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        page = self.app.get(self.url, user='manager', status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         self.assertContains(page, self.answer)
 
     def test_textanswers_full_view(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        page = self.app.get(self.url + '?view=full', user='manager', status=200)
+        page = self.app.get(self.url + '?view=full', user=self.manager, status=200)
         self.assertContains(page, self.answer)
 
 
 class TestEvaluationTextAnswerEditView(WebTest):
-    url = '/staff/semester/1/evaluation/1/textanswer/00000000-0000-0000-0000-000000000001/edit'
-
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
+        student1 = baker.make(UserProfile, email="student1@institution.example.com")
+        cls.student2 = baker.make(UserProfile, email="student2@example.com")
+
         semester = baker.make(Semester, pk=1)
-        student1 = baker.make(UserProfile)
-        cls.student2 = baker.make(UserProfile)
-        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=[student1, cls.student2], voters=[student1], state="in_evaluation")
+        cls.evaluation = baker.make(
+            Evaluation,
+            pk=1,
+            course=baker.make(Course, semester=semester),
+            participants=[student1, cls.student2],
+            voters=[student1],
+            state="in_evaluation"
+        )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
-        contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=baker.make(UserProfile), questionnaires=[questionnaire])
-        baker.make(TextAnswer, contribution=contribution, question=question, answer='test answer text', pk='00000000-0000-0000-0000-000000000001')
+
+        contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=baker.make(UserProfile),
+            questionnaires=[questionnaire],
+        )
+        cls.text_answer = baker.make(
+            TextAnswer,
+            contribution=contribution,
+            question=question,
+            answer='test answer text',
+        )
+
+        cls.url = f'/staff/semester/1/evaluation/1/textanswer/{cls.text_answer.id}/edit'
 
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
-        self.app.get(self.url, user='manager', status=403)
+        self.app.get(self.url, user=self.manager, status=403)
 
         # add additional voter
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
         # now it should work
-        response = self.app.get(self.url, user='manager')
+        response = self.app.get(self.url, user=self.manager)
 
         form = response.forms['textanswer-edit-form']
         self.assertEqual(form['answer'].value, 'test answer text')
         form['answer'] = 'edited answer text'
         form.submit()
 
-        answer = TextAnswer.objects.get(pk='00000000-0000-0000-0000-000000000001')
-        self.assertEqual(answer.answer, 'edited answer text')
+        self.text_answer.refresh_from_db()
+        self.assertEqual(self.text_answer.answer, 'edited answer text')
 
 
 class TestQuestionnaireNewVersionView(WebTest):
@@ -1760,14 +2105,14 @@ class TestQuestionnaireNewVersionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         cls.name_de_orig = 'kurzer name'
         cls.name_en_orig = 'short name'
         questionnaire = baker.make(Questionnaire, id=2, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
         baker.make(Question, questionnaire=questionnaire)
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
     def test_changes_old_title(self):
-        page = self.app.get(url=self.url, user='manager')
+        page = self.app.get(url=self.url, user=self.manager)
         form = page.forms['questionnaire-form']
 
         form.submit()
@@ -1781,16 +2126,16 @@ class TestQuestionnaireNewVersionView(WebTest):
 
     def test_no_second_update(self):
         # First save.
-        page = self.app.get(url=self.url, user='manager')
+        page = self.app.get(url=self.url, user=self.manager)
         form = page.forms['questionnaire-form']
         form.submit()
 
         # Second try.
         new_questionnaire = Questionnaire.objects.get(name_de=self.name_de_orig)
-        page = self.app.get(url='/staff/questionnaire/{}/new_version'.format(new_questionnaire.id), user='manager')
+        page = self.app.get(url=f'/staff/questionnaire/{new_questionnaire.id}/new_version', user=self.manager)
 
         # We should get redirected back to the questionnaire index.
-        self.assertEqual(page.status_code, 302)  # REDIRECT
+        self.assertEqual(page.status_code, 302)
         self.assertEqual(page.location, '/staff/questionnaire/')
 
 
@@ -1799,10 +2144,10 @@ class TestQuestionnaireCreateView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_create_questionnaire(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
 
         questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen"
@@ -1821,7 +2166,7 @@ class TestQuestionnaireCreateView(WebTest):
         self.assertEqual(questionnaire.questions.count(), 1)
 
     def test_create_empty_questionnaire(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
 
         questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen"
@@ -1841,13 +2186,13 @@ class TestQuestionnaireIndexView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.bottom_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)
 
     def test_ordering(self):
-        content = self.app.get(self.url, user="manager").body.decode()
+        content = self.app.get(self.url, user=self.manager).body.decode()
         top_index = content.index(self.top_questionnaire.name)
         contributor_index = content.index(self.contributor_questionnaire.name)
         bottom_index = content.index(self.bottom_questionnaire.name)
@@ -1857,23 +2202,24 @@ class TestQuestionnaireIndexView(WebTest):
 
 class TestQuestionnaireEditView(WebTestWith200Check):
     url = '/staff/questionnaire/2/edit'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
+
         evaluation = baker.make(Evaluation, state='in_evaluation')
         cls.questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
 
         baker.make(Question, questionnaire=cls.questionnaire)
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
     def test_allowed_type_changes_on_used_questionnaire(self):
         # top to bottom
         self.questionnaire.type = Questionnaire.Type.TOP
         self.questionnaire.save()
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         form = page.forms['questionnaire-form']
         self.assertEqual(form['type'].options, [('10', True, 'Top questionnaire'), ('30', False, 'Bottom questionnaire')])
 
@@ -1881,7 +2227,7 @@ class TestQuestionnaireEditView(WebTestWith200Check):
         self.questionnaire.type = Questionnaire.Type.BOTTOM
         self.questionnaire.save()
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         form = page.forms['questionnaire-form']
         self.assertEqual(form['type'].options, [('10', False, 'Top questionnaire'), ('30', True, 'Bottom questionnaire')])
 
@@ -1889,22 +2235,22 @@ class TestQuestionnaireEditView(WebTestWith200Check):
         self.questionnaire.type = Questionnaire.Type.CONTRIBUTOR
         self.questionnaire.save()
 
-        page = self.app.get(self.url, user='manager')
+        page = self.app.get(self.url, user=self.manager)
         form = page.forms['questionnaire-form']
         self.assertEqual(form['type'].options, [('20', True, 'Contributor questionnaire')])
 
 
 class TestQuestionnaireViewView(WebTestWith200Check):
     url = '/staff/questionnaire/2'
-    test_users = ['manager']
 
     @classmethod
     def setUpTestData(cls):
+        cls.test_users = [make_manager()]
+
         questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
 
 class TestQuestionnaireCopyView(WebTest):
@@ -1912,17 +2258,17 @@ class TestQuestionnaireCopyView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         questionnaire = baker.make(Questionnaire, id=2)
         baker.make(Question, questionnaire=questionnaire)
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
 
     def test_not_changing_name_fails(self):
-        response = self.app.get(self.url, user="manager", status=200)
+        response = self.app.get(self.url, user=self.manager, status=200)
         response = response.forms[1].submit("", status=200)
         self.assertIn("already exists", response)
 
     def test_copy_questionnaire(self):
-        page = self.app.get(self.url, user="manager")
+        page = self.app.get(self.url, user=self.manager)
 
         questionnaire_form = page.forms["questionnaire-form"]
         questionnaire_form['name_de'] = "Test Fragebogen (kopiert)"
@@ -1941,7 +2287,7 @@ class TestQuestionnaireDeletionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.q1 = baker.make(Questionnaire)
         cls.q2 = baker.make(Questionnaire)
         baker.make(Contribution, questionnaires=[cls.q1])
@@ -1952,12 +2298,21 @@ class TestQuestionnaireDeletionView(WebTest):
             only the second attempt should succeed.
         """
         self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_be_deleted_by_manager)
-        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q1.pk}, user="manager", expect_errors=True)
+        response = self.app.post(
+            "/staff/questionnaire/delete",
+            params={"questionnaire_id": self.q1.pk},
+            user=self.manager,
+            expect_errors=True,
+        )
         self.assertEqual(response.status_code, 400)
         self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
 
         self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_be_deleted_by_manager)
-        response = self.app.post("/staff/questionnaire/delete", params={"questionnaire_id": self.q2.pk}, user="manager")
+        response = self.app.post(
+            "/staff/questionnaire/delete",
+            params={"questionnaire_id": self.q2.pk},
+            user=self.manager,
+        )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
 
@@ -1967,26 +2322,42 @@ class TestCourseTypeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
+
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
 
     def test_page_displays_something(self):
         CourseType.objects.create(name_de='uZJcsl0rNc', name_en='uZJcsl0rNc')
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn('uZJcsl0rNc', page)
 
     def test_course_type_form(self):
         """
             Adds a course type via the staff form and verifies that the type was created in the db.
         """
-        page = self.app.get(self.url, user="manager", status=200)
-        form = page.forms["course-type-form"]
-        last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms['course-type-form']
+        form['form-0-name_de'].value = "Vorlesung"
+        form['form-0-name_en'].value = "Lecture"
+        self.set_import_names(form['form-0-import_names'], ["Vorlesung", "V"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
 
-        self.assertTrue(CourseType.objects.filter(name_de="Test", name_en="Test").exists())
+        self.assertEqual(CourseType.objects.count(), 1)
+        self.assertTrue(CourseType.objects.filter(name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung", "V"]).exists())
+
+    def test_import_names_duplicated_error(self):
+        baker.make(CourseType, _quantity=2)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms['course-type-form']
+        self.set_import_names(form['form-0-import_names'], ["Vorlesung", "v"])
+        self.set_import_names(form['form-1-import_names'], ["Veranstaltung", "V"])
+        response = form.submit()
+        self.assertContains(response, 'Import name &quot;V&quot; is duplicated. Import names are not case sensitive.')
 
 
 class TestCourseTypeMergeSelectionView(WebTest):
@@ -1994,12 +2365,12 @@ class TestCourseTypeMergeSelectionView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.main_type = baker.make(CourseType, name_en="A course type")
         cls.other_type = baker.make(CourseType, name_en="Obsolete course type")
 
     def test_same_evaluation_fails(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["course-type-merge-selection-form"]
         form["main_type"] = self.main_type.pk
         form["other_type"] = self.main_type.pk
@@ -2012,19 +2383,21 @@ class TestCourseTypeMergeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
-        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type")
-        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type")
+        cls.manager = make_manager()
+        cls.main_type = baker.make(CourseType, pk=1, name_en="A course type", import_names=['M'])
+        cls.other_type = baker.make(CourseType, pk=2, name_en="Obsolete course type", import_names=['O'])
         baker.make(Course, type=cls.main_type)
         baker.make(Course, type=cls.other_type)
 
     def test_merge_works(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["course-type-merge-form"]
         response = form.submit()
         self.assertIn("Successfully", str(response))
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
+        self.main_type.refresh_from_db()
+        self.assertEqual(self.main_type.import_names, ['M', 'O'])
         self.assertEqual(Course.objects.filter(type=self.main_type).count(), 2)
         for course in Course.objects.all():
             self.assertTrue(course.type == self.main_type)
@@ -2036,17 +2409,28 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username="manager.user", groups=[Group.objects.get(name="Manager")])
-        cls.student1 = baker.make(UserProfile)
-        cls.student2 = baker.make(UserProfile)
-        cls.evaluation = baker.make(Evaluation, participants=[cls.student1, cls.student2], voters=[cls.student1], state="in_evaluation")
+        cls.manager = make_manager()
+        cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
+        cls.student2 = baker.make(UserProfile, email="student2@example.com")
+
+        cls.evaluation = baker.make(
+            Evaluation,
+            participants=[cls.student1, cls.student2],
+            voters=[cls.student1],
+            state="in_evaluation",
+        )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):
         textanswer = baker.make(TextAnswer, state=old_state)
-        response = self.app.post(self.url, params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}, user="manager.user", expect_errors=expect_errors)
+        response = self.app.post(
+            self.url,
+            params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
+            user=self.manager,
+            expect_errors=expect_errors,
+        )
         if expect_errors:
             self.assertEqual(response.status_code, 403)
         else:
@@ -2070,20 +2454,21 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 class ParticipationArchivingTests(WebTest):
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username="manager", groups=[Group.objects.get(name="Manager")])
+        cls.manager = make_manager()
 
     def test_raise_403(self):
         """
-            Tests whether inaccessible views on semesters/evaluations with archived participations correctly raise a 403.
+            Tests whether inaccessible views on semesters/evaluations with
+            archived participations correctly raise a 403.
         """
         semester = baker.make(Semester, participations_are_archived=True)
 
         semester_url = "/staff/semester/{}/".format(semester.pk)
 
-        self.app.get(semester_url + "import", user="manager", status=403)
-        self.app.get(semester_url + "assign", user="manager", status=403)
-        self.app.get(semester_url + "evaluation/create", user="manager", status=403)
-        self.app.get(semester_url + "evaluationoperation", user="manager", status=403)
+        self.app.get(semester_url + "import", user=self.manager, status=403)
+        self.app.get(semester_url + "assign", user=self.manager, status=403)
+        self.app.get(semester_url + "evaluation/create", user=self.manager, status=403)
+        self.app.get(semester_url + "evaluationoperation", user=self.manager, status=403)
 
 
 class TestTemplateEditView(WebTest):
@@ -2091,13 +2476,13 @@ class TestTemplateEditView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
 
     def test_emailtemplate(self):
         """
             Tests the emailtemplate view with one valid and one invalid input datasets.
         """
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"
@@ -2115,21 +2500,39 @@ class TestDegreeView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
+
+    @staticmethod
+    def set_import_names(field, value):
+        # Webtest will check that all values are included in the options, so we modify the options beforehand
+        field.options = [(name, False, name) for name in value]
+        field.value = value
 
     def test_degree_form(self):
         """
             Adds a degree via the staff form and verifies that the degree was created in the db.
         """
-        page = self.app.get(self.url, user="manager", status=200)
+        degree_count_before = Degree.objects.count()
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["degree-form"]
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
-        form["form-" + str(last_form_id) + "-name_de"].value = "Test"
-        form["form-" + str(last_form_id) + "-name_en"].value = "Test"
-        response = form.submit()
-        self.assertIn("Successfully", str(response))
+        form[f'form-{last_form_id}-name_de'].value = "Diplom"
+        form[f'form-{last_form_id}-name_en'].value = "Diploma"
+        self.set_import_names(form[f'form-{last_form_id}-import_names'], ["Diplom", "D"])
+        response = form.submit().follow()
+        self.assertContains(response, "Successfully")
 
-        self.assertTrue(Degree.objects.filter(name_de="Test", name_en="Test").exists())
+        self.assertEqual(Degree.objects.count(), degree_count_before + 1)
+        self.assertTrue(Degree.objects.filter(name_de="Diplom", name_en="Diploma", import_names=["Diplom", "D"]).exists())
+
+    def test_import_names_duplicated_error(self):
+        baker.make(Degree, _quantity=2)
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms['degree-form']
+        self.set_import_names(form['form-0-import_names'], ["Master of Arts", "M"])
+        self.set_import_names(form['form-1-import_names'], ["Master of Science", "M"])
+        response = form.submit()
+        self.assertContains(response, 'Import name &quot;M&quot; is duplicated.')
 
 
 class TestSemesterQuestionnaireAssignment(WebTest):
@@ -2137,7 +2540,7 @@ class TestSemesterQuestionnaireAssignment(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, username='manager', groups=[Group.objects.get(name='Manager')])
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=1)
         cls.course_type_1 = baker.make(CourseType)
         cls.course_type_2 = baker.make(CourseType)
@@ -2145,13 +2548,31 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         cls.questionnaire_1 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.questionnaire_2 = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        cls.evaluation_1 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]))
-        cls.evaluation_2 = baker.make(Evaluation, course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]))
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_1, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        baker.make(Contribution, contributor=cls.responsible, evaluation=cls.evaluation_2, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        cls.evaluation_1 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]),
+        )
+        cls.evaluation_2 = baker.make(
+            Evaluation,
+            course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]),
+        )
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        baker.make(
+            Contribution,
+            contributor=cls.responsible,
+            evaluation=cls.evaluation_2,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def test_questionnaire_assignment(self):
-        page = self.app.get(self.url, user="manager", status=200)
+        page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["questionnaire-assign-form"]
         form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
         form[self.course_type_2.name] = [self.questionnaire_2.pk]
@@ -2164,3 +2585,26 @@ class TestSemesterQuestionnaireAssignment(WebTest):
         self.assertEqual(set(self.evaluation_2.general_contribution.questionnaires.all()), set([self.questionnaire_2]))
         self.assertEqual(set(self.evaluation_1.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
         self.assertEqual(set(self.evaluation_2.contributions.get(contributor=self.responsible).questionnaires.all()), set([self.questionnaire_responsible]))
+
+
+class TestSemesterActiveStateBehaviour(WebTest):
+    url = "/staff/semester/make_active"
+    csrf_checks = False
+
+    def test_make_other_semester_active(self):
+        manager = make_manager()
+
+        semester1 = baker.make(Semester, is_active=True)
+        semester2 = baker.make(Semester)
+
+        self.assertFalse(semester2.is_active)
+
+        self.app.post(self.url, user=manager, status=200, params={
+            "semester_id": semester2.id,
+        })
+
+        semester1.refresh_from_db()
+        semester2.refresh_from_db()
+
+        self.assertFalse(semester1.is_active)
+        self.assertTrue(semester2.is_active)

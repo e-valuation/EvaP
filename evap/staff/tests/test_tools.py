@@ -13,16 +13,16 @@ from evap.staff.tools import merge_users, delete_navbar_cache_for_users
 
 class NavbarCacheTest(WebTest):
     def test_navbar_cache_deletion_for_users(self):
-        user1 = baker.make(UserProfile, username='user1', email="user1@institution.example.com")
-        user2 = baker.make(UserProfile, username='user2', email="user2@institution.example.com")
+        user1 = baker.make(UserProfile, email="user1@institution.example.com")
+        user2 = baker.make(UserProfile, email="user2@institution.example.com")
 
         # create navbar caches for anonymous user, user1 and user2
         self.app.get("/")
-        self.app.get("/results/", user='user1')
-        self.app.get("/results/", user='user2')
+        self.app.get("/results/", user="user1@institution.example.com")
+        self.app.get("/results/", user="user2@institution.example.com")
 
-        cache_key1 = make_template_fragment_key('navbar', [user1.username, 'en'])
-        cache_key2 = make_template_fragment_key('navbar', [user2.username, 'en'])
+        cache_key1 = make_template_fragment_key('navbar', [user1.email, 'en'])
+        cache_key2 = make_template_fragment_key('navbar', [user2.email, 'en'])
         cache_key_anonymous = make_template_fragment_key('navbar', ['', 'en'])
 
         self.assertIsNotNone(cache.get(cache_key1))
@@ -39,13 +39,12 @@ class NavbarCacheTest(WebTest):
 class MergeUsersTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user1 = baker.make(UserProfile, username="test1")
-        cls.user2 = baker.make(UserProfile, username="test2")
-        cls.user3 = baker.make(UserProfile, username="test3")
+        cls.user1 = baker.make(UserProfile, email="test1@institution.example.com")
+        cls.user2 = baker.make(UserProfile, email="test2@institution.example.com")
+        cls.user3 = baker.make(UserProfile, email="test3@institution.example.com")
         cls.group1 = baker.make(Group, pk=4)
         cls.group2 = baker.make(Group, pk=5)
         cls.main_user = baker.make(UserProfile,
-            username="main_user",
             title="Dr.",
             first_name="Main",
             last_name="",
@@ -57,7 +56,6 @@ class MergeUsersTest(TestCase):
             ccing_users=[]
         )
         cls.other_user = baker.make(UserProfile,
-            username="other_user",
             title="",
             first_name="Other",
             last_name="User",
@@ -85,8 +83,8 @@ class MergeUsersTest(TestCase):
 
     def setUp(self):
         # merge users changes these instances in such a way that refresh_from_db doesn't work anymore.
-        self.main_user = UserProfile.objects.get(username="main_user")
-        self.other_user = UserProfile.objects.get(username="other_user")
+        self.main_user = UserProfile.objects.get(first_name="Main", last_name="")
+        self.other_user = UserProfile.objects.get(email="other@test.com")
 
     def test_merge_handles_all_attributes(self):
         user1 = baker.make(UserProfile)
@@ -144,7 +142,6 @@ class MergeUsersTest(TestCase):
         self.main_user.refresh_from_db()
         self.other_user.refresh_from_db()
 
-        self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
         self.assertEqual(self.main_user.last_name, "")
@@ -158,7 +155,6 @@ class MergeUsersTest(TestCase):
         self.assertTrue(RewardPointGranting.objects.filter(user_profile=self.main_user).exists())
         self.assertTrue(RewardPointRedemption.objects.filter(user_profile=self.main_user).exists())
 
-        self.assertEqual(self.other_user.username, "other_user")
         self.assertEqual(self.other_user.title, "")
         self.assertEqual(self.other_user.first_name, "Other")
         self.assertEqual(self.other_user.last_name, "User")
@@ -192,7 +188,6 @@ class MergeUsersTest(TestCase):
 
         self.main_user.refresh_from_db()
 
-        self.assertEqual(self.main_user.username, "main_user")
         self.assertEqual(self.main_user.title, "Dr.")
         self.assertEqual(self.main_user.first_name, "Main")
         self.assertEqual(self.main_user.last_name, "User")
@@ -215,6 +210,6 @@ class MergeUsersTest(TestCase):
         self.assertEqual(set(self.evaluation3.participants.all()), {self.main_user})
         self.assertEqual(set(self.evaluation3.voters.all()), {self.main_user})
 
-        self.assertFalse(UserProfile.objects.filter(username="other_user").exists())
+        self.assertFalse(UserProfile.objects.filter(email="other_user@institution.example.com").exists())
         self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())

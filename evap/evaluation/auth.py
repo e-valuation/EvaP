@@ -1,9 +1,7 @@
 from functools import wraps
-import unicodedata
 
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth.views import redirect_to_login
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile
@@ -31,18 +29,27 @@ class RequestAuthUserBackend(ModelBackend):
             return None
 
 
+class EmailAuthenticationBackend(ModelBackend):
+    def authenticate(self, request, email=None, password=None):
+        try:
+            user = UserProfile.objects.get(email=email)
+        except UserProfile.DoesNotExist:
+            return None
+        else:
+            if user.check_password(password):
+                return user
+        return None
+
+
 def user_passes_test(test_func):
     """
-    Decorator for views that checks whether users are authenticated
-    (redirecting to login if not) and pass a given test (raising 403
-    if not). The test should be a callable
-    that takes the user object and returns True if the user passes.
+    Decorator for views that checks whether a user passes a given test
+    (raising 403 if not). The test should be a callable that takes the
+    user object and returns True if the user passes.
     """
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
-            if not request.user.is_authenticated:
-                return redirect_to_login(request.get_full_path())
             if not test_func(request.user):
                 raise PermissionDenied()
             return view_func(request, *args, **kwargs)
@@ -168,13 +175,8 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
 
     def create_user(self, claims):
         user = self.UserModel.objects.create(
-            username=generate_username_from_email(claims.get('email')),
             email=claims.get('email'),
             first_name=claims.get('given_name', ''),
             last_name=claims.get('family_name', ''),
         )
         return user
-
-
-def generate_username_from_email(email):
-    return unicodedata.normalize('NFKC', email).split('@')[0].lower()

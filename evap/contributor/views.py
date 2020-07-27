@@ -3,7 +3,6 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.db import IntegrityError, transaction
 from django.db.models import Max, Q
 from django.forms.models import inlineformset_factory
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -11,7 +10,7 @@ from django.views.decorators.http import require_POST
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ExcelExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
@@ -42,7 +41,10 @@ def index(request):
         delegated_courses = Course.objects.filter(
             Q(evaluations__state__in=contributor_visible_states) & (
                 Q(responsibles__in=represented_users) |
-                Q(evaluations__contributions__can_edit=True, evaluations__contributions__contributor__in=represented_users)
+                Q(
+                    evaluations__contributions__role=Contribution.Role.EDITOR,
+                    evaluations__contributions__contributor__in=represented_users,
+                )
             )
         )
         delegated_evaluations = set(evaluation for course in delegated_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user))
@@ -66,7 +68,7 @@ def index(request):
     semester_list = [dict(
         semester_name=semester.name,
         id=semester.id,
-        is_active_semester=semester.is_active_semester,
+        is_active=semester.is_active,
         evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
@@ -212,7 +214,11 @@ def evaluation_direct_delegation(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
 
-    contribution, created = Contribution.objects.update_or_create(evaluation=evaluation, contributor=delegate_user, defaults={'can_edit': True})
+    contribution, created = Contribution.objects.update_or_create(
+        evaluation=evaluation,
+        contributor=delegate_user,
+        defaults={'role': Contribution.Role.EDITOR},
+    )
     if created:
         contribution.order = evaluation.contributions.all().aggregate(Max('order'))['order__max'] + 1
         contribution.save()
@@ -236,8 +242,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 def export_contributor_results(contributor):
     filename = "Evaluation_{}.xls".format(contributor.full_name)
-    response = HttpResponse(content_type="application/vnd.ms-excel")
-    response["Content-Disposition"] = "attachment; filename=\"{}\"".format(filename)
+    response = FileResponse(filename, content_type="application/vnd.ms-excel")
     ExcelExporter().export(
         response,
         Semester.objects.all(),

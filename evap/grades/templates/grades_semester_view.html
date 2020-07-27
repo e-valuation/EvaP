@@ -39,12 +39,12 @@
                     <tbody>
                         {% for course, num_midterm_grades, num_final_grades in courses %}
                             <tr>
-                                <td data-col="name">
+                                <td data-col="name" data-order="{{ course.name|lower }}">
                                     <a href="{% url 'grades:course_view' semester.id course.id %}">{{ course.name }}</a>
                                     <br />
                                     {% include 'evaluation_badges.html' with mode='grades' %}
                                 </td>
-                                <td data-col="responsible">
+                                <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
                                     {{ course.responsibles_names }}
                                 </td>
                                 <td class="text-center" data-col="complete">{% if course.all_evaluations_finished %}<span class="fas fa-check"></span>{% endif %}

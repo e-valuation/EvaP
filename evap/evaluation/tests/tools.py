@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -55,15 +56,15 @@ class WebTestWith200Check(WebTest):
             self.app.get(self.url, user=user, status=200)
 
 
-def get_form_data_from_instance(FormClass, instance):
+def get_form_data_from_instance(FormClass, instance, **kwargs):
     assert FormClass._meta.model == type(instance)
-    form = FormClass(instance=instance)
+    form = FormClass(instance=instance, **kwargs)
     return {field.html_name: field.value() for field in form}
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    responsible = baker.make(UserProfile, username='responsible')
-    editor = baker.make(UserProfile, username='editor')
+    responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+    editor = baker.make(UserProfile, email='editor@institution.example.com')
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
@@ -78,7 +79,25 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
-    baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True, questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)])
+    baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=editor,
+        questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
+        role=Contribution.Role.EDITOR,
+    )
     evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
-    return evaluation
+    return {
+        'evaluation': evaluation,
+        'responsible': responsible,
+        'editor': editor,
+    }
+
+
+def make_manager():
+    return baker.make(
+        UserProfile,
+        email='manager@institution.example.com',
+        groups=[Group.objects.get(name='Manager')],
+    )

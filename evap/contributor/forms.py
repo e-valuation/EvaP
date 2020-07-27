@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
+    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
     name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
@@ -39,6 +39,10 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
+        if not self.instance.allow_editors_to_edit:
+            for field in self._meta.fields:
+                self.fields[field].disabled = True
+
     def clean(self):
         super().clean()
 
@@ -57,6 +61,19 @@ class EvaluationForm(forms.ModelForm):
         if vote_end_date and date_to_datetime(vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS) < datetime.now():
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
+
+    def clean_general_questionnaires(self):
+        # Ensure all locked questionnaires still have the same status (included or not)
+        not_locked = []
+        if self.cleaned_data.get('general_questionnaires'):
+            not_locked = list(self.cleaned_data.get('general_questionnaires').filter(is_locked=False))
+
+        locked = list(self.instance.general_contribution.questionnaires.filter(is_locked=True))
+
+        if not not_locked + locked:
+            self.add_error("general_questionnaires", _("At least one questionnaire must be selected."))
+
+        return not_locked + locked
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
@@ -93,7 +110,7 @@ class DelegatesForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        logger.info('User "{}" edited the settings.'.format(self.instance.username))
+        logger.info('User "{}" edited the settings.'.format(self.instance.email))
 
 
 class DelegateSelectionForm(forms.Form):

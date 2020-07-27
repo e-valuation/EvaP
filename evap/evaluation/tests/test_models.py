@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, date
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.core.cache import caches
 from django.core import mail
@@ -11,6 +12,7 @@ from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.grades.models import GradeDocument
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
@@ -58,9 +60,9 @@ class TestEvaluations(WebTest):
 
     def test_in_evaluation_to_published(self):
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
-        course = baker.make(Course, is_graded=False)
+        course = baker.make(Course)
         evaluation = baker.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1))
+                            vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
 
         with patch('evap.evaluation.models.EmailTemplate.send_participant_publish_notifications') as participant_mock,\
                 patch('evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications') as contributor_mock:
@@ -100,13 +102,13 @@ class TestEvaluations(WebTest):
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
-        course_1 = baker.make(Course, is_graded=False)
-        course_2 = baker.make(Course, is_graded=False)
+        course_1 = baker.make(Course)
+        course_2 = baker.make(Course)
         baker.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today() - timedelta(days=1))
+                   vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
         # This evaluation is not.
         baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today())
+                   vote_end_date=date.today(), wait_for_grade_upload_before_publishing=False)
 
         with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
             Evaluation.update_evaluations()
@@ -135,8 +137,12 @@ class TestEvaluations(WebTest):
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
 
         editor_contribution = baker.make(
-                Contribution, evaluation=evaluation, contributor=baker.make(UserProfile),
-                can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+            Contribution,
+            evaluation=evaluation,
+            contributor=baker.make(UserProfile),
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         evaluation = Evaluation.objects.get()
         self.assertFalse(evaluation.general_contribution_has_questionnaires)
         self.assertFalse(evaluation.all_contributions_have_questionnaires)
@@ -164,9 +170,13 @@ class TestEvaluations(WebTest):
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, is_single_result=True)
-        contribution = baker.make(Contribution,
-            evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[Questionnaire.single_result_questionnaire()]
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
         evaluation.single_result_created()
@@ -188,9 +198,13 @@ class TestEvaluations(WebTest):
         """ Regression test for #1238 """
         responsible = baker.make(UserProfile)
         single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(Contribution,
-            evaluation=single_result, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[Questionnaire.single_result_questionnaire()]
+        contribution = baker.make(
+            Contribution,
+            evaluation=single_result,
+            contributor=responsible,
+            questionnaires=[Questionnaire.single_result_questionnaire()],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
@@ -198,8 +212,8 @@ class TestEvaluations(WebTest):
         single_result.publish()  # used to crash
 
     def test_second_vote_sets_can_publish_text_results_to_true(self):
-        student1 = baker.make(UserProfile)
-        student2 = baker.make(UserProfile)
+        student1 = baker.make(UserProfile, email="student1@institution.example.com")
+        student2 = baker.make(UserProfile, email="student2@example.com")
         evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -293,6 +307,81 @@ class TestEvaluations(WebTest):
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True)))
         self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
+
+    # pylint: disable=invalid-name
+    def assert_textanswer_review_state(
+            self,
+            evaluation,
+            expected_default_value,
+            expected_value_with_gets_no_grade_documents,
+            expected_value_with_wait_for_grade_upload_before_publishing,
+            expected_value_after_grade_upload):
+
+        self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
+
+        evaluation.course.gets_no_grade_documents = True
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_with_gets_no_grade_documents)
+        evaluation.course.gets_no_grade_documents = False
+
+        evaluation.wait_for_grade_upload_before_publishing = True
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_with_wait_for_grade_upload_before_publishing)
+
+        grade_document = baker.make(GradeDocument, type=GradeDocument.Type.FINAL_GRADES, course=evaluation.course)
+        self.assertEqual(evaluation.textanswer_review_state, expected_value_after_grade_upload)
+        grade_document.delete()
+
+        evaluation.wait_for_grade_upload_before_publishing = False
+
+    def test_textanswer_review_state(self):
+        evaluation = baker.make(
+            Evaluation,
+            state="in_evaluation",
+            can_publish_text_results=True,
+            wait_for_grade_upload_before_publishing=False
+        )
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+            evaluation.TextAnswerReviewState.NO_TEXTANSWERS,
+        )
+
+        textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
+        del evaluation.num_textanswers  # reset cached_property cache
+
+        # text_answer_review_state should be REVIEW_NEEDED as long as we are still in_evaluation
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+        )
+
+        evaluation.evaluation_end()
+        evaluation.save()
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,  # course has `gets_no_grade_documents`
+            evaluation.TextAnswerReviewState.REVIEW_NEEDED,  # still waiting for grades
+            evaluation.TextAnswerReviewState.REVIEW_URGENT,  # grades were uploaded
+        )
+
+        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.save()
+        del evaluation.num_reviewed_textanswers  # reset cached_property cache
+
+        self.assert_textanswer_review_state(
+            evaluation,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+            evaluation.TextAnswerReviewState.REVIEWED,
+        )
 
 
 class TestCourse(TestCase):
@@ -482,7 +571,13 @@ class ParticipationArchivingTests(TestCase):
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
-        contribution = baker.make(Contribution, evaluation=evaluation, contributor=responsible, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=responsible,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
         evaluation.course.semester.archive_participations()
@@ -499,7 +594,13 @@ class TestLoginUrlEmail(TestCase):
         cls.user.ensure_valid_login_key()
 
         cls.evaluation = baker.make(Evaluation)
-        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.user, can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            contributor=cls.user,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
         cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
 
@@ -626,7 +727,7 @@ class TestEmailRecipientList(TestCase):
         editor = baker.make(UserProfile)
         contributor = baker.make(UserProfile)
         evaluation.course.responsibles.set([responsible])
-        baker.make(Contribution, evaluation=evaluation, contributor=editor, can_edit=True)
+        baker.make(Contribution, evaluation=evaluation, contributor=editor, role=Contribution.Role.EDITOR)
         baker.make(Contribution, evaluation=evaluation, contributor=contributor)
 
         participant1 = baker.make(UserProfile, evaluations_participating_in=[evaluation])
@@ -679,3 +780,9 @@ class TestEmailRecipientList(TestCase):
         # contributor2 is in cc of contributor3 but is not filtered since contributor1 wouldn't get an email at all then.
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
+
+
+class QuestionnaireTests(TestCase):
+    def test_locked_contributor_questionnaire(self):
+        questionnaire = baker.prepare(Questionnaire, is_locked=True, type=Questionnaire.Type.CONTRIBUTOR)
+        self.assertRaises(ValidationError, questionnaire.clean)

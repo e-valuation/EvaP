@@ -8,7 +8,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="degree-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
+    <form id="degree-form" method="POST" enctype="multipart/form-data" class="form-horizontal select2form">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -18,14 +18,15 @@
                     <thead>
                         <tr>
                             <th class="movable"></th>
-                            <th style="width: 45%">{% trans 'Name (German)' %}</th>
-                            <th style="width: 45%">{% trans 'Name (English)' %}</th>
+                            <th style="width: 25%">{% trans 'Name (German)' %}</th>
+                            <th style="width: 25%">{% trans 'Name (English)' %}</th>
+                            <th style="width: 40%">{% trans 'Import names' %}</th>
                             <th style="width: 10%">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for form in formset %}
-                            <tr class="sortable">
+                            <tr class="select2tr sortable">
                                 {% for hidden in form.hidden_fields %}
                                     {{ hidden }}
                                 {% endfor %}
@@ -37,6 +38,9 @@
                                 </td>
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_en %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.import_names %}
                                 </td>
                                 <td>
                                     {% if form.instance.can_be_deleted_by_manager %}
@@ -71,7 +75,23 @@
             nameEn = $(row.find('input[id$=-name_en]')).val();
             return nameDe || nameEn
         };
-        rowAdded = function(row) { };
-        makeFormSortable("degree_table", "form", rowChanged, rowAdded, "", true, false);
+        rowAdded = function(row) {
+            applySelect2(row.find("select"));
+        };
+        makeFormSortable("degree_table", "form", rowChanged, rowAdded, "", true, true);
+
+        function applySelect2(element) {
+            element.select2({
+                language: "{{ LANGUAGE_CODE }}",
+                placeholder: "{% trans 'Add items...' %}",
+                tags: true,
+                // Disable search so that new items can be created instead of using an existing suggestion
+                matcher: () => null,
+                // Use a detached container to hide the dropdown
+                dropdownParent: $("<div>"),
+            });
+        }
+
+        applySelect2($("select").not('.form-template select'));
     </script>
 {% endblock %}

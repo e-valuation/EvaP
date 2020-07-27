@@ -3,11 +3,14 @@
 <ul class="list-unstyled">
     {% for choice, questionnaire in field|zip:field.field.queryset %}
         {% ifchanged questionnaire.type %}
-            {% if questionnaire.type != questionnaire.TOP and questionnaire.type != questionnaire.CONTRIBUTOR %}
+            {% if questionnaire.type == questionnaire.Type.BOTTOM %}
                 <hr class="mb-1 mt-1" />
             {% endif %}
         {% endifchanged %}
         <li class="form-check" data-toggle="tooltip" data-placement="left" title="{% spaceless %}
+            {% if questionnaire.is_locked and not manager %}
+                {% trans 'This questionnaire is locked, its selection cannot be changed.' %}<br /><br />
+            {% endif %}
             {% if questionnaire.description %}
                 {{ questionnaire.description }}<br />
             {% endif %}
@@ -24,7 +27,8 @@
             </ul>
             {% endspaceless %}">
             <input class="form-check-input" id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}"
-                autocomplete="off"{% if choice.data.selected %} checked{% endif %}{% if field.field.disabled %} disabled{% endif %} />
+                autocomplete="off"{% if choice.data.selected or questionnaire.is_locked and not manager and choice.data.value in field.initial %} checked{% endif %}
+                    {% if field.field.disabled or questionnaire.is_locked and not manager %} disabled{% endif %} />
             <label class="form-check-label" for="{{ choice.id_for_label }}">
                 {{ choice.choice_label }}
             </label>

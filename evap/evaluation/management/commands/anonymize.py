@@ -24,7 +24,7 @@ class Command(BaseCommand):
     lastnames_filename = 'last_names.txt'
     lorem_ipsum_filename = 'lorem_ipsum.txt'
 
-    ignore_usernames = ['evap', 'student', 'contributor', 'delegate', 'responsible']
+    ignore_email_usernames = ['evap', 'student', 'contributor', 'delegate', 'responsible']
 
     previous_institution_domains = ['hpi.uni-potsdam.de', 'institution.example.com', 'hpi.de', 'student.hpi.de']
     new_institution_domain = settings.INSTITUTION_EMAIL_DOMAINS[0]
@@ -80,7 +80,7 @@ class Command(BaseCommand):
     def anonymize_email_templates(self):
         self.stdout.write("REMINDER: The email templates could still contain sensitive contact information...")
 
-    # Replaces names, usernames, email addresses, login keys and valid until dates with fake ones
+    # Replaces names, email addresses, login keys and valid until dates with fake ones
     def anonymize_users(self, first_names, last_names):
         user_profiles = UserProfile.objects.all()
 
@@ -97,26 +97,26 @@ class Command(BaseCommand):
             fake_usernames.add((random.choice(first_names), random.choice(last_names)))  # nosec
 
         for i, user in enumerate(user_profiles):
-            # Give users unique temporary names to counter identity errors due to the names being unique
-            if user.username in Command.ignore_usernames:
-                continue
-            user.username = f"<User #{i}>"
-            user.save()
+            # Give users unique temporary emails to counter identity errors due to the emails being unique
+            if user.email:
+                if user.email.split('@')[0] in Command.ignore_email_usernames:
+                    continue
+                user.email = f"<User.{i}>@{user.email.split('@')[1]}"
+                user.save()
 
         # Actually replace all the real user data
-        self.stdout.write("Replacing usernames, email addresses and login keys with fake ones...")
+        self.stdout.write("Replacing email addresses and login keys with fake ones...")
         for user, name in zip(user_profiles, fake_usernames):
-            if user.username in Command.ignore_usernames:
+            if user.email and user.email.split('@')[0] in Command.ignore_email_usernames:
                 continue
             user.first_name = name[0]
             user.last_name = name[1]
-            user.username = (user.first_name + '.' + user.last_name).lower()
 
             if user.email:
                 old_domain = user.email.split('@')[1]
                 is_institution_domain = old_domain in Command.previous_institution_domains
                 new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
-                user.email = user.username + '@' + new_domain
+                user.email = (user.first_name + '.' + user.last_name).lower() + '@' + new_domain
 
             if user.login_key is not None:
                 # Create a new login key

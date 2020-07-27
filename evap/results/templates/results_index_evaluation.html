@@ -34,7 +34,7 @@
             {% elif evaluation.state == 'evaluated' %}
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% elif evaluation.state == 'reviewed' %}
-                {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.course.is_graded %}
+                {% if evaluation.is_single_result or evaluation.course.final_grade_documents or evaluation.course.gets_no_grade_documents or not evaluation.wait_for_grade_upload_before_publishing %}
                     <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
                 {% else %}
                     <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>

@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/e-valuation/EvaP.svg?branch=master)](https://travis-ci.org/e-valuation/EvaP)
 [![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=master)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
-[![Coverage Status](https://coveralls.io/repos/github/e-valuation/EvaP/badge.svg?branch=master)](https://coveralls.io/github/e-valuation/EvaP?branch=master)
+[![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
 
 ## What is EvaP?
@@ -33,7 +33,7 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
         vagrant ssh
         ./manage.py run
 
-4. Open your browser at http://localhost:8000/ and login with username ``evap`` and password ``evap``
+4. Open your browser at http://localhost:8000/ and login with email ``evap@institution.example.com`` and password ``evap``
 
 
 That's it!

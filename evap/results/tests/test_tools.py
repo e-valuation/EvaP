@@ -216,7 +216,14 @@ class TestCalculateAverageDistribution(TestCase):
     def test_get_single_result_rating_result(self):
         single_result_evaluation = baker.make(Evaluation, state='published', is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
-        contribution = baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=single_result_evaluation, questionnaires=[questionnaire], can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        contribution = baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=single_result_evaluation,
+            questionnaires=[questionnaire],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
         distribution = calculate_average_distribution(single_result_evaluation)
@@ -317,28 +324,50 @@ class TestCalculateAverageDistribution(TestCase):
 class TestTextAnswerVisibilityInfo(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.delegate1 = baker.make(UserProfile, username="delegate1")
-        cls.delegate2 = baker.make(UserProfile, username="delegate2")
-        cls.contributor_own = baker.make(UserProfile, username="contributor_own", delegates=[cls.delegate1])
-        cls.contributor_general = baker.make(UserProfile, username="contributor_general", delegates=[cls.delegate2])
-        cls.responsible1 = baker.make(UserProfile, username="responsible1", delegates=[cls.delegate1, cls.contributor_general])
-        cls.responsible2 = baker.make(UserProfile, username="responsible2")
-        cls.responsible_without_contribution = baker.make(UserProfile, username="responsible_without_contribution")
-        cls.other_user = baker.make(UserProfile, username="other_user")
+        cls.delegate1 = baker.make(UserProfile, email="delegate1@institution.example.com")
+        cls.delegate2 = baker.make(UserProfile, email="delegate2@institution.example.com")
+        cls.contributor_own = baker.make(UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1])
+        cls.contributor_general = baker.make(UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2])
+        cls.responsible1 = baker.make(UserProfile, email="responsible1@institution.example.com", delegates=[cls.delegate1, cls.contributor_general])
+        cls.responsible2 = baker.make(UserProfile, email="responsible2@institution.example.com")
+        cls.responsible_without_contribution = baker.make(UserProfile, email="responsible_without_contribution@institution.example.com")
+        cls.other_user = baker.make(UserProfile, email="other_user@institution.example.com")
 
         cls.evaluation = baker.make(Evaluation, course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state='published', can_publish_text_results=True)
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=Question.TEXT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
-        cls.responsible1_contribution = baker.make(Contribution, contributor=cls.responsible1, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        cls.responsible2_contribution = baker.make(Contribution, contributor=cls.responsible2, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], can_edit=True, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
-        cls.contributor_own_contribution = baker.make(Contribution, contributor=cls.contributor_own, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS)
-        cls.contributor_general_contribution = baker.make(Contribution, contributor=cls.contributor_general, evaluation=cls.evaluation,
-            questionnaires=[cls.questionnaire], textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS)
+        cls.responsible1_contribution = baker.make(
+            Contribution,
+            contributor=cls.responsible1,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        cls.responsible2_contribution = baker.make(
+            Contribution,
+            contributor=cls.responsible2,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
+        cls.contributor_own_contribution = baker.make(
+            Contribution,
+            contributor=cls.contributor_own,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
+            textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+        )
+        cls.contributor_general_contribution = baker.make(
+            Contribution,
+            contributor=cls.contributor_general,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
         cls.general_contribution_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.State.PUBLISHED)
         cls.responsible1_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.responsible1_contribution, state=TextAnswer.State.PUBLISHED)
         cls.responsible2_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.State.PUBLISHED)
