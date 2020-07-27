@@ -31,7 +31,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
-
 from evap.evaluation.tools import clean_email, date_to_datetime, is_external_email, translate
 
 logger = logging.getLogger(__name__)
@@ -56,36 +55,36 @@ class LogEntry(models.Model):
     class Meta:
         ordering = ("-datetime", "-id")
 
+    @staticmethod
+    def _pk_to_string_representation(key, field, related_objects):
+        if key is None:
+            return key
+        try:
+            return str(related_objects.get(pk=key))
+        except field.related_model.DoesNotExist:
+            return "�"
+
     def _evaluation_log_template_context(self, data):
         fields = defaultdict(list)
         model = self.content_type.model_class()
         for field_name, actions in data.items():
             field = model._meta.get_field(field_name)
             try:
-                label = getattr(field, "verbose_name", field_name)
+                label = getattr(field, "verbose_name", field_name).capitalize()
             except FieldDoesNotExist:
-                label = field_name
+                label = field_name.capitalize()
 
             if field.many_to_many or field.many_to_one or field.one_to_one:
+                # Convert item values from primary keys to string-representation for special fields
                 related_ids = itertools.chain(*actions.values())
                 related_objects = field.related_model.objects.filter(pk__in=related_ids)
                 bool(related_objects)  # force queryset evaluation
-
-            for field_action_type, items in actions.items():
-                if field.many_to_many or field.many_to_one or field.one_to_one:
-                    # Convert item values from primary keys to string-representation for special fields
-                    new_items = []
-                    for item in items:
-                        if item is None:
-                            new_items.append(item)
-                            continue
-                        try:
-                            new_items.append(str(related_objects.get(pk=item)))
-                        except field.related_model.DoesNotExist:
-                            # The referenced model instance was deleted
-                            new_items.append("�")
-                    items = new_items
-                fields[field_name].append(FieldAction(label.capitalize(), field_action_type, items))
+                for field_action_type, primary_keys in actions.items():
+                    items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
+                    fields[field_name].append(FieldAction(label, field_action_type, items))
+            else:
+                for field_action_type, items in actions.items():
+                    fields[field_name].append(FieldAction(label, field_action_type, items))
         return dict(fields)
 
     def display(self):
@@ -991,7 +990,6 @@ class Evaluation(LoggedModel):
     @property
     def ignore_field_names_logging(self):
         return super().ignore_field_names_logging + ["voters"]
-
 
 
 @receiver(post_transition, sender=Evaluation)
