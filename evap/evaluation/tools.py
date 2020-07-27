@@ -11,6 +11,14 @@ from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
 
 
+def is_prefetched(instance, attribute_name):
+    """
+    Is the given attribute prefetched? Can be used to do ordering or counting
+    in python and avoid additional database queries
+    """
+    return hasattr(instance, '_prefetched_objects_cache') and attribute_name in instance._prefetched_objects_cache
+
+
 def is_external_email(email):
     return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
 

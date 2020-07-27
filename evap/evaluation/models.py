@@ -25,7 +25,7 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,8 @@ class Course(models.Model):
 
     @cached_property
     def responsibles_names(self):
-        return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
+        ordered_responsibles = sorted(self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name))
+        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
     @property
     def has_external_responsible(self):
@@ -546,6 +547,10 @@ class Evaluation(models.Model):
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
+
+        if is_prefetched(self, 'participants'):
+            return len(self.participants.all())
+
         return self.participants.count()
 
     def _archive_participations(self):

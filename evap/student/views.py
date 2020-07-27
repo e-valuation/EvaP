@@ -4,13 +4,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, Course, NO_ANSWER, Semester
+from evap.evaluation.models import Evaluation, NO_ANSWER, Semester
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
@@ -24,13 +25,16 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 @participant_required
 def index(request):
-    # retrieve all courses which have evaluations that are not in state "new" and in which the user participates
-    courses = Course.objects.filter(
-        evaluations__participants=request.user,
-        evaluations__state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
-    ).distinct().prefetch_related('semester', 'grade_documents', 'type', 'evaluations', 'evaluations__participants', 'evaluations__voters')
-    # retrieve all evaluations which the user can see that are not new
-    evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(request.user)]
+    query = (Evaluation.objects
+        .filter(~Q(state="new"), course__evaluations__participants=request.user)
+        .exclude(state="new")
+        .prefetch_related(
+            'course', 'course__semester', 'course__grade_documents', 'course__type',
+            'course__evaluations', 'participants', 'voters', 'course__responsibles', 'course__degrees',
+        ).distinct()
+    )
+    evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
+
     for evaluation in evaluations:
         if evaluation.state == "published":
             if not evaluation.is_single_result:
@@ -53,7 +57,12 @@ def index(request):
         evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
-    unfinished_evaluations = list(Evaluation.objects.filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation']).exclude(voters=request.user))
+    unfinished_evaluations = list(
+        Evaluation.objects
+        .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        .exclude(voters=request.user)
+        .prefetch_related('course__responsibles', 'course__type', 'course__semester', 'participants')
+    )
 
     # available evaluations come first, ordered by time left for evaluation and the name
     # evaluations in other (visible) states follow by name
