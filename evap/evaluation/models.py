@@ -1,9 +1,7 @@
-import datetime
 import itertools
 import json
 import logging
 import operator
-import random
 import secrets
 import threading
 import uuid
@@ -18,10 +16,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import caches
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.mail import EmailMessage
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Manager, Q
-from django.db.models.signals import m2m_changed, post_init
+from django.db.models.signals import m2m_changed
 from django.dispatch import Signal, receiver
 from django.forms.models import model_to_dict
 from django.template import Context, Template
@@ -32,7 +29,6 @@ from django.utils import timezone
 from django.utils.formats import localize
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
@@ -43,11 +39,12 @@ logger = logging.getLogger(__name__)
 
 FieldAction = namedtuple("FieldAction", "label type items")
 
+
 class LogEntry(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="log_entries_about_me")
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="logs_about_me")
     content_object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey("content_type", "content_object_id")
-    attached_to_object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="log_entries_shown_to_me")
+    attached_to_object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="logs_for_me")
     attached_to_object_id = models.PositiveIntegerField(db_index=True)
     attached_to_object = GenericForeignKey("attached_to_object_type", "attached_to_object_id")
     datetime = models.DateTimeField(auto_now_add=True)
@@ -92,7 +89,7 @@ class LogEntry(models.Model):
         return dict(fields)
 
     def display(self):
-        if self.action_type not in ("change", "create", "delete"): 
+        if self.action_type not in ("change", "create", "delete"):
             raise ValueError("Unknown action type: '{}'!".format(self.action_type))
 
         field_data = json.loads(self.data)
@@ -125,6 +122,7 @@ def log_serialize(obj):
 
 class LoggedModel(models.Model):
     thread = threading.local()
+
     class Meta:
         abstract = True
 
@@ -132,7 +130,6 @@ class LoggedModel(models.Model):
         super().__init__(*args, **kwargs)
         self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
-        
         for field in type(self)._meta.many_to_many:
             self.register_logged_m2m_field(field)
 
@@ -150,7 +147,7 @@ class LoggedModel(models.Model):
             return
 
         field_name = next((field.name for field in type(instance)._meta.many_to_many
-                                     if getattr(type(instance), field.name).through == sender), None)
+                           if getattr(type(instance), field.name).through == sender), None)
 
         if action == 'pre_remove':
             instance._m2m_changes[field_name]['remove'] += list(pk_set)
@@ -179,8 +176,8 @@ class LoggedModel(models.Model):
         elif action_type == "change":
             old_dict = type(self).objects.get(pk=self.pk)._as_dict()
             changes = {field_name: {'change': [old_value, self_dict[field_name]]}
-                    for field_name, old_value in old_dict.items()
-                    if old_value != self_dict[field_name]}
+                       for field_name, old_value in old_dict.items()
+                       if old_value != self_dict[field_name]}
         elif action_type == "delete":
             old_dict = type(self).objects.get(pk=self.pk)._as_dict()
             changes = {}
@@ -198,64 +195,58 @@ class LoggedModel(models.Model):
         return changes
 
     def update_log(self, mode, *args, **kw):
-        if mode == "create":
-            super().save(*args, **kw)
-
         action = {
                 'delete': 'delete',
                 'create': 'create',
                 'change': 'change',
-                'm2m'   : 'change',
-                }[mode]
+                'm2m':    'change',
+                 }[mode]
 
         changes = self._change_data(action)
-        if changes:
-            if not self._logentry:
-                try:
-                    user = self.thread.request.user
-                    request_id = self.thread.request_id
-                except AttributeError:
-                    user = None
-                    request_id = None
-                data = json.dumps(changes, default=log_serialize)
-                attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
-                attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
-                self._logentry = LogEntry(
-                        content_object=self,
-                        attached_to_object_type=attached_to_object_type,
-                        attached_to_object_id=attached_to_object_id,
-                        user=user,
-                        request_id=request_id,
-                        action_type=action,
-                        data=data)
-            else:
-                previous_changes = json.loads(self._logentry.data)
-                previous_changes.update(changes)
-                data = json.dumps(previous_changes, default=log_serialize)
-                self._logentry.data = data
+        if not changes:
+            return
 
-        if mode in ("create", "m2m"):
-            if changes:
-                self._logentry.save()
-        elif mode == "change":
-            super().save(*args, **kw)
-            if changes:
-                self._logentry.save()
-        elif mode == "delete":
-            if changes:
-                self._logentry.save()
-            super().delete(*args, **kw)
+        if not self._logentry:
+            try:
+                user = self.thread.request.user
+                request_id = self.thread.request_id
+            except AttributeError:
+                user = None
+                request_id = None
+            data = json.dumps(changes, default=log_serialize)
+            attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
+            attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
+            self._logentry = LogEntry(
+                    content_object=self,
+                    attached_to_object_type=attached_to_object_type,
+                    attached_to_object_id=attached_to_object_id,
+                    user=user,
+                    request_id=request_id,
+                    action_type=action,
+                    data=data)
         else:
-            raise ValueError("Unknown mode: '{}'".format(mode))
+            previous_changes = json.loads(self._logentry.data)
+            previous_changes.update(changes)
+            data = json.dumps(previous_changes, default=log_serialize)
+            self._logentry.data = data
+
+        self._logentry.save()
 
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
         mode = "change" if not self._state.adding else "create"
+        if mode == "create":
+            super().save(*args, **kw)
+
         self.update_log(mode, *args, **kw)
+
+        if mode == "change":
+            super().save(*args, **kw)
 
     def delete(self, *args, **kw):
         self.update_log(mode="delete", *args, **kw)
+        super().delete(*args, **kw)
 
     def all_logentries(self):
         """
