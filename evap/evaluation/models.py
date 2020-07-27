@@ -533,7 +533,7 @@ class CourseType(models.Model):
         return not self.courses.all().exists()
 
 
-class Course(models.Model):
+class Course(LoggedModel):
     """Models a single course, e.g. the Math 101 course of 2002."""
     semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
 
