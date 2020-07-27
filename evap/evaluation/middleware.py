@@ -4,7 +4,7 @@ from .models import LoggedModel
 
 
 class LoggingRequestMiddleware(MiddlewareMixin):
-    """Expose request to HistoricalRecords.
+    """Expose request to LoggedModel.
     This middleware sets request as a local thread variable, making it
     available to the model-level utilities to allow tracking of the
     authenticated user making a change.
