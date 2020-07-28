@@ -2,7 +2,7 @@ import uuid
 
 from django.utils.deprecation import MiddlewareMixin
 
-from .models import LoggedModel
+from evap.evaluation.models import LoggedModel
 
 
 class LoggingRequestMiddleware(MiddlewareMixin):

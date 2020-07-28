@@ -195,7 +195,7 @@ class LoggedModel(models.Model):
         changes.update(self._m2m_changes)
         return changes
 
-    def update_log(self, mode, *args, **kw):
+    def update_log(self, mode):
         action = {
                 'delete': 'delete',
                 'create': 'create',
@@ -240,13 +240,13 @@ class LoggedModel(models.Model):
         if mode == "create":
             super().save(*args, **kw)
 
-        self.update_log(mode, *args, **kw)
+        self.update_log(mode)
 
         if mode == "change":
             super().save(*args, **kw)
 
     def delete(self, *args, **kw):
-        self.update_log(mode="delete", *args, **kw)
+        self.update_log(mode="delete")
         super().delete(*args, **kw)
 
     def all_logentries(self):
@@ -1090,8 +1090,7 @@ class Contribution(LoggedModel):
     def __str__(self):
         if self.contributor:
             return _("Contribution by") + " " + self.contributor.full_name
-        else:
-            return str(_("General Contribution"))
+        return str(_("General Contribution"))
 
 
 class Question(models.Model):

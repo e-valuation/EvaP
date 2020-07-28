@@ -2,8 +2,9 @@ import json
 from datetime import date, datetime, timedelta
 
 from django.test import TestCase
-from evap.evaluation.models import Evaluation, FieldAction, log_serialize
 from model_bakery import baker
+
+from evap.evaluation.models import Evaluation, FieldAction, log_serialize
 
 
 class TestLoggedModel(TestCase):
