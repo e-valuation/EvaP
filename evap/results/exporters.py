@@ -281,7 +281,7 @@ class ResultsExporter(ExcelExporter):
 ResultsExporter.init_grade_styles()
 
 
-class TextAnswerExcelExporter(ExcelExporter):
+class TextAnswerExporter(ExcelExporter):
 
     class InputData:
         def __init__(self, contribution_results):
@@ -302,7 +302,7 @@ class TextAnswerExcelExporter(ExcelExporter):
         self.evaluation_name = evaluation_name
         self.semester_name = semester_name
         self.responsibles = responsibles
-        assert isinstance(results, TextAnswerExcelExporter.InputData)
+        assert isinstance(results, TextAnswerExporter.InputData)
         self.results = results
         self.contributor_name = contributor_name
 

@@ -14,7 +14,7 @@ from django.utils import translation
 from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile, Course
 from evap.evaluation.auth import internal_required
 from evap.evaluation.tools import FileResponse
-from evap.results.exporters import TextAnswerExcelExporter
+from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
                                 HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution)
@@ -363,7 +363,7 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
 
 
 def extract_evaluation_answer_data(request, evaluation):
-    # TextAnswerExcelExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
+    # TextAnswerExporter wants a dict from Question to tuple of contributor_name and string list (of the answers)
 
     view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
@@ -371,7 +371,7 @@ def extract_evaluation_answer_data(request, evaluation):
     filter_text_answers(evaluation_result)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
 
-    results = TextAnswerExcelExporter.InputData(evaluation_result.contribution_results)
+    results = TextAnswerExporter.InputData(evaluation_result.contribution_results)
 
     return results, contributor_id
 
@@ -390,7 +390,7 @@ def evaluation_text_answers_export(request, evaluation_id):
 
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-    TextAnswerExcelExporter(evaluation.full_name, evaluation.course.semester.name,
+    TextAnswerExporter(evaluation.full_name, evaluation.course.semester.name,
                             evaluation.course.responsibles_names, results, contributor_name).export(response)
 
     return response

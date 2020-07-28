@@ -17,7 +17,7 @@ from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Qu
                                     RatingAnswerCounter,
                                     Semester, UserProfile)
 from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation, make_manager
-from evap.results.exporters import TextAnswerExcelExporter
+from evap.results.exporters import TextAnswerExporter
 from evap.results.views import get_evaluations_with_prefetched_data
 
 
@@ -803,12 +803,12 @@ class TestTextAnswerExportView(WebTest):
         def mock(_self, res):
             res.write(b"1337")
 
-        with patch.object(TextAnswerExcelExporter, "export", mock):
+        with patch.object(TextAnswerExporter, "export", mock):
             response = self.app.get(self.url, user=self.reviewer, status=200)
             self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
             self.assertEqual(response.content, b"1337")
 
-    @patch("evap.results.exporters.TextAnswerExcelExporter.export")
+    @patch("evap.results.exporters.TextAnswerExporter.export")
     def test_permission_denied(self, export_method):
         manager = make_manager()
         student = baker.make(UserProfile, email="student@institution.example.com")

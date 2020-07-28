@@ -9,7 +9,7 @@ import xlrd
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile, TextAnswer)
-from evap.results.exporters import ResultsExporter, TextAnswerExcelExporter
+from evap.results.exporters import ResultsExporter, TextAnswerExporter
 from evap.results.tools import collect_results
 from evap.results.views import filter_text_answers
 
@@ -471,10 +471,10 @@ class TestExporters(TestCase):
         evaluation_result = collect_results(evaluation)
         filter_text_answers(evaluation_result)
 
-        results = TextAnswerExcelExporter.InputData(evaluation_result.contribution_results)
+        results = TextAnswerExporter.InputData(evaluation_result.contribution_results)
 
         binary_content = BytesIO()
-        TextAnswerExcelExporter(evaluation.name, evaluation.course.semester.name,
+        TextAnswerExporter(evaluation.name, evaluation.course.semester.name,
                                 evaluation.course.responsibles_names,
                                 results, None).export(binary_content)
         binary_content.seek(0)
