@@ -110,7 +110,8 @@
                 language: "{{ LANGUAGE_CODE }}",
                 placeholder: "{% trans 'Please select...' %}",
                 minimumResultsForSearch: 15,
-                minimumInputLength: $(this).children('option').length > 50 ? 3 : 0
+                minimumInputLength: $(this).children('option').length > 50 ? 3 : 0,
+                allowClear: this.multiple
             });
         });
     };
