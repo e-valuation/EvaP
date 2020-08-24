@@ -603,6 +603,7 @@ class UserImporter(ExcelImporter):
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
+            return [], importer.success_messages, importer.warnings, importer.errors
 
 
 class PersonImporter:
