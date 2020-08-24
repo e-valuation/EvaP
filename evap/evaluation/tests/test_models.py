@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, date
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -13,7 +13,7 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.grades.models import GradeDocument
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
@@ -718,6 +718,58 @@ class TestEmailTemplate(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
+
+    @staticmethod
+    def test_send_contributor_publish_notifications():
+        responsible1 = baker.make(UserProfile)
+        responsible2 = baker.make(UserProfile)
+        # use is_single_result to get can_publish_average_grade to become true
+        evaluation1 = baker.make(Evaluation, course__responsibles=[responsible1], is_single_result=True)
+        evaluation2 = baker.make(Evaluation, course__responsibles=[responsible2])
+
+        editor1 = baker.make(UserProfile)
+        contributor1 = baker.make(UserProfile)
+
+        contributor2 = baker.make(UserProfile)
+        editor2 = baker.make(UserProfile)
+        contributor_both = baker.make(UserProfile)
+
+        # Contributions for evaluation1
+        make_contributor(responsible1, evaluation1)
+        make_contributor(contributor1, evaluation1)
+        make_contributor(contributor_both, evaluation1)
+        make_editor(editor1, evaluation1)
+
+        # Contributions for evaluation2
+        make_editor(editor2, evaluation2)
+        contributor_both_contribution = make_contributor(contributor_both, evaluation2)
+        contributor2_contribution = make_contributor(contributor2, evaluation2)
+
+        baker.make(TextAnswer, contribution=contributor_both_contribution)
+        baker.make(TextAnswer, contribution=contributor2_contribution)
+
+        expected_calls = [
+            # these 4 are included since they are contributors for evaluation1 which can publish the average grade
+            call(responsible1, {}, {'user': responsible1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(editor1, {}, {'user': editor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor1, {}, {'user': contributor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor_both, {}, {'user': contributor_both, 'evaluations': [evaluation1, evaluation2]}, use_cc=True),
+            # contributor2 has textanswers, so they are notified
+            call(contributor2, {}, {'user': contributor2, 'evaluations': [evaluation2]}, use_cc=True),
+        ]
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            # Assert that all expected publish notifications are sent to contributors.
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
+
+        # if general textanswers for an evaluation exist, all responsibles should also be notified
+        baker.make(TextAnswer, contribution=evaluation2.general_contribution)
+        expected_calls.append(call(responsible2, {}, {'user': responsible2, 'evaluations': [evaluation2]}, use_cc=True))
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
 
 class TestEmailRecipientList(TestCase):
