@@ -1,4 +1,6 @@
 from collections import OrderedDict, defaultdict
+from itertools import chain, repeat
+import warnings
 
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -6,63 +8,75 @@ from django.utils.translation import gettext as _
 import xlwt
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
+from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (collect_results, calculate_average_course_distribution, calculate_average_distribution,
                                 distribution_to_grade, get_grade_color)
 
 
-class ExcelExporter():
+class ResultsExporter(ExcelExporter):
 
     CUSTOM_COLOR_START = 8
     NUM_GRADE_COLORS = 21  # 1.0 to 5.0 in 0.2 steps
     STEP = 0.2  # we only have a limited number of custom colors
 
+    # Filled in ResultsExporter.init_grade_styles
+    COLOR_MAPPINGS = {}
+
+    styles = {
+        'evaluation':        xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium'),
+        'total_voters':      xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
+        'evaluation_rate':   xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
+        'evaluation_weight': xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
+        'degree':            xlwt.easyxf('alignment: wrap on; borders: left medium, right medium'),
+        # Grade styles added in ResultsExporter.init_grade_styles() #
+        **ExcelExporter.styles,
+    }
+
     def __init__(self):
-        self.styles = dict()
-        self.sheet = None
-        self.col = 0
-        self.row = 0
+        super().__init__()
 
-    def normalize_number(self, number):
-        """ floors 'number' to a multiply of self.STEP """
+        for index, color in self.COLOR_MAPPINGS.items():
+            self.workbook.set_colour_RGB(index, *color)
+
+    @classmethod
+    def grade_to_style(cls, grade):
+        return 'grade_' + str(cls.normalize_number(grade))
+
+    @classmethod
+    def normalize_number(cls, number):
+        """ floors 'number' to a multiply of cls.STEP """
         rounded_number = round(number, 1)  # see #302
-        return round(int(rounded_number / self.STEP + 0.0001) * self.STEP, 1)
+        return round(int(rounded_number / cls.STEP + 0.0001) * cls.STEP, 1)
 
-    @staticmethod
-    def create_color(workbook, color_name, palette_index, color):
-        xlwt.add_palette_colour(color_name, palette_index)
-        workbook.set_colour_RGB(palette_index, *color)
+    @classmethod
+    def init_grade_styles(cls):
+        """
+        Adds the grade styles to cls.styles and as a xlwt identifier.
+        This also notes all registered colors in cls.COLOR_MAPPINGS for the instances.
 
-    def create_style(self, base_style, style_name, color_name):
-        self.styles[style_name] = xlwt.easyxf(base_style.format(color_name), num_format_str="0.0")
+        This method should only be called once, right after the class definition.
+        Instances need the styles, but they should only be registered once for xlwt.
+        """
 
-    def init_styles(self, workbook):
-        self.styles = {
-            'default':          xlwt.Style.default_style,
-            'headline':         xlwt.easyxf('font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium', num_format_str="0.0"),
-            'evaluation':       xlwt.easyxf('alignment: horiz centre, wrap on, rota 90; borders: left medium, top medium, right medium, bottom medium'),
-            'total_voters':     xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
-            'evaluation_rate':  xlwt.easyxf('alignment: horiz centre; borders: left medium, bottom medium, right medium'),
-            'evaluation_weight': xlwt.easyxf('alignment: horiz centre; borders: left medium, right medium'),
-            'bold':             xlwt.easyxf('font: bold on'),
-            'italic':           xlwt.easyxf('font: italic on'),
-            'border_left_right': xlwt.easyxf('borders: left medium, right medium'),
-            'border_top_bottom_right': xlwt.easyxf('borders: top medium, bottom medium, right medium'),
-            'border_top':       xlwt.easyxf('borders: top medium'),
-            'degree':           xlwt.easyxf('alignment: wrap on; borders: left medium, right medium'),
-        }
+        if len(cls.COLOR_MAPPINGS) > 0:
+            # Method has already been called (probably in another import of this file).
+            warnings.warn("ResultsExporter.init_grade_styles has been called, "
+                          "although the styles have already been initialized. "
+                          "This can happen, if the file is imported / run multiple "
+                          "times in one application run.", ImportWarning
+                          )
+            return
 
         grade_base_style = 'pattern: pattern solid, fore_colour {}; alignment: horiz centre; font: bold on; borders: left medium, right medium'
-        for i in range(0, self.NUM_GRADE_COLORS):
-            grade = 1 + i * self.STEP
+        for i in range(0, cls.NUM_GRADE_COLORS):
+            grade = 1 + i * cls.STEP
             color = get_grade_color(grade)
-            palette_index = self.CUSTOM_COLOR_START + i
-            style_name = self.grade_to_style(grade)
+            palette_index = cls.CUSTOM_COLOR_START + i
+            style_name = cls.grade_to_style(grade)
             color_name = style_name + "_color"
-            self.create_color(workbook, color_name, palette_index, color)
-            self.create_style(grade_base_style, style_name, color_name)
-
-    def grade_to_style(self, grade):
-        return 'grade_' + str(self.normalize_number(grade))
+            xlwt.add_palette_colour(color_name, palette_index)
+            cls.COLOR_MAPPINGS[palette_index] = color
+            cls.styles[style_name] = xlwt.easyxf(grade_base_style.format(color_name), num_format_str="0.0")
 
     @staticmethod
     def filter_text_and_heading_questions(questions):
@@ -79,220 +93,195 @@ class ExcelExporter():
 
         return filtered_questions
 
-    def export(self, response, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
-        # the excel file we're creating here is rather complex. However, from the nature of a single
-        # file, it doesn't make much sense to split up the code into different methods as they will
-        # always be tightly coupled based on the layout of the sheet. We thus think that one big method
-        # containing the business logic is okay here
-        # pylint: disable=too-many-locals, too-many-nested-blocks, too-many-branches, too-many-statements
+    @staticmethod
+    def filter_evaluations(semesters, evaluation_states, degrees, course_types, contributor, include_not_enough_voters):
+        course_results_exist = False
+        evaluations_with_results = list()
+        used_questionnaires = set()
+        evaluations_filter = Q(course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types)
+        if contributor:
+            evaluations_filter = evaluations_filter & (Q(course__responsibles__in=[contributor]) | Q(contributions__contributor__in=[contributor]))
+        evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
+        for evaluation in evaluations:
+            if evaluation.is_single_result:
+                continue
+            if not evaluation.can_publish_rating_results and not include_not_enough_voters:
+                continue
+            results = OrderedDict()
+            for contribution_result in collect_results(evaluation).contribution_results:
+                for questionnaire_result in contribution_result.questionnaire_results:
+                    # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
+                    if all(not question_result.question.is_rating_question or question_result.counts is None or sum(question_result.counts) == 0 for question_result in questionnaire_result.question_results):
+                        continue
+                    if not contributor or contribution_result.contributor is None or contribution_result.contributor == contributor:
+                        results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
+                        used_questionnaires.add(questionnaire_result.questionnaire)
+            evaluation.course_evaluations_count = evaluation.course.evaluations.count()
+            if evaluation.course_evaluations_count > 1:
+                course_results_exist = True
+                evaluation.weight_percentage = int((evaluation.weight / sum(evaluation.weight for evaluation in evaluation.course.evaluations.all())) * 100)
+                evaluation.course.avg_grade = distribution_to_grade(calculate_average_course_distribution(evaluation.course))
+            evaluations_with_results.append((evaluation, results))
 
+        evaluations_with_results.sort(key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name))
+        used_questionnaires = sorted(used_questionnaires)
+
+        return evaluations_with_results, used_questionnaires, course_results_exist
+
+    def write_headings_and_evaluation_info(self, evaluations_with_results, semesters, contributor, degrees, course_types):
+        export_name = "Evaluation"
+        if contributor:
+            export_name += "\n{}".format(contributor.full_name)
+        elif len(semesters) == 1:
+            export_name += "\n{}".format(semesters[0].name)
+        degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
+        course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
+        self.write_cell(_("{}\n\n{}\n\n{}").format(
+            export_name, ", ".join(degree_names), ", ".join(course_type_names)
+        ), "headline")
+
+        for evaluation, __ in evaluations_with_results:
+            title = evaluation.full_name
+            if len(semesters) > 1:
+                title += "\n{}".format(evaluation.course.semester.name)
+            responsible_names = [responsible.full_name for responsible in evaluation.course.responsibles.all()]
+            title += "\n{}".format(", ".join(responsible_names))
+            self.write_cell(title, "evaluation")
+
+        self.next_row()
+        self.write_cell(_("Degrees"), "bold")
+        for evaluation, __ in evaluations_with_results:
+            self.write_cell("\n".join([d.name for d in evaluation.course.degrees.all()]), "degree")
+
+        self.next_row()
+        self.write_cell(_("Course Type"), "bold")
+        for evaluation, __ in evaluations_with_results:
+            self.write_cell(evaluation.course.type.name, "border_left_right")
+
+        self.next_row()
+        # One more cell is needed for the question column
+        self.write_empty_row_with_styles(["default"] + ["border_left_right"] * len(evaluations_with_results))
+
+    def write_overall_results(self, evaluations_with_results, course_results_exist):
+        evaluations = [e for e, __ in evaluations_with_results]
+
+        self.write_cell(_("Overall Average Grade"), "bold")
+        averages = (distribution_to_grade(calculate_average_distribution(e)) for e in evaluations)
+        self.write_row(averages, lambda avg: self.grade_to_style(avg) if avg else "border_left_right")
+
+        self.write_cell(_("Total voters/Total participants"), "bold")
+        voter_ratios = (f"{e.num_voters}/{e.num_participants}" for e in evaluations)
+        self.write_row(voter_ratios, style="total_voters")
+
+        self.write_cell(_("Evaluation rate"), "bold")
+        # round down like in progress bar
+        participant_percentages = (f"{int((e.num_voters / e.num_participants) * 100) if e.num_participants > 0 else 0}%"
+                                   for e in evaluations)
+        self.write_row(participant_percentages, style="evaluation_rate")
+
+        if course_results_exist:
+            # Only query the number of evaluations once and keep track of it here.
+            count_gt_1 = [e.course_evaluations_count > 1 for e in evaluations]
+
+            # Borders only if there is a course grade below. Offset by one column
+            self.write_empty_row_with_styles(["default"] + ["border_left_right" if gt1 else "default" for gt1 in count_gt_1])
+
+            self.write_cell(_("Evaluation weight"), "bold")
+            weight_percentages = (f"{e.weight_percentage}%" if gt1 else None for e, gt1 in zip(evaluations, count_gt_1))
+            self.write_row(weight_percentages, lambda s: "evaluation_weight" if s is not None else "default")
+
+            self.write_cell(_("Course Grade"), "bold")
+            for evaluation, gt1 in zip(evaluations, count_gt_1):
+                if not gt1:
+                    self.write_cell()
+                    continue
+
+                avg = evaluation.course.avg_grade
+                style = self.grade_to_style(avg) if avg is not None else "border_left_right"
+                self.write_cell(avg, style)
+            self.next_row()
+
+            # Same reasoning as above.
+            self.write_empty_row_with_styles(["default"] + ["border_top" if gt1 else "default" for gt1 in count_gt_1])
+
+    def write_questionnaire(self, questionnaire, evaluations_with_results, contributor):
+        if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
+            self.write_cell("{} ({})".format(questionnaire.name, contributor.full_name), "bold")
+        else:
+            self.write_cell(questionnaire.name, "bold")
+
+        # first cell of row is printed above
+        self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
+
+        for question in self.filter_text_and_heading_questions(questionnaire.questions.all()):
+            self.write_cell(question.text, "italic" if question.is_heading_question else "default")
+
+            for __, results in evaluations_with_results:
+                if questionnaire.id not in results or question.is_heading_question:
+                    self.write_cell(style="border_left_right")
+                    continue
+
+                values = []
+                count_sum = 0
+                approval_count = 0
+
+                for grade_result in results[questionnaire.id]:
+                    if grade_result.question.id != question.id or not grade_result.has_answers:
+                        continue
+                    values.append(grade_result.average * grade_result.count_sum)
+                    count_sum += grade_result.count_sum
+                    if grade_result.question.is_yes_no_question:
+                        approval_count += grade_result.approval_count
+
+                if not values:
+                    self.write_cell(style="border_left_right")
+                    continue
+
+                avg = sum(values) / count_sum
+                if question.is_yes_no_question:
+                    percent_approval = approval_count / count_sum if count_sum > 0 else 0
+                    self.write_cell("{:.0%}".format(percent_approval), self.grade_to_style(avg))
+                else:
+                    self.write_cell(avg, self.grade_to_style(avg))
+            self.next_row()
+
+        self.write_empty_row_with_styles(["default"] + ["border_left_right"] * len(evaluations_with_results))
+
+    def export_impl(self, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
-        workbook = xlwt.Workbook()
-        self.init_styles(workbook)
-        counter = 1
-        course_results_exist = False
+        for sheet_counter, (degrees, course_types) in enumerate(selection_list, 1):
+            self.cur_sheet = self.workbook.add_sheet("Sheet " + str(sheet_counter))
+            self.cur_row = 0
+            self.cur_col = 0
 
-        for degrees, course_types in selection_list:
-            self.sheet = workbook.add_sheet("Sheet " + str(counter))
-            counter += 1
-            self.row = 0
-            self.col = 0
-
-            evaluations_with_results = list()
             evaluation_states = ['published']
             if include_unpublished:
                 evaluation_states.extend(['evaluated', 'reviewed'])
 
-            used_questionnaires = set()
-            evaluations_filter = Q(course__semester__in=semesters, state__in=evaluation_states, course__degrees__in=degrees, course__type__in=course_types)
-            if contributor:
-                evaluations_filter = evaluations_filter & (Q(course__responsibles__in=[contributor]) | Q(contributions__contributor__in=[contributor]))
-            evaluations = Evaluation.objects.filter(evaluations_filter).distinct()
-            for evaluation in evaluations:
-                if evaluation.is_single_result:
-                    continue
-                if not evaluation.can_publish_rating_results and not include_not_enough_voters:
-                    continue
-                results = OrderedDict()
-                for contribution_result in collect_results(evaluation).contribution_results:
-                    for questionnaire_result in contribution_result.questionnaire_results:
-                        # RatingQuestion.counts is a tuple of integers or None, if this tuple is all zero, we want to exclude it
-                        if all(not question_result.question.is_rating_question or question_result.counts is None or sum(question_result.counts) == 0 for question_result in questionnaire_result.question_results):
-                            continue
-                        if not contributor or contribution_result.contributor is None or contribution_result.contributor == contributor:
-                            results.setdefault(questionnaire_result.questionnaire.id, []).extend(questionnaire_result.question_results)
-                            used_questionnaires.add(questionnaire_result.questionnaire)
-                evaluation.course_evaluations_count = evaluation.course.evaluations.count()
-                if evaluation.course_evaluations_count > 1:
-                    course_results_exist = True
-                    evaluation.weight_percentage = int((evaluation.weight / sum(evaluation.weight for evaluation in evaluation.course.evaluations.all())) * 100)
-                    evaluation.course.avg_grade = distribution_to_grade(calculate_average_course_distribution(evaluation.course))
-                evaluations_with_results.append((evaluation, results))
+            evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
+                semesters,
+                evaluation_states,
+                degrees,
+                course_types,
+                contributor,
+                include_not_enough_voters,
+            )
 
-            evaluations_with_results.sort(key=lambda cr: (cr[0].course.semester.id, cr[0].course.type.order, cr[0].full_name))
-            used_questionnaires = sorted(used_questionnaires)
-
-            export_name = "Evaluation"
-            if contributor:
-                export_name += "\n{}".format(contributor.full_name)
-            elif len(semesters) == 1:
-                export_name += "\n{}".format(semesters[0].name)
-            degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
-            course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
-            writec(self, _("{}\n\n{}\n\n{}").format(
-                export_name, ", ".join(degree_names), ", ".join(course_type_names)
-            ), "headline")
-
-            for evaluation, results in evaluations_with_results:
-                title = evaluation.full_name
-                if len(semesters) > 1:
-                    title += "\n{}".format(evaluation.course.semester.name)
-                responsible_names = [responsible.full_name for responsible in evaluation.course.responsibles.all()]
-                title += "\n{}".format(", ".join(responsible_names))
-                writec(self, title, "evaluation")
-
-            writen(self, _("Degrees"), "bold")
-            for evaluation, results in evaluations_with_results:
-                writec(self, "\n".join([d.name for d in evaluation.course.degrees.all()]), "degree")
-
-            writen(self, _("Course Type"), "bold")
-            for evaluation, results in evaluations_with_results:
-                writec(self, evaluation.course.type.name, "border_left_right")
-
-            writen(self)
-            for evaluation, results in evaluations_with_results:
-                self.write_empty_cell_with_borders()
+            self.write_headings_and_evaluation_info(evaluations_with_results, semesters, contributor, degrees, course_types)
 
             for questionnaire in used_questionnaires:
-                if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
-                    writen(self, "{} ({})".format(questionnaire.name, contributor.full_name), "bold")
-                else:
-                    writen(self, questionnaire.name, "bold")
-                for evaluation, results in evaluations_with_results:
-                    self.write_empty_cell_with_borders()
+                self.write_questionnaire(questionnaire, evaluations_with_results, contributor)
 
-                filtered_questions = self.filter_text_and_heading_questions(questionnaire.questions.all())
-
-                for question in filtered_questions:
-                    if question.is_heading_question:
-                        writen(self, question.text, "italic")
-                    else:
-                        writen(self, question.text)
-
-                    for evaluation, results in evaluations_with_results:
-                        if questionnaire.id not in results or question.is_heading_question:
-                            self.write_empty_cell_with_borders()
-                            continue
-                        qn_results = results[questionnaire.id]
-                        values = []
-                        count_sum = 0
-                        approval_count = 0
-
-                        for grade_result in qn_results:
-                            if grade_result.question.id == question.id:
-                                if grade_result.has_answers:
-                                    values.append(grade_result.average * grade_result.count_sum)
-                                    count_sum += grade_result.count_sum
-                                    if grade_result.question.is_yes_no_question:
-                                        approval_count += grade_result.approval_count
-                        if values:
-                            avg = sum(values) / count_sum
-
-                            if question.is_yes_no_question:
-                                percent_approval = approval_count / count_sum if count_sum > 0 else 0
-                                writec(self, "{:.0%}".format(percent_approval), self.grade_to_style(avg))
-                            else:
-                                writec(self, avg, self.grade_to_style(avg))
-                        else:
-                            self.write_empty_cell_with_borders()
-                writen(self)
-                for evaluation, results in evaluations_with_results:
-                    self.write_empty_cell_with_borders()
-
-            writen(self, _("Overall Average Grade"), "bold")
-            for evaluation, results in evaluations_with_results:
-                avg = distribution_to_grade(calculate_average_distribution(evaluation))
-                if avg:
-                    writec(self, avg, self.grade_to_style(avg))
-                else:
-                    self.write_empty_cell_with_borders()
-
-            writen(self, _("Total voters/Total participants"), "bold")
-            for evaluation, results in evaluations_with_results:
-                writec(self, "{}/{}".format(evaluation.num_voters, evaluation.num_participants), "total_voters")
-
-            writen(self, _("Evaluation rate"), "bold")
-            for evaluation, results in evaluations_with_results:
-                # round down like in progress bar
-                percentage_participants = int((evaluation.num_voters / evaluation.num_participants) * 100) if evaluation.num_participants > 0 else 0
-                writec(self, "{}%".format(percentage_participants), "evaluation_rate")
-
-            if course_results_exist:
-                writen(self)
-                for evaluation, results in evaluations_with_results:
-                    if evaluation.course_evaluations_count > 1:
-                        self.write_empty_cell_with_borders()
-                    else:
-                        self.write_empty_cell()
-
-                writen(self, _("Evaluation weight"), "bold")
-                for evaluation, results in evaluations_with_results:
-                    if evaluation.course_evaluations_count > 1:
-                        writec(self, "{}%".format(evaluation.weight_percentage), "evaluation_weight")
-                    else:
-                        self.write_empty_cell()
-
-                writen(self, _("Course Grade"), "bold")
-                for evaluation, results in evaluations_with_results:
-                    if evaluation.course_evaluations_count > 1:
-                        if evaluation.course.avg_grade:
-                            writec(self, evaluation.course.avg_grade, self.grade_to_style(evaluation.course.avg_grade))
-                        else:
-                            self.write_empty_cell_with_borders()
-                    else:
-                        self.write_empty_cell()
-
-                writen(self)
-                for evaluation, results in evaluations_with_results:
-                    if evaluation.course_evaluations_count > 1:
-                        writec(self, None, "border_top")
-                    else:
-                        self.write_empty_cell()
-
-        workbook.save(response)
-
-    def write_empty_cell_with_borders(self):
-        writec(self, None, "border_left_right")
-
-    def write_empty_cell(self):
-        writec(self, None, "default")
+            self.write_overall_results(evaluations_with_results, course_results_exist)
 
 
-def writen(exporter, label="", style_name="default"):
-    """Write the cell at the beginning of the next row."""
-    exporter.col = 0
-    exporter.row += 1
-    writec(exporter, label, style_name)
+# See method definition.
+ResultsExporter.init_grade_styles()
 
 
-def writec(exporter, label, style_name, rows=1, cols=1):
-    """Write the cell in the next column of the current line."""
-    _write(exporter, label, exporter.styles[style_name], rows, cols)
-    exporter.col += 1
-
-
-def _write(exporter, label, style, rows, cols):
-    if rows > 1 or cols > 1:
-        exporter.sheet.write_merge(exporter.row, exporter.row + rows - 1, exporter.col, exporter.col + cols - 1, label, style)
-        exporter.col += cols - 1
-    else:
-        exporter.sheet.write(exporter.row, exporter.col, label, style)
-
-
-class TextAnswerExcelExporter:
-    # pylint: disable=too-many-instance-attributes
+class TextAnswerExporter(ExcelExporter):
 
     class InputData:
         def __init__(self, contribution_results):
@@ -306,51 +295,36 @@ class TextAnswerExcelExporter:
                         answers = [answer.answer for answer in result.answers]
                         self.questionnaires[q_type].append((contributor_name, result.question, answers))
 
+    default_sheet_name = _("Text Answers")
+
     def __init__(self, evaluation_name, semester_name, responsibles, results, contributor_name):
+        super().__init__()
         self.evaluation_name = evaluation_name
         self.semester_name = semester_name
         self.responsibles = responsibles
-        assert isinstance(results, TextAnswerExcelExporter.InputData)
+        assert isinstance(results, TextAnswerExporter.InputData)
         self.results = results
         self.contributor_name = contributor_name
 
-        self.styles = {
-            "default": xlwt.Style.default_style,
-            "border_top": xlwt.easyxf("borders: top medium"),
-        }
+    def export_impl(self):
+        self.cur_sheet.col(0).width = 10000
+        self.cur_sheet.col(1).width = 40000
 
-        self.workbook = xlwt.Workbook()
-        self.sheet = self.workbook.add_sheet(_("Text Answers"))
-        self.row = 0
-        self.col = 0
-        self.sheet.col(0).width = 10000
-        self.sheet.col(1).width = 40000
+        self.write_row([self.evaluation_name])
+        self.write_row([self.semester_name])
+        self.write_row([self.responsibles])
 
-    def export(self, response):
-        writec(self, self.evaluation_name, "default")
-        writen(self, self.semester_name, "default")
-        writen(self, self.responsibles, "default")
         if self.contributor_name is not None:
-            writen(self, _("Export for {}").format(self.contributor_name), "default")
+            self.write_row([_("Export for {}").format(self.contributor_name)])
 
         for questionnaire_type in Questionnaire.Type.values:
             # The first line of every questionnaire type should have an overline.
-            line_style = "border_top"
-
-            for (contributor_name, question, answers) in self.results.questionnaires[questionnaire_type]:
+            line_styles = chain(["border_top"], repeat("default"))
+            for contributor_name, question, answers in self.results.questionnaires[questionnaire_type]:
                 # The first line of every question should contain the
                 # question text and contributor name (if present).
-                first_cell = ""
-                if contributor_name:
-                    first_cell += f"{contributor_name}: "
-                first_cell += question.text
+                question_title = (f"{contributor_name}: " if contributor_name else "") + question.text
+                first_col = chain([question_title], repeat(""))
 
-                for answer in answers:
-                    writen(self, first_cell, line_style)
-                    writec(self, answer, line_style)
-
-                    # after the first line, these should reset to their defaults
-                    first_cell = ""
-                    line_style = "default"
-
-        self.workbook.save(response)
+                for answer, first_cell, line_style in zip(answers, first_col, line_styles):
+                    self.write_row([first_cell, answer], style=line_style)
