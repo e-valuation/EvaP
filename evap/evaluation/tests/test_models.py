@@ -13,7 +13,7 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.grades.models import GradeDocument
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
 from evap.results.tools import calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
@@ -735,15 +735,15 @@ class TestEmailTemplate(TestCase):
         contributor_both = baker.make(UserProfile)
 
         # Contributions for evaluation1
-        baker.make(Contribution, evaluation=evaluation1, contributor=responsible1, role=Contribution.Role.CONTRIBUTOR)
-        baker.make(Contribution, evaluation=evaluation1, contributor=editor1, role=Contribution.Role.EDITOR)
-        baker.make(Contribution, evaluation=evaluation1, contributor=contributor1, role=Contribution.Role.CONTRIBUTOR)
-        baker.make(Contribution, evaluation=evaluation1, contributor=contributor_both, role=Contribution.Role.CONTRIBUTOR)
+        make_contributor(responsible1, evaluation1)
+        make_contributor(contributor1, evaluation1)
+        make_contributor(contributor_both, evaluation1)
+        make_editor(editor1, evaluation1)
 
         # Contributions for evaluation2
-        baker.make(Contribution, evaluation=evaluation2, contributor=editor2, role=Contribution.Role.EDITOR)
-        contributor_both_contribution = baker.make(Contribution, evaluation=evaluation2, contributor=contributor_both, role=Contribution.Role.CONTRIBUTOR)
-        contributor2_contribution = baker.make(Contribution, evaluation=evaluation2, contributor=contributor2, role=Contribution.Role.CONTRIBUTOR)
+        make_editor(editor2, evaluation2)
+        contributor_both_contribution = make_contributor(contributor_both, evaluation2)
+        contributor2_contribution = make_contributor(contributor2, evaluation2)
 
         baker.make(TextAnswer, contribution=contributor_both_contribution)
         baker.make(TextAnswer, contribution=contributor2_contribution)
