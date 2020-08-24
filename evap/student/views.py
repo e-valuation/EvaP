@@ -28,7 +28,7 @@ def index(request):
     courses = Course.objects.filter(
         evaluations__participants=request.user,
         evaluations__state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
-    ).distinct()
+    ).distinct().prefetch_related('semester', 'grade_documents', 'type', 'evaluations', 'evaluations__participants', 'evaluations__voters')
     # retrieve all evaluations which the user can see that are not new
     evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(request.user)]
     for evaluation in evaluations:
@@ -58,6 +58,7 @@ def index(request):
         semester_list=semester_list,
         can_download_grades=request.user.can_download_grades,
     )
+
     return render(request, "student_index.html", template_data)
 
 

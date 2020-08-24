@@ -4,9 +4,11 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Exists, OuterRef
 
-from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
+from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
+        Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile, Course, \
+        Evaluation
 
 
 GRADE_COLORS = {
@@ -212,8 +214,8 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
-def calculate_average_course_distribution(course):
-    if course.evaluations.exclude(state="published").exists():
+def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
+    if check_for_unpublished_evaluations and course.evaluations.exclude(state="published").exists():
         return None
 
     return avg_distribution([
@@ -226,13 +228,34 @@ def calculate_average_course_distribution(course):
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
+    courses_with_unpublished_evaluations = (Course.objects
+        .filter(evaluations__in=evaluations)
+        .filter(Exists(Evaluation.objects.filter(course=OuterRef('pk')).exclude(state="published")))
+        .values_list('id', flat=True)
+    )
+
+    course_id_evaluation_weight_sum_pairs = (Course.objects
+        .filter(evaluations__in=evaluations)
+        .annotate(Sum('evaluations__weight'))
+        .values_list('id', 'evaluations__weight__sum')
+    )
+
+    evaluation_weight_sum_per_course_id = {
+        entry[0]: entry[1]
+        for entry in course_id_evaluation_weight_sum_pairs
+    }
+
     for evaluation in evaluations:
-        if evaluation.course.evaluations.exclude(state="published").exists():
+        if evaluation.course.id in courses_with_unpublished_evaluations:
             evaluation.course.not_all_evaluations_are_published = True
+            evaluation.course.distribution = None
+        else:
+            evaluation.course.distribution = calculate_average_course_distribution(evaluation.course, False)
+
         evaluation.course.evaluation_count = evaluation.course.evaluations.count()
-        evaluation.course.distribution = calculate_average_course_distribution(evaluation.course)
         evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
-        evaluation.course.evaluation_weight_sum = evaluation.course.evaluations.all().aggregate(Sum('weight'))["weight__sum"]
+        evaluation.course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
+
     return evaluations
 
 
