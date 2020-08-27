@@ -13,6 +13,9 @@
     {% if user.is_responsible %}
         <span class="badge badge-info">{% trans 'Responsible' %}</span>
     {% endif %}
+    {% if user.is_proxy_user %}
+        <span class="badge badge-dark">{% trans 'Proxy user' %}</span>
+    {% endif %}
     {% if user.is_external %}
         <span class="badge badge-dark">{% trans 'External' %}</span>
     {% endif %}
