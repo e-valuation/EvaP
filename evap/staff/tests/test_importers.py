@@ -282,7 +282,7 @@ class TestEnrollmentImporter(TestCase):
     def test_replace_consecutive_and_trailing_spaces(self):
         with open(self.filename_valid_consecutive_and_trailing_spaces, "rb") as excel_file:
             excel_content = excel_file.read()
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
 
