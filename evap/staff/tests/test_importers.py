@@ -125,6 +125,7 @@ class TestEnrollmentImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
     filename_valid_degree_merge = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_degree_merge.xls")
     filename_valid_import_names = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_import_names.xls")
+    filename_valid_consecutive_and_trailing_spaces = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_consecutive_and_trailing_spaces.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
@@ -277,6 +278,12 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(errors[ImporterError.COURSE], {
             "Course Stehlen does already exist in this semester.",
             "Course Shine does already exist in this semester."})
+
+    def test_replace_consecutive_and_trailing_spaces(self):
+        with open(self.filename_valid_consecutive_and_trailing_spaces, "rb") as excel_file:
+            excel_content = excel_file.read()
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
 
 class TestPersonImporter(TestCase):

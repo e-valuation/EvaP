@@ -244,7 +244,10 @@ class ExcelImporter():
         for sheet in self.book.sheets():
             try:
                 for row in range(self.skip_first_n_rows, sheet.nrows):
-                    row_function(sheet.row_values(row), sheet, row)
+                    data = []  # container for normalized cell data
+                    for cell in sheet.row_values(row):
+                        data.append(' '.join(cell.split()))  # see https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
+                    row_function(data, sheet, row)
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
             except Exception:
                 self.warnings[ImporterWarning.GENERAL].append(
