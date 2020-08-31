@@ -37,7 +37,6 @@ from evap.evaluation.tools import clean_email, date_to_datetime, is_external_ema
 
 logger = logging.getLogger(__name__)
 
-
 FieldAction = namedtuple("FieldAction", "label type items")
 
 
@@ -84,6 +83,12 @@ class LogEntry(models.Model):
                 for field_action_type, primary_keys in actions.items():
                     items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
                     fields[field_name].append(FieldAction(label, field_action_type, items))
+            elif hasattr(field, "choices") and field.choices:
+                def to_display(choice):
+                    return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
+
+                for field_action_type, items in actions.items():
+                    fields[field_name].append(FieldAction(label, field_action_type, list(map(to_display, items))))
             else:
                 for field_action_type, items in actions.items():
                     fields[field_name].append(FieldAction(label, field_action_type, items))
@@ -103,8 +108,8 @@ class LogEntry(models.Model):
             message = _("A {cls} was deleted.")
 
         message = message.format(
-                cls=self.content_type.model_class()._meta.verbose_name_raw,
-                obj=f"\"{self.content_object!s}\"" if self.content_object else "",
+            cls=self.content_type.model_class()._meta.verbose_name_raw,
+            obj=f"\"{self.content_object!s}\"" if self.content_object else "",
         )
 
         return render_to_string("log/changed_fields_entry.html", {
@@ -137,9 +142,9 @@ class LoggedModel(models.Model):
     def register_logged_m2m_field(self, field):
         through = getattr(type(self), field.name).through  # converting from field to its descriptor
         m2m_changed.connect(
-                LoggedModel.m2m_changed,
-                sender=through,
-                dispatch_uid="m2m_log-{!r}-{!r}".format(type(self), field)
+            LoggedModel.m2m_changed,
+            sender=through,
+            dispatch_uid="m2m_log-{!r}-{!r}".format(type(self), field)
         )
 
     @staticmethod
@@ -197,11 +202,11 @@ class LoggedModel(models.Model):
 
     def update_log(self, mode):
         action = {
-                'delete': 'delete',
-                'create': 'create',
-                'change': 'change',
-                'm2m':    'change',
-                 }[mode]
+            'delete': 'delete',
+            'create': 'create',
+            'change': 'change',
+            'm2m': 'change',
+        }[mode]
 
         changes = self._change_data(action)
         if not changes:
@@ -218,13 +223,13 @@ class LoggedModel(models.Model):
             attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
             attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
             self._logentry = LogEntry(
-                    content_object=self,
-                    attached_to_object_type=attached_to_object_type,
-                    attached_to_object_id=attached_to_object_id,
-                    user=user,
-                    request_id=request_id,
-                    action_type=action,
-                    data=data)
+                content_object=self,
+                attached_to_object_type=attached_to_object_type,
+                attached_to_object_id=attached_to_object_id,
+                user=user,
+                request_id=request_id,
+                action_type=action,
+                data=data)
         else:
             previous_changes = json.loads(self._logentry.data)
             previous_changes.update(changes)
@@ -571,6 +576,10 @@ class Course(LoggedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def ignore_field_names_logging(self):
+        return super().ignore_field_names_logging + ["semester", "gets_no_grade_documents"]
+
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
         self.last_modified_time = timezone.now()
@@ -754,9 +763,9 @@ class Evaluation(LoggedModel):
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
         return (self.state == "in_evaluation"
-            and self.is_in_evaluation_period
-            and user in self.participants.all()
-            and user not in self.voters.all())
+                and self.is_in_evaluation_period
+                and user in self.participants.all()
+                and user not in self.voters.all())
 
     def can_be_seen_by(self, user):
         if user.is_manager:
@@ -784,7 +793,8 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_edited_by_manager(self):
-        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
+        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated',
+                                                                       'reviewed']
 
     @property
     def can_be_deleted_by_manager(self):
@@ -848,7 +858,8 @@ class Evaluation(LoggedModel):
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved',
+                conditions=[lambda self: self.general_contribution_has_questionnaires])
     def manager_approve(self):
         pass
 
@@ -940,7 +951,8 @@ class Evaluation(LoggedModel):
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
         represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(
+            pk__in=represented_user_pks).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
@@ -948,7 +960,8 @@ class Evaluation(LoggedModel):
             return False
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
         represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(
+            pk__in=represented_user_pks).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
@@ -987,8 +1000,8 @@ class Evaluation(LoggedModel):
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
         if (self.course.final_grade_documents
-                or self.course.gets_no_grade_documents
-                or not self.wait_for_grade_upload_before_publishing):
+            or self.course.gets_no_grade_documents
+            or not self.wait_for_grade_upload_before_publishing):
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -1031,7 +1044,7 @@ class Evaluation(LoggedModel):
 
     @property
     def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ["voters"]
+        return super().ignore_field_names_logging + ["voters", "is_single_result", "_voter_count", "_participant_count"]
 
 
 @receiver(post_transition, sender=Evaluation)
@@ -1065,10 +1078,12 @@ class Contribution(LoggedModel):
         EDITOR = 1, _('Editor')
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True,
+                                    related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     role = models.IntegerField(choices=Role.choices, verbose_name=_("role"), default=Role.CONTRIBUTOR)
-    textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
+    textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'),
+                                             default=TextAnswerVisibility.OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
@@ -1078,6 +1093,10 @@ class Contribution(LoggedModel):
             ('evaluation', 'contributor'),
         )
         ordering = ['order', ]
+
+    @property
+    def ignore_field_names_logging(self):
+        return super().ignore_field_names_logging + ['evaluation'] + ['contributor'] if self.is_general else []
 
     @property
     def is_general(self):
@@ -1507,7 +1526,7 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
-    email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"),)
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"), )
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
@@ -1642,8 +1661,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         )
         last_semester_contributed = (
             Semester.objects.filter(courses__evaluations__contributions__contributor=self)
-            .order_by("-created_at")
-            .first()
+                .order_by("-created_at")
+                .first()
         )
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
@@ -1863,7 +1882,8 @@ class EmailTemplate(models.Model):
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
-            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
+            logger.exception(
+                'An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
