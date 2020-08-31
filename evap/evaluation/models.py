@@ -68,6 +68,10 @@ class LogEntry(models.Model):
     def _evaluation_log_template_context(self, data):
         fields = defaultdict(list)
         model = self.content_type.model_class()
+
+        def choice_to_display(field, choice):  # does not support nested choices
+            return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
+
         for field_name, actions in data.items():
             field = model._meta.get_field(field_name)
             try:
@@ -84,11 +88,10 @@ class LogEntry(models.Model):
                     items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
                     fields[field_name].append(FieldAction(label, field_action_type, items))
             elif hasattr(field, "choices") and field.choices:
-                def to_display(choice):  # does not support nested choices
-                    return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
-
                 for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(label, field_action_type, list(map(to_display, items))))
+                    fields[field_name].append(FieldAction(
+                        label, field_action_type, [choice_to_display(field, item)for item in items])
+                    )
             else:
                 for field_action_type, items in actions.items():
                     fields[field_name].append(FieldAction(label, field_action_type, items))
@@ -127,7 +130,7 @@ class LogEntry(models.Model):
 def log_serialize(obj):
     if obj is None:
         return ""
-    if type(obj) in (date, time, datetime):
+    if isinstance(obj, (date, time, datetime)):
         return localize(obj)
     return str(obj)
 
@@ -1022,9 +1025,11 @@ class Evaluation(LoggedModel):
         if self.state != "evaluated":
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
-        if (self.course.final_grade_documents
+        if (
+            self.course.final_grade_documents
             or self.course.gets_no_grade_documents
-            or not self.wait_for_grade_upload_before_publishing):
+            or not self.wait_for_grade_upload_before_publishing
+        ):
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -1684,8 +1689,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         )
         last_semester_contributed = (
             Semester.objects.filter(courses__evaluations__contributions__contributor=self)
-                .order_by("-created_at")
-                .first()
+                    .order_by("-created_at")
+                    .first()
         )
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at

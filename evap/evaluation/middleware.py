@@ -1,6 +1,5 @@
 import uuid
 
-
 from evap.evaluation.models import LoggedModel
 
 
@@ -19,7 +18,6 @@ class LoggingRequestMiddleware:
     def __call__(self, request):
         LoggedModel.thread.request = request
         LoggedModel.thread.request_id = str(uuid.uuid4())
-
 
         response = self.get_response(request)
 

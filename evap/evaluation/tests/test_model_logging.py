@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, FieldAction, log_serialize, Course, LogEntry, Contribution, Questionnaire
+from evap.evaluation.models import Evaluation, FieldAction, log_serialize, Course, Contribution, Questionnaire
 
 
 class TestLoggedModel(TestCase):
@@ -30,7 +30,7 @@ class TestLoggedModel(TestCase):
         self.logentry = self.evaluation.all_logentries()[1]
 
     def test_voters_not_in_evluation_data(self):
-        self.assertFalse(any("voters" in l.data for l in self.evaluation.all_logentries()))
+        self.assertFalse(any("voters" in entry.data for entry in self.evaluation.all_logentries()))
 
     def test_datetime_change(self):
         self.assertEqual(
@@ -85,5 +85,3 @@ class TestLoggedModel(TestCase):
         contribution = baker.make(Contribution, evaluation=self.evaluation, label=None)
         contribution.save()
         self.assertNotIn("label", json.loads(self.evaluation.all_logentries().order_by("id").last().data))
-
-
