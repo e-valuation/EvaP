@@ -4,31 +4,35 @@ from datetime import date, datetime, timedelta
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, FieldAction, log_serialize
+from evap.evaluation.models import Evaluation, FieldAction, log_serialize, Course, LogEntry, Contribution, Questionnaire
 
 
 class TestLoggedModel(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.old_start_date = datetime.now()
-        cls.new_start_date = cls.old_start_date + timedelta(days=10)
-        cls.evaluation = baker.make(
+    def setUp(self):
+        self.old_start_date = datetime.now()
+        self.new_start_date = self.old_start_date + timedelta(days=10)
+
+        self.course = baker.make(Course)
+        self.course.save()
+
+        self.evaluation = baker.make(
             Evaluation,
+            course=self.course,
             state="prepared",
-            vote_start_datetime=cls.old_start_date,
+            vote_start_datetime=self.old_start_date,
             vote_end_date=date.today() + timedelta(days=20),
         )
-        cls.evaluation.save()  # first logentry
+        self.evaluation.save()  # first logentry
 
-        cls.evaluation.vote_start_datetime = cls.new_start_date
-        cls.evaluation.save()  # second logentry
+        self.evaluation.vote_start_datetime = self.new_start_date
+        self.evaluation.save()  # second logentry
 
-        cls.logentry = cls.evaluation.all_logentries()[1]
+        self.logentry = self.evaluation.all_logentries()[1]
 
-    def test_logentries_get_created(self):
-        self.assertEqual(len(self.evaluation.all_logentries()), 2)
+    def test_voters_not_in_evluation_data(self):
+        self.assertFalse(any("voters" in l.data for l in self.evaluation.all_logentries()))
 
-    def test_changes_are_recorded_to_data_attribute(self):
+    def test_datetime_change(self):
         self.assertEqual(
             json.loads(self.logentry.data)["vote_start_datetime"],
             {"change": [log_serialize(self.old_start_date), log_serialize(self.new_start_date)]},
@@ -45,3 +49,41 @@ class TestLoggedModel(TestCase):
                 )
             ],
         )
+
+    def test_deletion_data(self):
+        self.assertEqual(self.evaluation._change_data(action_type="delete")['course']['delete'][0], self.course.id)
+        self.evaluation.delete()
+        self.assertEqual(self.evaluation.all_logentries().count(), 0)
+
+    def test_creation(self):
+        course = baker.make(Course)
+        course.save()
+        self.assertEqual(course.all_logentries().count(), 1)
+
+    def test_related_logged_model_creation(self):
+        self.assertEqual(self.evaluation.all_logentries().count(), 2)
+        contribution = baker.make(Contribution, evaluation=self.evaluation)
+        contribution.save()
+        self.assertFalse(contribution.all_logentries().exists())
+        self.assertEqual(self.evaluation.all_logentries().count(), 3)
+
+    def test_m2m_creation(self):
+        self.assertEqual(self.evaluation.all_logentries().count(), 2)
+        questionnaire = baker.make(Questionnaire)
+        questionnaire.save()
+        contribution = self.evaluation.contributions.get(contributor__isnull=True)
+        contribution.questionnaires.add(questionnaire)
+        contribution.save()
+        self.assertEqual(self.evaluation.all_logentries().count(), 3)
+        self.assertEqual(json.loads(self.evaluation.all_logentries().order_by("id").last().data)['questionnaires']['add'], [questionnaire.id])
+
+    def test_none_value_not_included(self):
+        contribution = baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
+        contribution.save()
+        self.assertIn("label", json.loads(self.evaluation.all_logentries().order_by("id").last().data))
+
+        contribution = baker.make(Contribution, evaluation=self.evaluation, label=None)
+        contribution.save()
+        self.assertNotIn("label", json.loads(self.evaluation.all_logentries().order_by("id").last().data))
+
+

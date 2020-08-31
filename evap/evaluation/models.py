@@ -101,9 +101,15 @@ class LogEntry(models.Model):
         field_data = json.loads(self.data)
 
         if self.action_type == 'change':
-            message = _("The {cls} {obj} was changed.")
+            if self.content_object:
+                message = _("The {cls} {obj} was changed.")
+            else:
+                message = _("A {cls} was changed.")
         elif self.action_type == 'create':
-            message = _("The {cls} {obj} was created.")
+            if self.content_object:
+                message = _("The {cls} {obj} was created.")
+            else:
+                message = _("A {cls} was created.")
         elif self.action_type == 'delete':
             message = _("A {cls} was deleted.")
 
@@ -268,12 +274,12 @@ class LoggedModel(models.Model):
 
     def delete(self, *args, **kw):
         self.update_log(mode="delete")
+        self.all_logentries().delete()
         super().delete(*args, **kw)
 
     def all_logentries(self):
         """
-        Return a queryset with all logentries that should be shown with this model. By default, show logentries
-        related to self.
+        Return a queryset with all logentries that should be shown with this model.
         """
         return LogEntry.objects.filter(
             attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
@@ -309,7 +315,7 @@ class LoggedModel(models.Model):
     def object_to_attach_logentries_to(self):
         """
         Return a model class and primary key for the object for which this logentry should be shown.
-        By default, show it to objects described by the logentry itself.
+        By default, show it to the object described by the logentry itself.
         """
         return type(self), self.pk
 
