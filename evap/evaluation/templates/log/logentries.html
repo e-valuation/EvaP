@@ -5,12 +5,15 @@
     {% for log_group in logged_object.grouped_logentries %}
         <li class="list-group-item">
             <p>
-                <span class="fa fa-clock" aria-hidden="true"></span> {{ log_group.0.datetime|date:"SHORT_DATETIME_FORMAT" }}
+                <span class="pr-3">
+                    <span class="fa fa-clock" aria-hidden="true"></span>
+                    {{ log_group.0.datetime|date:"SHORT_DATETIME_FORMAT" }}
+                </span>
                 {% if log_group.0.user %}
                     {% if log_group.0.user.is_manager %}
-                        <span class="fa fa-id-card fa-danger fa-fw"
-                                data-toggle="tooltip"
-                                title="{% trans "This change was performed by a manager." %}">
+                        <span class="fa fa-id-card fa-fw"
+                              data-toggle="tooltip"
+                              title="{% trans "This change was performed by a manager." %}">
                         </span>
                     {% else %}
                         <span class="fa fa-user fa-fw"></span>

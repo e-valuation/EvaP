@@ -8,26 +8,26 @@
         {% for action in actions %}
             <li>
                 {% if action.type == "add" %}
-                    {{ action.label}} {% trans "added" %}: {{ action.items|join:", " }}
+                    {{ action.label }} {% trans "added" %}: {{ action.items|join:", " }}
                 {% elif action.type == "remove" %}
-                    {{ action.label}} {% trans "removed" %}: {{ action.items|join:", " }}
+                    {{ action.label }} {% trans "removed" %}: {{ action.items|join:", " }}
                 {% elif action.type == "clear" %}
-                    {{ action.label}} {% trans "cleared" %}
+                    {{ action.label }} {% trans "cleared" %}
                 {% elif action.type == "delete" %}
-                    {% if action.items|length > 1 %}
-                        {{ action.label}} {% trans "were" %}:
-                    {% else %}
-                        {{ action.label}} {% trans "was" %}:
-                    {% endif %}
+                    {% blocktrans with label=action.label count count=action.items|length %}
+                        {{ label }} was:
+                    {% plural %}
+                        {{ label }} were:
+                    {% endblocktrans %}
                     {{ action.items|join:", " }}
                 {% elif action.type == "change" %}
                     {% if action.items.0 %}
-                        {{ action.label}}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
+                        {{ action.label }}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
                     {% else %}
-                        {{ action.label}}: {{ action.items.1 }}
+                        {{ action.label }}: {{ action.items.1 }}
                     {% endif %}
                 {% else %}
-                    {{ action.label}} {% trans "modified" %}: {{ action.items|join:", " }}
+                    {{ action.label }} {% trans "modified" %}: {{ action.items|join:", " }}
                 {% endif %}
             </li>
         {% endfor %}

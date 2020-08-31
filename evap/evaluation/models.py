@@ -165,32 +165,47 @@ class LoggedModel(models.Model):
         if "pre" in action:
             instance.update_log("m2m")
 
-    def _as_dict(self):
-        fields = type(self)._meta.get_fields()
-        fields = list(filter(lambda field: field.name not in self.ignore_field_names_logging, fields))
-
-        # m2m fields are dealt with using signals
-        fields = list(filter(lambda field: not field.many_to_many, fields))
-
-        fields = list(map(lambda field: field.name, fields))
+    def _as_dict(self, include_m2m=False):
+        """
+        Return a dict mapping field names to values saved in this instance.
+        Only include field names that are not to be ignored for logging.
+        Except when deleting objects, m2m values come from signal handling.
+        """
+        fields = [
+            field.name for field in type(self)._meta.get_fields() if
+            field.name not in self.ignore_field_names_logging
+            and (include_m2m or not field.many_to_many)
+        ]
         return model_to_dict(self, fields)
 
-    def _change_data(self, action_type):
+    def _change_data(self, action_type, include_none_values=False):
+        """
+        Return a dict mapping field names to changes that happened in this model instance,
+        depending on the action that is being done to the instance.
+        """
         self_dict = self._as_dict()
         if action_type == "create":
-            changes = {field_name: {'change': [None, created_value]} for field_name, created_value in self_dict.items()}
+            changes = {
+                field_name: {'change': [None, created_value]}
+                for field_name, created_value in self_dict.items()
+                if created_value is not None or include_none_values
+            }
         elif action_type == "change":
             old_dict = type(self).objects.get(pk=self.pk)._as_dict()
-            changes = {field_name: {'change': [old_value, self_dict[field_name]]}
-                       for field_name, old_value in old_dict.items()
-                       if old_value != self_dict[field_name]}
+            changes = {
+                field_name: {'change': [old_value, self_dict[field_name]]}
+                for field_name, old_value in old_dict.items()
+                if old_value != self_dict[field_name]
+            }
         elif action_type == "delete":
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            old_dict = type(self).objects.get(pk=self.pk)._as_dict(include_m2m=True)
             changes = {}
             for field_name, old_value in old_dict.items():
+                if old_value is None and not include_none_values:
+                    continue
                 field = self._meta.get_field(field_name)
                 if field.many_to_many:
-                    action_items = [obj.pk for obj in getattr(self, field_name).all()]
+                    action_items = [obj.pk for obj in old_value]
                 else:
                     action_items = [old_value]
                 changes[field_name] = {'delete': action_items}
@@ -229,7 +244,8 @@ class LoggedModel(models.Model):
                 user=user,
                 request_id=request_id,
                 action_type=action,
-                data=data)
+                data=data
+            )
         else:
             previous_changes = json.loads(self._logentry.data)
             previous_changes.update(changes)
@@ -241,7 +257,7 @@ class LoggedModel(models.Model):
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        mode = "change" if not self._state.adding else "create"
+        mode = "create" if self._state.adding else "change"
         if mode == "create":
             super().save(*args, **kw)
 
@@ -1097,7 +1113,7 @@ class Contribution(LoggedModel):
 
     @property
     def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ['evaluation'] + ['contributor'] if self.is_general else []
+        return super().ignore_field_names_logging + ['evaluation'] + (['contributor'] if self.is_general else [])
 
     @property
     def is_general(self):
@@ -1109,7 +1125,7 @@ class Contribution(LoggedModel):
 
     def __str__(self):
         if self.contributor:
-            return _("Contribution by") + " " + self.contributor.full_name
+            return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
         return str(_("General Contribution"))
 
 
