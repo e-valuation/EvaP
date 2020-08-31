@@ -84,7 +84,7 @@ class LogEntry(models.Model):
                     items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
                     fields[field_name].append(FieldAction(label, field_action_type, items))
             elif hasattr(field, "choices") and field.choices:
-                def to_display(choice):
+                def to_display(choice):  # does not support nested choices
                     return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
 
                 for field_action_type, items in actions.items():
@@ -646,11 +646,11 @@ class Evaluation(LoggedModel):
     # can be published even if no other person evaluates the evaluation
     can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
 
-    # students that are allowed to vote
+    # students that are allowed to vote, or their count after archiving
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='evaluations_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
-    # students that already voted
+    # students that already voted, or their count after archiving
     voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='evaluations_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
@@ -818,6 +818,7 @@ class Evaluation(LoggedModel):
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
+        self.all_logentries().delete()
 
     @property
     def participations_are_archived(self):
