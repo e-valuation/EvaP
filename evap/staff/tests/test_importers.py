@@ -1,5 +1,7 @@
 import os
 from datetime import date, datetime
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_bakery import baker
@@ -119,6 +121,17 @@ class TestUserImporter(TestCase):
             " None None, lucilia.manilium@institution.example.com"])
 
         self.assertEqual(UserProfile.objects.count(), 2)
+
+    @override_settings(DEBUG=False)
+    @patch("evap.evaluation.models.UserProfile.objects.update_or_create")
+    def test_unhandled_exception(self, mocked_db_access):
+        mocked_db_access.side_effect = Exception("Contact your database admin right now!")
+        result, __, __, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertEqual(result, [])
+        self.assertIn(
+            "Import finally aborted after exception: 'Contact your database admin right now!'",
+            errors[ImporterError.GENERAL],
+        )
 
 
 class TestEnrollmentImporter(TestCase):
