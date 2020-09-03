@@ -540,7 +540,7 @@ class UserImporter(ExcelImporter):
                 except Exception as error:
                     self.errors[ImporterError.GENERAL].append(
                         _("A problem occured while writing the entries to the database."
-                          " The error message has been: '{}'").format(error=error))
+                          " The error message has been: '{}'").format(error))
                     raise
 
         msg = format_html(_("Successfully created {} users:"), len(created_users))
