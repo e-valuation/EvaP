@@ -90,7 +90,7 @@ class LogEntry(models.Model):
             elif hasattr(field, "choices") and field.choices:
                 for field_action_type, items in actions.items():
                     fields[field_name].append(FieldAction(
-                        label, field_action_type, [choice_to_display(field, item)for item in items])
+                        label, field_action_type, [choice_to_display(field, item) for item in items])
                     )
             else:
                 for field_action_type, items in actions.items():
@@ -145,24 +145,18 @@ class LoggedModel(models.Model):
         super().__init__(*args, **kwargs)
         self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
-        for field in type(self)._meta.many_to_many:
-            self.register_logged_m2m_field(field)
 
-    def register_logged_m2m_field(self, field):
-        through = getattr(type(self), field.name).through  # converting from field to its descriptor
-        m2m_changed.connect(
-            LoggedModel.m2m_changed,
-            sender=through,
-            dispatch_uid="m2m_log-{!r}-{!r}".format(type(self), field)
-        )
-
-    @staticmethod
+    @receiver(m2m_changed)
     def m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
         if reverse:
+            return
+        if not isinstance(instance, LoggedModel):
             return
 
         field_name = next((field.name for field in type(instance)._meta.many_to_many
                            if getattr(type(instance), field.name).through == sender), None)
+        if field_name is None:
+            return
 
         if action == 'pre_remove':
             instance._m2m_changes[field_name]['remove'] += list(pk_set)
@@ -182,12 +176,12 @@ class LoggedModel(models.Model):
         """
         fields = [
             field.name for field in type(self)._meta.get_fields() if
-            field.name not in self.ignore_field_names_logging
+            field.name not in self.unlogged_fields
             and (include_m2m or not field.many_to_many)
         ]
         return model_to_dict(self, fields)
 
-    def _change_data(self, action_type, include_none_values=False):
+    def _get_change_data(self, action_type, include_none_values=False):
         """
         Return a dict mapping field names to changes that happened in this model instance,
         depending on the action that is being done to the instance.
@@ -232,7 +226,7 @@ class LoggedModel(models.Model):
             'm2m': 'change',
         }[mode]
 
-        changes = self._change_data(action)
+        changes = self._get_change_data(action)
         if not changes:
             return
 
@@ -277,10 +271,10 @@ class LoggedModel(models.Model):
 
     def delete(self, *args, **kw):
         self.update_log(mode="delete")
-        self.all_logentries().delete()
+        self.related_logentries().delete()
         super().delete(*args, **kw)
 
-    def all_logentries(self):
+    def related_logentries(self):
         """
         Return a queryset with all logentries that should be shown with this model.
         """
@@ -296,7 +290,7 @@ class LoggedModel(models.Model):
         """
         groups = []
         group = []
-        for entry in self.all_logentries():
+        for entry in self.related_logentries():
             if not group:
                 group.append(entry)
             elif entry.request_id is not None and group[0].request_id == entry.request_id:
@@ -323,6 +317,6 @@ class LoggedModel(models.Model):
         return type(self), self.pk
 
     @property
-    def ignore_field_names_logging(self):
+    def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
         return ['id', 'last_modified_time', 'last_modified_user', 'order']

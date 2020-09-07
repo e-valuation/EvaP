@@ -28,10 +28,10 @@ class TestLoggedModel(TestCase):
         self.evaluation.vote_start_datetime = self.new_start_date
         self.evaluation.save()  # second logentry
 
-        self.logentry = self.evaluation.all_logentries()[1]
+        self.logentry = self.evaluation.related_logentries()[1]
 
     def test_voters_not_in_evluation_data(self):
-        self.assertFalse(any("voters" in entry.data for entry in self.evaluation.all_logentries()))
+        self.assertFalse(any("voters" in entry.data for entry in self.evaluation.related_logentries()))
 
     def test_datetime_change(self):
         self.assertEqual(
@@ -52,37 +52,37 @@ class TestLoggedModel(TestCase):
         )
 
     def test_deletion_data(self):
-        self.assertEqual(self.evaluation._change_data(action_type="delete")['course']['delete'][0], self.course.id)
+        self.assertEqual(self.evaluation._get_change_data(action_type="delete")['course']['delete'][0], self.course.id)
         self.evaluation.delete()
-        self.assertEqual(self.evaluation.all_logentries().count(), 0)
+        self.assertEqual(self.evaluation.related_logentries().count(), 0)
 
     def test_creation(self):
         course = baker.make(Course)
         course.save()
-        self.assertEqual(course.all_logentries().count(), 1)
+        self.assertEqual(course.related_logentries().count(), 1)
 
     def test_related_logged_model_creation(self):
-        self.assertEqual(self.evaluation.all_logentries().count(), 2)
+        self.assertEqual(self.evaluation.related_logentries().count(), 2)
         contribution = baker.make(Contribution, evaluation=self.evaluation)
         contribution.save()
-        self.assertFalse(contribution.all_logentries().exists())
-        self.assertEqual(self.evaluation.all_logentries().count(), 3)
+        self.assertFalse(contribution.related_logentries().exists())
+        self.assertEqual(self.evaluation.related_logentries().count(), 3)
 
     def test_m2m_creation(self):
-        self.assertEqual(self.evaluation.all_logentries().count(), 2)
+        self.assertEqual(self.evaluation.related_logentries().count(), 2)
         questionnaire = baker.make(Questionnaire)
         questionnaire.save()
         contribution = self.evaluation.contributions.get(contributor__isnull=True)
         contribution.questionnaires.add(questionnaire)
         contribution.save()
-        self.assertEqual(self.evaluation.all_logentries().count(), 3)
-        self.assertEqual(json.loads(self.evaluation.all_logentries().order_by("id").last().data)['questionnaires']['add'], [questionnaire.id])
+        self.assertEqual(self.evaluation.related_logentries().count(), 3)
+        self.assertEqual(json.loads(self.evaluation.related_logentries().order_by("id").last().data)['questionnaires']['add'], [questionnaire.id])
 
     def test_none_value_not_included(self):
         contribution = baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
         contribution.save()
-        self.assertIn("label", json.loads(self.evaluation.all_logentries().order_by("id").last().data))
+        self.assertIn("label", json.loads(self.evaluation.related_logentries().order_by("id").last().data))
 
         contribution = baker.make(Contribution, evaluation=self.evaluation, label=None)
         contribution.save()
-        self.assertNotIn("label", json.loads(self.evaluation.all_logentries().order_by("id").last().data))
+        self.assertNotIn("label", json.loads(self.evaluation.related_logentries().order_by("id").last().data))

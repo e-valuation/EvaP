@@ -306,8 +306,8 @@ class Course(LoggedModel):
         return self.name
 
     @property
-    def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ["semester", "gets_no_grade_documents"]
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["semester", "gets_no_grade_documents"]
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -546,7 +546,7 @@ class Evaluation(LoggedModel):
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
-        self.all_logentries().delete()
+        self.related_logentries().delete()
 
     @property
     def participations_are_archived(self):
@@ -769,8 +769,8 @@ class Evaluation(LoggedModel):
         logger.info("update_evaluations finished.")
 
     @property
-    def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ["voters", "is_single_result", "_voter_count", "_participant_count"]
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["voters", "is_single_result", "_voter_count", "_participant_count"]
 
 
 @receiver(post_transition, sender=Evaluation)
@@ -820,8 +820,8 @@ class Contribution(LoggedModel):
         ordering = ['order', ]
 
     @property
-    def ignore_field_names_logging(self):
-        return super().ignore_field_names_logging + ['evaluation'] + (['contributor'] if self.is_general else [])
+    def unlogged_fields(self):
+        return super().unlogged_fields + ['evaluation'] + (['contributor'] if self.is_general else [])
 
     @property
     def is_general(self):
