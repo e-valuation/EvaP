@@ -28,7 +28,9 @@ def index(request):
     own_courses = Course.objects.filter(
         Q(evaluations__state__in=contributor_visible_states) & (
             Q(responsibles=user) |
-            Q(evaluations__contributions__contributor=user)
+            Q(evaluations__contributions__contributor=user) |
+            Q(evaluations__contributions__contributor__in=user.represented_users.filter(is_proxy_user=True)) |
+            Q(responsibles__in=user.represented_users.filter(is_proxy_user=True))
         )
     )
     own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user)]
@@ -37,7 +39,7 @@ def index(request):
 
     displayed_evaluations = set(own_evaluations)
     if show_delegated:
-        represented_users = user.represented_users.all()
+        represented_users = user.represented_users.filter(is_proxy_user=False)
         delegated_courses = Course.objects.filter(
             Q(evaluations__state__in=contributor_visible_states) & (
                 Q(responsibles__in=represented_users) |
