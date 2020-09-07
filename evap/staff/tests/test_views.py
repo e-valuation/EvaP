@@ -630,7 +630,7 @@ class TestSemesterDeleteView(WebTest):
 
         self.assertFalse(semester.can_be_deleted_by_manager)
 
-        semester.archive_participations()
+        semester.archive()
         semester.delete_grade_documents()
         semester.archive_results()
 

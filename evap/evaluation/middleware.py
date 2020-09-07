@@ -1,6 +1,6 @@
 import uuid
 
-from evap.evaluation.models import LoggedModel
+from evap.evaluation.models_logging import LoggedModel
 
 
 class LoggingRequestMiddleware:

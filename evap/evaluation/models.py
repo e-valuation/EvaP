@@ -1,331 +1,35 @@
 from collections import defaultdict, namedtuple
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum, auto
-import itertools
-import json
 import logging
 import operator
 import secrets
-import threading
 import uuid
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Manager, Q
-from django.db.models.signals import m2m_changed
 from django.dispatch import Signal, receiver
-from django.forms.models import model_to_dict
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.formats import localize
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
+
+from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import clean_email, date_to_datetime, is_external_email, translate
 
 logger = logging.getLogger(__name__)
-
-FieldAction = namedtuple("FieldAction", "label type items")
-
-
-class LogEntry(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="logs_about_me")
-    content_object_id = models.PositiveIntegerField(db_index=True)
-    content_object = GenericForeignKey("content_type", "content_object_id")
-    attached_to_object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="logs_for_me")
-    attached_to_object_id = models.PositiveIntegerField(db_index=True)
-    attached_to_object = GenericForeignKey("attached_to_object_type", "attached_to_object_id")
-    datetime = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
-    action_type = models.CharField(max_length=255)
-    request_id = models.CharField(max_length=36, null=True, blank=True)
-    data = models.TextField(default="{}")
-
-    class Meta:
-        ordering = ("-datetime", "-id")
-
-    @staticmethod
-    def _pk_to_string_representation(key, field, related_objects):
-        if key is None:
-            return key
-        try:
-            return str(related_objects.get(pk=key))
-        except field.related_model.DoesNotExist:
-            return "�"
-
-    def _evaluation_log_template_context(self, data):
-        fields = defaultdict(list)
-        model = self.content_type.model_class()
-
-        def choice_to_display(field, choice):  # does not support nested choices
-            return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
-
-        for field_name, actions in data.items():
-            field = model._meta.get_field(field_name)
-            try:
-                label = getattr(field, "verbose_name", field_name).capitalize()
-            except FieldDoesNotExist:
-                label = field_name.capitalize()
-
-            if field.many_to_many or field.many_to_one or field.one_to_one:
-                # Convert item values from primary keys to string-representation for special fields
-                related_ids = itertools.chain(*actions.values())
-                related_objects = field.related_model.objects.filter(pk__in=related_ids)
-                bool(related_objects)  # force queryset evaluation
-                for field_action_type, primary_keys in actions.items():
-                    items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
-                    fields[field_name].append(FieldAction(label, field_action_type, items))
-            elif hasattr(field, "choices") and field.choices:
-                for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(
-                        label, field_action_type, [choice_to_display(field, item)for item in items])
-                    )
-            else:
-                for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(label, field_action_type, items))
-        return dict(fields)
-
-    def display(self):
-        if self.action_type not in ("change", "create", "delete"):
-            raise ValueError("Unknown action type: '{}'!".format(self.action_type))
-
-        field_data = json.loads(self.data)
-
-        if self.action_type == 'change':
-            if self.content_object:
-                message = _("The {cls} {obj} was changed.")
-            else:
-                message = _("A {cls} was changed.")
-        elif self.action_type == 'create':
-            if self.content_object:
-                message = _("The {cls} {obj} was created.")
-            else:
-                message = _("A {cls} was created.")
-        elif self.action_type == 'delete':
-            message = _("A {cls} was deleted.")
-
-        message = message.format(
-            cls=self.content_type.model_class()._meta.verbose_name_raw,
-            obj=f"\"{self.content_object!s}\"" if self.content_object else "",
-        )
-
-        return render_to_string("log/changed_fields_entry.html", {
-            'message': message,
-            'fields': self._evaluation_log_template_context(field_data),
-        })
-
-
-def log_serialize(obj):
-    if obj is None:
-        return ""
-    if isinstance(obj, (date, time, datetime)):
-        return localize(obj)
-    return str(obj)
-
-
-class LoggedModel(models.Model):
-    thread = threading.local()
-
-    class Meta:
-        abstract = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
-        self._logentry = None
-        for field in type(self)._meta.many_to_many:
-            self.register_logged_m2m_field(field)
-
-    def register_logged_m2m_field(self, field):
-        through = getattr(type(self), field.name).through  # converting from field to its descriptor
-        m2m_changed.connect(
-            LoggedModel.m2m_changed,
-            sender=through,
-            dispatch_uid="m2m_log-{!r}-{!r}".format(type(self), field)
-        )
-
-    @staticmethod
-    def m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
-        if reverse:
-            return
-
-        field_name = next((field.name for field in type(instance)._meta.many_to_many
-                           if getattr(type(instance), field.name).through == sender), None)
-
-        if action == 'pre_remove':
-            instance._m2m_changes[field_name]['remove'] += list(pk_set)
-        elif action == 'pre_add':
-            instance._m2m_changes[field_name]['add'] += list(pk_set)
-        elif action == 'pre_clear':
-            instance._m2m_changes[field_name]['clear'] = []
-
-        if "pre" in action:
-            instance.update_log("m2m")
-
-    def _as_dict(self, include_m2m=False):
-        """
-        Return a dict mapping field names to values saved in this instance.
-        Only include field names that are not to be ignored for logging.
-        Except when deleting objects, m2m values come from signal handling.
-        """
-        fields = [
-            field.name for field in type(self)._meta.get_fields() if
-            field.name not in self.ignore_field_names_logging
-            and (include_m2m or not field.many_to_many)
-        ]
-        return model_to_dict(self, fields)
-
-    def _change_data(self, action_type, include_none_values=False):
-        """
-        Return a dict mapping field names to changes that happened in this model instance,
-        depending on the action that is being done to the instance.
-        """
-        self_dict = self._as_dict()
-        if action_type == "create":
-            changes = {
-                field_name: {'change': [None, created_value]}
-                for field_name, created_value in self_dict.items()
-                if created_value is not None or include_none_values
-            }
-        elif action_type == "change":
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
-            changes = {
-                field_name: {'change': [old_value, self_dict[field_name]]}
-                for field_name, old_value in old_dict.items()
-                if old_value != self_dict[field_name]
-            }
-        elif action_type == "delete":
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict(include_m2m=True)
-            changes = {}
-            for field_name, old_value in old_dict.items():
-                if old_value is None and not include_none_values:
-                    continue
-                field = self._meta.get_field(field_name)
-                if field.many_to_many:
-                    action_items = [obj.pk for obj in old_value]
-                else:
-                    action_items = [old_value]
-                changes[field_name] = {'delete': action_items}
-        else:
-            raise ValueError("Unknown action type: '{}'".format(action_type))
-
-        changes.update(self._m2m_changes)
-        return changes
-
-    def update_log(self, mode):
-        action = {
-            'delete': 'delete',
-            'create': 'create',
-            'change': 'change',
-            'm2m': 'change',
-        }[mode]
-
-        changes = self._change_data(action)
-        if not changes:
-            return
-
-        if not self._logentry:
-            try:
-                user = self.thread.request.user
-                request_id = self.thread.request_id
-            except AttributeError:
-                user = None
-                request_id = None
-            data = json.dumps(changes, default=log_serialize)
-            attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
-            attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
-            self._logentry = LogEntry(
-                content_object=self,
-                attached_to_object_type=attached_to_object_type,
-                attached_to_object_id=attached_to_object_id,
-                user=user,
-                request_id=request_id,
-                action_type=action,
-                data=data
-            )
-        else:
-            previous_changes = json.loads(self._logentry.data)
-            previous_changes.update(changes)
-            data = json.dumps(previous_changes, default=log_serialize)
-            self._logentry.data = data
-
-        self._logentry.save()
-
-    def save(self, *args, **kw):
-        # Are we creating a new instance?
-        # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        mode = "create" if self._state.adding else "change"
-        if mode == "create":
-            super().save(*args, **kw)
-
-        self.update_log(mode)
-
-        if mode == "change":
-            super().save(*args, **kw)
-
-    def delete(self, *args, **kw):
-        self.update_log(mode="delete")
-        self.all_logentries().delete()
-        super().delete(*args, **kw)
-
-    def all_logentries(self):
-        """
-        Return a queryset with all logentries that should be shown with this model.
-        """
-        return LogEntry.objects.filter(
-            attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
-        ).select_related("user")
-
-    def grouped_logentries(self):
-        """
-        Returns a list of lists of logentries. The order is not changed.
-        Logentries are grouped if they have a matching request_id.
-        If there was no request that led to the logentry, they are grouped in a ten second timeframe.
-        """
-        groups = []
-        group = []
-        for entry in self.all_logentries():
-            if not group:
-                group.append(entry)
-            elif entry.request_id is not None and group[0].request_id == entry.request_id:
-                group.append(entry)
-            else:
-                time_matches = abs(group[0].datetime - entry.datetime) < timedelta(seconds=10)
-                if entry.request_id is None and group[0].request_id is None and time_matches:
-                    group.append(entry)
-                else:
-                    groups.append(group)
-                    group = [entry]
-
-        if group:
-            groups.append(group)
-
-        return groups
-
-    @property
-    def object_to_attach_logentries_to(self):
-        """
-        Return a model class and primary key for the object for which this logentry should be shown.
-        By default, show it to the object described by the logentry itself.
-        """
-        return type(self), self.pk
-
-    @property
-    def ignore_field_names_logging(self):
-        """Specify a list of field names so that these fields don't get logged."""
-        return ['id', 'last_modified_time', 'last_modified_user', 'order']
 
 
 class NotArchiveable(Exception):
@@ -382,11 +86,11 @@ class Semester(models.Model):
         return not self.results_are_archived
 
     @transaction.atomic
-    def archive_participations(self):
+    def archive(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         for evaluation in self.evaluations.all():
-            evaluation._archive_participations()
+            evaluation._archive()
         self.participations_are_archived = True
         self.save()
 
@@ -788,9 +492,9 @@ class Evaluation(LoggedModel):
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
         return (self.state == "in_evaluation"
-                and self.is_in_evaluation_period
-                and user in self.participants.all()
-                and user not in self.voters.all())
+            and self.is_in_evaluation_period
+            and user in self.participants.all()
+            and user not in self.voters.all())
 
     def can_be_seen_by(self, user):
         if user.is_manager:
@@ -818,8 +522,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_edited_by_manager(self):
-        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated',
-                                                                       'reviewed']
+        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
 
     @property
     def can_be_deleted_by_manager(self):
@@ -831,8 +534,8 @@ class Evaluation(LoggedModel):
             return self._participant_count
         return self.participants.count()
 
-    def _archive_participations(self):
-        """Should be called only via Semester.archive_participations"""
+    def _archive(self):
+        """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         if self._participant_count is not None:
@@ -884,8 +587,7 @@ class Evaluation(LoggedModel):
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved',
-                conditions=[lambda self: self.general_contribution_has_questionnaires])
+    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
     def manager_approve(self):
         pass
 
@@ -977,8 +679,7 @@ class Evaluation(LoggedModel):
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
         represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(
-            pk__in=represented_user_pks).exists()
+        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
@@ -986,8 +687,7 @@ class Evaluation(LoggedModel):
             return False
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
         represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(
-            pk__in=represented_user_pks).exists()
+        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
@@ -1025,11 +725,9 @@ class Evaluation(LoggedModel):
         if self.state != "evaluated":
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
-        if (
-            self.course.final_grade_documents
-            or self.course.gets_no_grade_documents
-            or not self.wait_for_grade_upload_before_publishing
-        ):
+        if (self.course.final_grade_documents
+                or self.course.gets_no_grade_documents
+                or not self.wait_for_grade_upload_before_publishing):
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -1110,8 +808,7 @@ class Contribution(LoggedModel):
                                     related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     role = models.IntegerField(choices=Role.choices, verbose_name=_("role"), default=Role.CONTRIBUTOR)
-    textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'),
-                                             default=TextAnswerVisibility.OWN_TEXTANSWERS)
+    textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
     label = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("label"))
 
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
@@ -1544,17 +1241,17 @@ class UserProfileManager(BaseUserManager):
             password=password,
             email=self.normalize_email(email),
             first_name=first_name,
-            last_name=last_name,
+            last_name=last_name
         )
         user.is_superuser = True
         user.save()
-        user.groups.add(Group.objects.get(name='Manager'))
+        user.groups.add(Group.objects.get(name="Manager"))
         return user
 
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
-    email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"), )
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_('email address'))
 
     title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Title"))
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
@@ -1563,20 +1260,16 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     language = models.CharField(max_length=8, blank=True, null=True, verbose_name=_("language"))
 
     # delegates of the user, which can also manage their evaluations
-    delegates = models.ManyToManyField(
-        "UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True,
-    )
+    delegates = models.ManyToManyField("UserProfile", verbose_name=_("Delegates"), related_name="represented_users", blank=True)
 
     # users to which all emails should be sent in cc without giving them delegate rights
-    cc_users = models.ManyToManyField(
-        "UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True,
-    )
+    cc_users = models.ManyToManyField("UserProfile", verbose_name=_("CC Users"), related_name="ccing_users", blank=True)
 
     # flag for proxy users which represent a group of users
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2 ** 31 - 1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -1684,14 +1377,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if not self.is_contributor or self.is_responsible:
             return True
 
-        last_semester_participated = (
-            Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").first()
-        )
-        last_semester_contributed = (
-            Semester.objects.filter(courses__evaluations__contributions__contributor=self)
-                    .order_by("-created_at")
-                    .first()
-        )
+        last_semester_participated = Semester.objects.filter(courses__evaluations__participants=self).order_by("-created_at").first()
+        last_semester_contributed = Semester.objects.filter(courses__evaluations__contributions__contributor=self).order_by("-created_at").first()
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
@@ -1910,8 +1597,7 @@ class EmailTemplate(models.Model):
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
-            logger.exception(
-                'An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
+            logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):

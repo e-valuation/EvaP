@@ -519,7 +519,7 @@ class ParticipationArchivingTests(TestCase):
         voter_count = self.evaluation.num_voters
         participant_count = self.evaluation.num_participants
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
 
         self.assertEqual(voter_count, self.evaluation.num_voters)
@@ -531,7 +531,7 @@ class ParticipationArchivingTests(TestCase):
         """
         some_participant = self.evaluation.participants.first()
 
-        self.semester.archive_participations()
+        self.semester.archive()
 
         self.assertEqual(list(some_participant.evaluations_participating_in.all()), [self.evaluation])
 
@@ -541,7 +541,7 @@ class ParticipationArchivingTests(TestCase):
         """
         self.assertFalse(self.evaluation.participations_are_archived)
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
 
         self.assertTrue(self.evaluation.participations_are_archived)
@@ -549,7 +549,7 @@ class ParticipationArchivingTests(TestCase):
     def test_archiving_participations_does_not_change_results(self):
         distribution = calculate_average_distribution(self.evaluation)
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
         caches['results'].clear()
 
@@ -557,11 +557,11 @@ class ParticipationArchivingTests(TestCase):
         self.assertEqual(new_distribution, distribution)
 
     def test_archiving_participations_twice_raises_exception(self):
-        self.semester.archive_participations()
+        self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            self.semester.archive_participations()
+            self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            self.semester.courses.first().evaluations.first()._archive_participations()
+            self.semester.courses.first().evaluations.first()._archive()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
         evaluation = baker.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
@@ -580,7 +580,7 @@ class ParticipationArchivingTests(TestCase):
         )
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
-        evaluation.course.semester.archive_participations()
+        evaluation.course.semester.archive()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation._participant_count, 5)
         self.assertEqual(evaluation._voter_count, 5)

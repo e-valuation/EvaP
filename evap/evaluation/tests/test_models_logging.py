@@ -4,7 +4,8 @@ from datetime import date, datetime, timedelta
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, FieldAction, log_serialize, Course, Contribution, Questionnaire
+from evap.evaluation.models import Evaluation, Course, Contribution, Questionnaire
+from evap.evaluation.models_logging import FieldAction, log_serialize
 
 
 class TestLoggedModel(TestCase):

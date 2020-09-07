@@ -671,7 +671,7 @@ def semester_archive_participations(request):
 
     if not semester.participations_can_be_archived:
         raise SuspiciousOperation("Archiving participations for this semester is not allowed")
-    semester.archive_participations()
+    semester.archive()
     return HttpResponse()  # 200 OK
 
 
