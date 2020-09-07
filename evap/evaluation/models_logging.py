@@ -2,19 +2,19 @@ from collections import defaultdict, namedtuple
 from datetime import date, datetime, time, timedelta
 from enum import Enum, auto
 import itertools
-import json
 import logging
 import operator
 import secrets
 import threading
 import uuid
+from json import JSONEncoder
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.cache import caches
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.mail import EmailMessage
@@ -40,6 +40,16 @@ logger = logging.getLogger(__name__)
 FieldAction = namedtuple("FieldAction", "label type items")
 
 
+class LogJSONEncoder(JSONEncoder):
+
+    def default(self, obj):
+        if obj is None:
+            return ""
+        if isinstance(obj, (date, time, datetime)):
+            return localize(obj)
+        return super().default(self, obj)
+
+
 class LogEntry(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name="logs_about_me")
     content_object_id = models.PositiveIntegerField(db_index=True)
@@ -51,7 +61,7 @@ class LogEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255)
     request_id = models.CharField(max_length=36, null=True, blank=True)
-    data = models.TextField(default="{}")
+    data = JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
         ordering = ("-datetime", "-id")
@@ -101,8 +111,6 @@ class LogEntry(models.Model):
         if self.action_type not in ("change", "create", "delete"):
             raise ValueError("Unknown action type: '{}'!".format(self.action_type))
 
-        field_data = json.loads(self.data)
-
         if self.action_type == 'change':
             if self.content_object:
                 message = _("The {cls} {obj} was changed.")
@@ -123,16 +131,8 @@ class LogEntry(models.Model):
 
         return render_to_string("log/changed_fields_entry.html", {
             'message': message,
-            'fields': self._evaluation_log_template_context(field_data),
+            'fields': self._evaluation_log_template_context(self.data),
         })
-
-
-def log_serialize(obj):
-    if obj is None:
-        return ""
-    if isinstance(obj, (date, time, datetime)):
-        return localize(obj)
-    return str(obj)
 
 
 class LoggedModel(models.Model):
@@ -147,7 +147,7 @@ class LoggedModel(models.Model):
         self._logentry = None
 
     @receiver(m2m_changed)
-    def m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
         if reverse:
             return
         if not isinstance(instance, LoggedModel):
@@ -166,7 +166,7 @@ class LoggedModel(models.Model):
             instance._m2m_changes[field_name]['clear'] = []
 
         if "pre" in action:
-            instance.update_log("m2m")
+            instance._update_log("m2m")
 
     def _as_dict(self, include_m2m=False):
         """
@@ -218,7 +218,7 @@ class LoggedModel(models.Model):
         changes.update(self._m2m_changes)
         return changes
 
-    def update_log(self, mode):
+    def _update_log(self, mode):
         action = {
             'delete': 'delete',
             'create': 'create',
@@ -237,7 +237,6 @@ class LoggedModel(models.Model):
             except AttributeError:
                 user = None
                 request_id = None
-            data = json.dumps(changes, default=log_serialize)
             attach_to_model, attached_to_object_id = self.object_to_attach_logentries_to
             attached_to_object_type = ContentType.objects.get_for_model(attach_to_model)
             self._logentry = LogEntry(
@@ -247,13 +246,10 @@ class LoggedModel(models.Model):
                 user=user,
                 request_id=request_id,
                 action_type=action,
-                data=data
+                data=changes,
             )
         else:
-            previous_changes = json.loads(self._logentry.data)
-            previous_changes.update(changes)
-            data = json.dumps(previous_changes, default=log_serialize)
-            self._logentry.data = data
+            self._logentry.data.update(changes)
 
         self._logentry.save()
 
@@ -264,13 +260,13 @@ class LoggedModel(models.Model):
         if mode == "create":
             super().save(*args, **kw)
 
-        self.update_log(mode)
+        self._update_log(mode)
 
         if mode == "change":
             super().save(*args, **kw)
 
     def delete(self, *args, **kw):
-        self.update_log(mode="delete")
+        self._update_log(mode="delete")
         self.related_logentries().delete()
         super().delete(*args, **kw)
 
@@ -280,17 +276,16 @@ class LoggedModel(models.Model):
         """
         return LogEntry.objects.filter(
             attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
-        ).select_related("user")
+        )
 
     def grouped_logentries(self):
         """
-        Returns a list of lists of logentries. The order is not changed.
+        Returns a list of lists of logentries for display. The order is not changed.
         Logentries are grouped if they have a matching request_id.
-        If there was no request that led to the logentry, they are grouped in a ten second timeframe.
         """
         groups = []
         group = []
-        for entry in self.related_logentries():
+        for entry in self.related_logentries().select_related("user"):
             if not group:
                 group.append(entry)
             elif entry.request_id is not None and group[0].request_id == entry.request_id:

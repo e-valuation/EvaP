@@ -1,11 +1,11 @@
-import json
 from datetime import date, datetime, timedelta
 
 from django.test import TestCase
+from django.utils.formats import localize
 from model_bakery import baker
 
 from evap.evaluation.models import Evaluation, Course, Contribution, Questionnaire
-from evap.evaluation.models_logging import FieldAction, log_serialize
+from evap.evaluation.models_logging import FieldAction
 
 
 class TestLoggedModel(TestCase):
@@ -35,18 +35,18 @@ class TestLoggedModel(TestCase):
 
     def test_datetime_change(self):
         self.assertEqual(
-            json.loads(self.logentry.data)["vote_start_datetime"],
-            {"change": [log_serialize(self.old_start_date), log_serialize(self.new_start_date)]},
+            self.logentry.data["vote_start_datetime"],
+            {"change": [localize(self.old_start_date), localize(self.new_start_date)]},
         )
 
     def test_data_attribute_is_correctly_parsed_to_fieldactions(self):
         self.assertEqual(
-            self.logentry._evaluation_log_template_context(json.loads(self.logentry.data))["vote_start_datetime"],
+            self.logentry._evaluation_log_template_context(self.logentry.data)["vote_start_datetime"],
             [
                 FieldAction(
                     "Start of evaluation",
                     "change",
-                    [log_serialize(self.old_start_date), log_serialize(self.new_start_date)],
+                    [localize(self.old_start_date), localize(self.new_start_date)],
                 )
             ],
         )
@@ -76,13 +76,13 @@ class TestLoggedModel(TestCase):
         contribution.questionnaires.add(questionnaire)
         contribution.save()
         self.assertEqual(self.evaluation.related_logentries().count(), 3)
-        self.assertEqual(json.loads(self.evaluation.related_logentries().order_by("id").last().data)['questionnaires']['add'], [questionnaire.id])
+        self.assertEqual(self.evaluation.related_logentries().order_by("id").last().data['questionnaires']['add'], [questionnaire.id])
 
     def test_none_value_not_included(self):
         contribution = baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
         contribution.save()
-        self.assertIn("label", json.loads(self.evaluation.related_logentries().order_by("id").last().data))
+        self.assertIn("label", self.evaluation.related_logentries().order_by("id").last().data)
 
         contribution = baker.make(Contribution, evaluation=self.evaluation, label=None)
         contribution.save()
-        self.assertNotIn("label", json.loads(self.evaluation.related_logentries().order_by("id").last().data))
+        self.assertNotIn("label", self.evaluation.related_logentries().order_by("id").last().data)
