@@ -101,3 +101,23 @@ def make_manager():
         email='manager@institution.example.com',
         groups=[Group.objects.get(name='Manager')],
     )
+
+
+def make_contributor(user, evaluation):
+    """ Make user a contributor of evaluation. """
+    return baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=user,
+        role=Contribution.Role.CONTRIBUTOR
+    )
+
+
+def make_editor(user, evaluation):
+    """ Make user an editor of evaluation. """
+    return baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=user,
+        role=Contribution.Role.EDITOR,
+    )

@@ -26,7 +26,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     UserProfile)
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
-from evap.results.exporters import ExcelExporter
+from evap.results.exporters import ResultsExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
@@ -517,7 +517,7 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-        ExcelExporter().export(
+        ResultsExporter().export(
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
         return response

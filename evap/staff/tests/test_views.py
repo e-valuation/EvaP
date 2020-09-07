@@ -1118,21 +1118,21 @@ class TestEvaluationOperationView(WebTest):
         mail.outbox = []
 
         self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=True, participants=False)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, [contributor1.email])
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertCountEqual([[contributor1.email], [self.responsible.email]], [mail.outbox[0].to, mail.outbox[1].to])
         mail.outbox = []
 
         self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=False, participants=True)
         self.assertEqual(len(mail.outbox), 2)
-        self.assertIn([participant1.email], [mail.outbox[0].to, mail.outbox[1].to])
-        self.assertIn([participant2.email], [mail.outbox[0].to, mail.outbox[1].to])
+        self.assertCountEqual([[participant1.email], [participant2.email]], [mail.outbox[0].to, mail.outbox[1].to])
         mail.outbox = []
 
         self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=True, participants=True)
-        self.assertEqual(len(mail.outbox), 3)
-        self.assertIn([participant1.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
-        self.assertIn([participant2.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
-        self.assertIn([contributor1.email], [mail.outbox[0].to, mail.outbox[1].to, mail.outbox[2].to])
+        self.assertEqual(len(mail.outbox), 4)
+        self.assertCountEqual(
+            [[participant1.email], [participant2.email], [contributor1.email], [self.responsible.email]],
+            [outbox_entry.to for outbox_entry in mail.outbox]
+        )
         mail.outbox = []
 
     def helper_semester_state_views(self, evaluation, old_state, new_state):
@@ -1153,11 +1153,20 @@ class TestEvaluationOperationView(WebTest):
     def test_semester_publish(self):
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
-        evaluation = baker.make(Evaluation, course=self.course, state='reviewed',
-                                participants=[participant1, participant2], voters=[participant1, participant2])
+        evaluation = baker.make(
+            Evaluation,
+            course=self.course,
+            state='reviewed',
+            participants=[participant1, participant2],
+            voters=[participant1, participant2]
+        )
 
         self.helper_semester_state_views(evaluation, "reviewed", "published")
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertCountEqual(
+            [[participant1.email], [participant2.email], [self.responsible.email]],
+            [outbox_entry.to for outbox_entry in mail.outbox],
+        )
 
     def test_semester_reset_1(self):
         evaluation = baker.make(Evaluation, course=self.course, state='prepared')

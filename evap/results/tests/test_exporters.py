@@ -9,14 +9,14 @@ import xlrd
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter, Semester, UserProfile, TextAnswer)
-from evap.results.exporters import ExcelExporter, TextAnswerExcelExporter
+from evap.results.exporters import ResultsExporter, TextAnswerExporter
 from evap.results.tools import collect_results
 from evap.results.views import filter_text_answers
 
 
 class TestExporters(TestCase):
     def test_grade_color_calculation(self):
-        exporter = ExcelExporter()
+        exporter = ResultsExporter()
         self.assertEqual(exporter.STEP, 0.2)
         self.assertEqual(exporter.normalize_number(1.94999999999), 1.8)
         # self.assertEqual(exporter.normalize_number(1.95), 2.0)  # floats ftw
@@ -58,7 +58,7 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter().export(
+        ResultsExporter().export(
             binary_content,
             [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
@@ -102,7 +102,7 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         binary_content = BytesIO()
-        ExcelExporter().export(
+        ResultsExporter().export(
             binary_content,
             [evaluation.course.semester],
             [([course_degree.id for course_degree in evaluation.course.degrees.all()], [evaluation.course.type.id])],
@@ -138,11 +138,11 @@ class TestExporters(TestCase):
 
         content_de = BytesIO()
         with translation.override("de"):
-            ExcelExporter().export(content_de, [semester], [([degree.id], [course_type.id])], True, True)
+            ResultsExporter().export(content_de, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_en = BytesIO()
         with translation.override("en"):
-            ExcelExporter().export(content_en, [semester], [([degree.id], [course_type.id])], True, True)
+            ResultsExporter().export(content_en, [semester], [([degree.id], [course_type.id])], True, True)
 
         content_de.seek(0)
         content_en.seek(0)
@@ -184,7 +184,7 @@ class TestExporters(TestCase):
         baker.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
 
         binary_content = BytesIO()
-        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ResultsExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -195,7 +195,7 @@ class TestExporters(TestCase):
         course_type_2.save()
 
         binary_content = BytesIO()
-        ExcelExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ResultsExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -205,7 +205,7 @@ class TestExporters(TestCase):
     def test_multiple_sheets(self):
         binary_content = BytesIO()
         semester = baker.make(Semester)
-        ExcelExporter().export(binary_content, [semester], [([], []), ([], [])])
+        ResultsExporter().export(binary_content, [semester], [([], []), ([], [])])
 
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
@@ -215,7 +215,7 @@ class TestExporters(TestCase):
     @staticmethod
     def get_export_sheet(semester, degree, course_types, include_unpublished=True, include_not_enough_voters=True):
         binary_content = BytesIO()
-        ExcelExporter().export(
+        ResultsExporter().export(
             binary_content,
             [semester],
             [([degree.id], course_types)],
@@ -289,7 +289,7 @@ class TestExporters(TestCase):
     def test_no_degree_or_course_type(self):
         evaluation = baker.make(Evaluation)
         with self.assertRaises(AssertionError):
-            ExcelExporter().export(BytesIO(), [evaluation.course.semester], [])
+            ResultsExporter().export(BytesIO(), [evaluation.course.semester], [])
 
     def test_exclude_single_result(self):
         degree = baker.make(Degree)
@@ -356,6 +356,48 @@ class TestExporters(TestCase):
         self.assertEqual(sheet.row_values(11)[1], "5/10")   # Voters / Participants
         self.assertEqual(sheet.row_values(12)[1], "50%")    # Voter percentage
 
+    def test_course_grade(self):
+        degree = baker.make(Degree)
+        course = baker.make(Course, degrees=[degree])
+        evaluations = [
+            baker.make(Evaluation, course=course,
+                       name_en=f"eval{i}", name_de=f"eval{i}",
+                       state="published", _voter_count=5, _participant_count=10)
+            for i in range(3)
+        ]
+
+        grades_per_eval = [
+            [1, 2],
+            [2, 3],
+            [1, 3]
+        ]
+        expected_average = 2.0
+
+        questionnaire = baker.make(Questionnaire)
+        question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
+        for grades, e in zip(grades_per_eval, evaluations):
+            for grade in grades:
+                baker.make(RatingAnswerCounter, answer=grade, count=1, question=question, contribution=e.general_contribution)
+            e.general_contribution.questionnaires.set([questionnaire])
+
+        sheet = self.get_export_sheet(course.semester, degree, [course.type.id])
+        self.assertEqual(sheet.row_values(12)[1], expected_average)
+        self.assertEqual(sheet.row_values(12)[2], expected_average)
+        self.assertEqual(sheet.row_values(12)[3], expected_average)
+
+    def test_yes_no_question_result(self):
+        degree = baker.make(Degree)
+        evaluation = baker.make(Evaluation, _voter_count=6, _participant_count=10, course__degrees=[degree], state="published")
+        questionnaire = baker.make(Questionnaire)
+        question = baker.make(Question, type=Question.POSITIVE_YES_NO, questionnaire=questionnaire)
+        # 1,5 are yes, no according to RatingAnswerCounter class definition
+        baker.make(RatingAnswerCounter, answer=1, count=4, question=question, contribution=evaluation.general_contribution)
+        baker.make(RatingAnswerCounter, answer=5, count=2, question=question, contribution=evaluation.general_contribution)
+        evaluation.general_contribution.questionnaires.set([questionnaire])
+
+        sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
+        self.assertEqual(sheet.row_values(5)[0], question.text)
+        self.assertEqual(sheet.row_values(5)[1], "67%")
 
     def test_contributor_result_export(self):
         degree = baker.make(Degree)
@@ -429,10 +471,10 @@ class TestExporters(TestCase):
         evaluation_result = collect_results(evaluation)
         filter_text_answers(evaluation_result)
 
-        results = TextAnswerExcelExporter.InputData(evaluation_result.contribution_results)
+        results = TextAnswerExporter.InputData(evaluation_result.contribution_results)
 
         binary_content = BytesIO()
-        TextAnswerExcelExporter(evaluation.name, evaluation.course.semester.name,
+        TextAnswerExporter(evaluation.name, evaluation.course.semester.name,
                                 evaluation.course.responsibles_names,
                                 results, None).export(binary_content)
         binary_content.seek(0)

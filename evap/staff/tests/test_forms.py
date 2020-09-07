@@ -142,14 +142,14 @@ class UserFormTests(TestCase):
 
         results_after = collect_results(evaluation)
 
-        self.assertEqual(
-            results_before.contribution_results[0].contributor.first_name,
-            "Peter"
+        self.assertCountEqual(
+            (result.contributor.first_name for result in results_before.contribution_results if result.contributor),
+            ("Peter", ),
         )
 
-        self.assertEqual(
-            results_after.contribution_results[0].contributor.first_name,
-            "Patrick"
+        self.assertCountEqual(
+            (result.contributor.first_name for result in results_after.contribution_results if result.contributor),
+            ("Patrick", ),
         )
 
 

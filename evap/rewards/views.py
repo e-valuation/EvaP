@@ -18,7 +18,7 @@ from evap.rewards.models import RewardPointGranting, RewardPointRedemption, Rewa
                                 SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
 from evap.rewards.tools import save_redemptions, reward_points_of_user
 from evap.rewards.forms import RewardPointRedemptionEventForm
-from evap.rewards.exporters import ExcelExporter
+from evap.rewards.exporters import RewardsExporter
 
 
 @reward_user_required
@@ -111,7 +111,7 @@ def reward_point_redemption_event_export(request, event_id):
     filename = _("RewardPoints") + "-%s-%s-%s.xls" % (event.date, event.name, get_language())
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-    ExcelExporter(event.redemptions_by_user()).export(response)
+    RewardsExporter().export(response, event.redemptions_by_user())
 
     return response
 
