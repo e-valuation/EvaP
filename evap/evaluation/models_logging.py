@@ -1,40 +1,23 @@
 from collections import defaultdict, namedtuple
-from datetime import date, datetime, time, timedelta
-from enum import Enum, auto
+from datetime import date, datetime, time
 import itertools
 import logging
-import operator
-import secrets
 import threading
-import uuid
 from json import JSONEncoder
 
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group, PermissionsMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.cache import caches
-from django.core.exceptions import FieldDoesNotExist, ValidationError
-from django.core.mail import EmailMessage
-from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, Q
+from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import FieldDoesNotExist
+from django.db import models
 from django.db.models.signals import m2m_changed
-from django.dispatch import Signal, receiver
-from django.forms import model_to_dict
+from django.dispatch import receiver
 from django.forms.models import model_to_dict
-from django.template import Context, Template
-from django.template.base import TemplateSyntaxError
 from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils import timezone
 from django.utils.formats import localize
-from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_fsm import FSMField, transition
-from django_fsm.signals import post_transition
-from evap.evaluation.tools import clean_email, date_to_datetime, is_external_email, translate
+
 
 logger = logging.getLogger(__name__)
 FieldAction = namedtuple("FieldAction", "label type items")
@@ -47,7 +30,7 @@ class LogJSONEncoder(JSONEncoder):
             return ""
         if isinstance(obj, (date, time, datetime)):
             return localize(obj)
-        return super().default(self, obj)
+        return super().default(obj)
 
 
 class LogEntry(models.Model):
@@ -145,28 +128,6 @@ class LoggedModel(models.Model):
         super().__init__(*args, **kwargs)
         self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
-
-    @receiver(m2m_changed)
-    def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
-        if reverse:
-            return
-        if not isinstance(instance, LoggedModel):
-            return
-
-        field_name = next((field.name for field in type(instance)._meta.many_to_many
-                           if getattr(type(instance), field.name).through == sender), None)
-        if field_name is None:
-            return
-
-        if action == 'pre_remove':
-            instance._m2m_changes[field_name]['remove'] += list(pk_set)
-        elif action == 'pre_add':
-            instance._m2m_changes[field_name]['add'] += list(pk_set)
-        elif action == 'pre_clear':
-            instance._m2m_changes[field_name]['clear'] = []
-
-        if "pre" in action:
-            instance._update_log("m2m")
 
     def _as_dict(self, include_m2m=False):
         """
@@ -283,25 +244,10 @@ class LoggedModel(models.Model):
         Returns a list of lists of logentries for display. The order is not changed.
         Logentries are grouped if they have a matching request_id.
         """
-        groups = []
-        group = []
-        for entry in self.related_logentries().select_related("user"):
-            if not group:
-                group.append(entry)
-            elif entry.request_id is not None and group[0].request_id == entry.request_id:
-                group.append(entry)
-            else:
-                time_matches = abs(group[0].datetime - entry.datetime) < timedelta(seconds=10)
-                if entry.request_id is None and group[0].request_id is None and time_matches:
-                    group.append(entry)
-                else:
-                    groups.append(group)
-                    group = [entry]
-
-        if group:
-            groups.append(group)
-
-        return groups
+        yield from (list(group) for key, group in itertools.groupby(
+            self.related_logentries().select_related("user"),
+            lambda entry: entry.request_id or entry.pk,
+        ))
 
     @property
     def object_to_attach_logentries_to(self):
@@ -315,3 +261,26 @@ class LoggedModel(models.Model):
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
         return ['id', 'last_modified_time', 'last_modified_user', 'order']
+
+
+@receiver(m2m_changed)
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if reverse:
+        return
+    if not isinstance(instance, LoggedModel):
+        return
+
+    field_name = next((field.name for field in type(instance)._meta.many_to_many
+                       if getattr(type(instance), field.name).through == sender), None)
+    if field_name is None:
+        return
+
+    if action == 'pre_remove':
+        instance._m2m_changes[field_name]['remove'] += list(pk_set)
+    elif action == 'pre_add':
+        instance._m2m_changes[field_name]['add'] += list(pk_set)
+    elif action == 'pre_clear':
+        instance._m2m_changes[field_name]['clear'] = []
+
+    if "pre" in action:
+        instance._update_log("m2m")
