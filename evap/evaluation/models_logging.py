@@ -44,11 +44,50 @@ class InstanceActionType(str, Enum):
 class LogJSONEncoder(JSONEncoder):
 
     def default(self, obj):
-        if obj is None:
-            return ""
         if isinstance(obj, (date, time, datetime)):
             return localize(obj)
         return super().default(obj)
+
+
+def _pk_to_string_representation(key, field, related_objects):
+    if key is None:
+        return key
+    try:
+        return str(related_objects.get(pk=key))
+    except field.related_model.DoesNotExist:
+        return "�"
+
+
+def _field_actions_for_field(model, field_name, actions):
+    field = model._meta.get_field(field_name)
+    try:
+        label = getattr(field, "verbose_name", field_name).capitalize()
+    except FieldDoesNotExist:
+        label = field_name.capitalize()
+
+    def choice_to_display(field, choice):  # does not support nested choices
+        return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
+
+    if field.many_to_many or field.many_to_one or field.one_to_one:
+        # convert item values from primary keys to string-representation for relation-based fields
+        related_ids = itertools.chain(*actions.values())
+        related_objects = field.related_model.objects.filter(pk__in=related_ids)
+        bool(related_objects)  # force queryset evaluation
+        for field_action_type, primary_keys in actions.items():
+            items = [_pk_to_string_representation(key, field, related_objects) for key in primary_keys]
+            yield FieldAction(label, field_action_type, items)
+    elif hasattr(field, "choices") and field.choices:
+        # convert values from choice-based fields to their display equivalent
+        for field_action_type, items in actions.items():
+            yield FieldAction(label, field_action_type, [choice_to_display(field, item) for item in items])
+    elif isinstance(field, models.BooleanField):
+        # convert boolean to yes/no
+        for field_action_type, items in actions.items():
+            yield FieldAction(label, field_action_type, list(map(yesno, items)))
+    else:
+        # as a default, just use plain items
+        for field_action_type, items in actions.items():
+            yield FieldAction(label, field_action_type, items)
 
 
 class LogEntry(models.Model):
@@ -67,65 +106,25 @@ class LogEntry(models.Model):
     class Meta:
         ordering = ("-datetime", "-id")
 
-    @staticmethod
-    def _pk_to_string_representation(key, field, related_objects):
-        if key is None:
-            return key
-        try:
-            return str(related_objects.get(pk=key))
-        except field.related_model.DoesNotExist:
-            return "�"
-
     def _evaluation_log_template_context(self, data):
-        fields = defaultdict(list)
         model = self.content_type.model_class()
-
-        def choice_to_display(field, choice):  # does not support nested choices
-            return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
-
-        for field_name, actions in data.items():
-            field = model._meta.get_field(field_name)
-            try:
-                label = getattr(field, "verbose_name", field_name).capitalize()
-            except FieldDoesNotExist:
-                label = field_name.capitalize()
-
-            if field.many_to_many or field.many_to_one or field.one_to_one:
-                # convert item values from primary keys to string-representation for relation-based fields
-                related_ids = itertools.chain(*actions.values())
-                related_objects = field.related_model.objects.filter(pk__in=related_ids)
-                bool(related_objects)  # force queryset evaluation
-                for field_action_type, primary_keys in actions.items():
-                    items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
-                    fields[field_name].append(FieldAction(label, field_action_type, items))
-            elif hasattr(field, "choices") and field.choices:
-                # convert values from choice-based fields to their display equivalent
-                for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(
-                        label, field_action_type, [choice_to_display(field, item) for item in items])
-                    )
-            elif isinstance(field, models.BooleanField):
-                # convert boolean to yes/no
-                for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(label, field_action_type, list(map(yesno, items))))
-            else:
-                # as a default, just use plain items
-                for field_action_type, items in actions.items():
-                    fields[field_name].append(FieldAction(label, field_action_type, items))
-        return dict(fields)
+        return {
+            field_name: list(_field_actions_for_field(model, field_name, actions))
+            for field_name, actions in data.items()
+        }
 
     def display(self):
-        if self.action_type == 'change':
+        if self.action_type == InstanceActionType.CHANGE:
             if self.content_object:
                 message = _("The {cls} {obj} was changed.")
             else:
                 message = _("A {cls} was changed.")
-        elif self.action_type == 'create':
+        elif self.action_type == InstanceActionType.CREATE:
             if self.content_object:
                 message = _("The {cls} {obj} was created.")
             else:
                 message = _("A {cls} was created.")
-        elif self.action_type == 'delete':
+        elif self.action_type == InstanceActionType.DELETE:
             message = _("A {cls} was deleted.")
 
         message = message.format(
@@ -185,12 +184,14 @@ class LoggedModel(models.Model):
         elif action_type == InstanceActionType.DELETE:
             old_dict = type(self).objects.get(pk=self.pk)._as_dict()
             changes = {
-                field_name: {FieldActionType.INSTANCE_DELETE: [old_value]}
-                for field_name, old_value in old_dict.items()
+                field_name: {FieldActionType.INSTANCE_DELETE: [deleted_value]}
+                for field_name, deleted_value in old_dict.items()
+                if deleted_value is not None
             }
             # as the instance is being deleted, we also need to pull out all m2m values
-            for field_name, old_value in model_to_dict(self, (field.name for field in type(self)._meta.many_to_many)):
-                changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in old_value]}
+            m2m_field_names = [field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields]
+            for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
+                changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}
         else:
             raise ValueError("Unknown action type: '{}'".format(action_type))
 

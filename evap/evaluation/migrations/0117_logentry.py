@@ -6,8 +6,8 @@ import django.db.models.deletion
 import django.contrib.postgres.fields.jsonb
 import evap.evaluation.models_logging
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('evaluation', '0116_remove_contributon_can_edit'),
@@ -21,10 +21,15 @@ class Migration(migrations.Migration):
                 ('content_object_id', models.PositiveIntegerField(db_index=True)),
                 ('attached_to_object_id', models.PositiveIntegerField(db_index=True)),
                 ('datetime', models.DateTimeField(auto_now_add=True)),
-                ('action_type', models.CharField(choices=[(evap.evaluation.models_logging.InstanceActionType['CREATE'], evap.evaluation.models_logging.InstanceActionType['CREATE']), (evap.evaluation.models_logging.InstanceActionType['CHANGE'], evap.evaluation.models_logging.InstanceActionType['CHANGE']), (evap.evaluation.models_logging.InstanceActionType['DELETE'], evap.evaluation.models_logging.InstanceActionType['DELETE'])], max_length=255)),
+                ('action_type', models.CharField(
+                    choices=[(evap.evaluation.models_logging.InstanceActionType['CREATE'], evap.evaluation.models_logging.InstanceActionType['CREATE']),
+                             (evap.evaluation.models_logging.InstanceActionType['CHANGE'], evap.evaluation.models_logging.InstanceActionType['CHANGE']),
+                             (evap.evaluation.models_logging.InstanceActionType['DELETE'], evap.evaluation.models_logging.InstanceActionType['DELETE'])],
+                    max_length=255)),
                 ('request_id', models.CharField(blank=True, max_length=36, null=True)),
                 ('data', django.contrib.postgres.fields.jsonb.JSONField(default=dict, encoder=evap.evaluation.models_logging.LogJSONEncoder)),
-                ('attached_to_object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs_for_me', to='contenttypes.ContentType')),
+                ('attached_to_object_type',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs_for_me', to='contenttypes.ContentType')),
                 ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logs_about_me', to='contenttypes.ContentType')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
             ],
