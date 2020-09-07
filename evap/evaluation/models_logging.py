@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, time
+from enum import Enum
 import itertools
 import logging
 import threading
@@ -14,13 +15,30 @@ from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from django.forms.models import model_to_dict
+from django.template.defaultfilters import yesno
 from django.template.loader import render_to_string
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
 
-
 logger = logging.getLogger(__name__)
+
+
+class FieldActionType(str, Enum):
+    M2M_ADD = "add"
+    M2M_REMOVE = "remove"
+    M2M_CLEAR = "clear"
+    INSTANCE_CREATE = "create"
+    VALUE_CHANGE = "change"
+    INSTANCE_DELETE = "delete"
+
+
 FieldAction = namedtuple("FieldAction", "label type items")
+
+
+class InstanceActionType(str, Enum):
+    CREATE = "create"
+    CHANGE = "change"
+    DELETE = "delete"
 
 
 class LogJSONEncoder(JSONEncoder):
@@ -42,7 +60,7 @@ class LogEntry(models.Model):
     attached_to_object = GenericForeignKey("attached_to_object_type", "attached_to_object_id")
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
-    action_type = models.CharField(max_length=255)
+    action_type = models.CharField(max_length=255, choices=zip(*itertools.tee(InstanceActionType)))
     request_id = models.CharField(max_length=36, null=True, blank=True)
     data = JSONField(default=dict, encoder=LogJSONEncoder)
 
@@ -73,7 +91,7 @@ class LogEntry(models.Model):
                 label = field_name.capitalize()
 
             if field.many_to_many or field.many_to_one or field.one_to_one:
-                # Convert item values from primary keys to string-representation for special fields
+                # convert item values from primary keys to string-representation for relation-based fields
                 related_ids = itertools.chain(*actions.values())
                 related_objects = field.related_model.objects.filter(pk__in=related_ids)
                 bool(related_objects)  # force queryset evaluation
@@ -81,19 +99,22 @@ class LogEntry(models.Model):
                     items = [self._pk_to_string_representation(key, field, related_objects) for key in primary_keys]
                     fields[field_name].append(FieldAction(label, field_action_type, items))
             elif hasattr(field, "choices") and field.choices:
+                # convert values from choice-based fields to their display equivalent
                 for field_action_type, items in actions.items():
                     fields[field_name].append(FieldAction(
                         label, field_action_type, [choice_to_display(field, item) for item in items])
                     )
+            elif isinstance(field, models.BooleanField):
+                # convert boolean to yes/no
+                for field_action_type, items in actions.items():
+                    fields[field_name].append(FieldAction(label, field_action_type, list(map(yesno, items))))
             else:
+                # as a default, just use plain items
                 for field_action_type, items in actions.items():
                     fields[field_name].append(FieldAction(label, field_action_type, items))
         return dict(fields)
 
     def display(self):
-        if self.action_type not in ("change", "create", "delete"):
-            raise ValueError("Unknown action type: '{}'!".format(self.action_type))
-
         if self.action_type == 'change':
             if self.content_object:
                 message = _("The {cls} {obj} was changed.")
@@ -129,65 +150,55 @@ class LoggedModel(models.Model):
         self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
 
-    def _as_dict(self, include_m2m=False):
+    def _as_dict(self):
         """
         Return a dict mapping field names to values saved in this instance.
-        Only include field names that are not to be ignored for logging.
-        Except when deleting objects, m2m values come from signal handling.
+        Only include field names that are not to be ignored for logging and
+        that don't name m2m fields.
         """
         fields = [
             field.name for field in type(self)._meta.get_fields() if
             field.name not in self.unlogged_fields
-            and (include_m2m or not field.many_to_many)
+            and not field.many_to_many
         ]
         return model_to_dict(self, fields)
 
-    def _get_change_data(self, action_type, include_none_values=False):
+    def _get_change_data(self, action_type: InstanceActionType):
         """
         Return a dict mapping field names to changes that happened in this model instance,
         depending on the action that is being done to the instance.
         """
         self_dict = self._as_dict()
-        if action_type == "create":
+        if action_type == InstanceActionType.CREATE:
             changes = {
-                field_name: {'change': [None, created_value]}
+                field_name: {FieldActionType.INSTANCE_CREATE: [created_value]}
                 for field_name, created_value in self_dict.items()
-                if created_value is not None or include_none_values
+                if created_value is not None
             }
-        elif action_type == "change":
+        elif action_type == InstanceActionType.CHANGE:
             old_dict = type(self).objects.get(pk=self.pk)._as_dict()
             changes = {
-                field_name: {'change': [old_value, self_dict[field_name]]}
+                field_name: {FieldActionType.VALUE_CHANGE: [old_value, self_dict[field_name]]}
                 for field_name, old_value in old_dict.items()
                 if old_value != self_dict[field_name]
             }
-        elif action_type == "delete":
-            old_dict = type(self).objects.get(pk=self.pk)._as_dict(include_m2m=True)
-            changes = {}
-            for field_name, old_value in old_dict.items():
-                if old_value is None and not include_none_values:
-                    continue
-                field = self._meta.get_field(field_name)
-                if field.many_to_many:
-                    action_items = [obj.pk for obj in old_value]
-                else:
-                    action_items = [old_value]
-                changes[field_name] = {'delete': action_items}
+        elif action_type == InstanceActionType.DELETE:
+            old_dict = type(self).objects.get(pk=self.pk)._as_dict()
+            changes = {
+                field_name: {FieldActionType.INSTANCE_DELETE: [old_value]}
+                for field_name, old_value in old_dict.items()
+            }
+            # as the instance is being deleted, we also need to pull out all m2m values
+            for field_name, old_value in model_to_dict(self, (field.name for field in type(self)._meta.many_to_many)):
+                changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in old_value]}
         else:
             raise ValueError("Unknown action type: '{}'".format(action_type))
 
         changes.update(self._m2m_changes)
         return changes
 
-    def _update_log(self, mode):
-        action = {
-            'delete': 'delete',
-            'create': 'create',
-            'change': 'change',
-            'm2m': 'change',
-        }[mode]
-
-        changes = self._get_change_data(action)
+    def _update_log(self, action_type: InstanceActionType):
+        changes = self._get_change_data(action_type)
         if not changes:
             return
 
@@ -206,7 +217,7 @@ class LoggedModel(models.Model):
                 attached_to_object_id=attached_to_object_id,
                 user=user,
                 request_id=request_id,
-                action_type=action,
+                action_type=action_type,
                 data=changes,
             )
         else:
@@ -217,17 +228,21 @@ class LoggedModel(models.Model):
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        mode = "create" if self._state.adding else "change"
-        if mode == "create":
+        mode = InstanceActionType.CREATE if self._state.adding else InstanceActionType.CHANGE
+
+        if mode == InstanceActionType.CREATE:
+            # we need to attach a logentry to an existing object, so we save this newly created instance first
             super().save(*args, **kw)
 
         self._update_log(mode)
 
-        if mode == "change":
+        if mode == InstanceActionType.CHANGE:
+            # when saving an existing instance, we get changes by comparing to the version from the database
+            # therefore we save the instance after building the logentry
             super().save(*args, **kw)
 
     def delete(self, *args, **kw):
-        self._update_log(mode="delete")
+        self._update_log(action_type=InstanceActionType.DELETE)
         self.related_logentries().delete()
         super().delete(*args, **kw)
 
@@ -264,7 +279,7 @@ class LoggedModel(models.Model):
 
 
 @receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # no-qa
     if reverse:
         return
     if not isinstance(instance, LoggedModel):
@@ -276,11 +291,11 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):
         return
 
     if action == 'pre_remove':
-        instance._m2m_changes[field_name]['remove'] += list(pk_set)
+        instance._m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
     elif action == 'pre_add':
-        instance._m2m_changes[field_name]['add'] += list(pk_set)
+        instance._m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
     elif action == 'pre_clear':
-        instance._m2m_changes[field_name]['clear'] = []
+        instance._m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
 
     if "pre" in action:
-        instance._update_log("m2m")
+        instance._update_log(InstanceActionType.CHANGE)
