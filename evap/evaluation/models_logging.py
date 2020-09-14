@@ -51,11 +51,15 @@ class LogJSONEncoder(JSONEncoder):
 
 def _pk_to_string_representation(key, field, related_objects):
     if key is None:
-        return key
+        return None
     try:
         return str(related_objects.get(pk=key))
     except field.related_model.DoesNotExist:
         return "�"
+
+
+def _choice_to_display(field, choice):  # does not support nested choices
+    return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
 
 
 def _field_actions_for_field(model, field_name, actions):
@@ -65,28 +69,21 @@ def _field_actions_for_field(model, field_name, actions):
     except FieldDoesNotExist:
         label = field_name.capitalize()
 
-    def choice_to_display(field, choice):  # does not support nested choices
-        return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
-
-    if field.many_to_many or field.many_to_one or field.one_to_one:
-        # convert item values from primary keys to string-representation for relation-based fields
-        related_ids = itertools.chain(*actions.values())
-        related_objects = field.related_model.objects.filter(pk__in=related_ids)
-        bool(related_objects)  # force queryset evaluation
-        for field_action_type, primary_keys in actions.items():
-            items = [_pk_to_string_representation(key, field, related_objects) for key in primary_keys]
+    for field_action_type, items in actions.items():
+        if field.many_to_many or field.many_to_one or field.one_to_one:
+            # convert item values from primary keys to string-representation for relation-based fields
+            related_objects = field.related_model.objects.filter(pk__in=items)
+            missing = len(items) - related_objects.count()
+            items = [str(obj) for obj in related_objects] + ["�"] * missing
             yield FieldAction(label, field_action_type, items)
-    elif hasattr(field, "choices") and field.choices:
-        # convert values from choice-based fields to their display equivalent
-        for field_action_type, items in actions.items():
-            yield FieldAction(label, field_action_type, [choice_to_display(field, item) for item in items])
-    elif isinstance(field, models.BooleanField):
-        # convert boolean to yes/no
-        for field_action_type, items in actions.items():
+        elif hasattr(field, "choices") and field.choices:
+            # convert values from choice-based fields to their display equivalent
+            yield FieldAction(label, field_action_type, [_choice_to_display(field, item) for item in items])
+        elif isinstance(field, models.BooleanField):
+            # convert boolean to yes/no
             yield FieldAction(label, field_action_type, list(map(yesno, items)))
-    else:
-        # as a default, just use plain items
-        for field_action_type, items in actions.items():
+        else:
+            # as a default, just use plain items
             yield FieldAction(label, field_action_type, items)
 
 
@@ -280,7 +277,7 @@ class LoggedModel(models.Model):
 
 
 @receiver(m2m_changed)
-def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # no-qa
+def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  # pylint: disable=unused-argument
     if reverse:
         return
     if not isinstance(instance, LoggedModel):
