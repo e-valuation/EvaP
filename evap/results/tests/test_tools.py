@@ -25,14 +25,17 @@ class TestCalculateResults(TestCase):
 
         self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-    def test_cache_unpublished_evaluation(self):
-        evaluation = baker.make(Evaluation, state='reviewed')
-        evaluation.publish()
+    def test_caching_lifecycle(self):
+        evaluation = baker.make(Evaluation, state='in_evaluation')
+
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+        evaluation.evaluation_end()
         evaluation.save()
 
         self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-        evaluation.unpublish()
+        evaluation.reopen_evaluation()
         evaluation.save()
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))

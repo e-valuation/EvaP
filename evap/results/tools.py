@@ -10,7 +10,7 @@ from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
         Evaluation
 
 
-STATES_WITH_RESULTS_CACHING = {'published'}
+STATES_WITH_RESULTS_CACHING = {'evaluated', 'reviewed', 'published'}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {'published'}
 
 
