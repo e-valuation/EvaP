@@ -473,6 +473,11 @@ class Evaluation(models.Model):
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
     @property
+    def runtime(self):
+        delta = self.vote_end_datetime - self.vote_start_datetime
+        return delta.days + 1
+
+    @property
     def is_in_evaluation_period(self):
         return self.vote_start_datetime <= datetime.now() <= self.vote_end_datetime
 
