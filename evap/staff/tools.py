@@ -165,7 +165,7 @@ def bulk_update_users(request, user_file_content, test_run):
             )
         )
         for user in deletable_users:
-            for message in remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive, True):
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive, True):
                 messages.warning(request, message)
     if users_to_mark_inactive:
         messages.info(request,
@@ -175,7 +175,7 @@ def bulk_update_users(request, user_file_content, test_run):
             )
         )
         for user in users_to_mark_inactive:
-            for message in remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive, True):
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive, True):
                 messages.warning(request, message)
     if emails_of_users_to_be_created:
         messages.info(request,
@@ -189,9 +189,9 @@ def bulk_update_users(request, user_file_content, test_run):
         messages.info(request, _('No data was changed in this test run.'))
     else:
         with transaction.atomic():
-            for user in deletable_users+users_to_mark_inactive:
+            for user in deletable_users + users_to_mark_inactive:
                 # this has to be done in an additional for-loop because otherwise it interferes with the user deletion
-                remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive)
+                remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive)
             for user in deletable_users:
                 user.delete()
             for user in users_to_mark_inactive:
