@@ -271,7 +271,9 @@ def get_evaluations_with_course_result_attributes(evaluations):
 
 
 def calculate_average_distribution(evaluation):
-    if not evaluation.can_publish_average_grade:
+    assert evaluation.state in {'in_evaluation', 'evaluated', 'reviewed', 'published'}
+
+    if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None
 
     # will contain a list of question results for each contributor and one for the evaluation (where contributor is None)

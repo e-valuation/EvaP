@@ -572,6 +572,10 @@ class Evaluation(models.Model):
         return any(participant.is_external for participant in self.participants.all())
 
     @property
+    def can_staff_see_average_grade(self):
+        return self.state in {'evaluated', 'reviewed', 'published'}
+
+    @property
     def can_publish_average_grade(self):
         if self.is_single_result:
             return True
