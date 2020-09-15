@@ -168,6 +168,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
         baker.make(RatingAnswerCounter, question=self.question_bipolar, contribution=self.general_contribution, answer=3, count=2)
         baker.make(RatingAnswerCounter, question=self.question_bipolar_2, contribution=self.general_contribution, answer=-1, count=4)
+        cache_results(self.evaluation)
 
         contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
         contributor1_average = ((settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * ((2 * 1) + (1 * 1)) / (1 + 1)) + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT * 3)) / contributor_weights_sum  # 2.4
@@ -195,6 +196,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
+        cache_results(self.evaluation)
 
         # contribution1: 0.4 * (0.5, 0, 0.5, 0, 0) + 0.6 * (0, 0, 0.5, 0, 0.5) = (0.2, 0, 0.5, 0, 0.3)
         # contribution2: (0, 0.5, 0, 0.5, 0)
@@ -222,6 +224,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
         baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.general_contribution, answer=2, count=10)
+        cache_results(self.evaluation)
 
         # contributions and general_non_grade are as above
         # general_grade: (0, 1, 0, 0, 0)
@@ -248,6 +251,7 @@ class TestCalculateAverageDistribution(TestCase):
         )
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
+        cache_results(single_result_evaluation)
         distribution = calculate_average_distribution(single_result_evaluation)
         self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
         rating_result = get_single_result_rating_result(single_result_evaluation)
@@ -261,6 +265,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         evaluation.general_contribution.questionnaires.set([self.questionnaire])
         baker.make(RatingAnswerCounter, question=self.question_grade, contribution=evaluation.general_contribution, answer=1, count=1)
+        cache_results(evaluation)
 
         distribution = calculate_average_distribution(evaluation)
         self.assertEqual(distribution[0], 1)
@@ -334,6 +339,8 @@ class TestCalculateAverageDistribution(TestCase):
         contribution = baker.make(Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire])
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=2, count=1)
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=3, count=1)
+        cache_results(single_result)
+        cache_results(self.evaluation)
 
         distribution = calculate_average_course_distribution(course)
         self.assertEqual(distribution[0], 0.25)

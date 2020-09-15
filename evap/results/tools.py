@@ -138,10 +138,14 @@ def cache_results(evaluation):
 
 
 def get_results(evaluation):
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {'in_evaluation'}
+
+    if evaluation.state == 'in_evaluation':
+        return _get_results_impl(evaluation)
+
     cache_key = get_results_cache_key(evaluation)
     result = caches['results'].get(cache_key)
-    if result is None:
-        result = _get_results_impl(evaluation)
+    assert result is not None
     return result
 
 

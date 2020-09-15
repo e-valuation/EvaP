@@ -16,8 +16,9 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter,
                                     Semester, UserProfile)
-from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation, make_manager
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager
 from evap.results.exporters import TextAnswerExporter
+from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data
 
 
@@ -107,6 +108,7 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
             participants=participants,
             voters=participants,
         )
+        cache_results(evaluation)
         participants[0].delete()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
@@ -149,20 +151,23 @@ class TestResultsViewContributionWarning(WebTest):
 
     def test_many_answers_evaluation_no_warning(self):
         baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
+        cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_evaluation_no_warning(self):
+        cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
         baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
+        cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
 
-class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
+class TestResultsSemesterEvaluationDetailView(WebTest):
     url = '/results/semester/2/evaluation/21'
 
     @classmethod
@@ -212,6 +217,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         baker.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         baker.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100)
 
+        cache_results(self.evaluation)
+
         content = self.app.get(self.url, user=self.manager).body.decode()
 
         top_heading_index = content.index(top_heading_question.text)
@@ -234,6 +241,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         contribution = baker.make(Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor)
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
+        cache_results(self.evaluation)
+
         page = self.app.get(self.url, user=self.manager)
 
         self.assertNotIn(heading_question_0.text, page)
@@ -242,6 +251,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         self.assertNotIn(heading_question_2.text, page)
 
     def test_default_view_is_public(self):
+        cache_results(self.evaluation)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
         page_without_get_parameter = self.app.get(self.url, user=self.manager)
         random.seed(42)
@@ -253,11 +263,13 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
 
     def test_wrong_state(self):
         evaluation = baker.make(Evaluation, state='reviewed', course=baker.make(Course, semester=self.semester))
+        cache_results(evaluation)
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user="student@institution.example.com", status=403)
 
     def test_preview_without_rating_answers(self):
         evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        cache_results(evaluation)
         url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
         self.app.get(url, user=self.manager)
 
@@ -270,6 +282,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
         baker.make(RatingAnswerCounter, question=likert_question, contribution=evaluation.general_contribution, answer=1, count=20)
+        cache_results(evaluation)
 
         url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
         self.app.get(url, user=self.manager)
@@ -375,6 +388,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(Contribution, evaluation=private_evaluation, contributor=contributor, role=Contribution.Role.EDITOR)
+        cache_results(private_evaluation)
 
         url = '/results/'
         self.assertNotIn(private_evaluation.full_name, self.app.get(url, user=non_participant))
@@ -401,6 +415,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
@@ -441,6 +456,10 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
 
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="responsible@institution.example.com")
@@ -595,6 +614,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
         )
+        cache_results(cls.evaluation)
 
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
@@ -609,6 +629,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1?view=export", user="responsible@institution.example.com")
@@ -756,6 +777,7 @@ class TestArchivedResults(WebTest):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.contributor)
+        cache_results(cls.evaluation)
 
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
@@ -797,6 +819,7 @@ class TestTextAnswerExportView(WebTest):
             groups=[Group.objects.get(name="Reviewer")],
         )
         evaluation = baker.make(Evaluation, state='published')
+        cache_results(evaluation)
 
         cls.url = f"/results/evaluation/{evaluation.id}/text_answers_export"
 
