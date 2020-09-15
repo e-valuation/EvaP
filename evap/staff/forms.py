@@ -16,6 +16,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
+from evap.staff.tools import remove_user_from_represented_and_ccing_users
 from evap.results.tools import collect_results
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
@@ -775,6 +776,9 @@ class UserForm(forms.ModelForm):
             self.instance.groups.remove(reviewer_group)
 
         self.instance.is_active = not self.cleaned_data.get('is_inactive')
+
+        # remove instance from all other users' delegates and CC users if it is inactive
+        self.remove_messages = [] if self.instance.is_active else remove_user_from_represented_and_ccing_users(self.instance)
 
         # refresh results cache
         for evaluation in Evaluation.objects.filter(contributions__contributor=self.instance).distinct():

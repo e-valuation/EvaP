@@ -1329,10 +1329,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
-        if any(not user.can_be_deleted_by_manager for user in self.represented_users.all()):
-            return False
-        if any(not user.can_be_deleted_by_manager for user in self.ccing_users.all()):
-            return False
         if self.is_proxy_user:
             return False
         return True

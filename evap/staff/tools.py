@@ -16,6 +16,7 @@ from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer,
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
+from time import sleep
 
 
 def forward_messages(request, success_messages, warnings):
@@ -163,6 +164,9 @@ def bulk_update_users(request, user_file_content, test_run):
                 create_user_list_html_string_for_message(deletable_users)
             )
         )
+        for user in deletable_users:
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive, True):
+                messages.warning(request, message)
     if users_to_mark_inactive:
         messages.info(request,
             format_html(
@@ -170,6 +174,9 @@ def bulk_update_users(request, user_file_content, test_run):
                 create_user_list_html_string_for_message(users_to_mark_inactive)
             )
         )
+        for user in users_to_mark_inactive:
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive, True):
+                messages.warning(request, message)
     if emails_of_users_to_be_created:
         messages.info(request,
             format_html(
@@ -182,6 +189,9 @@ def bulk_update_users(request, user_file_content, test_run):
         messages.info(request, _('No data was changed in this test run.'))
     else:
         with transaction.atomic():
+            for user in deletable_users+users_to_mark_inactive:
+                # this has to be done in an additional for-loop because otherwise it interferes with the user deletion
+                remove_user_from_represented_and_ccing_users(user, deletable_users+users_to_mark_inactive)
             for user in deletable_users:
                 user.delete()
             for user in users_to_mark_inactive:
@@ -292,3 +302,20 @@ def find_next_unreviewed_evaluation(semester, excluded):
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
+
+
+def remove_user_from_represented_and_ccing_users(user, ignored_users=[], test_run=False):
+    remove_messages = []
+    for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("%s will be removed from the delegates of %s.") % (user.full_name, represented_user.full_name))
+        else:
+            represented_user.delegates.remove(user)
+            remove_messages.append(_("Removed %s from the delegates of %s.") % (user.full_name, represented_user.full_name))
+    for cc_user in user.ccing_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("%s will be removed from the CC users of %s.") % (user.full_name, cc_user.full_name))
+        else:
+            cc_user.cc_users.remove(user)
+            remove_messages.append(_("Removed %s from the CC users of %s.") % (user.full_name, cc_user.full_name))
+    return remove_messages

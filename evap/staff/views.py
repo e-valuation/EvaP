@@ -1598,6 +1598,8 @@ def user_edit(request, user_id):
         form.save()
         delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
+        for message in form.remove_messages:
+            messages.error(request, message)
         return redirect('staff:user_index')
 
     return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))

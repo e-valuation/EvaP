@@ -64,8 +64,7 @@
                                 ></button>
                             {% else %}
                                 <button type="button" disabled class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="left"
-                                    title="{% blocktrans %}This user contributes to an evaluation (or is a delegate or CC user of
-                                    such a person), participates in an evaluation whose participations haven't been archived yet or has special
+                                    title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations haven't been archived yet or has special
                                     rights and as such cannot be deleted.{% endblocktrans %}">
                                     <span class="fas fa-trash"></span>
                                 </button>
@@ -82,7 +81,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete user' as title %}
-    {% trans 'Do you really want to delete the user <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the user <strong id="data-label"></strong>?<br><strong id="data-label"></strong> will also be removed from every user having <strong id="data-label"></strong> as a delegated or CC-user.' as question %}
     {% trans 'Delete user' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
