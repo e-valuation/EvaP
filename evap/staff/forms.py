@@ -719,6 +719,7 @@ class UserForm(forms.ModelForm):
         excludes = [x.id for x in evaluations_in_active_semester if x.is_single_result]
         evaluations_in_active_semester = evaluations_in_active_semester.exclude(id__in=excludes)
         self.fields['evaluations_participating_in'].queryset = evaluations_in_active_semester
+        self.remove_messages = []
         if self.instance.pk:
             self.fields['evaluations_participating_in'].initial = evaluations_in_active_semester.filter(participants=self.instance)
             self.fields['is_manager'].initial = self.instance.is_manager

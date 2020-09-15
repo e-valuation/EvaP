@@ -16,7 +16,6 @@ from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer,
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
-from time import sleep
 
 
 def forward_messages(request, success_messages, warnings):
@@ -304,8 +303,9 @@ def find_next_unreviewed_evaluation(semester, excluded):
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
 
 
-def remove_user_from_represented_and_ccing_users(user, ignored_users=[], test_run=False):
+def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):
     remove_messages = []
+    ignored_users = list() if ignored_users is None else ignored_users
     for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
         if test_run:
             remove_messages.append(_("%s will be removed from the delegates of %s.") % (user.full_name, represented_user.full_name))
