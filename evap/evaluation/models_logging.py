@@ -49,15 +49,6 @@ class LogJSONEncoder(JSONEncoder):
         return super().default(obj)
 
 
-def _pk_to_string_representation(key, field, related_objects):
-    if key is None:
-        return None
-    try:
-        return str(related_objects.get(pk=key))
-    except field.related_model.DoesNotExist:
-        return "�"
-
-
 def _choice_to_display(field, choice):  # does not support nested choices
     return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
 

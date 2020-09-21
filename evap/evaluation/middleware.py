@@ -21,8 +21,7 @@ class LoggingRequestMiddleware:
 
         response = self.get_response(request)
 
-        if hasattr(LoggedModel.thread, "request"):
-            del LoggedModel.thread.request
-            del LoggedModel.thread.request_id
+        del LoggedModel.thread.request
+        del LoggedModel.thread.request_id
 
         return response
