@@ -65,7 +65,7 @@ def _field_actions_for_field(field, actions):
             # convert item values from primary keys to string-representation for relation-based fields
             related_objects = field.related_model.objects.filter(pk__in=items)
             missing = len(items) - related_objects.count()
-            items = [str(obj) for obj in related_objects] + ["�"] * missing
+            items = [str(obj) for obj in related_objects] + [_("<deleted object>")] * missing
         elif hasattr(field, "choices") and field.choices:
             # convert values from choice-based fields to their display equivalent
             items = [_choice_to_display(field, item) for item in items]
