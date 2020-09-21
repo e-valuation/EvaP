@@ -43,6 +43,7 @@ class LogJSONEncoder(JSONEncoder):
     """
     As JSON can't store datetime objects, we localize them to strings.
     """
+
     def default(self, obj):
         if isinstance(obj, (date, time, datetime)):
             return localize(obj)
@@ -90,14 +91,16 @@ class LogEntry(models.Model):
     class Meta:
         ordering = ("-datetime", "-id")
 
-    def _evaluation_log_template_context(self):
+    @property
+    def field_context_data(self):
         model = self.content_type.model_class()
         return {
             field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
             for field_name, actions in self.data.items()
         }
 
-    def display(self):
+    @property
+    def message(self):
         if self.action_type == InstanceActionType.CHANGE:
             if self.content_object:
                 message = _("The {cls} {obj} was changed.")
@@ -111,15 +114,10 @@ class LogEntry(models.Model):
         elif self.action_type == InstanceActionType.DELETE:
             message = _("A {cls} was deleted.")
 
-        message = message.format(
+        return message.format(
             cls=self.content_type.model_class()._meta.verbose_name_raw,
             obj=f'"{str(self.content_object)}"' if self.content_object else "",
         )
-
-        return render_to_string("log/changed_fields_entry.html", {
-            'message': message,
-            'fields': self._evaluation_log_template_context(),
-        })
 
 
 class LoggedModel(models.Model):
