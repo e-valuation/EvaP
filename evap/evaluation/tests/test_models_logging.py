@@ -40,7 +40,7 @@ class TestLoggedModel(TestCase):
 
     def test_data_attribute_is_correctly_parsed_to_fieldactions(self):
         self.assertEqual(
-            self.logentry.field_context_data()["vote_start_datetime"],
+            self.logentry.field_context_data["vote_start_datetime"],
             [
                 FieldAction(
                     "Start of evaluation",
