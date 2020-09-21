@@ -20,8 +20,6 @@ from django.template.loader import render_to_string
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
 
-logger = logging.getLogger(__name__)
-
 
 class FieldActionType(str, Enum):
     M2M_ADD = "add"
@@ -50,15 +48,17 @@ class LogJSONEncoder(JSONEncoder):
 
 
 def _choice_to_display(field, choice):  # does not support nested choices
-    return next(filter(lambda t: t[0] == choice, field.choices), (choice, choice))[1]
+    for key, label in field.choices:
+        if key == choice:
+            return label
+    return choice
 
 
-def _field_actions_for_field(model, field_name, actions):
-    field = model._meta.get_field(field_name)
+def _field_actions_for_field(field, actions):
     try:
-        label = getattr(field, "verbose_name", field_name).capitalize()
+        label = getattr(field, "verbose_name", field.name).capitalize()
     except FieldDoesNotExist:
-        label = field_name.capitalize()
+        label = field.name.capitalize()
 
     for field_action_type, items in actions.items():
         if field.many_to_many or field.many_to_one or field.one_to_one:
@@ -66,16 +66,13 @@ def _field_actions_for_field(model, field_name, actions):
             related_objects = field.related_model.objects.filter(pk__in=items)
             missing = len(items) - related_objects.count()
             items = [str(obj) for obj in related_objects] + ["�"] * missing
-            yield FieldAction(label, field_action_type, items)
         elif hasattr(field, "choices") and field.choices:
             # convert values from choice-based fields to their display equivalent
-            yield FieldAction(label, field_action_type, [_choice_to_display(field, item) for item in items])
+            items = [_choice_to_display(field, item) for item in items]
         elif isinstance(field, models.BooleanField):
             # convert boolean to yes/no
-            yield FieldAction(label, field_action_type, list(map(yesno, items)))
-        else:
-            # as a default, just use plain items
-            yield FieldAction(label, field_action_type, items)
+            items = list(map(yesno, items))
+        yield FieldAction(label, field_action_type, items)
 
 
 class LogEntry(models.Model):
@@ -87,7 +84,7 @@ class LogEntry(models.Model):
     attached_to_object = GenericForeignKey("attached_to_object_type", "attached_to_object_id")
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
-    action_type = models.CharField(max_length=255, choices=zip(*itertools.tee(InstanceActionType)))
+    action_type = models.CharField(max_length=255, choices=[(value, value) for value in InstanceActionType])
     request_id = models.CharField(max_length=36, null=True, blank=True)
     data = JSONField(default=dict, encoder=LogJSONEncoder)
 
@@ -97,7 +94,7 @@ class LogEntry(models.Model):
     def _evaluation_log_template_context(self, data):
         model = self.content_type.model_class()
         return {
-            field_name: list(_field_actions_for_field(model, field_name, actions))
+            field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
             for field_name, actions in data.items()
         }
 
@@ -105,7 +102,7 @@ class LogEntry(models.Model):
         if self.action_type == InstanceActionType.CHANGE:
             if self.content_object:
                 message = _("The {cls} {obj} was changed.")
-            else:
+            else:  # content_object might be deleted
                 message = _("A {cls} was changed.")
         elif self.action_type == InstanceActionType.CREATE:
             if self.content_object:
@@ -117,7 +114,7 @@ class LogEntry(models.Model):
 
         message = message.format(
             cls=self.content_type.model_class()._meta.verbose_name_raw,
-            obj=f"\"{self.content_object!s}\"" if self.content_object else "",
+            obj=f'"{str(self.content_object)}"' if self.content_object else "",
         )
 
         return render_to_string("log/changed_fields_entry.html", {
@@ -217,15 +214,15 @@ class LoggedModel(models.Model):
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        mode = InstanceActionType.CREATE if self._state.adding else InstanceActionType.CHANGE
+        action_type = InstanceActionType.CREATE if self._state.adding else InstanceActionType.CHANGE
 
-        if mode == InstanceActionType.CREATE:
+        if action_type == InstanceActionType.CREATE:
             # we need to attach a logentry to an existing object, so we save this newly created instance first
             super().save(*args, **kw)
 
-        self._update_log(mode)
+        self._update_log(action_type)
 
-        if mode == InstanceActionType.CHANGE:
+        if action_type == InstanceActionType.CHANGE:
             # when saving an existing instance, we get changes by comparing to the version from the database
             # therefore we save the instance after building the logentry
             super().save(*args, **kw)
@@ -276,15 +273,13 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
 
     field_name = next((field.name for field in type(instance)._meta.many_to_many
                        if getattr(type(instance), field.name).through == sender), None)
-    if field_name is None:
-        return
 
     if action == 'pre_remove':
         instance._m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
+        instance._update_log(InstanceActionType.CHANGE)
     elif action == 'pre_add':
         instance._m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
+        instance._update_log(InstanceActionType.CHANGE)
     elif action == 'pre_clear':
         instance._m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
-
-    if "pre" in action:
         instance._update_log(InstanceActionType.CHANGE)
