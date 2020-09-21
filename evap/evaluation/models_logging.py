@@ -40,7 +40,9 @@ class InstanceActionType(str, Enum):
 
 
 class LogJSONEncoder(JSONEncoder):
-
+    """
+    As JSON can't store datetime objects, we localize them to strings.
+    """
     def default(self, obj):
         if isinstance(obj, (date, time, datetime)):
             return localize(obj)
@@ -55,10 +57,7 @@ def _choice_to_display(field, choice):  # does not support nested choices
 
 
 def _field_actions_for_field(field, actions):
-    try:
-        label = getattr(field, "verbose_name", field.name).capitalize()
-    except FieldDoesNotExist:
-        label = field.name.capitalize()
+    label = getattr(field, "verbose_name", field.name).capitalize()
 
     for field_action_type, items in actions.items():
         if field.many_to_many or field.many_to_one or field.one_to_one:
@@ -91,11 +90,11 @@ class LogEntry(models.Model):
     class Meta:
         ordering = ("-datetime", "-id")
 
-    def _evaluation_log_template_context(self, data):
+    def _evaluation_log_template_context(self):
         model = self.content_type.model_class()
         return {
             field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
-            for field_name, actions in data.items()
+            for field_name, actions in self.data.items()
         }
 
     def display(self):
@@ -119,7 +118,7 @@ class LogEntry(models.Model):
 
         return render_to_string("log/changed_fields_entry.html", {
             'message': message,
-            'fields': self._evaluation_log_template_context(self.data),
+            'fields': self._evaluation_log_template_context(),
         })
 
 
@@ -131,7 +130,6 @@ class LoggedModel(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._m2m_changes = defaultdict(lambda: defaultdict(list))
         self._logentry = None
 
     def _as_dict(self):
@@ -180,11 +178,12 @@ class LoggedModel(models.Model):
         else:
             raise ValueError("Unknown action type: '{}'".format(action_type))
 
-        changes.update(self._m2m_changes)
         return changes
 
-    def _update_log(self, action_type: InstanceActionType):
+    def _update_log(self, action_type: InstanceActionType, m2m_changes=None):
         changes = self._get_change_data(action_type)
+        if m2m_changes is not None:
+            changes.update(m2m_changes)
         if not changes:
             return
 
@@ -255,6 +254,9 @@ class LoggedModel(models.Model):
         """
         Return a model class and primary key for the object for which this logentry should be shown.
         By default, show it to the object described by the logentry itself.
+
+        Returning the model instance directly might rely on fetching that object from the database,
+        which can break bulk loading in some cases, so we don't do that.
         """
         return type(self), self.pk
 
@@ -274,12 +276,13 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     field_name = next((field.name for field in type(instance)._meta.many_to_many
                        if getattr(type(instance), field.name).through == sender), None)
 
+    m2m_changes = defaultdict(lambda: defaultdict(list))
     if action == 'pre_remove':
-        instance._m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
-        instance._update_log(InstanceActionType.CHANGE)
+        m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
     elif action == 'pre_add':
-        instance._m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
-        instance._update_log(InstanceActionType.CHANGE)
+        m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
     elif action == 'pre_clear':
-        instance._m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
-        instance._update_log(InstanceActionType.CHANGE)
+        m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
+
+    if m2m_changes:
+        instance._update_log(InstanceActionType.CHANGE, m2m_changes=m2m_changes)
