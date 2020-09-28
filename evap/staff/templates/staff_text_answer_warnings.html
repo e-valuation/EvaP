@@ -1,0 +1,98 @@
+{% extends 'staff_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Text answer warnings' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    <form id="text-answer-warnings-form" method="POST" class="form-horizontal select2form">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <table id="text-answer-warnings-table" class="table table-vertically-aligned">
+                    <colgroup>
+                        <col />
+                        <col />
+                        <col style="width: 30%" />
+                        <col style="width: 30%" />
+                        <col />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="movable"></th>
+                            <th>{% trans 'Trigger strings (case-insensitive)' %}</th>
+                            <th>{% trans 'Warning text (German)' %}</th>
+                            <th>{% trans 'Warning text (English)' %}</th>
+                            <th>{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for form in formset %}
+                            <tr class="select2tr sortable">
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                <td class="movable">
+                                    <span class="movable-icon fas fa-arrows-alt-v"></span>
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.trigger_strings %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_de %}
+                                </td>
+                                <td>
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_en %}
+                                </td>
+                                <td class="align-right">
+                                    {% include 'bootstrap_form_field_widget.html' with class="d-none" field=form.DELETE %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card card-submit-area text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Save text answer warnings' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include 'sortable_form_js.html' %}
+
+    <script type="module">
+        const rowChanged = function(row) {
+            const triggerStrings = row.find("select[id$=-trigger_strings]").val();
+            const warningTextDe = row.find("textarea[id$=-warning_text_de]").val();
+            const warningTextEn = row.find("textarea[id$=-warning_text_en]").val();
+            return triggerStrings || warningTextDe || warningTextEn;
+        };
+        const rowAdded = function(row) {
+            applySelect2(row.find("select"));
+        };
+        makeFormSortable("text-answer-warnings-table", "form", rowChanged, rowAdded, "", true, true);
+
+        function applySelect2(element) {
+            element.select2({
+                language: "{{ LANGUAGE_CODE }}",
+                placeholder: "{% trans 'Add items...' %}",
+                tags: true,
+                // Disable search so that new items can be created instead of using an existing suggestion
+                matcher: () => null,
+                // Use a detached container to hide the dropdown
+                dropdownParent: $("<div>"),
+            });
+        }
+
+        applySelect2($("select").not('.form-template select'));
+    </script>
+{% endblock %}

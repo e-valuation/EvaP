@@ -77,6 +77,8 @@ urlpatterns = [
     path("template/", RedirectView.as_view(url='/staff/', permanent=True)),
     path("template/<int:template_id>", views.template_edit, name="template_edit"),
 
+    path("text_answer_warnings/", views.text_answer_warnings_index, name="text_answer_warnings"),
+
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 

@@ -19,6 +19,7 @@ from evap.staff.tools import remove_user_from_represented_and_ccing_users
 from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
+from evap.student.models import TextAnswerWarning
 
 logger = logging.getLogger(__name__)
 
@@ -808,6 +809,20 @@ class TextAnswerForm(forms.ModelForm):
         if original_answer == normalize_newlines(self.cleaned_data.get('answer')):
             return None
         return original_answer
+
+
+class TextAnswerWarningForm(forms.ModelForm):
+    class Meta:
+        model = TextAnswerWarning
+        fields = ('warning_text_de', 'warning_text_en', 'trigger_strings', 'order')
+        field_classes = {
+            'trigger_strings': CharArrayField,
+        }
+        widgets = {
+            'warning_text_de': forms.Textarea(attrs={'rows': 5}),
+            'warning_text_en': forms.Textarea(attrs={'rows': 5}),
+            'order': forms.HiddenInput(),
+        }
 
 
 class ExportSheetForm(forms.Form):

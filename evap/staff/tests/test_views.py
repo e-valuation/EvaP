@@ -25,6 +25,7 @@ from evap.staff.tests.utils import helper_delete_all_import_files, helper_set_dy
     WebTestStaffMode, WebTestStaffModeWith200Check
 from evap.staff.views import get_evaluations_with_prefetched_data
 import evap.staff.fixtures.excel_files_test_data as excel_data
+from evap.student.models import TextAnswerWarning
 
 
 class TestDownloadSampleXlsView(WebTestStaffMode):
@@ -2424,6 +2425,31 @@ class TestTemplateEditView(WebTestStaffMode):
         form["body"] = " invalid tag: {{}}"
         form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+
+
+class TestTextAnswerWarningsView(WebTestStaffMode):
+    url = '/staff/text_answer_warnings/'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+
+    def test_text_answer_warnings_form(self):
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms['text-answer-warnings-form']
+        last_form_id = 0
+        helper_set_dynamic_choices_field_value(form[f'form-{last_form_id}-trigger_strings'], ['x'])
+        form[f'form-{last_form_id}-warning_text_de'].value = 'Ein Wort mit X'
+        form[f'form-{last_form_id}-warning_text_en'].value = 'A word with X'
+        response = form.submit().follow()
+        self.assertContains(response, 'Successfully')
+
+        self.assertEqual(TextAnswerWarning.objects.count(), 1)
+        self.assertTrue(TextAnswerWarning.objects.filter(
+            trigger_strings=['x'],
+            warning_text_de='Ein Wort mit X',
+            warning_text_en='A word with X',
+        ).exists())
 
 
 class TestDegreeView(WebTestStaffMode):
