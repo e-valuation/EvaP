@@ -305,17 +305,17 @@ def find_next_unreviewed_evaluation(semester, excluded):
 
 def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):
     remove_messages = []
-    ignored_users = list() if ignored_users is None else ignored_users
+    ignored_users = ignored_users or []
     for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
         if test_run:
-            remove_messages.append(_("%s will be removed from the delegates of %s.") % (user.full_name, represented_user.full_name))
+            remove_messages.append(_("{} will be removed from the delegates of {}.").format(user.full_name, represented_user.full_name))
         else:
             represented_user.delegates.remove(user)
-            remove_messages.append(_("Removed %s from the delegates of %s.") % (user.full_name, represented_user.full_name))
+            remove_messages.append(_("Removed {} from the delegates of {}.").format(user.full_name, represented_user.full_name))
     for cc_user in user.ccing_users.exclude(id__in=[user.id for user in ignored_users]):
         if test_run:
-            remove_messages.append(_("%s will be removed from the CC users of %s.") % (user.full_name, cc_user.full_name))
+            remove_messages.append(_("{} will be removed from the CC users of {}.").format(user.full_name, cc_user.full_name))
         else:
             cc_user.cc_users.remove(user)
-            remove_messages.append(_("Removed %s from the CC users of %s.") % (user.full_name, cc_user.full_name))
+            remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
