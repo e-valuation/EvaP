@@ -22,16 +22,7 @@
                     {% else %}
                         <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
                             {{ field.label }}
-                            <span class="mt-2 warning-label d-none" data-warning="meaningless">
-                                <span class="fas fa-exclamation-triangle"></span>
-                                {% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}
-                            </span>
-                            {% for warning in text_answer_warnings %}
-                                <span class="mt-2 warning-label d-none" data-warning="trigger-string-{{ forloop.counter0 }}">
-                                    <span class="fas fa-exclamation-triangle"></span>
-                                    {{ warning.warning_text }}
-                                </span>
-                            {% endfor %}
+                            {% include 'student_text_answer_warnings.html' with text_answer_warnings=text_answer_warnings %}
                         </div>
                     {% endif %}
                     {% if field|is_choice_field %}

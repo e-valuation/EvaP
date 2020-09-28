@@ -1,5 +1,8 @@
 {% extends 'staff_base.html' %}
 
+{% load static %}
+{% load student_filters %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item">{% trans 'Text answer warnings' %}</li>
@@ -63,13 +66,44 @@
                 <button type="submit" class="btn btn-primary">{% trans 'Save text answer warnings' %}</button>
             </div>
         </div>
+        <div class="card">
+            <div class="card-header">
+                {% trans 'Preview' %}
+            </div>
+            <div class="card-body">
+                <p>
+                    {% blocktrans %}
+                        Changes of the form above are only reflected after the form has been saved.
+                    {% endblocktrans %}
+                </p>
+                <div class="row">
+                    <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
+                        <label for="preview-textarea">
+                            {% trans 'Test textarea' %}
+                        </label>
+                        {% include 'student_text_answer_warnings.html' with text_answer_warnings=text_answer_warnings %}
+                    </div>
+                    <div class="col-answer col-lg-8 col-xl-7 d-flex">
+                        <div class="vote-inputs">
+                            <textarea id="preview-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 {% endblock %}
 
 {% block additional_javascript %}
     {% include 'sortable_form_js.html' %}
 
+    {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
+
     <script type="module">
+        import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+
+        initTextAnswerWarnings($("#preview-textarea"), JSON.parse($("#text-answer-warnings").text()));
+
         const rowChanged = function(row) {
             const triggerStrings = row.find("select[id$=-trigger_strings]").val();
             const warningTextDe = row.find("textarea[id$=-warning_text_de]").val();

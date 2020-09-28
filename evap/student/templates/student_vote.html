@@ -168,7 +168,9 @@
 
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 
-        <script type="text/javascript">
+        <script type="module">
+            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+
             var sisyphus = $("#student-vote-form").sisyphus({
                 locationBased: true,
                 excludeFields: $("input[type=hidden]"), // exclude the csrf token
@@ -189,50 +191,7 @@
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
             sisyphus.saveAllData();
 
-            function isTextMeaningless(text) {
-                return text.length > 0 && ["", "ka", "na"].includes(text.replace(/\W/g,''));
-            }
-
-            function doesTextContainTriggerString(text, triggerStrings) {
-                return triggerStrings.some(triggerString => text.includes(triggerString));
-            }
-
-            const textAnswerWarnings = JSON.parse($("#text-answer-warnings").text());
-
-            function updateTextareaWarning(textarea) {
-                const text = textarea.val().toLowerCase().replace(/\s{2,}/, " ");
-
-                let matchingWarnings = [];
-                if (isTextMeaningless(text)) {
-                    matchingWarnings.push("meaningless");
-                }
-                for (const [i, triggerStrings] of textAnswerWarnings.entries()) {
-                    if (doesTextContainTriggerString(text, triggerStrings)) {
-                        matchingWarnings.push(`trigger-string-${i}`);
-                    }
-                }
-
-                const showWarning = matchingWarnings.length > 0;
-                const row = textarea.parents(".row");
-                textarea.toggleClass('border border-warning', showWarning);
-
-                row.find("[data-warning]").addClass("d-none");
-                for (const matchingWarning of matchingWarnings) {
-                    row.find(`[data-warning=${matchingWarning}]`).removeClass("d-none");
-                }
-            }
-            var warningdelayTimer;
-            $('textarea').on('input', function() { // Run the check on input
-                //let textarea = $(this);
-                clearTimeout(warningdelayTimer);
-                warningdelayTimer = setTimeout(() => updateTextareaWarning($(this)), 300);
-            });
-            $('textarea').blur(function() { // Run the check when focus is lost
-                updateTextareaWarning($(this));
-            });
-            $('textarea').each(function() { // Run the check after page load
-                updateTextareaWarning($(this));
-            });
+            initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
 
             var form = $('#student-vote-form');
 

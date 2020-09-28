@@ -1,0 +1,10 @@
+<span class="mt-2 warning-label d-none" data-warning="meaningless">
+    <span class="fas fa-exclamation-triangle"></span>
+    {% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}
+</span>
+{% for warning in text_answer_warnings %}
+    <span class="mt-2 warning-label d-none" data-warning="trigger-string-{{ forloop.counter0 }}">
+        <span class="fas fa-exclamation-triangle"></span>
+        {{ warning.warning_text }}
+    </span>
+{% endfor %}

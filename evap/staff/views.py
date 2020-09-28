@@ -1494,7 +1494,10 @@ def text_answer_warnings_index(request):
         messages.success(request, _("Successfully updated text warning answers."))
         return redirect('staff:text_answer_warnings')
 
-    return render(request, "staff_text_answer_warnings.html", dict(formset=formset))
+    return render(request, "staff_text_answer_warnings.html", dict(
+        formset=formset,
+        text_answer_warnings=TextAnswerWarning.objects.all(),
+    ))
 
 
 @manager_required
