@@ -175,10 +175,22 @@ class LoggedModel(models.Model):
 
         return changes
 
-    def _update_log(self, action_type: InstanceActionType, m2m_changes=None):
-        changes = self._get_change_data(action_type)
-        if m2m_changes is not None:
-            changes.update(m2m_changes)
+    def log_m2m_change(self, changes):
+        self._update_log(changes, InstanceActionType.CHANGE)
+
+    def log_instance_create(self):
+        changes = self._get_change_data(InstanceActionType.CREATE)
+        self._update_log(changes, InstanceActionType.CREATE)
+
+    def log_instance_change(self):
+        changes = self._get_change_data(InstanceActionType.CHANGE)
+        self._update_log(changes, InstanceActionType.CHANGE)
+
+    def log_instance_delete(self):
+        changes = self._get_change_data(InstanceActionType.DELETE)
+        self._update_log(changes, InstanceActionType.DELETE)
+
+    def _update_log(self, changes, action_type: InstanceActionType):
         if not changes:
             return
 
@@ -208,21 +220,18 @@ class LoggedModel(models.Model):
     def save(self, *args, **kw):
         # Are we creating a new instance?
         # https://docs.djangoproject.com/en/3.0/ref/models/instances/#customizing-model-loading
-        action_type = InstanceActionType.CREATE if self._state.adding else InstanceActionType.CHANGE
-
-        if action_type == InstanceActionType.CREATE:
+        if self._state.adding:
             # we need to attach a logentry to an existing object, so we save this newly created instance first
             super().save(*args, **kw)
-
-        self._update_log(action_type)
-
-        if action_type == InstanceActionType.CHANGE:
+            self.log_instance_create()
+        else:
             # when saving an existing instance, we get changes by comparing to the version from the database
             # therefore we save the instance after building the logentry
+            self.log_instance_change()
             super().save(*args, **kw)
 
     def delete(self, *args, **kw):
-        self._update_log(action_type=InstanceActionType.DELETE)
+        self.log_instance_delete()
         self.related_logentries().delete()
         super().delete(*args, **kw)
 
@@ -280,4 +289,4 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
 
     if m2m_changes:
-        instance._update_log(InstanceActionType.CHANGE, m2m_changes=m2m_changes)
+        instance.log_m2m_change(m2m_changes)
