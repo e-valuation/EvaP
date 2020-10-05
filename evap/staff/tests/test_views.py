@@ -142,7 +142,8 @@ class TestUserEditView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        baker.make(UserProfile, pk=3)
+        cls.testuser = baker.make(UserProfile)
+        cls.url.replace("3", str(cls.testuser.pk))
 
     def test_questionnaire_edit(self):
         page = self.app.get(self.url, user=self.manager, status=200)
