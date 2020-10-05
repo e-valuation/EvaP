@@ -272,8 +272,9 @@ class TestUserBulkUpdateView(WebTest):
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     def test_handles_users(self):
-        baker.make(UserProfile, email='testuser1@institution.example.com')
-        baker.make(UserProfile, email='testuser2@institution.example.com')
+        testuser1 = baker.make(UserProfile, email='testuser1@institution.example.com')
+        testuser2 = baker.make(UserProfile, email='testuser2@institution.example.com')
+        testuser1.delegates.set([testuser2])
         baker.make(UserProfile, email='testupdate@institution.example.com')
         contribution1 = baker.make(Contribution)
         semester = baker.make(Semester, participations_are_archived=True)
@@ -285,7 +286,8 @@ class TestUserBulkUpdateView(WebTest):
         )
         contribution2 = baker.make(Contribution, evaluation=evaluation)
         baker.make(UserProfile, email='contributor1@institution.example.com', contributions=[contribution1])
-        baker.make(UserProfile, email='contributor2@institution.example.com', contributions=[contribution2])
+        contributor2 = baker.make(UserProfile, email='contributor2@institution.example.com', contributions=[contribution2])
+        testuser1.cc_users.set([contributor2])
 
         expected_users = set(UserProfile.objects.exclude(email='testuser2@institution.example.com'))
 
@@ -307,6 +309,8 @@ class TestUserBulkUpdateView(WebTest):
         self.assertTrue(UserProfile.objects.filter(email='testuser1@institution.example.com').exists())
         # testuser2 is not in the file and must be deleted
         self.assertFalse(UserProfile.objects.filter(email='testuser2@institution.example.com').exists())
+        # testuser2 has to be removed from the delegates and cc_users of testuser1
+        self.assertEqual(set(testuser1.delegates.all()), set())
         # manager is not in the file but still must not be deleted
         self.assertTrue(UserProfile.objects.filter(email='manager@institution.example.com').exists())
         # testusernewinternal is a new internal user and should be created
@@ -321,6 +325,7 @@ class TestUserBulkUpdateView(WebTest):
         # contributor1 should still be active, contributor2 should have been set to inactive
         self.assertTrue(UserProfile.objects.get(email='contributor1@institution.example.com').is_active)
         self.assertFalse(UserProfile.objects.get(email='contributor2@institution.example.com').is_active)
+        self.assertEqual(set(testuser1.cc_users.all()), set())
         # all should be active except for contributor2
         self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 1)
 
