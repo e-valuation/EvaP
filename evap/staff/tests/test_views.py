@@ -1,6 +1,6 @@
 import datetime
 import os
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, call
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -280,7 +280,9 @@ class TestUserBulkUpdateView(WebTest):
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
-    def test_handles_users(self):
+    @patch("evap.staff.tools.remove_user_from_represented_and_ccing_users")
+    def test_handles_users(self, mock_remove):
+        mock_remove.return_value = ['Test text to be visible on the website.']
         testuser1 = baker.make(UserProfile, email='testuser1@institution.example.com')
         testuser2 = baker.make(UserProfile, email='testuser2@institution.example.com')
         testuser1.delegates.set([testuser2])
@@ -310,6 +312,11 @@ class TestUserBulkUpdateView(WebTest):
             response
         )
         self.assertIn('testupdate@institution.example.com > testupdate@internal.example.com', response)
+        self.assertIn('Test text to be visible on the website.', response)
+        self.assertEqual(mock_remove.call_count, 2)
+        calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
+        self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True]])
+        mock_remove.reset_mock()
 
         form = response.forms["user-bulk-update-form"]
         response = form.submit(name="operation", value="bulk_update")
@@ -318,8 +325,6 @@ class TestUserBulkUpdateView(WebTest):
         self.assertTrue(UserProfile.objects.filter(email='testuser1@institution.example.com').exists())
         # testuser2 is not in the file and must be deleted
         self.assertFalse(UserProfile.objects.filter(email='testuser2@institution.example.com').exists())
-        # testuser2 has to be removed from the delegates and cc_users of testuser1
-        self.assertEqual(set(testuser1.delegates.all()), set())
         # manager is not in the file but still must not be deleted
         self.assertTrue(UserProfile.objects.filter(email='manager@institution.example.com').exists())
         # testusernewinternal is a new internal user and should be created
@@ -334,11 +339,15 @@ class TestUserBulkUpdateView(WebTest):
         # contributor1 should still be active, contributor2 should have been set to inactive
         self.assertTrue(UserProfile.objects.get(email='contributor1@institution.example.com').is_active)
         self.assertFalse(UserProfile.objects.get(email='contributor2@institution.example.com').is_active)
-        self.assertEqual(set(testuser1.cc_users.all()), set())
         # all should be active except for contributor2
         self.assertEqual(UserProfile.objects.filter(is_active=True).count(), len(expected_users) - 1)
 
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
+
+        # mock gets called for every user to be deleted (once for the test run and once for the real run)
+        self.assertEqual(mock_remove.call_count, 2)
+        calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
+        self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False]])
 
     @override_settings(DEBUG=False)
     def test_wrong_files_dont_crash(self):
