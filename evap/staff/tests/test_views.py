@@ -1,6 +1,6 @@
 import datetime
 import os
-from unittest.mock import patch, PropertyMock, call
+from unittest.mock import patch, PropertyMock
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -137,13 +137,11 @@ class TestUserCreateView(WebTest):
     (3 / 3, 3),
 ])
 class TestUserEditView(WebTest):
-    url = "/staff/user/3/edit"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.testuser = baker.make(UserProfile)
-        cls.url.replace("3", str(cls.testuser.pk))
+        cls.url = "/staff/user/{}/edit".format(cls.testuser.pk)
 
     def test_questionnaire_edit(self):
         page = self.app.get(self.url, user=self.manager, status=200)
@@ -152,13 +150,15 @@ class TestUserEditView(WebTest):
         form.submit()
         self.assertTrue(UserProfile.objects.filter(email='lfo9e7bmxp1xi@institution.example.com').exists())
 
-    def test_inactive_edit(self):
-        testuser2 = baker.make(UserProfile, delegates=[self.testuser])
+    @patch("evap.staff.forms.remove_user_from_represented_and_ccing_users")
+    def test_inactive_edit(self, mock_remove):
+        baker.make(UserProfile, delegates=[self.testuser])
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
         form["is_inactive"] = True
         form.submit()
-        self.assertEqual(set(testuser2.delegates.all()), set())
+        mock_remove.assert_called_once()
+        mock_remove.assert_called_with(self.testuser)
 
     def test_reward_points_granting_message(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
@@ -312,14 +312,14 @@ class TestUserBulkUpdateView(WebTest):
             response
         )
         self.assertIn('testupdate@institution.example.com > testupdate@internal.example.com', response)
-        self.assertIn('Test text to be visible on the website.', response)
+        self.assertIn(mock_remove.return_value[0], response)
         self.assertEqual(mock_remove.call_count, 2)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
         self.assertEqual(calls, [[testuser2.email, True], [contributor2.email, True]])
         mock_remove.reset_mock()
 
         form = response.forms["user-bulk-update-form"]
-        response = form.submit(name="operation", value="bulk_update")
+        response = form.submit(name="operation", value="bulk_update").follow()
 
         # testuser1 is in the file and must not be deleted
         self.assertTrue(UserProfile.objects.filter(email='testuser1@institution.example.com').exists())
@@ -345,6 +345,7 @@ class TestUserBulkUpdateView(WebTest):
         self.assertEqual(set(UserProfile.objects.all()), expected_users)
 
         # mock gets called for every user to be deleted (once for the test run and once for the real run)
+        self.assertIn(mock_remove.return_value[0], response)
         self.assertEqual(mock_remove.call_count, 2)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]
         self.assertEqual(calls, [[testuser2.email, False], [contributor2.email, False]])
