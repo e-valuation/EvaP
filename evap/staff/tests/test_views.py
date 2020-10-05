@@ -152,6 +152,14 @@ class TestUserEditView(WebTest):
         form.submit()
         self.assertTrue(UserProfile.objects.filter(email='lfo9e7bmxp1xi@institution.example.com').exists())
 
+    def test_inactive_edit(self):
+        testuser2 = baker.make(UserProfile, delegates=[self.testuser])
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["user-form"]
+        form["is_inactive"] = True
+        form.submit()
+        self.assertEqual(set(testuser2.delegates.all()), set())
+
     def test_reward_points_granting_message(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=evaluation.course.semester))
