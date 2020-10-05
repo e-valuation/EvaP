@@ -1,5 +1,4 @@
 from collections.abc import Iterable
-from datetime import datetime
 import logging
 
 from django import forms
@@ -191,12 +190,10 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 class CourseForm(forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Course
-        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_private', 'last_modified_time',
-                  'last_modified_user_name', 'semester')
+        fields = ('name_de', 'name_en', 'type', 'degrees', 'responsibles', 'is_private', 'semester',)
         field_classes = {
             'responsibles': UserModelMultipleChoiceField,
         }
@@ -207,10 +204,6 @@ class CourseForm(forms.ModelForm):
         self.fields['responsibles'].queryset = UserProfile.objects.exclude(is_active=False)
         if self.instance.pk:
             self.fields['responsibles'].queryset |= UserProfile.objects.filter(pk__in=[user.pk for user in self.instance.responsibles.all()])
-
-        self.fields['last_modified_time'].disabled = True
-        if self.instance.last_modified_user:
-            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
         if not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
@@ -234,14 +227,12 @@ class EvaluationForm(forms.ModelForm):
         widget=CheckboxSelectMultiple,
         label=_("General questions")
     )
-    last_modified_user_name = forms.CharField(label=_("Last modified by"), disabled=True, required=False)
 
     class Meta:
         model = Evaluation
         fields = ('course', 'name_de', 'name_en', 'weight', 'allow_editors_to_edit', 'is_rewarded',
                   'is_midterm_evaluation', 'wait_for_grade_upload_before_publishing',
-                  'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',
-                  'last_modified_time', 'last_modified_user_name')
+                  'vote_start_datetime', 'vote_end_date', 'participants', 'general_questionnaires',)
         localized_fields = ('vote_start_datetime', 'vote_end_date')
         field_classes = {
             'participants': UserModelMultipleChoiceField,
@@ -261,10 +252,6 @@ class EvaluationForm(forms.ModelForm):
 
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
-
-        self.fields['last_modified_time'].disabled = True
-        if self.instance.last_modified_user:
-            self.fields['last_modified_user_name'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
@@ -328,14 +315,11 @@ class EvaluationCopyForm(EvaluationForm):
     def __init__(self, data=None, instance=None):
         opts = self._meta
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
-        initial['last_modified_time'] = datetime.now()
         initial['general_questionnaires'] = instance.general_contribution.questionnaires.all()
         super().__init__(data=data, initial=initial, semester=instance.course.semester)
 
 
 class SingleResultForm(forms.ModelForm):
-    last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
-    last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
     event_date = forms.DateField(label=_("Event date"), localize=True)
     answer_1 = forms.IntegerField(label=_("# very good"), initial=0)
     answer_2 = forms.IntegerField(label=_("# good"), initial=0)
@@ -346,16 +330,12 @@ class SingleResultForm(forms.ModelForm):
     class Meta:
         model = Evaluation
         fields = ('course', 'name_de', 'name_en', 'weight', 'event_date', 'answer_1', 'answer_2', 'answer_3',
-                  'answer_4', 'answer_5', 'last_modified_time_2', 'last_modified_user_2')
+                  'answer_4', 'answer_5',)
 
     def __init__(self, *args, **kwargs):
         semester = kwargs.pop('semester', None)
         super().__init__(*args, **kwargs)
         self.fields['course'].queryset = Course.objects.filter(semester=semester)
-
-        self.fields['last_modified_time_2'].initial = self.instance.last_modified_time
-        if self.instance.last_modified_user:
-            self.fields['last_modified_user_2'].initial = self.instance.last_modified_user.full_name
 
         if self.instance.vote_start_datetime:
             self.fields['event_date'].initial = self.instance.vote_start_datetime
@@ -381,8 +361,6 @@ class SingleResultForm(forms.ModelForm):
                     self.add_error(name_field, e)
 
     def save(self, *args, **kw):
-        user = kw.pop("user")
-        self.instance.last_modified_user = user
         event_date = self.cleaned_data['event_date']
         self.instance.vote_start_datetime = date_to_datetime(event_date)
         self.instance.vote_end_date = event_date

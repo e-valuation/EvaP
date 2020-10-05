@@ -1,5 +1,4 @@
 from unittest.mock import patch
-from datetime import datetime
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
@@ -173,7 +172,7 @@ class SingleResultFormTests(TestCase):
         form = SingleResultForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         self.assertTrue(form.is_valid())
 
-        form.save(user=baker.make(UserProfile))
+        form.save()
 
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.num_participants, 10)
@@ -768,8 +767,6 @@ class EvaluationCopyFormTests(TestCase):
             course=cls.course,
             name_de="Das Original",
             name_en="The Original",
-            last_modified_time=datetime(2020, 1, 1),
-            last_modified_user=baker.make(UserProfile),
             participants=cls.participants,
             voters=cls.participants[:6],
         )
@@ -783,8 +780,6 @@ class EvaluationCopyFormTests(TestCase):
         self.assertEqual(form['name_de'].initial, "Das Original")
         self.assertEqual(form['name_en'].initial, "The Original")
         self.assertCountEqual(form['participants'].initial, self.participants)
-        self.assertGreater(form['last_modified_time'].initial, self.evaluation.last_modified_time)
-        self.assertEqual(form['last_modified_user_name'].initial, None)
         self.assertCountEqual(form['general_questionnaires'].initial, self.general_questionnaires)
 
     def test_not_changing_name_fails(self):

@@ -20,7 +20,6 @@ from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMField, transition
@@ -290,10 +289,6 @@ class Course(LoggedModel):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
-    # who last modified this course
-    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="courses_last_modified+")
-
     class Meta:
         unique_together = (
             ('semester', 'name_de'),
@@ -308,11 +303,6 @@ class Course(LoggedModel):
     @property
     def unlogged_fields(self):
         return super().unlogged_fields + ["semester", "gets_no_grade_documents"]
-
-    def set_last_modified(self, modifying_user):
-        self.last_modified_user = modifying_user
-        self.last_modified_time = timezone.now()
-        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
 
     @property
     def can_be_edited_by_manager(self):
@@ -391,10 +381,6 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
-    # who last modified this evaluation
-    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
-
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
     # whether to wait for grade uploading before publishing results
@@ -453,11 +439,6 @@ class Evaluation(LoggedModel):
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
             del self.state_change_source
-
-    def set_last_modified(self, modifying_user):
-        self.last_modified_user = modifying_user
-        self.last_modified_time = timezone.now()
-        logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
 
     @property
     def full_name(self):
