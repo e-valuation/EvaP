@@ -170,6 +170,7 @@ def bulk_update_users(request, user_file_content, test_run):
                 create_user_list_html_string_for_message(users_to_mark_inactive)
             )
         )
+    if emails_of_users_to_be_created:
         messages.info(request,
             format_html(
                 _('Users to be created are:{}'),

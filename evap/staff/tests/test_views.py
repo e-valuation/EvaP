@@ -152,6 +152,7 @@ class TestUserEditView(WebTest):
 
     @patch("evap.staff.forms.remove_user_from_represented_and_ccing_users")
     def test_inactive_edit(self, mock_remove):
+        mock_remove.return_value = ['This text is supposed to be visible on the website.']
         baker.make(UserProfile, delegates=[self.testuser])
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
@@ -282,7 +283,7 @@ class TestUserBulkUpdateView(WebTest):
     @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.example.com", "internal.example.com"])
     @patch("evap.staff.tools.remove_user_from_represented_and_ccing_users")
     def test_handles_users(self, mock_remove):
-        mock_remove.return_value = ['Test text to be visible on the website.']
+        mock_remove.return_value = ['This text is supposed to be visible on the website.']
         testuser1 = baker.make(UserProfile, email='testuser1@institution.example.com')
         testuser2 = baker.make(UserProfile, email='testuser2@institution.example.com')
         testuser1.delegates.set([testuser2])
