@@ -157,9 +157,10 @@ class TestUserEditView(WebTest):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["user-form"]
         form["is_inactive"] = True
-        form.submit()
+        response = form.submit().follow()
         mock_remove.assert_called_once()
         mock_remove.assert_called_with(self.testuser)
+        self.assertIn(mock_remove.return_value[0], response)
 
     def test_reward_points_granting_message(self):
         evaluation = baker.make(Evaluation, course__semester__is_active=True)
