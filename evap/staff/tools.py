@@ -178,10 +178,13 @@ def bulk_update_users(request, user_file_content, test_run):
             )
         )
 
-    if test_run:
-        messages.info(request, _('No data was changed in this test run.'))
-    else:
-        with transaction.atomic():
+    with transaction.atomic():
+        for user in deletable_users + users_to_mark_inactive:
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive, test_run):
+                messages.warning(request, message)
+        if test_run:
+            messages.info(request, _('No data was changed in this test run.'))
+        else:
             for user in deletable_users:
                 user.delete()
             for user in users_to_mark_inactive:
@@ -292,3 +295,21 @@ def find_next_unreviewed_evaluation(semester, excluded):
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
+
+
+def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):
+    remove_messages = []
+    ignored_users = ignored_users or []
+    for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("{} will be removed from the delegates of {}.").format(user.full_name, represented_user.full_name))
+        else:
+            represented_user.delegates.remove(user)
+            remove_messages.append(_("Removed {} from the delegates of {}.").format(user.full_name, represented_user.full_name))
+    for cc_user in user.ccing_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("{} will be removed from the CC users of {}.").format(user.full_name, cc_user.full_name))
+        else:
+            cc_user.cc_users.remove(user)
+            remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
+    return remove_messages
