@@ -15,9 +15,9 @@ from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, Use
 from evap.evaluation.auth import internal_required
 from evap.evaluation.tools import FileResponse
 from evap.results.exporters import TextAnswerExporter
-from evap.results.tools import (collect_results, calculate_average_distribution, distribution_to_grade,
+from evap.results.tools import (get_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution)
+                                HeadingResult, TextResult, can_textanswer_be_seen_by, normalized_distribution, STATES_WITH_RESULT_TEMPLATE_CACHING)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -29,7 +29,7 @@ def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, l
 
 
 def delete_template_cache(evaluation):
-    assert evaluation.state != 'published'
+    assert evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING
     _delete_template_cache_impl(evaluation)
 
 
@@ -63,7 +63,7 @@ def warm_up_template_cache(evaluations):
             assert get_course_result_template_fragment_cache_key(course.id, 'en') in caches['results']
             assert get_course_result_template_fragment_cache_key(course.id, 'de') in caches['results']
         for evaluation in evaluations:
-            assert evaluation.state == 'published'
+            assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
             is_subentry = evaluation.course.evaluation_count > 1
             translation.activate('en')
             get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry))
@@ -81,13 +81,13 @@ def warm_up_template_cache(evaluations):
 
 def update_template_cache(evaluations):
     for evaluation in evaluations:
-        assert evaluation.state == "published"
+        assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
         _delete_template_cache_impl(evaluation)
         warm_up_template_cache([evaluation])
 
 
 def update_template_cache_of_published_evaluations_in_course(course):
-    course_evaluations = course.evaluations.filter(state="published")
+    course_evaluations = course.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING)
     for course_evaluation in course_evaluations:
         _delete_evaluation_template_cache_impl(course_evaluation)
     _delete_course_template_cache_impl(course)
@@ -176,7 +176,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
 
     view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
-    evaluation_result = collect_results(evaluation)
+    evaluation_result = get_results(evaluation)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
     exclude_empty_headings(evaluation_result)
     remove_empty_questionnaire_and_contribution_results(evaluation_result)
@@ -197,9 +197,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
             if contribution_result.contributor not in [None, view_as_user]
         ]
 
-    # if the evaluation is not published, the rendered results are not cached, so we need to attach distribution
+    # if the results are not cached, we need to attach distribution
     # information for rendering the distribution bar
-    if evaluation.state != 'published':
+    if evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING:
         evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[0]
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
@@ -367,7 +367,7 @@ def extract_evaluation_answer_data(request, evaluation):
 
     view, view_as_user, represented_users, contributor_id = evaluation_detail_parse_get_parameters(request, evaluation)
 
-    evaluation_result = collect_results(evaluation)
+    evaluation_result = get_results(evaluation)
     filter_text_answers(evaluation_result)
     remove_textanswers_that_the_user_must_not_see(evaluation_result, view_as_user, represented_users, view)
 

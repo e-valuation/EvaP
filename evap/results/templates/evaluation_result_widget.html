@@ -10,7 +10,7 @@
         {% include "distribution_with_grade.html" with distribution=course_or_evaluation.distribution average=course_or_evaluation.avg_grade weight_info=course_or_evaluation|weight_info %}
     </div>
 {% else %}
-    <div class="d-flex"{% if not question_result %} data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}"{% endif %}>
+    <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Not enough answers were given.' %}">
         {% include "distribution_with_grade_disabled.html" with icon="far fa-eye-slash" %}
     </div>
 {% endif %}

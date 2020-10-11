@@ -61,7 +61,13 @@
     {% endif %}
 
     <div data-col="result"{% if not is_subentry %} data-order="{% if evaluation.is_single_result %}{{ evaluation.single_result_rating_result.average }}{% else %}{{ evaluation.avg_grade|default:7 }}{% endif %}"{% endif %}>
-        {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
+        {% if not evaluation.can_staff_see_average_grade %}
+            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Evaluation result is not yet available.' %}">
+                {% include "distribution_with_grade_disabled.html" with icon="fas fa-hourglass-half" %}
+            </div>
+        {% else %}
+            {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
+        {% endif %}
     </div>
 </{% if links_to_results_page %}a{% else %}div{% endif %}>
 

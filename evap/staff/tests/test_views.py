@@ -17,6 +17,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     FaqQuestion, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, WebTestWith200Check, make_manager
+from evap.results.tools import cache_results, get_results
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.tools import generate_import_filename, ImportType
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
@@ -1138,6 +1139,7 @@ class TestEvaluationOperationView(WebTest):
         evaluation = baker.make(Evaluation, course=self.course, state='reviewed',
                                 participants=[participant1, participant2], voters=[participant1, participant2])
         baker.make(Contribution, contributor=contributor1, evaluation=evaluation)
+        cache_results(evaluation)
 
         self.helper_publish_evaluation_with_publish_notifications_for(evaluation, contributors=False, participants=False)
         self.assertEqual(len(mail.outbox), 0)
@@ -1186,6 +1188,7 @@ class TestEvaluationOperationView(WebTest):
             participants=[participant1, participant2],
             voters=[participant1, participant2]
         )
+        cache_results(evaluation)
 
         self.helper_semester_state_views(evaluation, "reviewed", "published")
         self.assertEqual(len(mail.outbox), 3)
@@ -2456,6 +2459,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
+        cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
     def helper(self, old_state, expected_new_state, action, expect_errors=False):
@@ -2484,6 +2488,24 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
         self.helper(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+
+    def test_finishing_review_updates_results(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        self.evaluation.evaluation_end()
+        self.evaluation.can_publish_text_results = True
+        self.evaluation.save()
+        results = get_results(self.evaluation)
+
+        self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 0)
+
+        textanswer = self.evaluation.unreviewed_textanswer_set[0]
+        textanswer.state = TextAnswer.State.PUBLISHED
+        textanswer.save()
+        self.evaluation.review_finished()
+        self.evaluation.save()
+        results = get_results(self.evaluation)
+
+        self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
 
 
 class ParticipationArchivingTests(WebTest):

@@ -537,11 +537,11 @@ def semester_raw_export(_request, semester_id):
         _('#Participants'), _('#Text answers'), _('Average grade')])
     for evaluation in sorted(semester.evaluations.all(), key=lambda cr: cr.full_name):
         degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
-        distribution = calculate_average_distribution(evaluation)
-        if evaluation.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
-            avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
-        else:
-            avg_grade = ""
+        avg_grade = ""
+        if evaluation.can_staff_see_average_grade:
+            distribution = calculate_average_distribution(evaluation)
+            if distribution is not None:
+                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
             evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
 

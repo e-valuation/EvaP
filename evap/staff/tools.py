@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
-from evap.results.tools import collect_results
+from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING
 
 
 def forward_messages(request, success_messages, warnings):
@@ -279,8 +279,12 @@ def merge_users(main_user, other_user, preview=False):
     other_user.reward_point_redemptions.all().delete()
 
     # refresh results cache
-    for evaluation in Evaluation.objects.filter(contributions__contributor=main_user).distinct():
-        collect_results(evaluation, force_recalculation=True)
+    evaluations = Evaluation.objects.filter(
+        contributions__contributor=main_user,
+        state__in=STATES_WITH_RESULTS_CACHING
+    ).distinct()
+    for evaluation in evaluations:
+        cache_results(evaluation)
 
     # delete other_user
     other_user.delete()

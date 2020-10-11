@@ -7,30 +7,50 @@ from model_bakery import baker
 
 from evap.evaluation.models import (Contribution, Course, Evaluation, Question, Questionnaire, RatingAnswerCounter,
                                     TextAnswer, UserProfile)
-from evap.results.tools import (calculate_average_course_distribution, calculate_average_distribution, collect_results,
-                                distribution_to_grade, get_collect_results_cache_key, get_single_result_rating_result,
+from evap.results.tools import (calculate_average_course_distribution, calculate_average_distribution,
+                                cache_results, can_textanswer_be_seen_by, distribution_to_grade,
+                                get_results, get_results_cache_key, get_single_result_rating_result,
                                 normalized_distribution, RatingResult, textanswers_visible_to,
-                                unipolarized_distribution, can_textanswer_be_seen_by)
+                                unipolarized_distribution)
 from evap.staff.tools import merge_users
 
 
 class TestCalculateResults(TestCase):
-    def test_caches_published_evaluation(self):
+    def test_cache_results(self):
         evaluation = baker.make(Evaluation, state='published')
 
-        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-        collect_results(evaluation)
+        cache_results(evaluation)
 
-        self.assertIsNotNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
+        self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-    def test_cache_unpublished_evaluation(self):
-        evaluation = baker.make(Evaluation, state='published', _voter_count=0, _participant_count=0)
-        collect_results(evaluation)
-        evaluation.unpublish()
+    def test_caching_lifecycle(self):
+        evaluation = baker.make(Evaluation, state='in_evaluation')
+
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+        evaluation.evaluation_end()
         evaluation.save()
 
-        self.assertIsNone(caches['results'].get(get_collect_results_cache_key(evaluation)))
+        self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+        evaluation.reopen_evaluation()
+        evaluation.save()
+
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+    def test_caching_works_after_multiple_transitions(self):
+        evaluation = baker.make(Evaluation, state='in_evaluation')
+
+        self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
+
+        evaluation.evaluation_end()
+        evaluation.review_finished()
+        evaluation.publish()
+        evaluation.save()
+
+        self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
 
     def test_calculation_unipolar_results(self):
         contributor1 = baker.make(UserProfile)
@@ -47,7 +67,8 @@ class TestCalculateResults(TestCase):
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=4, count=60)
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=5, count=30)
 
-        evaluation_results = collect_results(evaluation)
+        cache_results(evaluation)
+        evaluation_results = get_results(evaluation)
 
         self.assertEqual(len(evaluation_results.questionnaire_results), 1)
         questionnaire_result = evaluation_results.questionnaire_results[0]
@@ -75,7 +96,8 @@ class TestCalculateResults(TestCase):
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=2, count=15)
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=3, count=10)
 
-        evaluation_results = collect_results(evaluation)
+        cache_results(evaluation)
+        evaluation_results = get_results(evaluation)
 
         self.assertEqual(len(evaluation_results.questionnaire_results), 1)
         questionnaire_result = evaluation_results.questionnaire_results[0]
@@ -95,7 +117,7 @@ class TestCalculateResults(TestCase):
         self.assertAlmostEqual(distribution[5], 0.1428571)
         self.assertAlmostEqual(distribution[6], 0.09523809)
 
-    def test_collect_results_after_user_merge(self):
+    def test_results_cache_after_user_merge(self):
         """ Asserts that merge_users leaves the results cache in a consistent state. Regression test for #907 """
         contributor = baker.make(UserProfile)
         main_user = baker.make(UserProfile)
@@ -106,11 +128,11 @@ class TestCalculateResults(TestCase):
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Contribution, contributor=contributor, evaluation=evaluation, questionnaires=[questionnaire])
 
-        collect_results(evaluation)
+        cache_results(evaluation)
 
         merge_users(main_user, contributor)
 
-        evaluation_results = collect_results(evaluation)
+        evaluation_results = get_results(evaluation)
 
         for contribution_result in evaluation_results.contribution_results:
             self.assertTrue(Contribution.objects.filter(evaluation=evaluation, contributor=contribution_result.contributor).exists())
@@ -146,6 +168,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
         baker.make(RatingAnswerCounter, question=self.question_bipolar, contribution=self.general_contribution, answer=3, count=2)
         baker.make(RatingAnswerCounter, question=self.question_bipolar_2, contribution=self.general_contribution, answer=-1, count=4)
+        cache_results(self.evaluation)
 
         contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
         contributor1_average = ((settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * ((2 * 1) + (1 * 1)) / (1 + 1)) + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT * 3)) / contributor_weights_sum  # 2.4
@@ -173,6 +196,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
+        cache_results(self.evaluation)
 
         # contribution1: 0.4 * (0.5, 0, 0.5, 0, 0) + 0.6 * (0, 0, 0.5, 0, 0.5) = (0.2, 0, 0.5, 0, 0.3)
         # contribution2: (0, 0.5, 0, 0.5, 0)
@@ -200,6 +224,7 @@ class TestCalculateAverageDistribution(TestCase):
         baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
         baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
         baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.general_contribution, answer=2, count=10)
+        cache_results(self.evaluation)
 
         # contributions and general_non_grade are as above
         # general_grade: (0, 1, 0, 0, 0)
@@ -226,6 +251,7 @@ class TestCalculateAverageDistribution(TestCase):
         )
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
         baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
+        cache_results(single_result_evaluation)
         distribution = calculate_average_distribution(single_result_evaluation)
         self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
         rating_result = get_single_result_rating_result(single_result_evaluation)
@@ -239,6 +265,7 @@ class TestCalculateAverageDistribution(TestCase):
 
         evaluation.general_contribution.questionnaires.set([self.questionnaire])
         baker.make(RatingAnswerCounter, question=self.question_grade, contribution=evaluation.general_contribution, answer=1, count=1)
+        cache_results(evaluation)
 
         distribution = calculate_average_distribution(evaluation)
         self.assertEqual(distribution[0], 1)
@@ -312,6 +339,8 @@ class TestCalculateAverageDistribution(TestCase):
         contribution = baker.make(Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire])
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=2, count=1)
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=3, count=1)
+        cache_results(single_result)
+        cache_results(self.evaluation)
 
         distribution = calculate_average_course_distribution(course)
         self.assertEqual(distribution[0], 0.25)
