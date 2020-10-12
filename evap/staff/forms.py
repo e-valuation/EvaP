@@ -134,16 +134,14 @@ class SemesterForm(forms.ModelForm):
 
 
 class DegreeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = Degree
         fields = ('name_de', 'name_en', 'import_names', 'order')
         field_classes = {
             'import_names': CharArrayField,
+        }
+        widgets = {
+            'order': forms.HiddenInput(),
         }
 
     def clean(self):
@@ -159,16 +157,14 @@ class DegreeForm(forms.ModelForm):
 
 
 class CourseTypeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = CourseType
         fields = ('name_de', 'name_en', 'import_names', 'order')
         field_classes = {
             'import_names': CharArrayField,
+        }
+        widgets = {
+            'order': forms.HiddenInput(),
         }
 
     def clean(self):
@@ -680,12 +676,9 @@ class QuestionForm(forms.ModelForm):
         fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type')
         widgets = {
             'text_de': forms.Textarea(attrs={'rows': 2}),
-            'text_en': forms.Textarea(attrs={'rows': 2})
+            'text_en': forms.Textarea(attrs={'rows': 2}),
+            'order': forms.HiddenInput(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["order"].widget = forms.HiddenInput()
 
 
 class QuestionnairesAssignForm(forms.Form):
@@ -805,25 +798,21 @@ class EmailTemplateForm(forms.ModelForm):
 
 
 class FaqSectionForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = FaqSection
         fields = ('order', 'title_de', 'title_en')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
 
 class FaqQuestionForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = FaqQuestion
         fields = ('order', 'question_de', 'question_en', 'answer_de', 'answer_en')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
 
 class TextAnswerForm(forms.ModelForm):
