@@ -4,13 +4,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, Course, NO_ANSWER, Semester
+from evap.evaluation.models import Evaluation, NO_ANSWER, Semester
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
@@ -24,13 +25,21 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 @participant_required
 def index(request):
-    # retrieve all courses which have evaluations that are not in state "new" and in which the user participates
-    courses = Course.objects.filter(
-        evaluations__participants=request.user,
-        evaluations__state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
-    ).distinct().prefetch_related('semester', 'grade_documents', 'type', 'evaluations', 'evaluations__participants', 'evaluations__voters')
-    # retrieve all evaluations which the user can see that are not new
-    evaluations = [evaluation for course in courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(request.user)]
+    query = (Evaluation.objects
+        .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
+        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
+
+        .filter(~Q(state="new"), course__evaluations__participants=request.user)
+        .exclude(state="new")
+        .prefetch_related(
+            'course', 'course__semester', 'course__grade_documents', 'course__type',
+            'course__evaluations', 'course__responsibles', 'course__degrees',
+        )
+        .distinct()
+    )
+    query = Evaluation.annotate_with_participant_and_voter_counts(query)
+    evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
+
     for evaluation in evaluations:
         if evaluation.state == "published":
             if not evaluation.is_single_result:
@@ -39,8 +48,6 @@ def index(request):
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
                 evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
             evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
-        evaluation.participates_in = request.user in evaluation.participants.all()
-        evaluation.voted_for = request.user in evaluation.voters.all()
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
     evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
@@ -48,15 +55,36 @@ def index(request):
     semester_list = [dict(
         semester_name=semester.name,
         id=semester.id,
-        is_active=semester.is_active,
         results_are_archived=semester.results_are_archived,
         grade_documents_are_deleted=semester.grade_documents_are_deleted,
         evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
+    unfinished_evaluations_query = (
+        Evaluation.objects
+        .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        .exclude(voters=request.user)
+        .prefetch_related('course__responsibles', 'course__type', 'course__semester')
+    )
+
+    unfinished_evaluations_query = Evaluation.annotate_with_participant_and_voter_counts(unfinished_evaluations_query)
+    unfinished_evaluations = list(unfinished_evaluations_query)
+
+    # available evaluations come first, ordered by time left for evaluation and the name
+    # evaluations in other (visible) states follow by name
+    def sorter(evaluation):
+        return (
+            evaluation.state != 'in_evaluation',
+            evaluation.vote_end_date if evaluation.state == 'in_evaluation' else None,
+            evaluation.full_name
+        )
+    unfinished_evaluations.sort(key=sorter)
+
     template_data = dict(
         semester_list=semester_list,
         can_download_grades=request.user.can_download_grades,
+        unfinished_evaluations=unfinished_evaluations,
+        evaluation_end_warning_period=settings.EVALUATION_END_WARNING_PERIOD,
     )
 
     return render(request, "student_index.html", template_data)
@@ -96,12 +124,8 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         evaluation=evaluation,
         small_evaluation_size_warning=evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
-        vote_end_datetime=evaluation.vote_end_datetime,
-        hours_left_for_evaluation=evaluation.time_left_for_evaluation.seconds // 3600,
-        minutes_left_for_evaluation=(evaluation.time_left_for_evaluation.seconds // 60) % 60,
         success_magic_string=SUCCESS_MAGIC_STRING,
         success_redirect_url=reverse('student:index'),
-        evaluation_ends_soon=evaluation.evaluation_ends_soon(),
         for_rendering_in_modal=for_rendering_in_modal,
         general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
     )

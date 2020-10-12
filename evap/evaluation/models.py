@@ -14,7 +14,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction, IntegrityError
-from django.db.models import Count, Q, Manager
+from django.db.models import Count, Q, Manager, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
@@ -25,7 +26,7 @@ from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +333,8 @@ class Course(models.Model):
 
     @cached_property
     def responsibles_names(self):
-        return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
+        ordered_responsibles = sorted(self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name))
+        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
     @property
     def has_external_responsible(self):
@@ -478,8 +480,12 @@ class Evaluation(models.Model):
         return not self.unreviewed_textanswer_set.exists()
 
     @property
+    def display_vote_end_datetime(self):
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24)
+
+    @property
     def vote_end_datetime(self):
-        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
 
     @property
@@ -542,6 +548,10 @@ class Evaluation(models.Model):
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
+
+        if is_prefetched(self, 'participants'):
+            return len(self.participants.all())
+
         return self.participants.count()
 
     def _archive_participations(self):
@@ -676,10 +686,23 @@ class Evaluation(models.Model):
         return (self.vote_end_date - date.today()).days
 
     @property
+    def display_time_left_for_evaluation(self):
+        return self.display_vote_end_datetime - datetime.now()
+
+    @property
     def time_left_for_evaluation(self):
         return self.vote_end_datetime - datetime.now()
 
-    def evaluation_ends_soon(self):
+    @property
+    def display_hours_left_for_evaluation(self):
+        return self.display_time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def hours_left_for_evaluation(self):
+        return self.time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def ends_soon(self):
         return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
@@ -688,6 +711,10 @@ class Evaluation(models.Model):
         if self.vote_start_datetime < datetime.now():
             days_left -= 1
         return days_left
+
+    @property
+    def hours_until_evaluation(self):
+        return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
@@ -784,6 +811,23 @@ class Evaluation(models.Model):
         EmailTemplate.send_contributor_publish_notifications(evaluation_results_evaluations)
 
         logger.info("update_evaluations finished.")
+
+    @classmethod
+    def annotate_with_participant_and_voter_counts(cls, evaluation_query):
+        subquery = Evaluation.objects.filter(pk=OuterRef('pk'))
+
+        participant_count_subquery = subquery.annotate(
+            num_participants=Coalesce('_participant_count', Count("participants")),
+        ).values("num_participants")
+
+        voter_count_subquery = subquery.annotate(
+            num_voters=Coalesce('_voter_count', Count("voters")),
+        ).values("num_voters")
+
+        return evaluation_query.annotate(
+            num_participants=Subquery(participant_count_subquery),
+            num_voters=Subquery(voter_count_subquery),
+        )
 
 
 @receiver(post_transition, sender=Evaluation)

@@ -1,0 +1,15 @@
+{% load evaluation_filters %}
+
+<div class="progress-container{% if warning %} progress-container-warning{% endif %} d-flex">
+    {% spaceless %}
+        <span class="progress progress-empty{% if not fill %} progress-disabled{% endif %}">
+            <span class="progress-bar" style="width: {{ fill }}%;"></span>
+            <span class="progress-bartext">
+                {% if icon %}
+                    <small><span class="fas fa-{{ icon }}"></span></small>&nbsp;
+                {% endif %}
+                {{ total }}
+            </span>
+        </span>
+    {% endspaceless %}
+</div>
