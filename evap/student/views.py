@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -26,8 +26,6 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 @participant_required
 def index(request):
     query = (Evaluation.objects
-        .annotate(num_participants=Count("participants", distinct=True))
-        .annotate(num_voters=Count("voters", distinct=True))
         .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
         .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
 
@@ -39,6 +37,7 @@ def index(request):
         )
         .distinct()
     )
+    query = Evaluation.annotate_with_participant_and_voter_counts(query)
     evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
 
     for evaluation in evaluations:
@@ -61,13 +60,15 @@ def index(request):
         evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
     ) for semester in semesters]
 
-    unfinished_evaluations = list(
+    unfinished_evaluations_query = (
         Evaluation.objects
-        .annotate(num_participants=Count("participants", distinct=True))
         .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
         .exclude(voters=request.user)
         .prefetch_related('course__responsibles', 'course__type', 'course__semester')
     )
+
+    unfinished_evaluations_query = Evaluation.annotate_with_participant_and_voter_counts(unfinished_evaluations_query)
+    unfinished_evaluations = list(unfinished_evaluations_query)
 
     # available evaluations come first, ordered by time left for evaluation and the name
     # evaluations in other (visible) states follow by name

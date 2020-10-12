@@ -96,24 +96,16 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 def get_evaluations_with_prefetched_data(evaluations):
     if isinstance(evaluations, QuerySet):
-        # these annotates and the zip below could be replaced by something like this, but it was 2x slower:
-        # annotate(num_participants=Coalesce('_participant_count', Count("participants", distinct=True)))
-        participant_counts = evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
-        voter_counts = evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
-        course_evaluations_counts = evaluations.annotate(num_course_evaluations=Count("course__evaluations")).order_by('pk').values_list("num_course_evaluations", flat=True)
         evaluations = (evaluations
             .select_related("course__type")
             .prefetch_related(
                 "course__degrees",
                 "course__semester",
                 "course__responsibles",
-            ).order_by('pk')
+            )
         )
-        for evaluation, participant_count, voter_count, course_evaluations_count in zip(evaluations, participant_counts, voter_counts, course_evaluations_counts):
-            if evaluation._participant_count is None:
-                evaluation.num_participants = participant_count
-                evaluation.num_voters = voter_count
-            evaluation.course_evaluations_count = course_evaluations_count
+        evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
+
     for evaluation in evaluations:
         if not evaluation.is_single_result:
             evaluation.distribution = calculate_average_distribution(evaluation)

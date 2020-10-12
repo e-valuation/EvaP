@@ -78,19 +78,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by('pk')
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-
-    # these could be done with an annotation like this:
-    # num_voters_annotated=Count("voters", distinct=True), or more completely
-    # evaluations.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
-    # but that was prohibitively slow.
-    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
-    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
-
-    for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
-        evaluation.general_contribution = evaluation.general_contribution[0]
-        if evaluation._participant_count is None:
-            evaluation.num_participants = participant_count
-            evaluation.num_voters = voter_count
+    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
     return evaluations
 

@@ -14,7 +14,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import models, transaction, IntegrityError
-from django.db.models import Count, Q, Manager
+from django.db.models import Count, Q, Manager, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
@@ -810,6 +811,23 @@ class Evaluation(models.Model):
         EmailTemplate.send_contributor_publish_notifications(evaluation_results_evaluations)
 
         logger.info("update_evaluations finished.")
+
+    @classmethod
+    def annotate_with_participant_and_voter_counts(cls, evaluation_query):
+        subquery = Evaluation.objects.filter(pk=OuterRef('pk'))
+
+        participant_count_subquery = subquery.annotate(
+            num_participants=Coalesce('_participant_count', Count("participants")),
+        ).values("num_participants")
+
+        voter_count_subquery = subquery.annotate(
+            num_voters=Coalesce('_voter_count', Count("voters")),
+        ).values("num_voters")
+
+        return evaluation_query.annotate(
+            num_participants=Subquery(participant_count_subquery),
+            num_voters=Subquery(voter_count_subquery),
+        )
 
 
 @receiver(post_transition, sender=Evaluation)
