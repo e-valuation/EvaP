@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -26,12 +26,18 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 @participant_required
 def index(request):
     query = (Evaluation.objects
+        .annotate(num_participants=Count("participants", distinct=True))
+        .annotate(num_voters=Count("voters", distinct=True))
+        .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
+        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
+
         .filter(~Q(state="new"), course__evaluations__participants=request.user)
         .exclude(state="new")
         .prefetch_related(
             'course', 'course__semester', 'course__grade_documents', 'course__type',
-            'course__evaluations', 'participants', 'voters', 'course__responsibles', 'course__degrees',
-        ).distinct()
+            'course__evaluations', 'course__responsibles', 'course__degrees',
+        )
+        .distinct()
     )
     evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
 
@@ -43,8 +49,6 @@ def index(request):
                 evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
                 evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
             evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
-        evaluation.participates_in = request.user in evaluation.participants.all()
-        evaluation.voted_for = request.user in evaluation.voters.all()
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
     evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
@@ -59,9 +63,10 @@ def index(request):
 
     unfinished_evaluations = list(
         Evaluation.objects
+        .annotate(num_participants=Count("participants", distinct=True))
         .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
         .exclude(voters=request.user)
-        .prefetch_related('course__responsibles', 'course__type', 'course__semester', 'participants')
+        .prefetch_related('course__responsibles', 'course__type', 'course__semester')
     )
 
     # available evaluations come first, ordered by time left for evaluation and the name
