@@ -4,7 +4,7 @@ set -x # print executed commands
 
 USER="evap"
 REPO_FOLDER="/opt/evap"
-ENV_FOLDER="$REPO_FOLDER/env"
+ENV_FOLDER="/home/$USER/venv"
 
 # force apt to not ask, just do defaults.
 export DEBIAN_FRONTEND=noninteractive
@@ -49,8 +49,11 @@ sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 # setup apache
 a2enmod expires
 cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
+sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/mods-available/wsgi.load # note this uses '=' as alternate delimiter
 a2enmod wsgi
 cp $REPO_FOLDER/deployment/apache.template.conf /etc/apache2/sites-available/evap.conf
+sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/sites-available/evap.conf
+sed -i -e "s=\${REPO_FOLDER}=$REPO_FOLDER=" /etc/apache2/sites-available/evap.conf
 a2ensite evap.conf
 a2dissite 000-default.conf
 # this comments in some line in some apache config file to fix the locale.
