@@ -1360,6 +1360,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_manager or self.is_reviewer
 
+    # Required for staff mode to work, since several other cached properties (including is_staff) are overwritten
+    @property
+    def has_staff_permission(self):
+        return self.groups.filter(name='Manager').exists() or self.groups.filter(name='Reviewer').exists()
+
     @cached_property
     def is_manager(self):
         return self.groups.filter(name='Manager').exists()
@@ -1394,11 +1399,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         return True
 
-    @property
+    @cached_property
     def is_participant(self):
         return self.evaluations_participating_in.exists()
 
-    @property
+    @cached_property
     def is_student(self):
         """
             A UserProfile is not considered to be a student anymore if the
@@ -1415,23 +1420,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
-    @property
+    @cached_property
     def is_contributor(self):
         return self.contributions.exists()
 
-    @property
+    @cached_property
     def is_editor(self):
         return self.contributions.filter(role=Contribution.Role.EDITOR).exists() or self.is_responsible
 
-    @property
+    @cached_property
     def is_responsible(self):
         return self.courses_responsible_for.exists()
 
-    @property
+    @cached_property
     def is_delegate(self):
         return self.represented_users.exists()
 
-    @property
+    @cached_property
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 

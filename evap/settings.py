@@ -223,6 +223,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'mozilla_django_oidc.middleware.SessionRefresh',
     'evap.middleware.RequireLoginMiddleware',
+    'evap.staff.staff_mode.staff_mode_middleware',
 ]
 
 TEMPLATES = [
@@ -271,6 +272,8 @@ SESSION_CACHE_ALIAS = "sessions"
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365  # one year
 
+STAFF_MODE_TIMEOUT = 60 * 60  # one hour
+STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 
 ### Internationalization
 

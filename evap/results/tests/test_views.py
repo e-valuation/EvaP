@@ -20,6 +20,7 @@ from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manag
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data
+from evap.staff.tests.utils import helper_exit_staff_mode, run_in_staff_mode, WebTestStaffMode
 
 
 class TestResultsView(WebTest):
@@ -167,7 +168,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertIn("Only a few participants answered these questions.", page)
 
 
-class TestResultsSemesterEvaluationDetailView(WebTest):
+class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     url = '/results/semester/2/evaluation/21'
 
     @classmethod
@@ -262,6 +263,7 @@ class TestResultsSemesterEvaluationDetailView(WebTest):
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
     def test_wrong_state(self):
+        helper_exit_staff_mode(self)
         evaluation = baker.make(Evaluation, state='reviewed', course=baker.make(Course, semester=self.semester))
         cache_results(evaluation)
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
@@ -338,7 +340,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.evaluation.publish()
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 1)
-        self.helper_test_answer_visibility_one_voter("manager@institution.example.com")
+        with run_in_staff_mode(self):
+            self.helper_test_answer_visibility_one_voter("manager@institution.example.com")
         self.evaluation = Evaluation.objects.get(id=self.evaluation.id)
         self.helper_test_answer_visibility_one_voter("responsible@institution.example.com")
         self.helper_test_answer_visibility_one_voter("student@institution.example.com", expect_page_not_visible=True)
@@ -352,7 +355,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 2)
 
-        self.helper_test_answer_visibility_two_voters("manager@institution.example.com")
+        with run_in_staff_mode(self):
+            self.helper_test_answer_visibility_two_voters("manager@institution.example.com")
         self.helper_test_answer_visibility_two_voters("responsible@institution.example.com")
         self.helper_test_answer_visibility_two_voters("student@institution.example.com")
 
@@ -396,7 +400,8 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=responsible))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=editor))
         self.assertIn(private_evaluation.full_name, self.app.get(url, user=contributor))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user=manager))
+        with run_in_staff_mode(self):
+            self.assertIn(private_evaluation.full_name, self.app.get(url, user=manager))
         self.app.get(url, user=student_external, status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (semester.id, private_evaluation.id)
@@ -405,11 +410,12 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         self.app.get(url, user=responsible, status=200)
         self.app.get(url, user=editor, status=200)
         self.app.get(url, user=contributor, status=200)
-        self.app.get(url, user=manager, status=200)
+        with run_in_staff_mode(self):
+            self.app.get(url, user=manager, status=200)
         self.app.get(url, user=student_external, status=200)  # this external user participates in the evaluation and can see the results
 
 
-class TestResultsTextanswerVisibilityForManager(WebTest):
+class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
     fixtures = ['minimal_test_data_results']
 
     @classmethod
@@ -712,21 +718,22 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager(self):
-        contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
-        page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id), user="manager@institution.example.com")
+        with run_in_staff_mode(self):
+            contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
+            page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id), user="manager@institution.example.com")
 
-        self.assertIn(".general_orig_published.", page)
-        self.assertNotIn(".general_orig_hidden.", page)
-        self.assertNotIn(".general_orig_published_changed.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertNotIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)
-        self.assertNotIn(".responsible_contributor_orig_published.", page)
-        self.assertNotIn(".responsible_contributor_orig_hidden.", page)
-        self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
-        self.assertNotIn(".responsible_contributor_changed_published.", page)
-        self.assertNotIn(".responsible_contributor_orig_private.", page)
-        self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+            self.assertIn(".general_orig_published.", page)
+            self.assertNotIn(".general_orig_hidden.", page)
+            self.assertNotIn(".general_orig_published_changed.", page)
+            self.assertIn(".general_changed_published.", page)
+            self.assertNotIn(".contributor_orig_published.", page)
+            self.assertNotIn(".contributor_orig_private.", page)
+            self.assertNotIn(".responsible_contributor_orig_published.", page)
+            self.assertNotIn(".responsible_contributor_orig_hidden.", page)
+            self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
+            self.assertNotIn(".responsible_contributor_changed_published.", page)
+            self.assertNotIn(".responsible_contributor_orig_private.", page)
+            self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager_contributor(self):
         manager_group = Group.objects.get(name="Manager")
@@ -804,7 +811,8 @@ class TestArchivedResults(WebTest):
         self.app.get(url, user=self.student, status=403)
         self.app.get(url, user=self.responsible, status=200)
         self.app.get(url, user=self.contributor, status=200)
-        self.app.get(url, user=self.manager, status=200)
+        with run_in_staff_mode(self):
+            self.app.get(url, user=self.manager, status=200)
         self.app.get(url, user=self.reviewer, status=403)
         self.app.get(url, user=self.student_external, status=403)
 
@@ -828,9 +836,10 @@ class TestTextAnswerExportView(WebTest):
             res.write(b"1337")
 
         with patch.object(TextAnswerExporter, "export", mock):
-            response = self.app.get(self.url, user=self.reviewer, status=200)
-            self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
-            self.assertEqual(response.content, b"1337")
+            with run_in_staff_mode(self):
+                response = self.app.get(self.url, user=self.reviewer, status=200)
+                self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
+                self.assertEqual(response.content, b"1337")
 
     @patch("evap.results.exporters.TextAnswerExporter.export")
     def test_permission_denied(self, export_method):
@@ -840,9 +849,11 @@ class TestTextAnswerExportView(WebTest):
         self.app.get(self.url, user=student, status=403)
         export_method.assert_not_called()
 
-        self.app.get(self.url, user=self.reviewer, status=200)
-        export_method.assert_called_once()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.reviewer, status=200)
+            export_method.assert_called_once()
 
         export_method.reset_mock()
-        self.app.get(self.url, user=manager, status=200)
-        export_method.assert_called_once()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=manager, status=200)
+            export_method.assert_called_once()
