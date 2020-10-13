@@ -13,6 +13,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
+from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
 from evap.results.tools import collect_results
@@ -274,6 +275,9 @@ def merge_users(main_user, other_user, preview=False):
     # delete rewards
     other_user.reward_point_grantings.all().delete()
     other_user.reward_point_redemptions.all().delete()
+
+    # update logs
+    LogEntry.objects.filter(user=other_user).update(user=main_user)
 
     # refresh results cache
     for evaluation in Evaluation.objects.filter(contributions__contributor=main_user).distinct():
