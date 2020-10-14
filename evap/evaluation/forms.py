@@ -10,7 +10,7 @@ class LoginEmailForm(forms.Form):
     """Form encapsulating the login with email and password, for example from an Active Directory.
     """
 
-    email = forms.CharField(label=_("Email"), max_length=254)
+    email = forms.CharField(label=_("Email"), max_length=254, widget=forms.EmailInput(attrs={'autofocus': True}))
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
     def __init__(self, request, *args, **kwargs):
