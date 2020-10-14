@@ -1,6 +1,6 @@
 from io import StringIO
 import os
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from django.core import management
 from django.conf import settings
@@ -50,8 +50,10 @@ class TestReloadTestdataCommand(TestCase):
 class TestRunCommand(TestCase):
     @staticmethod
     def test_calls_runserver():
-        args = ["manage.py", "runserver", "0.0.0.0:8000"]
         with patch('django.core.management.execute_from_command_line') as mock:
             management.call_command('run', stdout=StringIO())
 
-        mock.assert_called_once_with(args)
+        mock.assert_has_calls([
+            call(['manage.py', 'scss']),
+            call(['manage.py', 'runserver', '0.0.0.0:8000']),
+        ])

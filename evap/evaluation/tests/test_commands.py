@@ -147,6 +147,41 @@ class TestRefreshResultsCacheCommand(TestCase):
         self.assertEqual(mock.call_count, Evaluation.objects.count())
 
 
+class TestScssCommand(TestCase):
+    def setUp(self):
+        self.scss_path = os.path.join(settings.STATICFILES_DIRS[0], 'scss', 'evap.scss')
+        self.css_path = os.path.join(settings.STATICFILES_DIRS[0], 'css', 'evap.css')
+
+    @patch('subprocess.run')
+    def test_scss_called(self, mock_subprocess_run):
+        management.call_command('scss')
+
+        mock_subprocess_run.assert_called_once_with(
+            ['sass', self.scss_path, self.css_path],
+            check=True,
+        )
+
+    @patch('subprocess.run')
+    def test_scss_watch_called(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = KeyboardInterrupt
+
+        management.call_command('scss', '--watch')
+
+        mock_subprocess_run.assert_called_once_with(
+            ['sass', self.scss_path, self.css_path, '--watch', '--poll'],
+            check=True,
+        )
+
+    @patch('subprocess.run')
+    def test_scss_called_with_no_sass_installed(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = FileNotFoundError()
+
+        stderr = StringIO()
+        management.call_command('scss', stderr=stderr)
+
+        self.assertEqual(stderr.getvalue(), 'Could not find sass command\n\n')
+
+
 class TestUpdateEvaluationStatesCommand(TestCase):
     def test_update_evaluations_called(self):
         with patch('evap.evaluation.models.Evaluation.update_evaluations') as mock:

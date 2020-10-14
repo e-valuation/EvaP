@@ -14,9 +14,7 @@ apt-get -q update
 apt-get -q install -y python3.7 python3.7-dev python3.7-venv python3-pip gettext
 
 # install sass
-apt-get -q install -y sassc
-# stay compatible to previous installations with sass
-ln -s /usr/bin/sassc /usr/bin/sass
+$REPO_FOLDER/deployment/install_dart_sass.sh
 
 # setup postgres
 apt-get -q install -y postgresql
