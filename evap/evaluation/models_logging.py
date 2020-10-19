@@ -280,6 +280,9 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     field_name = next((field.name for field in type(instance)._meta.many_to_many
                        if getattr(type(instance), field.name).through == sender), None)
 
+    if field_name in instance.unlogged_fields:
+        return
+
     m2m_changes = defaultdict(lambda: defaultdict(list))
     if action == 'pre_remove':
         m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
