@@ -16,6 +16,7 @@ class TestUserImporter(TestCase):
     filename_duplicate = os.path.join(settings.BASE_DIR, "staff/fixtures/duplicate_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
+    filename_numerics = os.path.join(settings.BASE_DIR, "staff/fixtures/numerical_data_in_user_data.xls")
 
     # valid user import tested in tests/test_views.py, TestUserImportView
 
@@ -29,6 +30,8 @@ class TestUserImporter(TestCase):
             cls.random_excel_content = excel_file.read()
         with open(cls.filename_duplicate, "rb") as excel_file:
             cls.duplicate_excel_content = excel_file.read()
+        with open(cls.filename_numerics, "rb") as excel_file:
+            cls.numerical_excel_content = excel_file.read()
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
@@ -131,6 +134,22 @@ class TestUserImporter(TestCase):
         self.assertIn(
             "Import finally aborted after exception: 'Contact your database admin right now!'",
             errors[ImporterError.GENERAL],
+        )
+
+    def test_disallow_non_string_types(self):
+        imported_users, __, __, errors = UserImporter.process(self.numerical_excel_content, test_run=False)
+        self.assertEqual(len(imported_users), 0)
+        self.assertIn(
+            "The input data is malformed. No data was imported.",
+            errors[ImporterError.GENERAL]
+        )
+        # The sheet has a float in row 3 and an int row 4. All others rows only contain strings.
+        self.assertSetEqual(
+            {
+                "Wrong data type in sheet 'Users' in row 3. Please make sure all cells are string types, not numerical.",
+                "Wrong data type in sheet 'Users' in row 4. Please make sure all cells are string types, not numerical."
+            },
+            set(errors[ImporterError.SCHEMA])
         )
 
 
