@@ -769,7 +769,7 @@ class Evaluation(LoggedModel):
 
     @property
     def unlogged_fields(self):
-        return super().unlogged_fields + ["voters", "is_single_result", "_voter_count", "_participant_count"]
+        return super().unlogged_fields + ["voters", "is_single_result", "can_publish_text_results", "_voter_count", "_participant_count"]
 
 
 @receiver(post_transition, sender=Evaluation)
