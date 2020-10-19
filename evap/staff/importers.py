@@ -330,6 +330,18 @@ class ExcelImporter():
             if len(users_same_name) > 0:
                 self._create_user_name_collision_warning(user_data, users_same_name)
 
+    def check_data_type_correctness(self):
+        """
+        Checks that all cells after the skipped rows contain string values (not floats or integers).
+        """
+        for sheet in self.book.sheets():
+            for row in range(self.skip_first_n_rows, sheet.nrows):
+                if not all(isinstance(cell, str) for cell in sheet.row_values(row)):
+                    self.errors[ImporterError.SCHEMA].append(
+                            _("Wrong data type in sheet '{}' in row {}."
+                              " Please make sure all cells are string types, not numerical.").format(sheet.name, row + 1)
+                    )
+
 
 class EnrollmentImporter(ExcelImporter):
     def __init__(self):
@@ -579,6 +591,7 @@ class UserImporter(ExcelImporter):
                 return [], importer.success_messages, importer.warnings, importer.errors
 
             importer.check_column_count(4)
+            importer.check_data_type_correctness()
             if importer.errors:
                 importer.errors[ImporterError.GENERAL].append(_("The input data is malformed. No data was imported."))
                 return [], importer.success_messages, importer.warnings, importer.errors
