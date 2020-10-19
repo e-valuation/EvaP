@@ -75,6 +75,19 @@ def course_view(request, semester_id, course_id):
     return render(request, "grades_course_view.html", template_data)
 
 
+def on_grading_process_finished(course):
+    evaluations = course.evaluations.all()
+    if all(evaluation.state == 'reviewed' for evaluation in evaluations):
+        for evaluation in evaluations:
+            assert evaluation.grading_process_is_finished
+        for evaluation in evaluations:
+            evaluation.publish()
+            evaluation.save()
+
+        EmailTemplate.send_participant_publish_notifications(evaluations)
+        EmailTemplate.send_contributor_publish_notifications(evaluations)
+
+
 @grade_publisher_required
 def upload_grades(request, semester_id, course_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -98,14 +111,9 @@ def upload_grades(request, semester_id, course_id):
 
     if form.is_valid():
         form.save(modifying_user=request.user)
-        evaluations = course.evaluations.all()
-        if final_grades and all(evaluation.state == 'reviewed' for evaluation in evaluations):
-            for evaluation in evaluations:
-                evaluation.publish()
-                evaluation.save()
 
-            EmailTemplate.send_participant_publish_notifications(evaluations)
-            EmailTemplate.send_contributor_publish_notifications(evaluations)
+        if final_grades:
+            on_grading_process_finished(course)
 
         messages.success(request, _("Successfully uploaded grades."))
         return redirect('grades:course_view', semester.id, course.id)
@@ -130,14 +138,9 @@ def toggle_no_grades(request):
 
     course.gets_no_grade_documents = not course.gets_no_grade_documents
     course.save()
-    evaluations = course.evaluations.all()
-    if course.gets_no_grade_documents and all(evaluation.state == 'reviewed' for evaluation in evaluations):
-        for evaluation in evaluations:
-            evaluation.publish()
-            evaluation.save()
 
-        EmailTemplate.send_participant_publish_notifications(evaluations)
-        EmailTemplate.send_contributor_publish_notifications(evaluations)
+    if course.gets_no_grade_documents:
+        on_grading_process_finished(course)
 
     return HttpResponse()  # 200 OK
 

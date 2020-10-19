@@ -17,7 +17,7 @@
                             {% trans 'Log in using HPI OpenID Connect.' %}
                         </p>
                         <div class="text-center mt-5">
-                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button">{% trans 'Login' %}</a>
+                            <a href="{% url 'oidc_authentication_init' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" class="btn btn-primary login-button" autofocus>{% trans 'Login' %}</a>
                         </div>
                     {% else %}
                         <p class="card-text">
@@ -81,10 +81,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block additional_javascript %}
-    <script type="text/javascript">
-        $("#id_email").focus();
-    </script>
 {% endblock %}

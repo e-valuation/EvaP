@@ -14,7 +14,7 @@ from evap.evaluation.models import (Contribution, Course, CourseType, EmailTempl
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.grades.models import GradeDocument
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
-from evap.results.tools import calculate_average_distribution
+from evap.results.tools import calculate_average_distribution, cache_results
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
@@ -75,30 +75,30 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.state, 'published')
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
-    def test_evaluation_ends_soon(self):
+    def test_ends_soon(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() + timedelta(hours=24))
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today()
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=48)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
-    def test_evaluation_ends_soon_with_offset(self):
+    def test_ends_soon_with_offset(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=24)
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=72)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
@@ -426,11 +426,15 @@ class TestUserProfile(TestCase):
         semester_contributed_to.created_at = date.today() - timedelta(days=1)
         semester_contributed_to.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertTrue(user.is_student)
 
         semester_participated_in.created_at = date.today() - timedelta(days=2)
         semester_participated_in.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertFalse(user.is_student)
 
     def test_can_be_deleted_by_manager(self):
@@ -547,12 +551,14 @@ class ParticipationArchivingTests(TestCase):
         self.assertTrue(self.evaluation.participations_are_archived)
 
     def test_archiving_participations_does_not_change_results(self):
+        cache_results(self.evaluation)
         distribution = calculate_average_distribution(self.evaluation)
 
         self.semester.archive()
         self.refresh_evaluation()
         caches['results'].clear()
 
+        cache_results(self.evaluation)
         new_distribution = calculate_average_distribution(self.evaluation)
         self.assertEqual(new_distribution, distribution)
 

@@ -119,6 +119,8 @@ tr.heading-row.course-row {
 }
 
 tr.evaluation-row:not(.heading-row) {
+    height: 2.5rem;
+
     td {
         padding-top: 0.18rem;
         padding-bottom: 0.18rem;
@@ -128,6 +130,10 @@ tr.evaluation-row:not(.heading-row) {
 
     td:first-of-type {
         padding-left: 2rem;
+    }
+
+    td.full-size {
+        font-size: 1rem;
     }
 
     .evaluation-name {
@@ -146,4 +152,8 @@ tr.evaluation-row:not(.heading-row) {
     .badge-grade {
         border: 1px solid $dark-gray;
     }
+}
+
+.table-headerless tr:first-child td {
+    border-top-width: 0;
 }

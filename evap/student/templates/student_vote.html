@@ -22,8 +22,12 @@
     {% if evaluation.is_midterm_evaluation %}
         <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
-    {% if evaluation_ends_soon %}
-        <div class="callout callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
+    {% if evaluation.ends_soon %}
+        <div class="callout callout-danger">
+            {% trans 'The evaluation period will end in' %}
+            {{ evaluation.vote_end_datetime|timeuntil }} ({{ evaluation.vote_end_datetime }}).
+            {% trans 'Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.' %}
+        </div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>

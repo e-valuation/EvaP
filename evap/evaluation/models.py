@@ -14,7 +14,8 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Manager, Q
+from django.db.models import Count, Q, Manager, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
@@ -26,7 +27,7 @@ from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
 from evap.evaluation.models_logging import LoggedModel
-from evap.evaluation.tools import clean_email, date_to_datetime, is_external_email, translate
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
 
@@ -337,7 +338,8 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
+        ordered_responsibles = sorted(self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name))
+        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
     @property
     def has_external_responsible(self):
@@ -426,21 +428,31 @@ class Evaluation(LoggedModel):
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
-        if hasattr(self, 'state_change'):
+        if hasattr(self, 'state_change_source'):
+            state_changed_to = lambda self, state_set: self.state_change_source not in state_set and self.state in state_set
+            state_changed_from = lambda self, state_set: self.state_change_source in state_set and self.state not in state_set
+
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
             # pylint: disable=import-outside-toplevel
-            if self.state_change == "published":
-                from evap.results.tools import collect_results
+            from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+
+            if (state_changed_to(self, STATES_WITH_RESULTS_CACHING)
+                    or self.state_change_source == 'evaluated' and self.state == 'reviewed'): # reviewing changes results -> cache update required
+                from evap.results.tools import cache_results
+                cache_results(self)
+            elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
+                from evap.results.tools import get_results_cache_key
+                caches['results'].delete(get_results_cache_key(self))
+
+            if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
                 from evap.results.views import update_template_cache_of_published_evaluations_in_course
-                collect_results(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
-            elif self.state_change == "unpublished":
-                from evap.results.tools import get_collect_results_cache_key
+            elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
                 from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
-                caches['results'].delete(get_collect_results_cache_key(self))
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
+            del self.state_change_source
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -472,9 +484,18 @@ class Evaluation(LoggedModel):
         return not self.unreviewed_textanswer_set.exists()
 
     @property
+    def display_vote_end_datetime(self):
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24)
+
+    @property
     def vote_end_datetime(self):
-        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
+
+    @property
+    def runtime(self):
+        delta = self.vote_end_datetime - self.vote_start_datetime
+        return delta.days + 1
 
     @property
     def is_in_evaluation_period(self):
@@ -531,6 +552,10 @@ class Evaluation(LoggedModel):
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
+
+        if is_prefetched(self, 'participants'):
+            return len(self.participants.all())
+
         return self.participants.count()
 
     def _archive(self):
@@ -561,6 +586,10 @@ class Evaluation(LoggedModel):
     @property
     def has_external_participant(self):
         return any(participant.is_external for participant in self.participants.all())
+
+    @property
+    def can_staff_see_average_grade(self):
+        return self.state in {'evaluated', 'reviewed', 'published'}
 
     @property
     def can_publish_average_grade(self):
@@ -662,10 +691,23 @@ class Evaluation(LoggedModel):
         return (self.vote_end_date - date.today()).days
 
     @property
+    def display_time_left_for_evaluation(self):
+        return self.display_vote_end_datetime - datetime.now()
+
+    @property
     def time_left_for_evaluation(self):
         return self.vote_end_datetime - datetime.now()
 
-    def evaluation_ends_soon(self):
+    @property
+    def display_hours_left_for_evaluation(self):
+        return self.display_time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def hours_left_for_evaluation(self):
+        return self.time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def ends_soon(self):
         return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
@@ -674,6 +716,10 @@ class Evaluation(LoggedModel):
         if self.vote_start_datetime < datetime.now():
             days_left -= 1
         return days_left
+
+    @property
+    def hours_until_evaluation(self):
+        return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
@@ -724,9 +770,7 @@ class Evaluation(LoggedModel):
         if self.state != "evaluated":
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
-        if (self.course.final_grade_documents
-                or self.course.gets_no_grade_documents
-                or not self.wait_for_grade_upload_before_publishing):
+        if self.grading_process_is_finished:
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -734,6 +778,12 @@ class Evaluation(LoggedModel):
     @property
     def ratinganswer_counters(self):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
+
+    @property
+    def grading_process_is_finished(self):
+        return (not self.wait_for_grade_upload_before_publishing
+                or self.course.gets_no_grade_documents
+                or self.course.final_grade_documents.exists())
 
     @classmethod
     def update_evaluations(cls):
@@ -752,7 +802,7 @@ class Evaluation(LoggedModel):
                     evaluation.evaluation_end()
                     if evaluation.is_fully_reviewed:
                         evaluation.review_finished()
-                        if not evaluation.wait_for_grade_upload_before_publishing or evaluation.course.final_grade_documents.exists() or evaluation.course.gets_no_grade_documents:
+                        if evaluation.grading_process_is_finished:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
@@ -767,23 +817,34 @@ class Evaluation(LoggedModel):
 
         logger.info("update_evaluations finished.")
 
+    @classmethod
+    def annotate_with_participant_and_voter_counts(cls, evaluation_query):
+        subquery = Evaluation.objects.filter(pk=OuterRef('pk'))
+
+        participant_count_subquery = subquery.annotate(
+            num_participants=Coalesce('_participant_count', Count("participants")),
+        ).values("num_participants")
+
+        voter_count_subquery = subquery.annotate(
+            num_voters=Coalesce('_voter_count', Count("voters")),
+        ).values("num_voters")
+
+        return evaluation_query.annotate(
+            num_participants=Subquery(participant_count_subquery),
+            num_voters=Subquery(voter_count_subquery),
+        )
+
     @property
     def unlogged_fields(self):
         return super().unlogged_fields + ["voters", "is_single_result", "can_publish_text_results", "_voter_count", "_participant_count"]
 
 
 @receiver(post_transition, sender=Evaluation)
-def course_was_published(instance, target, **_kwargs):
+def evaluation_state_change(instance, source, **_kwargs):
     """ Evaluation.save checks whether caches must be updated based on this value """
-    if target == 'published':
-        instance.state_change = "published"
-
-
-@receiver(post_transition, sender=Evaluation)
-def course_was_unpublished(instance, source, **_kwargs):
-    """ Evaluation.save checks whether caches must be updated based on this value """
-    if source == 'published':
-        instance.state_change = "unpublished"
+    # if multiple state changes are happening, state_change_source should be the first source
+    if not hasattr(instance, 'state_change_source'):
+        instance.state_change_source = source
 
 
 @receiver(post_transition, sender=Evaluation)
@@ -1322,6 +1383,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_manager or self.is_reviewer
 
+    # Required for staff mode to work, since several other cached properties (including is_staff) are overwritten
+    @property
+    def has_staff_permission(self):
+        return self.groups.filter(name='Manager').exists() or self.groups.filter(name='Reviewer').exists()
+
     @cached_property
     def is_manager(self):
         return self.groups.filter(name='Manager').exists()
@@ -1352,19 +1418,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
-        if any(not user.can_be_deleted_by_manager for user in self.represented_users.all()):
-            return False
-        if any(not user.can_be_deleted_by_manager for user in self.ccing_users.all()):
-            return False
         if self.is_proxy_user:
             return False
         return True
 
-    @property
+    @cached_property
     def is_participant(self):
         return self.evaluations_participating_in.exists()
 
-    @property
+    @cached_property
     def is_student(self):
         """
             A UserProfile is not considered to be a student anymore if the
@@ -1381,23 +1443,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
-    @property
+    @cached_property
     def is_contributor(self):
         return self.contributions.exists()
 
-    @property
+    @cached_property
     def is_editor(self):
         return self.contributions.filter(role=Contribution.Role.EDITOR).exists() or self.is_responsible
 
-    @property
+    @cached_property
     def is_responsible(self):
         return self.courses_responsible_for.exists()
 
-    @property
+    @cached_property
     def is_delegate(self):
         return self.represented_users.exists()
 
-    @property
+    @cached_property
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 

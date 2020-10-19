@@ -8,6 +8,18 @@
     background-color: $evap-light-blue;
 }
 
+.progress-container .progress-empty {
+    height: 1.5rem;
+}
+
+.progress-container .progress-disabled {
+    background-color: $light-gray;
+    .progress-bartext {
+        text-shadow: none;
+        color: lighten($medium-gray, 5%);
+    }
+}
+
 .progress-container-warning {
     .progress {
         background-color: $evap-yellow;

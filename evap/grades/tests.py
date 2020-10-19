@@ -135,24 +135,12 @@ class GradeUploadTest(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
     def test_toggle_no_grades(self):
-        evaluation = baker.make(
-            Evaluation,
-            name_en="Toggle",
-            vote_start_datetime=datetime.now(),
-            state="reviewed",
-            participants=[self.student, self.student2, self.student3],
-            voters=[self.student, self.student2]
-        )
-        baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=UserProfile.objects.get(email="editor@institution.example.com"),
-            questionnaires=[baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)],
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-
-        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+        evaluation = self.evaluation
+        evaluation.manager_approve()
+        evaluation.evaluation_begin()
+        evaluation.evaluation_end()
+        evaluation.review_finished()
+        evaluation.save()
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 

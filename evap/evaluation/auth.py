@@ -66,6 +66,15 @@ def internal_required(view_func):
     return user_passes_test(check_user)(view_func)
 
 
+def staff_permission_required(view_func):
+    """
+    Decorator for views that checks that the user is logged in and staff (regardless of staff mode!)
+    """
+    def check_user(user):
+        return user.has_staff_permission
+    return user_passes_test(check_user)(view_func)
+
+
 def manager_required(view_func):
     """
     Decorator for views that checks that the user is logged in and a manager

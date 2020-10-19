@@ -16,7 +16,8 @@ from evap.evaluation.models import (Contribution, Course, CourseType, Degree, Em
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import date_to_datetime
-from evap.results.tools import collect_results
+from evap.staff.tools import remove_user_from_represented_and_ccing_users
+from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 from evap.results.views import (update_template_cache,
                                 update_template_cache_of_published_evaluations_in_course)
 
@@ -128,21 +129,19 @@ class SemesterForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         semester = super().save(*args, **kwargs)
         if 'short_name_en' in self.changed_data or 'short_name_de' in self.changed_data:
-            update_template_cache(semester.evaluations.filter(state="published"))
+            update_template_cache(semester.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
         return semester
 
 
 class DegreeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = Degree
         fields = ('name_de', 'name_en', 'import_names', 'order')
         field_classes = {
             'import_names': CharArrayField,
+        }
+        widgets = {
+            'order': forms.HiddenInput(),
         }
 
     def clean(self):
@@ -153,21 +152,19 @@ class DegreeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         degree = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state="published", course__degrees__in=[degree]))
+            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__degrees__in=[degree]))
         return degree
 
 
 class CourseTypeForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = CourseType
         fields = ('name_de', 'name_en', 'import_names', 'order')
         field_classes = {
             'import_names': CharArrayField,
+        }
+        widgets = {
+            'order': forms.HiddenInput(),
         }
 
     def clean(self):
@@ -178,7 +175,7 @@ class CourseTypeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         course_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state="published", course__type=course_type))
+            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type))
         return course_type
 
 
@@ -679,12 +676,9 @@ class QuestionForm(forms.ModelForm):
         fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type')
         widgets = {
             'text_de': forms.Textarea(attrs={'rows': 2}),
-            'text_en': forms.Textarea(attrs={'rows': 2})
+            'text_en': forms.Textarea(attrs={'rows': 2}),
+            'order': forms.HiddenInput(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["order"].widget = forms.HiddenInput()
 
 
 class QuestionnairesAssignForm(forms.Form):
@@ -718,6 +712,7 @@ class UserForm(forms.ModelForm):
         excludes = [x.id for x in evaluations_in_active_semester if x.is_single_result]
         evaluations_in_active_semester = evaluations_in_active_semester.exclude(id__in=excludes)
         self.fields['evaluations_participating_in'].queryset = evaluations_in_active_semester
+        self.remove_messages = []
         if self.instance.pk:
             self.fields['evaluations_participating_in'].initial = evaluations_in_active_semester.filter(participants=self.instance)
             self.fields['is_manager'].initial = self.instance.is_manager
@@ -776,10 +771,17 @@ class UserForm(forms.ModelForm):
 
         self.instance.is_active = not self.cleaned_data.get('is_inactive')
 
+        # remove instance from all other users' delegates and CC users if it is inactive
+        self.remove_messages = [] if self.instance.is_active else remove_user_from_represented_and_ccing_users(self.instance)
+
         # refresh results cache
-        for evaluation in Evaluation.objects.filter(contributions__contributor=self.instance).distinct():
-            if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
-                collect_results(evaluation, force_recalculation=True)
+        if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):
+            evaluations = Evaluation.objects.filter(
+                contributions__contributor=self.instance,
+                state__in=STATES_WITH_RESULTS_CACHING
+            ).distinct()
+            for evaluation in evaluations:
+                cache_results(evaluation)
 
         self.instance.save()
 
@@ -796,25 +798,21 @@ class EmailTemplateForm(forms.ModelForm):
 
 
 class FaqSectionForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = FaqSection
         fields = ('order', 'title_de', 'title_en')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
 
 class FaqQuestionForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["order"].widget = forms.HiddenInput()
-
     class Meta:
         model = FaqQuestion
         fields = ('order', 'question_de', 'question_en', 'answer_de', 'answer_en')
+        widgets = {
+            'order': forms.HiddenInput(),
+        }
 
 
 class TextAnswerForm(forms.ModelForm):

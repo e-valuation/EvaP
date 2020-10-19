@@ -20,7 +20,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
-from evap.evaluation.auth import reviewer_required, manager_required
+from evap.evaluation.auth import reviewer_required, manager_required, staff_permission_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
@@ -31,6 +31,7 @@ from evap.results.tools import calculate_average_distribution, distribution_to_g
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
+from evap.staff import staff_mode
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
                               ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
@@ -78,19 +79,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by('pk')
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-
-    # these could be done with an annotation like this:
-    # num_voters_annotated=Count("voters", distinct=True), or more completely
-    # evaluations.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
-    # but that was prohibitively slow.
-    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
-    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
-
-    for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
-        evaluation.general_contribution = evaluation.general_contribution[0]
-        if evaluation._participant_count is None:
-            evaluation.num_participants = participant_count
-            evaluation.num_voters = voter_count
+    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
     return evaluations
 
@@ -537,11 +526,11 @@ def semester_raw_export(_request, semester_id):
         _('#Participants'), _('#Text answers'), _('Average grade')])
     for evaluation in sorted(semester.evaluations.all(), key=lambda cr: cr.full_name):
         degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
-        distribution = calculate_average_distribution(evaluation)
-        if evaluation.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
-            avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
-        else:
-            avg_grade = ""
+        avg_grade = ""
+        if evaluation.can_staff_see_average_grade:
+            distribution = calculate_average_distribution(evaluation)
+            if distribution is not None:
+                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
             evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
 
@@ -1598,6 +1587,8 @@ def user_edit(request, user_id):
         form.save()
         delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
+        for message in form.remove_messages:
+            messages.warning(request, message)
         return redirect('staff:user_index')
 
     return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))
@@ -1762,3 +1753,19 @@ def development_components(request):
 def export_contributor_results_view(request, contributor_id):
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)
+
+
+@require_POST
+@staff_permission_required
+def enter_staff_mode(request):
+    staff_mode.enter_staff_mode(request)
+    messages.success(request, _("Successfully entered staff mode."))
+    return redirect('/')
+
+
+@require_POST
+@staff_permission_required
+def exit_staff_mode(request):
+    staff_mode.exit_staff_mode(request)
+    messages.success(request, _("Successfully exited staff mode."))
+    return redirect('/')

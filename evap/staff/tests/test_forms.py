@@ -11,7 +11,7 @@ from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_
 from evap.staff.forms import (ContributionForm, ContributionCopyForm, ContributionFormSet, CourseForm,
                               EvaluationEmailForm, EvaluationForm, EvaluationCopyForm,
                               QuestionnaireForm, SingleResultForm, UserForm)
-from evap.results.tools import collect_results
+from evap.results.tools import cache_results, get_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
@@ -133,14 +133,15 @@ class UserFormTests(TestCase):
         baker.make(Contribution, contributor=contributor,
                    evaluation=evaluation)
 
-        results_before = collect_results(evaluation)
+        cache_results(evaluation)
+        results_before = get_results(evaluation)
 
         form_data = get_form_data_from_instance(UserForm, contributor)
         form_data["first_name"] = "Patrick"
         form = UserForm(form_data, instance=contributor)
         form.save()
 
-        results_after = collect_results(evaluation)
+        results_after = get_results(evaluation)
 
         self.assertCountEqual(
             (result.contributor.first_name for result in results_before.contribution_results if result.contributor),
