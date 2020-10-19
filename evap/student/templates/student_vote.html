@@ -1,10 +1,8 @@
 {% extends for_rendering_in_modal|yesno:'base_empty.html,base.html' %}
 
-
 {% load static %}
 {% load evaluation_filters %}
 {% load student_filters %}
-{% load compress %}
 
 {% block title %}{{ evaluation.full_name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
 
@@ -168,9 +166,7 @@
 
 {% block additional_javascript %}
     {% if not preview %}
-        {% compress js %}
-            <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
-        {% endcompress %}
+        <script type="text/javascript" src="{% static 'js/sisyphus.min.js' %}"></script>
 
         {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
 

@@ -1,7 +1,6 @@
 {% spaceless %}
 {% load static %}
 {% load cache %}
-{% load compress %}
 {% load evaluation_filters %}
 {% load navbar_templatetags %}
 
@@ -62,19 +61,17 @@
 
 {% include 'footer.html' %}
 
-{% compress js %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/popper-1.14.1.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/popper-1.14.1.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 
-    <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
+<script type="text/javascript" src="{% static 'js/select2.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/locale/select2_de.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/locale/select2_en.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
-    <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
-{% endcompress %}
+<script type="text/javascript" src="{% static 'js/csrf_utils.js' %}"></script>
 
 <script type="text/javascript">
     activateTooltips = function(selector = "") {
