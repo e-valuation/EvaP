@@ -148310,7 +148310,7 @@
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2019-10-28T19:16:36.113",
-    "vote_end_date": "2020-09-18",
+    "vote_end_date": "2099-09-18",
     "allow_editors_to_edit": true,
     "last_modified_time": "2019-10-28T19:16:19.471",
     "last_modified_user": [
@@ -153294,7 +153294,7 @@
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
-    "vote_end_date": "2021-05-08",
+    "vote_end_date": "2099-05-08",
     "allow_editors_to_edit": true,
     "last_modified_time": "2019-10-28T19:21:52.830",
     "last_modified_user": [
