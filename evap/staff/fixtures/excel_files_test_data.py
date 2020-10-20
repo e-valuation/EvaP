@@ -10,6 +10,15 @@ duplicate_user_import_filedata = {
     ]
 }
 
+numerical_data_in_user_data_filedata = {
+    'Users': [
+        ['Title', 'First Name', 'Last Name', 'Email'],
+        ['', 'Lucilia', 'Manilium', 'lucilia.manilium@institution.example.com'],
+        [3.14, 'Bastius', 'Quid', 'bastius.quid@external.example.com'],
+        ['', 'Gustav', 42, 'gustav42@external.example.com']
+    ]
+}
+
 invalid_enrollment_data_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],

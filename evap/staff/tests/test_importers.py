@@ -1,7 +1,5 @@
 import os
 from datetime import date, datetime
-import io
-import xlwt
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -18,7 +16,6 @@ class TestUserImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-    filename_numerics = os.path.join(settings.BASE_DIR, "staff/fixtures/numerical_data_in_user_data.xls")
 
     # valid user import tested in tests/test_views.py, TestUserImportView
 
@@ -31,8 +28,7 @@ class TestUserImporter(TestCase):
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
         cls.duplicate_excel_content = excel_data.create_memory_excel_file(excel_data.duplicate_user_import_filedata)
-        with open(cls.filename_numerics, "rb") as excel_file:
-            cls.numerical_excel_content = excel_file.read()
+        cls.numerical_excel_content = excel_data.create_memory_excel_file(excel_data.numerical_data_in_user_data_filedata)
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())

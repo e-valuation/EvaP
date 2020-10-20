@@ -1,6 +1,5 @@
 import datetime
 import os
-import tempfile
 from unittest.mock import patch, PropertyMock
 
 from django.conf import settings
