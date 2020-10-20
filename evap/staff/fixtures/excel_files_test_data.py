@@ -1,3 +1,6 @@
+import io
+import xlwt
+
 duplicate_user_import_filedata = {
     'Users': [
         ['Title', 'First Name', 'Last Name', 'Email'],
@@ -130,3 +133,15 @@ valid_user_courses_import_filedata = {
         ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@student.institution.com', 'Vorlesung', 'no', 'Schütteln', 'Shake', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@external.com']
     ]
 }
+
+
+def create_memory_excel_file(data):
+    memory_excel_file = io.BytesIO()
+    workbook = xlwt.Workbook()
+    for sheet_name, sheet_data in data.items():
+        sheet = workbook.add_sheet(sheet_name)
+        for (row_num, row_data) in enumerate(sheet_data):
+            for (column_num, cell_data) in enumerate(row_data):
+                sheet.write(row_num, column_num, cell_data)
+    workbook.save(memory_excel_file)
+    return memory_excel_file.getvalue()
