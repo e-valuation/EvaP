@@ -224,6 +224,7 @@ MIDDLEWARE = [
     'mozilla_django_oidc.middleware.SessionRefresh',
     'evap.middleware.RequireLoginMiddleware',
     'evap.staff.staff_mode.staff_mode_middleware',
+    'evap.evaluation.middleware.LoggingRequestMiddleware',
 ]
 
 TEMPLATES = [

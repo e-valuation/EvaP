@@ -201,7 +201,8 @@ class TestDumpTestDataCommand(TestCase):
 
         outfile_name = os.path.join(settings.BASE_DIR, "evaluation", "fixtures", "test_data.json")
         mock.assert_called_once_with('dumpdata', 'auth.group', 'evaluation', 'rewards', 'grades',
-                                     indent=2, natural_foreign=True, natural_primary=True, output=outfile_name)
+                                     '--exclude=evaluation.LogEntry', indent=2, natural_foreign=True,
+                                     natural_primary=True, output=outfile_name)
 
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])

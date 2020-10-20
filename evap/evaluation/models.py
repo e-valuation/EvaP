@@ -1,10 +1,10 @@
-from collections import namedtuple, defaultdict
-from datetime import datetime, date, timedelta
+from collections import defaultdict, namedtuple
+from datetime import date, datetime, timedelta
 from enum import Enum, auto
 import logging
+import operator
 import secrets
 import uuid
-import operator
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,19 +13,20 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models, transaction, IntegrityError
+from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Q, Manager, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
+from evap.evaluation.models_logging import LoggedModel
 from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
@@ -85,11 +86,11 @@ class Semester(models.Model):
         return not self.results_are_archived
 
     @transaction.atomic
-    def archive_participations(self):
+    def archive(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         for evaluation in self.evaluations.all():
-            evaluation._archive_participations()
+            evaluation._archive()
         self.participations_are_archived = True
         self.save()
 
@@ -266,7 +267,7 @@ class CourseType(models.Model):
         return not self.courses.all().exists()
 
 
-class Course(models.Model):
+class Course(LoggedModel):
     """Models a single course, e.g. the Math 101 course of 2002."""
     semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
 
@@ -303,6 +304,10 @@ class Course(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["semester", "gets_no_grade_documents"]
 
     def set_last_modified(self, modifying_user):
         self.last_modified_user = modifying_user
@@ -345,9 +350,8 @@ class Course(models.Model):
         return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
 
 
-class Evaluation(models.Model):
+class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
-
     state = FSMField(default='new', protected=True)
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
@@ -372,11 +376,11 @@ class Evaluation(models.Model):
     # can be published even if no other person evaluates the evaluation
     can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
 
-    # students that are allowed to vote
+    # students that are allowed to vote, or their count after archiving
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='evaluations_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
-    # students that already voted
+    # students that already voted, or their count after archiving
     voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='evaluations_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
@@ -554,8 +558,8 @@ class Evaluation(models.Model):
 
         return self.participants.count()
 
-    def _archive_participations(self):
-        """Should be called only via Semester.archive_participations"""
+    def _archive(self):
+        """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         if self._participant_count is not None:
@@ -566,6 +570,7 @@ class Evaluation(models.Model):
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
+        self.related_logentries().delete()
 
     @property
     def participations_are_archived(self):
@@ -829,6 +834,10 @@ class Evaluation(models.Model):
             num_voters=Subquery(voter_count_subquery),
         )
 
+    @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["voters", "is_single_result", "can_publish_text_results", "_voter_count", "_participant_count"]
+
 
 @receiver(post_transition, sender=Evaluation)
 def evaluation_state_change(instance, source, **_kwargs):
@@ -843,7 +852,7 @@ def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info('Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
-class Contribution(models.Model):
+class Contribution(LoggedModel):
     """A contributor who is assigned to an evaluation and his questionnaires."""
 
     class TextAnswerVisibility(models.TextChoices):
@@ -855,7 +864,8 @@ class Contribution(models.Model):
         EDITOR = 1, _('Editor')
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True,
+                                    related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     role = models.IntegerField(choices=Role.choices, verbose_name=_("role"), default=Role.CONTRIBUTOR)
     textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
@@ -870,8 +880,21 @@ class Contribution(models.Model):
         ordering = ['order', ]
 
     @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ['evaluation'] + (['contributor'] if self.is_general else [])
+
+    @property
     def is_general(self):
         return self.contributor_id is None
+
+    @property
+    def object_to_attach_logentries_to(self):
+        return Evaluation, self.evaluation_id
+
+    def __str__(self):
+        if self.contributor:
+            return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
+        return str(_("General Contribution"))
 
 
 class Question(models.Model):
