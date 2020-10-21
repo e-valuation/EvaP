@@ -9,14 +9,13 @@ from model_bakery import baker
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
 from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterError, ImporterWarning
 from evap.staff.tools import ImportType
+import evap.staff.fixtures.excel_files_test_data as excel_data
 
 
 class TestUserImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_duplicate = os.path.join(settings.BASE_DIR, "staff/fixtures/duplicate_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-    filename_numerics = os.path.join(settings.BASE_DIR, "staff/fixtures/numerical_data_in_user_data.xls")
 
     # valid user import tested in tests/test_views.py, TestUserImportView
 
@@ -28,10 +27,8 @@ class TestUserImporter(TestCase):
             cls.invalid_excel_content = excel_file.read()
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
-        with open(cls.filename_duplicate, "rb") as excel_file:
-            cls.duplicate_excel_content = excel_file.read()
-        with open(cls.filename_numerics, "rb") as excel_file:
-            cls.numerical_excel_content = excel_file.read()
+        cls.duplicate_excel_content = excel_data.create_memory_excel_file(excel_data.duplicate_user_import_filedata)
+        cls.numerical_excel_content = excel_data.create_memory_excel_file(excel_data.numerical_data_in_user_data_filedata)
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
@@ -154,11 +151,6 @@ class TestUserImporter(TestCase):
 
 
 class TestEnrollmentImporter(TestCase):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
-    filename_valid_degree_merge = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_degree_merge.xls")
-    filename_valid_import_names = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_import_names.xls")
-    filename_valid_consecutive_and_trailing_spaces = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_consecutive_and_trailing_spaces.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
@@ -176,8 +168,7 @@ class TestEnrollmentImporter(TestCase):
         degree_master.save()
 
     def test_valid_file_import(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
@@ -199,8 +190,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
     def test_degrees_are_merged(self):
-        with open(self.filename_valid_degree_merge, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
         success_messages, warnings_test, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
@@ -222,8 +212,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
-        with open(self.filename_valid_import_names, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages))
@@ -240,8 +229,7 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         __, warnings_test, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
@@ -270,8 +258,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
-        with open(self.filename_invalid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.invalid_enrollment_data_filedata)
 
         original_user_count = UserProfile.objects.count()
 
@@ -298,8 +285,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         semester = baker.make(Semester)
         baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
@@ -312,8 +298,8 @@ class TestEnrollmentImporter(TestCase):
             "Course Shine does already exist in this semester."})
 
     def test_replace_consecutive_and_trailing_spaces(self):
-        with open(self.filename_valid_consecutive_and_trailing_spaces, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata)
+
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 

@@ -23,6 +23,7 @@ from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, Eval
 from evap.staff.tests.utils import helper_delete_all_import_files, run_in_staff_mode, \
     WebTestStaffMode, WebTestStaffModeWith200Check
 from evap.staff.views import get_evaluations_with_prefetched_data
+import evap.staff.fixtures.excel_files_test_data as excel_data
 
 
 class TestDownloadSampleXlsView(WebTestStaffMode):
@@ -216,7 +217,6 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     url = '/staff/user/bulk_update'
     filename = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_user_bulk_update_file.txt')
     filename_random = os.path.join(settings.BASE_DIR, 'staff/fixtures/random.random')
-    filename_xls = os.path.join(settings.BASE_DIR, 'staff/fixtures/test_enrollment_data.xls')
 
     @classmethod
     def setUpTestData(cls):
@@ -356,7 +356,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
         page = self.app.get(self.url, user=self.manager)
         form = page.forms['user-bulk-update-form']
-        form['user_file'] = (self.filename_xls,)
+        form['user_file'] = ("test_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata))
         reply = form.submit(name='operation', value='test')
         self.assertEqual(reply.status_code, 200)
         self.assertIn("An error happened when processing the file", reply)
@@ -793,8 +793,6 @@ class TestSendReminderView(WebTestStaffMode):
 
 class TestSemesterImportView(WebTestStaffMode):
     url = "/staff/semester/1/import"
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
@@ -810,7 +808,7 @@ class TestSemesterImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("test_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata))
         page = form.submit(name="operation", value="test")
 
         self.assertEqual(UserProfile.objects.count(), original_user_count)
@@ -861,7 +859,7 @@ class TestSemesterImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_invalid,)
+        form["excel_file"] = ("invalid_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.invalid_enrollment_data_filedata))
 
         reply = form.submit(name="operation", value="test")
         general_error = 'Errors occurred while parsing the input data. No data was imported.'
@@ -895,7 +893,7 @@ class TestSemesterImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("test_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata))
 
         reply = form.submit(name="operation", value="test")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
@@ -906,7 +904,7 @@ class TestSemesterImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("test_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata))
 
         # Should throw SuspiciousOperation Exception.
         reply = form.submit(name="operation", value="hackit", expect_errors=True)
@@ -935,7 +933,7 @@ class TestSemesterImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("test_enrollment_data.xls", excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata))
         page = form.submit(name="operation", value="test")
 
         form = page.forms["semester-import-form"]
