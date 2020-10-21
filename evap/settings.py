@@ -308,6 +308,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -397,6 +399,8 @@ TESTING = 'test' in sys.argv
 
 # speed up tests
 if TESTING:
+    # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
     # use the database for caching. it's properly reset between tests in constrast to redis,
