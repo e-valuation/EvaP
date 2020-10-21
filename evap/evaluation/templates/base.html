@@ -16,11 +16,11 @@
         <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
         <link rel="stylesheet" href="{% static 'css/evap.css' %}" />
         {% if debug %}
-            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_gray.png" />
+            <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_gray.png' %}" />
         {% else %}
-            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png" />
-            <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png" />
-            <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png" />
+            <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_64.png' %}" />
+            <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon_32.png' %}" />
+            <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_16.png' %}" />
         {% endif %}
     {% endblock %}
 </head>
@@ -43,7 +43,7 @@
     {% endblock %}
 </div>
 
-<img class="print-brand-image d-none d-print-block" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" />
+<img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
 
 <div class="container mb-4 pt-3">
     {% for message in messages %}
