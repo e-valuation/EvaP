@@ -11,6 +11,11 @@ class Command(BaseCommand):
             '--watch', action='store_true',
             help='Watch stylesheets and recompile when they change.',
         )
+        parser.add_argument(
+            '--production', action='store_true',
+            help='Compress output stylesheet and do not generate source maps.'
+                 ' Intended to use in production deployment.',
+        )
 
     def handle(self, *args, **options):
         static_directory = settings.STATICFILES_DIRS[0]
@@ -22,6 +27,9 @@ class Command(BaseCommand):
 
         if options['watch']:
             command += ['--watch', '--poll']
+
+        if options['production']:
+            command += ['--style', 'compressed', '--no-source-map']
 
         try:
             subprocess.run(command, check=True) # nosec

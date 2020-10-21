@@ -47,6 +47,7 @@ sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
 
 # compilemessages and compress regularly fail without any real issue.
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compilemessages || true
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py scss --production
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py collectstatic --noinput
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compress --verbosity=0 || true
 
