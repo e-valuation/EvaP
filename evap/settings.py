@@ -197,7 +197,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'compressor',
     'django_extensions',
     'evap.evaluation',
     'evap.staff',
@@ -310,22 +309,8 @@ STATICFILES_DIRS = [
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "compressor.finders.CompressorFinder",
-]
-
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
-
-# django-compressor settings
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = False
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile} {outfile}'),
-)
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 
 ### User-uploaded files
@@ -401,7 +386,6 @@ TESTING = 'test' in sys.argv
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    COMPRESS_PRECOMPILERS = ()  # disable django-compressor
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.

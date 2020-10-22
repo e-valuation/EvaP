@@ -46,8 +46,6 @@ sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compilemessages || true
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py scss --production
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py collectstatic --noinput
-# this fails if debug is set
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compress --verbosity=0 || true
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py migrate
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py refresh_results_cache
