@@ -257,9 +257,6 @@ def merge_users(main_user, other_user, preview=False):
         responsibles.append(main_user)
         course.responsibles.set(responsibles)
 
-    # update last_modified_user for evaluations and grade documents
-    Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
-    Evaluation.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
     # email must not exist twice. other_user can't be deleted before contributions have been changed

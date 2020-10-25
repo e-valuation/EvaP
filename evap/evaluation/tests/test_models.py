@@ -161,12 +161,6 @@ class TestEvaluations(WebTest):
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertTrue(evaluation.all_contributions_have_questionnaires)
 
-    def test_deleting_last_modified_user_does_not_delete_evaluation(self):
-        user = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, last_modified_user=user)
-        user.delete()
-        self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
-
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, is_single_result=True)

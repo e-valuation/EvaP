@@ -130,8 +130,6 @@ def render_preview(request, formset, evaluation_form, evaluation):
     try:
         with transaction.atomic():
             evaluation = evaluation_form.save()
-            evaluation.set_last_modified(request.user)
-            evaluation.save()
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
@@ -165,8 +163,6 @@ def evaluation_edit(request, evaluation_id):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        if form_has_changed:
-            evaluation.set_last_modified(request.user)
         evaluation_form.save()
         formset.save()
 

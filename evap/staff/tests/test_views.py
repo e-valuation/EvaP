@@ -1520,8 +1520,6 @@ class TestCourseEditView(WebTestStaffMode):
             degrees=[degree],
             responsibles=[responsible],
             pk=1,
-            last_modified_user=cls.manager,
-            last_modified_time=datetime.datetime(2000, 1, 1, 0, 0),
         )
 
     def test_edit_course(self):
@@ -1532,40 +1530,6 @@ class TestCourseEditView(WebTestStaffMode):
         form.submit("operation", value="save")
         self.course = Course.objects.get(pk=self.course.pk)
         self.assertEqual(self.course.name_en, "A different name")
-
-    def test_last_modified_user(self):
-        """
-            Tests whether saving only changes the last_modified_user if changes were made.
-        """
-        test_user = baker.make(UserProfile, email='test_user@institution.example.com', groups=[Group.objects.get(name='Manager')])
-
-        old_name_en = self.course.name_en
-        old_last_modified_user = self.course.last_modified_user
-        old_last_modified_time = self.course.last_modified_time
-        self.assertEqual(old_last_modified_user.email, self.manager.email)
-        self.assertEqual(old_last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
-
-        page = self.app.get(self.url, user=test_user.email, status=200)
-        form = page.forms["course-form"]
-        # save without changes
-        form.submit(name="operation", value="save")
-
-        # no changes should have been made
-        self.course = Course.objects.get(pk=self.course.pk)
-        self.assertEqual(self.course.last_modified_user, old_last_modified_user)
-        self.assertEqual(self.course.last_modified_time, datetime.datetime(2000, 1, 1, 0, 0))
-        self.assertEqual(self.course.name_en, old_name_en)
-
-        page = self.app.get(self.url, user=test_user.email, status=200)
-        form = page.forms["course-form"]
-        form["name_en"] = "Test name"
-        # approve after changes
-        form.submit(name="operation", value="save")
-
-        self.course = Course.objects.get(pk=self.course.pk)
-        self.assertEqual(self.course.last_modified_user, test_user)
-        self.assertTrue(datetime.datetime.now() - self.course.last_modified_time < datetime.timedelta(0, 1, 0))
-        self.assertEqual(self.course.name_en, "Test name")
 
 
 @override_settings(REWARD_POINTS=[
@@ -1591,7 +1555,6 @@ class TestEvaluationEditView(WebTestStaffMode):
             Evaluation,
             course=baker.make(Course, semester=semester, degrees=[degree], responsibles=[responsible]),
             pk=1,
-            last_modified_user=cls.manager,
             vote_start_datetime=datetime.datetime(2099, 1, 1, 0, 0),
             vote_end_date=datetime.date(2099, 12, 31),
         )
@@ -1678,97 +1641,6 @@ class TestEvaluationEditView(WebTestStaffMode):
         self.assertIn("The removal as participant has granted the user &quot;b@institution.example.com&quot; 2 reward points for the semester.", page)
         self.assertIn("The removal as participant has granted the user &quot;c@institution.example.com&quot; 1 reward point for the semester.", page)
         self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
-
-    def test_last_modified_user(self):
-        """
-            Tests whether the button "Save and approve" does only change the
-            last_modified_user if changes were made.
-        """
-        test_user = baker.make(UserProfile, email='approve_test_user@institution.example.com', groups=[Group.objects.get(name='Manager')])
-
-        old_name_de = self.evaluation.name_de
-        old_vote_start_datetime = self.evaluation.vote_start_datetime
-        old_vote_end_date = self.evaluation.vote_end_date
-        old_last_modified_user = self.evaluation.last_modified_user
-        old_state = self.evaluation.state
-        self.assertEqual(old_last_modified_user.email, self.manager.email)
-        self.assertEqual(old_state, "new")
-
-        page = self.app.get(self.url, user=test_user, status=200)
-        form = page.forms["evaluation-form"]
-        # approve without changes
-        form.submit(name="operation", value="approve")
-
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.last_modified_user, old_last_modified_user)  # the last_modified_user should not have changed
-        self.assertEqual(self.evaluation.state, "approved")
-        self.assertEqual(self.evaluation.name_de, old_name_de)
-        self.assertEqual(self.evaluation.vote_start_datetime, old_vote_start_datetime)
-        self.assertEqual(self.evaluation.vote_end_date, old_vote_end_date)
-
-        self.evaluation.revert_to_new()
-        self.evaluation.save()
-        self.assertEqual(self.evaluation.state, "new")
-
-        page = self.app.get(self.url, user=test_user, status=200)
-        form = page.forms["evaluation-form"]
-        form["name_de"] = "Test name"
-        # approve after changes
-        form.submit(name="operation", value="approve")
-
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.last_modified_user, test_user)  # the last_modified_user should have changed
-        self.assertEqual(self.evaluation.state, "approved")
-        self.assertEqual(self.evaluation.name_de, "Test name")  # the name should have changed
-        self.assertEqual(self.evaluation.vote_start_datetime, old_vote_start_datetime)
-        self.assertEqual(self.evaluation.vote_end_date, old_vote_end_date)
-
-    def test_last_modified_on_formset_change(self):
-        """
-            Tests if last_modified_{user,time} is updated if only the contributor formset is changed
-        """
-
-        self.assertEqual(self.evaluation.last_modified_user, self.manager)
-        last_modified_time_before = self.evaluation.last_modified_time
-
-        test_user = baker.make(
-            UserProfile,
-            email='approve_test_user@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
-        page = self.app.get(self.url, user=test_user, status=200)
-        form = page.forms["evaluation-form"]
-
-        # Change label of the first contribution
-        form['contributions-0-label'] = 'test_label'
-        form.submit(name="operation", value="approve")
-
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.state, 'approved')
-        self.assertEqual(self.evaluation.last_modified_user, test_user)
-        self.assertGreater(self.evaluation.last_modified_time, last_modified_time_before)
-
-    def test_last_modified_unchanged(self):
-        """
-            Tests if last_modified_{user,time} stays the same when no values are changed in the form
-        """
-        last_modified_user_before = self.evaluation.last_modified_user
-        last_modified_time_before = self.evaluation.last_modified_time
-
-        test_user = baker.make(
-            UserProfile,
-            email='approve_test_user@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
-
-        page = self.app.get(self.url, user=test_user, status=200)
-        form = page.forms["evaluation-form"]
-        form.submit(name="operation", value="approve")
-
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.state, 'approved')
-        self.assertEqual(self.evaluation.last_modified_user, last_modified_user_before)
-        self.assertEqual(self.evaluation.last_modified_time, last_modified_time_before)
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):

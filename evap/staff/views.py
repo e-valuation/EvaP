@@ -706,8 +706,6 @@ def course_create(request, semester_id):
             raise SuspiciousOperation("Invalid POST operation")
 
         course = course_form.save()
-        course.set_last_modified(request.user)
-        course.save()
 
         messages.success(request, _("Successfully created course."))
         if operation == 'save_create_evaluation':
@@ -738,8 +736,6 @@ def course_edit(request, semester_id, course_id):
 
         if course_form.has_changed():
             course = course_form.save()
-            course.set_last_modified(request.user)
-            course.save()
             update_template_cache_of_published_evaluations_in_course(course)
 
         messages.success(request, _("Successfully updated course."))
@@ -783,8 +779,6 @@ def evaluation_create(request, semester_id, course_id=None):
 
     if evaluation_form.is_valid() and formset.is_valid():
         evaluation = evaluation_form.save()
-        evaluation.set_last_modified(request.user)
-        evaluation.save()
         formset.save()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
@@ -810,8 +804,6 @@ def evaluation_copy(request, semester_id, evaluation_id):
 
     if form.is_valid() and formset.is_valid():
         copied_evaluation = form.save()
-        copied_evaluation.set_last_modified(request.user)
-        copied_evaluation.save()
         formset.save()
         update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
 
@@ -841,7 +833,7 @@ def single_result_create(request, semester_id, course_id=None):
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
     if form.is_valid():
-        evaluation = form.save(user=request.user)
+        evaluation = form.save()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created single result."))
@@ -901,8 +893,6 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        if form_has_changed:
-            evaluation.set_last_modified(request.user)
         evaluation_form.save()
         formset.save()
 
@@ -939,7 +929,7 @@ def helper_single_result_edit(request, semester, evaluation):
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
-        form.save(user=request.user)
+        form.save()
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
 

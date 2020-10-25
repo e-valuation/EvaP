@@ -267,7 +267,7 @@ class LoggedModel(models.Model):
     @property
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
-        return ['id', 'last_modified_time', 'last_modified_user', 'order']
+        return ['id', 'order']
 
 
 @receiver(m2m_changed)
