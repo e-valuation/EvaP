@@ -54,3 +54,12 @@ def helper_delete_all_import_files(user_id):
             os.remove(filename)
         except FileNotFoundError:
             pass
+
+
+# For some form fields, like a <select> which can be configured to create new options,
+# setting the value directly would be rejected by Webtest,
+# as it would check whether all values are included in the options.
+# To circumvent this, set the options beforehand with this helper.
+def helper_set_dynamic_choices_field_value(field, value):
+    field.options = [(name, False, name) for name in value]
+    field.value = value

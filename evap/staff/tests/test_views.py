@@ -20,7 +20,8 @@ from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, 
 from evap.results.tools import cache_results, get_results
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
-from evap.staff.tests.utils import helper_delete_all_import_files, run_in_staff_mode, \
+from evap.staff.tests.utils import helper_delete_all_import_files, helper_set_dynamic_choices_field_value, \
+    run_in_staff_mode, \
     WebTestStaffMode, WebTestStaffModeWith200Check
 from evap.staff.views import get_evaluations_with_prefetched_data
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -2432,12 +2433,6 @@ class TestDegreeView(WebTestStaffMode):
     def setUpTestData(cls):
         cls.manager = make_manager()
 
-    @staticmethod
-    def set_import_names(field, value):
-        # Webtest will check that all values are included in the options, so we modify the options beforehand
-        field.options = [(name, False, name) for name in value]
-        field.value = value
-
     def test_degree_form(self):
         """
             Adds a degree via the staff form and verifies that the degree was created in the db.
@@ -2448,19 +2443,23 @@ class TestDegreeView(WebTestStaffMode):
         last_form_id = int(form["form-TOTAL_FORMS"].value) - 1
         form[f'form-{last_form_id}-name_de'].value = "Diplom"
         form[f'form-{last_form_id}-name_en'].value = "Diploma"
-        self.set_import_names(form[f'form-{last_form_id}-import_names'], ["Diplom", "D"])
+        helper_set_dynamic_choices_field_value(form[f'form-{last_form_id}-import_names'], ["Diplom", "D"])
         response = form.submit().follow()
         self.assertContains(response, "Successfully")
 
         self.assertEqual(Degree.objects.count(), degree_count_before + 1)
-        self.assertTrue(Degree.objects.filter(name_de="Diplom", name_en="Diploma", import_names=["Diplom", "D"]).exists())
+        self.assertTrue(Degree.objects.filter(
+            name_de="Diplom",
+            name_en="Diploma",
+            import_names=["Diplom", "D"],
+        ).exists())
 
     def test_import_names_duplicated_error(self):
         baker.make(Degree, _quantity=2)
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms['degree-form']
-        self.set_import_names(form['form-0-import_names'], ["Master of Arts", "M"])
-        self.set_import_names(form['form-1-import_names'], ["Master of Science", "M"])
+        helper_set_dynamic_choices_field_value(form['form-0-import_names'], ["Master of Arts", "M"])
+        helper_set_dynamic_choices_field_value(form['form-1-import_names'], ["Master of Science", "M"])
         response = form.submit()
         self.assertContains(response, 'Import name &quot;M&quot; is duplicated.')
 
