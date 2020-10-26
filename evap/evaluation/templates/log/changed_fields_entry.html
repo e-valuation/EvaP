@@ -14,8 +14,7 @@
                 {% elif action.type == "clear" %}
                     {{ action.label }} {% trans "cleared" %}
                 {% elif action.type == "delete" %}
-                    {% blocktrans with label=action.label count count=action.items|length %}
-                        {{ label }} was{% plural %}{{ label }} were{% endblocktrans %}:
+                    {% blocktrans with label=action.label count count=action.items|length %}{{ label }} was{% plural %}{{ label }} were{% endblocktrans %}:
                     {{ action.items|join:", " }}
                 {% elif action.type == "change" %}
                     {{ action.label }}: {{ action.items.0 }} &#8594; {{ action.items.1 }}
