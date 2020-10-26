@@ -2625,8 +2625,9 @@ class TestCourseTypeMergeView(WebTestStaffMode):
             self.assertTrue(course.type == self.main_type)
 
 
-class TestEvaluationTextAnswersUpdatePublishView(WebTest):
-    url = reverse("staff:evaluation_textanswers_update_publish")
+class TestEvaluationTextAnswersReviewActions(WebTest):
+    update_publish_url = reverse("staff:evaluation_textanswers_update_publish")
+    flagging_url = reverse("staff:evaluation_textanswers_toggle_flag")
     csrf_checks = False
 
     @classmethod
@@ -2646,11 +2647,10 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
-    def helper(self, old_state, expected_new_state, action, expect_errors=False):
+    def helper_actions(self, textanswer, action, url, expect_errors=False):
         with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer, state=old_state)
             response = self.app.post(
-                self.url,
+                url,
                 params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
                 user=self.manager,
                 expect_errors=expect_errors,
@@ -2659,20 +2659,44 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                textanswer.refresh_from_db()
-                self.assertEqual(textanswer.state, expected_new_state)
+
+    def helper_review_actions(self, old_state, expected_new_state, action, expect_errors=False):
+        textanswer = baker.make(TextAnswer, state=old_state)
+        self.helper_actions(textanswer, action, self.update_publish_url, expect_errors)
+        if not expect_errors:
+            textanswer.refresh_from_db()
+            self.assertEqual(textanswer.state, expected_new_state)
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_review_actions(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
         # now reviewing should work
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
-        self.helper(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+        self.helper_review_actions(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.helper_review_actions(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
+        self.helper_review_actions(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
+        self.helper_review_actions(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+
+    def helper_flag_actions(self, old_flag, expected_new_flag, action, expect_errors=False):
+        textanswer = baker.make(TextAnswer, is_flagged=old_flag)
+        self.helper_actions(textanswer, action, self.flagging_url, expect_errors)
+        if not expect_errors:
+            textanswer.refresh_from_db()
+            self.assertEqual(textanswer.is_flagged, expected_new_flag)
+
+    def test_flag_actions(self):
+        # in an evaluation with only one voter reviewing should fail
+        self.helper_flag_actions(False, True, "toggle_flag", expect_errors=True)
+
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+
+        # now reviewing should work
+        self.helper_flag_actions(False, True, "toggle_flag")
+        self.helper_flag_actions(True, False, "toggle_flag")
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)

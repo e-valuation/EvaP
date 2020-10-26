@@ -24,6 +24,9 @@
                 <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=unreviewed" role="button" class="btn btn-sm btn-light{% if view == 'unreviewed' %} active{% endif %}">
                     {% trans 'Unreviewed' %}
                 </a>
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=flagged" role="button" class="btn btn-sm btn-light{% if view == 'flagged' %} active{% endif %}">
+                    {% trans 'Flagged' %}
+                </a>
             </div>
         </div>
     </div>

@@ -20,6 +20,9 @@ $(document).ready(() => {
     slider.on("click", "[data-startover]", event => {
         startOver($(event.target).data("startover"));
     });
+    slider.on("click", "[data-toggle-flag]", event => {
+        toggleFlag()
+    })
 
     $(document).keydown(event => {
         const actions = {
@@ -29,6 +32,7 @@ $(document).ready(() => {
             "k":            "[data-action=make_private]",
             "l":            "[data-action=hide]",
             "backspace":    "[data-action=unreview]",
+            "f":            "[data-toggle-flag]",
             "enter":        `[data-url=next-evaluation][data-next-evaluation-index=${nextEvaluationIndex}]`,
             "m":            "[data-startover=unreviewed]",
             "n":            "[data-startover=all]",
@@ -181,6 +185,24 @@ $(document).ready(() => {
         }
     }
 
+    function toggleFlag() {
+        const active = items.eq(index);
+        const parameters = {
+            id: active.data("id"),
+            action: "toggle_flag",
+            evaluation_id: {{ evaluation.id }}
+        };
+        $.ajax({
+            type: "POST",
+            url: "{% url 'staff:evaluation_textanswers_toggle_flag' %}",
+            data: parameters,
+            error: () => window.alert("{% trans 'The server is not responding.' %}"),
+        });
+        const isFlagged = active.is("[data-is-flagged]");
+        active.attr("data-is-flagged", isFlagged ? null : "");
+        updateButtonActive();
+    }
+
     function updateButtons() {
         slider.find("[data-action-set=reviewing]").toggleClass("d-none", index === items.length);
         slider.find("[data-action-set=summary]").toggleClass("d-none", index < items.length);
@@ -215,5 +237,10 @@ $(document).ready(() => {
             btn.toggleClass(actions[action], review === action);
             btn.toggleClass("btn-outline-secondary", review !== action);
         }
+
+        const isFlagged = active.is("[data-is-flagged]");
+        const flagButton = slider.find("[data-toggle-flag]");
+        flagButton.toggleClass("btn-warning", isFlagged);
+        flagButton.toggleClass("btn-outline-warning", !isFlagged);
     }
 });

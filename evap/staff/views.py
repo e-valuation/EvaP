@@ -2,6 +2,7 @@ import csv
 from dataclasses import dataclass
 from datetime import datetime, date
 from collections import OrderedDict, defaultdict, namedtuple
+from enum import Enum, auto
 from xlrd import open_workbook
 from xlutils.copy import copy as copy_workbook
 
@@ -1367,7 +1368,13 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     return response
 
 
-def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers):
+class TextAnswerFilter(Enum):
+    ALL = auto()
+    UNREVIEWED = auto()
+    FLAGGED = auto()
+
+
+def get_evaluation_and_contributor_textanswer_sections(evaluation, textanswer_filter):
     TextAnswerSection = namedtuple(
         "TextAnswerSection", ("questionnaire", "contributor", "label", "is_responsible", "results")
     )
@@ -1381,8 +1388,10 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
             for question in questionnaire.questions.all():
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
-                if filter_textanswers:
+                if textanswer_filter == TextAnswerFilter.UNREVIEWED:
                     answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)
+                elif textanswer_filter == TextAnswerFilter.FLAGGED:
+                    answers = answers.filter(is_flagged=True)
                 if answers:
                     text_results.append(TextResult(question=question, answers=answers))
 
@@ -1414,10 +1423,16 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         raise PermissionDenied
 
     view = request.GET.get("view", "quick")
-    filter_textanswers = view == "unreviewed"
+
+    if view == "unreviewed":
+        textanswer_filter = TextAnswerFilter.UNREVIEWED
+    elif view == "flagged":
+        textanswer_filter = TextAnswerFilter.FLAGGED
+    else:
+        textanswer_filter = TextAnswerFilter.ALL
 
     evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(
-        evaluation, filter_textanswers
+        evaluation, textanswer_filter
     )
 
     template_data = dict(semester=semester, evaluation=evaluation, view=view)
@@ -1486,6 +1501,25 @@ def evaluation_textanswers_update_publish(request):
     if evaluation.state == Evaluation.State.REVIEWED and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
         evaluation.save()
+
+    return HttpResponse()  # 200 OK
+
+
+@require_POST
+@reviewer_required
+def evaluation_textanswers_toggle_flag(request):
+    textanswer_id = request.POST["id"]
+    answer = TextAnswer.objects.get(pk=textanswer_id)
+    evaluation_id = request.POST["evaluation_id"]
+
+    evaluation = Evaluation.objects.get(pk=evaluation_id)
+    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
+        raise PermissionDenied
+    if not evaluation.can_publish_text_results:
+        raise PermissionDenied
+
+    answer.toggle_flag()
+    answer.save()
 
     return HttpResponse()  # 200 OK
 

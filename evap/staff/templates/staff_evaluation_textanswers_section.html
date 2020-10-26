@@ -9,10 +9,16 @@
             {% for result in results %}
                 <p>{{ result.question.text }}</p>
                 <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
+                    <colgroup>
+                        <col style="width: 80%" />
+                        <col style="width: 15%" />
+                        <col style="width: 5%" />
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th style="width: 85%">{% trans 'Text answer' %}</th>
-                            <th style="width: 15%">{% trans 'Publish' %}</th>
+                            <th>{% trans 'Text answer' %}</th>
+                            <th>{% trans 'Publish' %}</th>
+                            <th>{% trans 'Flag' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,6 +37,16 @@
                                         {% if contributor %}<button type="button" id="{{ answer.id }}-make_private" onclick="press('{{ answer.id }}', 'make_private');" class="btn btn-sm btn-light{% if answer.is_private %} active{% endif %}">{% trans 'private' %}</button>{% endif %}
                                         <button type="button" id="{{ answer.id }}-hide" onclick="press('{{ answer.id }}', 'hide');" class="btn btn-sm btn-light{% if answer.is_hidden %} active{% endif %}">{% trans 'no' %}</button>
                                     </div>
+                                </td>
+                                <td>
+                                    <button 
+                                        type="button" 
+                                        id="{{ answer.id }}-toggle_flag"
+                                        {% if answer.is_flagged %} data-is-flagged{% endif %}
+                                        class="btn btn-sm {% if answer.is_flagged %} btn-warning{% else %} btn-outline-warning{% endif%}"
+                                        onclick="toggle_flag('{{ answer.id }}');">
+                                        <span class="fas fa-flag"></span>
+                                    </button>
                                 </td>
                             </tr>
                         {% endfor %}

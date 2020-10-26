@@ -1384,6 +1384,7 @@ class TextAnswer(Answer):
     state = models.CharField(
         max_length=2, choices=State.choices, verbose_name=_("state of answer"), default=State.NOT_REVIEWED
     )
+    is_flagged = models.BooleanField(verbose_name=_("reviewer flag"), default=False)
 
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
@@ -1423,6 +1424,9 @@ class TextAnswer(Answer):
 
     def unreview(self):
         self.state = self.State.NOT_REVIEWED
+
+    def toggle_flag(self):
+        self.is_flagged = not self.is_flagged
 
 
 class FaqSection(models.Model):

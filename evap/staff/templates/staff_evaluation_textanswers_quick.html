@@ -18,6 +18,7 @@
                     <tr><td><kbd>K</kbd></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
                     <tr><td><kbd>L</kbd></td><td>{% trans 'Remove answer' %}</td></tr>
                     <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
+                    <tr><td><kbd>F</kbd></td><td>{% trans 'Toggle flag' %}</td></tr>
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
                     <tr><td><kbd>S</kbd></td><td>{% trans 'Skip evaluation' %}</td></tr>
                     <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
@@ -55,6 +56,7 @@
                         {% for answer in result.answers %}
                             <div class="slider-item card-body" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
                                 {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}
+                                {% if answer.is_flagged %}data-is-flagged{% endif %}
                             >
                             <a class="textanswer-link" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
                             {% if answer.original_answer %}
@@ -91,7 +93,13 @@
             </div>
         </div>
         <div class="card-footer d-flex">
-            <div class="lcr-left"></div>
+            <div class="lcr-left">
+                <div data-action-set="reviewing">
+                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
+                        {% trans 'unreview' %}
+                    </button>
+                </div>
+            </div>
             <div class="lcr-center" data-action-set="reviewing">
                 <button data-action="publish" class="btn btn-sm btn-outline-secondary">
                     {% trans 'yes' %}
@@ -123,11 +131,9 @@
                 </button>
             </div>
             <div class="lcr-right">
-                <div data-action-set="reviewing">
-                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
-                        {% trans 'unreview' %}
-                    </button>
-                </div>
+                <button role="button" data-toggle-flag class="btn btn-sm btn-outline-warning">
+                    <span class="fas fa-flag"></span>
+                </button>
             </div>
         </div>
     </div>
