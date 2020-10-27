@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from evap.evaluation.auth import participant_required
 from evap.evaluation.models import Evaluation, NO_ANSWER, Semester
 
+from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
@@ -128,6 +129,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         success_redirect_url=reverse('student:index'),
         for_rendering_in_modal=for_rendering_in_modal,
         general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
+        text_answer_warnings=TextAnswerWarning.objects.all(),
     )
     return None, render(request, "student_vote.html", template_data)
 

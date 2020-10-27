@@ -38,12 +38,14 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionC
                               EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
                               FaqQuestionForm,
                               FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, TextAnswerWarningForm,
+                              UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
                               save_import_file, find_next_unreviewed_evaluation, ImportType)
+from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -1477,6 +1479,25 @@ def course_type_merge(request, main_type_id, other_type_id):
     courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
     return render(request, "staff_course_type_merge.html",
         dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
+
+
+@manager_required
+def text_answer_warnings_index(request):
+    text_answer_warnings = TextAnswerWarning.objects.all()
+
+    TextAnswerWarningFormSet = modelformset_factory(TextAnswerWarning, form=TextAnswerWarningForm,
+        can_delete=True, extra=1)
+    formset = TextAnswerWarningFormSet(request.POST or None, queryset=text_answer_warnings)
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, _("Successfully updated text warning answers."))
+        return redirect('staff:text_answer_warnings')
+
+    return render(request, "staff_text_answer_warnings.html", dict(
+        formset=formset,
+        text_answer_warnings=TextAnswerWarning.objects.all(),
+    ))
 
 
 @manager_required

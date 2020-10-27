@@ -130389,6 +130389,16 @@
   }
 },
 {
+  "model": "student.textanswerwarning",
+  "pk": 1,
+  "fields": {
+    "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabh\u00e4ngig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
+    "warning_text_en": "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to.",
+    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erw\\u00e4hnt\", \"already stated\"]",
+    "order": 0
+  }
+},
+{
   "model": "grades.gradedocument",
   "pk": 2,
   "fields": {
