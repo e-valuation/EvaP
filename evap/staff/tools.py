@@ -13,9 +13,10 @@ from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
 from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer, UserProfile
+from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
-from evap.results.tools import collect_results
+from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING
 
 
 def forward_messages(request, success_messages, warnings):
@@ -178,10 +179,13 @@ def bulk_update_users(request, user_file_content, test_run):
             )
         )
 
-    if test_run:
-        messages.info(request, _('No data was changed in this test run.'))
-    else:
-        with transaction.atomic():
+    with transaction.atomic():
+        for user in deletable_users + users_to_mark_inactive:
+            for message in remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive, test_run):
+                messages.warning(request, message)
+        if test_run:
+            messages.info(request, _('No data was changed in this test run.'))
+        else:
             for user in deletable_users:
                 user.delete()
             for user in users_to_mark_inactive:
@@ -253,9 +257,6 @@ def merge_users(main_user, other_user, preview=False):
         responsibles.append(main_user)
         course.responsibles.set(responsibles)
 
-    # update last_modified_user for evaluations and grade documents
-    Course.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
-    Evaluation.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
     GradeDocument.objects.filter(last_modified_user=other_user).update(last_modified_user=main_user)
 
     # email must not exist twice. other_user can't be deleted before contributions have been changed
@@ -275,9 +276,16 @@ def merge_users(main_user, other_user, preview=False):
     other_user.reward_point_grantings.all().delete()
     other_user.reward_point_redemptions.all().delete()
 
+    # update logs
+    LogEntry.objects.filter(user=other_user).update(user=main_user)
+
     # refresh results cache
-    for evaluation in Evaluation.objects.filter(contributions__contributor=main_user).distinct():
-        collect_results(evaluation, force_recalculation=True)
+    evaluations = Evaluation.objects.filter(
+        contributions__contributor=main_user,
+        state__in=STATES_WITH_RESULTS_CACHING
+    ).distinct()
+    for evaluation in evaluations:
+        cache_results(evaluation)
 
     # delete other_user
     other_user.delete()
@@ -292,3 +300,21 @@ def find_next_unreviewed_evaluation(semester, excluded):
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
+
+
+def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):
+    remove_messages = []
+    ignored_users = ignored_users or []
+    for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("{} will be removed from the delegates of {}.").format(user.full_name, represented_user.full_name))
+        else:
+            represented_user.delegates.remove(user)
+            remove_messages.append(_("Removed {} from the delegates of {}.").format(user.full_name, represented_user.full_name))
+    for cc_user in user.ccing_users.exclude(id__in=[user.id for user in ignored_users]):
+        if test_run:
+            remove_messages.append(_("{} will be removed from the CC users of {}.").format(user.full_name, cc_user.full_name))
+        else:
+            cc_user.cc_users.remove(user)
+            remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
+    return remove_messages

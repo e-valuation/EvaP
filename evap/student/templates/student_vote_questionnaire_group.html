@@ -22,11 +22,7 @@
                     {% else %}
                         <div class="col-question col-lg-4 col-xl-5 d-flex flex-column">
                             {{ field.label }}
-                            <div class="warning-label mt-auto d-none">
-                                <span class="fas fa-exclamation-triangle"></span>
-                                <span class="warning-filtered-out d-none">{% trans "This answer will probably be filtered out. You can simply leave the textbox empty." %}</span>
-                                <span class="warning-text-reference d-none">{% trans "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to." %}</span>
-                            </div>
+                            {% include 'student_text_answer_warnings.html' with text_answer_warnings=text_answer_warnings %}
                         </div>
                     {% endif %}
                     {% if field|is_choice_field %}

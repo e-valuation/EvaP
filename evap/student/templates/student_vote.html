@@ -3,6 +3,7 @@
 
 {% load static %}
 {% load evaluation_filters %}
+{% load student_filters %}
 {% load compress %}
 
 {% block title %}{{ evaluation.full_name }} - {% trans 'Evaluation' %} - {{ block.super }}{% endblock %}
@@ -22,8 +23,12 @@
     {% if evaluation.is_midterm_evaluation %}
         <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
     {% endif %}
-    {% if evaluation_ends_soon %}
-        <div class="callout callout-warning">{% blocktrans %}The evaluation period will end in {{ hours_left_for_evaluation }} hours and {{ minutes_left_for_evaluation }} minutes ({{ vote_end_datetime }}). Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.{% endblocktrans %}</div>
+    {% if evaluation.ends_soon %}
+        <div class="callout callout-danger">
+            {% trans 'The evaluation period will end in' %}
+            {{ evaluation.vote_end_datetime|timeuntil }} ({{ evaluation.vote_end_datetime }}).
+            {% trans 'Your evaluation will only be accepted if you send the completed questionnaire before this deadline ends.' %}
+        </div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
         <small>
@@ -161,7 +166,11 @@
             <script src="{% get_static_prefix %}js/sisyphus.min.js" type="text/javascript"></script>
         {% endcompress %}
 
-        <script type="text/javascript">
+        {{ text_answer_warnings|text_answer_warning_trigger_strings|json_script:'text-answer-warnings' }}
+
+        <script type="module">
+            import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
+
             var sisyphus = $("#student-vote-form").sisyphus({
                 locationBased: true,
                 excludeFields: $("input[type=hidden]"), // exclude the csrf token
@@ -182,40 +191,7 @@
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
             sisyphus.saveAllData();
 
-            // Show a warning on textareas if they only contain meaningless text (punctuation, k.A., n/a, ...)
-            function isTextareaInvalid(textarea) {
-                return textarea.val().length > 0 && ["", "ka", "na"].includes(textarea.val().replace(/\W/g,'').toLowerCase());
-            }
-            // if it is not invalid, maybe show a reference warning (because referencing other answers is bad)
-            function doesTextareaContainReference(textarea) {
-                const text = textarea.val().toLowerCase();
-                return ["s.o.", "s. o.", "siehe oben", "wie oben", "see above", "bereits erwähnt", "already stated"]
-                    .some(ref => text.includes(ref));
-            }
-            function updateTextareaWarning(textarea) {
-                const isInvalid = isTextareaInvalid(textarea);
-                const containsReference = !isInvalid && doesTextareaContainReference(textarea);
-
-                const showWarning = isInvalid || containsReference;
-                const warningLabel = textarea.parents('.row').find('.warning-label');
-                warningLabel.toggleClass('d-none', !showWarning);
-                textarea.toggleClass('border border-warning', showWarning);
-
-                warningLabel.find('.warning-filtered-out').toggleClass('d-none', !isInvalid);
-                warningLabel.find('.warning-text-reference').toggleClass('d-none', !containsReference);
-            }
-            var warningdelayTimer;
-            $('textarea').on('input', function() { // Run the check on input
-                //let textarea = $(this);
-                clearTimeout(warningdelayTimer);
-                warningdelayTimer = setTimeout(() => updateTextareaWarning($(this)), 300);
-            });
-            $('textarea').blur(function() { // Run the check when focus is lost
-                updateTextareaWarning($(this));
-            });
-            $('textarea').each(function() { // Run the check after page load
-                updateTextareaWarning($(this));
-            });
+            initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
 
             var form = $('#student-vote-form');
 

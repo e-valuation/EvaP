@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
 
@@ -87,4 +88,36 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
     )
     evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
-    return evaluation
+    return {
+        'evaluation': evaluation,
+        'responsible': responsible,
+        'editor': editor,
+    }
+
+
+def make_manager():
+    return baker.make(
+        UserProfile,
+        email='manager@institution.example.com',
+        groups=[Group.objects.get(name='Manager')],
+    )
+
+
+def make_contributor(user, evaluation):
+    """ Make user a contributor of evaluation. """
+    return baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=user,
+        role=Contribution.Role.CONTRIBUTOR
+    )
+
+
+def make_editor(user, evaluation):
+    """ Make user an editor of evaluation. """
+    return baker.make(
+        Contribution,
+        evaluation=evaluation,
+        contributor=user,
+        role=Contribution.Role.EDITOR,
+    )

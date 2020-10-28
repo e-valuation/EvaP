@@ -1,5 +1,7 @@
 import os
 from datetime import date, datetime
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 from django.conf import settings
 from model_bakery import baker
@@ -7,11 +9,11 @@ from model_bakery import baker
 from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
 from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterError, ImporterWarning
 from evap.staff.tools import ImportType
+import evap.staff.fixtures.excel_files_test_data as excel_data
 
 
 class TestUserImporter(TestCase):
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_duplicate = os.path.join(settings.BASE_DIR, "staff/fixtures/duplicate_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
@@ -25,8 +27,8 @@ class TestUserImporter(TestCase):
             cls.invalid_excel_content = excel_file.read()
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
-        with open(cls.filename_duplicate, "rb") as excel_file:
-            cls.duplicate_excel_content = excel_file.read()
+        cls.duplicate_excel_content = excel_data.create_memory_excel_file(excel_data.duplicate_user_import_filedata)
+        cls.numerical_excel_content = excel_data.create_memory_excel_file(excel_data.numerical_data_in_user_data_filedata)
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
@@ -120,12 +122,35 @@ class TestUserImporter(TestCase):
 
         self.assertEqual(UserProfile.objects.count(), 2)
 
+    @override_settings(DEBUG=False)
+    @patch("evap.evaluation.models.UserProfile.objects.update_or_create")
+    def test_unhandled_exception(self, mocked_db_access):
+        mocked_db_access.side_effect = Exception("Contact your database admin right now!")
+        result, __, __, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+        self.assertEqual(result, [])
+        self.assertIn(
+            "Import finally aborted after exception: 'Contact your database admin right now!'",
+            errors[ImporterError.GENERAL],
+        )
+
+    def test_disallow_non_string_types(self):
+        imported_users, __, __, errors = UserImporter.process(self.numerical_excel_content, test_run=False)
+        self.assertEqual(len(imported_users), 0)
+        self.assertIn(
+            "The input data is malformed. No data was imported.",
+            errors[ImporterError.GENERAL]
+        )
+        # The sheet has a float in row 3 and an int row 4. All others rows only contain strings.
+        self.assertSetEqual(
+            {
+                "Wrong data type in sheet 'Users' in row 3. Please make sure all cells are string types, not numerical.",
+                "Wrong data type in sheet 'Users' in row 4. Please make sure all cells are string types, not numerical."
+            },
+            set(errors[ImporterError.SCHEMA])
+        )
+
 
 class TestEnrollmentImporter(TestCase):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data.xls")
-    filename_valid_degree_merge = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_degree_merge.xls")
-    filename_valid_import_names = os.path.join(settings.BASE_DIR, "staff/fixtures/test_enrollment_data_import_names.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_enrollment_data.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
@@ -143,8 +168,7 @@ class TestEnrollmentImporter(TestCase):
         degree_master.save()
 
     def test_valid_file_import(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
@@ -166,8 +190,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
     def test_degrees_are_merged(self):
-        with open(self.filename_valid_degree_merge, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
         success_messages, warnings_test, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
@@ -189,8 +212,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
-        with open(self.filename_valid_import_names, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn("Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages))
@@ -207,8 +229,7 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         __, warnings_test, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         __, warnings_no_test, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
@@ -237,8 +258,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_invalid_file_error(self):
-        with open(self.filename_invalid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.invalid_enrollment_data_filedata)
 
         original_user_count = UserProfile.objects.count()
 
@@ -265,8 +285,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
-        with open(self.filename_valid, "rb") as excel_file:
-            excel_content = excel_file.read()
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
         semester = baker.make(Semester)
         baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
@@ -277,6 +296,12 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(errors[ImporterError.COURSE], {
             "Course Stehlen does already exist in this semester.",
             "Course Shine does already exist in this semester."})
+
+    def test_replace_consecutive_and_trailing_spaces(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata)
+
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
 
 class TestPersonImporter(TestCase):

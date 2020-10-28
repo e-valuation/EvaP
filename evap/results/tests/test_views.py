@@ -16,9 +16,11 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire,
                                     RatingAnswerCounter,
                                     Semester, UserProfile)
-from evap.evaluation.tests.tools import WebTestWith200Check, let_user_vote_for_evaluation
-from evap.results.exporters import TextAnswerExcelExporter
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager
+from evap.results.exporters import TextAnswerExporter
+from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data
+from evap.staff.tests.utils import helper_exit_staff_mode, run_in_staff_mode, WebTestStaffMode
 
 
 class TestResultsView(WebTest):
@@ -26,23 +28,23 @@ class TestResultsView(WebTest):
 
     @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
     def test_multiple_evaluations_per_course(self):
-        baker.make(UserProfile, email="student@institution.example.com")
+        student = baker.make(UserProfile, email="student@institution.example.com")
 
         # course with no evaluations does not show up
         course = baker.make(Course)
-        page = self.app.get(self.url, user="student@institution.example.com")
+        page = self.app.get(self.url, user=student)
         self.assertNotContains(page, course.name)
         caches['results'].clear()
 
         # course with one evaluation is a single line with the evaluation's full_name
         evaluation = baker.make(Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published')
-        page = self.app.get(self.url, user="student@institution.example.com")
+        page = self.app.get(self.url, user=student)
         self.assertContains(page, evaluation.full_name)
         caches['results'].clear()
 
         # course with two evaluations is three lines without using the full names
         evaluation2 = baker.make(Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published')
-        page = self.app.get(self.url, user="student@institution.example.com")
+        page = self.app.get(self.url, user=student)
         self.assertContains(page, course.name)
         self.assertContains(page, evaluation.name_en)
         self.assertContains(page, evaluation2.name_en)
@@ -62,10 +64,10 @@ class TestResultsView(WebTest):
             ensures that the number of queries in the user list is constant
             and not linear to the number of courses/evaluations
         """
-        baker.make(UserProfile, email="student@institution.example.com")
+        student = baker.make(UserProfile, email="student@institution.example.com")
 
         # warm up some caches
-        self.app.get(self.url, user="student@institution.example.com")
+        self.app.get(self.url, user=student)
 
         def make_course_with_evaluations(unique_suffix):
             course = baker.make(Course)
@@ -77,14 +79,14 @@ class TestResultsView(WebTest):
         make_course_with_evaluations('spam')
         call_command("refresh_results_cache", stdout=StringIO())
         with CaptureQueriesContext(connection) as context:
-            self.app.get(self.url, user="student@institution.example.com")
+            self.app.get(self.url, user=student)
         num_queries_before = context.final_queries - context.initial_queries
 
         # then measure the number of queries with one more course and compare
         make_course_with_evaluations('eggs')
         call_command("refresh_results_cache", stdout=StringIO())
         with CaptureQueriesContext(connection) as context:
-            self.app.get(self.url, user="student@institution.example.com")
+            self.app.get(self.url, user=student)
         num_queries_after = context.final_queries - context.initial_queries
 
         self.assertEqual(num_queries_before, num_queries_after)
@@ -107,6 +109,7 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
             participants=participants,
             voters=participants,
         )
+        cache_results(evaluation)
         participants[0].delete()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
@@ -121,46 +124,62 @@ class TestGetEvaluationsWithPrefetchedData(TestCase):
 class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=3)
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         contributor = baker.make(UserProfile)
 
         # Set up an evaluation with one question but no answers
         student1 = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
-        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester), participants=[student1, student2], voters=[student1, student2])
+        cls.evaluation = baker.make(
+            Evaluation,
+            id=21,
+            state='published',
+            course=baker.make(Course, semester=cls.semester),
+            participants=[student1, student2],
+            voters=[student1, student2],
+        )
         questionnaire = baker.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
-        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, questionnaires=[questionnaire], contributor=contributor)
+        cls.contribution = baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            questionnaires=[questionnaire],
+            contributor=contributor,
+        )
         cls.likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         cls.url = '/results/semester/%s/evaluation/%s' % (cls.semester.id, cls.evaluation.id)
 
     def test_many_answers_evaluation_no_warning(self):
         baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
-        page = self.app.get(self.url, user="manager@institution.example.com", status=200)
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_zero_answers_evaluation_no_warning(self):
-        page = self.app.get(self.url, user="manager@institution.example.com", status=200)
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
         baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
-        page = self.app.get(self.url, user="manager@institution.example.com", status=200)
+        cache_results(self.evaluation)
+        page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
 
 
-class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
+class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     url = '/results/semester/2/evaluation/21'
-    test_users = ['manager@institution.example.com', 'contributor@institution.example.com', 'responsible@institution.example.com']
 
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester, id=2)
 
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         contributor = baker.make(UserProfile, email='contributor@institution.example.com')
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
+
+        cls.test_users = [cls.manager, contributor, responsible]
 
         # Normal evaluation with responsible and contributor.
         cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester))
@@ -199,7 +218,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         baker.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         baker.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100)
 
-        content = self.app.get(self.url, user="manager@institution.example.com").body.decode()
+        cache_results(self.evaluation)
+
+        content = self.app.get(self.url, user=self.manager).body.decode()
 
         top_heading_index = content.index(top_heading_question.text)
         top_likert_index = content.index(top_likert_question.text)
@@ -221,7 +242,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         contribution = baker.make(Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor)
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
-        page = self.app.get(self.url, user="manager@institution.example.com")
+        cache_results(self.evaluation)
+
+        page = self.app.get(self.url, user=self.manager)
 
         self.assertNotIn(heading_question_0.text, page)
         self.assertIn(heading_question_1.text, page)
@@ -229,24 +252,28 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         self.assertNotIn(heading_question_2.text, page)
 
     def test_default_view_is_public(self):
+        cache_results(self.evaluation)
         random.seed(42)  # use explicit seed to always choose the same "random" slogan
-        page_without_get_parameter = self.app.get(self.url, user="manager@institution.example.com")
+        page_without_get_parameter = self.app.get(self.url, user=self.manager)
         random.seed(42)
-        page_with_get_parameter = self.app.get(self.url + '?view=public', user="manager@institution.example.com")
+        page_with_get_parameter = self.app.get(self.url + '?view=public', user=self.manager)
         random.seed(42)
-        page_with_random_get_parameter = self.app.get(self.url + '?view=asdf', user="manager@institution.example.com")
+        page_with_random_get_parameter = self.app.get(self.url + '?view=asdf', user=self.manager)
         self.assertEqual(page_without_get_parameter.body, page_with_get_parameter.body)
         self.assertEqual(page_without_get_parameter.body, page_with_random_get_parameter.body)
 
     def test_wrong_state(self):
+        helper_exit_staff_mode(self)
         evaluation = baker.make(Evaluation, state='reviewed', course=baker.make(Course, semester=self.semester))
+        cache_results(evaluation)
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, evaluation.id)
         self.app.get(url, user="student@institution.example.com", status=403)
 
     def test_preview_without_rating_answers(self):
         evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
+        cache_results(evaluation)
         url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
-        self.app.get(url, user="manager@institution.example.com")
+        self.app.get(url, user=self.manager)
 
     def test_preview_with_rating_answers(self):
         evaluation = baker.make(Evaluation, state='evaluated', course=baker.make(Course, semester=self.semester))
@@ -257,16 +284,17 @@ class TestResultsSemesterEvaluationDetailView(WebTestWith200Check):
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
         baker.make(RatingAnswerCounter, question=likert_question, contribution=evaluation.general_contribution, answer=1, count=20)
+        cache_results(evaluation)
 
         url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
-        self.app.get(url, user="manager@institution.example.com")
+        self.app.get(url, user=self.manager)
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
+        make_manager()
         cls.semester = baker.make(Semester, id=2)
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
         cls.student1 = baker.make(UserProfile, email='student1@institution.example.com')
         cls.student2 = baker.make(UserProfile, email='student2@example.com')
@@ -312,7 +340,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.evaluation.publish()
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 1)
-        self.helper_test_answer_visibility_one_voter("manager@institution.example.com")
+        with run_in_staff_mode(self):
+            self.helper_test_answer_visibility_one_voter("manager@institution.example.com")
         self.evaluation = Evaluation.objects.get(id=self.evaluation.id)
         self.helper_test_answer_visibility_one_voter("responsible@institution.example.com")
         self.helper_test_answer_visibility_one_voter("student@institution.example.com", expect_page_not_visible=True)
@@ -326,7 +355,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 2)
 
-        self.helper_test_answer_visibility_two_voters("manager@institution.example.com")
+        with run_in_staff_mode(self):
+            self.helper_test_answer_visibility_two_voters("manager@institution.example.com")
         self.helper_test_answer_visibility_two_voters("responsible@institution.example.com")
         self.helper_test_answer_visibility_two_voters("student@institution.example.com")
 
@@ -335,54 +365,63 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_private_evaluation(self):
         semester = baker.make(Semester)
-        baker.make(UserProfile, email='manager@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        manager = make_manager()
         student = baker.make(UserProfile, email="student@institution.example.com")
         student_external = baker.make(UserProfile, email="student_external@example.com")
         contributor = baker.make(UserProfile, email="contributor@institution.example.com")
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
-        responsible_contributor = baker.make(UserProfile, email="responsible_contributor@institution.example.com")
-        test1 = baker.make(UserProfile, email="test1@institution.example.com")
-        test2 = baker.make(UserProfile, email="test2@institution.example.com")
-        baker.make(UserProfile, email="random@institution.example.com")
+        editor = baker.make(UserProfile, email="editor@institution.example.com")
+        voter1 = baker.make(UserProfile, email="voter1@institution.example.com")
+        voter2 = baker.make(UserProfile, email="voter2@institution.example.com")
+        non_participant = baker.make(UserProfile, email="non_participant@institution.example.com")
         degree = baker.make(Degree)
-        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, responsible_contributor])
-        private_evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external, test1, test2], voters=[test1, test2])
+        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor])
+        private_evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state='published',
+            participants=[student, student_external, voter1, voter2],
+            voters=[voter1, voter2]
+        )
         private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
         baker.make(
             Contribution,
             evaluation=private_evaluation,
-            contributor=responsible_contributor,
+            contributor=editor,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(Contribution, evaluation=private_evaluation, contributor=contributor, role=Contribution.Role.EDITOR)
+        cache_results(private_evaluation)
 
         url = '/results/'
-        self.assertNotIn(private_evaluation.full_name, self.app.get(url, user="random@institution.example.com"))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user="student@institution.example.com"))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user="responsible@institution.example.com"))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user="responsible_contributor@institution.example.com"))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user="contributor@institution.example.com"))
-        self.assertIn(private_evaluation.full_name, self.app.get(url, user="manager@institution.example.com"))
-        self.app.get(url, user="student_external@example.com", status=403)  # external users can't see results semester view
+        self.assertNotIn(private_evaluation.full_name, self.app.get(url, user=non_participant))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user=student))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user=responsible))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user=editor))
+        self.assertIn(private_evaluation.full_name, self.app.get(url, user=contributor))
+        with run_in_staff_mode(self):
+            self.assertIn(private_evaluation.full_name, self.app.get(url, user=manager))
+        self.app.get(url, user=student_external, status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (semester.id, private_evaluation.id)
-        self.app.get(url, user="random@institution.example.com", status=403)
-        self.app.get(url, user="student@institution.example.com", status=200)
-        self.app.get(url, user="responsible@institution.example.com", status=200)
-        self.app.get(url, user="responsible_contributor@institution.example.com", status=200)
-        self.app.get(url, user="contributor@institution.example.com", status=200)
-        self.app.get(url, user="manager@institution.example.com", status=200)
-        self.app.get(url, user="student_external@example.com", status=200)  # this external user participates in the evaluation and can see the results
+        self.app.get(url, user=non_participant, status=403)
+        self.app.get(url, user=student, status=200)
+        self.app.get(url, user=responsible, status=200)
+        self.app.get(url, user=editor, status=200)
+        self.app.get(url, user=contributor, status=200)
+        with run_in_staff_mode(self):
+            self.app.get(url, user=manager, status=200)
+        self.app.get(url, user=student_external, status=200)  # this external user participates in the evaluation and can see the results
 
 
-class TestResultsTextanswerVisibilityForManager(WebTest):
+class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
     fixtures = ['minimal_test_data_results']
 
     @classmethod
     def setUpTestData(cls):
-        manager_group = Group.objects.get(name="Manager")
-        baker.make(UserProfile, email="manager@institution.example.com", groups=[manager_group])
+        cls.manager = make_manager()
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_manager_before_publish(self):
         evaluation = Evaluation.objects.get(id=1)
@@ -391,7 +430,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         evaluation.unpublish()
         evaluation.save()
 
-        page = self.app.get("/results/semester/1/evaluation/1?view=full", user="manager@institution.example.com")
+        page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
@@ -406,7 +445,7 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager(self):
-        page = self.app.get("/results/semester/1/evaluation/1?view=full", user="manager@institution.example.com")
+        page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
@@ -423,6 +462,10 @@ class TestResultsTextanswerVisibilityForManager(WebTest):
 
 class TestResultsTextanswerVisibility(WebTest):
     fixtures = ['minimal_test_data_results']
+
+    @classmethod
+    def setUpTestData(cls):
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="responsible@institution.example.com")
@@ -577,6 +620,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
         )
+        cache_results(cls.evaluation)
 
     def test_contributor_list(self):
         url = '/results/semester/{}/evaluation/{}?view=export'.format(self.semester.id, self.evaluation.id)
@@ -590,8 +634,8 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        manager_group = Group.objects.get(name="Manager")
-        cls.manager = baker.make(UserProfile, email="manager@institution.example.com", groups=[manager_group])
+        cls.manager = make_manager()
+        cache_results(Evaluation.objects.get(id=1))
 
     def test_textanswer_visibility_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1?view=export", user="responsible@institution.example.com")
@@ -674,21 +718,22 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager(self):
-        contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
-        page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id), user="manager@institution.example.com")
+        with run_in_staff_mode(self):
+            contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
+            page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id), user="manager@institution.example.com")
 
-        self.assertIn(".general_orig_published.", page)
-        self.assertNotIn(".general_orig_hidden.", page)
-        self.assertNotIn(".general_orig_published_changed.", page)
-        self.assertIn(".general_changed_published.", page)
-        self.assertNotIn(".contributor_orig_published.", page)
-        self.assertNotIn(".contributor_orig_private.", page)
-        self.assertNotIn(".responsible_contributor_orig_published.", page)
-        self.assertNotIn(".responsible_contributor_orig_hidden.", page)
-        self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
-        self.assertNotIn(".responsible_contributor_changed_published.", page)
-        self.assertNotIn(".responsible_contributor_orig_private.", page)
-        self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+            self.assertIn(".general_orig_published.", page)
+            self.assertNotIn(".general_orig_hidden.", page)
+            self.assertNotIn(".general_orig_published_changed.", page)
+            self.assertIn(".general_changed_published.", page)
+            self.assertNotIn(".contributor_orig_published.", page)
+            self.assertNotIn(".contributor_orig_private.", page)
+            self.assertNotIn(".responsible_contributor_orig_published.", page)
+            self.assertNotIn(".responsible_contributor_orig_hidden.", page)
+            self.assertNotIn(".responsible_contributor_orig_published_changed.", page)
+            self.assertNotIn(".responsible_contributor_changed_published.", page)
+            self.assertNotIn(".responsible_contributor_orig_private.", page)
+            self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_manager_contributor(self):
         manager_group = Group.objects.get(name="Manager")
@@ -714,83 +759,101 @@ class TestArchivedResults(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
-        baker.make(UserProfile, email="manager@institution.example.com", groups=[Group.objects.get(name='Manager')])
-        baker.make(UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name='Reviewer')])
-        student = baker.make(UserProfile, email="student@institution.example.com")
-        student_external = baker.make(UserProfile, email="student_external@example.com")
-        contributor = baker.make(UserProfile, email="contributor@institution.example.com")
-        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+        cls.manager = make_manager()
+        cls.reviewer = baker.make(UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name='Reviewer')])
+        cls.student = baker.make(UserProfile, email="student@institution.example.com")
+        cls.student_external = baker.make(UserProfile, email="student_external@example.com")
+        cls.contributor = baker.make(UserProfile, email="contributor@institution.example.com")
+        cls.responsible = baker.make(UserProfile, email="responsible@institution.example.com")
 
-        course = baker.make(Course, semester=cls.semester, degrees=[baker.make(Degree)], responsibles=[responsible])
-        cls.evaluation = baker.make(Evaluation, course=course, state='published', participants=[student, student_external], voters=[student, student_external])
+        course = baker.make(Course, semester=cls.semester, degrees=[baker.make(Degree)], responsibles=[cls.responsible])
+        cls.evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state='published',
+            participants=[cls.student, cls.student_external],
+            voters=[cls.student, cls.student_external],
+        )
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        cls.contribution = baker.make(
+
+        baker.make(
             Contribution,
             evaluation=cls.evaluation,
-            contributor=responsible,
+            contributor=cls.responsible,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        cls.contribution = baker.make(Contribution, evaluation=cls.evaluation, contributor=contributor)
+        baker.make(Contribution, evaluation=cls.evaluation, contributor=cls.contributor)
+        cache_results(cls.evaluation)
 
     @patch('evap.results.templatetags.results_templatetags.get_grade_color', new=lambda x: (0, 0, 0))
     def test_unarchived_results(self):
         url = '/results/'
-        self.assertIn(self.evaluation.full_name, self.app.get(url, user="student@institution.example.com"))
-        self.assertIn(self.evaluation.full_name, self.app.get(url, user="responsible@institution.example.com"))
-        self.assertIn(self.evaluation.full_name, self.app.get(url, user="contributor@institution.example.com"))
-        self.assertIn(self.evaluation.full_name, self.app.get(url, user="manager@institution.example.com"))
-        self.assertIn(self.evaluation.full_name, self.app.get(url, user="reviewer@institution.example.com"))
-        self.app.get(url, user="student_external@example.com", status=403)  # external users can't see results semester view
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.student))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.responsible))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.contributor))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.manager))
+        self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.reviewer))
+        self.app.get(url, user=self.student_external, status=403)  # external users can't see results semester view
 
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, self.evaluation.id)
-        self.app.get(url, user="student@institution.example.com", status=200)
-        self.app.get(url, user="responsible@institution.example.com", status=200)
-        self.app.get(url, user="contributor@institution.example.com", status=200)
-        self.app.get(url, user="manager@institution.example.com", status=200)
-        self.app.get(url, user="reviewer@institution.example.com", status=200)
-        self.app.get(url, user="student_external@example.com", status=200)
+        self.app.get(url, user=self.student, status=200)
+        self.app.get(url, user=self.responsible, status=200)
+        self.app.get(url, user=self.contributor, status=200)
+        self.app.get(url, user=self.manager, status=200)
+        self.app.get(url, user=self.reviewer, status=200)
+        self.app.get(url, user=self.student_external, status=200)
 
     def test_archived_results(self):
         self.semester.archive_results()
 
         url = '/results/semester/%s/evaluation/%s' % (self.semester.id, self.evaluation.id)
-        self.app.get(url, user="student@institution.example.com", status=403)
-        self.app.get(url, user="responsible@institution.example.com", status=200)
-        self.app.get(url, user="contributor@institution.example.com", status=200)
-        self.app.get(url, user="manager@institution.example.com", status=200)
-        self.app.get(url, user="reviewer@institution.example.com", status=403)
-        self.app.get(url, user="student_external@example.com", status=403)
+        self.app.get(url, user=self.student, status=403)
+        self.app.get(url, user=self.responsible, status=200)
+        self.app.get(url, user=self.contributor, status=200)
+        with run_in_staff_mode(self):
+            self.app.get(url, user=self.manager, status=200)
+        self.app.get(url, user=self.reviewer, status=403)
+        self.app.get(url, user=self.student_external, status=403)
 
 
 class TestTextAnswerExportView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make(UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name="Reviewer")])
-        evaluation = baker.make(Evaluation)
+        cls.reviewer = baker.make(
+            UserProfile,
+            email="reviewer@institution.example.com",
+            groups=[Group.objects.get(name="Reviewer")],
+        )
+        evaluation = baker.make(Evaluation, state='published')
+        cache_results(evaluation)
+
         cls.url = f"/results/evaluation/{evaluation.id}/text_answers_export"
 
     def test_file_sent(self):
         def mock(_self, res):
             res.write(b"1337")
 
-        with patch.object(TextAnswerExcelExporter, "export", mock):
-            response = self.app.get(self.url, user="reviewer@institution.example.com", status=200)
-            self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
-            self.assertEqual(response.content, b"1337")
+        with patch.object(TextAnswerExporter, "export", mock):
+            with run_in_staff_mode(self):
+                response = self.app.get(self.url, user=self.reviewer, status=200)
+                self.assertEqual(response.headers["Content-Type"], "application/vnd.ms-excel")
+                self.assertEqual(response.content, b"1337")
 
-    @patch("evap.results.exporters.TextAnswerExcelExporter.export")
+    @patch("evap.results.exporters.TextAnswerExporter.export")
     def test_permission_denied(self, export_method):
-        baker.make(UserProfile, email="student@institution.example.com")
-        baker.make(UserProfile, email="manager@institution.example.com", groups=[Group.objects.get(name="Manager")])
+        manager = make_manager()
+        student = baker.make(UserProfile, email="student@institution.example.com")
 
-        self.app.get(self.url, user="student@institution.example.com", status=403)
+        self.app.get(self.url, user=student, status=403)
         export_method.assert_not_called()
 
-        self.app.get(self.url, user="reviewer@institution.example.com", status=200)
-        export_method.assert_called_once()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.reviewer, status=200)
+            export_method.assert_called_once()
 
         export_method.reset_mock()
-        self.app.get(self.url, user="manager@institution.example.com", status=200)
-        export_method.assert_called_once()
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=manager, status=200)
+            export_method.assert_called_once()

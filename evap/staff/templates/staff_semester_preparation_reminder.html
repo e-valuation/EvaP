@@ -54,8 +54,8 @@
                                 </th>
                                 <td>{% include 'staff_evaluation_evaluation_period.html' with state=evaluation.state start_only=True %}</td>
                                 <td>
-                                    {% if evaluation.last_modified_user %}
-                                        {{ evaluation.last_modified_user }}
+                                    {% if evaluation.related_logentries.0.user %}
+                                        {{ evaluation.related_logentries.0.user }} ({{ evaluation.related_logentries.0.datetime|date:"SHORT_DATETIME_FORMAT" }})
                                     {% else %}
                                         &mdash;
                                     {% endif %}

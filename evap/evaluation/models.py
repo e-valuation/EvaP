@@ -1,10 +1,10 @@
-from collections import namedtuple, defaultdict
-from datetime import datetime, date, timedelta
+from collections import defaultdict, namedtuple
+from datetime import date, datetime, timedelta
 from enum import Enum, auto
 import logging
+import operator
 import secrets
 import uuid
-import operator
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,19 +13,20 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
-from django.db import models, transaction, IntegrityError
-from django.db.models import Count, Q, Manager
+from django.db import IntegrityError, models, transaction
+from django.db.models import Count, Q, Manager, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
-from django.utils import timezone
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from django_fsm import FSMField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email
+from evap.evaluation.models_logging import LoggedModel
+from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
 
@@ -84,11 +85,11 @@ class Semester(models.Model):
         return not self.results_are_archived
 
     @transaction.atomic
-    def archive_participations(self):
+    def archive(self):
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         for evaluation in self.evaluations.all():
-            evaluation._archive_participations()
+            evaluation._archive()
         self.participations_are_archived = True
         self.save()
 
@@ -265,7 +266,7 @@ class CourseType(models.Model):
         return not self.courses.all().exists()
 
 
-class Course(models.Model):
+class Course(LoggedModel):
     """Models a single course, e.g. the Math 101 course of 2002."""
     semester = models.ForeignKey(Semester, models.PROTECT, verbose_name=_("semester"), related_name="courses")
 
@@ -288,10 +289,6 @@ class Course(models.Model):
     # grade publishers can set this to True, then the course will be handled as if final grades have already been uploaded
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
-    # who last modified this course
-    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="courses_last_modified+")
-
     class Meta:
         unique_together = (
             ('semester', 'name_de'),
@@ -303,10 +300,9 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-    def set_last_modified(self, modifying_user):
-        self.last_modified_user = modifying_user
-        self.last_modified_time = timezone.now()
-        logger.info('Course "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
+    @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["semester", "gets_no_grade_documents"]
 
     @property
     def can_be_edited_by_manager(self):
@@ -332,7 +328,8 @@ class Course(models.Model):
 
     @cached_property
     def responsibles_names(self):
-        return ", ".join([responsible.full_name for responsible in self.responsibles.all().order_by("last_name")])
+        ordered_responsibles = sorted(self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name))
+        return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
     @property
     def has_external_responsible(self):
@@ -343,9 +340,8 @@ class Course(models.Model):
         return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
 
 
-class Evaluation(models.Model):
+class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
-
     state = FSMField(default='new', protected=True)
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
@@ -370,11 +366,11 @@ class Evaluation(models.Model):
     # can be published even if no other person evaluates the evaluation
     can_publish_text_results = models.BooleanField(verbose_name=_("can publish text results"), default=False)
 
-    # students that are allowed to vote
+    # students that are allowed to vote, or their count after archiving
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("participants"), blank=True, related_name='evaluations_participating_in')
     _participant_count = models.IntegerField(verbose_name=_("participant count"), blank=True, null=True, default=None)
 
-    # students that already voted
+    # students that already voted, or their count after archiving
     voters = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_("voters"), blank=True, related_name='evaluations_voted_for')
     _voter_count = models.IntegerField(verbose_name=_("voter count"), blank=True, null=True, default=None)
 
@@ -384,10 +380,6 @@ class Evaluation(models.Model):
 
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
-
-    # who last modified this evaluation
-    last_modified_time = models.DateTimeField(default=timezone.now, verbose_name=_("Last modified"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, null=True, blank=True, related_name="evaluations_last_modified+")
 
     evaluation_evaluated = Signal(providing_args=['request', 'semester'])
 
@@ -422,26 +414,31 @@ class Evaluation(models.Model):
 
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
-        if hasattr(self, 'state_change'):
+        if hasattr(self, 'state_change_source'):
+            state_changed_to = lambda self, state_set: self.state_change_source not in state_set and self.state in state_set
+            state_changed_from = lambda self, state_set: self.state_change_source in state_set and self.state not in state_set
+
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
             # pylint: disable=import-outside-toplevel
-            if self.state_change == "published":
-                from evap.results.tools import collect_results
+            from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+
+            if (state_changed_to(self, STATES_WITH_RESULTS_CACHING)
+                    or self.state_change_source == 'evaluated' and self.state == 'reviewed'): # reviewing changes results -> cache update required
+                from evap.results.tools import cache_results
+                cache_results(self)
+            elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
+                from evap.results.tools import get_results_cache_key
+                caches['results'].delete(get_results_cache_key(self))
+
+            if state_changed_to(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
                 from evap.results.views import update_template_cache_of_published_evaluations_in_course
-                collect_results(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
-            elif self.state_change == "unpublished":
-                from evap.results.tools import get_collect_results_cache_key
+            elif state_changed_from(self, STATES_WITH_RESULT_TEMPLATE_CACHING):
                 from evap.results.views import delete_template_cache, update_template_cache_of_published_evaluations_in_course
-                caches['results'].delete(get_collect_results_cache_key(self))
                 delete_template_cache(self)
                 update_template_cache_of_published_evaluations_in_course(self.course)
-
-    def set_last_modified(self, modifying_user):
-        self.last_modified_user = modifying_user
-        self.last_modified_time = timezone.now()
-        logger.info('Evaluation "{}" (id {}) was edited by user {}.'.format(self, self.id, modifying_user.email))
+            del self.state_change_source
 
     @property
     def full_name(self):
@@ -468,9 +465,18 @@ class Evaluation(models.Model):
         return not self.unreviewed_textanswer_set.exists()
 
     @property
+    def display_vote_end_datetime(self):
+        return date_to_datetime(self.vote_end_date) + timedelta(hours=24)
+
+    @property
     def vote_end_datetime(self):
-        # The evaluation ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+        # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
         return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
+
+    @property
+    def runtime(self):
+        delta = self.vote_end_datetime - self.vote_start_datetime
+        return delta.days + 1
 
     @property
     def is_in_evaluation_period(self):
@@ -527,10 +533,14 @@ class Evaluation(models.Model):
     def num_participants(self):
         if self._participant_count is not None:
             return self._participant_count
+
+        if is_prefetched(self, 'participants'):
+            return len(self.participants.all())
+
         return self.participants.count()
 
-    def _archive_participations(self):
-        """Should be called only via Semester.archive_participations"""
+    def _archive(self):
+        """Should be called only via Semester.archive"""
         if not self.participations_can_be_archived:
             raise NotArchiveable()
         if self._participant_count is not None:
@@ -541,6 +551,7 @@ class Evaluation(models.Model):
         self._participant_count = self.num_participants
         self._voter_count = self.num_voters
         self.save()
+        self.related_logentries().delete()
 
     @property
     def participations_are_archived(self):
@@ -556,6 +567,10 @@ class Evaluation(models.Model):
     @property
     def has_external_participant(self):
         return any(participant.is_external for participant in self.participants.all())
+
+    @property
+    def can_staff_see_average_grade(self):
+        return self.state in {'evaluated', 'reviewed', 'published'}
 
     @property
     def can_publish_average_grade(self):
@@ -657,10 +672,23 @@ class Evaluation(models.Model):
         return (self.vote_end_date - date.today()).days
 
     @property
+    def display_time_left_for_evaluation(self):
+        return self.display_vote_end_datetime - datetime.now()
+
+    @property
     def time_left_for_evaluation(self):
         return self.vote_end_datetime - datetime.now()
 
-    def evaluation_ends_soon(self):
+    @property
+    def display_hours_left_for_evaluation(self):
+        return self.display_time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def hours_left_for_evaluation(self):
+        return self.time_left_for_evaluation / timedelta(hours=1)
+
+    @property
+    def ends_soon(self):
         return 0 < self.time_left_for_evaluation.total_seconds() < settings.EVALUATION_END_WARNING_PERIOD * 3600
 
     @property
@@ -669,6 +697,10 @@ class Evaluation(models.Model):
         if self.vote_start_datetime < datetime.now():
             days_left -= 1
         return days_left
+
+    @property
+    def hours_until_evaluation(self):
+        return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
         represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
@@ -719,9 +751,7 @@ class Evaluation(models.Model):
         if self.state != "evaluated":
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
-        if (self.course.final_grade_documents
-                or self.course.gets_no_grade_documents
-                or not self.wait_for_grade_upload_before_publishing):
+        if self.grading_process_is_finished:
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED
@@ -729,6 +759,12 @@ class Evaluation(models.Model):
     @property
     def ratinganswer_counters(self):
         return RatingAnswerCounter.objects.filter(contribution__evaluation=self)
+
+    @property
+    def grading_process_is_finished(self):
+        return (not self.wait_for_grade_upload_before_publishing
+                or self.course.gets_no_grade_documents
+                or self.course.final_grade_documents.exists())
 
     @classmethod
     def update_evaluations(cls):
@@ -747,7 +783,7 @@ class Evaluation(models.Model):
                     evaluation.evaluation_end()
                     if evaluation.is_fully_reviewed:
                         evaluation.review_finished()
-                        if not evaluation.wait_for_grade_upload_before_publishing or evaluation.course.final_grade_documents.exists() or evaluation.course.gets_no_grade_documents:
+                        if evaluation.grading_process_is_finished:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
                     evaluation.save()
@@ -762,19 +798,34 @@ class Evaluation(models.Model):
 
         logger.info("update_evaluations finished.")
 
+    @classmethod
+    def annotate_with_participant_and_voter_counts(cls, evaluation_query):
+        subquery = Evaluation.objects.filter(pk=OuterRef('pk'))
+
+        participant_count_subquery = subquery.annotate(
+            num_participants=Coalesce('_participant_count', Count("participants")),
+        ).values("num_participants")
+
+        voter_count_subquery = subquery.annotate(
+            num_voters=Coalesce('_voter_count', Count("voters")),
+        ).values("num_voters")
+
+        return evaluation_query.annotate(
+            num_participants=Subquery(participant_count_subquery),
+            num_voters=Subquery(voter_count_subquery),
+        )
+
+    @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ["voters", "is_single_result", "can_publish_text_results", "_voter_count", "_participant_count"]
+
 
 @receiver(post_transition, sender=Evaluation)
-def course_was_published(instance, target, **_kwargs):
+def evaluation_state_change(instance, source, **_kwargs):
     """ Evaluation.save checks whether caches must be updated based on this value """
-    if target == 'published':
-        instance.state_change = "published"
-
-
-@receiver(post_transition, sender=Evaluation)
-def course_was_unpublished(instance, source, **_kwargs):
-    """ Evaluation.save checks whether caches must be updated based on this value """
-    if source == 'published':
-        instance.state_change = "unpublished"
+    # if multiple state changes are happening, state_change_source should be the first source
+    if not hasattr(instance, 'state_change_source'):
+        instance.state_change_source = source
 
 
 @receiver(post_transition, sender=Evaluation)
@@ -782,7 +833,7 @@ def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info('Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(instance, instance.pk, source, target, name))
 
 
-class Contribution(models.Model):
+class Contribution(LoggedModel):
     """A contributor who is assigned to an evaluation and his questionnaires."""
 
     class TextAnswerVisibility(models.TextChoices):
@@ -794,7 +845,8 @@ class Contribution(models.Model):
         EDITOR = 1, _('Editor')
 
     evaluation = models.ForeignKey(Evaluation, models.CASCADE, verbose_name=_("evaluation"), related_name='contributions')
-    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True, related_name='contributions')
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, verbose_name=_("contributor"), blank=True, null=True,
+                                    related_name='contributions')
     questionnaires = models.ManyToManyField(Questionnaire, verbose_name=_("questionnaires"), blank=True, related_name="contributions")
     role = models.IntegerField(choices=Role.choices, verbose_name=_("role"), default=Role.CONTRIBUTOR)
     textanswer_visibility = models.CharField(max_length=10, choices=TextAnswerVisibility.choices, verbose_name=_('text answer visibility'), default=TextAnswerVisibility.OWN_TEXTANSWERS)
@@ -809,8 +861,21 @@ class Contribution(models.Model):
         ordering = ['order', ]
 
     @property
+    def unlogged_fields(self):
+        return super().unlogged_fields + ['evaluation'] + (['contributor'] if self.is_general else [])
+
+    @property
     def is_general(self):
         return self.contributor_id is None
+
+    @property
+    def object_to_attach_logentries_to(self):
+        return Evaluation, self.evaluation_id
+
+    def __str__(self):
+        if self.contributor:
+            return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
+        return str(_("General Contribution"))
 
 
 class Question(models.Model):
@@ -1299,6 +1364,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def is_staff(self):
         return self.is_manager or self.is_reviewer
 
+    # Required for staff mode to work, since several other cached properties (including is_staff) are overwritten
+    @property
+    def has_staff_permission(self):
+        return self.groups.filter(name='Manager').exists() or self.groups.filter(name='Reviewer').exists()
+
     @cached_property
     def is_manager(self):
         return self.groups.filter(name='Manager').exists()
@@ -1329,19 +1399,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             return False
         if any(not evaluation.participations_are_archived for evaluation in self.evaluations_participating_in.all()):
             return False
-        if any(not user.can_be_deleted_by_manager for user in self.represented_users.all()):
-            return False
-        if any(not user.can_be_deleted_by_manager for user in self.ccing_users.all()):
-            return False
         if self.is_proxy_user:
             return False
         return True
 
-    @property
+    @cached_property
     def is_participant(self):
         return self.evaluations_participating_in.exists()
 
-    @property
+    @cached_property
     def is_student(self):
         """
             A UserProfile is not considered to be a student anymore if the
@@ -1358,23 +1424,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         return last_semester_participated.created_at >= last_semester_contributed.created_at
 
-    @property
+    @cached_property
     def is_contributor(self):
         return self.contributions.exists()
 
-    @property
+    @cached_property
     def is_editor(self):
         return self.contributions.filter(role=Contribution.Role.EDITOR).exists() or self.is_responsible
 
-    @property
+    @cached_property
     def is_responsible(self):
         return self.courses_responsible_for.exists()
 
-    @property
+    @cached_property
     def is_delegate(self):
         return self.represented_users.exists()
 
-    @property
+    @cached_property
     def is_editor_or_delegate(self):
         return self.is_editor or self.is_delegate
 
@@ -1599,6 +1665,15 @@ class EmailTemplate(models.Model):
 
         evaluations_per_contributor = defaultdict(set)
         for evaluation in evaluations:
+            # an average grade is published or a general text answer exists
+            relevant_information_published_for_responsibles = (
+                evaluation.can_publish_average_grade
+                or evaluation.textanswer_set.filter(contribution=evaluation.general_contribution).exists()
+            )
+            if relevant_information_published_for_responsibles:
+                for responsible in evaluation.course.responsibles.all():
+                    evaluations_per_contributor[responsible].add(evaluation)
+
             # for evaluations with published averaged grade, all contributors get a notification
             # we don't send a notification if the significance threshold isn't met
             if evaluation.can_publish_average_grade:
@@ -1611,9 +1686,6 @@ class EmailTemplate(models.Model):
                 for textanswer in evaluation.textanswer_set:
                     if textanswer.contribution.contributor:
                         evaluations_per_contributor[textanswer.contribution.contributor].add(evaluation)
-
-                for contributor in evaluation.course.responsibles.all():
-                    evaluations_per_contributor[contributor].add(evaluation)
 
         for contributor, evaluation_set in evaluations_per_contributor.items():
             body_params = {'user': contributor, 'evaluations': list(evaluation_set)}

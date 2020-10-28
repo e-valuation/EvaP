@@ -52,6 +52,9 @@
             </div>
         </div>
         {% endif %}
+
+        {% include 'log/logentries.html' with logged_object=evaluation %}
+
     </form>
 {% endblock %}
 

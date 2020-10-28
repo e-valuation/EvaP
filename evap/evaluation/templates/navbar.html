@@ -21,39 +21,14 @@
                 {% if user|can_reward_points_be_used_by %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'rewards:index' %}">{% trans 'Rewards' %}</a></li>
                 {% endif %}
-                {% if user.is_grade_publisher and not user.is_manager %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Publish grades' %}</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Semesters' %}</a>
-                            {% for semester in grade_document_semesters %}
-                                <a class="dropdown-item dropdown-item-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>
-                            {% endfor %}
-                        </div>
-                    </li>
-                {% endif %}
-                {% if not user.is_external %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'results:index' %}">{% trans 'Results' %}</a></li>
-                {% endif %}
                 {% if user.is_manager %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'staff:index' %}">{% trans 'Overview' %}</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'staff:index' %}" id="navbarStaffDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Manage' %}</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarStaffDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Overview' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Semesters' %}</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarSemestersDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Semesters' %}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarSemestersDropdownMenuLink">
                             {% for semester in result_semesters %}
-                                <a class="dropdown-item dropdown-item-indent" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
+                                <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
                             {% endfor %}
-                            {% if user.is_grade_publisher %}
-                                <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Publish grades' %}</a>
-                            {% endif %}
-                            <a class="dropdown-item" href="{% url 'staff:questionnaire_index' %}">{% trans 'Questionnaires' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:degree_index' %}">{% trans 'Degrees' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:course_type_index' %}">{% trans 'Course types' %}</a>
-                            <a class="dropdown-item" href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward point redemption events' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Templates' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:faq_index' %}">{% trans 'FAQ' %}</a>
                         </div>
                     </li>
                 {% elif user.is_reviewer %}
@@ -65,6 +40,61 @@
                             {% endfor %}
                         </div>
                     </li>
+                {% endif %}
+                {% if not user.is_external %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'results:index' %}">{% trans 'Results' %}</a></li>
+                {% endif %}
+                {%  if user.is_manager %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Users' %}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarUsersDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans 'User list' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:user_create' %}">{% trans 'Create' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:user_import' %}">{% trans 'Import' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:user_merge_selection' %}">{% trans 'Merge' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:user_bulk_update' %}">{% trans 'Update' %}</a>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'staff:questionnaire_index' %}">{% trans 'Questionnaires' %}</a></li>
+                {% endif %}
+                {% if user.is_grade_publisher %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Publish grades' %}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Semesters' %}</a>
+                            {% for semester in grade_document_semesters %}
+                                <a class="dropdown-item dropdown-item-indent" href="{% url 'grades:semester_view' semester.id %}">{{ semester.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </li>
+                {% endif %}
+                {% if user.is_manager %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarStaffDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'More' %}</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarStaffDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'staff:course_type_index' %}">{% trans 'Course types' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:degree_index' %}">{% trans 'Degrees' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:index' %}">{% trans 'Email templates' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:faq_index' %}">{% trans 'FAQ' %}</a>
+                            <a class="dropdown-item" href="{% url 'rewards:reward_point_redemption_events' %}">{% trans 'Reward point redemption events' %}</a>
+                            <a class="dropdown-item" href="{% url 'staff:text_answer_warnings' %}">
+                                {% trans 'Text answer warnings' %}
+                            </a>
+                        </div>
+                    </li>
+                {% endif %}
+                {% if user.has_staff_permission %}
+                    {% if user.is_staff %}
+                        <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Exit Staff Mode' %}</button>
+                        </form>
+                    {% else %}
+                        <form class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Enter Staff Mode' %}</button>
+                        </form>
+                    {% endif %}
                 {% endif %}
             {% endif %}
         </ul>

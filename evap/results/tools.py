@@ -1,12 +1,17 @@
 from collections import OrderedDict, defaultdict, namedtuple
-from functools import partial
 from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Exists, OuterRef
 
-from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
+from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
+        Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile, Course, \
+        Evaluation
+
+
+STATES_WITH_RESULTS_CACHING = {'evaluated', 'reviewed', 'published'}
+STATES_WITH_RESULT_TEMPLATE_CACHING = {'published'}
 
 
 GRADE_COLORS = {
@@ -122,21 +127,29 @@ def get_single_result_rating_result(evaluation):
     return RatingResult(question, answer_counters)
 
 
-def get_collect_results_cache_key(evaluation):
-    return 'evap.staff.results.tools.collect_results-{:d}'.format(evaluation.id)
+def get_results_cache_key(evaluation):
+    return 'evap.staff.results.tools.get_results-{:d}'.format(evaluation.id)
 
 
-def collect_results(evaluation, force_recalculation=False):
-    if evaluation.state != "published":
-        return _collect_results_impl(evaluation)
-
-    cache_key = get_collect_results_cache_key(evaluation)
-    if force_recalculation:
-        caches['results'].delete(cache_key)
-    return caches['results'].get_or_set(cache_key, partial(_collect_results_impl, evaluation))
+def cache_results(evaluation):
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING
+    cache_key = get_results_cache_key(evaluation)
+    caches['results'].set(cache_key, _get_results_impl(evaluation))
 
 
-def _collect_results_impl(evaluation):
+def get_results(evaluation):
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {'in_evaluation'}
+
+    if evaluation.state == 'in_evaluation':
+        return _get_results_impl(evaluation)
+
+    cache_key = get_results_cache_key(evaluation)
+    result = caches['results'].get(cache_key)
+    assert result is not None
+    return result
+
+
+def _get_results_impl(evaluation):
     contributor_contribution_results = []
     for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
         questionnaire_results = []
@@ -212,8 +225,8 @@ def average_non_grade_rating_questions_distribution(results):
     )
 
 
-def calculate_average_course_distribution(course):
-    if course.evaluations.exclude(state="published").exists():
+def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
+    if check_for_unpublished_evaluations and course.evaluations.exclude(state="published").exists():
         return None
 
     return avg_distribution([
@@ -226,23 +239,46 @@ def calculate_average_course_distribution(course):
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
+    courses_with_unpublished_evaluations = (Course.objects
+        .filter(evaluations__in=evaluations)
+        .filter(Exists(Evaluation.objects.filter(course=OuterRef('pk')).exclude(state="published")))
+        .values_list('id', flat=True)
+    )
+
+    course_id_evaluation_weight_sum_pairs = (Course.objects
+        .filter(evaluations__in=evaluations)
+        .annotate(Sum('evaluations__weight'))
+        .values_list('id', 'evaluations__weight__sum')
+    )
+
+    evaluation_weight_sum_per_course_id = {
+        entry[0]: entry[1]
+        for entry in course_id_evaluation_weight_sum_pairs
+    }
+
     for evaluation in evaluations:
-        if evaluation.course.evaluations.exclude(state="published").exists():
+        if evaluation.course.id in courses_with_unpublished_evaluations:
             evaluation.course.not_all_evaluations_are_published = True
+            evaluation.course.distribution = None
+        else:
+            evaluation.course.distribution = calculate_average_course_distribution(evaluation.course, False)
+
         evaluation.course.evaluation_count = evaluation.course.evaluations.count()
-        evaluation.course.distribution = calculate_average_course_distribution(evaluation.course)
         evaluation.course.avg_grade = distribution_to_grade(evaluation.course.distribution)
-        evaluation.course.evaluation_weight_sum = evaluation.course.evaluations.all().aggregate(Sum('weight'))["weight__sum"]
+        evaluation.course.evaluation_weight_sum = evaluation_weight_sum_per_course_id[evaluation.course.id]
+
     return evaluations
 
 
 def calculate_average_distribution(evaluation):
-    if not evaluation.can_publish_average_grade:
+    assert evaluation.state in {'in_evaluation', 'evaluated', 'reviewed', 'published'}
+
+    if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None
 
     # will contain a list of question results for each contributor and one for the evaluation (where contributor is None)
     grouped_results = defaultdict(list)
-    for contribution_result in collect_results(evaluation).contribution_results:
+    for contribution_result in get_results(evaluation).contribution_results:
         for questionnaire_result in contribution_result.questionnaire_results:
             grouped_results[contribution_result.contributor].extend(questionnaire_result.question_results)
 

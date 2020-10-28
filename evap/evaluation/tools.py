@@ -1,5 +1,7 @@
+from abc import ABC, abstractmethod
 import datetime
 from urllib.parse import quote
+import xlwt
 
 from django.conf import settings
 from django.contrib.auth import user_logged_in
@@ -7,6 +9,14 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils import translation
 from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
+
+
+def is_prefetched(instance, attribute_name):
+    """
+    Is the given attribute prefetched? Can be used to do ordering or counting
+    in python and avoid additional database queries
+    """
+    return hasattr(instance, '_prefetched_objects_cache') and attribute_name in instance._prefetched_objects_cache
 
 
 def is_external_email(email):
@@ -70,3 +80,67 @@ class FileResponse(HttpResponse):
             self["Content-Disposition"] = f"attachment; filename=\"{filename}\""
         except UnicodeEncodeError:
             self["Content-Disposition"] = f"attachment; filename*=utf-8''{quote(filename)}"
+
+
+class ExcelExporter(ABC):
+    styles = {
+        "default":                  xlwt.Style.default_style,
+        "headline":                 xlwt.easyxf("font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium", num_format_str="0.0"),
+        "bold":                     xlwt.easyxf("font: bold on"),
+        "italic":                   xlwt.easyxf("font: italic on"),
+        "border_left_right":        xlwt.easyxf("borders: left medium, right medium"),
+        "border_top_bottom_right":  xlwt.easyxf("borders: top medium, bottom medium, right medium"),
+        "border_top":               xlwt.easyxf("borders: top medium"),
+    }
+
+    # Derived classes can set this to
+    # have a sheet added at initialization.
+    default_sheet_name = None
+
+    def __init__(self):
+        self.workbook = xlwt.Workbook()
+        self.cur_row = 0
+        self.cur_col = 0
+        if self.default_sheet_name is not None:
+            self.cur_sheet = self.workbook.add_sheet(self.default_sheet_name)
+        else:
+            self.cur_sheet = None
+
+    def write_cell(self, label="", style="default"):
+        """Write a single cell and move to the next column."""
+        self.cur_sheet.write(
+            self.cur_row,
+            self.cur_col,
+            label,
+            self.styles[style],
+        )
+        self.cur_col += 1
+
+    def next_row(self):
+        self.cur_col = 0
+        self.cur_row += 1
+
+    def write_row(self, vals, style="default"):
+        """
+        Write a cell for every value and go to the next row.
+        Styling can be chosen
+          - once for all cells by providing a string.
+          - separately for every value, based on a callable that maps the value to a style name.
+        """
+        for val in vals:
+            self.write_cell(val, style=style(val) if callable(style) else style)
+        self.next_row()
+
+    def write_empty_row_with_styles(self, styles):
+        for style in styles:
+            self.write_cell(None, style)
+        self.next_row()
+
+    @abstractmethod
+    def export_impl(self, *args, **kwargs):
+        """Specify the logic to insert the data into the sheet here."""
+
+    def export(self, response, *args, **kwargs):
+        """Convenience method to avoid some boilerplate."""
+        self.export_impl(*args, **kwargs)
+        self.workbook.save(response)

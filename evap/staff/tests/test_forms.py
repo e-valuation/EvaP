@@ -1,5 +1,4 @@
 from unittest.mock import patch
-from datetime import datetime
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
@@ -11,7 +10,7 @@ from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_
 from evap.staff.forms import (ContributionForm, ContributionCopyForm, ContributionFormSet, CourseForm,
                               EvaluationEmailForm, EvaluationForm, EvaluationCopyForm,
                               QuestionnaireForm, SingleResultForm, UserForm)
-from evap.results.tools import collect_results
+from evap.results.tools import cache_results, get_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
@@ -69,7 +68,7 @@ class EvaluationEmailFormTests(TestCase):
         """
             Tests the EvaluationEmailForm with one valid and one invalid input dataset.
         """
-        evaluation = create_evaluation_with_responsible_and_editor()
+        evaluation = create_evaluation_with_responsible_and_editor()['evaluation']
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.Recipients.DUE_PARTICIPANTS]}
         form = EvaluationEmailForm(evaluation=evaluation, data=data)
         self.assertTrue(form.is_valid())
@@ -133,23 +132,24 @@ class UserFormTests(TestCase):
         baker.make(Contribution, contributor=contributor,
                    evaluation=evaluation)
 
-        results_before = collect_results(evaluation)
+        cache_results(evaluation)
+        results_before = get_results(evaluation)
 
         form_data = get_form_data_from_instance(UserForm, contributor)
         form_data["first_name"] = "Patrick"
         form = UserForm(form_data, instance=contributor)
         form.save()
 
-        results_after = collect_results(evaluation)
+        results_after = get_results(evaluation)
 
-        self.assertEqual(
-            results_before.contribution_results[0].contributor.first_name,
-            "Peter"
+        self.assertCountEqual(
+            (result.contributor.first_name for result in results_before.contribution_results if result.contributor),
+            ("Peter", ),
         )
 
-        self.assertEqual(
-            results_after.contribution_results[0].contributor.first_name,
-            "Patrick"
+        self.assertCountEqual(
+            (result.contributor.first_name for result in results_after.contribution_results if result.contributor),
+            ("Patrick", ),
         )
 
 
@@ -172,7 +172,7 @@ class SingleResultFormTests(TestCase):
         form = SingleResultForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         self.assertTrue(form.is_valid())
 
-        form.save(user=baker.make(UserProfile))
+        form.save()
 
         evaluation = Evaluation.objects.get()
         self.assertEqual(evaluation.num_participants, 10)
@@ -767,8 +767,6 @@ class EvaluationCopyFormTests(TestCase):
             course=cls.course,
             name_de="Das Original",
             name_en="The Original",
-            last_modified_time=datetime(2020, 1, 1),
-            last_modified_user=baker.make(UserProfile),
             participants=cls.participants,
             voters=cls.participants[:6],
         )
@@ -782,8 +780,6 @@ class EvaluationCopyFormTests(TestCase):
         self.assertEqual(form['name_de'].initial, "Das Original")
         self.assertEqual(form['name_en'].initial, "The Original")
         self.assertCountEqual(form['participants'].initial, self.participants)
-        self.assertGreater(form['last_modified_time'].initial, self.evaluation.last_modified_time)
-        self.assertEqual(form['last_modified_user_name'].initial, None)
         self.assertCountEqual(form['general_questionnaires'].initial, self.general_questionnaires)
 
     def test_not_changing_name_fails(self):

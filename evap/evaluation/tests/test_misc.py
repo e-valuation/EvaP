@@ -2,7 +2,6 @@ import os.path
 from io import StringIO
 
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -11,16 +10,16 @@ from django.urls import reverse
 from model_bakery import baker
 
 from evap.evaluation.models import Semester, UserProfile, CourseType, Degree
-from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tests.tools import make_manager
+from evap.staff.tests.utils import WebTestStaffMode
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
-class SampleXlsTests(WebTest):
-
+class SampleXlsTests(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
+        cls.manager = make_manager()
         cls.semester = baker.make(Semester)
-        baker.make(UserProfile, email="user@institution.example.com", groups=[Group.objects.get(name="Manager")])
         baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
         baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
         degree_bachelor = Degree.objects.get(name_de="Bachelor")
@@ -31,7 +30,7 @@ class SampleXlsTests(WebTest):
         degree_master.save()
 
     def test_sample_xls(self):
-        page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user="user@institution.example.com")
+        page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user=self.manager)
 
         original_user_count = UserProfile.objects.count()
 
@@ -47,7 +46,7 @@ class SampleXlsTests(WebTest):
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
 
     def test_sample_user_xls(self):
-        page = self.app.get("/staff/user/import", user="user@institution.example.com")
+        page = self.app.get("/staff/user/import", user=self.manager)
 
         original_user_count = UserProfile.objects.count()
 

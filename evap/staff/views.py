@@ -20,29 +20,32 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
-from evap.evaluation.auth import reviewer_required, manager_required
+from evap.evaluation.auth import reviewer_required, manager_required, staff_permission_required
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
                                     FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
-from evap.results.exporters import ExcelExporter
+from evap.results.exporters import ResultsExporter
 from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
+from evap.staff import staff_mode
 from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
                               ContributionCopyFormSet, CourseForm, CourseTypeForm,
                               CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
                               EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
                               FaqQuestionForm,
                               FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, TextAnswerWarningForm,
+                              UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
                               save_import_file, find_next_unreviewed_evaluation, ImportType)
+from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -78,19 +81,7 @@ def get_evaluations_with_prefetched_data(semester):
         )
     ).order_by('pk')
     evaluations = annotate_evaluations_with_grade_document_counts(evaluations)
-
-    # these could be done with an annotation like this:
-    # num_voters_annotated=Count("voters", distinct=True), or more completely
-    # evaluations.annotate(num_voters=Case(When(_voter_count=None, then=Count('voters', distinct=True)), default=F('_voter_count')))
-    # but that was prohibitively slow.
-    participant_counts = semester.evaluations.annotate(num_participants=Count("participants")).order_by('pk').values_list("num_participants", flat=True)
-    voter_counts = semester.evaluations.annotate(num_voters=Count("voters")).order_by('pk').values_list("num_voters", flat=True)
-
-    for evaluation, participant_count, voter_count in zip(evaluations, participant_counts, voter_counts):
-        evaluation.general_contribution = evaluation.general_contribution[0]
-        if evaluation._participant_count is None:
-            evaluation.num_participants = participant_count
-            evaluation.num_voters = voter_count
+    evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
     return evaluations
 
@@ -517,7 +508,7 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-        ExcelExporter().export(
+        ResultsExporter().export(
             response, [semester], selection_list, include_not_enough_voters, include_unpublished
         )
         return response
@@ -537,11 +528,11 @@ def semester_raw_export(_request, semester_id):
         _('#Participants'), _('#Text answers'), _('Average grade')])
     for evaluation in sorted(semester.evaluations.all(), key=lambda cr: cr.full_name):
         degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
-        distribution = calculate_average_distribution(evaluation)
-        if evaluation.state in ['evaluated', 'reviewed', 'published'] and distribution is not None:
-            avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
-        else:
-            avg_grade = ""
+        avg_grade = ""
+        if evaluation.can_staff_see_average_grade:
+            distribution = calculate_average_distribution(evaluation)
+            if distribution is not None:
+                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
         writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
             evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
 
@@ -671,7 +662,7 @@ def semester_archive_participations(request):
 
     if not semester.participations_can_be_archived:
         raise SuspiciousOperation("Archiving participations for this semester is not allowed")
-    semester.archive_participations()
+    semester.archive()
     return HttpResponse()  # 200 OK
 
 
@@ -717,8 +708,6 @@ def course_create(request, semester_id):
             raise SuspiciousOperation("Invalid POST operation")
 
         course = course_form.save()
-        course.set_last_modified(request.user)
-        course.save()
 
         messages.success(request, _("Successfully created course."))
         if operation == 'save_create_evaluation':
@@ -749,8 +738,6 @@ def course_edit(request, semester_id, course_id):
 
         if course_form.has_changed():
             course = course_form.save()
-            course.set_last_modified(request.user)
-            course.save()
             update_template_cache_of_published_evaluations_in_course(course)
 
         messages.success(request, _("Successfully updated course."))
@@ -794,8 +781,6 @@ def evaluation_create(request, semester_id, course_id=None):
 
     if evaluation_form.is_valid() and formset.is_valid():
         evaluation = evaluation_form.save()
-        evaluation.set_last_modified(request.user)
-        evaluation.save()
         formset.save()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
@@ -821,8 +806,6 @@ def evaluation_copy(request, semester_id, evaluation_id):
 
     if form.is_valid() and formset.is_valid():
         copied_evaluation = form.save()
-        copied_evaluation.set_last_modified(request.user)
-        copied_evaluation.save()
         formset.save()
         update_template_cache_of_published_evaluations_in_course(copied_evaluation.course)
 
@@ -852,7 +835,7 @@ def single_result_create(request, semester_id, course_id=None):
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
     if form.is_valid():
-        evaluation = form.save(user=request.user)
+        evaluation = form.save()
         update_template_cache_of_published_evaluations_in_course(evaluation.course)
 
         messages.success(request, _("Successfully created single result."))
@@ -912,8 +895,6 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        if form_has_changed:
-            evaluation.set_last_modified(request.user)
         evaluation_form.save()
         formset.save()
 
@@ -950,7 +931,7 @@ def helper_single_result_edit(request, semester, evaluation):
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
-        form.save(user=request.user)
+        form.save()
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
 
@@ -1501,6 +1482,25 @@ def course_type_merge(request, main_type_id, other_type_id):
 
 
 @manager_required
+def text_answer_warnings_index(request):
+    text_answer_warnings = TextAnswerWarning.objects.all()
+
+    TextAnswerWarningFormSet = modelformset_factory(TextAnswerWarning, form=TextAnswerWarningForm,
+        can_delete=True, extra=1)
+    formset = TextAnswerWarningFormSet(request.POST or None, queryset=text_answer_warnings)
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, _("Successfully updated text warning answers."))
+        return redirect('staff:text_answer_warnings')
+
+    return render(request, "staff_text_answer_warnings.html", dict(
+        formset=formset,
+        text_answer_warnings=TextAnswerWarning.objects.all(),
+    ))
+
+
+@manager_required
 def user_index(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
@@ -1598,6 +1598,8 @@ def user_edit(request, user_id):
         form.save()
         delete_navbar_cache_for_users([user])
         messages.success(request, _("Successfully updated user."))
+        for message in form.remove_messages:
+            messages.warning(request, message)
         return redirect('staff:user_index')
 
     return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))
@@ -1762,3 +1764,19 @@ def development_components(request):
 def export_contributor_results_view(request, contributor_id):
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)
+
+
+@require_POST
+@staff_permission_required
+def enter_staff_mode(request):
+    staff_mode.enter_staff_mode(request)
+    messages.success(request, _("Successfully entered staff mode."))
+    return redirect('/')
+
+
+@require_POST
+@staff_permission_required
+def exit_staff_mode(request):
+    staff_mode.exit_staff_mode(request)
+    messages.success(request, _("Successfully exited staff mode."))
+    return redirect('/')

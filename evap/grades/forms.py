@@ -10,7 +10,6 @@ class GradeDocumentFileWidget(forms.widgets.ClearableFileInput):
 
 
 class GradeDocumentForm(forms.ModelForm):
-    # see EvaluationForm (staff/forms.py) for details, why the following two fields are needed
     last_modified_time_2 = forms.DateTimeField(label=_("Last modified"), required=False, localize=True, disabled=True)
     last_modified_user_2 = forms.CharField(label=_("Last modified by"), required=False, disabled=True)
 

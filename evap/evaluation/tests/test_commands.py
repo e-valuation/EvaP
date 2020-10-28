@@ -176,10 +176,10 @@ class TestReloadTestdataCommand(TestCase):
 
 
 class TestRefreshResultsCacheCommand(TestCase):
-    def test_calls_collect_results(self):
-        baker.make(Evaluation)
+    def test_calls_cache_results(self):
+        baker.make(Evaluation, state='published')
 
-        with patch('evap.evaluation.management.commands.refresh_results_cache.collect_results') as mock:
+        with patch('evap.evaluation.management.commands.refresh_results_cache.cache_results') as mock:
             management.call_command('refresh_results_cache', stdout=StringIO())
 
         self.assertEqual(mock.call_count, Evaluation.objects.count())
@@ -200,8 +200,9 @@ class TestDumpTestDataCommand(TestCase):
             management.call_command('dump_testdata')
 
         outfile_name = os.path.join(settings.BASE_DIR, "evaluation", "fixtures", "test_data.json")
-        mock.assert_called_once_with('dumpdata', 'auth.group', 'evaluation', 'rewards', 'grades',
-                                     indent=2, natural_foreign=True, natural_primary=True, output=outfile_name)
+        mock.assert_called_once_with('dumpdata', 'auth.group', 'evaluation', 'rewards', 'student', 'grades',
+                                     '--exclude=evaluation.LogEntry', indent=2, natural_foreign=True,
+                                     natural_primary=True, output=outfile_name)
 
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])

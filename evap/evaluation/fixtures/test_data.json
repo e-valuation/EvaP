@@ -130389,6 +130389,16 @@
   }
 },
 {
+  "model": "student.textanswerwarning",
+  "pk": 1,
+  "fields": {
+    "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabh\u00e4ngig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
+    "warning_text_en": "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to.",
+    "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erw\\u00e4hnt\", \"already stated\"]",
+    "order": 0
+  }
+},
+{
   "model": "grades.gradedocument",
   "pk": 2,
   "fields": {
@@ -139672,8 +139682,6 @@
     "vote_start_datetime": "2007-02-01T00:00:00",
     "vote_end_date": "2014-06-02",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.498",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -139735,8 +139743,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.291",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -139804,8 +139810,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-08",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.339",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -139855,8 +139859,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-03-01",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.574",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -139939,8 +139941,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.597",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140050,10 +140050,6 @@
     "vote_start_datetime": "2012-03-01T00:00:00",
     "vote_end_date": "2012-03-18",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.361",
-    "last_modified_user": [
-      "luann.schulz@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140127,10 +140123,6 @@
     "vote_start_datetime": "2012-02-29T00:00:00",
     "vote_end_date": "2012-03-07",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.626",
-    "last_modified_user": [
-      "luann.schulz@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140201,8 +140193,6 @@
     "vote_start_datetime": "2012-03-12T00:00:00",
     "vote_end_date": "2012-03-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.827",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140242,8 +140232,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.333",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140482,8 +140470,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.679",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140554,8 +140540,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.592",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140665,8 +140649,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.199",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140755,10 +140737,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T10:28:15.171",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140835,8 +140813,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.661",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -140904,8 +140880,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.390",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -141219,8 +141193,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-09",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.587",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -141588,8 +141560,6 @@
     "vote_start_datetime": "2012-04-12T00:00:00",
     "vote_end_date": "2012-04-26",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.503",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -141765,8 +141735,6 @@
     "vote_start_datetime": "2012-03-27T00:00:00",
     "vote_end_date": "2012-04-04",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.551",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -141828,10 +141796,6 @@
     "vote_start_datetime": "2012-01-30T00:00:00",
     "vote_end_date": "2012-02-08",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T10:15:58.567",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -142217,10 +142181,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T10:14:40.767",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -142630,8 +142590,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.228",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -142735,8 +142693,6 @@
     "vote_start_datetime": "2012-01-22T00:00:00",
     "vote_end_date": "2012-01-23",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.756",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -142794,8 +142750,6 @@
     "vote_start_datetime": "2012-02-02T00:00:00",
     "vote_end_date": "2012-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.562",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -143175,10 +143129,6 @@
     "vote_start_datetime": "2012-07-09T00:00:00",
     "vote_end_date": "2012-07-29",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.166",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -143507,10 +143457,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.154",
-    "last_modified_user": [
-      "viola.barringer@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -143878,10 +143824,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.493",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -144327,10 +144269,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-11",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.603",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -144686,10 +144624,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.244",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -144823,10 +144757,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.572",
-    "last_modified_user": [
-      "kyra.hart@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -144912,10 +144842,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.666",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -144983,10 +144909,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.615",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145105,10 +145027,6 @@
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.337",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145257,10 +145175,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.619",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145352,10 +145266,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.547",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145465,10 +145375,6 @@
     "vote_start_datetime": "2012-07-05T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.569",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145608,10 +145514,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.289",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145667,10 +145569,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.612",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145750,10 +145648,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.266",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145869,10 +145763,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.649",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145940,10 +145830,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.655",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -145977,10 +145863,6 @@
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.524",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146042,10 +145924,6 @@
     "vote_start_datetime": "2012-07-06T00:00:00",
     "vote_end_date": "2012-07-19",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.594",
-    "last_modified_user": [
-      "laurence.tipton@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146089,10 +145967,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.531",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146151,10 +146025,6 @@
     "vote_start_datetime": "2012-07-01T00:00:00",
     "vote_end_date": "2012-07-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.577",
-    "last_modified_user": [
-      "kyra.hart@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146207,10 +146077,6 @@
     "vote_start_datetime": "2012-08-17T00:00:00",
     "vote_end_date": "2012-08-24",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.248",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146293,10 +146159,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.637",
-    "last_modified_user": [
-      "arron.tran@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146607,10 +146469,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.527",
-    "last_modified_user": [
-      "Matthias.Kober@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146645,10 +146503,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.522",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146737,10 +146591,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.495",
-    "last_modified_user": [
-      "gwyn.lloyd@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -146787,10 +146637,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.668",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147071,10 +146917,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.624",
-    "last_modified_user": [
-      "hsiu.page@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147127,10 +146969,6 @@
     "vote_start_datetime": "2013-04-01T00:00:00",
     "vote_end_date": "2013-04-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.542",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147267,10 +147105,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-17",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T10:21:35.449",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147380,10 +147214,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.539",
-    "last_modified_user": [
-      "delegate@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147466,10 +147296,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.159",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -147816,10 +147642,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.187",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148205,10 +148027,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.657",
-    "last_modified_user": [
-      "delegate@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148312,10 +148130,6 @@
     "vote_start_datetime": "2019-10-28T19:16:36.113",
     "vote_end_date": "2020-09-18",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-10-28T19:16:19.471",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148364,10 +148178,6 @@
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
     "allow_editors_to_edit": false,
-    "last_modified_time": "2019-01-28T10:29:20.273",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148416,10 +148226,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.797",
-    "last_modified_user": [
-      "fritz.joe@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148477,10 +148283,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.605",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148557,8 +148359,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.852",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148602,10 +148402,6 @@
     "vote_start_datetime": "2013-02-04T00:00:00",
     "vote_end_date": "2013-02-17",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.276",
-    "last_modified_user": [
-      "harriet.rushing@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148679,8 +148475,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.859",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148717,8 +148511,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.810",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148761,10 +148553,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.182",
-    "last_modified_user": [
-      "trudie.huntley@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148895,10 +148683,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-28",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.589",
-    "last_modified_user": [
-      "hsiu.page@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -148966,10 +148750,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.647",
-    "last_modified_user": [
-      "lisandra.grace@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149100,10 +148880,6 @@
     "vote_start_datetime": "2013-01-26T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.346",
-    "last_modified_user": [
-      "britteny.easley@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149369,10 +149145,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-03-20",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.370",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149461,10 +149233,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.507",
-    "last_modified_user": [
-      "britteny.easley@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149655,8 +149423,6 @@
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.731",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149696,10 +149462,6 @@
     "vote_start_datetime": "2013-02-02T00:00:00",
     "vote_end_date": "2013-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.565",
-    "last_modified_user": [
-      "britteny.easley@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -149839,10 +149601,6 @@
     "vote_start_datetime": "2013-02-25T00:00:00",
     "vote_end_date": "2013-03-03",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.197",
-    "last_modified_user": [
-      "harriet.rushing@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150006,10 +149764,6 @@
     "vote_start_datetime": "2013-06-28T00:00:00",
     "vote_end_date": "2013-07-04",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.644",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150122,10 +149876,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-22",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.804",
-    "last_modified_user": [
-      "qiana.briscoe@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150186,10 +149936,6 @@
     "vote_start_datetime": "2099-08-01T00:00:00",
     "vote_end_date": "2099-08-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T11:11:46.247",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150250,10 +149996,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.579",
-    "last_modified_user": [
-      "laurence.tipton@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150639,10 +150381,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-09-30",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.652",
-    "last_modified_user": [
-      "laurence.tipton@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150689,10 +150427,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-21",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.529",
-    "last_modified_user": [
-      "laurence.tipton@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150790,10 +150524,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.641",
-    "last_modified_user": [
-      "laurence.tipton@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150873,10 +150603,6 @@
     "vote_start_datetime": "2013-09-01T00:00:00",
     "vote_end_date": "2013-09-15",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.279",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -150914,10 +150640,6 @@
     "vote_start_datetime": "2013-08-12T00:00:00",
     "vote_end_date": "2013-08-23",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.236",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -151054,10 +150776,6 @@
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.663",
-    "last_modified_user": [
-      "britteny.easley@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -151110,10 +150828,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.610",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -151150,10 +150864,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-18",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.582",
-    "last_modified_user": [
-      "kindra.hancock@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -151578,10 +151288,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.659",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -151670,10 +151376,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.560",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152032,10 +151734,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T11:07:08.968",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152175,10 +151873,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.274",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152243,10 +151937,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.505",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152377,10 +152067,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.297",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152451,10 +152137,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.556",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152513,10 +152195,6 @@
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.856",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152557,10 +152235,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.794",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152597,10 +152271,6 @@
     "vote_start_datetime": "2013-07-12T00:00:00",
     "vote_end_date": "2013-07-29",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.511",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152659,10 +152329,6 @@
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.621",
-    "last_modified_user": [
-      "lizabeth.steward@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152724,10 +152390,6 @@
     "vote_start_datetime": "2013-06-24T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.671",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152777,8 +152439,6 @@
     "vote_start_datetime": "2014-05-01T00:00:00",
     "vote_end_date": "2014-05-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.212",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152843,10 +152503,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.786",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152874,10 +152530,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.553",
-    "last_modified_user": [
-      "arnold.lane@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -152930,10 +152582,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.823",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153027,10 +152675,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.842",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153061,8 +152705,6 @@
     "vote_start_datetime": "2099-12-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.768",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153093,10 +152735,6 @@
     "vote_start_datetime": "2013-07-01T00:00:00",
     "vote_end_date": "2013-07-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.631",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153161,10 +152799,6 @@
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.629",
-    "last_modified_user": [
-      "chieko.lehman@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153205,10 +152839,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T11:15:24.373",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153249,10 +152879,6 @@
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.363",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153296,10 +152922,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2021-05-08",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-10-28T19:21:52.830",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153333,10 +152955,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.673",
-    "last_modified_user": [
-      "lizabeth.steward@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153413,10 +153031,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.322",
-    "last_modified_user": [
-      "lizabeth.steward@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153469,8 +153083,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.917",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153507,10 +153119,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.567",
-    "last_modified_user": [
-      "sergio.reichert@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153563,10 +153171,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-16",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.170",
-    "last_modified_user": [
-      "hue.fontenot@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153625,10 +153229,6 @@
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.681",
-    "last_modified_user": [
-      "hue.fontenot@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153666,10 +153266,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.382",
-    "last_modified_user": [
-      "lahoma.gage@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153860,8 +153456,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.801",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153898,10 +153492,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.600",
-    "last_modified_user": [
-      "lahoma.gage@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153942,10 +153532,6 @@
     "vote_start_datetime": "2014-03-31T00:00:00",
     "vote_end_date": "2014-04-06",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.268",
-    "last_modified_user": [
-      "lahoma.gage@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -153998,10 +153584,6 @@
     "vote_start_datetime": "2014-02-11T00:00:00",
     "vote_end_date": "2014-02-16",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.874",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154060,10 +153642,6 @@
     "vote_start_datetime": "2014-01-28T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.607",
-    "last_modified_user": [
-      "tonita.gallardo@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154182,10 +153760,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.255",
-    "last_modified_user": [
-      "salena.soriano@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154304,8 +153878,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.785",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154348,10 +153920,6 @@
     "vote_start_datetime": "2014-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": false,
-    "last_modified_time": "2018-06-03T10:22:16.388",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154413,10 +153981,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-05",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.544",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154847,10 +154411,6 @@
     "vote_start_datetime": "2015-01-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.329",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154897,8 +154457,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.898",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -154938,10 +154496,6 @@
     "vote_start_datetime": "2014-03-07T00:00:00",
     "vote_end_date": "2014-03-16",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.585",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155054,10 +154608,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-07",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.558",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155410,8 +154960,6 @@
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
     "allow_editors_to_edit": false,
-    "last_modified_time": "2016-02-22T22:08:19.840",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155457,8 +155005,6 @@
     "vote_start_datetime": "2014-06-01T00:00:00",
     "vote_end_date": "2099-12-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.836",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155499,10 +155045,6 @@
     "vote_start_datetime": "2014-02-04T00:00:00",
     "vote_end_date": "2014-02-16",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.634",
-    "last_modified_user": [
-      "amos.benoit@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155723,10 +155265,6 @@
     "vote_start_datetime": "2014-02-05T00:00:00",
     "vote_end_date": "2014-02-12",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.639",
-    "last_modified_user": [
-      "lisandra.grace@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -155830,10 +155368,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.549",
-    "last_modified_user": [
-      "odis.cantu@external.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -156183,10 +155717,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.311",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -156263,10 +155793,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.510",
-    "last_modified_user": [
-      "denna.lester@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": false,
     "participants": [
       [
@@ -156424,10 +155950,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-10",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.534",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -156813,10 +156335,6 @@
     "vote_start_datetime": "2014-04-06T00:00:00",
     "vote_end_date": "2014-04-13",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.519",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -157013,10 +156531,6 @@
     "vote_start_datetime": "2014-02-01T00:00:00",
     "vote_end_date": "2014-02-14",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-06T09:06:22.676",
-    "last_modified_user": [
-      "hugh.runyon@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -157408,8 +156922,6 @@
     "vote_start_datetime": "2014-08-01T00:00:00",
     "vote_end_date": "2014-08-31",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2016-02-22T22:08:19.766",
-    "last_modified_user": null,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
       [
@@ -157455,10 +156967,6 @@
     "vote_start_datetime": "2015-11-01T00:00:00",
     "vote_end_date": "2015-11-01",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2018-06-03T10:22:16.380",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": false,
     "participants": [],
     "voters": []
@@ -157482,10 +156990,6 @@
     "vote_start_datetime": "2015-10-01T00:00:00",
     "vote_end_date": "2015-10-01",
     "allow_editors_to_edit": false,
-    "last_modified_time": "2018-06-03T10:22:16.193",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": false,
     "participants": [],
     "voters": []
@@ -157509,10 +157013,6 @@
     "vote_start_datetime": "2014-06-20T00:00:00",
     "vote_end_date": "2014-06-20",
     "allow_editors_to_edit": true,
-    "last_modified_time": "2019-01-28T10:34:37.254",
-    "last_modified_user": [
-      "evap@institution.example.com"
-    ],
     "wait_for_grade_upload_before_publishing": true,
     "participants": [],
     "voters": []
@@ -157528,8 +157028,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.406",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157550,8 +157048,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.425",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157572,8 +157068,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.439",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157594,8 +157088,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.452",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157616,8 +157108,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.466",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157638,8 +157128,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.493",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157660,8 +157148,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.506",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157682,8 +157168,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.521",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157704,8 +157188,6 @@
     "type": 2,
     "is_private": true,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.536",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157726,8 +157208,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.552",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157748,8 +157228,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.568",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157770,8 +157248,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.597",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157792,8 +157268,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.610",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157814,8 +157288,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.623",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157836,8 +157308,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.637",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157858,8 +157328,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.651",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -157880,8 +157348,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.665",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157902,8 +157368,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.691",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157924,8 +157388,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.705",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157946,8 +157408,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.719",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157968,8 +157428,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.732",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -157990,8 +157448,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.746",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158012,8 +157468,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.760",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158034,8 +157488,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.774",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158056,8 +157508,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.787",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158078,8 +157528,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.801",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158100,8 +157548,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.814",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158122,8 +157568,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.828",
-    "last_modified_user": null,
     "degrees": [
       3
     ],
@@ -158144,8 +157588,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.841",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158166,8 +157608,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.855",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158188,8 +157628,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.871",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158210,8 +157648,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.884",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158232,8 +157668,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.898",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158254,8 +157688,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.912",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158276,8 +157708,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.925",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158298,8 +157728,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.939",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158320,8 +157748,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.952",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158342,8 +157768,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.966",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158364,8 +157788,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.981",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158386,8 +157808,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:48.996",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158408,8 +157828,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.012",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158430,8 +157848,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.028",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158452,8 +157868,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.041",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158474,8 +157888,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.055",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158496,8 +157908,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.069",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158518,8 +157928,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.082",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158540,8 +157948,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.096",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158562,8 +157968,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.109",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158584,8 +157988,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.122",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158606,8 +158008,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.136",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158628,8 +158028,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.152",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158650,8 +158048,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.167",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158672,8 +158068,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.182",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158694,8 +158088,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.196",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158716,8 +158108,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.209",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158738,8 +158128,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.223",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158760,8 +158148,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.237",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158782,8 +158168,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.251",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158804,8 +158188,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.278",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158826,8 +158208,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.293",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158848,8 +158228,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.307",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158870,8 +158248,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.321",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158892,8 +158268,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.334",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158914,8 +158288,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.349",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158936,8 +158308,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.363",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -158958,8 +158328,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.377",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -158980,8 +158348,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.391",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159002,8 +158368,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.404",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159024,8 +158388,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.418",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159046,8 +158408,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.431",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159068,8 +158428,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.445",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159090,8 +158448,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.458",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159112,8 +158468,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.472",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159134,8 +158488,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.486",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159156,8 +158508,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.499",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159178,8 +158528,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.513",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159200,8 +158548,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.526",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159222,8 +158568,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.540",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159244,8 +158588,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.554",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159266,8 +158608,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.568",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159288,8 +158628,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.581",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159310,8 +158648,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.595",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159332,8 +158668,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.608",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159354,8 +158688,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": true,
-    "last_modified_time": "2019-01-02T12:13:49.622",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159376,8 +158708,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.635",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159398,8 +158728,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.649",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159420,8 +158748,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.662",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159442,8 +158768,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.676",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159464,8 +158788,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.690",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159486,8 +158808,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.703",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159508,8 +158828,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.729",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159530,8 +158848,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.743",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159552,8 +158868,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.758",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159574,8 +158888,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.771",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159596,8 +158908,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.785",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159618,8 +158928,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.799",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159640,8 +158948,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.813",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159662,8 +158968,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.826",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159684,8 +158988,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.840",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159706,8 +159008,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.854",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159728,8 +159028,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.868",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159750,8 +159048,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.881",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159772,8 +159068,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.895",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159794,8 +159088,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.909",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -159816,8 +159108,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.922",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159838,8 +159128,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.936",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159860,8 +159148,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.949",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159882,8 +159168,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.963",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159904,8 +159188,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.976",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159926,8 +159208,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:49.990",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159948,8 +159228,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.004",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159970,8 +159248,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.017",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -159992,8 +159268,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.031",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160014,8 +159288,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.045",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160036,8 +159308,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.059",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160058,8 +159328,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.073",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160080,8 +159348,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.086",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160102,8 +159368,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.113",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160124,8 +159388,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.126",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160146,8 +159408,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.140",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160168,8 +159428,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.153",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160190,8 +159448,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.166",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160212,8 +159468,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.180",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160234,8 +159488,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.193",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160256,8 +159508,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.207",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160278,8 +159528,6 @@
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.220",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160300,8 +159548,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.233",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160322,8 +159568,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.247",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160344,8 +159588,6 @@
     "type": 5,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.262",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160366,8 +159608,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.275",
-    "last_modified_user": null,
     "degrees": [
       3
     ],
@@ -160388,8 +159628,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.289",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160410,8 +159648,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.303",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160432,8 +159668,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.316",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160454,8 +159688,6 @@
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.329",
-    "last_modified_user": null,
     "degrees": [
       2
     ],
@@ -160476,8 +159708,6 @@
     "type": 2,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.343",
-    "last_modified_user": null,
     "degrees": [
       1
     ],
@@ -160498,8 +159728,6 @@
     "type": 4,
     "is_private": false,
     "gets_no_grade_documents": false,
-    "last_modified_time": "2019-01-02T12:13:50.356",
-    "last_modified_user": null,
     "degrees": [
       2
     ],

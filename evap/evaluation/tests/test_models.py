@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, date
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, call
 
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
@@ -13,8 +13,8 @@ from model_bakery import baker
 from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
                                     Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
 from evap.grades.models import GradeDocument
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation
-from evap.results.tools import calculate_average_distribution
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
+from evap.results.tools import calculate_average_distribution, cache_results
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
@@ -75,30 +75,30 @@ class TestEvaluations(WebTest):
         self.assertEqual(evaluation.state, 'published')
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
-    def test_evaluation_ends_soon(self):
+    def test_ends_soon(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today() + timedelta(hours=24))
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today()
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=48)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
-    def test_evaluation_ends_soon_with_offset(self):
+    def test_ends_soon_with_offset(self):
         evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
                             vote_end_date=date.today())
 
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=24)
-        self.assertTrue(evaluation.evaluation_ends_soon())
+        self.assertTrue(evaluation.ends_soon)
 
         evaluation.vote_end_date = date.today() - timedelta(hours=72)
-        self.assertFalse(evaluation.evaluation_ends_soon())
+        self.assertFalse(evaluation.ends_soon)
 
     def test_evaluation_ended(self):
         # Evaluation is out of evaluation period.
@@ -160,12 +160,6 @@ class TestEvaluations(WebTest):
         editor_contribution.questionnaires.add(questionnaire)
         self.assertTrue(evaluation.general_contribution_has_questionnaires)
         self.assertTrue(evaluation.all_contributions_have_questionnaires)
-
-    def test_deleting_last_modified_user_does_not_delete_evaluation(self):
-        user = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, last_modified_user=user)
-        user.delete()
-        self.assertTrue(Evaluation.objects.filter(pk=evaluation.pk).exists())
 
     def test_single_result_can_be_deleted_only_in_reviewed(self):
         responsible = baker.make(UserProfile)
@@ -426,11 +420,15 @@ class TestUserProfile(TestCase):
         semester_contributed_to.created_at = date.today() - timedelta(days=1)
         semester_contributed_to.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertTrue(user.is_student)
 
         semester_participated_in.created_at = date.today() - timedelta(days=2)
         semester_participated_in.save()
 
+        # invalidate cached_property
+        del user.is_student
         self.assertFalse(user.is_student)
 
     def test_can_be_deleted_by_manager(self):
@@ -519,7 +517,7 @@ class ParticipationArchivingTests(TestCase):
         voter_count = self.evaluation.num_voters
         participant_count = self.evaluation.num_participants
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
 
         self.assertEqual(voter_count, self.evaluation.num_voters)
@@ -531,7 +529,7 @@ class ParticipationArchivingTests(TestCase):
         """
         some_participant = self.evaluation.participants.first()
 
-        self.semester.archive_participations()
+        self.semester.archive()
 
         self.assertEqual(list(some_participant.evaluations_participating_in.all()), [self.evaluation])
 
@@ -541,27 +539,29 @@ class ParticipationArchivingTests(TestCase):
         """
         self.assertFalse(self.evaluation.participations_are_archived)
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
 
         self.assertTrue(self.evaluation.participations_are_archived)
 
     def test_archiving_participations_does_not_change_results(self):
+        cache_results(self.evaluation)
         distribution = calculate_average_distribution(self.evaluation)
 
-        self.semester.archive_participations()
+        self.semester.archive()
         self.refresh_evaluation()
         caches['results'].clear()
 
+        cache_results(self.evaluation)
         new_distribution = calculate_average_distribution(self.evaluation)
         self.assertEqual(new_distribution, distribution)
 
     def test_archiving_participations_twice_raises_exception(self):
-        self.semester.archive_participations()
+        self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            self.semester.archive_participations()
+            self.semester.archive()
         with self.assertRaises(NotArchiveable):
-            self.semester.courses.first().evaluations.first()._archive_participations()
+            self.semester.courses.first().evaluations.first()._archive()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
         evaluation = baker.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
@@ -580,7 +580,7 @@ class ParticipationArchivingTests(TestCase):
         )
         contribution.questionnaires.add(Questionnaire.single_result_questionnaire())
 
-        evaluation.course.semester.archive_participations()
+        evaluation.course.semester.archive()
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(evaluation._participant_count, 5)
         self.assertEqual(evaluation._voter_count, 5)
@@ -718,6 +718,58 @@ class TestEmailTemplate(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email})
+
+    @staticmethod
+    def test_send_contributor_publish_notifications():
+        responsible1 = baker.make(UserProfile)
+        responsible2 = baker.make(UserProfile)
+        # use is_single_result to get can_publish_average_grade to become true
+        evaluation1 = baker.make(Evaluation, course__responsibles=[responsible1], is_single_result=True)
+        evaluation2 = baker.make(Evaluation, course__responsibles=[responsible2])
+
+        editor1 = baker.make(UserProfile)
+        contributor1 = baker.make(UserProfile)
+
+        contributor2 = baker.make(UserProfile)
+        editor2 = baker.make(UserProfile)
+        contributor_both = baker.make(UserProfile)
+
+        # Contributions for evaluation1
+        make_contributor(responsible1, evaluation1)
+        make_contributor(contributor1, evaluation1)
+        make_contributor(contributor_both, evaluation1)
+        make_editor(editor1, evaluation1)
+
+        # Contributions for evaluation2
+        make_editor(editor2, evaluation2)
+        contributor_both_contribution = make_contributor(contributor_both, evaluation2)
+        contributor2_contribution = make_contributor(contributor2, evaluation2)
+
+        baker.make(TextAnswer, contribution=contributor_both_contribution)
+        baker.make(TextAnswer, contribution=contributor2_contribution)
+
+        expected_calls = [
+            # these 4 are included since they are contributors for evaluation1 which can publish the average grade
+            call(responsible1, {}, {'user': responsible1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(editor1, {}, {'user': editor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor1, {}, {'user': contributor1, 'evaluations': [evaluation1]}, use_cc=True),
+            call(contributor_both, {}, {'user': contributor_both, 'evaluations': [evaluation1, evaluation2]}, use_cc=True),
+            # contributor2 has textanswers, so they are notified
+            call(contributor2, {}, {'user': contributor2, 'evaluations': [evaluation2]}, use_cc=True),
+        ]
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            # Assert that all expected publish notifications are sent to contributors.
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
+
+        # if general textanswers for an evaluation exist, all responsibles should also be notified
+        baker.make(TextAnswer, contribution=evaluation2.general_contribution)
+        expected_calls.append(call(responsible2, {}, {'user': responsible2, 'evaluations': [evaluation2]}, use_cc=True))
+
+        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
 
 class TestEmailRecipientList(TestCase):

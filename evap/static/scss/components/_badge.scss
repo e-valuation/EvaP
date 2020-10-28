@@ -59,3 +59,10 @@
     color: lighten($medium-gray, 5%);
     text-shadow: none;
 }
+
+.badge-secondary-outline {
+    background-color: $white;
+    color: $secondary;
+    border: 1px solid $secondary;
+    padding: 0.16em 0.35em;
+}

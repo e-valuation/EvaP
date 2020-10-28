@@ -77,6 +77,8 @@ urlpatterns = [
     path("template/", RedirectView.as_view(url='/staff/', permanent=True)),
     path("template/<int:template_id>", views.template_edit, name="template_edit"),
 
+    path("text_answer_warnings/", views.text_answer_warnings_index, name="text_answer_warnings"),
+
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
@@ -85,4 +87,7 @@ urlpatterns = [
     path("development/components", views.development_components, name="development_components"),
 
     path("export_contributor_results/<int:contributor_id>", views.export_contributor_results_view, name="export_contributor_results"),
+
+    path("enter_staff_mode", views.enter_staff_mode, name="enter_staff_mode"),
+    path("exit_staff_mode", views.exit_staff_mode, name="exit_staff_mode"),
 ]

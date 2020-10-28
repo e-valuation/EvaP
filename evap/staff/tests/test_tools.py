@@ -8,7 +8,7 @@ from model_bakery import baker
 from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import merge_users, delete_navbar_cache_for_users
+from evap.staff.tools import merge_users, delete_navbar_cache_for_users, remove_user_from_represented_and_ccing_users
 
 
 class NavbarCacheTest(WebTest):
@@ -124,8 +124,6 @@ class MergeUsersTest(TestCase):
         # add attributes here only if you're actually dealing with them in merge_users().
         additional_handled_attrs = {
             'grades_last_modified_user+',
-            'courses_last_modified+',
-            'evaluations_last_modified+',
             'Course_responsibles+'
         }
 
@@ -213,3 +211,41 @@ class MergeUsersTest(TestCase):
         self.assertFalse(UserProfile.objects.filter(email="other_user@institution.example.com").exists())
         self.assertFalse(RewardPointGranting.objects.filter(user_profile=self.other_user).exists())
         self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.other_user).exists())
+
+
+class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
+    def test_remove_user_from_represented_and_ccing_users(self):
+        delete_user = baker.make(UserProfile)
+        delete_user2 = baker.make(UserProfile)
+        user1 = baker.make(UserProfile, delegates=[delete_user, delete_user2], cc_users=[delete_user])
+        user2 = baker.make(UserProfile, delegates=[delete_user], cc_users=[delete_user, delete_user2])
+
+        messages = remove_user_from_represented_and_ccing_users(delete_user)
+        self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user2}, set()])
+        self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [set(), {delete_user2}])
+        self.assertEqual(len(messages), 4)
+
+        messages2 = remove_user_from_represented_and_ccing_users(delete_user2)
+        self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [set(), set()])
+        self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [set(), set()])
+        self.assertEqual(len(messages2), 2)
+
+    def test_do_not_remove_from_ignored_users(self):
+        delete_user = baker.make(UserProfile)
+        user1 = baker.make(UserProfile, delegates=[delete_user], cc_users=[delete_user])
+        user2 = baker.make(UserProfile, delegates=[delete_user], cc_users=[delete_user])
+
+        messages = remove_user_from_represented_and_ccing_users(delete_user, [user2])
+        self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [set(), set()])
+        self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
+        self.assertEqual(len(messages), 2)
+
+    def test_do_nothing_if_test_run(self):
+        delete_user = baker.make(UserProfile)
+        user1 = baker.make(UserProfile, delegates=[delete_user], cc_users=[delete_user])
+        user2 = baker.make(UserProfile, delegates=[delete_user], cc_users=[delete_user])
+
+        messages = remove_user_from_represented_and_ccing_users(delete_user, test_run=True)
+        self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user}, {delete_user}])
+        self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
+        self.assertEqual(len(messages), 4)

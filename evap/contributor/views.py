@@ -11,7 +11,7 @@ from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContribu
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
-from evap.results.exporters import ExcelExporter
+from evap.results.exporters import ResultsExporter
 from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
                                 normalized_distribution)
@@ -24,11 +24,14 @@ def index(request):
     user = request.user
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
+    represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
     contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
     own_courses = Course.objects.filter(
         Q(evaluations__state__in=contributor_visible_states) & (
             Q(responsibles=user) |
-            Q(evaluations__contributions__contributor=user)
+            Q(evaluations__contributions__contributor=user) |
+            Q(evaluations__contributions__contributor__in=represented_proxy_users) |
+            Q(responsibles__in=represented_proxy_users)
         )
     )
     own_evaluations = [evaluation for course in own_courses for evaluation in course.evaluations.all() if evaluation.can_be_seen_by(user)]
@@ -37,7 +40,7 @@ def index(request):
 
     displayed_evaluations = set(own_evaluations)
     if show_delegated:
-        represented_users = user.represented_users.all()
+        represented_users = user.represented_users.exclude(is_proxy_user=True)
         delegated_courses = Course.objects.filter(
             Q(evaluations__state__in=contributor_visible_states) & (
                 Q(responsibles__in=represented_users) |
@@ -127,8 +130,6 @@ def render_preview(request, formset, evaluation_form, evaluation):
     try:
         with transaction.atomic():
             evaluation = evaluation_form.save()
-            evaluation.set_last_modified(request.user)
-            evaluation.save()
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
@@ -162,8 +163,6 @@ def evaluation_edit(request, evaluation_id):
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
 
-        if form_has_changed:
-            evaluation.set_last_modified(request.user)
         evaluation_form.save()
         formset.save()
 
@@ -243,7 +242,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 def export_contributor_results(contributor):
     filename = "Evaluation_{}.xls".format(contributor.full_name)
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
-    ExcelExporter().export(
+    ResultsExporter().export(
         response,
         Semester.objects.all(),
         [(Degree.objects.all(), CourseType.objects.all())],
