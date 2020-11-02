@@ -68,8 +68,10 @@ class NewKeyForm(forms.Form):
         try:
             user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
-        except UserProfile.DoesNotExist:
-            raise forms.ValidationError(_("No user with this email address was found. Please make sure to enter the email address used for registration."))
+        except UserProfile.DoesNotExist as e:
+            raise forms.ValidationError(
+                _("No user with this email address was found. Please make sure to enter the email address used for registration.")
+            ) from e
 
         if not user.is_active:
             raise forms.ValidationError(_("Inactive users cannot request login keys."))

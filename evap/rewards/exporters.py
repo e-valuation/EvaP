@@ -6,7 +6,7 @@ from evap.evaluation.tools import ExcelExporter
 class RewardsExporter(ExcelExporter):
     default_sheet_name = _("Redemptions")
 
-    def export_impl(self, redemptions_by_user):
+    def export_impl(self, redemptions_by_user):  # pylint: disable=arguments-differ
         self.write_row([
             _("Last name"),
             _("First name"),
