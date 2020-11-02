@@ -1771,7 +1771,7 @@ def export_contributor_results_view(request, contributor_id):
 def enter_staff_mode(request):
     staff_mode.enter_staff_mode(request)
     messages.success(request, _("Successfully entered staff mode."))
-    return redirect('/')
+    return redirect('evaluation:index')
 
 
 @require_POST
@@ -1779,4 +1779,4 @@ def enter_staff_mode(request):
 def exit_staff_mode(request):
     staff_mode.exit_staff_mode(request)
     messages.success(request, _("Successfully exited staff mode."))
-    return redirect('/')
+    return redirect('evaluation:index')

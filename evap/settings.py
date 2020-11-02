@@ -262,8 +262,8 @@ ROOT_URLCONF = 'evap.urls'
 
 WSGI_APPLICATION = 'evap.wsgi.application'
 
-# Redirect url after login
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 LOGIN_URL = "/"
 
@@ -371,7 +371,6 @@ OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
 OIDC_RP_SIGN_ALGO = 'RS256'
 OIDC_USERNAME_ALGO = ''
 OIDC_RP_SCOPES = 'openid email profile'
-LOGOUT_REDIRECT_URL = '/'
 
 OIDC_RP_CLIENT_ID = 'evap'
 OIDC_RP_CLIENT_SECRET = 'evap-secret'
