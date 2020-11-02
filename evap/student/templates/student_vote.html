@@ -147,12 +147,12 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
-                        <button type="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
+                        <div id="last-saved" class="text-secondary pt-2" data-toggle="tooltip" title="{% trans 'This evaluation can be continued another time using the same device and the same browser'%}"></div>
                     {% endif %}
                 </div>
             </div>
@@ -185,7 +185,17 @@
                     if($("#text_results_publish_confirmation_top").prop('checked')) {
                         $("#bottom_text_results_publish_confirmation_card").hide();
                     }
-                }
+                },
+                onSave: function () {
+                    const lastSaved = $('#last-saved');
+                    const timeNow = new Date();
+                    let currentHours = timeNow.getHours();
+                    currentHours = ("0" + currentHours).slice(-2);
+                    let currentMinutes = timeNow.getMinutes();
+                    currentMinutes = ("0" + currentMinutes).slice(-2);
+                    const newText = "{% trans 'Your answers have been last saved at " + currentHours + ":" + currentMinutes + " in your browser' %}";
+                    lastSaved.text(newText);
+                },
             });
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
@@ -260,20 +270,6 @@
                 $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
             }
 
-            var presaveButton = $("#presave-btn");
-            var originalPresaveText = presaveButton.text();
-            function presave() {
-                sisyphus.saveAllData();
-                presaveButton.text("{% trans 'Saving...' %}");
-                presaveButton.addClass("disabled");
-                setTimeout(function() {
-                    presaveButton.text("{% trans 'Saved' %}");
-                }, 1000);
-                setTimeout(function() {
-                    presaveButton.removeClass("disabled");
-                    presaveButton.text(originalPresaveText);
-                }, 2500);
-            }
 
             // handle text_results_publish_confirmation checkbox changes
             function textResultsPublishConfirmationTopChanged() {
