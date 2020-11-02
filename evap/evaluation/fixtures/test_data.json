@@ -148128,7 +148128,7 @@
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2019-10-28T19:16:36.113",
-    "vote_end_date": "2020-09-18",
+    "vote_end_date": "2099-09-18",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
@@ -152920,7 +152920,7 @@
     "_participant_count": null,
     "_voter_count": null,
     "vote_start_datetime": "2014-02-01T00:00:00",
-    "vote_end_date": "2021-05-08",
+    "vote_end_date": "2099-05-08",
     "allow_editors_to_edit": true,
     "wait_for_grade_upload_before_publishing": true,
     "participants": [
