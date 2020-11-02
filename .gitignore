@@ -37,6 +37,10 @@ htmlcov
 
 # pip puts editable packages here
 src
+!evap/static/ts/src
+
+# node modules
+node_modules
 
 # python env subdir
 env/
