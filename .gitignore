@@ -23,6 +23,7 @@ thumbs.db
 evap/localsettings.py
 evap/static/css/evap.css
 evap/static/css/evap.css.map
+evap/static/js/copy-to-clipboard.js
 evap/static/js/text-answer-warnings.js
 evap/static_collected
 evap/media

@@ -27,7 +27,6 @@ function updateTextareaWarning(textarea: HTMLTextAreaElement, textAnswerWarnings
     textarea.classList.toggle("border", showWarning);
     textarea.classList.toggle("border-warning", showWarning);
     const row = textarea.closest(".row")!;
-    console.debug(matchingWarnings);
 
     for (const warning of row.querySelectorAll<HTMLElement>("[data-warning]")) {
         warning.classList.toggle("d-none", !matchingWarnings.includes(warning.dataset.warning!));
