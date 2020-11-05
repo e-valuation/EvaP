@@ -17,6 +17,7 @@ class Command(BaseCommand):
             help="Watch scripts and recompile when they change.",
         )
         self.add_fresh_argument(compile_parser)
+        subparsers.add_parser("test")
 
     @staticmethod
     def add_fresh_argument(parser: argparse.ArgumentParser):
@@ -30,6 +31,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options["command"] == "compile":
             self.compile(**options)
+        elif options["command"] == "test":
+            self.test(**options)
 
     def run_command(self, command):
         try:
@@ -60,3 +63,6 @@ class Command(BaseCommand):
                 pass
 
         self.run_command(command)
+
+    def test(self, **_options):
+        self.run_command(["npx", "jest"])

@@ -251,6 +251,16 @@ class TestTsCommend(TestCase):
             check=True,
         )
 
+    @staticmethod
+    @patch("subprocess.run")
+    def test_ts_test(mock_subprocess_run):
+        management.call_command("ts", "test")
+
+        mock_subprocess_run.assert_called_once_with(
+            ["npx", "jest"],
+            check=True,
+        )
+
 
 class TestUpdateEvaluationStatesCommand(TestCase):
     def test_update_evaluations_called(self):

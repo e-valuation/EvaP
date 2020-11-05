@@ -1,5 +1,5 @@
 function normalize(text: string) {
-    return text.toLowerCase().replace(/\s{2,}/g, " ").trim();
+    return text.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 function isTextMeaningless(text: string): boolean {
@@ -49,3 +49,9 @@ export function initTextAnswerWarnings(textareas: NodeListOf<HTMLTextAreaElement
         updateTextareaWarning(textarea, textAnswerWarnings);
     });
 }
+
+export const testable = {
+    normalize,
+    isTextMeaningless,
+    doesTextContainTriggerString,
+};
