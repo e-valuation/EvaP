@@ -249,7 +249,7 @@
             updateLastSavedLabel()
             setInterval(updateLastSavedLabel, 1000);
 
-            initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
+            initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
 
             var form = $('#student-vote-form');
 

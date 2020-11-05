@@ -100,7 +100,7 @@
     <script type="module">
         import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
 
-        initTextAnswerWarnings($("#preview-textarea"), JSON.parse($("#text-answer-warnings").text()));
+        initTextAnswerWarnings([document.querySelector("#preview-textarea")], JSON.parse($("#text-answer-warnings").text()));
 
         const rowChanged = function(row) {
             const triggerStrings = row.find("select[id$=-trigger_strings]").val();
