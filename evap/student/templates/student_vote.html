@@ -55,7 +55,7 @@
 
                         <div class="form-check mt-3">
                             <input class="form-check-input" id="text_results_publish_confirmation_top" type="checkbox"
-                                name="text_results_publish_confirmation_top" onchange="textResultsPublishConfirmationTopChanged();" />
+                                name="text_results_publish_confirmation_top" />
                             <label class="form-check-label" for="text_results_publish_confirmation_top">
                                 {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                             </label>
@@ -98,7 +98,10 @@
                                     </a>
                                 </div>
                                 <div>
-                                    <button type="button"{% if preview %} disabled{% endif %} class="btn btn-light btn-sm" onclick="markNoAnswerFor({{ contributor.id }});">
+                                    <button type="button" class="btn btn-light btn-sm"
+                                        data-mark-no-answers-for="{{ contributor.id }}"
+                                        {% if preview %}disabled{% endif %}
+                                    >
                                         {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
                                     </button>
                                 </div>
@@ -133,7 +136,7 @@
 
                     <div class="form-check mt-3">
                         <input class="form-check-input" id="text_results_publish_confirmation_bottom" type="checkbox"
-                            name="text_results_publish_confirmation_bottom" onchange="textResultsPublishConfirmationBottomChanged();" />
+                            name="text_results_publish_confirmation_bottom" />
                         <label class="form-check-label" for="text_results_publish_confirmation_bottom">
                             {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
                         </label>
@@ -147,7 +150,7 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
-                        <button type="button" id="presave-btn" onclick="presave();" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
+                        <button type="button" id="presave-btn" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
@@ -171,6 +174,12 @@
         <script type="module">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
 
+            const textResultsPublishConfirmation = {
+                top: document.querySelector("#text_results_publish_confirmation_top"),
+                bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
+                bottomCard: document.querySelector("#bottom_text_results_publish_confirmation_card"),
+            };
+
             var sisyphus = $("#student-vote-form").sisyphus({
                 locationBased: true,
                 excludeFields: $("input[type=hidden]"), // exclude the csrf token
@@ -182,8 +191,8 @@
                     $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
 
                     // restore publish confirmation state
-                    if($("#text_results_publish_confirmation_top").prop('checked')) {
-                        $("#bottom_text_results_publish_confirmation_card").hide();
+                    if (textResultsPublishConfirmation.bottomCard) {
+                        updateTextResultsPublishConfirmation();
                     }
                 }
             });
@@ -240,29 +249,31 @@
                 return false;
             });
 
-            function markNoAnswerFor(contributorId) {
-                // uncheck all other options and deactivate buttons
-                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").removeAttr("checked");
-                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value!=6]").parent().removeClass("active");
+            document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
+                button.addEventListener("click", () => {
+                    const contributorId = button.dataset.markNoAnswersFor;
+                    const voteArea = document.querySelector(`#vote-area-${contributorId}`);
+                    // check "no answer" and uncheck all other options
+                    voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']")
+                        .forEach(radioInput => radioInput.click());
 
-                // check "no answer" and activate the button
-                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").prop('checked', true);
-                $("#vote-area-" + contributorId + " div.vote-inputs [type=radio][value=6]").parent().addClass("active");
+                    // hide questionnaire for contributor
+                    $(voteArea).collapse("hide");
+                });
+            });
 
-                // hide questionnaire for contributor
-                $("#vote-area-" + contributorId).collapse("hide");
+            // remove error highlighting when an answer was selected
+            document.querySelectorAll(".vote-btn.choice-error").forEach(voteButton => {
+                voteButton.addEventListener("click", () => {
+                    voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
+                        highlightedElement.classList.remove("choice-error");
+                    });
+                });
+            });
 
-                // setting the 'checked' prop does not trigger a change event, so manually save all data here
-                sisyphus.saveAllData();
-            }
-            function selectedAnswer(fieldName) {
-                // remove error highlighting when an answer was selected
-                $(".choice-error[name=" + fieldName + "]").removeClass("choice-error");
-            }
-
-            var presaveButton = $("#presave-btn");
-            var originalPresaveText = presaveButton.text();
-            function presave() {
+            const presaveButton = $("#presave-btn");
+            const originalPresaveText = presaveButton.text();
+            presaveButton.click(() => {
                 sisyphus.saveAllData();
                 presaveButton.text("{% trans 'Saving...' %}");
                 presaveButton.addClass("disabled");
@@ -273,16 +284,23 @@
                     presaveButton.removeClass("disabled");
                     presaveButton.text(originalPresaveText);
                 }, 2500);
-            }
+            });
 
             // handle text_results_publish_confirmation checkbox changes
-            function textResultsPublishConfirmationTopChanged() {
-                var topIsChecked = $("#text_results_publish_confirmation_top").prop('checked');
-                $("#text_results_publish_confirmation_bottom").prop('checked', topIsChecked);
-                $("#bottom_text_results_publish_confirmation_card").toggle(!topIsChecked);
+            function updateTextResultsPublishConfirmation() {
+                const isChecked = textResultsPublishConfirmation.top.checked;
+                textResultsPublishConfirmation.bottom.checked = isChecked;
+                textResultsPublishConfirmation.bottomCard.classList.toggle("d-none", isChecked);
             }
-            function textResultsPublishConfirmationBottomChanged() {
-                $("#text_results_publish_confirmation_top").prop('checked', $("#text_results_publish_confirmation_bottom").prop('checked'));
+            if (textResultsPublishConfirmation.bottomCard) {
+                textResultsPublishConfirmation.top.addEventListener("change", updateTextResultsPublishConfirmation);
+                textResultsPublishConfirmation.bottom.addEventListener("change", () => {
+                    // The top checkbox should only be visually checked without triggering the change event,
+                    // which would hide the bottom card.
+                    // To keep the top checkbox checked (after a reload or submit), save the form manually.
+                    textResultsPublishConfirmation.top.checked = textResultsPublishConfirmation.bottom.checked;
+                    sisyphus.saveAllData();
+                });
             }
         </script>
     {% endif %}
