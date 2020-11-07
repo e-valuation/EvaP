@@ -1,5 +1,8 @@
+import functools
+import os
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
@@ -53,6 +56,30 @@ def let_user_vote_for_evaluation(app, user, evaluation):
                 elif question.is_rating_question:
                     form[answer_field_id(contribution, questionnaire, question)] = 1
     form.submit()
+
+
+def render_pages(test_item):
+    """Decorator which annotates test methods which render pages.
+    The containing class is expected to include a `url` attribute which matches a valid path.
+    Unlike normal test methods, it should not assert anything and is expected to return a dictionary.
+    The key denotes the variant of the page to reflect multiple states, cases or views.
+    The value is a byte string of the page content."""
+
+    @functools.wraps(test_item)
+    def decorator(self):
+        pages = test_item(self)
+
+        static_directory = settings.STATICFILES_DIRS[0]
+
+        # Remove the leading slash from the url to prevent that an absolute path is created
+        directory = os.path.join(static_directory, "ts", "rendered", self.url[1:])
+        os.makedirs(directory, exist_ok=True)
+
+        for name, content in pages.items():
+            with open(os.path.join(directory, f"{name}.html"), "wb") as html_file:
+                html_file.write(content)
+
+    return decorator
 
 
 class WebTestWith200Check(WebTest):
