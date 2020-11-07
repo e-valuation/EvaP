@@ -251,14 +251,23 @@ class TestTsCommend(TestCase):
             check=True,
         )
 
-    @staticmethod
     @patch("subprocess.run")
-    def test_ts_test(mock_subprocess_run):
+    @patch("evap.evaluation.management.commands.ts.call_command")
+    @patch("evap.evaluation.management.commands.ts.Command.render_pages")
+    def test_ts_test(self, mock_render_pages, mock_call_command, mock_subprocess_run):
         management.call_command("ts", "test")
 
-        mock_subprocess_run.assert_called_once_with(
-            ["npx", "jest"],
-            check=True,
+        # Mock render pages to prevent a second call into the test framework
+        mock_render_pages.assert_called_once()
+        mock_call_command.assert_called_once_with("scss")
+        mock_subprocess_run.assert_has_calls(
+            [
+                call(
+                    ["npx", "tsc", "--project", os.path.join(self.ts_path, "tsconfig.compile.json")],
+                    check=True,
+                ),
+                call(["npx", "jest"], check=True),
+            ]
         )
 
 

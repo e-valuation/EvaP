@@ -5,7 +5,8 @@ import sys
 import unittest
 
 from django.conf import settings
-from django.core.management import BaseCommand
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
 from django.test.runner import DiscoverRunner
 
 
@@ -30,7 +31,8 @@ class Command(BaseCommand):
             help="Watch scripts and recompile when they change.",
         )
         self.add_fresh_argument(compile_parser)
-        subparsers.add_parser("test")
+        test_parser = subparsers.add_parser("test")
+        self.add_fresh_argument(test_parser)
         subparsers.add_parser("render_pages")
 
     @staticmethod
@@ -80,7 +82,10 @@ class Command(BaseCommand):
 
         self.run_command(command)
 
-    def test(self, **_options):
+    def test(self, **options):
+        call_command("scss")
+        self.compile(**options)
+        self.render_pages()
         self.run_command(["npx", "jest"])
 
     @staticmethod
