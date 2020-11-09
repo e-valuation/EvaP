@@ -16,7 +16,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check, render_pages
 from evap.student.tools import answer_field_id
 from evap.student.views import SUCCESS_MAGIC_STRING
 
@@ -128,6 +128,20 @@ class TestVoteView(WebTest):
         cls.evaluation.general_contribution.questionnaires.set(
             [cls.top_general_questionnaire, cls.bottom_general_questionnaire]
         )
+
+    @render_pages
+    def render_pages(self):
+        with_confirmation = self.app.get(self.url, user=self.voting_user1)
+        submit_errors = with_confirmation.forms["student-vote-form"].submit()
+
+        with override_settings(SMALL_COURSE_SIZE=2):
+            normal = self.app.get(self.url, user=self.voting_user1)
+
+        return {
+            "with_textanswer_publish_confirmation": with_confirmation.content,
+            "submit_errors": submit_errors.content,
+            "normal": normal.content,
+        }
 
     def test_question_ordering(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
