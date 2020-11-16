@@ -1,5 +1,6 @@
 from django.core import mail
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group
 
 from django_webtest import WebTest
 from model_bakery import baker
@@ -21,6 +22,19 @@ class TestIndexView(WebTest):
         self.assertEqual(password_form.submit().status_code, 200)
         password_form['password'] = 'evap'
         self.assertEqual(password_form.submit().status_code, 302)
+
+    def test_login_for_staff_users_correctly_redirects(self):
+        """ Regression test for #1523: Access denied on manager login """
+        internal_email = 'manager@institution.example.com' # external users don't necessarily have a proper redirect page
+        baker.make(UserProfile, email=internal_email, password=make_password('evap'), groups=[Group.objects.get(name='Manager')])
+
+        response = self.app.get(self.url)
+        password_form = response.forms[0]
+        password_form['email'] = internal_email
+        password_form['password'] = 'evap'
+        response = password_form.submit()
+        self.assertRedirects(response, self.url, fetch_redirect_response=False)
+        self.assertRedirects(response.follow(), '/results/')
 
     def test_send_new_login_key(self):
         """ Tests whether requesting a new login key is only possible for existing users,
