@@ -376,6 +376,7 @@ class Evaluation(LoggedModel):
 
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
+    # Usually the property vote_end_datetime should be used instead of this field
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # Disable to prevent editors from changing evaluation data
