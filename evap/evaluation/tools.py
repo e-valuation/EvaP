@@ -54,6 +54,8 @@ def get_parameter_from_url_or_session(request, parameter, default=False):
 
 
 def translate(**kwargs):
+    # pylint is really buggy with this method.
+    # pylint: disable=unused-variable, useless-suppression
     # get_language may return None if there is no session (e.g. during management commands)
     return property(lambda self: getattr(self, kwargs[get_language() or 'en']))
 

@@ -1519,7 +1519,7 @@ def validate_template(value):
     try:
         Template(value)
     except TemplateSyntaxError as e:
-        raise ValidationError(str(e))
+        raise ValidationError(str(e)) from e
 
 
 class EmailTemplate(models.Model):
