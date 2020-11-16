@@ -231,7 +231,9 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
 
     return avg_distribution([
         (
-            calculate_average_distribution(evaluation) if not evaluation.is_single_result else normalized_distribution(get_single_result_rating_result(evaluation).counts),
+            (calculate_average_distribution(evaluation)
+                if not evaluation.is_single_result
+                else normalized_distribution(get_single_result_rating_result(evaluation).counts)),
             evaluation.weight
         )
         for evaluation in course.evaluations.all()

@@ -41,6 +41,17 @@ def index(request):
     query = Evaluation.annotate_with_participant_and_voter_counts(query)
     evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
 
+    inner_evaluation_ids = [inner_evaluation.id for evaluation in evaluations for inner_evaluation in evaluation.course.evaluations.all()]
+    inner_evaluation_query = Evaluation.objects.filter(pk__in=inner_evaluation_ids)
+    inner_evaluation_query = Evaluation.annotate_with_participant_and_voter_counts(inner_evaluation_query)
+
+    evaluations_by_id = {evaluation['id']: evaluation for evaluation in inner_evaluation_query.values()}
+
+    for evaluation in evaluations:
+        for inner_evaluation in evaluation.course.evaluations.all():
+            inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]['num_voters']
+            inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]['num_participants']
+
     for evaluation in evaluations:
         if evaluation.state == "published":
             if not evaluation.is_single_result:
@@ -50,7 +61,9 @@ def index(request):
                 evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
             evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
-    evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
+
+    # evaluations must be sorted for regrouping them in the template
+    evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))
 
     semesters = Semester.objects.all()
     semester_list = [dict(

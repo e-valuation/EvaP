@@ -1,10 +1,12 @@
-from django.test.utils import override_settings
+from django.db import connection
+from django.test.utils import override_settings, CaptureQueriesContext
 from django.urls import reverse
 
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import UserProfile, Evaluation, Questionnaire, Question, Contribution, TextAnswer, RatingAnswerCounter
+from evap.evaluation.models import (UserProfile, Evaluation, Questionnaire, Question, Contribution,
+                                    TextAnswer, RatingAnswerCounter, Semester)
 from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.student.tools import question_id
 from evap.student.views import SUCCESS_MAGIC_STRING
@@ -16,10 +18,23 @@ class TestStudentIndexView(WebTestWith200Check):
     @classmethod
     def setUpTestData(cls):
         # View is only visible to users participating in at least one evaluation.
-        user = baker.make(UserProfile, email='student@institution.example.com')
-        baker.make(Evaluation, participants=[user])
+        cls.user = baker.make(UserProfile, email='student@institution.example.com')
+        baker.make(Evaluation, participants=[cls.user])
 
-        cls.test_users = [user]
+        cls.test_users = [cls.user]
+
+    def test_num_queries_is_constant(self):
+        semester1 = baker.make(Semester)
+        semester2 = baker.make(Semester, participations_are_archived=True)
+        baker.make(Evaluation, course__semester=semester1, state="published", participants=[self.user], _quantity=100)
+        baker.make(Evaluation, course__semester=semester2, state="published", participants=[self.user], _quantity=100)
+
+        with CaptureQueriesContext(connection) as context:
+            self.app.get(self.url, user=self.user)
+
+        num_queries = context.final_queries - context.initial_queries
+
+        self.assertLess(num_queries, 100)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
