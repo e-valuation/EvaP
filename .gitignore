@@ -25,6 +25,7 @@ evap/static/css/evap.css
 evap/static/css/evap.css.map
 evap/static/js/copy-to-clipboard.js
 evap/static/js/csrf-utils.js
+evap/static/js/datagrid.js
 evap/static/js/text-answer-warnings.js
 evap/static/ts/rendered
 evap/static_collected

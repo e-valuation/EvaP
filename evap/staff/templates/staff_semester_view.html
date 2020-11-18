@@ -576,18 +576,18 @@
     </script>
     <script type="module">
         import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-        new EvaluationGrid().init({
+        new EvaluationGrid({
             storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-            table: $("#evaluation-table"),
-            searchInput: $("input[name=search-evaluation]"),
-            filterButtons: $("#evaluation-filter-buttons [data-filter]"),
-            resetSearch: $("[data-reset=search-evaluation]"),
-        });
-        new TableGrid().init({
+            table: document.querySelector("#evaluation-table"),
+            searchInput: document.querySelector("input[name=search-evaluation]"),
+            filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
+            resetSearch: document.querySelector("[data-reset=search-evaluation]"),
+        }).init();
+        new TableGrid({
             storageKey: "course-semester-{{ semester.id }}-data-grid",
-            table: $("#course-table"),
-            searchInput: $("input[name=search-course]"),
-            resetSearch: $("[data-reset=search-course]"),
-        });
+            table: document.querySelector("#course-table"),
+            searchInput: document.querySelector("input[name=search-course]"),
+            resetSearch: document.querySelector("[data-reset=search-course]"),
+        }).init();
     </script>
 {% endblock %}

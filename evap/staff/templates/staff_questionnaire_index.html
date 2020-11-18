@@ -67,15 +67,14 @@
 {% block additional_javascript %}
     <script type="module">
         import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
-        const tables = $(".questionnaire-table");
-        tables.each((index, table) => {
-            new QuestionnaireGrid().init({
+        document.querySelectorAll(".questionnaire-table").forEach(table => {
+            new QuestionnaireGrid({
                 storageKey: "questionnaires-data-grid",
                 updateUrl: "{% url 'staff:questionnaire_update_indices' %}",
-                table: $(table),
-                searchInput: $("input[name=search]"),
-                resetSearch: $("[data-reset=search]"),
-            });
+                table,
+                searchInput: document.querySelector("input[name=search]"),
+                resetSearch: document.querySelector("[data-reset=search]"),
+            }).init();
         });
     </script>
 
