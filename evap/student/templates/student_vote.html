@@ -173,7 +173,7 @@
 
         <script type="module">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
-
+            const lastSavedStorageKey = "student-vote-{{evaluation.id}}-{{request.user.id}}"
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
                 bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
@@ -198,14 +198,42 @@
                 onSave: function () {
                     const lastSaved = $('#last-saved');
                     const timeNow = new Date();
-                    let currentHours = timeNow.getHours();
-                    currentHours = ("0" + currentHours).slice(-2);
-                    let currentMinutes = timeNow.getMinutes();
-                    currentMinutes = ("0" + currentMinutes).slice(-2);
-                    const newText = "{% trans 'Your answers have been last saved at " + currentHours + ":" + currentMinutes + " in your browser' %}";
-                    lastSaved.text(newText);
+                    localStorage.setItem(lastSavedStorageKey, timeNow.toString());
                 },
             });
+
+            function updateLastSavedLabel() {
+                    const timeNow = new Date();
+                    const lastSavedLabel = $('#last-saved');
+                    const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey))
+                    const delta = Math.round((timeNow - lastSavedDate) / 1000)
+                    const languageCode = "{{ LANGUAGE_CODE }}"
+                    const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
+                    let timeStamp = "{% trans 'unknown' %}"
+                    if (delta < 3) {
+                        timeStamp = "{% trans 'just now' %}";
+                    } else if (delta < 60) {
+                        timeStamp = relativeTimeFormat.format(-delta, 'seconds');
+                    } else if (delta < 60 * 30) {
+                        timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
+                    } else if ( delta < 60 * 60 * 12) {
+                        timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
+                    } else {
+                        timeStamp = lastSavedDate.getFullYear() + "-" + lastSavedDate.getMonth() + "-" + padWithLeadingZeros(lastSavedDate.getDay) + " " 
+                        + padWithLeadingZeros(lastSavedDate.getHours) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes)
+                    }
+                    lastSavedLabel.text("{% trans 'Last saved: ' %}" + timeStamp);
+
+            }
+
+            function padWithLeadingZeros(number){
+                return number.toString().padStart(2, "0");
+            }
+
+            // Initialize lastSavedLabel and update it every second
+            updateLastSavedLabel()
+            setInterval(updateLastSavedLabel, 1000);
+            
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
             sisyphus.saveAllData();
