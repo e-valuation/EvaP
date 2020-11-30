@@ -574,6 +574,8 @@ class ContributionFormSet(BaseInlineFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
+
+
     @staticmethod
     def handle_moved_contributors(data, **kwargs):
         """
@@ -618,9 +620,8 @@ class ContributionFormSet(BaseInlineFormSet):
 
     def clean(self):
         self.handle_deleted_and_added_contributions()
-
-        super().clean()
-
+        import pdb
+        #pdb.set_trace() 
         found_contributor = set()
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
@@ -631,7 +632,8 @@ class ContributionFormSet(BaseInlineFormSet):
             if contributor and contributor in found_contributor:
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             if contributor:
-                found_contributor.add(contributor)
+                found_contributor.add(contributor)      
+        super().clean()
 
 
 class ContributionCopyFormSet(ContributionFormSet):
