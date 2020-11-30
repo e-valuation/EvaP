@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% get_current_language as LANGUAGE_CODE %}
-<div class="fixed-top d-print-none">
+<div class="sticky-top d-print-none">
     {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
         {% include_navbar user LANGUAGE_CODE %}
     {% endcache %}
