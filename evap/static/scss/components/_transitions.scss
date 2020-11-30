@@ -1,5 +1,11 @@
 .collapse-toggle {
     color: $darker-gray;
+    border: none;
+    font-weight: bold;
+
+    &:hover {
+        text-decoration: underline;
+    }
 
     &::before {
         float: left;

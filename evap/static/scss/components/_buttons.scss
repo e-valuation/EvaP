@@ -191,9 +191,25 @@ a:not([href]):not(.disabled) {
         width: 3.5rem;
     }
 
+    &.focus,
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
+    }
+
     .vote-type-bipolar &:not(:last-child) {
         width: 5rem;
         font-size: 0.8rem;
+    }
+}
+
+textarea,
+button,
+a.collapse-toggle {
+    &.tab-selectable.focus,
+    &.tab-selectable:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
     }
 }
 
