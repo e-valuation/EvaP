@@ -574,8 +574,6 @@ class ContributionFormSet(BaseInlineFormSet):
                 # we modified the form, so we have to force re-validation
                 form_with_errors.full_clean()
 
-
-
     @staticmethod
     def handle_moved_contributors(data, **kwargs):
         """
