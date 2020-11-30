@@ -262,7 +262,7 @@ class ContributionFormsetTests(TestCase):
         data['contributions-1-role'] = Contribution.Role.EDITOR
         formset = ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertFalse(formset.is_valid())
-        # regression for https://github.com/e-valuation/EvaP/issues/1082 
+        # regression for https://github.com/e-valuation/EvaP/issues/1082
         # assert same error message with and without questionnaire
         self.assertEqual(formset.non_form_errors(), ['Duplicate contributor found. Each contributor should only be used once.'])
 

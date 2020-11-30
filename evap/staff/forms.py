@@ -620,8 +620,6 @@ class ContributionFormSet(BaseInlineFormSet):
 
     def clean(self):
         self.handle_deleted_and_added_contributions()
-        import pdb
-        #pdb.set_trace() 
         found_contributor = set()
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
@@ -632,7 +630,7 @@ class ContributionFormSet(BaseInlineFormSet):
             if contributor and contributor in found_contributor:
                 raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
             if contributor:
-                found_contributor.add(contributor)      
+                found_contributor.add(contributor)
         super().clean()
 
 
