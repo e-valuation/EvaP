@@ -1,8 +1,3 @@
-.container {
-    padding-top: 15px; // to have some space between content and navbar/breadcrumbs
-    flex: 1 0 auto;
-}
-
 .container-striped .row:nth-child(odd) {
     background-color: $table-accent-bg;
 }
