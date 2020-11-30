@@ -22,20 +22,22 @@ $(document).ready(() => {
     });
 
     $(document).keydown(event => {
-        let actions = {
-            37: "[data-slide=left]",          // arrow left
-            39: "[data-slide=right]",         // arrow right
-            74: "[data-action=publish]",      // j
-            75: "[data-action=make_private]", // k
-            76: "[data-action=hide]",         // l
-             8: "[data-action=unreview]",     // backspace
-            13: "[data-url=next-evaluation]", // enter
-            77: "[data-startover=unreviewed]",// m
-            78: "[data-startover=all]"        // n
+        const actions = {
+            "arrowleft":    "[data-slide=left]",
+            "arrowright":   "[data-slide=right]",
+            "j":            "[data-action=publish]",
+            "k":            "[data-action=make_private]",
+            "l":            "[data-action=hide]",
+            "backspace":    "[data-action=unreview]",
+            "enter":        `[data-url=next-evaluation][data-next-evaluation-index=${nextEvaluationIndex}]`,
+            "m":            "[data-startover=unreviewed]",
+            "n":            "[data-startover=all]",
+            "s":            "[data-skip-evaluation]",
         };
+        const action = actions[event.key.toLowerCase()];
 
-        if(actions[event.which] && !event.originalEvent.repeat) {
-            let element = slider.find(actions[event.which]);
+        if(action && !event.originalEvent.repeat) {
+            let element = slider.find(action);
             if(element.length) {
                 element[0].click();
             }
@@ -108,6 +110,37 @@ $(document).ready(() => {
             element.addClass("to-" + direction);
             element.position();
             element.addClass("active");
+        }
+    }
+
+    let nextEvaluationIndex = 0;
+    updateNextEvaluation(0);
+
+    $("[data-skip-evaluation]").on("click", event => {
+        const skippedEvaluationId = $("[data-evaluation]").not(":hidden").data("evaluation");
+        if (skippedEvaluationId !== undefined) {
+            $.ajax({
+                type: "POST",
+                data: {evaluation_id: skippedEvaluationId},
+                url: "{% url 'staff:evaluation_textanswers_skip' %}",
+                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+            });
+            updateNextEvaluation(++nextEvaluationIndex);
+        }
+    });
+
+    function updateNextEvaluation(index) {
+        let nextEvaluation = false;
+        $("[data-next-evaluation-index]").each(function() {
+            if ($(this).data("next-evaluation-index") == index) {
+                $(this).show();
+                nextEvaluation = true;
+            } else {
+                $(this).hide();
+            }
+        });
+        if (!nextEvaluation) {
+            $("[data-skip-evaluation]").hide();
         }
     }
 

@@ -44,7 +44,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionC
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation, ImportType)
+                              save_import_file, find_unreviewed_evaluations, ImportType)
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -1106,19 +1106,32 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
 
     if view == 'quick':
         visited = request.session.get('review-visited', set())
+        skipped = request.session.get('review-skipped', set())
         visited.add(evaluation.pk)
-        next_evaluation = find_next_unreviewed_evaluation(semester, visited)
-        if not next_evaluation and len(visited) > 1:
+        next_evaluations = find_unreviewed_evaluations(semester, visited | skipped)
+        if not next_evaluations and (len(visited) > 1 or len(skipped) > 0):
             visited = {evaluation.pk}
-            next_evaluation = find_next_unreviewed_evaluation(semester, visited)
+            skipped = set()
+            request.session['review-skipped'] = skipped
+            next_evaluations = find_unreviewed_evaluations(semester, visited | skipped)
         request.session['review-visited'] = visited
 
         sections = evaluation_sections + contributor_sections
-        template_data.update(dict(sections=sections, next_evaluation=next_evaluation))
+        template_data.update(dict(sections=sections, next_evaluations=next_evaluations))
         return render(request, "staff_evaluation_textanswers_quick.html", template_data)
 
     template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
     return render(request, "staff_evaluation_textanswers_full.html", template_data)
+
+@reviewer_required
+def evaluation_textanswers_skip(request):
+    evaluation_id = request.POST["evaluation_id"]
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    visited = request.session.get('review-skipped', set())
+    visited.add(evaluation.pk)
+    request.session['review-skipped'] = visited
+    return HttpResponse()
 
 
 @require_POST

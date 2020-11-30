@@ -46,6 +46,7 @@ urlpatterns = [
     path("semester/make_active", views.semester_make_active, name="semester_make_active"),
 
     path("textanswers/update_publish", views.evaluation_textanswers_update_publish, name="evaluation_textanswers_update_publish"),
+    path("textanswers/skip", views.evaluation_textanswers_skip, name="evaluation_textanswers_skip"),
 
     path("questionnaire/", views.questionnaire_index, name="questionnaire_index"),
     path("questionnaire/create", views.questionnaire_create, name="questionnaire_create"),
