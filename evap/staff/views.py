@@ -1784,15 +1784,6 @@ def download_sample_xls(_request, filename):
 
 
 @manager_required
-def development_components(request):
-    theme_colors = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
-    template_data = {
-        'theme_colors': theme_colors
-    }
-    return render(request, "staff_development_components.html", template_data)
-
-
-@manager_required
 def export_contributor_results_view(request, contributor_id):
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)

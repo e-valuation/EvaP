@@ -420,15 +420,19 @@ if TESTING:
     BAKER_CUSTOM_FIELDS_GEN = {'django.db.models.CharField': lambda: random_gen.gen_string(20)}
 
 
-# Django debug toolbar settings
-if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+# Development helpers
+if DEBUG:
+    INSTALLED_APPS += ['evap.development']
 
-    def show_toolbar(request):
-        return True
+    # Django debug toolbar settings
+    if not TESTING and ENABLE_DEBUG_TOOLBAR:
+        INSTALLED_APPS += ['debug_toolbar']
+        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
-        'JQUERY_URL': '',
-    }
+        def show_toolbar(request):
+            return True
+
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+            'JQUERY_URL': '',
+        }
