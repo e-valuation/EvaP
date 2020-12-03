@@ -150,12 +150,15 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
+                        <div class="pb-3 text-secondary">
+                            <span id="last-saved"></span>
+                            <span class="fa fa-info-circle" data-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                        </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
-                        <div id="last-saved" class="text-secondary pt-2" data-toggle="tooltip" title="{% trans 'This evaluation can be continued another time using the same device and the same browser'%}"></div>
                     {% endif %}
                 </div>
             </div>
@@ -216,27 +219,29 @@
                         timeStamp = relativeTimeFormat.format(-delta, 'seconds');
                     } else if (delta < 60 * 30) {
                         timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
-                    } else if ( delta < 60 * 60 * 12) {
+                    } else if (delta < 60 * 60 * 12) {
                         timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
                     } else {
-                        timeStamp = lastSavedDate.getFullYear() + "-" + lastSavedDate.getMonth() + "-" + padWithLeadingZeros(lastSavedDate.getDay) + " " 
-                        + padWithLeadingZeros(lastSavedDate.getHours) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes)
+                        timeStamp = lastSavedDate.getFullYear() + "-"
+                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                        + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
-                    lastSavedLabel.text("{% trans 'Last saved: ' %}" + timeStamp);
-
+                    lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
             }
 
             function padWithLeadingZeros(number){
                 return number.toString().padStart(2, "0");
             }
 
-            // Initialize lastSavedLabel and update it every second
-            updateLastSavedLabel()
-            setInterval(updateLastSavedLabel, 1000);
-            
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
             sisyphus.saveAllData();
+
+            // Initialize lastSavedLabel and update it every second
+            updateLastSavedLabel()
+            setInterval(updateLastSavedLabel, 1000);
 
             initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
 
