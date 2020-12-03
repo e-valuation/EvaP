@@ -25,7 +25,7 @@ class TestIndexView(WebTest):
 
     def test_login_for_staff_users_correctly_redirects(self):
         """ Regression test for #1523: Access denied on manager login """
-        internal_email = 'manager@institution.example.com' # external users don't necessarily have a proper redirect page
+        internal_email = 'manager@institution.example.com'  # external users don't necessarily have a proper redirect page
         baker.make(UserProfile, email=internal_email, password=make_password('evap'), groups=[Group.objects.get(name='Manager')])
 
         response = self.app.get(self.url)
