@@ -207,7 +207,7 @@
             function updateLastSavedLabel() {
                     const timeNow = new Date();
                     const lastSavedLabel = $('#last-saved');
-                    const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey))
+                    const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
                     const delta = Math.round((timeNow - lastSavedDate) / 1000)
                     const languageCode = "{{ LANGUAGE_CODE }}"
                     const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
