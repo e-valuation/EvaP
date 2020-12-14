@@ -176,7 +176,7 @@
 
         <script type="module">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
-            const lastSavedStorageKey = "student-vote-{{evaluation.id}}-{{request.user.id}}"
+            const lastSavedStorageKey = "student-vote-last-saved-at-{{evaluation.id}}-{{request.user.id}}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
                 bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
