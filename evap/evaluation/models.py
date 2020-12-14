@@ -606,7 +606,7 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(field=state, source='approved', target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
-    def evaluation_begin(self):
+    def begin_evaluation(self):
         pass
 
     @transition(field=state, source=['evaluated', 'reviewed'], target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
@@ -614,15 +614,15 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(field=state, source='in_evaluation', target='evaluated')
-    def evaluation_end(self):
+    def end_evaluation(self):
         pass
 
     @transition(field=state, source='evaluated', target='reviewed', conditions=[lambda self: self.is_fully_reviewed])
-    def review_finished(self):
+    def end_review(self):
         pass
 
     @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[lambda self: self.is_single_result])
-    def single_result_created(self):
+    def skip_review_single_result(self):
         pass
 
     @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: not self.is_fully_reviewed])
@@ -777,13 +777,13 @@ class Evaluation(LoggedModel):
         for evaluation in cls.objects.all():
             try:
                 if evaluation.state == "approved" and evaluation.vote_start_datetime <= datetime.now():
-                    evaluation.evaluation_begin()
+                    evaluation.begin_evaluation()
                     evaluation.save()
                     evaluations_new_in_evaluation.append(evaluation)
                 elif evaluation.state == "in_evaluation" and datetime.now() >= evaluation.vote_end_datetime:
-                    evaluation.evaluation_end()
+                    evaluation.end_evaluation()
                     if evaluation.is_fully_reviewed:
-                        evaluation.review_finished()
+                        evaluation.end_review()
                         if evaluation.grading_process_is_finished:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)

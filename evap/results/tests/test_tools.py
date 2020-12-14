@@ -30,7 +30,7 @@ class TestCalculateResults(TestCase):
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-        evaluation.evaluation_end()
+        evaluation.end_evaluation()
         evaluation.save()
 
         self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
@@ -45,8 +45,8 @@ class TestCalculateResults(TestCase):
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
-        evaluation.evaluation_end()
-        evaluation.review_finished()
+        evaluation.end_evaluation()
+        evaluation.end_review()
         evaluation.publish()
         evaluation.save()
 

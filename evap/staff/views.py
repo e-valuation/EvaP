@@ -189,7 +189,7 @@ class RevertToNewOperation(EvaluationOperation):
             "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
 
 
-class MoveToPreparedOperation(EvaluationOperation):
+class ReadyForEditorsOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
     confirmation_message = gettext_lazy("Do you want to send the following evaluations to editor review?")
 
@@ -230,7 +230,7 @@ class MoveToPreparedOperation(EvaluationOperation):
                                             use_cc=True, additional_cc_users=editors, request=request)
 
 
-class StartEvaluationOperation(EvaluationOperation):
+class BeginEvaluationOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EVALUATION_STARTED
     confirmation_message = gettext_lazy("Do you want to immediately start the following evaluations?")
 
@@ -250,7 +250,7 @@ class StartEvaluationOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
-            evaluation.evaluation_begin()
+            evaluation.begin_evaluation()
             evaluation.save()
         messages.success(request, ngettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
@@ -258,7 +258,7 @@ class StartEvaluationOperation(EvaluationOperation):
             email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
-class RevertToReviewedOperation(EvaluationOperation):
+class UnpublishOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to unpublish the following evaluations?")
 
     @staticmethod
@@ -314,9 +314,9 @@ class PublishOperation(EvaluationOperation):
 
 EVALUATION_OPERATIONS = {
         'new': RevertToNewOperation,
-        'prepared': MoveToPreparedOperation,
-        'in_evaluation': StartEvaluationOperation,
-        'reviewed': RevertToReviewedOperation,
+        'prepared': ReadyForEditorsOperation,
+        'in_evaluation': BeginEvaluationOperation,
+        'reviewed': UnpublishOperation,
         'published': PublishOperation,
 }
 
@@ -1162,7 +1162,7 @@ def evaluation_textanswers_update_publish(request):
     answer.save()
 
     if evaluation.state == "evaluated" and evaluation.is_fully_reviewed:
-        evaluation.review_finished()
+        evaluation.end_review()
         evaluation.save()
     if evaluation.state == "reviewed" and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()

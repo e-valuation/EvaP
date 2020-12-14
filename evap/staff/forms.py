@@ -388,7 +388,7 @@ class SingleResultForm(forms.ModelForm):
 
         # change state to "reviewed"
         # works only for single_results so the evaluation and its contribution must be saved first
-        evaluation.single_result_created()
+        evaluation.skip_review_single_result()
         evaluation.save()
 
         if hasattr(self.instance, 'old_course'):

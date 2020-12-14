@@ -114,17 +114,17 @@ class GradeUploadTest(WebTest):
         self.helper_check_final_grade_upload(course, 0)
 
         # state: in_evaluation
-        evaluation.evaluation_begin()
+        evaluation.begin_evaluation()
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: evaluated
-        evaluation.evaluation_end()
+        evaluation.end_evaluation()
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
         # state: reviewed
-        evaluation.review_finished()
+        evaluation.end_review()
         evaluation.save()
         self.helper_check_final_grade_upload(
             course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
@@ -137,9 +137,9 @@ class GradeUploadTest(WebTest):
     def test_toggle_no_grades(self):
         evaluation = self.evaluation
         evaluation.manager_approve()
-        evaluation.evaluation_begin()
-        evaluation.evaluation_end()
-        evaluation.review_finished()
+        evaluation.begin_evaluation()
+        evaluation.end_evaluation()
+        evaluation.end_review()
         evaluation.save()
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)

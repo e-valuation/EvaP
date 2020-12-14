@@ -110,7 +110,7 @@ class TestEvaluations(WebTest):
         baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today(), wait_for_grade_upload_before_publishing=False)
 
-        with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
+        with patch('evap.evaluation.models.Evaluation.end_evaluation') as mock:
             Evaluation.update_evaluations()
 
         self.assertEqual(mock.call_count, 1)
@@ -173,7 +173,7 @@ class TestEvaluations(WebTest):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
-        evaluation.single_result_created()
+        evaluation.skip_review_single_result()
         evaluation.publish()
         evaluation.save()
 
@@ -202,7 +202,7 @@ class TestEvaluations(WebTest):
         )
         baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
 
-        single_result.single_result_created()
+        single_result.skip_review_single_result()
         single_result.publish()  # used to crash
 
     def test_second_vote_sets_can_publish_text_results_to_true(self):
@@ -354,7 +354,7 @@ class TestEvaluations(WebTest):
             evaluation.TextAnswerReviewState.REVIEW_NEEDED,
         )
 
-        evaluation.evaluation_end()
+        evaluation.end_evaluation()
         evaluation.save()
 
         self.assert_textanswer_review_state(
