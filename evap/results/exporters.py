@@ -247,7 +247,13 @@ class ResultsExporter(ExcelExporter):
 
         self.write_empty_row_with_styles(["default"] + ["border_left_right"] * len(evaluations_with_results))
 
-    def export_impl(self, semesters, selection_list, include_not_enough_voters=False, include_unpublished=False, contributor=None):
+    # pylint: disable=arguments-differ
+    def export_impl(self,
+                    semesters,
+                    selection_list,
+                    include_not_enough_voters=False,
+                    include_unpublished=False,
+                    contributor=None):
         # We want to throw early here, since workbook.save() will throw an IndexError otherwise.
         assert len(selection_list) > 0
 
@@ -306,7 +312,7 @@ class TextAnswerExporter(ExcelExporter):
         self.results = results
         self.contributor_name = contributor_name
 
-    def export_impl(self):
+    def export_impl(self):  # pylint: disable=arguments-differ
         self.cur_sheet.col(0).width = 10000
         self.cur_sheet.col(1).width = 40000
 

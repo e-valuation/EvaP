@@ -522,7 +522,7 @@ class QuestionnaireForm(forms.ModelForm):
                   'public_name_de', 'public_name_en', 'teaser_de', 'teaser_en', 'order',
                   'visibility', 'is_locked')
 
-    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):  # pylint: disable=arguments-differ
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 
@@ -827,7 +827,7 @@ class TextAnswerWarningForm(forms.ModelForm):
 
 class ExportSheetForm(forms.Form):
     def __init__(self, semester, *args, **kwargs):
-        super(ExportSheetForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         degrees = Degree.objects.filter(courses__semester=semester).distinct()
         degree_tuples = [(degree.pk, degree.name) for degree in degrees]
         self.fields['selected_degrees'] = forms.MultipleChoiceField(

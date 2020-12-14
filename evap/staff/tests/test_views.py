@@ -2383,6 +2383,26 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
 
 
+class TestEvaluationTextAnswersSkip(WebTestStaffMode):
+    csrf_checks = False
+
+    def test_skip(self):
+        manager = make_manager()
+        evaluation = baker.make(
+            Evaluation,
+            participants=[],
+            voters=[],
+            state="in_evaluation",
+            can_publish_text_results=True,
+        )
+
+        skip_url = "/staff/textanswers/skip"
+        response = self.app.post(skip_url, user=manager, status=200, params={
+            'evaluation_id': evaluation.id,
+        })
+        self.assertEqual(response.client.session['review-skipped'], {evaluation.id})
+
+
 class ParticipationArchivingTests(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
