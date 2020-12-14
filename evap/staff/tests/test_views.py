@@ -2366,7 +2366,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        self.evaluation.evaluation_end()
+        self.evaluation.end_evaluation()
         self.evaluation.can_publish_text_results = True
         self.evaluation.save()
         results = get_results(self.evaluation)
@@ -2376,7 +2376,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         textanswer = self.evaluation.unreviewed_textanswer_set[0]
         textanswer.state = TextAnswer.State.PUBLISHED
         textanswer.save()
-        self.evaluation.review_finished()
+        self.evaluation.end_review()
         self.evaluation.save()
         results = get_results(self.evaluation)
 

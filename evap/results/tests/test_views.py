@@ -335,8 +335,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
 
     def test_answer_visibility_one_voter(self):
         let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
-        self.evaluation.evaluation_end()
-        self.evaluation.review_finished()
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
         self.evaluation.publish()
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 1)
@@ -349,8 +349,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     def test_answer_visibility_two_voters(self):
         let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        self.evaluation.evaluation_end()
-        self.evaluation.review_finished()
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
         self.evaluation.publish()
         self.evaluation.save()
         self.assertEqual(self.evaluation.voters.count(), 2)

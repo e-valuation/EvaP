@@ -250,7 +250,7 @@ class StartEvaluationOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
-            evaluation.evaluation_begin()
+            evaluation.begin_evaluation()
             evaluation.save()
         messages.success(request, ngettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
@@ -1149,7 +1149,7 @@ def evaluation_textanswers_update_publish(request):
     answer.save()
 
     if evaluation.state == "evaluated" and evaluation.is_fully_reviewed:
-        evaluation.review_finished()
+        evaluation.end_review()
         evaluation.save()
     if evaluation.state == "reviewed" and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
