@@ -110,7 +110,7 @@ class TestEvaluations(WebTest):
         baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
                    vote_end_date=date.today(), wait_for_grade_upload_before_publishing=False)
 
-        with patch('evap.evaluation.models.Evaluation.evaluation_end') as mock:
+        with patch('evap.evaluation.models.Evaluation.end_evaluation') as mock:
             Evaluation.update_evaluations()
 
         self.assertEqual(mock.call_count, 1)
