@@ -626,7 +626,7 @@ class ContributionFormSet(BaseInlineFormSet):
             if contributor is None:
                 raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
             if contributor and contributor in found_contributor:
-                raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
+                raise forms.ValidationError(_('Duplicate contributor ({}) found. Each contributor should only be used once.').format(contributor.full_name))
             if contributor:
                 found_contributor.add(contributor)
         super().clean()

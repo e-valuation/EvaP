@@ -264,12 +264,12 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.is_valid())
         # regression for https://github.com/e-valuation/EvaP/issues/1082
         # assert same error message with and without questionnaire
-        self.assertEqual(formset.non_form_errors(), ['Duplicate contributor found. Each contributor should only be used once.'])
+        self.assertEqual(formset.non_form_errors(), ['Duplicate contributor(' + contributions-1-contributor ')found. Each contributor should only be used once.'])
 
         data['contributions-1-questionnaires'] = questionnaire.pk
         formset = ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertFalse(formset.is_valid())
-        self.assertEqual(formset.non_form_errors(), ['Duplicate contributor found. Each contributor should only be used once.'])
+        self.assertEqual(formset.non_form_errors(), ['Duplicate contributor(' + contributions-1-contributor + ')found. Each contributor should only be used once.'])
 
         # two contributors
         data['contributions-1-contributor'] = user2.pk
