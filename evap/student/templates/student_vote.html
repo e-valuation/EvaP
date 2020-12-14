@@ -208,27 +208,32 @@
             function updateLastSavedLabel() {
                     const timeNow = new Date();
                     const lastSavedLabel = $('#last-saved');
-                    const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
-                    const delta = Math.round((timeNow - lastSavedDate) / 1000)
-                    const languageCode = "{{ LANGUAGE_CODE }}"
-                    const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
-                    let timeStamp = "{% trans 'unknown' %}"
-                    if (delta < 3) {
-                        timeStamp = "{% trans 'just now' %}";
-                    } else if (delta < 60) {
-                        timeStamp = relativeTimeFormat.format(-delta, 'seconds');
-                    } else if (delta < 60 * 30) {
-                        timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
-                    } else if (delta < 60 * 60 * 12) {
-                        timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
+                    if (localStorage.getItem(lastSavedStorageKey) !== null) {
+                        const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
+                        const delta = Math.round((timeNow - lastSavedDate) / 1000)
+                        const languageCode = "{{ LANGUAGE_CODE }}"
+                        const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
+                        let timeStamp = "{% trans 'unknown' %}"
+                        if (delta < 3) {
+                            timeStamp = "{% trans 'just now' %}";
+                        } else if (delta < 60) {
+                            timeStamp = relativeTimeFormat.format(-delta, 'seconds');
+                        } else if (delta < 60 * 30) {
+                            timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
+                        } else if (delta < 60 * 60 * 12) {
+                            timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        } else {
+                            timeStamp = lastSavedDate.getFullYear() + "-"
+                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                            + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        }
+                        lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
                     } else {
-                        timeStamp = lastSavedDate.getFullYear() + "-"
-                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                        + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
                     }
-                    lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
+                    
             }
 
             function padWithLeadingZeros(number){
