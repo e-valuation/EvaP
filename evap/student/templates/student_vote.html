@@ -150,7 +150,10 @@
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
-                        <button type="button" id="presave-btn" class="btn btn-light" data-toggle="tooltip" data-placement="left" title="{% trans 'After saving, the evaluation can be continued later using this device and browser.' %}">{% trans 'Presave in Browser' %}</button>
+                        <div class="pb-3 text-secondary">
+                            <span id="last-saved"></span>
+                            <span class="fa fa-info-circle" data-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                        </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
@@ -173,7 +176,7 @@
 
         <script type="module">
             import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
-
+            const lastSavedStorageKey = "student-vote-last-saved-at-{{ evaluation.id }}-{{ request.user.id }}";
             const textResultsPublishConfirmation = {
                 top: document.querySelector("#text_results_publish_confirmation_top"),
                 bottom: document.querySelector("#text_results_publish_confirmation_bottom"),
@@ -194,11 +197,55 @@
                     if (textResultsPublishConfirmation.bottomCard) {
                         updateTextResultsPublishConfirmation();
                     }
-                }
+                },
+                onSave: function () {
+                    const timeNow = new Date();
+                    localStorage.setItem(lastSavedStorageKey, timeNow.toString());
+                },
             });
+
+            function updateLastSavedLabel() {
+                    const timeNow = new Date();
+                    const lastSavedLabel = $('#last-saved');
+                    if (localStorage.getItem(lastSavedStorageKey) !== null) {
+                        const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
+                        const delta = Math.round((timeNow - lastSavedDate) / 1000)
+                        const languageCode = "{{ LANGUAGE_CODE }}"
+                        const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
+                        let timeStamp = "{% trans 'unknown' %}"
+                        if (delta < 3) {
+                            timeStamp = "{% trans 'just now' %}";
+                        } else if (delta < 60) {
+                            timeStamp = relativeTimeFormat.format(-delta, 'seconds');
+                        } else if (delta < 60 * 30) {
+                            timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
+                        } else if (delta < 60 * 60 * 12) {
+                            timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        } else {
+                            timeStamp = lastSavedDate.getFullYear() + "-"
+                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                            + padWithLeadingZeros(lastSavedDate.getMinutes());
+                        }
+                        lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
+                    } else {
+                        lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
+                    }
+                    
+            }
+
+            function padWithLeadingZeros(number){
+                return number.toString().padStart(2, "0");
+            }
+
             // save all data after loading the page
             // (the data gets deleted every time the form is submitted, i.e. also when the form had errors and is displayed again)
             sisyphus.saveAllData();
+
+            // Initialize lastSavedLabel and update it every second
+            updateLastSavedLabel()
+            setInterval(updateLastSavedLabel, 1000);
 
             initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
 
@@ -274,20 +321,6 @@
                 });
             });
 
-            const presaveButton = $("#presave-btn");
-            const originalPresaveText = presaveButton.text();
-            presaveButton.click(() => {
-                sisyphus.saveAllData();
-                presaveButton.text("{% trans 'Saving...' %}");
-                presaveButton.addClass("disabled");
-                setTimeout(function() {
-                    presaveButton.text("{% trans 'Saved' %}");
-                }, 1000);
-                setTimeout(function() {
-                    presaveButton.removeClass("disabled");
-                    presaveButton.text(originalPresaveText);
-                }, 2500);
-            });
 
             // handle text_results_publish_confirmation checkbox changes
             function updateTextResultsPublishConfirmation() {
