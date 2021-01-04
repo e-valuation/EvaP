@@ -1621,6 +1621,9 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
+        body_params['page_url'] = settings.PAGE_URL
+        body_params['contact_email'] = settings.CONTACT_EMAIL
+
         subject = self.render_string(self.subject, subject_params)
         body = self.render_string(self.body, body_params)
 
