@@ -137,6 +137,7 @@ class ImporterError(Enum):
     COURSE = ('course', gettext_lazy("Course issues"), 4)
     IS_GRADED = ('is_graded', gettext_lazy("Invalid values"), 5)
 
+    REPLACE_USERS = ('replace_users', gettext_lazy("Replace users"), 7)
 
 class ImporterWarning(Enum):
     def __new__(cls, value, label, order):
@@ -611,18 +612,27 @@ class PersonImporter:
         self.warnings = defaultdict(list)
         self.errors = defaultdict(list)
 
-    def process_participants(self, evaluation, test_run, user_list):
-        evaluation_participants = evaluation.participants.all()
-        already_related = [user for user in user_list if user in evaluation_participants]
-        users_to_add = [user for user in user_list if user not in evaluation_participants]
+    def process_participants(self, evaluation, test_run, user_list, replace_all=False):
+        if replace_all:
+            users_to_add = user_list
+            if not test_run:
+                evaluation.participants.clear()
+                evaluation.participants.set(user_list)
 
-        if already_related:
-            msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
-            msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ImporterWarning.GENERAL].append(msg)
+        else:
+            evaluation_participants = evaluation.participants.all()
+            already_related = [user for user in user_list if user in evaluation_participants]
+            users_to_add = [user for user in user_list if user not in evaluation_participants]
+
+            if already_related:
+                msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
+                msg += create_user_list_html_string_for_message(already_related)
+                self.warnings[ImporterWarning.GENERAL].append(msg)
+
+            if not test_run:
+                evaluation.participants.add(*users_to_add)
 
         if not test_run:
-            evaluation.participants.add(*users_to_add)
             msg = format_html(_("{} participants added to the evaluation {}:"), len(users_to_add), evaluation.name)
         else:
             msg = format_html(_("{} participants would be added to the evaluation {}:"), len(users_to_add), evaluation.name)
@@ -630,18 +640,22 @@ class PersonImporter:
 
         self.success_messages.append(msg)
 
-    def process_contributors(self, evaluation, test_run, user_list):
-        already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
-        already_related = [contribution.contributor for contribution in already_related_contributions]
-        if already_related:
-            msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
-            msg += create_user_list_html_string_for_message(already_related)
-            self.warnings[ImporterWarning.GENERAL].append(msg)
-
-        # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
-        # makes anything relying on hashes unusable here (for a faster list difference)
-        users_to_add = [user for user in user_list if user not in already_related]
-
+    def process_contributors(self, evaluation, test_run, user_list, replace_all=False):
+        if not replace_all:
+            already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
+            already_related = [contribution.contributor for contribution in already_related_contributions]
+            if already_related:
+                msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
+                msg += create_user_list_html_string_for_message(already_related)
+                self.warnings[ImporterWarning.GENERAL].append(msg)
+        if replace_all:
+            users_to_add = user_list
+            if not test_run:
+                evaluation.contributions.exclude(contributor=None).delete()
+        else:
+            # since the user profiles are not necessarily saved to the database, they are not guaranteed to have a pk yet which
+            # makes anything relying on hashes unusable here (for a faster list difference)
+            users_to_add = [user for user in user_list if user not in already_related]
         if not test_run:
             for user in users_to_add:
                 order = Contribution.objects.filter(evaluation=evaluation).count()
@@ -654,16 +668,16 @@ class PersonImporter:
         self.success_messages.append(msg)
 
     @classmethod
-    def process_file_content(cls, import_type, evaluation, test_run, file_content):
+    def process_file_content(cls, import_type, evaluation, test_run, replace_all, file_content):
         importer = cls()
 
         # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
         if import_type == ImportType.Participant:
-            importer.process_participants(evaluation, test_run, user_list)
+            importer.process_participants(evaluation, test_run, user_list, replace_all)
         else:
             assert import_type == ImportType.Contributor
-            importer.process_contributors(evaluation, test_run, user_list)
+            importer.process_contributors(evaluation, test_run, user_list, replace_all)
 
         return importer.success_messages, importer.warnings, importer.errors
 

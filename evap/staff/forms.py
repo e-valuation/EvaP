@@ -90,6 +90,7 @@ class UserImportForm(forms.Form):
     use_required_attribute = False
 
     excel_file = forms.FileField(label=_("Excel file"), required=False)
+    replace_users = forms.BooleanField(label=_("Replace users"), required=False)
 
 
 class EvaluationParticipantCopyForm(forms.Form):

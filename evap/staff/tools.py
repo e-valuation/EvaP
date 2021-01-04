@@ -35,12 +35,13 @@ class ImportType(Enum):
     UserBulkUpdate = 'user_bulk_update'
 
 
-def generate_import_filename(user_id, import_type):
-    return os.path.join(settings.MEDIA_ROOT, 'temp_import_files', f"{user_id}.{import_type.value}.xls")
+def generate_import_filename(user_id, import_type, replace_users=False):
+    return os.path.join(settings.MEDIA_ROOT, 'temp_import_files', f"{user_id}.{import_type.value}.{replace_users}.xls")
+#returns just a string, doesnt create the file or anything
 
 
-def save_import_file(excel_file, user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
+def save_import_file(excel_file, user_id, import_type, replace_users):
+    filename = generate_import_filename(user_id, import_type, replace_users)
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "wb") as file:
         for chunk in excel_file.chunks():
@@ -61,10 +62,15 @@ def import_file_exists(user_id, import_type):
     return os.path.isfile(filename)
 
 
-def get_import_file_content_or_raise(user_id, import_type):
-    filename = generate_import_filename(user_id, import_type)
+def get_import_file_content_or_raise(user_id, import_type, replace_users=False):
+    #after test
+    filename = generate_import_filename(user_id, import_type, replace_users)
     if not os.path.isfile(filename):
-        raise SuspiciousOperation("No test run performed previously.")
+        alt_filename = generate_import_filename(user_id, import_type, not replace_users)
+        if not os.path.isfile(alt_filename):
+            raise SuspiciousOperation("No test run performed previously.") #django thing, find out where other evap exceptions lie
+        raise InvalidImportException("Status of import doesn't match test run.")
+        #ToDO second exception that gets caught in outer func
     with open(filename, "rb") as file:
         return file.read()
 
@@ -292,3 +298,6 @@ def find_next_unreviewed_evaluation(semester, excluded):
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
         .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
+
+class InvalidImportException(Exception):
+    pass

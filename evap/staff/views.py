@@ -39,10 +39,10 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionC
                               FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
                               RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, UserBulkUpdateForm,
                               UserForm, UserImportForm, UserMergeSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages, ImporterError
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation, ImportType)
+                              save_import_file, find_next_unreviewed_evaluation, ImportType, InvalidImportException)
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
@@ -1019,7 +1019,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
+        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor#also wenn da participants drin sind dann nimm halt die participant form
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
@@ -1028,17 +1028,22 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             excel_form.fields['excel_file'].required = True
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
+                replace_users = excel_form.cleaned_data['replace_users']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, file_content=file_content)
+                success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, replace_all=replace_users, file_content=file_content)
                 if not errors:
-                    save_import_file(excel_file, request.user.id, import_type)
+                    save_import_file(excel_file, request.user.id, import_type, replace_users)
 
-        elif 'import' in operation:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
-            delete_import_file(request.user.id, import_type)
-            forward_messages(request, success_messages, warnings)
-            return redirect('staff:semester_view', semester_id)
+        elif 'import' in operation:#!
+            replace_users_form = excel_form.fields['replace_users']
+            try:
+                file_content = get_import_file_content_or_raise(request.user.id, import_type, replace_users_form)
+                success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False,  replace_all=replace_users_form, file_content=file_content)
+                delete_import_file(request.user.id, import_type)
+                forward_messages(request, success_messages, warnings)
+                return redirect('staff:semester_view', semester_id)
+            except InvalidImportException as e:
+                errors[ImporterError.REPLACE_USERS].append(str(e))  #TODO what key to use? importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
 
         elif 'copy' in operation:
             copy_form.evaluation_selection_required = True
