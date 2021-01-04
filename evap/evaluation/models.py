@@ -1655,7 +1655,7 @@ class EmailTemplate(models.Model):
     def send_login_url_to_user(cls, user):
         template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
         subject_params = {}
-        body_params = {'user': user, 'login_url': user.login_url}
+        body_params = {'user': user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.email))
