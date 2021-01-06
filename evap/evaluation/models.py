@@ -704,17 +704,15 @@ class Evaluation(LoggedModel):
         return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
-        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
-        represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return self.contributions.filter(contributor__pk__in=represented_users, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
         if not user.is_responsible_or_contributor_or_delegate:
             return False
-        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
-        represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return self.contributions.filter(contributor__pk__in=represented_users).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
