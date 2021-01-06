@@ -705,14 +705,14 @@ class Evaluation(LoggedModel):
 
     def is_user_editor_or_delegate(self, user):
         represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_users, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
+        return self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
         if not user.is_responsible_or_contributor_or_delegate:
             return False
         represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_users).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
+        return self.contributions.filter(contributor__in=represented_users).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
