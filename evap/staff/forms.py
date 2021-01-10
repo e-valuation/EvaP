@@ -388,7 +388,7 @@ class SingleResultForm(forms.ModelForm):
 
         # change state to "reviewed"
         # works only for single_results so the evaluation and its contribution must be saved first
-        evaluation.single_result_created()
+        evaluation.skip_review_single_result()
         evaluation.save()
 
         if hasattr(self.instance, 'old_course'):
@@ -522,7 +522,7 @@ class QuestionnaireForm(forms.ModelForm):
                   'public_name_de', 'public_name_en', 'teaser_de', 'teaser_en', 'order',
                   'visibility', 'is_locked')
 
-    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):  # pylint: disable=arguments-differ
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 
@@ -618,9 +618,6 @@ class ContributionFormSet(BaseInlineFormSet):
 
     def clean(self):
         self.handle_deleted_and_added_contributions()
-
-        super().clean()
-
         found_contributor = set()
         for form in self.forms:
             if not form.cleaned_data or form.cleaned_data.get('DELETE'):
@@ -629,9 +626,10 @@ class ContributionFormSet(BaseInlineFormSet):
             if contributor is None:
                 raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
             if contributor and contributor in found_contributor:
-                raise forms.ValidationError(_('Duplicate contributor found. Each contributor should only be used once.'))
+                raise forms.ValidationError(_('Duplicate contributor ({}) found. Each contributor should only be used once.').format(contributor.full_name))
             if contributor:
                 found_contributor.add(contributor)
+        super().clean()
 
 
 class ContributionCopyFormSet(ContributionFormSet):
@@ -827,7 +825,7 @@ class TextAnswerWarningForm(forms.ModelForm):
 
 class ExportSheetForm(forms.Form):
     def __init__(self, semester, *args, **kwargs):
-        super(ExportSheetForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         degrees = Degree.objects.filter(courses__semester=semester).distinct()
         degree_tuples = [(degree.pk, degree.name) for degree in degrees]
         self.fields['selected_degrees'] = forms.MultipleChoiceField(

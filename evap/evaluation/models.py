@@ -376,6 +376,7 @@ class Evaluation(LoggedModel):
 
     # when the evaluation takes place
     vote_start_datetime = models.DateTimeField(verbose_name=_("start of evaluation"))
+    # Usually the property vote_end_datetime should be used instead of this field
     vote_end_date = models.DateField(verbose_name=_("last day of evaluation"))
 
     # Disable to prevent editors from changing evaluation data
@@ -605,7 +606,7 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(field=state, source='approved', target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
-    def evaluation_begin(self):
+    def begin_evaluation(self):
         pass
 
     @transition(field=state, source=['evaluated', 'reviewed'], target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
@@ -613,15 +614,15 @@ class Evaluation(LoggedModel):
         pass
 
     @transition(field=state, source='in_evaluation', target='evaluated')
-    def evaluation_end(self):
+    def end_evaluation(self):
         pass
 
     @transition(field=state, source='evaluated', target='reviewed', conditions=[lambda self: self.is_fully_reviewed])
-    def review_finished(self):
+    def end_review(self):
         pass
 
     @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[lambda self: self.is_single_result])
-    def single_result_created(self):
+    def skip_review_single_result(self):
         pass
 
     @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: not self.is_fully_reviewed])
@@ -703,17 +704,15 @@ class Evaluation(LoggedModel):
         return (self.vote_start_datetime - datetime.now()) / timedelta(hours=1)
 
     def is_user_editor_or_delegate(self, user):
-        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
-        represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return self.contributions.filter(contributor__in=represented_users, role=Contribution.Role.EDITOR).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_responsible_or_contributor_or_delegate(self, user):
         # early out that saves database hits since is_responsible_or_contributor_or_delegate is a cached_property
         if not user.is_responsible_or_contributor_or_delegate:
             return False
-        represented_user_pks = [represented_user.pk for represented_user in user.represented_users.all()]
-        represented_user_pks.append(user.pk)
-        return self.contributions.filter(contributor__pk__in=represented_user_pks).exists() or self.course.responsibles.filter(pk__in=represented_user_pks).exists()
+        represented_users = user.represented_users.all() | UserProfile.objects.filter(pk=user.pk)
+        return self.contributions.filter(contributor__in=represented_users).exists() or self.course.responsibles.filter(pk__in=represented_users).exists()
 
     def is_user_contributor(self, user):
         return self.contributions.filter(contributor=user).exists()
@@ -776,13 +775,13 @@ class Evaluation(LoggedModel):
         for evaluation in cls.objects.all():
             try:
                 if evaluation.state == "approved" and evaluation.vote_start_datetime <= datetime.now():
-                    evaluation.evaluation_begin()
+                    evaluation.begin_evaluation()
                     evaluation.save()
                     evaluations_new_in_evaluation.append(evaluation)
                 elif evaluation.state == "in_evaluation" and datetime.now() >= evaluation.vote_end_datetime:
-                    evaluation.evaluation_end()
+                    evaluation.end_evaluation()
                     if evaluation.is_fully_reviewed:
-                        evaluation.review_finished()
+                        evaluation.end_review()
                         if evaluation.grading_process_is_finished:
                             evaluation.publish()
                             evaluation_results_evaluations.append(evaluation)
@@ -1519,7 +1518,7 @@ def validate_template(value):
     try:
         Template(value)
     except TemplateSyntaxError as e:
-        raise ValidationError(str(e))
+        raise ValidationError(str(e)) from e
 
 
 class EmailTemplate(models.Model):
@@ -1622,6 +1621,9 @@ class EmailTemplate(models.Model):
             else:
                 send_separate_login_url = True
 
+        body_params['page_url'] = settings.PAGE_URL
+        body_params['contact_email'] = settings.CONTACT_EMAIL
+
         subject = self.render_string(self.subject, subject_params)
         body = self.render_string(self.body, body_params)
 
@@ -1653,7 +1655,7 @@ class EmailTemplate(models.Model):
     def send_login_url_to_user(cls, user):
         template = cls.objects.get(name=cls.LOGIN_KEY_CREATED)
         subject_params = {}
-        body_params = {'user': user, 'login_url': user.login_url}
+        body_params = {'user': user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
         logger.info(('Sent login url to {}.').format(user.email))

@@ -30,7 +30,8 @@ class RequestAuthUserBackend(ModelBackend):
 
 
 class EmailAuthenticationBackend(ModelBackend):
-    def authenticate(self, request, email=None, password=None):
+    # https://docs.djangoproject.com/en/3.1/topics/auth/customizing/#writing-an-authentication-backend
+    def authenticate(self, request, email=None, password=None):  # pylint: disable=arguments-differ
         try:
             user = UserProfile.objects.get(email=email)
         except UserProfile.DoesNotExist:

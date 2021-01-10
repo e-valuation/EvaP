@@ -293,13 +293,13 @@ def merge_users(main_user, other_user, preview=False):
     return merged_user, errors, warnings
 
 
-def find_next_unreviewed_evaluation(semester, excluded):
+def find_unreviewed_evaluations(semester, excluded):
     return semester.evaluations.exclude(pk__in=excluded) \
         .exclude(state='published') \
         .exclude(can_publish_text_results=False) \
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
-        .order_by('vote_end_date', '-num_unreviewed_textanswers').first()
+        .order_by('vote_end_date', '-num_unreviewed_textanswers').all()
 
 
 def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_run=False):

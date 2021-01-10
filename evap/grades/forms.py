@@ -40,6 +40,6 @@ class GradeDocumentForm(forms.ModelForm):
             raise ValidationError(_("This description for a grade document was already used for this course."))
         return description_en
 
-    def save(self, modifying_user, *args, **kwargs):
+    def save(self, *args, modifying_user, **kwargs):  # pylint: disable=arguments-differ
         self.instance.last_modified_user = modifying_user
         super().save(*args, **kwargs)

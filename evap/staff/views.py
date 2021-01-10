@@ -44,7 +44,7 @@ from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionC
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
 from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
                               forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation, ImportType)
+                              save_import_file, find_unreviewed_evaluations, ImportType)
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -189,7 +189,7 @@ class RevertToNewOperation(EvaluationOperation):
             "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
 
 
-class MoveToPreparedOperation(EvaluationOperation):
+class ReadyForEditorsOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EDITOR_REVIEW_NOTICE
     confirmation_message = gettext_lazy("Do you want to send the following evaluations to editor review?")
 
@@ -230,7 +230,7 @@ class MoveToPreparedOperation(EvaluationOperation):
                                             use_cc=True, additional_cc_users=editors, request=request)
 
 
-class StartEvaluationOperation(EvaluationOperation):
+class BeginEvaluationOperation(EvaluationOperation):
     email_template_name = EmailTemplate.EVALUATION_STARTED
     confirmation_message = gettext_lazy("Do you want to immediately start the following evaluations?")
 
@@ -250,7 +250,7 @@ class StartEvaluationOperation(EvaluationOperation):
 
         for evaluation in evaluations:
             evaluation.vote_start_datetime = datetime.now()
-            evaluation.evaluation_begin()
+            evaluation.begin_evaluation()
             evaluation.save()
         messages.success(request, ngettext("Successfully started {} evaluation.",
             "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
@@ -258,7 +258,7 @@ class StartEvaluationOperation(EvaluationOperation):
             email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=request)
 
 
-class RevertToReviewedOperation(EvaluationOperation):
+class UnpublishOperation(EvaluationOperation):
     confirmation_message = gettext_lazy("Do you want to unpublish the following evaluations?")
 
     @staticmethod
@@ -314,9 +314,9 @@ class PublishOperation(EvaluationOperation):
 
 EVALUATION_OPERATIONS = {
         'new': RevertToNewOperation,
-        'prepared': MoveToPreparedOperation,
-        'in_evaluation': StartEvaluationOperation,
-        'reviewed': RevertToReviewedOperation,
+        'prepared': ReadyForEditorsOperation,
+        'in_evaluation': BeginEvaluationOperation,
+        'reviewed': UnpublishOperation,
         'published': PublishOperation,
 }
 
@@ -1106,19 +1106,32 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
 
     if view == 'quick':
         visited = request.session.get('review-visited', set())
+        skipped = request.session.get('review-skipped', set())
         visited.add(evaluation.pk)
-        next_evaluation = find_next_unreviewed_evaluation(semester, visited)
-        if not next_evaluation and len(visited) > 1:
+        next_evaluations = find_unreviewed_evaluations(semester, visited | skipped)
+        if not next_evaluations and (len(visited) > 1 or len(skipped) > 0):
             visited = {evaluation.pk}
-            next_evaluation = find_next_unreviewed_evaluation(semester, visited)
+            skipped = set()
+            request.session['review-skipped'] = skipped
+            next_evaluations = find_unreviewed_evaluations(semester, visited | skipped)
         request.session['review-visited'] = visited
 
         sections = evaluation_sections + contributor_sections
-        template_data.update(dict(sections=sections, next_evaluation=next_evaluation))
+        template_data.update(dict(sections=sections, next_evaluations=next_evaluations))
         return render(request, "staff_evaluation_textanswers_quick.html", template_data)
 
     template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
     return render(request, "staff_evaluation_textanswers_full.html", template_data)
+
+@reviewer_required
+def evaluation_textanswers_skip(request):
+    evaluation_id = request.POST["evaluation_id"]
+    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+
+    visited = request.session.get('review-skipped', set())
+    visited.add(evaluation.pk)
+    request.session['review-skipped'] = visited
+    return HttpResponse()
 
 
 @require_POST
@@ -1149,7 +1162,7 @@ def evaluation_textanswers_update_publish(request):
     answer.save()
 
     if evaluation.state == "evaluated" and evaluation.is_fully_reviewed:
-        evaluation.review_finished()
+        evaluation.end_review()
         evaluation.save()
     if evaluation.state == "reviewed" and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
@@ -1771,7 +1784,7 @@ def export_contributor_results_view(request, contributor_id):
 def enter_staff_mode(request):
     staff_mode.enter_staff_mode(request)
     messages.success(request, _("Successfully entered staff mode."))
-    return redirect('/')
+    return redirect('evaluation:index')
 
 
 @require_POST
@@ -1779,4 +1792,4 @@ def enter_staff_mode(request):
 def exit_staff_mode(request):
     staff_mode.exit_staff_mode(request)
     messages.success(request, _("Successfully exited staff mode."))
-    return redirect('/')
+    return redirect('evaluation:index')

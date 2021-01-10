@@ -74,6 +74,7 @@ def index(request):
             # clean up our test cookie
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
+            return redirect('evaluation:index')
 
     # if not logged in by now, render form
     if not request.user.is_authenticated:

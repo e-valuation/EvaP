@@ -41,10 +41,11 @@ class LogJSONEncoder(JSONEncoder):
     As JSON can't store datetime objects, we localize them to strings.
     """
 
-    def default(self, obj):
-        if isinstance(obj, (date, time, datetime)):
-            return localize(obj)
-        return super().default(obj)
+    def default(self, o):
+        # o is the object to serialize -- we can't rename the argument in JSONEncoder
+        if isinstance(o, (date, time, datetime)):
+            return localize(o)
+        return super().default(o)
 
 
 def _choice_to_display(field, choice):  # does not support nested choices

@@ -19,6 +19,7 @@
                     <tr><td><kbd>L</kbd></td><td>{% trans 'Remove answer' %}</td></tr>
                     <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
+                    <tr><td><kbd>S</kbd></td><td>{% trans 'Skip evaluation' %}</td></tr>
                     <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
                     <tr><td><kbd>M</kbd></td><td>{% trans 'Show unreviewed' %}</td></tr>
                 </table>
@@ -76,11 +77,11 @@
                             {% trans 'There are no text answers for this evaluation.' %}
                         </span>
                     {% endif %}
-                    {% if next_evaluation %}
-                        <span>
+                    {% for next_evaluation in next_evaluations %}
+                        <span data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}">
                             {% blocktrans with name=next_evaluation.full_name count answers=next_evaluation.num_unreviewed_textanswers %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answer.{% plural %}The next evaluation "{{ name }}" has got {{ answers }} unreviewed text answers.{% endblocktrans %}
                         </span>
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
             <div class="slider-side slider-side-right">
@@ -104,10 +105,15 @@
                 </button>
             </div>
             <div class="lcr-center d-none" data-action-set="summary">
-                {% if next_evaluation %}
-                    <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-url="next-evaluation" class="btn btn-sm btn-primary">
-                        {% trans 'Review next evaluation' %}
-                    </a>
+                {% if next_evaluations %}
+                    {% for next_evaluation in next_evaluations %}
+                        <a href="{% url 'staff:evaluation_textanswers' next_evaluation.course.semester.id next_evaluation.id %}" data-next-evaluation-index="{{ forloop.counter0 }}" data-evaluation="{{ next_evaluation.pk }}" data-url="next-evaluation" class="btn btn-sm btn-primary">
+                            {% trans 'Review next evaluation' %}
+                        </a>
+                    {% endfor %}
+                    <button role="button" data-skip-evaluation class="btn btn-sm btn-outline-primary">
+                        {% trans 'Skip evaluation' %}
+                    </button>
                 {% endif %}
                 <button role="button" data-startover="all" class="btn btn-sm btn-outline-primary">
                     {% trans 'Show all again' %}

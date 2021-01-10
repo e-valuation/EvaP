@@ -77,9 +77,9 @@ disable=locally-disabled,            # we allow locally disabling some checks if
         too-many-arguments,          # we can't determine a good limit here. reviews should spot bad cases of this.
 #
 # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
-        arguments-differ,            # currently, if a method takes *args and **kwargs and passes them to the super method,
-                                     # pylint complains - see https://github.com/PyCQA/pylint/pull/3001
-        signature-differs,           # same thing as arguments-differ
+        signature-differs,           # can be used if https://github.com/PyCQA/pylint/issues/3737 is fixed
+        cyclic-import,               # also lints all cyclic imports that we purposely moved inside a function body.
+        duplicate-code,              # only unhelpful detections (e.g. test class header)
 
 
 [REPORTS]
