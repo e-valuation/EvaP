@@ -6,7 +6,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (UserProfile, Evaluation, Questionnaire, Question, Contribution,
-                                    TextAnswer, RatingAnswerCounter, Semester)
+                                    TextAnswer, RatingAnswerCounter, Semester, Answer)
 from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.student.tools import question_id
 from evap.student.views import SUCCESS_MAGIC_STRING
@@ -292,3 +292,25 @@ class TestVoteView(WebTest):
             page.body.decode(),
             r"can be seen by:<br />\s*{}".format(self.contributor1.full_name.replace('(', '\\(').replace(')', '\\)'))
         )
+
+    def test_xmin_of_all_answers_is_updated(self):
+        page = self.app.get(self.url, user=self.voting_user1)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form)
+        form.submit()
+
+        page = self.app.get(self.url, user=self.voting_user2)
+        form = page.forms["student-vote-form"]
+        self.fill_form(form)
+        form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 2
+        form.submit()
+
+        self.assertEqual(set(Answer.__subclasses__()), {RatingAnswerCounter, TextAnswer}, "This requires an update if a new answer type is added")
+
+        query = RatingAnswerCounter.objects.raw("SELECT id, xmin FROM evaluation_ratinganswercounter")
+        rating_answer_xmins = [row.xmin for row in query]
+        self.assertTrue(all(xmin == rating_answer_xmins[0] for xmin in rating_answer_xmins))
+
+        query = TextAnswer.objects.raw("SELECT id, xmin FROM evaluation_textanswer")
+        text_answer_xmins = [row.xmin for row in query]
+        self.assertTrue(all(xmin == text_answer_xmins[0] for xmin in text_answer_xmins))
