@@ -71,6 +71,10 @@ def clean_email(email):
     return email
 
 
+def capitalize_first(string):
+    return string[0].upper() + string[1:]
+
+
 class FileResponse(HttpResponse):
     def __init__(self, filename, content_type=None, **kwargs):
         super().__init__(content_type=content_type, **kwargs)

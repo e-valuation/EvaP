@@ -17,6 +17,8 @@ from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
 
+from evap.evaluation.tools import capitalize_first
+
 
 class FieldActionType(str, Enum):
     M2M_ADD = "add"
@@ -56,7 +58,7 @@ def _choice_to_display(field, choice):  # does not support nested choices
 
 
 def _field_actions_for_field(field, actions):
-    label = getattr(field, "verbose_name", field.name).capitalize()
+    label = capitalize_first(getattr(field, "verbose_name", field.name))
 
     for field_action_type, items in actions.items():
         if field.many_to_many or field.many_to_one or field.one_to_one:
@@ -113,7 +115,7 @@ class LogEntry(models.Model):
             message = _("A {cls} was deleted.")
 
         return message.format(
-            cls=self.content_type.model_class()._meta.verbose_name_raw,
+            cls=capitalize_first(self.content_type.model_class()._meta.verbose_name),
             obj=f'"{str(self.content_object)}"' if self.content_object else "",
         )
 

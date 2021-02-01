@@ -858,6 +858,8 @@ class Contribution(LoggedModel):
             ('evaluation', 'contributor'),
         )
         ordering = ['order', ]
+        verbose_name = _("contribution")
+        verbose_name_plural = _("contributions")
 
     @property
     def unlogged_fields(self):
