@@ -23,7 +23,7 @@ class LoginTests(WebTest):
         cls.external_user.ensure_valid_login_key()
         cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
-        evaluation = baker.make(Evaluation, state='published')
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
         baker.make(
             Contribution,
             evaluation=evaluation,

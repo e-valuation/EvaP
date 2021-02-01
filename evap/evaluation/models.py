@@ -22,7 +22,7 @@ from django.template.base import TemplateSyntaxError
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django_fsm import FSMField, transition
+from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
 from evap.evaluation.models_logging import LoggedModel
@@ -117,7 +117,7 @@ class Semester(models.Model):
 
     @classmethod
     def get_all_with_published_unarchived_results(cls):
-        return cls.objects.filter(courses__evaluations__state="published", results_are_archived=False).distinct()
+        return cls.objects.filter(courses__evaluations__state=Evaluation.State.PUBLISHED, results_are_archived=False).distinct()
 
     @classmethod
     def active_semester(cls):
@@ -203,7 +203,7 @@ class Questionnaire(models.Model):
 
     @property
     def can_be_edited_by_manager(self):
-        return not self.contributions.exclude(evaluation__state='new').exists()
+        return not self.contributions.exclude(evaluation__state=Evaluation.State.NEW).exists()
 
     @property
     def can_be_deleted_by_manager(self):
@@ -337,12 +337,23 @@ class Course(LoggedModel):
 
     @property
     def all_evaluations_finished(self):
-        return not self.evaluations.exclude(state__in=['evaluated', 'reviewed', 'published']).exists()
+        return not self.evaluations.exclude(state__gte=Evaluation.State.EVALUATED).exists()
 
 
 class Evaluation(LoggedModel):
     """Models a single evaluation, e.g. the exam evaluation of the Math 101 course of 2002."""
-    state = FSMField(default='new', protected=True)
+
+    class State:
+        NEW = 10
+        PREPARED = 20
+        EDITOR_APPROVED = 30
+        APPROVED = 40
+        IN_EVALUATION = 50
+        EVALUATED = 60
+        REVIEWED = 70
+        PUBLISHED = 80
+
+    state = FSMIntegerField(default=State.NEW, protected=True)
 
     course = models.ForeignKey(Course, models.PROTECT, verbose_name=_("course"), related_name="evaluations")
 
@@ -425,7 +436,7 @@ class Evaluation(LoggedModel):
             from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 
             if (state_changed_to(self, STATES_WITH_RESULTS_CACHING)
-                    or self.state_change_source == 'evaluated' and self.state == 'reviewed'): # reviewing changes results -> cache update required
+                    or self.state_change_source == Evaluation.State.EVALUATED and self.state == Evaluation.State.REVIEWED): # reviewing changes results -> cache update required
                 from evap.results.tools import cache_results
                 cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
@@ -493,7 +504,7 @@ class Evaluation(LoggedModel):
 
     def can_be_voted_for_by(self, user):
         """Returns whether the user is allowed to vote on this evaluation."""
-        return (self.state == "in_evaluation"
+        return (self.state == Evaluation.State.IN_EVALUATION
             and self.is_in_evaluation_period
             and user in self.participants.all()
             and user not in self.voters.all())
@@ -501,7 +512,7 @@ class Evaluation(LoggedModel):
     def can_be_seen_by(self, user):
         if user.is_manager:
             return True
-        if self.state == 'new':
+        if self.state == Evaluation.State.NEW:
             return False
         if user.is_reviewer and not self.course.semester.results_are_archived:
             return True
@@ -516,7 +527,7 @@ class Evaluation(LoggedModel):
             return True
         if user.is_reviewer and not self.course.semester.results_are_archived:
             return True
-        if self.state != 'published':
+        if self.state != Evaluation.State.PUBLISHED:
             return False
         if not self.can_publish_rating_results or self.course.semester.results_are_archived:
             return self.is_user_responsible_or_contributor_or_delegate(user)
@@ -524,7 +535,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_be_edited_by_manager(self):
-        return not self.participations_are_archived and self.state in ['new', 'prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']
+        return not self.participations_are_archived and self.state < Evaluation.State.PUBLISHED
 
     @property
     def can_be_deleted_by_manager(self):
@@ -563,7 +574,7 @@ class Evaluation(LoggedModel):
 
     @property
     def participations_can_be_archived(self):
-        return not self.course.semester.participations_are_archived and self.state in ["new", "published"]
+        return not self.course.semester.participations_are_archived and self.state in [Evaluation.State.NEW, Evaluation.State.PUBLISHED]
 
     @property
     def has_external_participant(self):
@@ -571,7 +582,7 @@ class Evaluation(LoggedModel):
 
     @property
     def can_staff_see_average_grade(self):
-        return self.state in {'evaluated', 'reviewed', 'published'}
+        return self.state >= Evaluation.State.EVALUATED
 
     @property
     def can_publish_average_grade(self):
@@ -589,47 +600,47 @@ class Evaluation(LoggedModel):
         # the rating results are only published if at least the configured number of participants voted during the evaluation for anonymity reasons
         return self.num_voters >= settings.VOTER_COUNT_NEEDED_FOR_PUBLISHING_RATING_RESULTS
 
-    @transition(field=state, source=['new', 'editor_approved'], target='prepared')
+    @transition(field=state, source=[State.NEW, State.EDITOR_APPROVED], target=State.PREPARED)
     def ready_for_editors(self):
         pass
 
-    @transition(field=state, source='prepared', target='editor_approved')
+    @transition(field=state, source=State.PREPARED, target=State.EDITOR_APPROVED)
     def editor_approve(self):
         pass
 
-    @transition(field=state, source=['new', 'prepared', 'editor_approved'], target='approved', conditions=[lambda self: self.general_contribution_has_questionnaires])
+    @transition(field=state, source=[State.NEW, State.PREPARED, State.EDITOR_APPROVED], target=State.APPROVED, conditions=[lambda self: self.general_contribution_has_questionnaires])
     def manager_approve(self):
         pass
 
-    @transition(field=state, source=['prepared', 'editor_approved', 'approved'], target='new')
+    @transition(field=state, source=[State.PREPARED, State.EDITOR_APPROVED, State.APPROVED], target=State.NEW)
     def revert_to_new(self):
         pass
 
-    @transition(field=state, source='approved', target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
+    @transition(field=state, source=State.APPROVED, target=State.IN_EVALUATION, conditions=[lambda self: self.is_in_evaluation_period])
     def begin_evaluation(self):
         pass
 
-    @transition(field=state, source=['evaluated', 'reviewed'], target='in_evaluation', conditions=[lambda self: self.is_in_evaluation_period])
+    @transition(field=state, source=[State.EVALUATED, State.REVIEWED], target=State.IN_EVALUATION, conditions=[lambda self: self.is_in_evaluation_period])
     def reopen_evaluation(self):
         pass
 
-    @transition(field=state, source='in_evaluation', target='evaluated')
+    @transition(field=state, source=State.IN_EVALUATION, target=State.EVALUATED)
     def end_evaluation(self):
         pass
 
-    @transition(field=state, source='evaluated', target='reviewed', conditions=[lambda self: self.is_fully_reviewed])
+    @transition(field=state, source=State.EVALUATED, target=State.REVIEWED, conditions=[lambda self: self.is_fully_reviewed])
     def end_review(self):
         pass
 
-    @transition(field=state, source=['new', 'reviewed'], target='reviewed', conditions=[lambda self: self.is_single_result])
+    @transition(field=state, source=[State.NEW, State.REVIEWED], target=State.REVIEWED, conditions=[lambda self: self.is_single_result])
     def skip_review_single_result(self):
         pass
 
-    @transition(field=state, source='reviewed', target='evaluated', conditions=[lambda self: not self.is_fully_reviewed])
+    @transition(field=state, source=State.REVIEWED, target=State.EVALUATED, conditions=[lambda self: not self.is_fully_reviewed])
     def reopen_review(self):
         pass
 
-    @transition(field=state, source='reviewed', target='published')
+    @transition(field=state, source=State.REVIEWED, target=State.PUBLISHED)
     def publish(self):
         assert self.is_single_result or self._voter_count is None and self._participant_count is None
         self._voter_count = self.num_voters
@@ -641,11 +652,30 @@ class Evaluation(LoggedModel):
             self.textanswer_set.filter(state=TextAnswer.State.HIDDEN).delete()
             self.textanswer_set.update(original_answer=None)
 
-    @transition(field=state, source='published', target='reviewed')
+    @transition(field=state, source=State.PUBLISHED, target=State.REVIEWED)
     def unpublish(self):
         assert self.is_single_result or self._voter_count == self.voters.count() and self._participant_count == self.participants.count()
         self._voter_count = None
         self._participant_count = None
+
+    STATE_STR_CONVERSION = {
+        State.NEW: "new",
+        State.PREPARED: "prepared",
+        State.EDITOR_APPROVED: "editor_approved",
+        State.APPROVED: "approved",
+        State.IN_EVALUATION: "in_evaluation",
+        State.EVALUATED: "evaluated",
+        State.REVIEWED: "reviewed",
+        State.PUBLISHED: "published",
+    }
+
+    @classmethod
+    def state_to_str(cls, state):
+        return cls.STATE_STR_CONVERSION[state]
+
+    @property
+    def state_str(self):
+        return self.state_to_str(self.state)
 
     @cached_property
     def general_contribution(self):
@@ -747,7 +777,7 @@ class Evaluation(LoggedModel):
         if self.num_textanswers == self.num_reviewed_textanswers:
             return self.TextAnswerReviewState.REVIEWED
 
-        if self.state != "evaluated":
+        if self.state != Evaluation.State.EVALUATED:
             return self.TextAnswerReviewState.REVIEW_NEEDED
 
         if self.grading_process_is_finished:
@@ -774,11 +804,11 @@ class Evaluation(LoggedModel):
 
         for evaluation in cls.objects.all():
             try:
-                if evaluation.state == "approved" and evaluation.vote_start_datetime <= datetime.now():
+                if evaluation.state == Evaluation.State.APPROVED and evaluation.vote_start_datetime <= datetime.now():
                     evaluation.begin_evaluation()
                     evaluation.save()
                     evaluations_new_in_evaluation.append(evaluation)
-                elif evaluation.state == "in_evaluation" and datetime.now() >= evaluation.vote_end_datetime:
+                elif evaluation.state == Evaluation.State.IN_EVALUATION and datetime.now() >= evaluation.vote_end_datetime:
                     evaluation.end_evaluation()
                     if evaluation.is_fully_reviewed:
                         evaluation.end_review()
@@ -1515,7 +1545,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     def get_sorted_due_evaluations(self):
         due_evaluations = dict()
-        for evaluation in Evaluation.objects.filter(participants=self, state='in_evaluation').exclude(voters=self):
+        for evaluation in Evaluation.objects.filter(participants=self, state=Evaluation.State.IN_EVALUATION).exclude(voters=self):
             due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
 
         # Sort evaluations by number of days left for evaluation and bring them to following format:

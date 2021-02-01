@@ -26,8 +26,8 @@ class TestStudentIndexView(WebTestWith200Check):
     def test_num_queries_is_constant(self):
         semester1 = baker.make(Semester)
         semester2 = baker.make(Semester, participations_are_archived=True)
-        baker.make(Evaluation, course__semester=semester1, state="published", participants=[self.user], _quantity=100)
-        baker.make(Evaluation, course__semester=semester2, state="published", participants=[self.user], _quantity=100)
+        baker.make(Evaluation, course__semester=semester1, state=Evaluation.State.PUBLISHED, participants=[self.user], _quantity=100)
+        baker.make(Evaluation, course__semester=semester2, state=Evaluation.State.PUBLISHED, participants=[self.user], _quantity=100)
 
         with CaptureQueriesContext(connection) as context:
             self.app.get(self.url, user=self.user)
@@ -48,7 +48,7 @@ class TestVoteView(WebTest):
         cls.contributor1 = baker.make(UserProfile, email="contributor1@institution.example.com")
         cls.contributor2 = baker.make(UserProfile, email="contributor2@institution.example.com")
 
-        cls.evaluation = baker.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state="in_evaluation")
+        cls.evaluation = baker.make(Evaluation, pk=1, participants=[cls.voting_user1, cls.voting_user2, cls.contributor1], state=Evaluation.State.IN_EVALUATION)
 
         cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)

@@ -20,7 +20,7 @@ class TestGrantRewardPoints(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.student = baker.make(UserProfile, email='student@institution.example.com')
-        cls.evaluation = baker.make(Evaluation, state='in_evaluation', participants=[cls.student])
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.student])
 
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)

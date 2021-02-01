@@ -16,7 +16,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% if evaluation.state != 'published' %}
+    {% if evaluation.state != evaluation.State.PUBLISHED %}
         <div class="alert alert-warning">{% trans 'This is a preview. The results have not been published yet.' %}</div>
     {% endif %}
 

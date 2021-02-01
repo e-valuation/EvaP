@@ -3,12 +3,12 @@
 <table class="table table-seamless-links table-vertically-aligned table-headerless">
     <tbody>
         {% for evaluation in unfinished_evaluations %}
-            <tr{% if evaluation.state == 'in_evaluation' and not evaluation.voted_for and evaluation.is_in_evaluation_period %}
+            <tr{% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period %}
                     class="hover-row hover-row-info" data-url="{% url 'student:vote' evaluation.id %}"
                 {% else %} class="deactivate"{% endif %}>
                 <td style="width: 65%">
                     <div>
-                        <span class="evaluation-name font-weight-bold {% if evaluation.state == 'in_evaluation' and not evaluation.voted_for %} text-primary{% endif %}">
+                        <span class="evaluation-name font-weight-bold {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for %} text-primary{% endif %}">
                             {{ evaluation.full_name }}
                         </span>
                         {% if not evaluation.course.semester.is_active %}({{ evaluation.course.semester.name }}){% endif %}
@@ -24,7 +24,7 @@
                     {% include 'student_index_evaluation_period.html' %}
                 </td>
                 <td style="width: 10%" class="text-right">
-                    {% if evaluation.state == 'in_evaluation' and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
+                    {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
                         <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
                     {% endif %}
                 </td>

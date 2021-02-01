@@ -128,7 +128,7 @@ class UserFormTests(TestCase):
 
     def test_results_cache_refreshed(self):
         contributor = baker.make(UserProfile, first_name="Peter")
-        evaluation = baker.make(Evaluation, state="published")
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
         baker.make(Contribution, contributor=contributor,
                    evaluation=evaluation)
 

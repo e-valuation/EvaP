@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="mb-2">
-        {% if evaluation.state == 'in_evaluation' %}
+        {% if evaluation.state == evaluation.State.IN_EVALUATION %}
             <span class="badge badge-warning"><span class="fas fa-play icon-gray"></span> {% trans 'Still in evaluation' %}</span>
         {% else %}
             <span class="badge badge-light"><span class="fas fa-stop icon-green"></span> {% trans 'Evaluation finished' %}</span>

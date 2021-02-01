@@ -120,14 +120,14 @@ def semester_view(request, semester_id):
         stats_objects = [degree_stats[degree] for degree in degrees]
         stats_objects += [total_stats]
         for stats in stats_objects:
-            if evaluation.state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
+            if evaluation.state >= Evaluation.State.IN_EVALUATION:
                 stats.num_enrollments_in_evaluation += evaluation.num_participants
                 stats.num_votes += evaluation.num_voters
                 stats.num_textanswers += evaluation.num_textanswers
                 stats.num_textanswers_reviewed += evaluation.num_reviewed_textanswers
-            if evaluation.state in ['evaluated', 'reviewed', 'published']:
+            if evaluation.state >= Evaluation.State.EVALUATED:
                 stats.num_evaluations_evaluated += 1
-            if evaluation.state != 'new':
+            if evaluation.state != Evaluation.State.NEW:
                 stats.num_evaluations += 1
                 stats.first_start = min(stats.first_start, evaluation.vote_start_datetime)
                 stats.last_end = max(stats.last_end, evaluation.vote_end_date)
@@ -137,12 +137,13 @@ def semester_view(request, semester_id):
     template_data = dict(
         semester=semester,
         evaluations=evaluations,
+        Evaluation=Evaluation,
         disable_breadcrumb_semester=True,
         rewards_active=rewards_active,
         num_evaluations=len(evaluations),
         degree_stats=degree_stats,
         courses=courses,
-        approval_states=['new', 'prepared', 'editor_approved', 'approved'],
+        approval_states=[Evaluation.State.NEW, Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED],
     )
     return render(request, "staff_semester_view.html", template_data)
 
@@ -171,7 +172,7 @@ class RevertToNewOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation):
-        return evaluation.state in ['prepared', 'editor_approved', 'approved']
+        return Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.APPROVED
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -196,7 +197,7 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation):
-        return evaluation.state in ['new', 'editor_approved']
+        return evaluation.state in [Evaluation.State.NEW, Evaluation.State.EDITOR_APPROVED]
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -237,7 +238,7 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation):
-        return evaluation.state == 'approved' and evaluation.vote_end_date >= date.today()
+        return evaluation.state == Evaluation.State.APPROVED and evaluation.vote_end_date >= date.today()
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -264,7 +265,7 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation):
-        return evaluation.state == 'published'
+        return evaluation.state == Evaluation.State.PUBLISHED
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -290,7 +291,7 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def applicable_to(evaluation):
-        return evaluation.state == 'reviewed'
+        return evaluation.state == Evaluation.State.REVIEWED
 
     @staticmethod
     def warning_for_inapplicables(amount):
@@ -314,11 +315,11 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-        'new': RevertToNewOperation,
-        'prepared': ReadyForEditorsOperation,
-        'in_evaluation': BeginEvaluationOperation,
-        'reviewed': UnpublishOperation,
-        'published': PublishOperation,
+    "new": RevertToNewOperation,
+    "prepared": ReadyForEditorsOperation,
+    "in_evaluation": BeginEvaluationOperation,
+    "reviewed": UnpublishOperation,
+    "published": PublishOperation,
 }
 
 
@@ -534,7 +535,7 @@ def semester_raw_export(_request, semester_id):
             distribution = calculate_average_distribution(evaluation)
             if distribution is not None:
                 avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
-        writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
+        writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state_str,
             evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
 
     return response
@@ -571,7 +572,7 @@ def semester_questionnaire_assign(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.participations_are_archived:
         raise PermissionDenied
-    evaluations = semester.evaluations.filter(state='new')
+    evaluations = semester.evaluations.filter(state=Evaluation.State.NEW)
     course_types = CourseType.objects.filter(courses__evaluations__in=evaluations)
     form = QuestionnairesAssignForm(request.POST or None, course_types=course_types)
 
@@ -594,9 +595,9 @@ def semester_questionnaire_assign(request, semester_id):
 def semester_preparation_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).prefetch_related("course__degrees")
+    evaluations = semester.evaluations.filter(state__in=[Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED]).prefetch_related("course__degrees")
 
-    prepared_evaluations = semester.evaluations.filter(state__in=['prepared'])
+    prepared_evaluations = semester.evaluations.filter(state=Evaluation.State.PREPARED)
     responsibles = list(set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
@@ -621,7 +622,7 @@ def semester_grade_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     courses = semester.courses.filter(
-        evaluations__state__in=['evaluated', 'reviewed', 'published'],
+        evaluations__state__gte=Evaluation.State.EVALUATED,
         evaluations__wait_for_grade_upload_before_publishing=True,
         gets_no_grade_documents=False
     ).distinct()
@@ -645,7 +646,7 @@ def send_reminder(request, semester_id, responsible_id):
 
     form = RemindResponsibleForm(request.POST or None, responsible=responsible)
 
-    evaluations = Evaluation.objects.filter(state='prepared', course__responsibles__in=[responsible])
+    evaluations = Evaluation.objects.filter(state=Evaluation.State.PREPARED, course__responsibles__in=[responsible])
 
     if form.is_valid():
         form.send(request, evaluations)
@@ -897,7 +898,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         if not evaluation.can_be_edited_by_manager or evaluation.participations_are_archived:
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
-        if evaluation.state in ['evaluated', 'reviewed'] and evaluation.is_in_evaluation_period:
+        if Evaluation.State.EVALUATED <= evaluation.state <= Evaluation.State.REVIEWED and evaluation.is_in_evaluation_period:
             evaluation.reopen_evaluation()
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
@@ -1188,10 +1189,10 @@ def evaluation_textanswers_update_publish(request):
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
 
-    if evaluation.state == "evaluated" and evaluation.is_fully_reviewed:
+    if evaluation.state == Evaluation.State.EVALUATED and evaluation.is_fully_reviewed:
         evaluation.end_review()
         evaluation.save()
-    if evaluation.state == "reviewed" and not evaluation.is_fully_reviewed:
+    if evaluation.state == Evaluation.State.REVIEWED and not evaluation.is_fully_reviewed:
         evaluation.reopen_review()
         evaluation.save()
 

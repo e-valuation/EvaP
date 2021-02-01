@@ -17,7 +17,7 @@ from evap.staff.tools import merge_users
 
 class TestCalculateResults(TestCase):
     def test_cache_results(self):
-        evaluation = baker.make(Evaluation, state='published')
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
@@ -26,7 +26,7 @@ class TestCalculateResults(TestCase):
         self.assertIsNotNone(caches['results'].get(get_results_cache_key(evaluation)))
 
     def test_caching_lifecycle(self):
-        evaluation = baker.make(Evaluation, state='in_evaluation')
+        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION)
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
@@ -41,7 +41,7 @@ class TestCalculateResults(TestCase):
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
     def test_caching_works_after_multiple_transitions(self):
-        evaluation = baker.make(Evaluation, state='in_evaluation')
+        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION)
 
         self.assertIsNone(caches['results'].get(get_results_cache_key(evaluation)))
 
@@ -56,7 +56,7 @@ class TestCalculateResults(TestCase):
         contributor1 = baker.make(UserProfile)
         student = baker.make(UserProfile)
 
-        evaluation = baker.make(Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1])
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[student, contributor1], voters=[student, contributor1])
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         contribution1 = baker.make(Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire])
@@ -83,7 +83,7 @@ class TestCalculateResults(TestCase):
         contributor1 = baker.make(UserProfile)
         student = baker.make(UserProfile)
 
-        evaluation = baker.make(Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1])
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[student, contributor1], voters=[student, contributor1])
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.EASY_DIFFICULT)
         contribution1 = baker.make(Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire])
@@ -123,7 +123,7 @@ class TestCalculateResults(TestCase):
         main_user = baker.make(UserProfile)
         student = baker.make(UserProfile)
 
-        evaluation = baker.make(Evaluation, state='published', participants=[student])
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[student])
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Contribution, contributor=contributor, evaluation=evaluation, questionnaires=[questionnaire])
@@ -144,7 +144,7 @@ class TestCalculateAverageDistribution(TestCase):
         cls.student1 = baker.make(UserProfile)
         cls.student2 = baker.make(UserProfile)
 
-        cls.evaluation = baker.make(Evaluation, state='published', participants=[cls.student1, cls.student2], voters=[cls.student1, cls.student2])
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[cls.student1, cls.student2], voters=[cls.student1, cls.student2])
         cls.questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=Question.GRADE)
         cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=Question.LIKERT)
@@ -239,7 +239,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[4], 0.38)
 
     def test_get_single_result_rating_result(self):
-        single_result_evaluation = baker.make(Evaluation, state='published', is_single_result=True)
+        single_result_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True)
         questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
         contribution = baker.make(
             Contribution,
@@ -258,7 +258,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertEqual(rating_result.counts, (1, 0, 0, 1, 0))
 
     def test_result_calculation_with_no_contributor_rating_question(self):
-        evaluation = baker.make(Evaluation, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2])
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, participants=[self.student1, self.student2], voters=[self.student1, self.student2])
         questionnaire_text = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire_text, type=Question.TEXT)
         baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation, questionnaires=[questionnaire_text])
@@ -331,7 +331,7 @@ class TestCalculateAverageDistribution(TestCase):
             is_single_result=True,
             vote_start_datetime=datetime.now(),
             vote_end_date=datetime.now().date(),
-            state="published",
+            state=Evaluation.State.PUBLISHED,
         )
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
@@ -362,7 +362,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.responsible_without_contribution = baker.make(UserProfile, email="responsible_without_contribution@institution.example.com")
         cls.other_user = baker.make(UserProfile, email="other_user@institution.example.com")
 
-        cls.evaluation = baker.make(Evaluation, course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state='published', can_publish_text_results=True)
+        cls.evaluation = baker.make(Evaluation, course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state=Evaluation.State.PUBLISHED, can_publish_text_results=True)
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=Question.TEXT)
         cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=Question.LIKERT)

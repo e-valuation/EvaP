@@ -29,8 +29,8 @@ def index(request):
         .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
         .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
 
-        .filter(~Q(state="new"), course__evaluations__participants=request.user)
-        .exclude(state="new")
+        .filter(~Q(state=Evaluation.State.NEW), course__evaluations__participants=request.user)
+        .exclude(state=Evaluation.State.NEW)
         .prefetch_related(
             'course', 'course__semester', 'course__grade_documents', 'course__type',
             'course__evaluations', 'course__responsibles', 'course__degrees',
@@ -51,8 +51,7 @@ def index(request):
             inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]['num_voters']
             inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]['num_participants']
 
-    annotate_distributions_and_grades(e for e in evaluations if e.state == "published")
-
+    annotate_distributions_and_grades(e for e in evaluations if e.state == Evaluation.State.PUBLISHED)
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
 
     # evaluations must be sorted for regrouping them in the template
@@ -69,7 +68,7 @@ def index(request):
 
     unfinished_evaluations_query = (
         Evaluation.objects
-        .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        .filter(participants=request.user, state__in=[Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION])
         .exclude(voters=request.user)
         .prefetch_related('course__responsibles', 'course__type', 'course__semester')
     )
@@ -81,8 +80,8 @@ def index(request):
     # evaluations in other (visible) states follow by name
     def sorter(evaluation):
         return (
-            evaluation.state != 'in_evaluation',
-            evaluation.vote_end_date if evaluation.state == 'in_evaluation' else None,
+            evaluation.state != Evaluation.State.IN_EVALUATION,
+            evaluation.vote_end_date if evaluation.state == Evaluation.State.IN_EVALUATION else None,
             evaluation.full_name
         )
     unfinished_evaluations.sort(key=sorter)

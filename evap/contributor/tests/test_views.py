@@ -14,7 +14,7 @@ class TestContributorDirectDelegationView(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.evaluation = baker.make(Evaluation, state='prepared')
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
 
         cls.editor = baker.make(UserProfile, email="editor@institution.example.com")
         cls.non_editor = baker.make(UserProfile, email="non_editor@institution.example.com")
@@ -197,11 +197,11 @@ class TestContributorEvaluationEditView(WebTest):
 
         form.submit(name="operation", value="save")
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.state, "prepared")
+        self.assertEqual(self.evaluation.state, Evaluation.State.PREPARED)
 
         form.submit(name="operation", value="approve")
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-        self.assertEqual(self.evaluation.state, "editor_approved")
+        self.assertEqual(self.evaluation.state, Evaluation.State.EDITOR_APPROVED)
 
         # test what happens if the operation is not specified correctly
         response = form.submit(expect_errors=True)
@@ -218,7 +218,7 @@ class TestContributorEvaluationEditView(WebTest):
         evaluation = baker.make(
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
-            state='prepared',
+            state=Evaluation.State.PREPARED,
             pk=TESTING_EVALUATION_ID+1
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])

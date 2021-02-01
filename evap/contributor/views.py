@@ -23,7 +23,7 @@ def index(request):
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
     represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
-    contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
+    contributor_visible_states = [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED]
     own_courses = Course.objects.filter(
         Q(evaluations__state__in=contributor_visible_states) & (
             Q(responsibles=user) |
@@ -63,8 +63,7 @@ def index(request):
 
     displayed_evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
 
-    annotate_distributions_and_grades(e for e in displayed_evaluations if e.state == "published")
-
+    annotate_distributions_and_grades(e for e in displayed_evaluations if e.state == Evaluation.State.PUBLISHED)
     displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
@@ -108,7 +107,7 @@ def evaluation_view(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not evaluation.is_user_editor_or_delegate(user) or evaluation.state not in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']:
+    if not evaluation.is_user_editor_or_delegate(user) or evaluation.state not in [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]:
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
@@ -146,7 +145,7 @@ def evaluation_edit(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not (evaluation.is_user_editor_or_delegate(request.user) and evaluation.state == 'prepared'):
+    if not (evaluation.is_user_editor_or_delegate(request.user) and evaluation.state == Evaluation.State.PREPARED):
         raise PermissionDenied
 
     post_operation = request.POST.get('operation') if request.POST else None
@@ -199,7 +198,7 @@ def evaluation_preview(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and evaluation.state in ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed']):
+    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and evaluation.state in [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]

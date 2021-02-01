@@ -23,7 +23,7 @@ class Command(BaseCommand):
             check_dates.append(datetime.date.today() + datetime.timedelta(days=number_of_days))
 
         recipients = set()
-        for evaluation in Evaluation.objects.filter(state='in_evaluation', vote_end_date__in=check_dates):
+        for evaluation in Evaluation.objects.filter(state=Evaluation.State.IN_EVALUATION, vote_end_date__in=check_dates):
             recipients.update(evaluation.due_participants)
 
         for recipient in recipients:

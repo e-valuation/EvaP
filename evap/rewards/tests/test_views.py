@@ -162,7 +162,7 @@ class TestSemesterActivationView(WebTestStaffMode):
         course = baker.make(Course, semester=cls.semester)
         cls.evaluation = baker.make(
             Evaluation,
-            state='in_evaluation',
+            state=Evaluation.State.IN_EVALUATION,
             participants=[cls.student],
             voters=[cls.student],
             course=course,

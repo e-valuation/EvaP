@@ -254,7 +254,7 @@ class EvaluationForm(forms.ModelForm):
         if self.instance.general_contribution:
             self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
 
-        if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
+        if Evaluation.State.IN_EVALUATION <= self.instance.state <= Evaluation.State.REVIEWED:
             self.fields['vote_start_datetime'].disabled = True
 
         if self.instance.pk and not self.instance.can_be_edited_by_manager:
@@ -386,7 +386,7 @@ class SingleResultForm(forms.ModelForm):
         evaluation._participant_count = total_votes
         evaluation._voter_count = total_votes
 
-        # change state to "reviewed"
+        # change state to Evaluation.State.REVIEWED
         # works only for single_results so the evaluation and its contribution must be saved first
         evaluation.skip_review_single_result()
         evaluation.save()

@@ -108,7 +108,7 @@ def grant_reward_points_after_evaluate(request, semester, **_kwargs):
 
         if completed_evaluation:
             message += " " + _("You now received all possible reward points for this semester. Great!")
-        elif Evaluation.objects.filter(participants=request.user, course__semester=semester, is_rewarded=True).exclude(state__in=['evaluated', 'reviewed', 'published'], voters=request.user).exists():
+        elif Evaluation.objects.filter(participants=request.user, course__semester=semester, is_rewarded=True).exclude(state__gte=Evaluation.State.EVALUATED, voters=request.user).exists():
             # at least one evaluation exists that the user hasn't evaluated and is not past its evaluation period
             message += " " + _("We're looking forward to receiving feedback for your other evaluations as well.")
 

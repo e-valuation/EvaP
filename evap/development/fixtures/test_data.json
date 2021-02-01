@@ -139876,7 +139876,7 @@
   "model": "evaluation.evaluation",
   "pk": 34,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 4,
     "name_de": "",
     "name_en": "",
@@ -139937,7 +139937,7 @@
   "model": "evaluation.evaluation",
   "pk": 310,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 87,
     "name_de": "",
     "name_en": "",
@@ -140004,7 +140004,7 @@
   "model": "evaluation.evaluation",
   "pk": 311,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 116,
     "name_de": "",
     "name_en": "",
@@ -140053,7 +140053,7 @@
   "model": "evaluation.evaluation",
   "pk": 318,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 53,
     "name_de": "",
     "name_en": "",
@@ -140135,7 +140135,7 @@
   "model": "evaluation.evaluation",
   "pk": 327,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 76,
     "name_de": "",
     "name_en": "",
@@ -140244,7 +140244,7 @@
   "model": "evaluation.evaluation",
   "pk": 329,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 128,
     "name_de": "",
     "name_en": "",
@@ -140317,7 +140317,7 @@
   "model": "evaluation.evaluation",
   "pk": 332,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 100,
     "name_de": "",
     "name_en": "",
@@ -140387,7 +140387,7 @@
   "model": "evaluation.evaluation",
   "pk": 333,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 83,
     "name_de": "",
     "name_en": "",
@@ -140426,7 +140426,7 @@
   "model": "evaluation.evaluation",
   "pk": 334,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 113,
     "name_de": "",
     "name_en": "",
@@ -140664,7 +140664,7 @@
   "model": "evaluation.evaluation",
   "pk": 336,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 134,
     "name_de": "",
     "name_en": "",
@@ -140734,7 +140734,7 @@
   "model": "evaluation.evaluation",
   "pk": 345,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 60,
     "name_de": "",
     "name_en": "",
@@ -140843,7 +140843,7 @@
   "model": "evaluation.evaluation",
   "pk": 347,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 34,
     "name_de": "",
     "name_en": "",
@@ -140931,7 +140931,7 @@
   "model": "evaluation.evaluation",
   "pk": 348,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 1,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
@@ -141007,7 +141007,7 @@
   "model": "evaluation.evaluation",
   "pk": 350,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 126,
     "name_de": "",
     "name_en": "",
@@ -141074,7 +141074,7 @@
   "model": "evaluation.evaluation",
   "pk": 356,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 141,
     "name_de": "",
     "name_en": "",
@@ -141387,7 +141387,7 @@
   "model": "evaluation.evaluation",
   "pk": 358,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 69,
     "name_de": "",
     "name_en": "",
@@ -141754,7 +141754,7 @@
   "model": "evaluation.evaluation",
   "pk": 359,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 5,
     "name_de": "",
     "name_en": "",
@@ -141929,7 +141929,7 @@
   "model": "evaluation.evaluation",
   "pk": 363,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 37,
     "name_de": "",
     "name_en": "",
@@ -141990,7 +141990,7 @@
   "model": "evaluation.evaluation",
   "pk": 370,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 26,
     "name_de": "",
     "name_en": "",
@@ -142375,7 +142375,7 @@
   "model": "evaluation.evaluation",
   "pk": 372,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 26,
     "name_de": "C³: Konsistente Fahrzeug Gruppierung",
     "name_en": "C³: Consistent Car Clustering",
@@ -142784,7 +142784,7 @@
   "model": "evaluation.evaluation",
   "pk": 375,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 50,
     "name_de": "",
     "name_en": "",
@@ -142887,7 +142887,7 @@
   "model": "evaluation.evaluation",
   "pk": 478,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 38,
     "name_de": "",
     "name_en": "",
@@ -142944,7 +142944,7 @@
   "model": "evaluation.evaluation",
   "pk": 482,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 44,
     "name_de": "",
     "name_en": "",
@@ -143323,7 +143323,7 @@
   "model": "evaluation.evaluation",
   "pk": 641,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 16,
     "name_de": "",
     "name_en": "",
@@ -143651,7 +143651,7 @@
   "model": "evaluation.evaluation",
   "pk": 643,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 12,
     "name_de": "",
     "name_en": "",
@@ -144018,7 +144018,7 @@
   "model": "evaluation.evaluation",
   "pk": 648,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 2,
     "name_de": "",
     "name_en": "",
@@ -144463,7 +144463,7 @@
   "model": "evaluation.evaluation",
   "pk": 652,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 82,
     "name_de": "",
     "name_en": "",
@@ -144818,7 +144818,7 @@
   "model": "evaluation.evaluation",
   "pk": 654,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 59,
     "name_de": "",
     "name_en": "",
@@ -144951,7 +144951,7 @@
   "model": "evaluation.evaluation",
   "pk": 655,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 52,
     "name_de": "",
     "name_en": "",
@@ -145036,7 +145036,7 @@
   "model": "evaluation.evaluation",
   "pk": 657,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 130,
     "name_de": "",
     "name_en": "",
@@ -145103,7 +145103,7 @@
   "model": "evaluation.evaluation",
   "pk": 663,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 94,
     "name_de": "",
     "name_en": "",
@@ -145221,7 +145221,7 @@
   "model": "evaluation.evaluation",
   "pk": 664,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 115,
     "name_de": "",
     "name_en": "",
@@ -145369,7 +145369,7 @@
   "model": "evaluation.evaluation",
   "pk": 665,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 103,
     "name_de": "",
     "name_en": "",
@@ -145460,7 +145460,7 @@
   "model": "evaluation.evaluation",
   "pk": 666,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 35,
     "name_de": "",
     "name_en": "",
@@ -145569,7 +145569,7 @@
   "model": "evaluation.evaluation",
   "pk": 669,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 51,
     "name_de": "",
     "name_en": "",
@@ -145708,7 +145708,7 @@
   "model": "evaluation.evaluation",
   "pk": 675,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 86,
     "name_de": "",
     "name_en": "",
@@ -145763,7 +145763,7 @@
   "model": "evaluation.evaluation",
   "pk": 682,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 90,
     "name_de": "",
     "name_en": "",
@@ -145842,7 +145842,7 @@
   "model": "evaluation.evaluation",
   "pk": 686,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 73,
     "name_de": "",
     "name_en": "",
@@ -145957,7 +145957,7 @@
   "model": "evaluation.evaluation",
   "pk": 690,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 121,
     "name_de": "",
     "name_en": "",
@@ -146024,7 +146024,7 @@
   "model": "evaluation.evaluation",
   "pk": 695,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 118,
     "name_de": "",
     "name_en": "",
@@ -146057,7 +146057,7 @@
   "model": "evaluation.evaluation",
   "pk": 697,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 18,
     "name_de": "",
     "name_en": "",
@@ -146118,7 +146118,7 @@
   "model": "evaluation.evaluation",
   "pk": 698,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 75,
     "name_de": "",
     "name_en": "",
@@ -146161,7 +146161,7 @@
   "model": "evaluation.evaluation",
   "pk": 702,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 24,
     "name_de": "",
     "name_en": "",
@@ -146219,7 +146219,7 @@
   "model": "evaluation.evaluation",
   "pk": 709,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 55,
     "name_de": "",
     "name_en": "",
@@ -146271,7 +146271,7 @@
   "model": "evaluation.evaluation",
   "pk": 730,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 61,
     "name_de": "",
     "name_en": "",
@@ -146353,7 +146353,7 @@
   "model": "evaluation.evaluation",
   "pk": 1454,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 109,
     "name_de": "",
     "name_en": "",
@@ -146663,7 +146663,7 @@
   "model": "evaluation.evaluation",
   "pk": 1460,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 21,
     "name_de": "",
     "name_en": "",
@@ -146697,7 +146697,7 @@
   "model": "evaluation.evaluation",
   "pk": 1463,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 17,
     "name_de": "",
     "name_en": "",
@@ -146785,7 +146785,7 @@
   "model": "evaluation.evaluation",
   "pk": 1468,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 3,
     "name_de": "",
     "name_en": "",
@@ -146831,7 +146831,7 @@
   "model": "evaluation.evaluation",
   "pk": 1472,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 131,
     "name_de": "",
     "name_en": "",
@@ -147111,7 +147111,7 @@
   "model": "evaluation.evaluation",
   "pk": 1474,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 97,
     "name_de": "",
     "name_en": "",
@@ -147163,7 +147163,7 @@
   "model": "evaluation.evaluation",
   "pk": 1479,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 30,
     "name_de": "",
     "name_en": "",
@@ -147299,7 +147299,7 @@
   "model": "evaluation.evaluation",
   "pk": 1480,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 82,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
@@ -147408,7 +147408,7 @@
   "model": "evaluation.evaluation",
   "pk": 1485,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 28,
     "name_de": "",
     "name_en": "",
@@ -147490,7 +147490,7 @@
   "model": "evaluation.evaluation",
   "pk": 1488,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 14,
     "name_de": "",
     "name_en": "",
@@ -147836,7 +147836,7 @@
   "model": "evaluation.evaluation",
   "pk": 1494,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 29,
     "name_de": "",
     "name_en": "",
@@ -148221,7 +148221,7 @@
   "model": "evaluation.evaluation",
   "pk": 1497,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 122,
     "name_de": "",
     "name_en": "",
@@ -148324,7 +148324,7 @@
   "model": "evaluation.evaluation",
   "pk": 1498,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 46,
     "name_de": "",
     "name_en": "",
@@ -148372,7 +148372,7 @@
   "model": "evaluation.evaluation",
   "pk": 1499,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 1,
     "name_de": "",
     "name_en": "",
@@ -148420,7 +148420,7 @@
   "model": "evaluation.evaluation",
   "pk": 1500,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 65,
     "name_de": "",
     "name_en": "",
@@ -148477,7 +148477,7 @@
   "model": "evaluation.evaluation",
   "pk": 1502,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 84,
     "name_de": "",
     "name_en": "",
@@ -148553,7 +148553,7 @@
   "model": "evaluation.evaluation",
   "pk": 1503,
   "fields": {
-    "state": "evaluated",
+    "state": 60,
     "course": 98,
     "name_de": "",
     "name_en": "",
@@ -148596,7 +148596,7 @@
   "model": "evaluation.evaluation",
   "pk": 1504,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 78,
     "name_de": "",
     "name_en": "",
@@ -148669,7 +148669,7 @@
   "model": "evaluation.evaluation",
   "pk": 1506,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 102,
     "name_de": "",
     "name_en": "",
@@ -148705,7 +148705,7 @@
   "model": "evaluation.evaluation",
   "pk": 1507,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 63,
     "name_de": "",
     "name_en": "",
@@ -148747,7 +148747,7 @@
   "model": "evaluation.evaluation",
   "pk": 1508,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 27,
     "name_de": "",
     "name_en": "",
@@ -148877,7 +148877,7 @@
   "model": "evaluation.evaluation",
   "pk": 1510,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 70,
     "name_de": "",
     "name_en": "",
@@ -148944,7 +148944,7 @@
   "model": "evaluation.evaluation",
   "pk": 1513,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 119,
     "name_de": "",
     "name_en": "",
@@ -149074,7 +149074,7 @@
   "model": "evaluation.evaluation",
   "pk": 1514,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 120,
     "name_de": "",
     "name_en": "",
@@ -149339,7 +149339,7 @@
   "model": "evaluation.evaluation",
   "pk": 1518,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 132,
     "name_de": "",
     "name_en": "",
@@ -149427,7 +149427,7 @@
   "model": "evaluation.evaluation",
   "pk": 1520,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 7,
     "name_de": "",
     "name_en": "",
@@ -149617,7 +149617,7 @@
   "model": "evaluation.evaluation",
   "pk": 1525,
   "fields": {
-    "state": "approved",
+    "state": 40,
     "course": 23,
     "name_de": "",
     "name_en": "",
@@ -149656,7 +149656,7 @@
   "model": "evaluation.evaluation",
   "pk": 1531,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 49,
     "name_de": "",
     "name_en": "",
@@ -149795,7 +149795,7 @@
   "model": "evaluation.evaluation",
   "pk": 1534,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 33,
     "name_de": "",
     "name_en": "",
@@ -149958,7 +149958,7 @@
   "model": "evaluation.evaluation",
   "pk": 1540,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 114,
     "name_de": "",
     "name_en": "",
@@ -150070,7 +150070,7 @@
   "model": "evaluation.evaluation",
   "pk": 1544,
   "fields": {
-    "state": "editor_approved",
+    "state": 30,
     "course": 72,
     "name_de": "",
     "name_en": "",
@@ -150130,7 +150130,7 @@
   "model": "evaluation.evaluation",
   "pk": 1545,
   "fields": {
-    "state": "editor_approved",
+    "state": 30,
     "course": 89,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
@@ -150190,7 +150190,7 @@
   "model": "evaluation.evaluation",
   "pk": 1547,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 58,
     "name_de": "",
     "name_en": "",
@@ -150575,7 +150575,7 @@
   "model": "evaluation.evaluation",
   "pk": 1548,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 117,
     "name_de": "",
     "name_en": "",
@@ -150621,7 +150621,7 @@
   "model": "evaluation.evaluation",
   "pk": 1549,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 22,
     "name_de": "",
     "name_en": "",
@@ -150718,7 +150718,7 @@
   "model": "evaluation.evaluation",
   "pk": 1550,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 112,
     "name_de": "",
     "name_en": "",
@@ -150797,7 +150797,7 @@
   "model": "evaluation.evaluation",
   "pk": 1554,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 80,
     "name_de": "",
     "name_en": "",
@@ -150834,7 +150834,7 @@
   "model": "evaluation.evaluation",
   "pk": 1559,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 54,
     "name_de": "",
     "name_en": "",
@@ -150970,7 +150970,7 @@
   "model": "evaluation.evaluation",
   "pk": 1563,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 127,
     "name_de": "",
     "name_en": "",
@@ -151022,7 +151022,7 @@
   "model": "evaluation.evaluation",
   "pk": 1564,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 88,
     "name_de": "",
     "name_en": "",
@@ -151058,7 +151058,7 @@
   "model": "evaluation.evaluation",
   "pk": 1568,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 64,
     "name_de": "",
     "name_en": "",
@@ -151482,7 +151482,7 @@
   "model": "evaluation.evaluation",
   "pk": 1569,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 125,
     "name_de": "",
     "name_en": "",
@@ -151570,7 +151570,7 @@
   "model": "evaluation.evaluation",
   "pk": 1570,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 43,
     "name_de": "",
     "name_en": "",
@@ -151928,7 +151928,7 @@
   "model": "evaluation.evaluation",
   "pk": 1571,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 60,
     "name_de": "Business Process Compliance",
     "name_en": "Business Process Compliance",
@@ -152067,7 +152067,7 @@
   "model": "evaluation.evaluation",
   "pk": 1575,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 77,
     "name_de": "",
     "name_en": "",
@@ -152131,7 +152131,7 @@
   "model": "evaluation.evaluation",
   "pk": 1577,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 9,
     "name_de": "",
     "name_en": "",
@@ -152261,7 +152261,7 @@
   "model": "evaluation.evaluation",
   "pk": 1580,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 91,
     "name_de": "",
     "name_en": "",
@@ -152331,7 +152331,7 @@
   "model": "evaluation.evaluation",
   "pk": 1583,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 41,
     "name_de": "",
     "name_en": "",
@@ -152389,7 +152389,7 @@
   "model": "evaluation.evaluation",
   "pk": 1585,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 99,
     "name_de": "",
     "name_en": "",
@@ -152429,7 +152429,7 @@
   "model": "evaluation.evaluation",
   "pk": 1586,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 67,
     "name_de": "",
     "name_en": "",
@@ -152465,7 +152465,7 @@
   "model": "evaluation.evaluation",
   "pk": 1587,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 11,
     "name_de": "",
     "name_en": "",
@@ -152523,7 +152523,7 @@
   "model": "evaluation.evaluation",
   "pk": 1595,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 96,
     "name_de": "",
     "name_en": "",
@@ -152584,7 +152584,7 @@
   "model": "evaluation.evaluation",
   "pk": 1598,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 138,
     "name_de": "",
     "name_en": "",
@@ -152633,7 +152633,7 @@
   "model": "evaluation.evaluation",
   "pk": 1600,
   "fields": {
-    "state": "evaluated",
+    "state": 60,
     "course": 40,
     "name_de": "",
     "name_en": "",
@@ -152697,7 +152697,7 @@
   "model": "evaluation.evaluation",
   "pk": 1603,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 57,
     "name_de": "",
     "name_en": "",
@@ -152724,7 +152724,7 @@
   "model": "evaluation.evaluation",
   "pk": 1605,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 39,
     "name_de": "",
     "name_en": "",
@@ -152776,7 +152776,7 @@
   "model": "evaluation.evaluation",
   "pk": 1610,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 81,
     "name_de": "",
     "name_en": "",
@@ -152869,7 +152869,7 @@
   "model": "evaluation.evaluation",
   "pk": 1613,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 93,
     "name_de": "",
     "name_en": "",
@@ -152899,7 +152899,7 @@
   "model": "evaluation.evaluation",
   "pk": 1614,
   "fields": {
-    "state": "approved",
+    "state": 40,
     "course": 47,
     "name_de": "",
     "name_en": "",
@@ -152929,7 +152929,7 @@
   "model": "evaluation.evaluation",
   "pk": 1618,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 105,
     "name_de": "",
     "name_en": "",
@@ -152993,7 +152993,7 @@
   "model": "evaluation.evaluation",
   "pk": 1624,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 104,
     "name_de": "",
     "name_en": "",
@@ -153033,7 +153033,7 @@
   "model": "evaluation.evaluation",
   "pk": 1625,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 122,
     "name_de": "Piggyback Profiling: Metadata for Query Results",
     "name_en": "Piggyback Profiling: Metadata for Query Results",
@@ -153073,7 +153073,7 @@
   "model": "evaluation.evaluation",
   "pk": 1629,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 129,
     "name_de": "",
     "name_en": "",
@@ -153116,7 +153116,7 @@
   "model": "evaluation.evaluation",
   "pk": 1634,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 8,
     "name_de": "",
     "name_en": "",
@@ -153149,7 +153149,7 @@
   "model": "evaluation.evaluation",
   "pk": 1638,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 139,
     "name_de": "",
     "name_en": "",
@@ -153225,7 +153225,7 @@
   "model": "evaluation.evaluation",
   "pk": 1641,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 107,
     "name_de": "",
     "name_en": "",
@@ -153277,7 +153277,7 @@
   "model": "evaluation.evaluation",
   "pk": 1646,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 142,
     "name_de": "",
     "name_en": "",
@@ -153313,7 +153313,7 @@
   "model": "evaluation.evaluation",
   "pk": 1647,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 48,
     "name_de": "",
     "name_en": "",
@@ -153365,7 +153365,7 @@
   "model": "evaluation.evaluation",
   "pk": 1648,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 19,
     "name_de": "",
     "name_en": "",
@@ -153423,7 +153423,7 @@
   "model": "evaluation.evaluation",
   "pk": 1649,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 135,
     "name_de": "",
     "name_en": "",
@@ -153460,7 +153460,7 @@
   "model": "evaluation.evaluation",
   "pk": 1651,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 137,
     "name_de": "",
     "name_en": "",
@@ -153650,7 +153650,7 @@
   "model": "evaluation.evaluation",
   "pk": 1653,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 71,
     "name_de": "",
     "name_en": "",
@@ -153686,7 +153686,7 @@
   "model": "evaluation.evaluation",
   "pk": 1655,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 79,
     "name_de": "",
     "name_en": "",
@@ -153726,7 +153726,7 @@
   "model": "evaluation.evaluation",
   "pk": 1656,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 74,
     "name_de": "",
     "name_en": "",
@@ -153778,7 +153778,7 @@
   "model": "evaluation.evaluation",
   "pk": 1657,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 108,
     "name_de": "",
     "name_en": "",
@@ -153836,7 +153836,7 @@
   "model": "evaluation.evaluation",
   "pk": 1660,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 85,
     "name_de": "",
     "name_en": "",
@@ -153954,7 +153954,7 @@
   "model": "evaluation.evaluation",
   "pk": 1663,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 66,
     "name_de": "",
     "name_en": "",
@@ -154072,7 +154072,7 @@
   "model": "evaluation.evaluation",
   "pk": 1668,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 56,
     "name_de": "",
     "name_en": "",
@@ -154114,7 +154114,7 @@
   "model": "evaluation.evaluation",
   "pk": 1673,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 140,
     "name_de": "",
     "name_en": "",
@@ -154175,7 +154175,7 @@
   "model": "evaluation.evaluation",
   "pk": 1679,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 32,
     "name_de": "",
     "name_en": "",
@@ -154605,7 +154605,7 @@
   "model": "evaluation.evaluation",
   "pk": 1682,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 111,
     "name_de": "",
     "name_en": "",
@@ -154651,7 +154651,7 @@
   "model": "evaluation.evaluation",
   "pk": 1683,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 124,
     "name_de": "",
     "name_en": "",
@@ -154690,7 +154690,7 @@
   "model": "evaluation.evaluation",
   "pk": 1684,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 68,
     "name_de": "",
     "name_en": "",
@@ -154802,7 +154802,7 @@
   "model": "evaluation.evaluation",
   "pk": 1687,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 42,
     "name_de": "",
     "name_en": "",
@@ -155154,7 +155154,7 @@
   "model": "evaluation.evaluation",
   "pk": 1693,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 92,
     "name_de": "",
     "name_en": "",
@@ -155199,7 +155199,7 @@
   "model": "evaluation.evaluation",
   "pk": 1694,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 89,
     "name_de": "",
     "name_en": "",
@@ -155239,7 +155239,7 @@
   "model": "evaluation.evaluation",
   "pk": 1695,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 106,
     "name_de": "",
     "name_en": "",
@@ -155459,7 +155459,7 @@
   "model": "evaluation.evaluation",
   "pk": 1696,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 110,
     "name_de": "",
     "name_en": "",
@@ -155562,7 +155562,7 @@
   "model": "evaluation.evaluation",
   "pk": 1697,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 36,
     "name_de": "",
     "name_en": "",
@@ -155911,7 +155911,7 @@
   "model": "evaluation.evaluation",
   "pk": 1698,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 101,
     "name_de": "",
     "name_en": "",
@@ -155987,7 +155987,7 @@
   "model": "evaluation.evaluation",
   "pk": 1701,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 10,
     "name_de": "",
     "name_en": "",
@@ -156144,7 +156144,7 @@
   "model": "evaluation.evaluation",
   "pk": 1706,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 25,
     "name_de": "",
     "name_en": "",
@@ -156529,7 +156529,7 @@
   "model": "evaluation.evaluation",
   "pk": 1707,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 15,
     "name_de": "",
     "name_en": "",
@@ -156725,7 +156725,7 @@
   "model": "evaluation.evaluation",
   "pk": 1710,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 133,
     "name_de": "",
     "name_en": "",
@@ -157116,7 +157116,7 @@
   "model": "evaluation.evaluation",
   "pk": 1712,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 45,
     "name_de": "",
     "name_en": "",
@@ -157161,7 +157161,7 @@
   "model": "evaluation.evaluation",
   "pk": 1713,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 136,
     "name_de": "",
     "name_en": "",
@@ -157184,7 +157184,7 @@
   "model": "evaluation.evaluation",
   "pk": 1714,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 31,
     "name_de": "",
     "name_en": "",
@@ -157207,7 +157207,7 @@
   "model": "evaluation.evaluation",
   "pk": 1715,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 1,
     "name_de": "CG quick",
     "name_en": "CG quick",

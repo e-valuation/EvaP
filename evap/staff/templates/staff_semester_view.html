@@ -287,15 +287,15 @@
                         <div>
                             <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
-                                <span class="{{ 'new'|approval_state_icon }}"></span>
-                                <span class="{{ 'editor_approved'|approval_state_icon }}"></span>
+                                <span class="{{ Evaluation.State.NEW|approval_state_icon }}"></span>
+                                <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Ask for editor review' %}
                             </button>
                             <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
-                                <span class="{{ 'prepared'|approval_state_icon }}"></span>
-                                <span class="{{ 'editor_approved'|approval_state_icon }}"></span>
-                                <span class="{{ 'approved'|approval_state_icon }}"></span>
+                                <span class="{{ Evaluation.State.PREPARED|approval_state_icon }}"></span>
+                                <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
+                                <span class="{{ Evaluation.State.APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
                             <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
