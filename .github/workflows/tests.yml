@@ -33,8 +33,6 @@ jobs:
             command: python manage.py test --debug-mode
           - name: Reverse order
             command: python manage.py test --reverse
-          #- name: Backup process
-          #  command: deployment/test_backup_and_restore_on_github.sh
 
     name: ${{ matrix.name }}
 
@@ -75,3 +73,89 @@ jobs:
         run: pip install -r requirements-test.txt
       - name: Run linter
         run: pylint evap -j 0
+
+
+  backup-process:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 6379:6379
+
+    name: Backup process
+
+    steps:
+      - name: Install sudo package
+        # otherwise, sudo commands in the scripts called will fail
+        run: apt update && apt install sudo
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: |
+          echo 'SECRET_KEY = "evap-github-actions-secret-key"
+          DATABASES = {
+              "default": {
+                 "ENGINE": "django.db.backends.postgresql",
+                 "NAME": "evap",
+                 "USER": "postgres",
+                 "PASSWORD": "postgres",
+                 "HOST": "postgres",
+                 "PORT": "5432",
+              }
+          }
+          CACHES = {
+              "default": {
+                  "BACKEND": "django_redis.cache.RedisCache",
+                  "LOCATION": "redis://redis:6379/0",
+                  "OPTIONS": {
+                      "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                      "MAX_ENTRIES": 5000
+                  }
+              },
+              "results": {
+                  "BACKEND": "django_redis.cache.RedisCache",
+                  "LOCATION": "redis://redis:6379/1",
+                  "TIMEOUT": None,
+                  "OPTIONS": {
+                      "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                      "MAX_ENTRIES": 100000
+                  }
+              },
+              "sessions": {
+                  "BACKEND": "django_redis.cache.RedisCache",
+                  "LOCATION": "redis://redis:6379/2",
+                  "OPTIONS": {
+                      "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                      "MAX_ENTRIES": 5000
+                  }
+              },
+          }
+          ' >> evap/localsettings.py
+      - name: Load test data
+        run: |
+          python manage.py migrate
+          python manage.py loaddata test_data
+      - name: Backup database
+        run: deployment/update_production.sh backup.json
+        env:
+          EVAP_OVERRIDE_BACKUP_FILENAME: true
+          EVAP_SKIP_CHECKOUT: true
+      - name: Reload backup
+        run: echo "yy" | deployment/load_production_backup.sh backup.json
