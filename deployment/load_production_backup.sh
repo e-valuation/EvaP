@@ -9,7 +9,7 @@ cd $(dirname $0)/.. # change to root directory
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
 ADDITIONAL_ARGUMENTS=""
-[[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7 && ADDITIONAL_ARGUMENTS=" --noinput"
+[[ ! -z "$EVAP_RUNNING_INSIDE_GITHUB" ]] && echo "Detected GitHub" && USERNAME="EvaP" && ENVDIR=~/virtualenv/python3.7 && ADDITIONAL_ARGUMENTS=" --noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -41,7 +41,7 @@ then
     exit 1
 fi
 
-[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 stop
+[[ -z "$EVAP_RUNNING_INSIDE_GITHUB" ]] && sudo service apache2 stop
 
 sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
 
@@ -60,7 +60,7 @@ sudo -H -u $USERNAME $ENVDIR/bin/python manage.py refresh_results_cache
 
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache --cache=sessions
 
-[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 start
+[[ -z "$EVAP_RUNNING_INSIDE_GITHUB" ]] && sudo service apache2 start
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 

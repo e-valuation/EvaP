@@ -95,11 +95,11 @@ PAGE_URL = "localhost:8000"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'evap',  # Or path to database file if using sqlite3.
-        'USER': 'postgres',                              # Not used with sqlite3.
-        'PASSWORD': '',                          # Not used with sqlite3.
-        'HOST': '',                              # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                              # Set to empty string for default. Not used with sqlite3.
+        'NAME': 'evap',                             # Or path to database file if using sqlite3.
+        'USER': 'postgres',                         # Not used with sqlite3.
+        'PASSWORD': '',                             # Not used with sqlite3.
+        'HOST': '',                                 # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                                 # Set to empty string for default. Not used with sqlite3.
         'CONN_MAX_AGE': 600,
     }
 }
@@ -387,7 +387,7 @@ OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 # and don't want the changes to appear in 'git status'.
 try:
     # if a localsettings file exists (vagrant), this will cause wildcard-import errors
-    # if it does not, (travis), if would cause useless-suppression
+    # if it does not, (GitHub), it would cause useless-suppression
     from evap.localsettings import *  # pylint: disable=unused-wildcard-import,wildcard-import,useless-suppression
 except ImportError:
     pass

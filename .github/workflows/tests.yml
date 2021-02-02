@@ -1,0 +1,77 @@
+name: EvaP Test Suite
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        include:
+          - name: "Coverage"
+            command: "coverage run manage.py test && codecov -X gcov"
+          - name: "Debug mode"
+            command: "python manage.py test --debug-mode"
+          - name: "Reverse order"
+            command: "python manage.py test --reverse"
+          #- name: "Backup process"
+          #  command: "deployment/test_backup_and_restore_on_github.sh"
+
+    name: ${{ matrix.name }}
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: pip install -r requirements-test.txt
+    - name: Add localsettings
+      run: |
+        echo 'SECRET_KEY = "evap-github-actions-secret-key"
+        DATABASES = {
+            "default": {
+               "ENGINE": "django.db.backends.postgresql",
+               "NAME": "evap",
+               "USER": "postgres",
+               "PASSWORD": "postgres",
+               "HOST": "postgres",
+               "PORT": "5432",
+            }
+        }' >> evap/localsettings.py
+    - name: Run tests
+      run: ${{ matrix.command }}
+
+
+  linter:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    name: Linter
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: pip install -r requirements-test.txt
+    - name: Run linter
+      run: pylint evap -j 0
