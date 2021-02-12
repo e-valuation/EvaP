@@ -60,6 +60,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
       - name: Run linter
         run: pylint evap -j 0
 
