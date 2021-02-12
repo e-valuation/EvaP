@@ -28,4 +28,4 @@ pyflakes:
     - F403  # pylint handles this.
     - F401  # pylint handles this.
 pylint:
-  run: false # we run pylint on travis
+  run: false # we run pylint on GitHub
