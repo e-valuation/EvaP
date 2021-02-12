@@ -190,3 +190,13 @@ class OpenIDAuthenticationBackend(OIDCAuthenticationBackend):
             last_name=claims.get('family_name', ''),
         )
         return user
+
+    @staticmethod
+    def update_user(user, claims):
+        if not user.first_name:
+            user.first_name = claims.get('given_name', '')
+            user.save()
+        if not user.last_name:
+            user.last_name = claims.get('family_name', '')
+            user.save()
+        return user
