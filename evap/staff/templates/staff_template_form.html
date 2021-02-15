@@ -9,25 +9,19 @@
 {% block content %}
     {{ block.super }}
 
-    <div id="participantInfobox" class="callout callout-info">
-        <div class="callout-header">
-            <span class="fas fa-info-circle callout-icon"></span>
-            <span>{% trans 'Available variables' %}</span>
-        </div>
-        <div class="callout-content">
-            {% trans 'The following variables are available for this email template:' %}
-            <ul>
-                {% for available_variable in available_variables %}
-                    <li>{% templatetag openvariable %} {{ available_variable }} {% templatetag closevariable %}</li>
-                {% endfor %}
-            <ul>
-        </div>
-    </div>
     <form id="template-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
+            <div class="card-body row">
+                <div class="col-9">
+                    {% include 'bootstrap_form.html' with form=form email_form=True %}
+                </div>
+                <div class="col-3">
+                    {% trans 'The following variables are available for this email template:' %}
+                    {% for available_variable in available_variables %}
+                        <code>{% templatetag openvariable %} {{ available_variable }} {% templatetag closevariable %}</code><br />
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
