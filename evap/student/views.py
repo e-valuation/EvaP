@@ -4,14 +4,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef, Q, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, NO_ANSWER, Semester
+from evap.evaluation.models import Evaluation, NO_ANSWER, Semester, RatingAnswerCounter, TextAnswer
 
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
@@ -181,6 +181,11 @@ def vote(request, evaluation_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.count += 1
                             answer_counter.save()
+
+        # Update all answer rows to make sure no system columns give away which one was last modified
+        # see https://github.com/e-valuation/EvaP/issues/1384
+        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).update(id=F('id'))
+        TextAnswer.objects.filter(contribution__evaluation=evaluation).update(id=F('id'))
 
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
