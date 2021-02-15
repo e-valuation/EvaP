@@ -90,7 +90,7 @@
                             <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Exit Staff Mode' %}</button>
                         </form>
                     {% else %}
-                        <form class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
+                        <form id="enter-staff-mode-form" class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
                             {% csrf_token %}
                             <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Enter Staff Mode' %}</button>
                         </form>
