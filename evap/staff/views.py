@@ -1706,9 +1706,6 @@ def template_edit(request, template_id):
         messages.success(request, _("Successfully updated template."))
         return redirect('staff:index')
 
-    # LOGIN_KEY_CREATED = "Login Key Created"
-    # DIRECT_DELEGATION = "Direct Delegation"
-
     available_variables = [
         "contact_email",
         "page_url",
