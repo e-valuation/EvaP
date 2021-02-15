@@ -8,7 +8,6 @@ from json import JSONEncoder
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
@@ -86,7 +85,7 @@ class LogEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255, choices=[(value, value) for value in InstanceActionType])
     request_id = models.CharField(max_length=36, null=True, blank=True)
-    data = JSONField(default=dict, encoder=LogJSONEncoder)
+    data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
         ordering = ("-datetime", "-id")

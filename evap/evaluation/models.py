@@ -382,7 +382,7 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
-    evaluation_evaluated = Signal(providing_args=['request', 'semester'])
+    evaluation_evaluated = Signal()
 
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
