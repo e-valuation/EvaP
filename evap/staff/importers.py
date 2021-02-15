@@ -450,10 +450,14 @@ class EnrollmentImporter(ExcelImporter):
             for evaluation_data in self.evaluations.values():
                 evaluation_data.store_in_database(vote_start_datetime, vote_end_date, semester)
 
+            participants_per_evaluation = defaultdict(list)
             for evaluation_data, student_data in self.enrollments:
                 evaluation = Evaluation.objects.get(course__semester=semester, course__name_de=evaluation_data.name_de)
-                student = UserProfile.objects.get(email=student_data.email)
-                evaluation.participants.add(student)
+                participants_per_evaluation[evaluation].append(UserProfile.objects.get(email=student_data.email))
+
+            # add all participants at once to create only a single log message
+            for evaluation, participants in participants_per_evaluation.items():
+                evaluation.participants.add(*participants)
 
         msg = format_html(_("Successfully created {} courses/evaluations, {} students and {} contributors:"),
             len(self.evaluations), len(students_created), len(responsibles_created))
