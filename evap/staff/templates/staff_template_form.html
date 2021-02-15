@@ -19,7 +19,7 @@
                     {% include 'bootstrap_form.html' with form=form email_form=True %}
                 </div>
                 <div class="col-3">
-                    {% trans 'The following variables are available for this email template:' %}
+                    <p>{% trans 'The following variables are available for this email template:' %}</p>
                     {% for available_variable in available_variables %}
                         <code>{{ available_variable }}</code>
                         <button type="button" class="btn btn-sm btn-link" title="{% trans 'copy variable to clipboard' %}" onClick="copyToClipboard('{{ available_variable }}')">
