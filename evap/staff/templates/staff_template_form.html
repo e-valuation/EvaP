@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load static %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item">{% trans 'Templates' %}</li>
@@ -19,7 +21,11 @@
                 <div class="col-3">
                     {% trans 'The following variables are available for this email template:' %}
                     {% for available_variable in available_variables %}
-                        <code>{% templatetag openvariable %} {{ available_variable }} {% templatetag closevariable %}</code><br />
+                        <code>{{ available_variable }}</code>
+                        <button type="button" class="btn btn-sm btn-link" title="{% trans 'copy variable to clipboard' %}" onClick="copyToClipboard('{{ available_variable }}')">
+                            <i class="fas fa-clipboard"></i>
+                        </button>
+                        <br>
                     {% endfor %}
                 </div>
             </div>
@@ -30,4 +36,9 @@
             </div>
         </div>
     </form>
+
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript" src="{% get_static_prefix %}js/copy-to-clipboard.js"></script>
 {% endblock %}

@@ -1722,6 +1722,8 @@ def template_edit(request, template_id):
     elif template.name == EmailTemplate.DIRECT_DELEGATION:
         available_variables += ["evaluation", "delegate_user"]
 
+    available_variables = list(map(lambda s: "{{ " + s + " }}", available_variables))
+
     return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
 
 
