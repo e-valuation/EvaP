@@ -1715,14 +1715,14 @@ def template_edit(request, template_id):
 
     if template.name == EmailTemplate.STUDENT_REMINDER:
         available_variables += ["first_due_in_days", "due_evaluations"]
-    elif template.name == EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR or template.name == EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR or template.name == EmailTemplate.EDITOR_REVIEW_NOTICE or template.name == EmailTemplate.EDITOR_REVIEW_REMINDER:
+    elif template.name in [EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR, EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT, EmailTemplate.EDITOR_REVIEW_NOTICE, EmailTemplate.EDITOR_REVIEW_REMINDER]:
         available_variables += ["evaluations"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:
         available_variables += ["evaluations", "due_evaluations"]
     elif template.name == EmailTemplate.DIRECT_DELEGATION:
         available_variables += ["evaluation", "delegate_user"]
 
-    available_variables = list(map(lambda s: "{{ " + s + " }}", available_variables))
+    available_variables = ["{{ " + variable +  " }}" for variable in available_variables]
 
     return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
 
