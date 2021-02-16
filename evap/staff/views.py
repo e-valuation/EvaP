@@ -1723,6 +1723,7 @@ def template_edit(request, template_id):
         available_variables += ["evaluation", "delegate_user"]
 
     available_variables = ["{{ " + variable +  " }}" for variable in available_variables]
+    available_variables.sort()
 
     return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
 
