@@ -367,6 +367,7 @@ SLOGANS_EN = [
 ### OpenID Login
 # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
 ACTIVATE_OPEN_ID_LOGIN = False
+OIDC_AFTER_USERLOGIN_HOOK = 'evap.evaluation.auth.after_login_function'
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
 OIDC_RP_SIGN_ALGO = 'RS256'
 OIDC_USERNAME_ALGO = ''
