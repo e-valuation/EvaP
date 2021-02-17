@@ -84,6 +84,19 @@ def grant_reward_points_if_eligible(user, semester):
     return None, False
 
 
+def grant_eligible_reward_points_for_semester(request, semester):
+    users = UserProfile.objects.filter(evaluations_voted_for__course__semester=semester)
+    reward_point_sum = 0
+    for user in users:
+        granting, _ = grant_reward_points_if_eligible(user, semester)
+        if granting:
+            reward_point_sum += granting.value
+    if reward_point_sum:
+        message = ngettext("{count} reward point was granted on already completed questionnaires.",
+                           "{count} reward points were granted on already completed questionnaires.", reward_point_sum).format(count=reward_point_sum)
+        messages.success(request, message)
+
+
 # Signal handlers
 
 @receiver(Evaluation.evaluation_evaluated)
