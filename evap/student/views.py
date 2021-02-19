@@ -15,7 +15,7 @@ from evap.evaluation.models import Evaluation, NO_ANSWER, Semester, RatingAnswer
 
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
-from evap.student.tools import question_id
+from evap.student.tools import answer_field_id
 
 from evap.results.tools import (annotate_distributions_and_grades, get_evaluations_with_course_result_attributes,
                                 textanswers_visible_to)
@@ -142,6 +142,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
 
 @participant_required
 def vote(request, evaluation_id):
+    # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-branches
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
@@ -163,7 +164,7 @@ def vote(request, evaluation_id):
                     if question.is_heading_question:
                         continue
 
-                    identifier = question_id(contribution, questionnaire, question)
+                    identifier = answer_field_id(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
                     if question.is_text_question:
@@ -174,6 +175,11 @@ def vote(request, evaluation_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.count += 1
                             answer_counter.save()
+                        if question.allows_additional_textanswers:
+                            textanswer_identifier = answer_field_id(contribution, questionnaire, question, additional_textanswer=True)
+                            textanswer_value = questionnaire_form.cleaned_data.get(textanswer_identifier)
+                            if textanswer_value:
+                                TextAnswer.objects.create(contribution=contribution, question=question, answer=textanswer_value)
 
         # Update all answer rows to make sure no system columns give away which one was last modified
         # see https://github.com/e-valuation/EvaP/issues/1384

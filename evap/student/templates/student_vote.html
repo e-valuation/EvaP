@@ -193,6 +193,13 @@
                     if (textResultsPublishConfirmation.bottomCard) {
                         updateTextResultsPublishConfirmation();
                     }
+
+                    // show all non-empty additional text answer fields
+                    $(".collapse textarea").each(function(index) {
+                        if($(this).val()){
+                            $($(this).closest(".row")).find(".btn-textanswer").click()
+                        }
+                    });
                 },
                 onSave: function () {
                     const timeNow = new Date();

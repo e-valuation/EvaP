@@ -1074,7 +1074,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
         for questionnaire in contribution.questionnaires.all():
             text_results = []
 
-            for question in questionnaire.text_questions:
+            for question in questionnaire.questions.all():
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
                 if filter_textanswers:
                     answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)
@@ -1275,13 +1275,14 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
 
     if not editable:
         editable_fields = ['visibility', 'is_locked', 'name_de', 'name_en', 'description_de', 'description_en', 'type']
+        editable_question_fields = ['allows_additional_textanswers']
 
         for name, field in form.fields.items():
             if name not in editable_fields:
                 field.disabled = True
         for question_form in formset.forms:
             for name, field in question_form.fields.items():
-                if name != 'id':
+                if name not in editable_question_fields + ['id']:
                     field.disabled = True
 
         # disallow type changed from and to contributor
@@ -1302,8 +1303,7 @@ def questionnaire_edit(request, questionnaire_id):
 
     if form.is_valid() and formset.is_valid():
         form.save()
-        if editable:
-            formset.save()
+        formset.save()
 
         messages.success(request, _("Successfully updated questionnaire."))
         return redirect('staff:questionnaire_index')

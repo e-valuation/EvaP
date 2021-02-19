@@ -17,7 +17,7 @@ from evap.evaluation.tools import FileResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (annotate_distributions_and_grades, get_results, calculate_average_distribution, distribution_to_grade,
                                 get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, TextResult, can_textanswer_be_seen_by, STATES_WITH_RESULT_TEMPLATE_CACHING)
+                                HeadingResult, TextResult, RatingResult, can_textanswer_be_seen_by, STATES_WITH_RESULT_TEMPLATE_CACHING)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
@@ -219,16 +219,35 @@ def remove_textanswers_that_the_user_must_not_see(evaluation_result, user, repre
                     answer for answer in question_result.answers
                     if can_textanswer_be_seen_by(user, represented_users, answer, view)
                 ]
+            if isinstance(question_result, RatingResult) and question_result.additional_text_result:
+                question_result.additional_text_result.answers = [
+                    answer for answer in question_result.additional_text_result.answers
+                    if can_textanswer_be_seen_by(user, represented_users, answer, view)
+                ]
         # remove empty TextResults
-        questionnaire_result.question_results = [
-            result for result in questionnaire_result.question_results
-            if not isinstance(result, TextResult) or len(result.answers) > 0
-        ]
+        cleaned_results = []
+        for result in questionnaire_result.question_results:
+            if isinstance(result, TextResult):
+                if result.answers:
+                    cleaned_results.append(result)
+            elif isinstance(result, HeadingResult):
+                cleaned_results.append(result)
+            else:
+                if result.additional_text_result and not result.additional_text_result.answers:
+                    result.additional_text_result = None
+                cleaned_results.append(result)
+        questionnaire_result.question_results = cleaned_results
 
 
 def filter_text_answers(evaluation_result):
     for questionnaire_result in evaluation_result.questionnaire_results:
-        questionnaire_result.question_results = [result for result in questionnaire_result.question_results if isinstance(result, TextResult)]
+        question_results = []
+        for result in questionnaire_result.question_results:
+            if isinstance(result, TextResult):
+                question_results.append(result)
+            elif isinstance(result, RatingResult) and result.additional_text_result:
+                question_results.append(result.additional_text_result)
+        questionnaire_result.question_results = question_results
 
 
 def exclude_empty_headings(evaluation_result):

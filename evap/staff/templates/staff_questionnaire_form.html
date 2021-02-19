@@ -49,9 +49,18 @@
                                     {% else %}
                                         <td></td>
                                     {% endif %}
-                                    {% for field in form_element.visible_fields %}
-                                        <td>{% include 'bootstrap_form_field_widget.html' with field=field %}</td>
-                                    {% endfor %}
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.text_de %}</td>
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.text_en %}</td>
+                                    <td class="question-type">
+                                        {% include 'bootstrap_form_field_widget.html' with field=form_element.type %}
+                                        <div class="form-check mt-1">
+                                            <input class="form-check-input allow-textanswer-checkbox" id="{{ form_element.allows_additional_textanswers.id_for_label }}" name="{{ form_element.allows_additional_textanswers.html_name }}"
+                                                type="checkbox" data-keep="true" {% if form_element.allows_additional_textanswers.value %} checked{% endif %}
+                                                {% if form_element.allows_additional_textanswers.field.disabled %} disabled{% endif %} />
+                                            <label class="form-check-label" for="{{ form_element.allows_additional_textanswers.id_for_label }}">{{ form_element.allows_additional_textanswers.label }}</label>
+                                        </div>
+                                    </td>
+                                    <td>{% include 'bootstrap_form_field_widget.html' with field=form_element.DELETE %}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -82,6 +91,17 @@
                 applySelect2(row.find("select"));
             };
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, true);
+
+            // enable or disable checkbox for additional text answers
+            $('.question-type select').on('select2:select', function (e) {
+                const checkbox = $($(this).closest("td.question-type")).find("input");
+                if (e.params.data.id == 0 || e.params.data.id == 5) {  // 0: Text question; 5: Heading
+                    checkbox.prop("checked", false);
+                    checkbox.prop("disabled", true);
+                } else {
+                    checkbox.prop("disabled", false);
+                }
+            });
         </script>
     {% endif %}
 {% endblock %}

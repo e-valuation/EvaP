@@ -240,3 +240,10 @@ a:not([href]):not(.disabled) {
 .btn-grade-download {
     align-self: flex-start;
 }
+
+.btn-textanswer {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: $lighter-gray;
+    border-color: $medium-gray;
+}

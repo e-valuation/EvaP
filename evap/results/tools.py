@@ -55,9 +55,10 @@ class QuestionnaireResult:
 
 
 class RatingResult:
-    def __init__(self, question, answer_counters):
+    def __init__(self, question, answer_counters, additional_text_result=None):
         assert question.is_rating_question
         self.question = question
+        self.additional_text_result = additional_text_result
 
         if answer_counters is not None:
             counts = OrderedDict((value, 0) for value in self.choices.values if value != NO_ANSWER)
@@ -107,7 +108,7 @@ class RatingResult:
 
 class TextResult:
     def __init__(self, question, answers, answers_visible_to=None):
-        assert question.is_text_question
+        assert question.can_have_textanswers
         self.question = question
         self.answers = answers
         self.answers_visible_to = answers_visible_to
@@ -156,17 +157,25 @@ def _get_results_impl(evaluation):
         for questionnaire in contribution.questionnaires.all():
             results = []
             for question in questionnaire.questions.all():
+                if question.is_heading_question:
+                    results.append(HeadingResult(question=question))
+                    continue
+                text_result = None
+                if question.can_have_textanswers and evaluation.can_publish_text_results:
+                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED])
+                    text_result = TextResult(
+                        question=question,
+                        answers=answers,
+                        answers_visible_to=textanswers_visible_to(contribution)
+                    )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
                         answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question)
                     else:
                         answer_counters = None
-                    results.append(RatingResult(question, answer_counters))
-                elif question.is_text_question and evaluation.can_publish_text_results:
-                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED])
-                    results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
-                elif question.is_heading_question:
-                    results.append(HeadingResult(question=question))
+                    results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
+                if question.is_text_question and evaluation.can_publish_text_results:
+                    results.append(text_result)
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
         contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
     return EvaluationResult(contributor_contribution_results)
@@ -231,7 +240,7 @@ def average_grade_questions_distribution(results):
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
+        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question]
     )
 
 
