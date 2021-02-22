@@ -1710,7 +1710,7 @@ def template_edit(request, template_id):
         "contact_email",
         "page_url",
         "login_url",        # only if they need it
-        "user"
+        "user",
     ]
 
     if template.name == EmailTemplate.STUDENT_REMINDER:
@@ -1722,7 +1722,7 @@ def template_edit(request, template_id):
     elif template.name == EmailTemplate.DIRECT_DELEGATION:
         available_variables += ["evaluation", "delegate_user"]
 
-    available_variables = ["{{ " + variable +  " }}" for variable in available_variables]
+    available_variables = ["{{ " + variable + " }}" for variable in available_variables]
     available_variables.sort()
 
     return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
