@@ -14,9 +14,7 @@ apt-get -q update
 apt-get -q install -y python3.7 python3.7-dev python3.7-venv python3-pip gettext
 
 # install sass
-apt-get -q install -y sassc
-# stay compatible to previous installations with sass
-ln -s /usr/bin/sassc /usr/bin/sass
+$REPO_FOLDER/deployment/install_dart_sass.sh
 
 # setup postgres
 apt-get -q install -y postgresql
@@ -47,7 +45,7 @@ sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel  # required, otherwise follow
 sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 
 # setup apache
-a2enmod expires
+a2enmod headers
 cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
 sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/mods-available/wsgi.load # note this uses '=' as alternate delimiter
 a2enmod wsgi

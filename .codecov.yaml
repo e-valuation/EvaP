@@ -9,3 +9,6 @@ coverage:
         threshold: 0.05%
         base: auto
 comment: false
+ignore:
+  - "evap/development/views.py"
+  - "evap/development/urls.py"

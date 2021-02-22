@@ -85,8 +85,6 @@ urlpatterns = [
 
     path("download_sample_xls/<str:filename>", views.download_sample_xls, name="download_sample_xls"),
 
-    path("development/components", views.development_components, name="development_components"),
-
     path("export_contributor_results/<int:contributor_id>", views.export_contributor_results_view, name="export_contributor_results"),
 
     path("enter_staff_mode", views.enter_staff_mode, name="enter_staff_mode"),

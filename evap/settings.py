@@ -197,7 +197,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'compressor',
     'django_extensions',
     'evap.evaluation',
     'evap.staff',
@@ -308,22 +307,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "compressor.finders.CompressorFinder",
-]
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
-
-# django-compressor settings
-COMPRESS_ENABLED = not DEBUG
-COMPRESS_OFFLINE = False
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass {infile} {outfile}'),
-)
-COMPRESS_CACHEABLE_PRECOMPILERS = ('text/x-scss',)
 
 
 ### User-uploaded files
@@ -397,7 +384,8 @@ TESTING = 'test' in sys.argv
 
 # speed up tests
 if TESTING:
-    COMPRESS_PRECOMPILERS = ()  # disable django-compressor
+    # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.
@@ -420,15 +408,19 @@ if TESTING:
     BAKER_CUSTOM_FIELDS_GEN = {'django.db.models.CharField': lambda: random_gen.gen_string(20)}
 
 
-# Django debug toolbar settings
-if DEBUG and not TESTING and ENABLE_DEBUG_TOOLBAR:
-    INSTALLED_APPS += ['debug_toolbar']
-    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+# Development helpers
+if DEBUG:
+    INSTALLED_APPS += ['evap.development']
 
-    def show_toolbar(request):
-        return True
+    # Django debug toolbar settings
+    if not TESTING and ENABLE_DEBUG_TOOLBAR:
+        INSTALLED_APPS += ['debug_toolbar']
+        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
-        'JQUERY_URL': '',
-    }
+        def show_toolbar(request):
+            return True
+
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
+            'JQUERY_URL': '',
+        }
