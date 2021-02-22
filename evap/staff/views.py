@@ -1706,7 +1706,26 @@ def template_edit(request, template_id):
         messages.success(request, _("Successfully updated template."))
         return redirect('staff:index')
 
-    return render(request, "staff_template_form.html", dict(form=form, template=template))
+    available_variables = [
+        "contact_email",
+        "page_url",
+        "login_url",        # only if they need it
+        "user",
+    ]
+
+    if template.name == EmailTemplate.STUDENT_REMINDER:
+        available_variables += ["first_due_in_days", "due_evaluations"]
+    elif template.name in [EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR, EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT, EmailTemplate.EDITOR_REVIEW_NOTICE, EmailTemplate.EDITOR_REVIEW_REMINDER]:
+        available_variables += ["evaluations"]
+    elif template.name == EmailTemplate.EVALUATION_STARTED:
+        available_variables += ["evaluations", "due_evaluations"]
+    elif template.name == EmailTemplate.DIRECT_DELEGATION:
+        available_variables += ["evaluation", "delegate_user"]
+
+    available_variables = ["{{ " + variable + " }}" for variable in available_variables]
+    available_variables.sort()
+
+    return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
 
 
 @manager_required
