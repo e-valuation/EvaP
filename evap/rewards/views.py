@@ -16,7 +16,7 @@ from evap.staff.views import semester_view
 
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
                                 SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
-from evap.rewards.tools import save_redemptions, reward_points_of_user
+from evap.rewards.tools import grant_eligible_reward_points_for_semester, save_redemptions, reward_points_of_user
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import RewardsExporter
 
@@ -122,5 +122,7 @@ def semester_activation(request, semester_id, active):
     active = active == 'on'
 
     SemesterActivation.objects.update_or_create(semester=semester, defaults={'is_active': active})
+    if active:
+        grant_eligible_reward_points_for_semester(request, semester)
 
     return semester_view(request=request, semester_id=semester_id)

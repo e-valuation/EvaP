@@ -1,11 +1,12 @@
 from datetime import date, timedelta
 
+from django.test import override_settings
 from django.urls import reverse
 
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import UserProfile, Evaluation, Semester
+from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager
 from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
@@ -144,6 +145,11 @@ class TestExportView(WebTestStaffModeWith200Check):
         baker.make(RewardPointRedemption, value=1, event=event)
 
 
+@override_settings(REWARD_POINTS=[
+    (1 / 3, 1),
+    (2 / 3, 2),
+    (3 / 3, 3),
+])
 class TestSemesterActivationView(WebTestStaffMode):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
@@ -152,6 +158,15 @@ class TestSemesterActivationView(WebTestStaffMode):
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
+        cls.student = baker.make(UserProfile, email='student@institution.example.com')
+        course = baker.make(Course, semester=cls.semester)
+        cls.evaluation = baker.make(
+            Evaluation,
+            state='in_evaluation',
+            participants=[cls.student],
+            voters=[cls.student],
+            course=course,
+        )
 
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)
@@ -162,3 +177,10 @@ class TestSemesterActivationView(WebTestStaffMode):
         baker.make(SemesterActivation, semester=self.semester, is_active=True)
         self.app.post(self.url + 'off', user=self.manager)
         self.assertFalse(is_semester_activated(self.semester))
+
+    def test_activate_after_voting(self):
+        baker.make(SemesterActivation, semester=self.semester, is_active=False)
+        self.assertEqual(0, reward_points_of_user(self.student))
+        response = self.app.post(self.url + 'on', user=self.manager)
+        self.assertContains(response, '3 reward points were granted')
+        self.assertEqual(3, reward_points_of_user(self.student))
