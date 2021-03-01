@@ -110,7 +110,7 @@
                         {% if course.num_evaluations > 1 %}
                             <div>
                                 {% include 'results_index_course.html' %}
-                                {% for evaluation in evaluations %}
+                                {% for evaluation in evaluations|dictsort:"name" %}
                                     {% include 'results_index_evaluation.html' with links_to_results_page=evaluation|can_results_page_be_seen_by:request.user is_subentry=True %}
                                 {% endfor %}
                             </div>
