@@ -2598,14 +2598,12 @@ class TestStaffMode(WebTest):
 
         response = self.app.post(self.url_enter, user=manager).follow().follow()
         self.assertTrue('staff_mode_start_time' in self.app.session)
-        self.assertContains(response, "Exit Staff Mode")
         self.assertContains(response, "Users")
 
         self.app.get(self.some_staff_url, user=manager, status=200)
 
         response = self.app.post(self.url_exit, user=manager).follow().follow()
         self.assertFalse('staff_mode_start_time' in self.app.session)
-        self.assertContains(response, "Enter Staff Mode")
         self.assertNotContains(response, "Users")
 
         self.app.get(self.some_staff_url, user=manager, status=403)

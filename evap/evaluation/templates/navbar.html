@@ -83,19 +83,6 @@
                         </div>
                     </li>
                 {% endif %}
-                {% if user.has_staff_permission %}
-                    {% if user.is_staff %}
-                        <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Exit Staff Mode' %}</button>
-                        </form>
-                    {% else %}
-                        <form id="enter-staff-mode-form" class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="ml-2 btn btn-sm btn-navbar btn-outline-secondary">{% trans 'Enter Staff Mode' %}</button>
-                        </form>
-                    {% endif %}
-                {% endif %}
             {% endif %}
         </ul>
         <ul class="navbar-nav justify-content-end">
@@ -111,6 +98,24 @@
                 </div>
             </div>
             {% if user.is_authenticated %}
+                {% if user.has_staff_permission %}
+                    <div class="nav-item btn-switch-navbar my-auto pl-2">
+                        <div class="btn-group">
+                            <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
+                                {% csrf_token %}
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Regular mode' %}">
+                                    <span class="fas fa-user"></span>
+                                </button>
+                            </form>
+                            <form id="enter-staff-mode-form" class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
+                                {% csrf_token %}
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Staff mode' %}">
+                                    <span class="fas fa-briefcase"></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">

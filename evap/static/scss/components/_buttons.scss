@@ -105,6 +105,9 @@ a:not([href]):not(.disabled) {
     padding: 0.5rem 0.75rem;
 
     .btn-group {
+        border: $darker-gray 1px solid;
+        border-radius: 0.2rem;
+
         .btn-navbar {
             padding: 0 0.25rem;
             background-color: lighten($darker-gray, 5%);
