@@ -782,7 +782,7 @@ class UserMergeSelectionForm(forms.Form):
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
-        fields = ('subject', 'body')
+        fields = ('subject', 'body', 'html_body')
 
 
 class FaqSectionForm(forms.ModelForm):

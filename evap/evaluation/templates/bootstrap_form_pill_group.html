@@ -1,0 +1,18 @@
+<div class="form-group d-md-flex">
+    <div class="col-md-2">
+        <div class="nav nav-pills btn-switch btn-group-vertical float-right" role="tablist">
+            {% for field in fields %}
+                <a class="form-label btn btn-light text-center nav-link {% ifequal forloop.counter 1 %}show active{% endifequal %}" href="#tab-{{ field.id_for_label }}" data-toggle="pill" role="tab" aria-controls="pills-{{ field.label }}" aria-selected="{% ifequal forloop.counter 1 %}true{% endifequal %}">
+                    {% include 'bootstrap_form_field_label.html' with field=field class='mb-0 pt-0 cursor-inh' %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="tab-content col-md-10">
+        {% for field in fields %}
+            <div class="tab-pane fade {% ifequal forloop.counter 1 %}show active{% endifequal %}" id="tab-{{ field.id_for_label }}" role="tabpanel" aria-labelledby="pills-{{ field.label }}-tab">
+                {% include 'bootstrap_form_field_widget.html' with field=field %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
