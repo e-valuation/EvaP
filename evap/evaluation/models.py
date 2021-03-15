@@ -12,13 +12,14 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group,
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Q, Manager, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -1576,7 +1577,8 @@ class EmailTemplate(models.Model):
     name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
-    body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
+    body = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
+    html_body = models.TextField(verbose_name=_("HTML"), validators=[validate_template])
 
     EDITOR_REVIEW_NOTICE = "Editor Review Notice"
     EDITOR_REVIEW_REMINDER = "Editor Review Reminder"
@@ -1677,14 +1679,18 @@ class EmailTemplate(models.Model):
 
         subject = self.render_string(self.subject, subject_params)
         body = self.render_string(self.body, body_params)
+        self.html_body = body if self.html_body == '' else self.render_string(self.html_body, body_params)
+        html_params = dict({'content': self.html_body, 'subject': subject}, **body_params)
+        html_body = render_to_string('email_base.html', html_params)
 
-        mail = EmailMessage(
+        mail = EmailMultiAlternatives(
             subject=subject,
             body=body,
             to=[user.email],
             cc=cc_addresses,
             bcc=[a[1] for a in settings.MANAGERS],
             headers={'Reply-To': settings.REPLY_TO_EMAIL})
+        mail.attach_alternative(html_body, "text/html")
 
         try:
             mail.send(False)
