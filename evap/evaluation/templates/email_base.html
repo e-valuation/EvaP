@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+  <title>EvaP</title>
+  <style>
+    @media (max-width: 768px) {
+      .spacer {
+        width: 0px;
+      }
+
+      .content {
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .spacer {
+        width: 15%;
+      }
+
+      .content {
+        width: 70%;
+      }
+    }
+  </style>
+</head>
+
+<body style="margin: 0px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; background-color: #ffffff;">
+  <table style="background-color: #495057; width: 100%; border-collapse: collapse;" cellspacing="0" cellpadding="0">
+    <tr>
+      <td style="width: 25%;">
+        <a href="https://evap.hpi.de">
+          <img src="https://evap.hpi.de/static/images/evap.png" width="100%" style="height: auto; display: block;"/>
+        </a>
+      </td>
+      <td style="width: 75%;">
+      </td>
+    </tr>
+  </table>
+
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr style="background-color: #FAFAFA;">
+      <td class="spacer">
+      </td>
+      <td class="content" style="padding: 4%;">
+        <table style="background-color: white; width: 100%; border: 2px solid #F0F0F0; border-collapse: collapse;">
+          <tr>
+            <td style="text-align: center; padding: 2%; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
+              {{ subject|linebreaks }}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 2%">
+              {{ content|linebreaksbr }}
+            </td>
+          </tr>
+        </table>
+      </td>
+      <td class="spacer">
+      </td>
+    </tr>
+  </table>
+
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr style="width: 100%;">
+      <td style="width: 100%; padding: 0px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="width: 100%;">
+            <td style="width: 52%; height: 5px; background-color: #88bf4a;"></td>
+            <td style="width: 26%; height: 5px; background-color: #bbd154;"></td>
+            <td style="width: 13%; height: 5px; background-color: #efe258;"></td>
+            <td style="width: 6%; height: 5px; background-color: #f29e58;"></td>
+            <td style="width: 3%; height: 5px; background-color: #eb595a;"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="background-color: #495057; width: 100%; height: 25px;"></td>
+    </tr>
+  </table>
+
+</body>
+
+</html>
