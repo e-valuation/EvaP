@@ -228,7 +228,6 @@
                     } else {
                         lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
                     }
-                    
             }
 
             function padWithLeadingZeros(number){
@@ -299,9 +298,14 @@
                 button.addEventListener("click", () => {
                     const contributorId = button.dataset.markNoAnswersFor;
                     const voteArea = document.querySelector(`#vote-area-${contributorId}`);
-                    // check "no answer" and uncheck all other options
-                    voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']")
-                        .forEach(radioInput => radioInput.click());
+
+                    voteArea.querySelectorAll(".vote-btn.active").forEach(el => el.classList.remove("active"));
+                    voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
+                        radioInput.checked = true;
+                        radioInput.closest(".vote-btn").classList.add("active");
+                    });
+
+                    sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
                     $(voteArea).collapse("hide");
