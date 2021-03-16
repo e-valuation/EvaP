@@ -1793,7 +1793,6 @@ def export_contributor_results_view(request, contributor_id):
 @staff_permission_required
 def enter_staff_mode(request):
     staff_mode.enter_staff_mode(request)
-    messages.success(request, _("Successfully entered staff mode."))
     return redirect('evaluation:index')
 
 
@@ -1801,5 +1800,4 @@ def enter_staff_mode(request):
 @staff_permission_required
 def exit_staff_mode(request):
     staff_mode.exit_staff_mode(request)
-    messages.success(request, _("Successfully exited staff mode."))
     return redirect('evaluation:index')

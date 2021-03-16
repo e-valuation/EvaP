@@ -181,4 +181,4 @@ class LoginTestsWithCSRF(WebTest):
         page.forms['enter-staff-mode-form'].submit()
         page = self.app.get(reverse('results:index'))
         self.assertTrue('staff_mode_start_time' in self.app.session)
-        self.assertContains(page, 'Exit Staff Mode')
+        self.assertContains(page, 'Users')
