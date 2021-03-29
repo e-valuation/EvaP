@@ -11,7 +11,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 # install python stuff
 apt-get -q update
-apt-get -q install -y python3.7 python3.7-dev python3.7-venv python3-pip gettext
+apt-get -q install -y python3.7 python3.7-dev python3-venv python3.7-venv gettext
 
 # install sass
 $REPO_FOLDER/deployment/install_dart_sass.sh
@@ -39,9 +39,10 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/evap
 # link the mounted evap folder from the home directory
 ln -s /evap $REPO_FOLDER
 
-# setup virtualenv and mod_wsgi
 sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
-sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel  # required, otherwise following installs fail
+# venv will use ensurepip to install a new version of pip. We need to update that version.
+sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
+sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel
 sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 
 # setup apache
