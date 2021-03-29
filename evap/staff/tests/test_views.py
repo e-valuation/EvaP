@@ -1459,16 +1459,15 @@ class TestEvaluationCreateView(WebTestStaffMode):
 
 
 class TestEvaluationCopyView(WebTestStaffMode):
-    url = '/staff/semester/1/evaluation/1/copy'
+    
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, pk=1)
+        cls.semester = baker.make(Semester)
         cls.course = baker.make(Course, semester=cls.semester)
         cls.evaluation = baker.make(
             Evaluation,
-            pk=1,
             course=cls.course,
             name_de="Das Original",
             name_en="The Original",
@@ -1481,6 +1480,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
                 evaluation=cls.evaluation,
                 contributor=baker.make(UserProfile),
             )
+        cls.url = f'/staff/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}/copy'
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -1722,6 +1722,25 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
+    def test_replace_valid_participants_file(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        original_participant_count = self.evaluation.participants.count()
+
+        form = page.forms["participant-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test-participants")
+
+        self.assertContains(page, 'Import previously uploaded file')
+        self.assertEqual(self.evaluation.participants.count(), original_participant_count)
+
+        form = page.forms["participant-import-form"]
+        form.submit(name="operation", value="replace-participants")
+        self.assertEqual(self.evaluation.participants.count(), 2)
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(page, 'Import previously uploaded file')
+
     def test_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -1748,6 +1767,25 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         form = page.forms["contributor-import-form"]
         form.submit(name="operation", value="import-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(), original_contributor_count + 2)
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(page, 'Import previously uploaded file')
+
+    def test_replace_valid_contributors_file(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test-contributors")
+
+        self.assertContains(page, 'Import previously uploaded file')
+        self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(), original_contributor_count)
+
+        form = page.forms["contributor-import-form"]
+        form.submit(name="operation", value="replace-contributors")
+        self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation).count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')

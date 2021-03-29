@@ -16,6 +16,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
@@ -996,8 +997,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test-participants', 'import-participants', 'copy-participants',
-                             'test-contributors', 'import-contributors', 'copy-contributors'):
+        if operation not in ('test-participants', 'import-participants', 'copy-participants', 'replace-participants',
+                             'test-contributors', 'import-contributors', 'copy-contributors', 'replace-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_type = ImportType.PARTICIPANT if 'participants' in operation else ImportType.CONTRIBUTOR
@@ -1028,6 +1029,24 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
+
+        elif 'replace' in operation:
+            file_content = get_import_file_content_or_raise(request.user.id, import_type)
+            if operation == 'replace-participants':
+                deleted_persons = evaluation.participants.count()
+                text = _("{} participants were deleted from evaluation {}")
+                evaluation.participants.clear()
+                evaluation.save
+            elif operation == 'replace-contributors':
+                deleted_persons = evaluation.contributions.exclude(contributor=None).count()
+                text = _("{} contributors were deleted from evaluation {}")
+                evaluation.contributions.exclude(contributor=None).delete()
+                evaluation.save
+            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
+            delete_import_file(request.user.id, import_type)
+            success_messages.append(format_html(text, deleted_persons, evaluation.name))
+            forward_messages(request, success_messages, warnings)
+            return redirect('staff:semester_view', semester_id)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
