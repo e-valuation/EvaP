@@ -450,7 +450,7 @@ def semester_import(request, semester_id):
         raise PermissionDenied
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    import_type = ImportType.Semester
+    import_type = ImportType.SEMESTER
 
     errors = {}
     warnings = {}
@@ -1000,7 +1000,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                              'test-contributors', 'import-contributors', 'copy-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
+        import_type = ImportType.PARTICIPANT if 'participants' in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
@@ -1029,8 +1029,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
-    participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
-    contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
+    participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
@@ -1550,7 +1550,7 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    import_type = ImportType.User
+    import_type = ImportType.USER
 
     errors = {}
     warnings = {}
@@ -1635,7 +1635,7 @@ def user_bulk_update(request):
     form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
     test_run = operation == 'test'
-    import_type = ImportType.UserBulkUpdate
+    import_type = ImportType.USER_BULK_UPDATE
 
     if request.POST:
         if operation not in ('test', 'bulk_update'):
