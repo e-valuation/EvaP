@@ -142,7 +142,7 @@ def index(request):
     for evaluation in evaluations:
         courses_and_evaluations[evaluation.course].append(evaluation)
 
-    course_pks = list([course.pk for course in courses_and_evaluations.keys()])
+    course_pks = [course.pk for course in courses_and_evaluations.keys()]
 
     # annotate each course in courses with num_evaluations
     annotated_courses = Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
