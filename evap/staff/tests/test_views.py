@@ -1158,6 +1158,8 @@ class TestEvaluationOperationView(WebTestStaffMode):
         mail.outbox = []
 
     def helper_semester_state_views(self, evaluation, old_state, new_state):
+        """ Used with the tests below to ensure evaluation state transitions can be triggered in the UI """
+
         page = self.app.get("/staff/semester/1", user=self.manager)
         form = page.forms["evaluation_operation_form"]
         self.assertIn(evaluation.state, old_state)
@@ -1169,9 +1171,6 @@ class TestEvaluationOperationView(WebTestStaffMode):
         self.assertIn("Successfully", str(response))
         self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, new_state)
 
-    """
-        The following tests make sure the evaluation state transitions are triggerable via the UI.
-    """
     def test_semester_publish(self):
         participant1 = baker.make(UserProfile, email="foo@example.com")
         participant2 = baker.make(UserProfile, email="bar@example.com")
