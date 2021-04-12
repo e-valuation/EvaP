@@ -1679,9 +1679,6 @@ class EmailTemplate(models.Model):
 
         subject = self.render_string(self.subject, subject_params)
         body = self.render_string(self.body, body_params)
-        self.html_body = body if self.html_body == '' else self.render_string(self.html_body, body_params)
-        html_params = dict({'content': self.html_body, 'subject': subject}, **body_params)
-        html_body = render_to_string('email_base.html', html_params)
 
         mail = EmailMultiAlternatives(
             subject=subject,
@@ -1690,7 +1687,12 @@ class EmailTemplate(models.Model):
             cc=cc_addresses,
             bcc=[a[1] for a in settings.MANAGERS],
             headers={'Reply-To': settings.REPLY_TO_EMAIL})
-        mail.attach_alternative(html_body, "text/html")
+
+        if self.html_body:
+            rendered_html_email_body = self.render_string(self.html_body, body_params)
+            html_template_params = dict({'email_body': rendered_html_email_body, 'email_subject': subject}, **body_params)
+            wrapped_html_email_body = render_to_string('email_base.html', html_template_params)
+            mail.attach_alternative(wrapped_html_email_body, "text/html")
 
         try:
             mail.send(False)
