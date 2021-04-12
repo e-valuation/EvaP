@@ -285,31 +285,31 @@
                             </button>
                         </div>
                         <div>
-                            <button name="target_state" value="prepared" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.PREPARED }}" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations in preparation or approved by editors' %}">
                                 <span class="{{ Evaluation.State.NEW|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Ask for editor review' %}
                             </button>
-                            <button name="target_state" value="new" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.NEW }}" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations awaiting editor review, approved by editor or approved by manager' %}">
                                 <span class="{{ Evaluation.State.PREPARED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.EDITOR_APPROVED|approval_state_icon }}"></span>
                                 <span class="{{ Evaluation.State.APPROVED|approval_state_icon }}"></span>
                                 {% trans 'Revert to preparation' %}
                             </button>
-                            <button name="target_state" value="in_evaluation" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.IN_EVALUATION }}" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluations waiting for evaluation period to start' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                                 {% trans 'Start evaluation' %}
                             </button>
-                            <button name="target_state" value="published" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Unpublished evaluations' %}">
                                 <span class="fas fa-chart-bar icon-yellow"></span>
                                 <span class="fas fa-chart-bar icon-red"></span>
                                 {% trans 'Publish' %}
                             </button>
-                            <button name="target_state" value="reviewed" type="submit" class="btn btn-sm btn-light"
+                            <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
                                 data-toggle="tooltip" data-placement="top" title="{% trans 'Published evaluations' %}">
                                 <span class="fas fa-chart-bar icon-green"></span>
                                 {% trans 'Unpublish' %}

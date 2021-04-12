@@ -1115,7 +1115,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         page = self.app.get("/staff/semester/1", user=self.manager)
         form = page.forms["evaluation_operation_form"]
         form['evaluation'] = evaluation.pk
-        response = form.submit('target_state', value=Evaluation.state_to_str(Evaluation.State.PUBLISHED))
+        response = form.submit('target_state', value=str(Evaluation.State.PUBLISHED))
 
         form = response.forms["evaluation-operation-form"]
         form['send_email_contributor'] = contributors
@@ -1165,7 +1165,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         form = page.forms["evaluation_operation_form"]
         self.assertEqual(evaluation.state, old_state)
         form['evaluation'] = evaluation.pk
-        response = form.submit('target_state', value=Evaluation.state_to_str(new_state))
+        response = form.submit('target_state', value=str(new_state))
 
         form = response.forms["evaluation-operation-form"]
         response = form.submit()
@@ -1213,7 +1213,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
 
     def test_operation_start_evaluation(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.APPROVED, course=self.course)
-        urloptions = '?evaluation={}&target_state=in_evaluation'.format(evaluation.pk)
+        urloptions = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.IN_EVALUATION)
 
         response = self.app.get(self.url + urloptions, user=self.manager)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
@@ -1226,7 +1226,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
 
     def test_operation_prepare(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
-        urloptions = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        urloptions = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
 
         response = self.app.get(self.url + urloptions, user=self.manager)
         self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
@@ -1263,7 +1263,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
 
     def test_operation_prepare_sends_email_to_responsible(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
-        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        url_options = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(actual_emails, [{
@@ -1280,7 +1280,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         other_responsible = baker.make(UserProfile, email='co-responsible@example.com')
         self.course.responsibles.add(other_responsible)
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
-        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        url_options = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(len(actual_emails), 2)
@@ -1296,7 +1296,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         course_b = baker.make(Course, semester=self.semester, responsibles=[responsible_b])
         evaluation_a = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
         evaluation_b = baker.make(Evaluation, state=Evaluation.State.NEW, course=course_b)
-        url_options = '?evaluation={}&evaluation={}&target_state=prepared'.format(evaluation_a.pk, evaluation_b.pk)
+        url_options = '?evaluation={}&evaluation={}&target_state={}'.format(evaluation_a.pk, evaluation_b.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(len(actual_emails), 2)
@@ -1313,7 +1313,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
         baker.make(Contribution, evaluation=evaluation, contributor=editor_a, role=Contribution.Role.EDITOR)
         baker.make(Contribution, evaluation=evaluation, contributor=editor_b, role=Contribution.Role.EDITOR)
-        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        url_options = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(len(actual_emails), 1)
@@ -1322,7 +1322,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
     def test_operation_prepare_does_not_put_responsible_into_cc(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
         baker.make(Contribution, evaluation=evaluation, contributor=self.responsible, role=Contribution.Role.EDITOR)
-        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        url_options = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(len(actual_emails), 1)
@@ -1332,7 +1332,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         contributor = baker.make(UserProfile, email='contributor@example.com')
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
         baker.make(Contribution, evaluation=evaluation, contributor=contributor, role=Contribution.Role.CONTRIBUTOR)
-        url_options = '?evaluation={}&target_state=prepared'.format(evaluation.pk)
+        url_options = '?evaluation={}&target_state={}'.format(evaluation.pk, Evaluation.State.PREPARED)
         actual_emails = self.submit_operation_prepare_form(url_options)
 
         self.assertEqual(len(actual_emails), 1)

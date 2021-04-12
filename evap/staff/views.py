@@ -315,11 +315,11 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-    "new": RevertToNewOperation,
-    "prepared": ReadyForEditorsOperation,
-    "in_evaluation": BeginEvaluationOperation,
-    "reviewed": UnpublishOperation,
-    "published": PublishOperation,
+    Evaluation.State.NEW: RevertToNewOperation,
+    Evaluation.State.PREPARED: ReadyForEditorsOperation,
+    Evaluation.State.IN_EVALUATION: BeginEvaluationOperation,
+    Evaluation.State.REVIEWED: UnpublishOperation,
+    Evaluation.State.PUBLISHED: PublishOperation,
 }
 
 
@@ -329,7 +329,12 @@ def semester_evaluation_operation(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
 
-    target_state = request.GET.get('target_state')
+    raw_target_state = request.GET.get('target_state')
+    try:
+        target_state = int(raw_target_state)
+    except:
+        raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state))
+
     if target_state not in EVALUATION_OPERATIONS.keys():
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
