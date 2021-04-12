@@ -1,6 +1,7 @@
 from unittest.mock import patch
 from io import StringIO
 import random
+import re
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
@@ -51,6 +52,22 @@ class TestResultsView(WebTest):
         self.assertNotContains(page, evaluation.full_name)
         self.assertNotContains(page, evaluation2.full_name)
         caches['results'].clear()
+
+
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
+    def test_order(self):
+        student = baker.make(UserProfile, email="student@institution.example.com")
+
+        course = baker.make(Course)
+        evaluation2 = baker.make(Evaluation, name_de='random_evaluation_b', name_en='random_evaluation_b', course=course, state='published')
+        evaluation1 = baker.make(Evaluation, name_de='random_evaluation_a', name_en='random_evaluation_a', course=course, state='published')
+
+        page = self.app.get(self.url, user=student)
+        elem1 = page.html.find('span', {'class':'evaluation-name'}, text=re.compile('.*{}.*'.format(evaluation1.name_en)))
+        elem2 = page.html.find('span', {'class':'evaluation-name'}, text=re.compile('.*{}.*'.format(evaluation2.name_en)))
+        evaluation_names = page.html.find_all('span', {'class':'evaluation-name'})
+        self.assertTrue(evaluation_names.index(elem1) < evaluation_names.index(elem2))
+
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(CACHES={
