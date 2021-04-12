@@ -80,6 +80,6 @@ cd /$USER
 git submodule update --init
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
-sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages
+sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de_DE --locale en_US
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py loaddata test_data.json
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py refresh_results_cache
