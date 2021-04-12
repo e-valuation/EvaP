@@ -62,11 +62,8 @@ class TestResultsView(WebTest):
         evaluation2 = baker.make(Evaluation, name_de='random_evaluation_b', name_en='random_evaluation_b', course=course, state='published')
         evaluation1 = baker.make(Evaluation, name_de='random_evaluation_a', name_en='random_evaluation_a', course=course, state='published')
 
-        page = self.app.get(self.url, user=student)
-        elem1 = page.html.find('span', {'class':'evaluation-name'}, text=re.compile('.*{}.*'.format(evaluation1.name_en)))
-        elem2 = page.html.find('span', {'class':'evaluation-name'}, text=re.compile('.*{}.*'.format(evaluation2.name_en)))
-        evaluation_names = page.html.find_all('span', {'class':'evaluation-name'})
-        self.assertTrue(evaluation_names.index(elem1) < evaluation_names.index(elem2))
+        page = str(self.app.get(self.url, user=student))
+        self.assertTrue(page.index(evaluation1.name_en) < page.index(evaluation2.name_en))
 
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
