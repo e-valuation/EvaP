@@ -657,6 +657,22 @@ class TestEmailTemplate(TestCase):
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         template.send_to_user(user, {}, {}, False, None)
 
+    def test_send_multi_alternatives_email(self):
+        template = EmailTemplate(subject='Example', body='Example body', html_body='<p>Example body</p>')
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
+        self.assertEqual(mail.outbox[0].body, 'Example body')
+        self.assertEqual(len(mail.outbox[0].alternatives), 1)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], 'text/html')
+        self.assertIn('<p>Example body</p>', mail.outbox[0].alternatives[0][0])
+
+    def test_send_only_plain_body_on_empty_html_body(self):
+        template = EmailTemplate(subject='Example', body='Example body', html_body='')
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(mail.outbox[0].body, 'Example body')
+        self.assertEqual(len(mail.outbox[0].alternatives), 0)
+
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
         delegate_b = baker.make(UserProfile, email='delegate-b@example.com')
