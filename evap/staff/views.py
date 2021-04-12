@@ -349,11 +349,11 @@ def semester_evaluation_operation(request, semester_id):
         email_template_contributor = None
         email_template_participant = None
         if request.POST.get('send_email') == 'on':
-            email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_plain'], html_body=request.POST['email_html'])
+            email_template = EmailTemplate(subject=request.POST['email_subject'], plain_body=request.POST['email_plain'], html_body=request.POST['email_html'])
         if request.POST.get('send_email_contributor') == 'on':
-            email_template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], body=request.POST['email_plain_contributor'], html_body=request.POST['email_html_contributor'])
+            email_template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], plain_body=request.POST['email_plain_contributor'], html_body=request.POST['email_html_contributor'])
         if request.POST.get('send_email_participant') == 'on':
-            email_template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], body=request.POST['email_plain_participant'], html_body=request.POST['email_html_participant'])
+            email_template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], plain_body=request.POST['email_plain_participant'], html_body=request.POST['email_html_participant'])
 
         operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
         return redirect('staff:semester_view', semester_id)

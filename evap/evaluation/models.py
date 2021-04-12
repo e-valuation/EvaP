@@ -1577,7 +1577,7 @@ class EmailTemplate(models.Model):
     name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
-    body = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
+    plain_body = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
     html_body = models.TextField(verbose_name=_("HTML"), validators=[validate_template])
 
     EDITOR_REVIEW_NOTICE = "Editor Review Notice"
@@ -1678,11 +1678,11 @@ class EmailTemplate(models.Model):
         body_params['contact_email'] = settings.CONTACT_EMAIL
 
         subject = self.render_string(self.subject, subject_params)
-        body = self.render_string(self.body, body_params)
+        plain_body = self.render_string(self.plain_body, body_params)
 
         mail = EmailMultiAlternatives(
             subject=subject,
-            body=body,
+            body=plain_body,
             to=[user.email],
             cc=cc_addresses,
             bcc=[a[1] for a in settings.MANAGERS],

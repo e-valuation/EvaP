@@ -787,7 +787,7 @@ class TestSendReminderView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["send-reminder-form"]
-        form["body"] = "uiae"
+        form["plain_body"] = "uiae"
         form.submit()
 
         self.assertEqual(len(mail.outbox), 1)
@@ -1244,7 +1244,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
                 'user': user,
                 'subject': email_template.subject,
                 'subject_params': subject_params,
-                'body': email_template.body,
+                'plain_body': email_template.plain_body,
                 'body_params': body_params,
                 'html_body': email_template.html_body,
                 'use_cc': use_cc,
@@ -1272,7 +1272,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
             'user': self.responsible,
             'subject': 'New evaluations ready for review',
             'subject_params': {},
-            'body': 'There are evaluations that need your approval.',
+            'plain_body': 'There are evaluations that need your approval.',
             'body_params': {'user': self.responsible, 'evaluations': [evaluation]},
             'html_body': '<p>There are evaluations that need your approval.</p>',
             'use_cc': True,
@@ -2538,21 +2538,21 @@ class TestTemplateEditView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
-        form["body"] = "body: mflkd862xmnbo5"
+        form["plain_body"] = "plain_body: mflkd862xmnbo5"
         form["html_body"] = "html_body: <p>mflkd862xmnbo5</p>"
         form.submit()
 
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_body, "plain_body: mflkd862xmnbo5")
         self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
 
-        form["body"] = " invalid tag: {{}}"
+        form["plain_body"] = " invalid tag: {{}}"
         form.submit()
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_body, "plain_body: mflkd862xmnbo5")
         self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
 
         form["html_body"] = ""
         form.submit()
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_body, "plain_body: mflkd862xmnbo5")
         self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
 
 
