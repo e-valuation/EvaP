@@ -22,12 +22,8 @@ class SampleXlsTests(WebTestStaffMode):
         cls.semester = baker.make(Semester)
         baker.make(CourseType, name_de="Vorlesung", name_en="Lecture", import_names=["Vorlesung"])
         baker.make(CourseType, name_de="Seminar", name_en="Seminar", import_names=["Seminar"])
-        degree_bachelor = Degree.objects.get(name_de="Bachelor")
-        degree_bachelor.import_names = ["Bachelor", "B. Sc."]
-        degree_bachelor.save()
-        degree_master = Degree.objects.get(name_de="Master")
-        degree_master.import_names = ["Master", "M. Sc."]
-        degree_master.save()
+        Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
+        Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
     def test_sample_xls(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user=self.manager)

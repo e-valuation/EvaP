@@ -1,7 +1,27 @@
 import logging
 import sys
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
+
+
+def confirm_harmful_operation(output):
+    """ Usage: Abort if it does not return true """
+
+    if input("Are you sure you want to continue? (yes/no) ") != "yes":
+        output.write("Aborting...")
+        return False
+    output.write("")
+
+    if not settings.DEBUG:
+        output.write("DEBUG is disabled. Are you sure you are not running")
+        if input("on a production system and want to continue? (yes/no) ") != "yes":
+            output.write("Aborting...")
+            return False
+        output.write("")
+
+    return True
 
 
 def log_exceptions(cls):

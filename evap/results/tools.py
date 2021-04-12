@@ -172,6 +172,16 @@ def _get_results_impl(evaluation):
     return EvaluationResult(contributor_contribution_results)
 
 
+def annotate_distributions_and_grades(evaluations):
+    for evaluation in evaluations:
+        if not evaluation.is_single_result:
+            evaluation.distribution = calculate_average_distribution(evaluation)
+        else:
+            evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
+            evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
+        evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+
+
 def normalized_distribution(distribution):
     """Returns a normalized distribution with the individual values adding up to 1.
     Can also be used to convert counts to a distribution."""

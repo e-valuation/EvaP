@@ -160,12 +160,8 @@ class TestEnrollmentImporter(TestCase):
         cls.vote_end_date = date(2017, 3, 10)
         baker.make(CourseType, name_de="Seminar", import_names=["Seminar", "S"])
         baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
-        degree_bachelor = Degree.objects.get(name_de="Bachelor")
-        degree_bachelor.import_names = ["Bachelor", "B. Sc."]
-        degree_bachelor.save()
-        degree_master = Degree.objects.get(name_de="Master")
-        degree_master.import_names = ["Master", "M. Sc."]
-        degree_master.save()
+        Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
+        Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
     def test_valid_file_import(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)

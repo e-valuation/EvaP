@@ -16,7 +16,8 @@ import xlrd
 from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqSection,
                                     FaqQuestion, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
                                     UserProfile)
-from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, make_manager
+from evap.evaluation.tests.tools import FuzzyInt, let_user_vote_for_evaluation, make_manager, \
+    create_evaluation_with_responsible_and_editor
 from evap.results.tools import cache_results, get_results
 from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
@@ -1645,30 +1646,30 @@ class TestEvaluationEditView(WebTestStaffMode):
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):
-    url = '/staff/semester/1/evaluation/1/edit'
-
     @classmethod
     def setUpTestData(cls):
-        cls.test_users = [make_manager()]
+        result = create_evaluation_with_responsible_and_editor()
+        evaluation = result['evaluation']
+        contribution = result['contribution']
 
-        semester = baker.make(Semester, pk=1)
-        responsible = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester, responsibles=[responsible]), pk=1)
-        contribution = baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=responsible,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[Questionnaire.single_result_questionnaire()],
-        )
+        cls.test_users = [make_manager()]
+        cls.url = f'/staff/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}/edit'
+
+        contribution.textanswer_visibility = Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+        contribution.questionnaires.set([Questionnaire.single_result_questionnaire()])
+        contribution.save()
 
         question = Questionnaire.single_result_questionnaire().questions.get()
-        baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=1, count=5)
-        baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=2, count=15)
-        baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=3, count=40)
-        baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=4, count=60)
-        baker.make(RatingAnswerCounter, question=question, contribution=contribution, answer=5, count=30)
+        answer_counts = {1: 5, 2: 15, 3: 40, 4: 60, 5: 30}
+
+        baker.make(
+            RatingAnswerCounter,
+            question=question,
+            contribution=contribution,
+            _quantity=len(answer_counts),
+            answer=iter(answer_counts.keys()),
+            count=iter(answer_counts.values()),
+        )
 
 
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):

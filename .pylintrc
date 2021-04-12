@@ -76,8 +76,8 @@ disable=locally-disabled,               # we allow locally disabling some checks
         too-many-arguments,             # we can't determine a good limit here. reviews should spot bad cases of this.
 #
 # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
-        cyclic-import,               # also lints all cyclic imports that we purposely moved inside a function body.
-        duplicate-code,              # only unhelpful detections (e.g. test class header)
+        cyclic-import,                  # also lints all cyclic imports that we purposely moved inside a function body.
+        duplicate-code,                 # Can not be suppressed for the 4 false positives we have: https://github.com/PyCQA/pylint/issues/214
 
 
 [REPORTS]
