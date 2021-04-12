@@ -1246,6 +1246,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
                 'subject_params': subject_params,
                 'body': email_template.body,
                 'body_params': body_params,
+                'html_body': email_template.html_body,
                 'use_cc': use_cc,
                 'additional_cc_users': set(additional_cc_users),
             })
@@ -1254,7 +1255,8 @@ class TestEvaluationOperationView(WebTestStaffMode):
         form = response.forms['evaluation-operation-form']
         form['send_email'] = True
         form['email_subject'] = 'New evaluations ready for review'
-        form['email_body'] = 'There are evaluations that need your approval.'
+        form['email_plain'] = 'There are evaluations that need your approval.'
+        form['email_html'] = '<p>There are evaluations that need your approval.</p>'
 
         with patch.object(EmailTemplate, 'send_to_user', mock):
             form.submit()
@@ -1272,6 +1274,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
             'subject_params': {},
             'body': 'There are evaluations that need your approval.',
             'body_params': {'user': self.responsible, 'evaluations': [evaluation]},
+            'html_body': '<p>There are evaluations that need your approval.</p>',
             'use_cc': True,
             'additional_cc_users': set(),
         }])
@@ -2530,19 +2533,27 @@ class TestTemplateEditView(WebTestStaffMode):
 
     def test_emailtemplate(self):
         """
-            Tests the emailtemplate view with one valid and one invalid input datasets.
+            Tests the emailtemplate view with one valid and two invalid input datasets.
         """
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
         form["body"] = "body: mflkd862xmnbo5"
+        form["html_body"] = "html_body: <p>mflkd862xmnbo5</p>"
         form.submit()
 
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
 
         form["body"] = " invalid tag: {{}}"
         form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
+
+        form["html_body"] = ""
+        form.submit()
+        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_body, "html_body: <p>mflkd862xmnbo5</p>")
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

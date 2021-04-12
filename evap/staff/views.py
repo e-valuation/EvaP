@@ -349,7 +349,7 @@ def semester_evaluation_operation(request, semester_id):
         email_template_contributor = None
         email_template_participant = None
         if request.POST.get('send_email') == 'on':
-            email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
+            email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_plain'], html_body=request.POST['email_html'])
         if request.POST.get('send_email_contributor') == 'on':
             email_template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], body=request.POST['email_plain_contributor'], html_body=request.POST['email_html_contributor'])
         if request.POST.get('send_email_participant') == 'on':
