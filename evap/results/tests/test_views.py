@@ -1,7 +1,6 @@
 from unittest.mock import patch
 from io import StringIO
 import random
-import re
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
