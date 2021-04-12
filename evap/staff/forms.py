@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db import transaction
 from django.db.models import Max, Q
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
@@ -147,8 +148,8 @@ class SemesterForm(forms.ModelForm):
         model = Semester
         fields = ("name_de", "name_en", "short_name_de", "short_name_en")
 
-    def save(self, *args, **kwargs):
-        semester = super().save(*args, **kwargs)
+    def save(self, commit=True):
+        semester = super().save(commit)
         if "short_name_en" in self.changed_data or "short_name_de" in self.changed_data:
             update_template_cache(semester.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
         return semester
@@ -214,7 +215,28 @@ class CourseTypeMergeSelectionForm(forms.Form):
             raise ValidationError(_("You must select two different course types."))
 
 
-class CourseForm(forms.ModelForm):
+class CourseFormMixin:
+    def _set_responsibles_queryset(self):
+        self.fields["responsibles"].queryset = UserProfile.objects.exclude(is_active=False)
+        if self.instance.pk:
+            self.fields["responsibles"].queryset |= UserProfile.objects.filter(
+                pk__in=[user.pk for user in self.instance.responsibles.all()]
+            )
+
+    def validate_unique(self):
+        super().validate_unique()
+        # name_xy and semester are unique together. This will be treated as a non-field-error since two
+        # fields are involved. Since we only show the name_xy field to the user, assign that error to this
+        # field. This hack is not documented, so it might be broken when you are reading this.
+        for e in self.non_field_errors().as_data():
+            if e.code == "unique_together" and "unique_check" in e.params:
+                if "semester" in e.params["unique_check"]:
+                    # The order of the fields is probably determined by the unique_together constraints in the Course class.
+                    name_field = e.params["unique_check"][1]
+                    self.add_error(name_field, e)
+
+
+class CourseForm(CourseFormMixin, forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     class Meta:
@@ -234,27 +256,93 @@ class CourseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["responsibles"].queryset = UserProfile.objects.exclude(is_active=False)
-        if self.instance.pk:
-            self.fields["responsibles"].queryset |= UserProfile.objects.filter(
-                pk__in=[user.pk for user in self.instance.responsibles.all()]
-            )
-
+        self._set_responsibles_queryset()
         if not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
-    def validate_unique(self):
-        super().validate_unique()
-        # name_xy and semester are unique together. This will be treated as a non-field-error since two
-        # fields are involved. Since we only show the name_xy field to the user, assign that error to this
-        # field. This hack is not documented, so it might be broken when you are reading this.
-        for e in self.non_field_errors().as_data():
-            if e.code == "unique_together" and "unique_check" in e.params:
-                if "semester" in e.params["unique_check"]:
-                    # The order of the fields is probably determined by the unique_together constraints in the Course class.
-                    name_field = e.params["unique_check"][1]
-                    self.add_error(name_field, e)
+
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):
+    semester = forms.ModelChoiceField(Semester.objects.all())
+    vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
+    vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
+
+    class Meta(CourseForm.Meta):
+        pass
+
+    field_order = ["semester"]
+
+    def __init__(self, data=None, instance: Course = None):
+        self.old_course = instance
+        opts = self._meta
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+        super().__init__(data=data, initial=initial)
+        self._set_responsibles_queryset()
+
+    # To ensure we don't forget about copying a relevant field, we explicitly list copied and ignored fields and test against that
+    EVALUATION_COPIED_FIELDS = {
+        "name_de",
+        "name_en",
+        "weight",
+        "is_single_result",
+        "is_rewarded",
+        "is_midterm_evaluation",
+        "allow_editors_to_edit",
+        "wait_for_grade_upload_before_publishing",
+    }
+
+    EVALUATION_EXCLUDED_FIELDS = {
+        "id",
+        "course",
+        "vote_start_datetime",
+        "vote_end_date",
+        "participants",
+        "contributions",
+        "state",
+        "can_publish_text_results",
+        "_participant_count",
+        "_voter_count",
+        "voters",
+    }
+
+    CONTRIBUTION_COPIED_FIELDS = {
+        "contributor",
+        "role",
+        "textanswer_visibility",
+        "label",
+        "order",
+    }
+
+    CONTRIBUTION_EXCLUDED_FIELDS = {
+        "id",
+        "evaluation",
+        "ratinganswercounter_set",
+        "textanswer_set",
+        "questionnaires",
+    }
+
+    @transaction.atomic()
+    def save(self, commit=True):
+        new_course: Course = super().save()
+        # we need to create copies of evaluations and their participation as well
+        for old_evaluation in self.old_course.evaluations.exclude(is_single_result=True):
+            new_evaluation = Evaluation(
+                **{field: getattr(old_evaluation, field) for field in self.EVALUATION_COPIED_FIELDS},
+                can_publish_text_results=False,
+                course=new_course,
+                vote_start_datetime=self.cleaned_data["vote_start_datetime"],
+                vote_end_date=self.cleaned_data["vote_end_date"],
+            )
+            new_evaluation.save()
+
+            new_evaluation.contributions.all().delete()  # delete default general contribution
+            for old_contribution in old_evaluation.contributions.all():
+                new_contribution = Contribution(
+                    **{field: getattr(old_contribution, field) for field in self.CONTRIBUTION_COPIED_FIELDS},
+                    evaluation=new_evaluation,
+                )
+                new_contribution.save()
+                new_contribution.questionnaires.set(old_contribution.questionnaires.all())
+        return new_course
 
 
 class EvaluationForm(forms.ModelForm):
@@ -581,7 +669,6 @@ class EvaluationEmailForm(forms.Form):
 
 
 class RemindResponsibleForm(forms.Form):
-
     to = UserModelChoiceField(None, required=False, disabled=True, label=_("To"))
     cc = UserModelMultipleChoiceField(None, required=False, disabled=True, label=_("CC"))
     subject = forms.CharField(label=_("Subject"))
