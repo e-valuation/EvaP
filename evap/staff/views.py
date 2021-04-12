@@ -974,6 +974,19 @@ def evaluation_email(request, semester_id, evaluation_id):
 
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
+def delete_users_from_evaluation(evaluation, operation):
+    deleted_person_count = 0
+    deletion_message = ""
+    if 'participants' in operation:
+        deleted_person_count = evaluation.participants.count()
+        deletion_message = _("{} participants were deleted from evaluation {}")
+        evaluation.participants.clear()
+
+    elif 'contributors' in operation:
+        deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
+        deletion_message = _("{} contributors were deleted from evaluation {}")
+        evaluation.contributions.exclude(contributor=None).delete()
+    return deleted_person_count, deletion_message
 
 @manager_required
 def evaluation_person_management(request, semester_id, evaluation_id):
@@ -997,13 +1010,14 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test-participants', 'import-participants', 'copy-participants', 'replace-participants',
-                             'test-contributors', 'import-contributors', 'copy-contributors', 'replace-contributors'):
+        if operation not in ('test-participants', 'import-participants', 'copy-participants', 'import-replace-participants', 'copy-replace-participants',
+                             'test-contributors', 'import-contributors', 'copy-contributors', 'import-replace-contributors', 'copy-replace-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_type = ImportType.PARTICIPANT if 'participants' in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
+
 
         if 'test' in operation:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
@@ -1014,37 +1028,26 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, file_content=file_content)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
+        
+        else:
+            if 'import' in operation:
+                if 'replace' in operation:
+                    deleted_person_count, deletion_message = delete_users_from_evaluation(evaluation, operation)
+                file_content = get_import_file_content_or_raise(request.user.id, import_type)
+                success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
+                delete_import_file(request.user.id, import_type)
 
-        elif 'import' in operation:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
-            delete_import_file(request.user.id, import_type)
-            forward_messages(request, success_messages, warnings)
-            return redirect('staff:semester_view', semester_id)
-
-        elif 'copy' in operation:
-            copy_form.evaluation_selection_required = True
-            if copy_form.is_valid():
-                import_evaluation = copy_form.cleaned_data['evaluation']
-                success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
-                forward_messages(request, success_messages, warnings)
-                return redirect('staff:semester_view', semester_id)
-
-        elif 'replace' in operation:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            if operation == 'replace-participants':
-                deleted_persons = evaluation.participants.count()
-                text = _("{} participants were deleted from evaluation {}")
-                evaluation.participants.clear()
-                evaluation.save
-            elif operation == 'replace-contributors':
-                deleted_persons = evaluation.contributions.exclude(contributor=None).count()
-                text = _("{} contributors were deleted from evaluation {}")
-                evaluation.contributions.exclude(contributor=None).delete()
-                evaluation.save
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
-            delete_import_file(request.user.id, import_type)
-            success_messages.append(format_html(text, deleted_persons, evaluation.name))
+            elif 'copy' in operation:
+                copy_form.evaluation_selection_required = True
+                if copy_form.is_valid():
+                    if 'replace' in operation:
+                        deleted_person_count, deletion_message = delete_users_from_evaluation(evaluation, operation)
+                    import_evaluation = copy_form.cleaned_data['evaluation']
+                    success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
+            
+            if 'replace' in operation:
+                success_messages.insert(0, format_html(deletion_message, deleted_person_count, evaluation.name))
+                
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 
