@@ -1,7 +1,9 @@
 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
-{% if email_form %}
-    {% with subject=form.subject bodies=form.visible_fields|slice:"1:" %}
-        {% include 'bootstrap_form_field.html' with field=subject %}
+{% if email_form and form.html_body in form.visible_fields %}
+    {% with bodies=form.visible_fields|slice:"-2:" rest=form.visible_fields|slice:":-2" %}
+        {% for field in rest %}
+            {% include 'bootstrap_form_field.html' with field=field %}
+        {% endfor %}
         {% include 'bootstrap_form_pill_group.html' with fields=bodies %}
     {% endwith %}
 {% else %}

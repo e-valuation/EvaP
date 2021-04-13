@@ -788,6 +788,7 @@ class TestSendReminderView(WebTestStaffMode):
 
         form = page.forms["send-reminder-form"]
         form["plain_body"] = "uiae"
+        form["html_body"] = "<p>uiae</p>"
         form.submit()
 
         self.assertEqual(len(mail.outbox), 1)

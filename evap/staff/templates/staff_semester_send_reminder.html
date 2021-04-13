@@ -15,10 +15,10 @@
         <div class="card mb-3">
             <div class="card-body">
                 <fieldset>
-                    <div class="email-form">
-                        {% for field in form %}
-                            {% include 'bootstrap_form_field.html' with field=field %}
-                        {% endfor %}
+                    <div class="row justify-content-center">
+                        <div class="email-form col-9">
+                            {% include 'bootstrap_form.html' with form=form email_form=True %}
+                        </div>
                     </div>
                 </fieldset>
             </div>
