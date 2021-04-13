@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/e-valuation/EvaP/workflows/EvaP%20Test%20Suite/badge.svg?branch=master)](https://github.com/e-valuation/EvaP/actions?query=workflow%3A%22EvaP+Test+Suite%22)
 [![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=master)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4721b900582d4ca1b0392af26f5f5c7b)](https://www.codacy.com/app/evap/EvaP)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2cf538781fdc4680a7103bcf96417a9a)](https://www.codacy.com/gh/e-valuation/EvaP/dashboard)
 [![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
 
