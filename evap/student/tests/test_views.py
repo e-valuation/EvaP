@@ -305,7 +305,13 @@ class TestVoteView(WebTest):
         form[question_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 2
         form.submit()
 
-        self.assertEqual(set(Answer.__subclasses__()), {RatingAnswerCounter, TextAnswer}, "This requires an update if a new answer type is added")
+        self.assertEqual(
+            set(Answer.__subclasses__()),
+            {RatingAnswerCounter, TextAnswer},
+            "This test requires an update if a new answer type is added. Also, when adding a new answer type, "
+            "the new table should probably also be vacuumed and clustered -- see and update "
+            "https://github.com/e-valuation/EvaP/wiki/Installation#database-vacuuming-and-clustering"
+        )
 
         query = RatingAnswerCounter.objects.raw("SELECT id, xmin FROM evaluation_ratinganswercounter")
         rating_answer_xmins = [row.xmin for row in query]
