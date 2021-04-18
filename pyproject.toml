@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 140
+target-version = ['py37']
+skip-string-normalization = true
+include = 'evap.*\.pyi?$'
+extend-exclude = """\
+    evap/staff/fixtures/excel_files_test_data\\.py|\
+    .*/urls\\.py|\
+    .*/migrations/.*\
+"""
