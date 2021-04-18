@@ -71,7 +71,9 @@ class TestLoggedModel(TestCase):
         contribution = self.evaluation.contributions.get(contributor__isnull=True)
         contribution.questionnaires.add(questionnaire)
         self.assertEqual(self.evaluation.related_logentries().count(), 3)
-        self.assertEqual(self.evaluation.related_logentries().order_by("id").last().data['questionnaires']['add'], [questionnaire.id])
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data['questionnaires']['add'], [questionnaire.id]
+        )
 
     def test_none_value_not_included(self):
         baker.make(Contribution, evaluation=self.evaluation, label="testlabel")

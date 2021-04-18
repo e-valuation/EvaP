@@ -8,7 +8,11 @@ from django.views.decorators.http import require_POST, require_GET
 
 from django_sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
+from evap.evaluation.auth import (
+    grade_publisher_required,
+    grade_downloader_required,
+    grade_publisher_or_manager_required,
+)
 from evap.evaluation.models import Course, Semester, EmailTemplate
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
@@ -40,7 +44,9 @@ def semester_view(request, semester_id):
         raise PermissionDenied
 
     courses = (
-        semester.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True).exclude(evaluations__state='new').distinct()
+        semester.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
+        .exclude(evaluations__state='new')
+        .distinct()
     )
     courses = prefetch_data(courses)
 

@@ -34,7 +34,9 @@ def get_course_result_template_fragment_cache_key(course_id, language):
 
 
 def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, links_to_results_page):
-    return make_template_fragment_key('evaluation_result_template_fragment', [evaluation_id, language, links_to_results_page])
+    return make_template_fragment_key(
+        'evaluation_result_template_fragment', [evaluation_id, language, links_to_results_page]
+    )
 
 
 def delete_template_cache(evaluation):
@@ -139,7 +141,9 @@ def index(request):
 
     if request.user.is_reviewer:
         additional_evaluations = get_evaluations_with_prefetched_data(
-            Evaluation.objects.filter(course__semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed'])
+            Evaluation.objects.filter(
+                course__semester__in=semesters, state__in=['in_evaluation', 'evaluated', 'reviewed']
+            )
         )
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
         evaluations += additional_evaluations
@@ -156,7 +160,9 @@ def index(request):
     course_pks = list([course.pk for course in courses_and_evaluations.keys()])
 
     # annotate each course in courses with num_evaluations
-    annotated_courses = Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
+    annotated_courses = (
+        Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
+    )
     for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
         course.num_evaluations = annotated_course.num_evaluations
 
@@ -203,7 +209,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
     # if the results are not cached, we need to attach distribution
     # information for rendering the distribution bar
     if evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING:
-        evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[0]
+        evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[
+            0
+        ]
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
@@ -218,7 +226,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         is_contributor=evaluation.is_user_contributor(view_as_user),
         is_responsible_or_contributor_or_delegate=is_responsible_or_contributor_or_delegate,
         can_download_grades=view_as_user.can_download_grades,
-        can_export_text_answers=(view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)),
+        can_export_text_answers=(
+            view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
+        ),
         view=view,
         view_as_user=view_as_user,
         contributors_with_omitted_results=contributors_with_omitted_results,
@@ -232,11 +242,15 @@ def remove_textanswers_that_the_user_must_not_see(evaluation_result, user, repre
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
                 question_result.answers = [
-                    answer for answer in question_result.answers if can_textanswer_be_seen_by(user, represented_users, answer, view)
+                    answer
+                    for answer in question_result.answers
+                    if can_textanswer_be_seen_by(user, represented_users, answer, view)
                 ]
         # remove empty TextResults
         questionnaire_result.question_results = [
-            result for result in questionnaire_result.question_results if not isinstance(result, TextResult) or len(result.answers) > 0
+            result
+            for result in questionnaire_result.question_results
+            if not isinstance(result, TextResult) or len(result.answers) > 0
         ]
 
 
@@ -269,7 +283,9 @@ def remove_empty_questionnaire_and_contribution_results(evaluation_result):
             if questionnaire_result.question_results
         ]
     evaluation_result.contribution_results = [
-        contribution_result for contribution_result in evaluation_result.contribution_results if contribution_result.questionnaire_results
+        contribution_result
+        for contribution_result in evaluation_result.contribution_results
+        if contribution_result.questionnaire_results
     ]
 
 
@@ -300,7 +316,9 @@ def get_evaluations_of_course(course, request):
 
     if course.evaluations.count() > 1:
         course_evaluations = [
-            evaluation for evaluation in course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)
+            evaluation
+            for evaluation in course.evaluations.filter(state="published")
+            if evaluation.can_be_seen_by(request.user)
         ]
         if request.user.is_reviewer:
             course_evaluations += course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
@@ -342,10 +360,14 @@ def add_warnings(evaluation, evaluation_result):
 
     for questionnaire_result in evaluation_result.questionnaire_results:
         rating_results = [
-            question_result for question_result in questionnaire_result.question_results if question_result.question.is_rating_question
+            question_result
+            for question_result in questionnaire_result.question_results
+            if question_result.question.is_rating_question
         ]
         max_answers = max((rating_result.count_sum for rating_result in rating_results), default=0)
-        questionnaire_result.warning = 0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+        questionnaire_result.warning = (
+            0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+        )
 
         for rating_result in rating_results:
             rating_result.warning = (
@@ -409,7 +431,11 @@ def evaluation_text_answers_export(request, evaluation_id):
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
     TextAnswerExporter(
-        evaluation.full_name, evaluation.course.semester.name, evaluation.course.responsibles_names, results, contributor_name
+        evaluation.full_name,
+        evaluation.course.semester.name,
+        evaluation.course.responsibles_names,
+        results,
+        contributor_name,
     ).export(response)
 
     return response

@@ -5,7 +5,16 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Question, Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    TextAnswer,
+    UserProfile,
+)
 from evap.results.tools import (
     calculate_average_course_distribution,
     calculate_average_distribution,
@@ -64,10 +73,14 @@ class TestCalculateResults(TestCase):
         contributor1 = baker.make(UserProfile)
         student = baker.make(UserProfile)
 
-        evaluation = baker.make(Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1])
+        evaluation = baker.make(
+            Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1]
+        )
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
-        contribution1 = baker.make(Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire])
+        contribution1 = baker.make(
+            Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
+        )
 
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=1, count=5)
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=2, count=15)
@@ -91,10 +104,14 @@ class TestCalculateResults(TestCase):
         contributor1 = baker.make(UserProfile)
         student = baker.make(UserProfile)
 
-        evaluation = baker.make(Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1])
+        evaluation = baker.make(
+            Evaluation, state='published', participants=[student, contributor1], voters=[student, contributor1]
+        )
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, questionnaire=questionnaire, type=Question.EASY_DIFFICULT)
-        contribution1 = baker.make(Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire])
+        contribution1 = baker.make(
+            Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
+        )
 
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=-3, count=5)
         baker.make(RatingAnswerCounter, question=question, contribution=contribution1, answer=-2, count=5)
@@ -143,7 +160,9 @@ class TestCalculateResults(TestCase):
         evaluation_results = get_results(evaluation)
 
         for contribution_result in evaluation_results.contribution_results:
-            self.assertTrue(Contribution.objects.filter(evaluation=evaluation, contributor=contribution_result.contributor).exists())
+            self.assertTrue(
+                Contribution.objects.filter(evaluation=evaluation, contributor=contribution_result.contributor).exists()
+            )
 
 
 class TestCalculateAverageDistribution(TestCase):
@@ -153,7 +172,10 @@ class TestCalculateAverageDistribution(TestCase):
         cls.student2 = baker.make(UserProfile)
 
         cls.evaluation = baker.make(
-            Evaluation, state='published', participants=[cls.student1, cls.student2], voters=[cls.student1, cls.student2]
+            Evaluation,
+            state='published',
+            participants=[cls.student1, cls.student2],
+            voters=[cls.student1, cls.student2],
         )
         cls.questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=cls.questionnaire, type=Question.GRADE)
@@ -164,10 +186,16 @@ class TestCalculateAverageDistribution(TestCase):
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.contribution1 = baker.make(
-            Contribution, contributor=baker.make(UserProfile), evaluation=cls.evaluation, questionnaires=[cls.questionnaire]
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
         )
         cls.contribution2 = baker.make(
-            Contribution, contributor=baker.make(UserProfile), evaluation=cls.evaluation, questionnaires=[cls.questionnaire]
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=cls.evaluation,
+            questionnaires=[cls.questionnaire],
         )
 
     @override_settings(
@@ -180,17 +208,49 @@ class TestCalculateAverageDistribution(TestCase):
     def test_average_grade(self):
         question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=Question.GRADE)
 
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=2, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2)
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=2, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=2
+        )
         baker.make(RatingAnswerCounter, question=question_grade2, contribution=self.contribution1, answer=1, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
-        baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_bipolar, contribution=self.general_contribution, answer=3, count=2)
-        baker.make(RatingAnswerCounter, question=self.question_bipolar_2, contribution=self.general_contribution, answer=-1, count=4)
+        baker.make(
+            RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=4
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert,
+            contribution=self.general_contribution,
+            answer=5,
+            count=5,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert_2,
+            contribution=self.general_contribution,
+            answer=3,
+            count=3,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_bipolar,
+            contribution=self.general_contribution,
+            answer=3,
+            count=2,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_bipolar_2,
+            contribution=self.general_contribution,
+            answer=-1,
+            count=4,
+        )
         cache_results(self.evaluation)
 
-        contributor_weights_sum = settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
+        contributor_weights_sum = (
+            settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT + settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT
+        )
         contributor1_average = (
             (settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT * ((2 * 1) + (1 * 1)) / (1 + 1))
             + (settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT * 3)
@@ -223,14 +283,38 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_without_general_grade_question(self):
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
-        baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert,
+            contribution=self.general_contribution,
+            answer=5,
+            count=5,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert_2,
+            contribution=self.general_contribution,
+            answer=3,
+            count=3,
+        )
         cache_results(self.evaluation)
 
         # contribution1: 0.4 * (0.5, 0, 0.5, 0, 0) + 0.6 * (0, 0, 0.5, 0, 0.5) = (0.2, 0, 0.5, 0, 0.3)
@@ -256,15 +340,45 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_with_general_grade_question(self):
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=5, count=5)
-        baker.make(RatingAnswerCounter, question=self.question_likert_2, contribution=self.general_contribution, answer=3, count=3)
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.general_contribution, answer=2, count=10)
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=3, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=4, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution2, answer=2, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=3, count=3
+        )
+        baker.make(
+            RatingAnswerCounter, question=self.question_likert, contribution=self.contribution1, answer=5, count=3
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert,
+            contribution=self.general_contribution,
+            answer=5,
+            count=5,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_likert_2,
+            contribution=self.general_contribution,
+            answer=3,
+            count=3,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_grade,
+            contribution=self.general_contribution,
+            answer=2,
+            count=10,
+        )
         cache_results(self.evaluation)
 
         # contributions and general_non_grade are as above
@@ -290,8 +404,12 @@ class TestCalculateAverageDistribution(TestCase):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1)
-        baker.make(RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1)
+        baker.make(
+            RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=1, count=1
+        )
+        baker.make(
+            RatingAnswerCounter, question=questionnaire.questions.first(), contribution=contribution, answer=4, count=1
+        )
         cache_results(single_result_evaluation)
         distribution = calculate_average_distribution(single_result_evaluation)
         self.assertEqual(distribution, (0.5, 0, 0, 0.5, 0))
@@ -300,14 +418,28 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_result_calculation_with_no_contributor_rating_question(self):
         evaluation = baker.make(
-            Evaluation, state='published', participants=[self.student1, self.student2], voters=[self.student1, self.student2]
+            Evaluation,
+            state='published',
+            participants=[self.student1, self.student2],
+            voters=[self.student1, self.student2],
         )
         questionnaire_text = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire_text, type=Question.TEXT)
-        baker.make(Contribution, contributor=baker.make(UserProfile), evaluation=evaluation, questionnaires=[questionnaire_text])
+        baker.make(
+            Contribution,
+            contributor=baker.make(UserProfile),
+            evaluation=evaluation,
+            questionnaires=[questionnaire_text],
+        )
 
         evaluation.general_contribution.questionnaires.set([self.questionnaire])
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=evaluation.general_contribution, answer=1, count=1)
+        baker.make(
+            RatingAnswerCounter,
+            question=self.question_grade,
+            contribution=evaluation.general_contribution,
+            answer=1,
+            count=1,
+        )
         cache_results(evaluation)
 
         distribution = calculate_average_distribution(evaluation)
@@ -318,7 +450,11 @@ class TestCalculateAverageDistribution(TestCase):
 
         answer_counters = [
             baker.make(
-                RatingAnswerCounter, question=self.question_likert, contribution=self.general_contribution, answer=answer, count=count
+                RatingAnswerCounter,
+                question=self.question_likert,
+                contribution=self.general_contribution,
+                answer=answer,
+                count=count,
             )
             for answer, count in enumerate(counts, start=1)
         ]
@@ -336,7 +472,11 @@ class TestCalculateAverageDistribution(TestCase):
 
         answer_counters = [
             baker.make(
-                RatingAnswerCounter, question=self.question_bipolar, contribution=self.general_contribution, answer=answer, count=count
+                RatingAnswerCounter,
+                question=self.question_bipolar,
+                contribution=self.general_contribution,
+                answer=answer,
+                count=count,
             )
             for answer, count in enumerate(counts, start=-3)
         ]
@@ -353,8 +493,20 @@ class TestCalculateAverageDistribution(TestCase):
         counts = (57, 43)
         question_yesno = baker.make(Question, questionnaire=self.questionnaire, type=Question.POSITIVE_YES_NO)
         answer_counters = [
-            baker.make(RatingAnswerCounter, question=question_yesno, contribution=self.general_contribution, answer=1, count=counts[0]),
-            baker.make(RatingAnswerCounter, question=question_yesno, contribution=self.general_contribution, answer=5, count=counts[1]),
+            baker.make(
+                RatingAnswerCounter,
+                question=question_yesno,
+                contribution=self.general_contribution,
+                answer=1,
+                count=counts[0],
+            ),
+            baker.make(
+                RatingAnswerCounter,
+                question=question_yesno,
+                contribution=self.general_contribution,
+                answer=5,
+                count=counts[1],
+            ),
         ]
 
         result = RatingResult(question_yesno, answer_counters)
@@ -366,7 +518,9 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[4], 0.43)
 
     def test_calculate_average_course_distribution(self):
-        baker.make(RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=2)
+        baker.make(
+            RatingAnswerCounter, question=self.question_grade, contribution=self.contribution1, answer=1, count=2
+        )
 
         course = self.evaluation.course
         single_result = baker.make(
@@ -383,7 +537,9 @@ class TestCalculateAverageDistribution(TestCase):
         single_result_questionnaire = Questionnaire.single_result_questionnaire()
         single_result_question = single_result_questionnaire.questions.first()
 
-        contribution = baker.make(Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire])
+        contribution = baker.make(
+            Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire]
+        )
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=2, count=1)
         baker.make(RatingAnswerCounter, question=single_result_question, contribution=contribution, answer=3, count=1)
         cache_results(single_result)
@@ -402,18 +558,28 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def setUpTestData(cls):
         cls.delegate1 = baker.make(UserProfile, email="delegate1@institution.example.com")
         cls.delegate2 = baker.make(UserProfile, email="delegate2@institution.example.com")
-        cls.contributor_own = baker.make(UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1])
-        cls.contributor_general = baker.make(UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2])
+        cls.contributor_own = baker.make(
+            UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1]
+        )
+        cls.contributor_general = baker.make(
+            UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2]
+        )
         cls.responsible1 = baker.make(
-            UserProfile, email="responsible1@institution.example.com", delegates=[cls.delegate1, cls.contributor_general]
+            UserProfile,
+            email="responsible1@institution.example.com",
+            delegates=[cls.delegate1, cls.contributor_general],
         )
         cls.responsible2 = baker.make(UserProfile, email="responsible2@institution.example.com")
-        cls.responsible_without_contribution = baker.make(UserProfile, email="responsible_without_contribution@institution.example.com")
+        cls.responsible_without_contribution = baker.make(
+            UserProfile, email="responsible_without_contribution@institution.example.com"
+        )
         cls.other_user = baker.make(UserProfile, email="other_user@institution.example.com")
 
         cls.evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]),
+            course=baker.make(
+                Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]
+            ),
             state='published',
             can_publish_text_results=True,
         )
@@ -455,20 +621,35 @@ class TestTextAnswerVisibilityInfo(TestCase):
             TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.State.PUBLISHED
         )
         cls.responsible1_textanswer = baker.make(
-            TextAnswer, question=cls.question, contribution=cls.responsible1_contribution, state=TextAnswer.State.PUBLISHED
+            TextAnswer,
+            question=cls.question,
+            contribution=cls.responsible1_contribution,
+            state=TextAnswer.State.PUBLISHED,
         )
         cls.responsible2_textanswer = baker.make(
-            TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.State.PUBLISHED
+            TextAnswer,
+            question=cls.question,
+            contribution=cls.responsible2_contribution,
+            state=TextAnswer.State.PUBLISHED,
         )
         cls.contributor_own_textanswer = baker.make(
-            TextAnswer, question=cls.question, contribution=cls.contributor_own_contribution, state=TextAnswer.State.PUBLISHED
+            TextAnswer,
+            question=cls.question,
+            contribution=cls.contributor_own_contribution,
+            state=TextAnswer.State.PUBLISHED,
         )
         cls.contributor_general_textanswer = baker.make(
-            TextAnswer, question=cls.question, contribution=cls.contributor_general_contribution, state=TextAnswer.State.PUBLISHED
+            TextAnswer,
+            question=cls.question,
+            contribution=cls.contributor_general_contribution,
+            state=TextAnswer.State.PUBLISHED,
         )
 
     def test_text_answer_visible_to_non_contributing_responsible(self):
-        self.assertIn(self.responsible_without_contribution, textanswers_visible_to(self.general_contribution_textanswer.contribution)[0])
+        self.assertIn(
+            self.responsible_without_contribution,
+            textanswers_visible_to(self.general_contribution_textanswer.contribution)[0],
+        )
 
     def test_contributors_and_delegate_count_in_textanswer_visibility_info(self):
         textanswers = [

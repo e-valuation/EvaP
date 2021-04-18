@@ -15,7 +15,8 @@ class Command(BaseCommand):
         parser.add_argument(
             '--production',
             action='store_true',
-            help='Compress output stylesheet and do not generate source maps.' ' Intended to use in production deployment.',
+            help='Compress output stylesheet and do not generate source maps.'
+            ' Intended to use in production deployment.',
         )
 
     def handle(self, *args, **options):

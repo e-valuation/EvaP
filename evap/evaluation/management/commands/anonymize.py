@@ -250,7 +250,9 @@ class Command(BaseCommand):
                     missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
-                        counters.append(RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0))
+                        counters.append(
+                            RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0)
+                        )
 
                     generated_counts = [random.random() for c in counters]  # nosec
                     generated_sum = sum(generated_counts)

@@ -28,8 +28,12 @@ class Command(BaseCommand):
 
         for recipient in recipients:
             due_evaluations = recipient.get_sorted_due_evaluations()
-            first_due_in_days = due_evaluations[0][1]  # entry 0 is first due evaluation, entry 1 in tuple is number of days
+            first_due_in_days = due_evaluations[0][
+                1
+            ]  # entry 0 is first due evaluation, entry 1 in tuple is number of days
 
-            EmailTemplate.send_reminder_to_user(recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations)
+            EmailTemplate.send_reminder_to_user(
+                recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations
+            )
         logger.info("send_reminders finished.")
         logger.info("sent reminders to {} people.".format(len(recipients)))

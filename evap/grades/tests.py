@@ -73,7 +73,9 @@ class GradeUploadTest(WebTest):
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student)
+        response = self.app.get(
+            "/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student
+        )
         self.assertEqual(response.status_code, 200)
 
         # tear down
@@ -145,15 +147,21 @@ class GradeUploadTest(WebTest):
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
+        response = self.app.post(
+            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        )
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertTrue(evaluation.course.gets_no_grade_documents)
         # evaluation should get published here
         self.assertEqual(evaluation.state, "published")
-        self.assertEqual(len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
+        self.assertEqual(
+            len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count()
+        )
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
+        response = self.app.post(
+            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        )
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)

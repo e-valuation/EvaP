@@ -171,19 +171,29 @@ def _get_results_impl(evaluation):
             for question in questionnaire.questions.all():
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question)
+                        answer_counters = RatingAnswerCounter.objects.filter(
+                            contribution=contribution, question=question
+                        )
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters))
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     answers = TextAnswer.objects.filter(
-                        contribution=contribution, question=question, state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+                        contribution=contribution,
+                        question=question,
+                        state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED],
                     )
-                    results.append(TextResult(question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)))
+                    results.append(
+                        TextResult(
+                            question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
+                        )
+                    )
                 elif question.is_heading_question:
                     results.append(HeadingResult(question=question))
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
-        contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
+        contributor_contribution_results.append(
+            ContributionResult(contribution.contributor, contribution.label, questionnaire_results)
+        )
     return EvaluationResult(contributor_contribution_results)
 
 
@@ -230,13 +240,21 @@ def avg_distribution(weighted_distributions):
 
 def average_grade_questions_distribution(results):
     return avg_distribution(
-        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_grade_question]
+        [
+            (unipolarized_distribution(result), result.count_sum)
+            for result in results
+            if result.question.is_grade_question
+        ]
     )
 
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question],
+        [
+            (unipolarized_distribution(result), result.count_sum)
+            for result in results
+            if result.question.is_non_grade_rating_question
+        ],
     )
 
 
@@ -307,14 +325,20 @@ def calculate_average_distribution(evaluation):
             (
                 avg_distribution(
                     [
-                        (average_grade_questions_distribution(contributor_results), settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT),
+                        (
+                            average_grade_questions_distribution(contributor_results),
+                            settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT,
+                        ),
                         (
                             average_non_grade_rating_questions_distribution(contributor_results),
                             settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT,
                         ),
                     ]
                 ),
-                max((result.count_sum for result in contributor_results if result.question.is_rating_question), default=0),
+                max(
+                    (result.count_sum for result in contributor_results if result.question.is_rating_question),
+                    default=0,
+                ),
             )
             for contributor_results in grouped_results.values()
         ]
@@ -323,7 +347,10 @@ def calculate_average_distribution(evaluation):
     return avg_distribution(
         [
             (average_grade_questions_distribution(evaluation_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
-            (average_non_grade_rating_questions_distribution(evaluation_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
+            (
+                average_non_grade_rating_questions_distribution(evaluation_results),
+                settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT,
+            ),
             (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT),
         ]
     )
@@ -365,7 +392,9 @@ def textanswers_visible_to(contribution):
     else:
         contributors = [contribution.contributor]
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
-    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors))
+    num_delegates = len(
+        set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors)
+    )
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
 
 
@@ -399,7 +428,8 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
         if (
             textanswer.contribution.is_general
             and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+                contributor__in=represented_users,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             ).exists()
         ):
             return True

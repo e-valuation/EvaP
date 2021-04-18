@@ -32,7 +32,9 @@ SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 @participant_required
 def index(request):
     query = (
-        Evaluation.objects.annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
+        Evaluation.objects.annotate(
+            participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user))
+        )
         .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
         .filter(~Q(state="new"), course__evaluations__participants=request.user)
         .exclude(state="new")
@@ -50,7 +52,9 @@ def index(request):
     query = Evaluation.annotate_with_participant_and_voter_counts(query)
     evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
 
-    inner_evaluation_ids = [inner_evaluation.id for evaluation in evaluations for inner_evaluation in evaluation.course.evaluations.all()]
+    inner_evaluation_ids = [
+        inner_evaluation.id for evaluation in evaluations for inner_evaluation in evaluation.course.evaluations.all()
+    ]
     inner_evaluation_query = Evaluation.objects.filter(pk__in=inner_evaluation_ids)
     inner_evaluation_query = Evaluation.annotate_with_participant_and_voter_counts(inner_evaluation_query)
 
@@ -87,7 +91,9 @@ def index(request):
     ]
 
     unfinished_evaluations_query = (
-        Evaluation.objects.filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        Evaluation.objects.filter(
+            participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation']
+        )
         .exclude(voters=request.user)
         .prefetch_related('course__responsibles', 'course__type', 'course__semester')
     )
@@ -206,7 +212,9 @@ def vote(request, evaluation_id):
 
                     if question.is_text_question:
                         if value:
-                            question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
+                            question.answer_class.objects.create(
+                                contribution=contribution, question=question, answer=value
+                            )
                     else:
                         if value != NO_ANSWER:
                             answer_counter, __ = question.answer_class.objects.get_or_create(

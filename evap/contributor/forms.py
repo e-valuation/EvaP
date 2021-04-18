@@ -24,7 +24,14 @@ class EvaluationForm(forms.ModelForm):
 
     class Meta:
         model = Evaluation
-        fields = ('name_de_field', 'name_en_field', 'vote_start_datetime', 'vote_end_date', 'general_questionnaires', 'course')
+        fields = (
+            'name_de_field',
+            'name_en_field',
+            'vote_start_datetime',
+            'vote_end_date',
+            'general_questionnaires',
+            'course',
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,7 +49,9 @@ class EvaluationForm(forms.ModelForm):
         self.fields['vote_end_date'].localize = True
 
         if self.instance.general_contribution:
-            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+            self.fields['general_questionnaires'].initial = [
+                q.pk for q in self.instance.general_contribution.questionnaires.all()
+            ]
 
         if not self.instance.allow_editors_to_edit:
             for field in self._meta.fields:
@@ -63,7 +72,11 @@ class EvaluationForm(forms.ModelForm):
 
         # The actual deadline is EVALUATION_END_OFFSET_HOURS:00 AM of the day after vote_end_date.
         # Therefore an evaluation date 24h + EVALUATION_END_OFFSET_HOURS in the past would technically still be in the future.
-        if vote_end_date and date_to_datetime(vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS) < datetime.now():
+        if (
+            vote_end_date
+            and date_to_datetime(vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
+            < datetime.now()
+        ):
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
         return vote_end_date
 

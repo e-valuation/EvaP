@@ -38,7 +38,9 @@ RESULTS_WARNING_PERCENTAGE = 0.5
 
 # percentages for calculating an evaluation's total average grade
 CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
-CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = (
+    6  # non-grade questions are weighted this much for each contributor's average grade
+)
 CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the evaluation's average grade
 GENERAL_GRADE_QUESTIONS_WEIGHT = (
     1  # the average grade of all general grade questions is weighted this much for the evaluation's average grade

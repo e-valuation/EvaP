@@ -108,7 +108,9 @@ def login_key_authentication(request, key):
     # tries to login with a URL in this situation.
     if request.user.is_authenticated:
         if user != request.user:
-            messages.error(request, _("Another user is currently logged in. Please logout first and then use the login URL again."))
+            messages.error(
+                request, _("Another user is currently logged in. Please logout first and then use the login URL again.")
+            )
         return redirect('evaluation:index')
 
     if user and user.login_key_valid_until >= date.today():
@@ -153,13 +155,17 @@ def contact(request):
     subject = f"[EvaP] Message from {email}"
 
     if message:
-        mail = EmailMessage(subject=subject, body="{}\n{}\n\n{}".format(title, request.user.email, message), to=[settings.CONTACT_EMAIL])
+        mail = EmailMessage(
+            subject=subject, body="{}\n{}\n\n{}".format(title, request.user.email, message), to=[settings.CONTACT_EMAIL]
+        )
         try:
             mail.send()
             logger.info('Sent contact email: \n{}\n'.format(mail.message()))
             return HttpResponse()
         except Exception:
-            logger.exception('An exception occurred when sending the following contact email:\n{}\n'.format(mail.message()))
+            logger.exception(
+                'An exception occurred when sending the following contact email:\n{}\n'.format(mail.message())
+            )
             raise
 
     return HttpResponseBadRequest()

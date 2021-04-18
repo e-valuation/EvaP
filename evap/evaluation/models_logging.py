@@ -136,7 +136,9 @@ class LoggedModel(models.Model):
         that don't name m2m fields.
         """
         fields = [
-            field.name for field in type(self)._meta.get_fields() if field.name not in self.unlogged_fields and not field.many_to_many
+            field.name
+            for field in type(self)._meta.get_fields()
+            if field.name not in self.unlogged_fields and not field.many_to_many
         ]
         return model_to_dict(self, fields)
 
@@ -167,7 +169,9 @@ class LoggedModel(models.Model):
                 if deleted_value is not None
             }
             # as the instance is being deleted, we also need to pull out all m2m values
-            m2m_field_names = [field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields]
+            m2m_field_names = [
+                field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields
+            ]
             for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
                 changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}
         else:
@@ -282,7 +286,12 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
         return
 
     field_name = next(
-        (field.name for field in type(instance)._meta.many_to_many if getattr(type(instance), field.name).through == sender), None
+        (
+            field.name
+            for field in type(instance)._meta.many_to_many
+            if getattr(type(instance), field.name).through == sender
+        ),
+        None,
     )
 
     if field_name in instance.unlogged_fields:

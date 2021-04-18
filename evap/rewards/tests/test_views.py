@@ -8,7 +8,12 @@ from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager
-from evap.rewards.models import RewardPointRedemptionEvent, RewardPointGranting, RewardPointRedemption, SemesterActivation
+from evap.rewards.models import (
+    RewardPointRedemptionEvent,
+    RewardPointGranting,
+    RewardPointRedemption,
+    SemesterActivation,
+)
 from evap.rewards.tools import reward_points_of_user, is_semester_activated
 from evap.staff.tests.utils import WebTestStaffMode, WebTestStaffModeWith200Check
 

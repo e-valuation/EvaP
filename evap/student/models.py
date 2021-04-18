@@ -11,7 +11,10 @@ class TextAnswerWarning(models.Model):
     warning_text = translate(en='warning_text_en', de='warning_text_de')
 
     trigger_strings = ArrayField(
-        models.CharField(max_length=1024), default=list, verbose_name=_("Trigger strings (case-insensitive)"), blank=True
+        models.CharField(max_length=1024),
+        default=list,
+        verbose_name=_("Trigger strings (case-insensitive)"),
+        blank=True,
     )
 
     order = models.IntegerField(verbose_name=_("Warning order"), default=-1)

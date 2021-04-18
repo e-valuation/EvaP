@@ -1,5 +1,5 @@
 [tool.black]
-line-length = 140
+line-length = 120
 target-version = ['py37']
 skip-string-normalization = true
 include = 'evap.*\.pyi?$'

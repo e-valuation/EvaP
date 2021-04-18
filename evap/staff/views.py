@@ -110,10 +110,14 @@ def index(request):
 def annotate_evaluations_with_grade_document_counts(evaluations):
     return evaluations.annotate(
         midterm_grade_documents_count=Count(
-            "course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.MIDTERM_GRADES), distinct=True
+            "course__grade_documents",
+            filter=Q(course__grade_documents__type=GradeDocument.Type.MIDTERM_GRADES),
+            distinct=True,
         ),
         final_grade_documents_count=Count(
-            "course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.FINAL_GRADES), distinct=True
+            "course__grade_documents",
+            filter=Q(course__grade_documents__type=GradeDocument.Type.FINAL_GRADES),
+            distinct=True,
         ),
     )
 
@@ -122,14 +126,18 @@ def get_evaluations_with_prefetched_data(semester):
     evaluations = (
         semester.evaluations.select_related('course__type')
         .prefetch_related(
-            Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
+            Prefetch(
+                "contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"
+            ),
             "course__degrees",
             "course__responsibles",
         )
         .annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
             num_textanswers=Count(
-                "contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True
+                "contributions__textanswer_set",
+                filter=Q(contributions__evaluation__can_publish_text_results=True),
+                distinct=True,
             ),
             num_reviewed_textanswers=Count(
                 "contributions__textanswer_set",
@@ -220,7 +228,9 @@ class EvaluationOperation:
         raise NotImplementedError
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         raise NotImplementedError
 
 
@@ -240,7 +250,9 @@ class RevertToNewOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
@@ -274,7 +286,9 @@ class ReadyForEditorsOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
@@ -302,7 +316,12 @@ class ReadyForEditorsOperation(EvaluationOperation):
                     contributions__role=Contribution.Role.EDITOR,
                 ).exclude(pk=responsible.pk)
                 email_template.send_to_user(
-                    responsible, subject_params={}, body_params=body_params, use_cc=True, additional_cc_users=editors, request=request
+                    responsible,
+                    subject_params={},
+                    body_params=body_params,
+                    use_cc=True,
+                    additional_cc_users=editors,
+                    request=request,
                 )
 
 
@@ -323,7 +342,9 @@ class BeginEvaluationOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
@@ -333,9 +354,9 @@ class BeginEvaluationOperation(EvaluationOperation):
             evaluation.save()
         messages.success(
             request,
-            ngettext("Successfully started {} evaluation.", "Successfully started {} evaluations.", len(evaluations)).format(
-                len(evaluations)
-            ),
+            ngettext(
+                "Successfully started {} evaluation.", "Successfully started {} evaluations.", len(evaluations)
+            ).format(len(evaluations)),
         )
         if email_template:
             email_template.send_to_users_in_evaluations(
@@ -359,7 +380,9 @@ class UnpublishOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         assert email_template_contributor is None
         assert email_template_participant is None
 
@@ -368,9 +391,9 @@ class UnpublishOperation(EvaluationOperation):
             evaluation.save()
         messages.success(
             request,
-            ngettext("Successfully unpublished {} evaluation.", "Successfully unpublished {} evaluations.", len(evaluations)).format(
-                len(evaluations)
-            ),
+            ngettext(
+                "Successfully unpublished {} evaluation.", "Successfully unpublished {} evaluations.", len(evaluations)
+            ).format(len(evaluations)),
         )
 
 
@@ -392,7 +415,9 @@ class PublishOperation(EvaluationOperation):
         ).format(amount)
 
     @staticmethod
-    def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
+    def apply(
+        request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None
+    ):
         assert email_template is None
 
         for evaluation in evaluations:
@@ -400,9 +425,9 @@ class PublishOperation(EvaluationOperation):
             evaluation.save()
         messages.success(
             request,
-            ngettext("Successfully published {} evaluation.", "Successfully published {} evaluations.", len(evaluations)).format(
-                len(evaluations)
-            ),
+            ngettext(
+                "Successfully published {} evaluation.", "Successfully published {} evaluations.", len(evaluations)
+            ).format(len(evaluations)),
         )
 
         if email_template_contributor:
@@ -431,7 +456,9 @@ def semester_evaluation_operation(request, semester_id):
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == 'GET' else request.POST).getlist('evaluation')
-    evaluations = list(annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids)))
+    evaluations = list(
+        annotate_evaluations_with_grade_document_counts(Evaluation.objects.filter(id__in=evaluation_ids))
+    )
     evaluations.sort(key=lambda evaluation: evaluation.full_name)
 
     operation = EVALUATION_OPERATIONS[target_state]
@@ -480,7 +507,9 @@ def semester_evaluation_operation(request, semester_id):
         email_template=email_template,
         email_template_contributor=email_template_contributor,
         email_template_participant=email_template_participant,
-        show_email_checkbox=email_template is not None or email_template_contributor is not None or email_template_participant is not None,
+        show_email_checkbox=email_template is not None
+        or email_template_contributor is not None
+        or email_template_participant is not None,
     )
 
     return render(request, "staff_evaluation_operation.html", template_data)
@@ -492,7 +521,9 @@ def semester_create(request):
 
     if form.is_valid():
         semester = form.save()
-        delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
+        delete_navbar_cache_for_users(
+            [user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher]
+        )
 
         messages.success(request, _("Successfully created semester."))
         return redirect('staff:semester_view', semester.id)
@@ -542,7 +573,9 @@ def semester_delete(request):
     Evaluation.objects.filter(course__semester=semester).delete()
     Course.objects.filter(semester=semester).delete()
     semester.delete()
-    delete_navbar_cache_for_users([user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher])
+    delete_navbar_cache_for_users(
+        [user for user in UserProfile.objects.all() if user.is_reviewer or user.is_grade_publisher]
+    )
     return redirect('staff:index')
 
 
@@ -678,7 +711,9 @@ def semester_raw_export(_request, semester_id):
 @manager_required
 def semester_participation_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    participants = UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
+    participants = (
+        UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
+    )
 
     filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
     response = FileResponse(filename, content_type="text/csv")
@@ -697,11 +732,20 @@ def semester_participation_export(_request, semester_id):
     )
     for participant in participants:
         number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
-        number_of_required_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=True).count()
-        number_of_optional_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=False).count()
-        number_of_optional_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=False).count()
+        number_of_required_evaluations_voted_for = semester.evaluations.filter(
+            voters=participant, is_rewarded=True
+        ).count()
+        number_of_optional_evaluations = semester.evaluations.filter(
+            participants=participant, is_rewarded=False
+        ).count()
+        number_of_optional_evaluations_voted_for = semester.evaluations.filter(
+            voters=participant, is_rewarded=False
+        ).count()
         earned_reward_points = (
-            RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
+            RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))[
+                'value__sum'
+            ]
+            or 0
         )
         writer.writerow(
             [
@@ -746,10 +790,14 @@ def semester_questionnaire_assign(request, semester_id):
 def semester_preparation_reminder(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).prefetch_related("course__degrees")
+    evaluations = semester.evaluations.filter(state__in=['prepared', 'editor_approved']).prefetch_related(
+        "course__degrees"
+    )
 
     prepared_evaluations = semester.evaluations.filter(state__in=['prepared'])
-    responsibles = list(set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all()))
+    responsibles = list(
+        set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all())
+    )
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
     responsible_list = [
@@ -790,7 +838,8 @@ def semester_grade_reminder(request, semester_id):
     responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
 
     responsible_list = [
-        (responsible, [course for course in courses if responsible in course.responsibles.all()]) for responsible in responsibles
+        (responsible, [course for course in courses if responsible in course.responsibles.all()])
+        for responsible in responsibles
     ]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
@@ -811,7 +860,9 @@ def send_reminder(request, semester_id, responsible_id):
         messages.success(request, _("Successfully sent reminder to {}.").format(responsible.full_name))
         return redirect('staff:semester_preparation_reminder', semester_id)
 
-    return render(request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form))
+    return render(
+        request, "staff_semester_send_reminder.html", dict(semester=semester, responsible=responsible, form=form)
+    )
 
 
 @require_POST
@@ -938,10 +989,14 @@ def evaluation_create(request, semester_id, course_id=None):
     evaluation = Evaluation()
     if course_id:
         evaluation.course = Course.objects.get(id=course_id)
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+    )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
-    formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
+    formset = InlineContributionFormset(
+        request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation}
+    )
 
     if evaluation_form.is_valid() and formset.is_valid():
         evaluation = evaluation_form.save()
@@ -954,7 +1009,9 @@ def evaluation_create(request, semester_id, course_id=None):
     return render(
         request,
         "staff_evaluation_form.html",
-        dict(semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""),
+        dict(
+            semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""
+        ),
     )
 
 
@@ -1046,10 +1103,14 @@ def helper_evaluation_edit(request, semester, evaluation):
                 ).format(granting=granting),
             )
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+    )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
-    formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
+    formset = InlineContributionFormset(
+        request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation}
+    )
     editable = evaluation.can_be_edited_by_manager
 
     operation = request.POST.get('operation')
@@ -1144,7 +1205,9 @@ def evaluation_email(request, semester_id, evaluation_id):
         if export:
             email_addresses = '; '.join(form.email_addresses())
             messages.info(request, _('Recipients: ') + '\n' + email_addresses)
-            return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
+            return render(
+                request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form)
+            )
         form.send(request)
         messages.success(request, _("Successfully sent emails for '%s'.") % evaluation.full_name)
         return redirect('staff:semester_view', semester_id)
@@ -1246,7 +1309,9 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
-    filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(evaluation=evaluation, semester=semester)
+    filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(
+        evaluation=evaluation, semester=semester
+    )
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -1261,7 +1326,9 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
 
 
 def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers):
-    TextAnswerSection = namedtuple('TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results'))
+    TextAnswerSection = namedtuple(
+        'TextAnswerSection', ('questionnaire', 'contributor', 'label', 'is_responsible', 'results')
+    )
 
     evaluation_sections = []
     contributor_sections = []
@@ -1307,7 +1374,9 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
     view = request.GET.get('view', 'quick')
     filter_textanswers = view == "unreviewed"
 
-    evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textanswers)
+    evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(
+        evaluation, filter_textanswers
+    )
 
     template_data = dict(semester=semester, evaluation=evaluation, view=view)
 
@@ -1423,8 +1492,12 @@ def questionnaire_index(request):
         general_questionnaires = general_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
         contributor_questionnaires = contributor_questionnaires.exclude(visibility=Questionnaire.Visibility.HIDDEN)
 
-    general_questionnaires_top = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors]
-    general_questionnaires_bottom = [questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors]
+    general_questionnaires_top = [
+        questionnaire for questionnaire in general_questionnaires if questionnaire.is_above_contributors
+    ]
+    general_questionnaires_bottom = [
+        questionnaire for questionnaire in general_questionnaires if questionnaire.is_below_contributors
+    ]
 
     template_data = dict(
         general_questionnaires_top=general_questionnaires_top,
@@ -1503,9 +1576,13 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
 
         # disallow type changed from and to contributor
         if questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
-            form.fields['type'].choices = [choice for choice in Questionnaire.Type.choices if choice[0] == Questionnaire.Type.CONTRIBUTOR]
+            form.fields['type'].choices = [
+                choice for choice in Questionnaire.Type.choices if choice[0] == Questionnaire.Type.CONTRIBUTOR
+            ]
         else:
-            form.fields['type'].choices = [choice for choice in Questionnaire.Type.choices if choice[0] != Questionnaire.Type.CONTRIBUTOR]
+            form.fields['type'].choices = [
+                choice for choice in Questionnaire.Type.choices if choice[0] != Questionnaire.Type.CONTRIBUTOR
+            ]
 
     return form, formset
 
@@ -1664,7 +1741,9 @@ def questionnaire_set_locked(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1)
+    DegreeFormset = modelformset_factory(
+        Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1
+    )
     formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -1679,7 +1758,9 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1)
+    CourseTypeFormset = modelformset_factory(
+        CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1
+    )
     formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
@@ -1727,7 +1808,9 @@ def course_type_merge(request, main_type_id, other_type_id):
 def text_answer_warnings_index(request):
     text_answer_warnings = TextAnswerWarning.objects.all()
 
-    TextAnswerWarningFormSet = modelformset_factory(TextAnswerWarning, form=TextAnswerWarningForm, can_delete=True, extra=1)
+    TextAnswerWarningFormSet = modelformset_factory(
+        TextAnswerWarning, form=TextAnswerWarningForm, can_delete=True, extra=1
+    )
     formset = TextAnswerWarningFormSet(request.POST or None, queryset=text_answer_warnings)
 
     if formset.is_valid():
@@ -1760,8 +1843,14 @@ def user_index(request):
         .annotate(is_manager=ExpressionWrapper(Q(manager_group_count__exact=1), output_field=BooleanField()))
         .annotate(reviewer_group_count=Sum(Case(When(groups__name="Reviewer", then=1), output_field=IntegerField())))
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
-        .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
-        .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
+        .annotate(
+            grade_publisher_group_count=Sum(
+                Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())
+            )
+        )
+        .annotate(
+            is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField())
+        )
         .prefetch_related(
             'contributions',
             'evaluations_participating_in',
@@ -1867,7 +1956,9 @@ def user_edit(request, user_id):
             messages.warning(request, message)
         return redirect('staff:user_index')
 
-    return render(request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to))
+    return render(
+        request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to)
+    )
 
 
 @require_POST
@@ -1905,7 +1996,10 @@ def user_bulk_update(request):
                 except Exception:  # pylint: disable=broad-except
                     if settings.DEBUG:
                         raise
-                    messages.error(request, _("An error happened when processing the file. Make sure the file meets the requirements."))
+                    messages.error(
+                        request,
+                        _("An error happened when processing the file. Make sure the file meets the requirements."),
+                    )
 
                 if success:
                     save_import_file(user_file, request.user.id, import_type)
@@ -1986,7 +2080,9 @@ def template_edit(request, template_id):
     available_variables = ["{{ " + variable + " }}" for variable in available_variables]
     available_variables.sort()
 
-    return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
+    return render(
+        request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables)
+    )
 
 
 @manager_required

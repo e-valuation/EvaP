@@ -39,7 +39,9 @@ class LoginEmailForm(forms.Form):
 
     def check_for_test_cookie(self):
         if self.request and not self.request.session.test_cookie_worked():
-            raise forms.ValidationError(_("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."))
+            raise forms.ValidationError(
+                _("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in.")
+            )
 
     def get_user_id(self):
         if self.user_cache:
@@ -62,14 +64,18 @@ class NewKeyForm(forms.Form):
         email = self.cleaned_data.get('email')
 
         if not UserProfile.email_needs_login_key(email):
-            raise forms.ValidationError(_("HPI users cannot request login keys. Please login using your domain credentials."))
+            raise forms.ValidationError(
+                _("HPI users cannot request login keys. Please login using your domain credentials.")
+            )
 
         try:
             user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
         except UserProfile.DoesNotExist as e:
             raise forms.ValidationError(
-                _("No user with this email address was found. Please make sure to enter the email address used for registration.")
+                _(
+                    "No user with this email address was found. Please make sure to enter the email address used for registration."
+                )
             ) from e
 
         if not user.is_active:

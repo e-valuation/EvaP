@@ -84,7 +84,9 @@ class LoginTests(WebTest):
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])).follow()
+        page = self.app.get(
+            reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])
+        ).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertNotContains(page, "Logout")
 
@@ -141,7 +143,9 @@ class LoginTests(WebTest):
 class LoginTestsWithCSRF(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.staff_user = baker.make(UserProfile, email='staff@institution.example.com', groups=[Group.objects.get(name='Manager')])
+        cls.staff_user = baker.make(
+            UserProfile, email='staff@institution.example.com', groups=[Group.objects.get(name='Manager')]
+        )
         cls.staff_user_password = 'staff'
         cls.staff_user.set_password(cls.staff_user_password)
         cls.staff_user.save()

@@ -76,7 +76,10 @@ def grant_reward_points_if_eligible(user, semester):
         return None, False
 
     # How many points have been granted to this user vs how many should they have (this semester)
-    granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
+    granted_points = (
+        RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum']
+        or 0
+    )
     progress = float(required_evaluations.filter(voters=user).count()) / float(required_evaluations.count())
     target_points = max([points for threshold, points in settings.REWARD_POINTS if threshold <= progress], default=0)
     missing_points = target_points - granted_points

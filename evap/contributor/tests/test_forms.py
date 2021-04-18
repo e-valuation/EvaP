@@ -52,7 +52,9 @@ class ContributionFormsetTests(TestCase):
         Regression test for #593.
         """
         evaluation = baker.make(Evaluation)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS)
+        questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS
+        )
         questionnaire_managers_only = baker.make(
             Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS
         )
@@ -60,7 +62,9 @@ class ContributionFormsetTests(TestCase):
         baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
 
         # just the normal questionnaire should be shown.
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
+        contribution1 = baker.make(
+            Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[]
+        )
 
         InlineContributionFormset = inlineformset_factory(
             Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
@@ -87,7 +91,9 @@ class ContributionFormsetTests(TestCase):
         """
         Asserts that locked (general) questionnaires cannot be changed.
         """
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
+        questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS
+        )
         locked_questionnaire = baker.make(
             Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS
         )
@@ -113,7 +119,9 @@ class ContributionFormsetTests(TestCase):
 
         # Assert form is valid, but locked questionnaire is not removed
         form.save()
-        self.assertEqual({questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all()))
+        self.assertEqual(
+            {questionnaire, locked_questionnaire}, set(evaluation.general_contribution.questionnaires.all())
+        )
 
     def test_existing_contributors_are_in_queryset(self):
         """

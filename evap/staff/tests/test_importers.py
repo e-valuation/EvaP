@@ -28,7 +28,9 @@ class TestUserImporter(TestCase):
         with open(cls.filename_random, "rb") as excel_file:
             cls.random_excel_content = excel_file.read()
         cls.duplicate_excel_content = excel_data.create_memory_excel_file(excel_data.duplicate_user_import_filedata)
-        cls.numerical_excel_content = excel_data.create_memory_excel_file(excel_data.numerical_data_in_user_data_filedata)
+        cls.numerical_excel_content = excel_data.create_memory_excel_file(
+            excel_data.numerical_data_in_user_data_filedata
+        )
 
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
@@ -114,7 +116,9 @@ class TestUserImporter(TestCase):
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(errors_test[ImporterError.USER], ['Sheet "Sheet1", row 2: Email address is missing.'])
-        self.assertEqual(errors_test[ImporterError.GENERAL], ['Errors occurred while parsing the input data. No data was imported.'])
+        self.assertEqual(
+            errors_test[ImporterError.GENERAL], ['Errors occurred while parsing the input data. No data was imported.']
+        )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
@@ -185,7 +189,9 @@ class TestEnrollmentImporter(TestCase):
     def test_valid_file_import(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, warnings, errors = EnrollmentImporter.process(
+            excel_content, self.semester, None, None, test_run=True
+        )
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
@@ -197,7 +203,9 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
+        self.assertIn(
+            "Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages)
+        )
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
@@ -209,7 +217,9 @@ class TestEnrollmentImporter(TestCase):
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
-        success_messages, warnings_test, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, warnings_test, errors = EnrollmentImporter.process(
+            excel_content, self.semester, None, None, test_run=True
+        )
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(
@@ -224,7 +234,9 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings_no_test, errors = EnrollmentImporter.process(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages))
+        self.assertIn(
+            "Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages)
+        )
         self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
 
@@ -240,7 +252,9 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages))
+        self.assertIn(
+            "Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages)
+        )
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
@@ -322,8 +336,12 @@ class TestEnrollmentImporter(TestCase):
             errors_test[ImporterError.COURSE_TYPE_MISSING],
             ['Error: No course type is associated with the import name "Praktikum". Please manually create it first.'],
         )
-        self.assertEqual(errors_test[ImporterError.IS_GRADED], ['"is_graded" of course Deal is maybe, but must be yes or no'])
-        self.assertEqual(errors_test[ImporterError.GENERAL], ['Errors occurred while parsing the input data. No data was imported.'])
+        self.assertEqual(
+            errors_test[ImporterError.IS_GRADED], ['"is_graded" of course Deal is maybe, but must be yes or no']
+        )
+        self.assertEqual(
+            errors_test[ImporterError.GENERAL], ['Errors occurred while parsing the input data. No data was imported.']
+        )
         self.assertEqual(len(errors_test), 6)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
@@ -338,11 +356,16 @@ class TestEnrollmentImporter(TestCase):
 
         self.assertCountEqual(
             errors[ImporterError.COURSE],
-            {"Course Stehlen does already exist in this semester.", "Course Shine does already exist in this semester."},
+            {
+                "Course Stehlen does already exist in this semester.",
+                "Course Shine does already exist in this semester.",
+            },
         )
 
     def test_replace_consecutive_and_trailing_spaces(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata)
+        excel_content = excel_data.create_memory_excel_file(
+            excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata
+        )
 
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
@@ -368,16 +391,22 @@ class TestPersonImporter(TestCase):
             ImportType.Contributor, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
+        self.assertIn(
+            "The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
+        )
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(
             ImportType.Contributor, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
+        self.assertIn(
+            "The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
+        )
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
-        self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1]))
+        self.assertEqual(
+            set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1])
+        )
 
     def test_import_new_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
@@ -398,7 +427,8 @@ class TestPersonImporter(TestCase):
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(
-            set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1, self.contributor2])
+            set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)),
+            set([self.contributor1, self.contributor2]),
         )
 
     def test_import_existing_participant(self):
@@ -406,13 +436,17 @@ class TestPersonImporter(TestCase):
             ImportType.Participant, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
+        self.assertIn(
+            "The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0]
+        )
 
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(
             ImportType.Participant, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
-        self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
+        self.assertIn(
+            "The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0]
+        )
 
         self.assertEqual(self.evaluation1.participants.count(), 1)
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)

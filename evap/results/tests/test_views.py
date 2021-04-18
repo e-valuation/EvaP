@@ -45,13 +45,17 @@ class TestResultsView(WebTest):
         caches['results'].clear()
 
         # course with one evaluation is a single line with the evaluation's full_name
-        evaluation = baker.make(Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published')
+        evaluation = baker.make(
+            Evaluation, course=course, name_en='unique_evaluation_name1', name_de="foo", state='published'
+        )
         page = self.app.get(self.url, user=student)
         self.assertContains(page, evaluation.full_name)
         caches['results'].clear()
 
         # course with two evaluations is three lines without using the full names
-        evaluation2 = baker.make(Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published')
+        evaluation2 = baker.make(
+            Evaluation, course=course, name_en='unique_evaluation_name2', name_de="bar", state='published'
+        )
         page = self.app.get(self.url, user=student)
         self.assertContains(page, course.name)
         self.assertContains(page, evaluation.name_en)
@@ -65,8 +69,12 @@ class TestResultsView(WebTest):
         student = baker.make(UserProfile, email="student@institution.example.com")
 
         course = baker.make(Course)
-        evaluation1 = baker.make(Evaluation, name_de='random_evaluation_d', name_en='random_evaluation_a', course=course, state='published')
-        evaluation2 = baker.make(Evaluation, name_de='random_evaluation_c', name_en='random_evaluation_b', course=course, state='published')
+        evaluation1 = baker.make(
+            Evaluation, name_de='random_evaluation_d', name_en='random_evaluation_a', course=course, state='published'
+        )
+        evaluation2 = baker.make(
+            Evaluation, name_de='random_evaluation_c', name_en='random_evaluation_b', course=course, state='published'
+        )
 
         page = self.app.get(self.url, user=student).body.decode()
         self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
@@ -77,9 +85,18 @@ class TestResultsView(WebTest):
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(
         CACHES={
-            'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},
-            'sessions': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_results'},
-            'results': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_sessions'},
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'LOCATION': 'testing_cache_default',
+            },
+            'sessions': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'LOCATION': 'testing_cache_results',
+            },
+            'results': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'LOCATION': 'testing_cache_sessions',
+            },
         }
     )
     @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
@@ -96,10 +113,20 @@ class TestResultsView(WebTest):
         def make_course_with_evaluations(unique_suffix):
             course = baker.make(Course)
             baker.make(
-                Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0
+                Evaluation,
+                course=course,
+                name_en='foo' + unique_suffix,
+                name_de='foo' + unique_suffix,
+                state='published',
+                _voter_count=0,
             )
             baker.make(
-                Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0
+                Evaluation,
+                course=course,
+                name_en='bar' + unique_suffix,
+                name_de='bar' + unique_suffix,
+                state='published',
+                _voter_count=0,
             )
 
         # first measure the number of queries with two courses
@@ -179,7 +206,9 @@ class TestResultsViewContributionWarning(WebTest):
         cls.url = '/results/semester/%s/evaluation/%s' % (cls.semester.id, cls.evaluation.id)
 
     def test_many_answers_evaluation_no_warning(self):
-        baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10)
+        baker.make(
+            RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10
+        )
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -190,7 +219,9 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        baker.make(RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3)
+        baker.make(
+            RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3
+        )
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
@@ -210,7 +241,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         cls.test_users = [cls.manager, contributor, responsible]
 
         # Normal evaluation with responsible and contributor.
-        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester))
+        cls.evaluation = baker.make(
+            Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester)
+        )
 
         baker.make(
             Contribution,
@@ -234,20 +267,38 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         top_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=top_questionnaire, order=0)
         top_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=top_questionnaire, order=1)
 
-        contributor_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
+        contributor_likert_question = baker.make(
+            Question, type=Question.LIKERT, questionnaire=contributor_questionnaire
+        )
 
-        bottom_heading_question = baker.make(Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0)
+        bottom_heading_question = baker.make(
+            Question, type=Question.HEADING, questionnaire=bottom_questionnaire, order=0
+        )
         bottom_likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=bottom_questionnaire, order=1)
 
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
 
         baker.make(
-            RatingAnswerCounter, question=top_likert_question, contribution=self.evaluation.general_contribution, answer=2, count=100
+            RatingAnswerCounter,
+            question=top_likert_question,
+            contribution=self.evaluation.general_contribution,
+            answer=2,
+            count=100,
         )
-        baker.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
         baker.make(
-            RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100
+            RatingAnswerCounter,
+            question=contributor_likert_question,
+            contribution=self.contribution,
+            answer=1,
+            count=100,
+        )
+        baker.make(
+            RatingAnswerCounter,
+            question=bottom_likert_question,
+            contribution=self.evaluation.general_contribution,
+            answer=3,
+            count=100,
         )
 
         cache_results(self.evaluation)
@@ -260,7 +311,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         bottom_heading_index = content.index(bottom_heading_question.text)
         bottom_likert_index = content.index(bottom_likert_question.text)
 
-        self.assertTrue(top_heading_index < top_likert_index < contributor_likert_index < bottom_heading_index < bottom_likert_index)
+        self.assertTrue(
+            top_heading_index < top_likert_index < contributor_likert_index < bottom_heading_index < bottom_likert_index
+        )
 
     def test_heading_question_filtering(self):
         contributor = baker.make(UserProfile)
@@ -271,7 +324,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         heading_question_2 = baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
-        contribution = baker.make(Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor)
+        contribution = baker.make(
+            Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor
+        )
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         cache_results(self.evaluation)
@@ -315,7 +370,13 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         participants = baker.make(UserProfile, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
-        baker.make(RatingAnswerCounter, question=likert_question, contribution=evaluation.general_contribution, answer=1, count=20)
+        baker.make(
+            RatingAnswerCounter,
+            question=likert_question,
+            contribution=evaluation.general_contribution,
+            answer=1,
+            count=20,
+        )
         cache_results(evaluation)
 
         url = f'/results/semester/{self.semester.id}/evaluation/{evaluation.id}'
@@ -334,7 +395,11 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         students.extend([cls.student1, cls.student2])
 
         cls.evaluation = baker.make(
-            Evaluation, id=22, state='in_evaluation', course=baker.make(Course, semester=cls.semester), participants=students
+            Evaluation,
+            id=22,
+            state='in_evaluation',
+            course=baker.make(Course, semester=cls.semester),
+            participants=students,
         )
         questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
@@ -411,9 +476,15 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         voter2 = baker.make(UserProfile, email="voter2@institution.example.com")
         non_participant = baker.make(UserProfile, email="non_participant@institution.example.com")
         degree = baker.make(Degree)
-        course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor])
+        course = baker.make(
+            Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor]
+        )
         private_evaluation = baker.make(
-            Evaluation, course=course, state='published', participants=[student, student_external, voter1, voter2], voters=[voter1, voter2]
+            Evaluation,
+            course=course,
+            state='published',
+            participants=[student, student_external, voter1, voter2],
+            voters=[voter1, voter2],
         )
         private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
         baker.make(
@@ -444,7 +515,9 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         self.app.get(url, user=contributor, status=200)
         with run_in_staff_mode(self):
             self.app.get(url, user=manager, status=200)
-        self.app.get(url, user=student_external, status=200)  # this external user participates in the evaluation and can see the results
+        self.app.get(
+            url, user=student_external, status=200
+        )  # this external user participates in the evaluation and can see the results
 
 
 class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
@@ -575,7 +648,9 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_contributor_general_textanswers(self):
-        page = self.app.get("/results/semester/1/evaluation/1", user="contributor_general_textanswers@institution.example.com")
+        page = self.app.get(
+            "/results/semester/1/evaluation/1", user="contributor_general_textanswers@institution.example.com"
+        )
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
@@ -623,7 +698,10 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.semester = baker.make(Semester, id=2)
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
         cls.evaluation = baker.make(
-            Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester, responsibles=[responsible])
+            Evaluation,
+            id=21,
+            state='published',
+            course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
         )
 
         questionnaire = baker.make(Questionnaire)
@@ -688,7 +766,9 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_responsible_contributor(self):
-        page = self.app.get("/results/semester/1/evaluation/1?view=export", user="responsible_contributor@institution.example.com")
+        page = self.app.get(
+            "/results/semester/1/evaluation/1?view=export", user="responsible_contributor@institution.example.com"
+        )
 
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
@@ -720,7 +800,10 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
 
     def test_textanswer_visibility_for_contributor_general_textanswers(self):
-        page = self.app.get("/results/semester/1/evaluation/1?view=export", user="contributor_general_textanswers@institution.example.com")
+        page = self.app.get(
+            "/results/semester/1/evaluation/1?view=export",
+            user="contributor_general_textanswers@institution.example.com",
+        )
 
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
@@ -800,7 +883,9 @@ class TestArchivedResults(WebTest):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
         cls.manager = make_manager()
-        cls.reviewer = baker.make(UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name='Reviewer')])
+        cls.reviewer = baker.make(
+            UserProfile, email="reviewer@institution.example.com", groups=[Group.objects.get(name='Reviewer')]
+        )
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.student_external = baker.make(UserProfile, email="student_external@example.com")
         cls.contributor = baker.make(UserProfile, email="contributor@institution.example.com")

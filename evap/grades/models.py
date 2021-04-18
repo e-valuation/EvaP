@@ -16,13 +16,17 @@ def helper_upload_path(instance, filename):
 
 class GradeDocument(models.Model):
     course = models.ForeignKey(Course, models.PROTECT, related_name='grade_documents', verbose_name=_("course"))
-    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))  # upload_to="grades/{}/".format(course.id),
+    file = models.FileField(
+        upload_to=helper_upload_path, verbose_name=_("File")
+    )  # upload_to="grades/{}/".format(course.id),
 
     class Type(models.TextChoices):
         MIDTERM_GRADES = 'MID', _('midterm grades')
         FINAL_GRADES = 'FIN', _('final grades')
 
-    type = models.CharField(max_length=3, choices=Type.choices, verbose_name=_('grade type'), default=Type.MIDTERM_GRADES)
+    type = models.CharField(
+        max_length=3, choices=Type.choices, verbose_name=_('grade type'), default=Type.MIDTERM_GRADES
+    )
 
     description_de = models.CharField(max_length=255, verbose_name=_("description (german)"))
     description_en = models.CharField(max_length=255, verbose_name=_("description (english)"))

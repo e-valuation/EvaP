@@ -50,7 +50,9 @@ def index(request):
 
     reward_point_actions = []
     for granting in reward_point_grantings:
-        reward_point_actions.append((granting.granting_time, _('Reward for') + ' ' + granting.semester.name, granting.value, ''))
+        reward_point_actions.append(
+            (granting.granting_time, _('Reward for') + ' ' + granting.semester.name, granting.value, '')
+        )
     for redemption in reward_point_redemptions:
         reward_point_actions.append((redemption.redemption_time, redemption.event.name, '', redemption.value))
 

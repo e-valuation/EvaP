@@ -103,7 +103,9 @@ class TestAnonymizeCommand(TestCase):
         for question in chain(self.contributor_questions, self.general_questions):
             choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
             for answer in choices:
-                baker.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=1, answer=answer)
+                baker.make(
+                    RatingAnswerCounter, question=question, contribution=self.contribution, count=1, answer=answer
+                )
 
         old_count = RatingAnswerCounter.objects.count()
 
@@ -127,7 +129,9 @@ class TestAnonymizeCommand(TestCase):
             choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
             for answer in choices:
                 count = random.randint(10, 100)  # nosec
-                baker.make(RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer)
+                baker.make(
+                    RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer
+                )
                 answers_per_question[question] += count
 
         management.call_command('anonymize', stdout=StringIO())
@@ -147,7 +151,13 @@ class TestAnonymizeCommand(TestCase):
         random.seed(0)
         for answer in choices:
             count = random.randint(50, 100)  # nosec
-            baker.make(RatingAnswerCounter, question=question, contribution=single_result.general_contribution, count=count, answer=answer)
+            baker.make(
+                RatingAnswerCounter,
+                question=question,
+                contribution=single_result.general_contribution,
+                count=count,
+                answer=answer,
+            )
             answer_count_before += count
 
         management.call_command('anonymize', stdout=StringIO())
@@ -257,7 +267,9 @@ class TestSendRemindersCommand(TestCase):
             management.call_command('send_reminders')
 
         self.assertEqual(mock.call_count, 1)
-        mock.assert_called_once_with(user_to_remind, first_due_in_days=0, due_evaluations=[(evaluation1, 0), (evaluation2, 2)])
+        mock.assert_called_once_with(
+            user_to_remind, first_due_in_days=0, due_evaluations=[(evaluation1, 0), (evaluation2, 2)]
+        )
 
     def test_dont_remind_already_voted(self):
         user_no_remind = baker.make(UserProfile)

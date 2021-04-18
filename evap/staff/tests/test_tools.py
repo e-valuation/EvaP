@@ -79,7 +79,11 @@ class MergeUsersTest(TestCase):
             Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user]
         )
         cls.evaluation3 = baker.make(
-            Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user]
+            Evaluation,
+            course=cls.course3,
+            name_de="evaluation3",
+            participants=[cls.other_user],
+            voters=[cls.other_user],
         )
         cls.contribution1 = baker.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
         cls.contribution2 = baker.make(

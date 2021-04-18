@@ -47,7 +47,9 @@ class TestGrantRewardPoints(WebTest):
 
     def test_semester_activated_not_all_evaluations(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
-        baker.make(Evaluation, course=baker.make(Course, semester=self.evaluation.course.semester), participants=[self.student])
+        baker.make(
+            Evaluation, course=baker.make(Course, semester=self.evaluation.course.semester), participants=[self.student]
+        )
         self.form.submit()
         self.assertEqual(1, reward_points_of_user(self.student))
 
@@ -56,14 +58,24 @@ class TestGrantRewardPoints(WebTest):
         baker.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
-        self.assertEqual(2, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
+        self.assertEqual(
+            2,
+            RewardPointGranting.objects.filter(
+                user_profile=self.student, semester=self.evaluation.course.semester
+            ).count(),
+        )
 
     def test_already_got_enough_points(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         baker.make(RewardPointGranting, user_profile=self.student, value=3, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
-        self.assertEqual(1, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
+        self.assertEqual(
+            1,
+            RewardPointGranting.objects.filter(
+                user_profile=self.student, semester=self.evaluation.course.semester
+            ).count(),
+        )
 
 
 @override_settings(

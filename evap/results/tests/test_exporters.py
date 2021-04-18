@@ -44,7 +44,11 @@ class TestExporters(TestCase):
     def test_questionnaire_ordering(self):
         degree = baker.make(Degree)
         evaluation = baker.make(
-            Evaluation, course=baker.make(Course, degrees=[degree]), state='published', _participant_count=2, _voter_count=2
+            Evaluation,
+            course=baker.make(Course, degrees=[degree]),
+            state='published',
+            _participant_count=2,
+            _voter_count=2,
         )
 
         questionnaire_1 = baker.make(Questionnaire, order=1, type=Questionnaire.Type.TOP)
@@ -57,12 +61,22 @@ class TestExporters(TestCase):
         question_3 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_3)
         question_4 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire_4)
 
-        evaluation.general_contribution.questionnaires.set([questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4])
+        evaluation.general_contribution.questionnaires.set(
+            [questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4]
+        )
 
-        baker.make(RatingAnswerCounter, question=question_1, contribution=evaluation.general_contribution, answer=3, count=100)
-        baker.make(RatingAnswerCounter, question=question_2, contribution=evaluation.general_contribution, answer=3, count=100)
-        baker.make(RatingAnswerCounter, question=question_3, contribution=evaluation.general_contribution, answer=3, count=100)
-        baker.make(RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100)
+        baker.make(
+            RatingAnswerCounter, question=question_1, contribution=evaluation.general_contribution, answer=3, count=100
+        )
+        baker.make(
+            RatingAnswerCounter, question=question_2, contribution=evaluation.general_contribution, answer=3, count=100
+        )
+        baker.make(
+            RatingAnswerCounter, question=question_3, contribution=evaluation.general_contribution, answer=3, count=100
+        )
+        baker.make(
+            RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100
+        )
 
         cache_results(evaluation)
 
@@ -92,7 +106,11 @@ class TestExporters(TestCase):
     def test_heading_question_filtering(self):
         degree = baker.make(Degree)
         evaluation = baker.make(
-            Evaluation, course=baker.make(Course, degrees=[degree]), state='published', _participant_count=2, _voter_count=2
+            Evaluation,
+            course=baker.make(Course, degrees=[degree]),
+            state='published',
+            _participant_count=2,
+            _voter_count=2,
         )
         contributor = baker.make(UserProfile)
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -103,7 +121,9 @@ class TestExporters(TestCase):
         likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
         baker.make(Question, type=Question.HEADING, questionnaire=questionnaire, order=3)
 
-        contribution = baker.make(Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor)
+        contribution = baker.make(
+            Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
+        )
         baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
 
         cache_results(evaluation)
@@ -193,13 +213,19 @@ class TestExporters(TestCase):
         question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
-        baker.make(RatingAnswerCounter, question=question, contribution=evaluation_1.general_contribution, answer=3, count=2)
+        baker.make(
+            RatingAnswerCounter, question=question, contribution=evaluation_1.general_contribution, answer=3, count=2
+        )
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
-        baker.make(RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2)
+        baker.make(
+            RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2
+        )
 
         binary_content = BytesIO()
-        ResultsExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ResultsExporter().export(
+            binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True
+        )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -210,7 +236,9 @@ class TestExporters(TestCase):
         course_type_2.save()
 
         binary_content = BytesIO()
-        ResultsExporter().export(binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True)
+        ResultsExporter().export(
+            binary_content, [semester], [([degree.id], [course_type_1.id, course_type_2.id])], True, True
+        )
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
@@ -256,12 +284,16 @@ class TestExporters(TestCase):
         cache_results(unpublished_evaluation)
 
         # First, make sure that the unpublished does not appear
-        sheet = self.get_export_sheet(include_unpublished=False, semester=semester, degree=degree, course_types=course_types)
+        sheet = self.get_export_sheet(
+            include_unpublished=False, semester=semester, degree=degree, course_types=course_types
+        )
         self.assertEqual(len(sheet.row_values(0)), 2)
         self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
 
         # Now, make sure that it appears when wanted
-        sheet = self.get_export_sheet(include_unpublished=True, semester=semester, degree=degree, course_types=course_types)
+        sheet = self.get_export_sheet(
+            include_unpublished=True, semester=semester, degree=degree, course_types=course_types
+        )
         self.assertEqual(len(sheet.row_values(0)), 3)
         # These two should be ordered according to evaluation.course.type.order
         self.assertEqual(sheet.row_values(0)[1][:-1], published_evaluation.full_name)
@@ -315,16 +347,26 @@ class TestExporters(TestCase):
         evaluation = baker.make(Evaluation, is_single_result=True, state="published", course__degrees=[degree])
         cache_results(evaluation)
         sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
-        self.assertEqual(len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description")
+        self.assertEqual(
+            len(sheet.row_values(0)), 1, "There should be no column for the evaluation, only the row description"
+        )
 
     def test_exclude_used_but_unanswered_questionnaires(self):
         degree = baker.make(Degree)
-        evaluation = baker.make(Evaluation, _voter_count=10, _participant_count=10, state="published", course__degrees=[degree])
+        evaluation = baker.make(
+            Evaluation, _voter_count=10, _participant_count=10, state="published", course__degrees=[degree]
+        )
         used_questionnaire = baker.make(Questionnaire)
         used_question = baker.make(Question, type=Question.LIKERT, questionnaire=used_questionnaire)
         unused_questionnaire = baker.make(Questionnaire)
         unused_question = baker.make(Question, type=Question.LIKERT, questionnaire=unused_questionnaire)
-        baker.make(RatingAnswerCounter, question=used_question, contribution=evaluation.general_contribution, answer=3, count=10)
+        baker.make(
+            RatingAnswerCounter,
+            question=used_question,
+            contribution=evaluation.general_contribution,
+            answer=3,
+            count=10,
+        )
         evaluation.general_contribution.questionnaires.set([used_questionnaire, unused_questionnaire])
         cache_results(evaluation)
 
@@ -353,19 +395,31 @@ class TestExporters(TestCase):
 
         sheet = self.get_export_sheet(semester, degree, [evaluation1.course.type.id, evaluation2.course.type.id])
 
-        self.assertEqual(set(sheet.row_values(0)[1:]), set((evaluation1.full_name + "\n", evaluation2.full_name + "\n")))
+        self.assertEqual(
+            set(sheet.row_values(0)[1:]), set((evaluation1.full_name + "\n", evaluation2.full_name + "\n"))
+        )
 
     def test_correct_grades_and_bottom_numbers(self):
         degree = baker.make(Degree)
-        evaluation = baker.make(Evaluation, _voter_count=5, _participant_count=10, course__degrees=[degree], state="published")
+        evaluation = baker.make(
+            Evaluation, _voter_count=5, _participant_count=10, course__degrees=[degree], state="published"
+        )
         questionnaire1 = baker.make(Questionnaire, order=1)
         questionnaire2 = baker.make(Questionnaire, order=2)
         question1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire1)
         question2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire2)
-        baker.make(RatingAnswerCounter, answer=1, count=1, question=question1, contribution=evaluation.general_contribution)
-        baker.make(RatingAnswerCounter, answer=3, count=1, question=question1, contribution=evaluation.general_contribution)
-        baker.make(RatingAnswerCounter, answer=2, count=1, question=question2, contribution=evaluation.general_contribution)
-        baker.make(RatingAnswerCounter, answer=4, count=1, question=question2, contribution=evaluation.general_contribution)
+        baker.make(
+            RatingAnswerCounter, answer=1, count=1, question=question1, contribution=evaluation.general_contribution
+        )
+        baker.make(
+            RatingAnswerCounter, answer=3, count=1, question=question1, contribution=evaluation.general_contribution
+        )
+        baker.make(
+            RatingAnswerCounter, answer=2, count=1, question=question2, contribution=evaluation.general_contribution
+        )
+        baker.make(
+            RatingAnswerCounter, answer=4, count=1, question=question2, contribution=evaluation.general_contribution
+        )
 
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
@@ -383,7 +437,13 @@ class TestExporters(TestCase):
         course = baker.make(Course, degrees=[degree])
         evaluations = [
             baker.make(
-                Evaluation, course=course, name_en=f"eval{i}", name_de=f"eval{i}", state="published", _voter_count=5, _participant_count=10
+                Evaluation,
+                course=course,
+                name_en=f"eval{i}",
+                name_de=f"eval{i}",
+                state="published",
+                _voter_count=5,
+                _participant_count=10,
             )
             for i in range(3)
         ]
@@ -395,7 +455,9 @@ class TestExporters(TestCase):
         question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
         for grades, e in zip(grades_per_eval, evaluations):
             for grade in grades:
-                baker.make(RatingAnswerCounter, answer=grade, count=1, question=question, contribution=e.general_contribution)
+                baker.make(
+                    RatingAnswerCounter, answer=grade, count=1, question=question, contribution=e.general_contribution
+                )
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:
             cache_results(evaluation)
@@ -407,12 +469,18 @@ class TestExporters(TestCase):
 
     def test_yes_no_question_result(self):
         degree = baker.make(Degree)
-        evaluation = baker.make(Evaluation, _voter_count=6, _participant_count=10, course__degrees=[degree], state="published")
+        evaluation = baker.make(
+            Evaluation, _voter_count=6, _participant_count=10, course__degrees=[degree], state="published"
+        )
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=Question.POSITIVE_YES_NO, questionnaire=questionnaire)
         # 1,5 are yes, no according to RatingAnswerCounter class definition
-        baker.make(RatingAnswerCounter, answer=1, count=4, question=question, contribution=evaluation.general_contribution)
-        baker.make(RatingAnswerCounter, answer=5, count=2, question=question, contribution=evaluation.general_contribution)
+        baker.make(
+            RatingAnswerCounter, answer=1, count=4, question=question, contribution=evaluation.general_contribution
+        )
+        baker.make(
+            RatingAnswerCounter, answer=5, count=2, question=question, contribution=evaluation.general_contribution
+        )
         evaluation.general_contribution.questionnaires.set([questionnaire])
         cache_results(evaluation)
 
@@ -447,14 +515,28 @@ class TestExporters(TestCase):
         contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
-        baker.make(RatingAnswerCounter, question=general_question, contribution=evaluation_1.general_contribution, answer=1, count=2)
+        baker.make(
+            RatingAnswerCounter,
+            question=general_question,
+            contribution=evaluation_1.general_contribution,
+            answer=1,
+            count=2,
+        )
         evaluation_2.general_contribution.questionnaires.set([general_questionnaire])
-        baker.make(RatingAnswerCounter, question=general_question, contribution=evaluation_2.general_contribution, answer=4, count=2)
+        baker.make(
+            RatingAnswerCounter,
+            question=general_question,
+            contribution=evaluation_2.general_contribution,
+            answer=4,
+            count=2,
+        )
 
         contribution.questionnaires.set([contributor_questionnaire])
         baker.make(RatingAnswerCounter, question=contributor_question, contribution=contribution, answer=3, count=2)
         other_contribution.questionnaires.set([contributor_questionnaire])
-        baker.make(RatingAnswerCounter, question=contributor_question, contribution=other_contribution, answer=2, count=2)
+        baker.make(
+            RatingAnswerCounter, question=contributor_question, contribution=other_contribution, answer=2, count=2
+        )
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
@@ -473,7 +555,10 @@ class TestExporters(TestCase):
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
-        self.assertEqual(workbook.sheets()[0].row_values(7)[0], "{} ({})".format(contributor_questionnaire.name, contributor.full_name))
+        self.assertEqual(
+            workbook.sheets()[0].row_values(7)[0],
+            "{} ({})".format(contributor_questionnaire.name, contributor.full_name),
+        )
         self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
         self.assertEqual(workbook.sheets()[0].row_values(10)[0], "Overall Average Grade")
@@ -499,9 +584,9 @@ class TestExporters(TestCase):
         results = TextAnswerExporter.InputData(evaluation_result.contribution_results)
 
         binary_content = BytesIO()
-        TextAnswerExporter(evaluation.name, evaluation.course.semester.name, evaluation.course.responsibles_names, results, None).export(
-            binary_content
-        )
+        TextAnswerExporter(
+            evaluation.name, evaluation.course.semester.name, evaluation.course.responsibles_names, results, None
+        ).export(binary_content)
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
         sheet = workbook.sheets()[0]

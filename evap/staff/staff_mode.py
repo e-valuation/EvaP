@@ -24,7 +24,10 @@ def staff_mode_middleware(get_response):
             else:
                 exit_staff_mode(request)
                 # only show info message if not too much time has passed
-                if current_time <= request.session.get('staff_mode_start_time', 0) + STAFF_MODE_TIMEOUT + STAFF_MODE_INFO_TIMEOUT:
+                if (
+                    current_time
+                    <= request.session.get('staff_mode_start_time', 0) + STAFF_MODE_TIMEOUT + STAFF_MODE_INFO_TIMEOUT
+                ):
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):

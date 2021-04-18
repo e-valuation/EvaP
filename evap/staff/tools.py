@@ -86,7 +86,9 @@ def create_user_list_html_string_for_message(users):
 def find_matching_internal_user_for_email(request, email):
     # for internal users only the part before the @ must be the same to match a user to an email
     matching_users = [
-        user for user in UserProfile.objects.filter(email__startswith=email.split('@')[0] + '@').order_by('id') if not user.is_external
+        user
+        for user in UserProfile.objects.filter(email__startswith=email.split('@')[0] + '@').order_by('id')
+        if not user.is_external
     ]
 
     if not matching_users:
@@ -116,7 +118,11 @@ def bulk_update_users(request, user_file_content, test_run):
         except UserProfile.MultipleObjectsReturned as e:
             messages.error(
                 request,
-                format_html(_('Multiple users match the email {}:{}'), imported_email, create_user_list_html_string_for_message(e.args[0])),
+                format_html(
+                    _('Multiple users match the email {}:{}'),
+                    imported_email,
+                    create_user_list_html_string_for_message(e.args[0]),
+                ),
             )
             return False
 
@@ -162,22 +168,32 @@ def bulk_update_users(request, user_file_content, test_run):
             ),
         )
     if deletable_users:
-        messages.info(request, format_html(_('Users to be deleted are:{}'), create_user_list_html_string_for_message(deletable_users)))
+        messages.info(
+            request,
+            format_html(_('Users to be deleted are:{}'), create_user_list_html_string_for_message(deletable_users)),
+        )
     if users_to_mark_inactive:
         messages.info(
-            request, format_html(_('Users to be marked inactive are:{}'), create_user_list_html_string_for_message(users_to_mark_inactive))
+            request,
+            format_html(
+                _('Users to be marked inactive are:{}'),
+                create_user_list_html_string_for_message(users_to_mark_inactive),
+            ),
         )
     if emails_of_users_to_be_created:
         messages.info(
             request,
             format_html(
-                _('Users to be created are:{}'), format_html_join('', '<br />{}', ((email,) for email in emails_of_users_to_be_created))
+                _('Users to be created are:{}'),
+                format_html_join('', '<br />{}', ((email,) for email in emails_of_users_to_be_created)),
             ),
         )
 
     with transaction.atomic():
         for user in deletable_users + users_to_mark_inactive:
-            for message in remove_user_from_represented_and_ccing_users(user, deletable_users + users_to_mark_inactive, test_run):
+            for message in remove_user_from_represented_and_ccing_users(
+                user, deletable_users + users_to_mark_inactive, test_run
+            ):
                 messages.warning(request, message)
         if test_run:
             messages.info(request, _('No data was changed in this test run.'))
@@ -223,7 +239,9 @@ def merge_users(main_user, other_user, preview=False):
     errors = []
     warnings = []
     courses_main_user_is_responsible_for = main_user.get_sorted_courses_responsible_for()
-    if any(course in courses_main_user_is_responsible_for for course in other_user.get_sorted_courses_responsible_for()):
+    if any(
+        course in courses_main_user_is_responsible_for for course in other_user.get_sorted_courses_responsible_for()
+    ):
         errors.append('courses_responsible_for')
     if any(
         contribution.evaluation in [contribution.evaluation for contribution in main_user.get_sorted_contributions()]
@@ -235,7 +253,10 @@ def merge_users(main_user, other_user, preview=False):
         for evaluation in other_user.get_sorted_evaluations_participating_in()
     ):
         errors.append('evaluations_participating_in')
-    if any(evaluation in main_user.get_sorted_evaluations_voted_for() for evaluation in other_user.get_sorted_evaluations_voted_for()):
+    if any(
+        evaluation in main_user.get_sorted_evaluations_voted_for()
+        for evaluation in other_user.get_sorted_evaluations_voted_for()
+    ):
         errors.append('evaluations_voted_for')
 
     if main_user.reward_point_grantings.all().exists() and other_user.reward_point_grantings.all().exists():
@@ -247,15 +268,19 @@ def merge_users(main_user, other_user, preview=False):
     merged_user['contributions'] = Contribution.objects.filter(contributor__in=[main_user, other_user]).order_by(
         'evaluation__course__semester__created_at', 'evaluation__name_de'
     )
-    merged_user['evaluations_participating_in'] = Evaluation.objects.filter(participants__in=[main_user, other_user]).order_by(
-        'course__semester__created_at', 'name_de'
-    )
+    merged_user['evaluations_participating_in'] = Evaluation.objects.filter(
+        participants__in=[main_user, other_user]
+    ).order_by('course__semester__created_at', 'name_de')
     merged_user['evaluations_voted_for'] = Evaluation.objects.filter(voters__in=[main_user, other_user]).order_by(
         'course__semester__created_at', 'name_de'
     )
 
-    merged_user['reward_point_grantings'] = main_user.reward_point_grantings.all() or other_user.reward_point_grantings.all()
-    merged_user['reward_point_redemptions'] = main_user.reward_point_redemptions.all() or other_user.reward_point_redemptions.all()
+    merged_user['reward_point_grantings'] = (
+        main_user.reward_point_grantings.all() or other_user.reward_point_grantings.all()
+    )
+    merged_user['reward_point_redemptions'] = (
+        main_user.reward_point_redemptions.all() or other_user.reward_point_redemptions.all()
+    )
 
     if preview or errors:
         return merged_user, errors, warnings
@@ -290,7 +315,9 @@ def merge_users(main_user, other_user, preview=False):
     LogEntry.objects.filter(user=other_user).update(user=main_user)
 
     # refresh results cache
-    evaluations = Evaluation.objects.filter(contributions__contributor=main_user, state__in=STATES_WITH_RESULTS_CACHING).distinct()
+    evaluations = Evaluation.objects.filter(
+        contributions__contributor=main_user, state__in=STATES_WITH_RESULTS_CACHING
+    ).distinct()
     for evaluation in evaluations:
         cache_results(evaluation)
 
@@ -317,13 +344,19 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
     ignored_users = ignored_users or []
     for represented_user in user.represented_users.exclude(id__in=[user.id for user in ignored_users]):
         if test_run:
-            remove_messages.append(_("{} will be removed from the delegates of {}.").format(user.full_name, represented_user.full_name))
+            remove_messages.append(
+                _("{} will be removed from the delegates of {}.").format(user.full_name, represented_user.full_name)
+            )
         else:
             represented_user.delegates.remove(user)
-            remove_messages.append(_("Removed {} from the delegates of {}.").format(user.full_name, represented_user.full_name))
+            remove_messages.append(
+                _("Removed {} from the delegates of {}.").format(user.full_name, represented_user.full_name)
+            )
     for cc_user in user.ccing_users.exclude(id__in=[user.id for user in ignored_users]):
         if test_run:
-            remove_messages.append(_("{} will be removed from the CC users of {}.").format(user.full_name, cc_user.full_name))
+            remove_messages.append(
+                _("{} will be removed from the CC users of {}.").format(user.full_name, cc_user.full_name)
+            )
         else:
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))

@@ -87,7 +87,8 @@ class ModelWithImportNamesFormSet(forms.BaseModelFormSet):
             for import_name in form.cleaned_data.get('import_names', []):
                 if import_name.lower() in import_names:
                     form.add_error(
-                        'import_names', _('Import name "{}" is duplicated. Import names are not case sensitive.').format(import_name)
+                        'import_names',
+                        _('Import name "{}" is duplicated. Import names are not case sensitive.').format(import_name),
                     )
                 import_names.add(import_name.lower())
 
@@ -108,7 +109,9 @@ class UserImportForm(forms.Form):
 
 
 class EvaluationParticipantCopyForm(forms.Form):
-    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), empty_label='<empty>', required=False, label=_("Evaluation"))
+    evaluation = forms.ModelChoiceField(
+        Evaluation.objects.all(), empty_label='<empty>', required=False, label=_("Evaluation")
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -119,7 +122,8 @@ class EvaluationParticipantCopyForm(forms.Form):
         choices = [('', '<empty>')]
         for semester in Semester.objects.all():
             evaluation_choices = [
-                (evaluation.pk, evaluation.full_name) for evaluation in Evaluation.objects.filter(course__semester=semester)
+                (evaluation.pk, evaluation.full_name)
+                for evaluation in Evaluation.objects.filter(course__semester=semester)
             ]
             if evaluation_choices:
                 choices += [(semester.name, evaluation_choices)]
@@ -168,7 +172,9 @@ class DegreeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         degree = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__degrees__in=[degree]))
+            update_template_cache(
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__degrees__in=[degree])
+            )
         return degree
 
 
@@ -191,7 +197,9 @@ class CourseTypeForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         course_type = super().save(*args, **kwargs)
         if "name_en" in self.changed_data or "name_de" in self.changed_data:
-            update_template_cache(Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type))
+            update_template_cache(
+                Evaluation.objects.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING, course__type=course_type)
+            )
         return course_type
 
 
@@ -291,7 +299,9 @@ class EvaluationForm(forms.ModelForm):
         self.fields['participants'].queryset = UserProfile.objects.exclude(is_active=False)
 
         if self.instance.general_contribution:
-            self.fields['general_questionnaires'].initial = [q.pk for q in self.instance.general_contribution.questionnaires.all()]
+            self.fields['general_questionnaires'].initial = [
+                q.pk for q in self.instance.general_contribution.questionnaires.all()
+            ]
 
         if self.instance.state in ['in_evaluation', 'evaluated', 'reviewed']:
             self.fields['vote_start_datetime'].disabled = True
@@ -322,7 +332,8 @@ class EvaluationForm(forms.ModelForm):
             if removed_voters:
                 names = [str(user) for user in removed_voters]
                 self.add_error(
-                    "participants", _("Participants who already voted for the evaluation can't be removed: %s") % ", ".join(names)
+                    "participants",
+                    _("Participants who already voted for the evaluation can't be removed: %s") % ", ".join(names),
                 )
 
         return participants
@@ -454,7 +465,9 @@ class SingleResultForm(forms.ModelForm):
 
 class ContributionForm(forms.ModelForm):
     contributor = UserModelChoiceField(queryset=UserProfile.objects.exclude(is_active=False))
-    evaluation = forms.ModelChoiceField(Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+    evaluation = forms.ModelChoiceField(
+        Evaluation.objects.all(), disabled=True, required=False, widget=forms.HiddenInput()
+    )
     questionnaires = forms.ModelMultipleChoiceField(
         Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN),
         required=False,
@@ -540,13 +553,17 @@ class EvaluationEmailForm(forms.Form):
         return self.cleaned_data
 
     def email_addresses(self):
-        recipients = self.template.recipient_list_for_evaluation(self.evaluation, self.recipient_groups, filter_users_in_cc=False)
+        recipients = self.template.recipient_list_for_evaluation(
+            self.evaluation, self.recipient_groups, filter_users_in_cc=False
+        )
         return set(user.email for user in recipients if user.email)
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
         self.template.body = self.cleaned_data.get('body')
-        self.template.send_to_users_in_evaluations([self.evaluation], self.recipient_groups, use_cc=True, request=request)
+        self.template.send_to_users_in_evaluations(
+            [self.evaluation], self.recipient_groups, use_cc=True, request=request
+        )
 
 
 class RemindResponsibleForm(forms.Form):
@@ -601,7 +618,8 @@ class QuestionnaireForm(forms.ModelForm):
 
         if force_highest_order or 'type' in self.changed_data:
             highest_existing_order = (
-                Questionnaire.objects.filter(type=questionnaire_instance.type).aggregate(Max('order'))['order__max'] or -1
+                Questionnaire.objects.filter(type=questionnaire_instance.type).aggregate(Max('order'))['order__max']
+                or -1
             )
             questionnaire_instance.order = highest_existing_order + 1
 
@@ -690,7 +708,11 @@ class ContributionFormSet(BaseInlineFormSet):
                     data = QueryDict(mutable=True)
                     for key, value in data2.lists():
                         if not key.endswith('-id'):
-                            key = key.replace(prefix, '%temp%').replace(other_prefix, prefix).replace('%temp%', other_prefix)
+                            key = (
+                                key.replace(prefix, '%temp%')
+                                .replace(other_prefix, prefix)
+                                .replace('%temp%', other_prefix)
+                            )
                         data.setlist(key, value)
                     break
         return data
@@ -703,10 +725,14 @@ class ContributionFormSet(BaseInlineFormSet):
                 continue
             contributor = form.cleaned_data.get('contributor')
             if contributor is None:
-                raise forms.ValidationError(_('Please select the name of each added contributor. Remove empty rows if necessary.'))
+                raise forms.ValidationError(
+                    _('Please select the name of each added contributor. Remove empty rows if necessary.')
+                )
             if contributor and contributor in found_contributor:
                 raise forms.ValidationError(
-                    _('Duplicate contributor ({}) found. Each contributor should only be used once.').format(contributor.full_name)
+                    _('Duplicate contributor ({}) found. Each contributor should only be used once.').format(
+                        contributor.full_name
+                    )
                 )
             if contributor:
                 found_contributor.add(contributor)
@@ -745,9 +771,14 @@ class QuestionnairesAssignForm(forms.Form):
 
         for course_type in course_types:
             self.fields[course_type.name] = forms.ModelMultipleChoiceField(
-                required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN)
+                required=False,
+                queryset=Questionnaire.objects.general_questionnaires().exclude(
+                    visibility=Questionnaire.Visibility.HIDDEN
+                ),
             )
-        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN)
+        contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(
+            visibility=Questionnaire.Visibility.HIDDEN
+        )
         self.fields['All contributors'] = forms.ModelMultipleChoiceField(
             label=_('All contributors'), required=False, queryset=contributor_questionnaires
         )
@@ -778,7 +809,9 @@ class UserForm(forms.ModelForm):
         self.fields['evaluations_participating_in'].queryset = evaluations_in_active_semester
         self.remove_messages = []
         if self.instance.pk:
-            self.fields['evaluations_participating_in'].initial = evaluations_in_active_semester.filter(participants=self.instance)
+            self.fields['evaluations_participating_in'].initial = evaluations_in_active_semester.filter(
+                participants=self.instance
+            )
             self.fields['is_manager'].initial = self.instance.is_manager
             self.fields['is_grade_publisher'].initial = self.instance.is_grade_publisher
             self.fields['is_reviewer'].initial = self.instance.is_reviewer
@@ -787,7 +820,9 @@ class UserForm(forms.ModelForm):
     def clean_evaluations_participating_in(self):
         evaluations_participating_in = self.cleaned_data.get('evaluations_participating_in')
         if self.instance.pk:
-            evaluations_voted_for = self.instance.evaluations_voted_for.filter(course__semester=Semester.active_semester())
+            evaluations_voted_for = self.instance.evaluations_voted_for.filter(
+                course__semester=Semester.active_semester()
+            )
             removed_evaluations_voted_for = set(evaluations_voted_for) - set(evaluations_participating_in)
             if removed_evaluations_voted_for:
                 names = [str(evaluation) for evaluation in removed_evaluations_voted_for]
@@ -815,9 +850,9 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        new_evaluation_list = list(self.instance.evaluations_participating_in.exclude(course__semester=Semester.active_semester())) + list(
-            self.cleaned_data.get('evaluations_participating_in')
-        )
+        new_evaluation_list = list(
+            self.instance.evaluations_participating_in.exclude(course__semester=Semester.active_semester())
+        ) + list(self.cleaned_data.get('evaluations_participating_in'))
         self.instance.evaluations_participating_in.set(new_evaluation_list)
 
         manager_group = Group.objects.get(name="Manager")
@@ -841,7 +876,9 @@ class UserForm(forms.ModelForm):
         self.instance.is_active = not self.cleaned_data.get('is_inactive')
 
         # remove instance from all other users' delegates and CC users if it is inactive
-        self.remove_messages = [] if self.instance.is_active else remove_user_from_represented_and_ccing_users(self.instance)
+        self.remove_messages = (
+            [] if self.instance.is_active else remove_user_from_represented_and_ccing_users(self.instance)
+        )
 
         # refresh results cache
         if any(attribute in self.changed_data for attribute in ["first_name", "last_name", "title"]):

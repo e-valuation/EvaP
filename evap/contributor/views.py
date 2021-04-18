@@ -8,8 +8,21 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
-from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
+from evap.evaluation.auth import (
+    responsible_or_contributor_or_delegate_required,
+    editor_or_delegate_required,
+    editor_required,
+)
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Degree,
+    Evaluation,
+    Semester,
+    UserProfile,
+    EmailTemplate,
+)
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import (
@@ -29,7 +42,15 @@ def index(request):
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
     represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
-    contributor_visible_states = ['prepared', 'editor_approved', 'approved', 'in_evaluation', 'evaluated', 'reviewed', 'published']
+    contributor_visible_states = [
+        'prepared',
+        'editor_approved',
+        'approved',
+        'in_evaluation',
+        'evaluated',
+        'reviewed',
+        'published',
+    ]
     own_courses = Course.objects.filter(
         Q(evaluations__state__in=contributor_visible_states)
         & (
@@ -88,7 +109,9 @@ def index(request):
             semester_name=semester.name,
             id=semester.id,
             is_active=semester.is_active,
-            evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id],
+            evaluations=[
+                evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id
+            ],
         )
         for semester in semesters
     ]
@@ -164,9 +187,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True, for_rendering_in_modal=True)[
-                1
-            ].content.decode()
+            preview_response = get_valid_form_groups_or_render_vote_page(
+                request, evaluation, preview=True, for_rendering_in_modal=True
+            )[1].content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -189,7 +212,9 @@ def evaluation_edit(request, evaluation_id):
         Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
     )
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
-    formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
+    formset = InlineContributionFormset(
+        request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation}
+    )
 
     forms_are_valid = evaluation_form.is_valid() and formset.is_valid()
     if forms_are_valid and not preview:
@@ -224,7 +249,9 @@ def evaluation_edit(request, evaluation_id):
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
 
     sort_formset(request, formset)
-    template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html)
+    template_data = dict(
+        form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html
+    )
     return render(request, "contributor_evaluation_form.html", template_data)
 
 

@@ -223,7 +223,10 @@ class TestContributorEvaluationEditView(WebTest):
         )
         responsible = UserProfile.objects.get(email='responsible@institution.example.com')
         evaluation = baker.make(
-            Evaluation, course=baker.make(Course, responsibles=[responsible]), state='prepared', pk=TESTING_EVALUATION_ID + 1
+            Evaluation,
+            course=baker.make(Course, responsibles=[responsible]),
+            state='prepared',
+            pk=TESTING_EVALUATION_ID + 1,
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
