@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationForm(forms.ModelForm):
-    general_questionnaires = forms.ModelMultipleChoiceField(queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires"))
+    general_questionnaires = forms.ModelMultipleChoiceField(
+        queryset=None, required=False, widget=CheckboxSelectMultiple, label=_("General questionnaires")
+    )
     course = forms.ModelChoiceField(Course.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
     name_de_field = forms.CharField(label=_("Name (German)"), disabled=True, required=False)
     name_en_field = forms.CharField(label=_("Name (English)"), disabled=True, required=False)
@@ -30,8 +32,11 @@ class EvaluationForm(forms.ModelForm):
         self.fields['name_de_field'].initial = self.instance.full_name_de
         self.fields['name_en_field'].initial = self.instance.full_name_en
 
-        self.fields['general_questionnaires'].queryset = Questionnaire.objects.general_questionnaires().filter(
-            Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance)).distinct()
+        self.fields['general_questionnaires'].queryset = (
+            Questionnaire.objects.general_questionnaires()
+            .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
+            .distinct()
+        )
 
         self.fields['vote_start_datetime'].localize = True
         self.fields['vote_end_date'].localize = True
@@ -87,16 +92,20 @@ class EditorContributionForm(ContributionForm):
 
         existing_contributor_pk = self.instance.contributor.pk if self.instance.contributor else None
 
-        self.fields['questionnaires'].queryset = Questionnaire.objects.contributor_questionnaires().filter(
-            Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation)).distinct()
+        self.fields['questionnaires'].queryset = (
+            Questionnaire.objects.contributor_questionnaires()
+            .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.evaluation))
+            .distinct()
+        )
         self.fields['contributor'].queryset = UserProfile.objects.filter(
             (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)
         )
 
 
 class DelegatesForm(forms.ModelForm):
-    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
-                                             required=False)
+    delegates = UserModelMultipleChoiceField(
+        queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True), required=False
+    )
 
     class Meta:
         model = UserProfile
@@ -114,5 +123,6 @@ class DelegatesForm(forms.ModelForm):
 
 
 class DelegateSelectionForm(forms.Form):
-    delegate_to = UserModelChoiceField(label=_("Delegate to"),
-                                       queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True))
+    delegate_to = UserModelChoiceField(
+        label=_("Delegate to"), queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True)
+    )

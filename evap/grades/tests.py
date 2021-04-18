@@ -127,7 +127,8 @@ class GradeUploadTest(WebTest):
         evaluation.end_review()
         evaluation.save()
         self.helper_check_final_grade_upload(
-            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
+            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count()
+        )
 
         # state: published
         evaluation.publish()

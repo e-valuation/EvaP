@@ -14,8 +14,15 @@ from evap.evaluation.tools import FileResponse
 
 from evap.staff.views import semester_view
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
-                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
+from evap.rewards.models import (
+    RewardPointGranting,
+    RewardPointRedemption,
+    RewardPointRedemptionEvent,
+    SemesterActivation,
+    NoPointsSelected,
+    NotEnoughPoints,
+    RedemptionEventExpired,
+)
 from evap.rewards.tools import grant_eligible_reward_points_for_semester, save_redemptions, reward_points_of_user
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import RewardsExporter
@@ -50,10 +57,11 @@ def index(request):
     reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
     template_data = dict(
-            reward_point_actions=reward_point_actions,
-            total_points_available=total_points_available,
-            events=events,
-            point_selection=range(0, total_points_available + 1))
+        reward_point_actions=reward_point_actions,
+        total_points_available=total_points_available,
+        events=events,
+        point_selection=range(0, total_points_available + 1),
+    )
     return render(request, "rewards_index.html", template_data)
 
 

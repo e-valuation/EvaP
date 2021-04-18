@@ -13,9 +13,17 @@ from django.test.utils import CaptureQueriesContext
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import (Contribution, Course, Degree, Evaluation, Question, Questionnaire,
-                                    RatingAnswerCounter,
-                                    Semester, UserProfile)
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Degree,
+    Evaluation,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
@@ -67,16 +75,18 @@ class TestResultsView(WebTest):
         self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
-    @override_settings(CACHES={
-        'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},
-        'sessions': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_results'},
-        'results': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_sessions'},
-    })
+    @override_settings(
+        CACHES={
+            'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},
+            'sessions': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_results'},
+            'results': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_sessions'},
+        }
+    )
     @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
     def test_num_queries_is_constant(self):
         """
-            ensures that the number of queries in the user list is constant
-            and not linear to the number of courses/evaluations
+        ensures that the number of queries in the user list is constant
+        and not linear to the number of courses/evaluations
         """
         student = baker.make(UserProfile, email="student@institution.example.com")
 
@@ -85,8 +95,12 @@ class TestResultsView(WebTest):
 
         def make_course_with_evaluations(unique_suffix):
             course = baker.make(Course)
-            baker.make(Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0)
-            baker.make(Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0)
+            baker.make(
+                Evaluation, course=course, name_en='foo' + unique_suffix, name_de='foo' + unique_suffix, state='published', _voter_count=0
+            )
+            baker.make(
+                Evaluation, course=course, name_en='bar' + unique_suffix, name_de='bar' + unique_suffix, state='published', _voter_count=0
+            )
 
         # first measure the number of queries with two courses
         make_course_with_evaluations('frob')
@@ -113,7 +127,7 @@ class TestResultsView(WebTest):
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
-        """ Regression test for #1248 """
+        """Regression test for #1248"""
         participants = baker.make(UserProfile, _quantity=2)
         evaluation = baker.make(
             Evaluation,
@@ -228,9 +242,13 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
 
-        baker.make(RatingAnswerCounter, question=top_likert_question, contribution=self.evaluation.general_contribution, answer=2, count=100)
+        baker.make(
+            RatingAnswerCounter, question=top_likert_question, contribution=self.evaluation.general_contribution, answer=2, count=100
+        )
         baker.make(RatingAnswerCounter, question=contributor_likert_question, contribution=self.contribution, answer=1, count=100)
-        baker.make(RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100)
+        baker.make(
+            RatingAnswerCounter, question=bottom_likert_question, contribution=self.evaluation.general_contribution, answer=3, count=100
+        )
 
         cache_results(self.evaluation)
 
@@ -315,12 +333,16 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         students = baker.make(UserProfile, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
-        cls.evaluation = baker.make(Evaluation, id=22, state='in_evaluation', course=baker.make(Course, semester=cls.semester), participants=students)
+        cls.evaluation = baker.make(
+            Evaluation, id=22, state='in_evaluation', course=baker.make(Course, semester=cls.semester), participants=students
+        )
         questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
-        cls.responsible_contribution = baker.make(Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire])
+        cls.responsible_contribution = baker.make(
+            Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
+        )
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
@@ -391,11 +413,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         degree = baker.make(Degree)
         course = baker.make(Course, semester=semester, degrees=[degree], is_private=True, responsibles=[responsible, editor])
         private_evaluation = baker.make(
-            Evaluation,
-            course=course,
-            state='published',
-            participants=[student, student_external, voter1, voter2],
-            voters=[voter1, voter2]
+            Evaluation, course=course, state='published', participants=[student, student_external, voter1, voter2], voters=[voter1, voter2]
         )
         private_evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
         baker.make(
@@ -604,7 +622,9 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester, id=2)
         responsible = baker.make(UserProfile, email='responsible@institution.example.com')
-        cls.evaluation = baker.make(Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester, responsibles=[responsible]))
+        cls.evaluation = baker.make(
+            Evaluation, id=21, state='published', course=baker.make(Course, semester=cls.semester, responsibles=[responsible])
+        )
 
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
@@ -734,7 +754,10 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
     def test_textanswer_visibility_for_manager(self):
         with run_in_staff_mode(self):
             contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
-            page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id), user="manager@institution.example.com")
+            page = self.app.get(
+                "/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id),
+                user="manager@institution.example.com",
+            )
 
             self.assertIn(".general_orig_published.", page)
             self.assertNotIn(".general_orig_hidden.", page)
@@ -753,7 +776,10 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         manager_group = Group.objects.get(name="Manager")
         contributor = UserProfile.objects.get(email="contributor@institution.example.com")
         contributor.groups.add(manager_group)
-        page = self.app.get("/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor.id), user="contributor@institution.example.com")
+        page = self.app.get(
+            "/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor.id),
+            user="contributor@institution.example.com",
+        )
 
         self.assertNotIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
@@ -832,7 +858,6 @@ class TestArchivedResults(WebTest):
 
 
 class TestTextAnswerExportView(WebTest):
-
     @classmethod
     def setUpTestData(cls):
         cls.reviewer = baker.make(

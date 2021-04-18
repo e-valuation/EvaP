@@ -72,7 +72,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         state='prepared',
         course=baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
         vote_start_datetime=in_one_hour,
-        vote_end_date=tomorrow
+        vote_end_date=tomorrow,
     )
 
     if evaluation_id:
@@ -104,17 +104,12 @@ def make_manager():
 
 
 def make_contributor(user, evaluation):
-    """ Make user a contributor of evaluation. """
-    return baker.make(
-        Contribution,
-        evaluation=evaluation,
-        contributor=user,
-        role=Contribution.Role.CONTRIBUTOR
-    )
+    """Make user a contributor of evaluation."""
+    return baker.make(Contribution, evaluation=evaluation, contributor=user, role=Contribution.Role.CONTRIBUTOR)
 
 
 def make_editor(user, evaluation):
-    """ Make user an editor of evaluation. """
+    """Make user an editor of evaluation."""
     return baker.make(
         Contribution,
         evaluation=evaluation,

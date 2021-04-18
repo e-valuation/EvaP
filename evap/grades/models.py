@@ -29,15 +29,14 @@ class GradeDocument(models.Model):
     description = translate(en='description_en', de='description_de')
 
     last_modified_time = models.DateTimeField(auto_now=True, verbose_name=_("Created"))
-    last_modified_user = models.ForeignKey(settings.AUTH_USER_MODEL, models.SET_NULL, related_name="grades_last_modified_user+", null=True, blank=True)
+    last_modified_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, models.SET_NULL, related_name="grades_last_modified_user+", null=True, blank=True
+    )
 
     class Meta:
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
-        unique_together = (
-            ('course', 'description_de'),
-            ('course', 'description_en')
-        )
+        unique_together = (('course', 'description_de'), ('course', 'description_en'))
 
     def __str__(self):
         return self.description

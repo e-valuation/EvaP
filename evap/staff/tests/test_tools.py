@@ -44,7 +44,8 @@ class MergeUsersTest(TestCase):
         cls.user3 = baker.make(UserProfile, email="test3@institution.example.com")
         cls.group1 = baker.make(Group, pk=4)
         cls.group2 = baker.make(Group, pk=5)
-        cls.main_user = baker.make(UserProfile,
+        cls.main_user = baker.make(
+            UserProfile,
             title="Dr.",
             first_name="Main",
             last_name="",
@@ -53,9 +54,10 @@ class MergeUsersTest(TestCase):
             delegates=[cls.user1, cls.user2],
             represented_users=[cls.user3],
             cc_users=[cls.user1],
-            ccing_users=[]
+            ccing_users=[],
         )
-        cls.other_user = baker.make(UserProfile,
+        cls.other_user = baker.make(
+            UserProfile,
             title="",
             first_name="Other",
             last_name="User",
@@ -65,16 +67,24 @@ class MergeUsersTest(TestCase):
             represented_users=[cls.user1],
             cc_users=[],
             ccing_users=[cls.user1, cls.user2],
-            is_superuser=True
+            is_superuser=True,
         )
         cls.course1 = baker.make(Course, responsibles=[cls.main_user])
         cls.course2 = baker.make(Course, responsibles=[cls.main_user])
         cls.course3 = baker.make(Course, responsibles=[cls.other_user])
-        cls.evaluation1 = baker.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.evaluation2 = baker.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.evaluation3 = baker.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.evaluation1 = baker.make(
+            Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user]
+        )  # this should make the merge fail
+        cls.evaluation2 = baker.make(
+            Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user]
+        )
+        cls.evaluation3 = baker.make(
+            Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user]
+        )
         cls.contribution1 = baker.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
-        cls.contribution2 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
+        cls.contribution2 = baker.make(
+            Contribution, contributor=cls.other_user, evaluation=cls.evaluation1
+        )  # this should make the merge fail
         cls.contribution3 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
         cls.rewardpointgranting_main = baker.make(RewardPointGranting, user_profile=cls.main_user)
         cls.rewardpointgranting_other = baker.make(RewardPointGranting, user_profile=cls.other_user)
@@ -122,10 +132,7 @@ class MergeUsersTest(TestCase):
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
         # add attributes here only if you're actually dealing with them in merge_users().
-        additional_handled_attrs = {
-            'grades_last_modified_user+',
-            'Course_responsibles+'
-        }
+        additional_handled_attrs = {'grades_last_modified_user+', 'Course_responsibles+'}
 
         actual_attrs = handled_attrs | additional_handled_attrs
 

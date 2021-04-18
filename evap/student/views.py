@@ -17,24 +17,33 @@ from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
-from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                textanswers_visible_to, normalized_distribution)
+from evap.results.tools import (
+    calculate_average_distribution,
+    distribution_to_grade,
+    get_evaluations_with_course_result_attributes,
+    get_single_result_rating_result,
+    textanswers_visible_to,
+    normalized_distribution,
+)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
 
 @participant_required
 def index(request):
-    query = (Evaluation.objects
-        .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
+    query = (
+        Evaluation.objects.annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
         .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
-
         .filter(~Q(state="new"), course__evaluations__participants=request.user)
         .exclude(state="new")
         .prefetch_related(
-            'course', 'course__semester', 'course__grade_documents', 'course__type',
-            'course__evaluations', 'course__responsibles', 'course__degrees',
+            'course',
+            'course__semester',
+            'course__grade_documents',
+            'course__type',
+            'course__evaluations',
+            'course__responsibles',
+            'course__degrees',
         )
         .distinct()
     )
@@ -66,17 +75,19 @@ def index(request):
     evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))
 
     semesters = Semester.objects.all()
-    semester_list = [dict(
-        semester_name=semester.name,
-        id=semester.id,
-        results_are_archived=semester.results_are_archived,
-        grade_documents_are_deleted=semester.grade_documents_are_deleted,
-        evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
-    ) for semester in semesters]
+    semester_list = [
+        dict(
+            semester_name=semester.name,
+            id=semester.id,
+            results_are_archived=semester.results_are_archived,
+            grade_documents_are_deleted=semester.grade_documents_are_deleted,
+            evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id],
+        )
+        for semester in semesters
+    ]
 
     unfinished_evaluations_query = (
-        Evaluation.objects
-        .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        Evaluation.objects.filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
         .exclude(voters=request.user)
         .prefetch_related('course__responsibles', 'course__type', 'course__semester')
     )
@@ -90,8 +101,9 @@ def index(request):
         return (
             evaluation.state != 'in_evaluation',
             evaluation.vote_end_date if evaluation.state == 'in_evaluation' else None,
-            evaluation.full_name
+            evaluation.full_name,
         )
+
     unfinished_evaluations.sort(key=sorter)
 
     template_data = dict(
@@ -115,7 +127,10 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
+        form_groups[contribution] = [
+            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            for questionnaire in questionnaires
+        ]
 
     if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
         assert not preview
@@ -123,15 +138,31 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
 
     evaluation_form_group = form_groups.pop(evaluation.general_contribution)
 
-    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group), textanswers_visible_to(contribution)) for contribution, form_group in form_groups.items()]
-    evaluation_form_group_top = [questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors]
-    evaluation_form_group_bottom = [questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors]
+    contributor_form_groups = [
+        (
+            contribution.contributor,
+            contribution.label,
+            form_group,
+            any(form.errors for form in form_group),
+            textanswers_visible_to(contribution),
+        )
+        for contribution, form_group in form_groups.items()
+    ]
+    evaluation_form_group_top = [
+        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
+    ]
+    evaluation_form_group_bottom = [
+        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
+    ]
     if not contributor_form_groups:
         evaluation_form_group_top += evaluation_form_group_bottom
         evaluation_form_group_bottom = []
 
     template_data = dict(
-        errors_exist=any(any(form.errors for form in form_group) for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]),
+        errors_exist=any(
+            any(form.errors for form in form_group)
+            for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]
+        ),
         evaluation_form_group_top=evaluation_form_group_top,
         evaluation_form_group_bottom=evaluation_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
@@ -178,7 +209,9 @@ def vote(request, evaluation_id):
                             question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
                     else:
                         if value != NO_ANSWER:
-                            answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
+                            answer_counter, __ = question.answer_class.objects.get_or_create(
+                                contribution=contribution, question=question, answer=value
+                            )
                             answer_counter.count += 1
                             answer_counter.save()
 
@@ -189,9 +222,11 @@ def vote(request, evaluation_id):
 
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
-            if (request.POST.get('text_results_publish_confirmation_top') == 'on'
-                    or request.POST.get('text_results_publish_confirmation_bottom') == 'on'
-                    or evaluation.voters.count() >= 2):
+            if (
+                request.POST.get('text_results_publish_confirmation_top') == 'on'
+                or request.POST.get('text_results_publish_confirmation_bottom') == 'on'
+                or evaluation.voters.count() >= 2
+            ):
                 evaluation.can_publish_text_results = True
                 evaluation.save()
 

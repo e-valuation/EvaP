@@ -67,7 +67,7 @@ def clean_email(email):
         # have the same domain on EvaP.
         for original_domain, replaced_domain in settings.INSTITUTION_EMAIL_REPLACEMENTS:
             if email.endswith(original_domain):
-                return email[:-len(original_domain)] + replaced_domain
+                return email[: -len(original_domain)] + replaced_domain
     return email
 
 
@@ -90,13 +90,15 @@ class FileResponse(HttpResponse):
 
 class ExcelExporter(ABC):
     styles = {
-        "default":                  xlwt.Style.default_style,
-        "headline":                 xlwt.easyxf("font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium", num_format_str="0.0"),
-        "bold":                     xlwt.easyxf("font: bold on"),
-        "italic":                   xlwt.easyxf("font: italic on"),
-        "border_left_right":        xlwt.easyxf("borders: left medium, right medium"),
-        "border_top_bottom_right":  xlwt.easyxf("borders: top medium, bottom medium, right medium"),
-        "border_top":               xlwt.easyxf("borders: top medium"),
+        "default": xlwt.Style.default_style,
+        "headline": xlwt.easyxf(
+            "font: bold on, height 400; alignment: horiz centre, vert centre, wrap on; borders: bottom medium", num_format_str="0.0"
+        ),
+        "bold": xlwt.easyxf("font: bold on"),
+        "italic": xlwt.easyxf("font: italic on"),
+        "border_left_right": xlwt.easyxf("borders: left medium, right medium"),
+        "border_top_bottom_right": xlwt.easyxf("borders: top medium, bottom medium, right medium"),
+        "border_top": xlwt.easyxf("borders: top medium"),
     }
 
     # Derived classes can set this to

@@ -45,8 +45,8 @@ def redirect_user_to_start_page(user):
 @sensitive_post_parameters("password")
 def index(request):
     """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
-       internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
-       students or visiting contributors. A login with email and password is available if OpenID is deactivated.
+    internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
+    students or visiting contributors. A login with email and password is available if OpenID is deactivated.
     """
 
     # parse the form data into the respective form
@@ -113,9 +113,7 @@ def login_key_authentication(request, key):
 
     if user and user.login_key_valid_until >= date.today():
         if request.method != "POST":
-            template_data = {
-                'username': user.full_name
-            }
+            template_data = {'username': user.full_name}
             return render(request, "external_user_confirm_login.html", template_data)
 
         # User is valid. Set request.user and persist user in the session by logging the user in.
@@ -155,10 +153,7 @@ def contact(request):
     subject = f"[EvaP] Message from {email}"
 
     if message:
-        mail = EmailMessage(
-            subject=subject,
-            body="{}\n{}\n\n{}".format(title, request.user.email, message),
-            to=[settings.CONTACT_EMAIL])
+        mail = EmailMessage(subject=subject, body="{}\n{}\n\n{}".format(title, request.user.email, message), to=[settings.CONTACT_EMAIL])
         try:
             mail.send()
             logger.info('Sent contact email: \n{}\n'.format(mail.message()))

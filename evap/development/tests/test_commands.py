@@ -14,9 +14,19 @@ class TestDumpTestDataCommand(TestCase):
             management.call_command('dump_testdata')
 
         outfile_name = os.path.join(settings.BASE_DIR, 'development', 'fixtures', 'test_data.json')
-        mock.assert_called_once_with('dumpdata', 'auth.group', 'evaluation', 'rewards', 'student', 'grades',
-                                     '--exclude=evaluation.LogEntry', indent=2, natural_foreign=True,
-                                     natural_primary=True, output=outfile_name)
+        mock.assert_called_once_with(
+            'dumpdata',
+            'auth.group',
+            'evaluation',
+            'rewards',
+            'student',
+            'grades',
+            '--exclude=evaluation.LogEntry',
+            indent=2,
+            natural_foreign=True,
+            natural_primary=True,
+            output=outfile_name,
+        )
 
 
 class TestReloadTestdataCommand(TestCase):
@@ -53,7 +63,9 @@ class TestRunCommand(TestCase):
         with patch('django.core.management.execute_from_command_line') as mock:
             management.call_command('run', stdout=StringIO())
 
-        mock.assert_has_calls([
-            call(['manage.py', 'scss']),
-            call(['manage.py', 'runserver', '0.0.0.0:8000']),
-        ])
+        mock.assert_has_calls(
+            [
+                call(['manage.py', 'scss']),
+                call(['manage.py', 'runserver', '0.0.0.0:8000']),
+            ]
+        )

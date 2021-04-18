@@ -36,7 +36,9 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
+            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(
+                str(self.non_editor), str(self.evaluation)
+            ),
         )
 
         contribution = Contribution.objects.get(contributor=self.non_editor)
@@ -62,7 +64,9 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
+            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(
+                str(self.non_editor), str(self.evaluation)
+            ),
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
@@ -126,7 +130,10 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
         page = self.app.get(self.url, user=self.editor)
         self.assertContains(page, "You cannot edit this evaluation because it has already been approved")
-        self.assertNotContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
+        self.assertNotContains(
+            page,
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+        )
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
@@ -162,23 +169,23 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_not_authenticated(self):
         """
-            Asserts that an unauthorized user gets redirected to the login page.
+        Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
         self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID)
 
     def test_wrong_usergroup(self):
         """
-            Asserts that a user who is not part of the usergroup
-            that is required for a specific view gets a 403.
-            Regression test for #483
+        Asserts that a user who is not part of the usergroup
+        that is required for a specific view gets a 403.
+        Regression test for #483
         """
         self.app.get(self.url, user="student@institution.example.com", status=403)
 
     def test_wrong_state(self):
         """
-            Asserts that a contributor attempting to edit an evaluation
-            that is in a state where editing is not allowed gets a 403.
+        Asserts that a contributor attempting to edit an evaluation
+        that is in a state where editing is not allowed gets a 403.
         """
         self.evaluation.editor_approve()
         self.evaluation.save()
@@ -187,8 +194,8 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_contributor_evaluation_edit(self):
         """
-            Tests whether the "save" button in the contributor's evaluation edit view does not
-            change the evaluation's state, and that the "approve" button does that.
+        Tests whether the "save" button in the contributor's evaluation edit view does not
+        change the evaluation's state, and that the "approve" button does that.
         """
         page = self.app.get(self.url, user=self.responsible, status=200)
         form = page.forms["evaluation-form"]
@@ -216,10 +223,7 @@ class TestContributorEvaluationEditView(WebTest):
         )
         responsible = UserProfile.objects.get(email='responsible@institution.example.com')
         evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, responsibles=[responsible]),
-            state='prepared',
-            pk=TESTING_EVALUATION_ID+1
+            Evaluation, course=baker.make(Course, responsibles=[responsible]), state='prepared', pk=TESTING_EVALUATION_ID + 1
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
@@ -236,7 +240,7 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_contributor_evaluation_edit_preview(self):
         """
-            Asserts that the preview button either renders a preview or shows an error.
+        Asserts that the preview button either renders a preview or shows an error.
         """
         page = self.app.get(self.url, user=self.responsible)
         form = page.forms["evaluation-form"]
@@ -256,8 +260,8 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_contact_modal_escape(self):
         """
-            Asserts that the evaluation title is correctly escaped in the contact modal.
-            Regression test for #1060
+        Asserts that the evaluation title is correctly escaped in the contact modal.
+        Regression test for #1060
         """
         self.evaluation.name_en = "Adam & Eve"
         self.evaluation.save()
@@ -272,4 +276,7 @@ class TestContributorEvaluationEditView(WebTest):
     def test_information_message(self):
         page = self.app.get(self.url, user=self.editor)
         self.assertNotContains(page, "You cannot edit this evaluation because it has already been approved")
-        self.assertContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
+        self.assertContains(
+            page,
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+        )

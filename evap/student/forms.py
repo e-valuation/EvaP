@@ -5,7 +5,7 @@ from evap.evaluation.models import CHOICES
 
 
 class HeadingField(forms.Field):
-    """ Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
+    """Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
     Does not handle any kind of input."""
 
     def __init__(self, label):
@@ -26,19 +26,18 @@ class QuestionnaireVotingForm(forms.Form):
             field_args = dict(label=question.text)
 
             if question.is_text_question:
-                field = forms.CharField(required=False, widget=forms.Textarea(),
-                                        **field_args)
+                field = forms.CharField(required=False, widget=forms.Textarea(), **field_args)
             elif question.is_rating_question:
                 choices = CHOICES[question.type]
-                field = forms.TypedChoiceField(widget=forms.RadioSelect(attrs={'choices': choices}),
-                                               choices=zip(choices.values, choices.names),
-                                               coerce=int,
-                                               **field_args)
+                field = forms.TypedChoiceField(
+                    widget=forms.RadioSelect(attrs={'choices': choices}),
+                    choices=zip(choices.values, choices.names),
+                    coerce=int,
+                    **field_args,
+                )
             elif question.is_heading_question:
                 field = HeadingField(label=question.text)
 
-            identifier = question_id(contribution,
-                                     questionnaire,
-                                     question)
+            identifier = question_id(contribution, questionnaire, question)
 
             self.fields[identifier] = field

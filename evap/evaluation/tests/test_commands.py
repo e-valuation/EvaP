@@ -14,21 +14,34 @@ from django.test.utils import override_settings
 
 from model_bakery import baker
 
-from evap.evaluation.models import (CHOICES, Contribution, Course, Evaluation, EmailTemplate, NO_ANSWER,
-    Question, Questionnaire, RatingAnswerCounter, Semester, UserProfile)
+from evap.evaluation.models import (
+    CHOICES,
+    Contribution,
+    Course,
+    Evaluation,
+    EmailTemplate,
+    NO_ANSWER,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    UserProfile,
+)
 
 
 class TestAnonymizeCommand(TestCase):
     @classmethod
     def setUpTestData(cls):
         baker.make(EmailTemplate, name="name", subject="Subject", body="Body.")
-        baker.make(UserProfile,
-          email="secret.email@hpi.de",
-          title="Prof.",
-          first_name="Secret",
-          last_name="User",
-          login_key=1234567890,
-          login_key_valid_until=date.today())
+        baker.make(
+            UserProfile,
+            email="secret.email@hpi.de",
+            title="Prof.",
+            first_name="Secret",
+            last_name="User",
+            login_key=1234567890,
+            login_key_valid_until=date.today(),
+        )
         semester1 = baker.make(Semester, name_de="S1", name_en="S1")
         baker.make(Semester, name_de="S2", name_en="S2")
         cls.course = baker.make(
@@ -60,15 +73,21 @@ class TestAnonymizeCommand(TestCase):
         cls.contributor_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
-        cls.contributor_questions = baker.make(Question, _quantity=10,
-                questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))
-        cls.general_questions = baker.make(Question, _quantity=10,
-                questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys())))
+        cls.contributor_questions = baker.make(
+            Question, _quantity=10, questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys()))
+        )
+        cls.general_questions = baker.make(
+            Question, _quantity=10, questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys()))
+        )
 
         cls.contributor = baker.make(UserProfile)
 
-        cls.contribution = baker.make(Contribution, contributor=cls.contributor, evaluation=cls.evaluation,
-            questionnaires=[cls.contributor_questionnaire, cls.contributor_questionnaire])
+        cls.contribution = baker.make(
+            Contribution,
+            contributor=cls.contributor,
+            evaluation=cls.evaluation,
+            questionnaires=[cls.contributor_questionnaire, cls.contributor_questionnaire],
+        )
 
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.general_questionnaire])
@@ -208,7 +227,8 @@ class TestSendRemindersCommand(TestCase):
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
-            participants=[user_to_remind])
+            participants=[user_to_remind],
+        )
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
@@ -223,13 +243,15 @@ class TestSendRemindersCommand(TestCase):
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=0),
-            participants=[user_to_remind])
+            participants=[user_to_remind],
+        )
         evaluation2 = baker.make(
             Evaluation,
             state='in_evaluation',
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
-            participants=[user_to_remind])
+            participants=[user_to_remind],
+        )
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')
@@ -245,7 +267,8 @@ class TestSendRemindersCommand(TestCase):
             vote_start_datetime=datetime.now() - timedelta(days=1),
             vote_end_date=date.today() + timedelta(days=2),
             participants=[user_no_remind],
-            voters=[user_no_remind])
+            voters=[user_no_remind],
+        )
 
         with patch('evap.evaluation.models.EmailTemplate.send_reminder_to_user') as mock:
             management.call_command('send_reminders')

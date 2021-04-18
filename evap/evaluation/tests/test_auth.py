@@ -141,19 +141,15 @@ class LoginTests(WebTest):
 class LoginTestsWithCSRF(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.staff_user = baker.make(
-            UserProfile,
-            email='staff@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
-        )
+        cls.staff_user = baker.make(UserProfile, email='staff@institution.example.com', groups=[Group.objects.get(name='Manager')])
         cls.staff_user_password = 'staff'
         cls.staff_user.set_password(cls.staff_user_password)
         cls.staff_user.save()
 
     def test_entering_staff_mode_after_logout_and_login(self):
         """
-            Asserts that managers can enter the staff mode after logging out and logging in again.
-            Regression test for #1530.
+        Asserts that managers can enter the staff mode after logging out and logging in again.
+        Regression test for #1530.
         """
         page = self.app.get(reverse('evaluation:index'))
         form = page.forms['email-login-form']

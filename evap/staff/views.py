@@ -21,9 +21,22 @@ from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import reviewer_required, manager_required, staff_permission_required
-from evap.evaluation.models import (Contribution, Course, CourseType, Degree, EmailTemplate, Evaluation, FaqQuestion,
-                                    FaqSection, Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer,
-                                    UserProfile)
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Degree,
+    EmailTemplate,
+    Evaluation,
+    FaqQuestion,
+    FaqSection,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    UserProfile,
+)
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
@@ -32,19 +45,52 @@ from evap.results.views import update_template_cache_of_published_evaluations_in
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff import staff_mode
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
-                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
-                              CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
-                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
-                              FaqQuestionForm,
-                              FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, TextAnswerWarningForm,
-                              UserBulkUpdateForm,
-                              UserForm, UserImportForm, UserMergeSelectionForm)
+from evap.staff.forms import (
+    AtLeastOneFormSet,
+    ContributionForm,
+    ContributionCopyForm,
+    ContributionFormSet,
+    ContributionCopyFormSet,
+    CourseForm,
+    CourseTypeForm,
+    CourseTypeMergeSelectionForm,
+    DegreeForm,
+    EmailTemplateForm,
+    EvaluationEmailForm,
+    EvaluationForm,
+    EvaluationCopyForm,
+    EvaluationParticipantCopyForm,
+    ExportSheetForm,
+    FaqQuestionForm,
+    FaqSectionForm,
+    ModelWithImportNamesFormSet,
+    ImportForm,
+    QuestionForm,
+    QuestionnaireForm,
+    QuestionnairesAssignForm,
+    RemindResponsibleForm,
+    SemesterForm,
+    SingleResultForm,
+    TextAnswerForm,
+    TextAnswerWarningForm,
+    UserBulkUpdateForm,
+    UserForm,
+    UserImportForm,
+    UserMergeSelectionForm,
+)
 from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
-from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
-                              forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_unreviewed_evaluations, ImportType)
+from evap.staff.tools import (
+    bulk_update_users,
+    delete_import_file,
+    delete_navbar_cache_for_users,
+    forward_messages,
+    get_import_file_content_or_raise,
+    import_file_exists,
+    merge_users,
+    save_import_file,
+    find_unreviewed_evaluations,
+    ImportType,
+)
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -52,31 +98,44 @@ from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 @manager_required
 def index(request):
-    template_data = dict(semesters=Semester.objects.all(),
-                         templates=EmailTemplate.objects.all().order_by("id"),
-                         sections=FaqSection.objects.all(),
-                         disable_breadcrumb_manager=True)
+    template_data = dict(
+        semesters=Semester.objects.all(),
+        templates=EmailTemplate.objects.all().order_by("id"),
+        sections=FaqSection.objects.all(),
+        disable_breadcrumb_manager=True,
+    )
     return render(request, "staff_index.html", template_data)
 
 
 def annotate_evaluations_with_grade_document_counts(evaluations):
     return evaluations.annotate(
-        midterm_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.MIDTERM_GRADES), distinct=True),
-        final_grade_documents_count=Count("course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.FINAL_GRADES), distinct=True)
+        midterm_grade_documents_count=Count(
+            "course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.MIDTERM_GRADES), distinct=True
+        ),
+        final_grade_documents_count=Count(
+            "course__grade_documents", filter=Q(course__grade_documents__type=GradeDocument.Type.FINAL_GRADES), distinct=True
+        ),
     )
 
 
 def get_evaluations_with_prefetched_data(semester):
-    evaluations = (semester.evaluations
-        .select_related('course__type')
+    evaluations = (
+        semester.evaluations.select_related('course__type')
         .prefetch_related(
             Prefetch("contributions", queryset=Contribution.objects.filter(contributor=None), to_attr="general_contribution"),
             "course__degrees",
-            "course__responsibles"
-        ).annotate(
+            "course__responsibles",
+        )
+        .annotate(
             num_contributors=Count("contributions", filter=~Q(contributions__contributor=None), distinct=True),
-            num_textanswers=Count("contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True),
-            num_reviewed_textanswers=Count("contributions__textanswer_set", filter=~Q(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED), distinct=True),
+            num_textanswers=Count(
+                "contributions__textanswer_set", filter=Q(contributions__evaluation__can_publish_text_results=True), distinct=True
+            ),
+            num_reviewed_textanswers=Count(
+                "contributions__textanswer_set",
+                filter=~Q(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED),
+                distinct=True,
+            ),
             num_course_evaluations=Count("course__evaluations", distinct=True),
         )
     ).order_by('pk')
@@ -174,8 +233,11 @@ class RevertToNewOperation(EvaluationOperation):
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ngettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
+        return ngettext(
+            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            amount,
+        ).format(amount)
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
@@ -185,8 +247,14 @@ class RevertToNewOperation(EvaluationOperation):
         for evaluation in evaluations:
             evaluation.revert_to_new()
             evaluation.save()
-        messages.success(request, ngettext("Successfully reverted {} evaluation to in preparation.",
-            "Successfully reverted {} evaluations to in preparation.", len(evaluations)).format(len(evaluations)))
+        messages.success(
+            request,
+            ngettext(
+                "Successfully reverted {} evaluation to in preparation.",
+                "Successfully reverted {} evaluations to in preparation.",
+                len(evaluations),
+            ).format(len(evaluations)),
+        )
 
 
 class ReadyForEditorsOperation(EvaluationOperation):
@@ -199,8 +267,11 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ngettext("{} evaluation can not be reverted, because it already started. It was removed from the selection.",
-            "{} evaluations can not be reverted, because they already started. They were removed from the selection.", amount).format(amount)
+        return ngettext(
+            "{} evaluation can not be reverted, because it already started. It was removed from the selection.",
+            "{} evaluations can not be reverted, because they already started. They were removed from the selection.",
+            amount,
+        ).format(amount)
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
@@ -210,8 +281,14 @@ class ReadyForEditorsOperation(EvaluationOperation):
         for evaluation in evaluations:
             evaluation.ready_for_editors()
             evaluation.save()
-        messages.success(request, ngettext("Successfully enabled {} evaluation for editor review.",
-            "Successfully enabled {} evaluations for editor review.", len(evaluations)).format(len(evaluations)))
+        messages.success(
+            request,
+            ngettext(
+                "Successfully enabled {} evaluation for editor review.",
+                "Successfully enabled {} evaluations for editor review.",
+                len(evaluations),
+            ).format(len(evaluations)),
+        )
         if email_template:
             evaluations_by_responsible = {}
             for evaluation in evaluations:
@@ -220,14 +297,13 @@ class ReadyForEditorsOperation(EvaluationOperation):
 
             for responsible, responsible_evaluations in evaluations_by_responsible.items():
                 body_params = {'user': responsible, 'evaluations': responsible_evaluations}
-                editors = (UserProfile.objects
-                    .filter(
-                        contributions__evaluation__in=responsible_evaluations,
-                        contributions__role=Contribution.Role.EDITOR,
-                    )
-                    .exclude(pk=responsible.pk))
-                email_template.send_to_user(responsible, subject_params={}, body_params=body_params,
-                                            use_cc=True, additional_cc_users=editors, request=request)
+                editors = UserProfile.objects.filter(
+                    contributions__evaluation__in=responsible_evaluations,
+                    contributions__role=Contribution.Role.EDITOR,
+                ).exclude(pk=responsible.pk)
+                email_template.send_to_user(
+                    responsible, subject_params={}, body_params=body_params, use_cc=True, additional_cc_users=editors, request=request
+                )
 
 
 class BeginEvaluationOperation(EvaluationOperation):
@@ -240,8 +316,11 @@ class BeginEvaluationOperation(EvaluationOperation):
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ngettext("{} evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
-            "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.", amount).format(amount)
+        return ngettext(
+            "{} evaluation can not be started, because it was not approved, was already evaluated or its evaluation end date lies in the past. It was removed from the selection.",
+            "{} evaluations can not be started, because they were not approved, were already evaluated or their evaluation end dates lie in the past. They were removed from the selection.",
+            amount,
+        ).format(amount)
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
@@ -252,10 +331,16 @@ class BeginEvaluationOperation(EvaluationOperation):
             evaluation.vote_start_datetime = datetime.now()
             evaluation.begin_evaluation()
             evaluation.save()
-        messages.success(request, ngettext("Successfully started {} evaluation.",
-            "Successfully started {} evaluations.", len(evaluations)).format(len(evaluations)))
+        messages.success(
+            request,
+            ngettext("Successfully started {} evaluation.", "Successfully started {} evaluations.", len(evaluations)).format(
+                len(evaluations)
+            ),
+        )
         if email_template:
-            email_template.send_to_users_in_evaluations(evaluations, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=request)
+            email_template.send_to_users_in_evaluations(
+                evaluations, [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=request
+            )
 
 
 class UnpublishOperation(EvaluationOperation):
@@ -267,8 +352,11 @@ class UnpublishOperation(EvaluationOperation):
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ngettext("{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
-            "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.", amount).format(amount)
+        return ngettext(
+            "{} evaluation can not be unpublished, because it's results have not been published. It was removed from the selection.",
+            "{} evaluations can not be unpublished because their results have not been published. They were removed from the selection.",
+            amount,
+        ).format(amount)
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
@@ -278,8 +366,12 @@ class UnpublishOperation(EvaluationOperation):
         for evaluation in evaluations:
             evaluation.unpublish()
             evaluation.save()
-        messages.success(request, ngettext("Successfully unpublished {} evaluation.",
-            "Successfully unpublished {} evaluations.", len(evaluations)).format(len(evaluations)))
+        messages.success(
+            request,
+            ngettext("Successfully unpublished {} evaluation.", "Successfully unpublished {} evaluations.", len(evaluations)).format(
+                len(evaluations)
+            ),
+        )
 
 
 class PublishOperation(EvaluationOperation):
@@ -293,8 +385,11 @@ class PublishOperation(EvaluationOperation):
 
     @staticmethod
     def warning_for_inapplicables(amount):
-        return ngettext("{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
-           "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.", amount).format(amount)
+        return ngettext(
+            "{} evaluation can not be published, because it's not finished or not all of its text answers have been reviewed. It was removed from the selection.",
+            "{} evaluations can not be published, because they are not finished or not all of their text answers have been reviewed. They were removed from the selection.",
+            amount,
+        ).format(amount)
 
     @staticmethod
     def apply(request, evaluations, email_template=None, email_template_contributor=None, email_template_participant=None):
@@ -303,8 +398,12 @@ class PublishOperation(EvaluationOperation):
         for evaluation in evaluations:
             evaluation.publish()
             evaluation.save()
-        messages.success(request, ngettext("Successfully published {} evaluation.",
-            "Successfully published {} evaluations.", len(evaluations)).format(len(evaluations)))
+        messages.success(
+            request,
+            ngettext("Successfully published {} evaluation.", "Successfully published {} evaluations.", len(evaluations)).format(
+                len(evaluations)
+            ),
+        )
 
         if email_template_contributor:
             EmailTemplate.send_contributor_publish_notifications(evaluations, template=email_template_contributor)
@@ -313,11 +412,11 @@ class PublishOperation(EvaluationOperation):
 
 
 EVALUATION_OPERATIONS = {
-        'new': RevertToNewOperation,
-        'prepared': ReadyForEditorsOperation,
-        'in_evaluation': BeginEvaluationOperation,
-        'reviewed': UnpublishOperation,
-        'published': PublishOperation,
+    'new': RevertToNewOperation,
+    'prepared': ReadyForEditorsOperation,
+    'in_evaluation': BeginEvaluationOperation,
+    'reviewed': UnpublishOperation,
+    'published': PublishOperation,
 }
 
 
@@ -344,9 +443,13 @@ def semester_evaluation_operation(request, semester_id):
         if request.POST.get('send_email') == 'on':
             email_template = EmailTemplate(subject=request.POST['email_subject'], body=request.POST['email_body'])
         if request.POST.get('send_email_contributor') == 'on':
-            email_template_contributor = EmailTemplate(subject=request.POST['email_subject_contributor'], body=request.POST['email_body_contributor'])
+            email_template_contributor = EmailTemplate(
+                subject=request.POST['email_subject_contributor'], body=request.POST['email_body_contributor']
+            )
         if request.POST.get('send_email_participant') == 'on':
-            email_template_participant = EmailTemplate(subject=request.POST['email_subject_participant'], body=request.POST['email_body_participant'])
+            email_template_participant = EmailTemplate(
+                subject=request.POST['email_subject_participant'], body=request.POST['email_body_participant']
+            )
 
         operation.apply(request, evaluations, email_template, email_template_contributor, email_template_participant)
         return redirect('staff:semester_view', semester_id)
@@ -377,7 +480,7 @@ def semester_evaluation_operation(request, semester_id):
         email_template=email_template,
         email_template_contributor=email_template_contributor,
         email_template_participant=email_template_participant,
-        show_email_checkbox=email_template is not None or email_template_contributor is not None or email_template_participant is not None
+        show_email_checkbox=email_template is not None or email_template_contributor is not None or email_template_participant is not None,
     )
 
     return render(request, "staff_evaluation_operation.html", template_data)
@@ -467,7 +570,9 @@ def semester_import(request, semester_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = EnrollmentImporter.process(file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True)
+                success_messages, warnings, errors = EnrollmentImporter.process(
+                    file_content, semester, vote_start_datetime=None, vote_end_date=None, test_run=True
+                )
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
@@ -478,7 +583,9 @@ def semester_import(request, semester_id):
             if excel_form.is_valid():
                 vote_start_datetime = excel_form.cleaned_data['vote_start_datetime']
                 vote_end_date = excel_form.cleaned_data['vote_end_date']
-                success_messages, warnings, __ = EnrollmentImporter.process(file_content, semester, vote_start_datetime, vote_end_date, test_run=False)
+                success_messages, warnings, __ = EnrollmentImporter.process(
+                    file_content, semester, vote_start_datetime, vote_end_date, test_run=False
+                )
                 forward_messages(request, success_messages, warnings)
                 delete_import_file(request.user.id, import_type)
                 delete_navbar_cache_for_users(UserProfile.objects.all())
@@ -486,9 +593,18 @@ def semester_import(request, semester_id):
 
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
-    return render(request, "staff_semester_import.html", dict(semester=semester,
-        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
-        excel_form=excel_form, test_passed=test_passed))
+    return render(
+        request,
+        "staff_semester_import.html",
+        dict(
+            semester=semester,
+            success_messages=success_messages,
+            errors=sorted_messages(errors),
+            warnings=sorted_messages(warnings),
+            excel_form=excel_form,
+            test_passed=test_passed,
+        ),
+    )
 
 
 @manager_required
@@ -508,9 +624,7 @@ def semester_export(request, semester_id):
         filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-        ResultsExporter().export(
-            response, [semester], selection_list, include_not_enough_voters, include_unpublished
-        )
+        ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
         return response
 
     return render(request, "staff_semester_export.html", dict(semester=semester, formset=formset))
@@ -524,8 +638,19 @@ def semester_raw_export(_request, semester_id):
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    writer.writerow([_('Name'), _('Degrees'), _('Type'), _('Single result'), _('State'), _('#Voters'),
-        _('#Participants'), _('#Text answers'), _('Average grade')])
+    writer.writerow(
+        [
+            _('Name'),
+            _('Degrees'),
+            _('Type'),
+            _('Single result'),
+            _('State'),
+            _('#Voters'),
+            _('#Participants'),
+            _('#Text answers'),
+            _('Average grade'),
+        ]
+    )
     for evaluation in sorted(semester.evaluations.all(), key=lambda cr: cr.full_name):
         degrees = ", ".join([degree.name for degree in evaluation.course.degrees.all()])
         avg_grade = ""
@@ -533,8 +658,19 @@ def semester_raw_export(_request, semester_id):
             distribution = calculate_average_distribution(evaluation)
             if distribution is not None:
                 avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
-        writer.writerow([evaluation.full_name, degrees, evaluation.course.type.name, evaluation.is_single_result, evaluation.state,
-            evaluation.num_voters, evaluation.num_participants, evaluation.textanswer_set.count(), avg_grade])
+        writer.writerow(
+            [
+                evaluation.full_name,
+                degrees,
+                evaluation.course.type.name,
+                evaluation.is_single_result,
+                evaluation.state,
+                evaluation.num_voters,
+                evaluation.num_participants,
+                evaluation.textanswer_set.count(),
+                avg_grade,
+            ]
+        )
 
     return response
 
@@ -548,19 +684,36 @@ def semester_participation_export(_request, semester_id):
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
-    writer.writerow([_('Email'), _('Can use reward points'), _('#Required evaluations voted for'),
-        _('#Required evaluations'), _('#Optional evaluations voted for'), _('#Optional evaluations'), _('Earned reward points')])
+    writer.writerow(
+        [
+            _('Email'),
+            _('Can use reward points'),
+            _('#Required evaluations voted for'),
+            _('#Required evaluations'),
+            _('#Optional evaluations voted for'),
+            _('#Optional evaluations'),
+            _('Earned reward points'),
+        ]
+    )
     for participant in participants:
         number_of_required_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=True).count()
         number_of_required_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=True).count()
         number_of_optional_evaluations = semester.evaluations.filter(participants=participant, is_rewarded=False).count()
         number_of_optional_evaluations_voted_for = semester.evaluations.filter(voters=participant, is_rewarded=False).count()
-        earned_reward_points = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
-        writer.writerow([
-            participant.email, can_reward_points_be_used_by(participant), number_of_required_evaluations_voted_for,
-            number_of_required_evaluations, number_of_optional_evaluations_voted_for, number_of_optional_evaluations,
-            earned_reward_points
-        ])
+        earned_reward_points = (
+            RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum('value'))['value__sum'] or 0
+        )
+        writer.writerow(
+            [
+                participant.email,
+                can_reward_points_be_used_by(participant),
+                number_of_required_evaluations_voted_for,
+                number_of_required_evaluations,
+                number_of_optional_evaluations_voted_for,
+                number_of_optional_evaluations,
+                earned_reward_points,
+            ]
+        )
 
     return response
 
@@ -599,8 +752,14 @@ def semester_preparation_reminder(request, semester_id):
     responsibles = list(set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
 
-    responsible_list = [(responsible, [evaluation for evaluation in evaluations if responsible in evaluation.course.responsibles.all()],
-                         responsible.delegates.all()) for responsible in responsibles]
+    responsible_list = [
+        (
+            responsible,
+            [evaluation for evaluation in evaluations if responsible in evaluation.course.responsibles.all()],
+            responsible.delegates.all(),
+        )
+        for responsible in responsibles
+    ]
 
     if request.method == "POST":
         template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
@@ -622,7 +781,7 @@ def semester_grade_reminder(request, semester_id):
     courses = semester.courses.filter(
         evaluations__state__in=['evaluated', 'reviewed', 'published'],
         evaluations__wait_for_grade_upload_before_publishing=True,
-        gets_no_grade_documents=False
+        gets_no_grade_documents=False,
     ).distinct()
     courses = [course for course in courses if not course.final_grade_documents.exists()]
     courses.sort(key=lambda course: course.name)
@@ -630,8 +789,9 @@ def semester_grade_reminder(request, semester_id):
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
     responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
 
-    responsible_list = [(responsible, [course for course in courses if responsible in course.responsibles.all()])
-                        for responsible in responsibles]
+    responsible_list = [
+        (responsible, [course for course in courses if responsible in course.responsibles.all()]) for responsible in responsibles
+    ]
 
     template_data = dict(semester=semester, responsible_list=responsible_list)
     return render(request, "staff_semester_grade_reminder.html", template_data)
@@ -749,7 +909,11 @@ def course_edit(request, semester_id, course_id):
         return redirect('staff:semester_view', semester.id)
 
     template_data = dict(
-        course=course, semester=semester, course_form=course_form, editable=editable, disable_breadcrumb_course=True,
+        course=course,
+        semester=semester,
+        course_form=course_form,
+        editable=editable,
+        disable_breadcrumb_course=True,
     )
     return render(request, "staff_course_form.html", template_data)
 
@@ -787,10 +951,11 @@ def evaluation_create(request, semester_id, course_id=None):
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
 
-    return render(request, "staff_evaluation_form.html", dict(
-        semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True,
-        editable=True, state=""
-    ))
+    return render(
+        request,
+        "staff_evaluation_form.html",
+        dict(semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""),
+    )
 
 
 @manager_required
@@ -800,8 +965,9 @@ def evaluation_copy(request, semester_id, evaluation_id):
 
     form = EvaluationCopyForm(request.POST or None, evaluation)
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionCopyFormSet,
-                                                      form=ContributionCopyForm, extra=1)
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation, Contribution, formset=ContributionCopyFormSet, form=ContributionCopyForm, extra=1
+    )
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, new_instance=form.instance)
 
     if form.is_valid() and formset.is_valid():
@@ -812,14 +978,18 @@ def evaluation_copy(request, semester_id, evaluation_id):
         messages.success(request, _("Successfully created evaluation."))
         return redirect('staff:semester_view', semester_id)
 
-    return render(request, "staff_evaluation_form.html", dict(
-        semester=semester,
-        evaluation_form=form,
-        formset=formset,
-        manager=True,
-        editable=True,
-        state="",
-    ))
+    return render(
+        request,
+        "staff_evaluation_form.html",
+        dict(
+            semester=semester,
+            evaluation_form=form,
+            formset=formset,
+            manager=True,
+            editable=True,
+            state="",
+        ),
+    )
 
 
 @manager_required
@@ -867,12 +1037,13 @@ def helper_evaluation_edit(request, semester, evaluation):
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         for granting in grantings:
-            messages.info(request,
+            messages.info(
+                request,
                 ngettext(
                     'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward point for the semester.',
                     'The removal as participant has granted the user "{granting.user_profile.email}" {granting.value} reward points for the semester.',
-                    granting.value
-                ).format(granting=granting)
+                    granting.value,
+                ).format(granting=granting),
             )
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
@@ -917,8 +1088,13 @@ def helper_evaluation_edit(request, semester, evaluation):
         messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
     sort_formset(request, formset)
     template_data = dict(
-        evaluation=evaluation, semester=semester, evaluation_form=evaluation_form,
-        formset=formset, manager=True, state=evaluation.state, editable=editable
+        evaluation=evaluation,
+        semester=semester,
+        evaluation_form=evaluation_form,
+        formset=formset,
+        manager=True,
+        state=evaluation.state,
+        editable=editable,
     )
     return render(request, "staff_evaluation_form.html", template_data)
 
@@ -935,9 +1111,11 @@ def helper_single_result_edit(request, semester, evaluation):
         messages.success(request, _("Successfully created single result."))
         return redirect('staff:semester_view', semester.id)
 
-    return render(request, "staff_single_result_form.html", dict(
-        evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_be_edited_by_manager
-    ))
+    return render(
+        request,
+        "staff_single_result_form.html",
+        dict(evaluation=evaluation, semester=semester, form=form, editable=evaluation.can_be_edited_by_manager),
+    )
 
 
 @require_POST
@@ -996,8 +1174,14 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test-participants', 'import-participants', 'copy-participants',
-                             'test-contributors', 'import-contributors', 'copy-contributors'):
+        if operation not in (
+            'test-participants',
+            'import-participants',
+            'copy-participants',
+            'test-contributors',
+            'import-contributors',
+            'copy-contributors',
+        ):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
@@ -1010,13 +1194,17 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             if excel_form.is_valid():
                 excel_file = excel_form.cleaned_data['excel_file']
                 file_content = excel_file.read()
-                success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, file_content=file_content)
+                success_messages, warnings, errors = PersonImporter.process_file_content(
+                    import_type, evaluation, test_run=True, file_content=file_content
+                )
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
         elif 'import' in operation:
             file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
+            success_messages, warnings, __ = PersonImporter.process_file_content(
+                import_type, evaluation, test_run=False, file_content=file_content
+            )
             delete_import_file(request.user.id, import_type)
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
@@ -1025,18 +1213,32 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             copy_form.evaluation_selection_required = True
             if copy_form.is_valid():
                 import_evaluation = copy_form.cleaned_data['evaluation']
-                success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
+                success_messages, warnings, errors = PersonImporter.process_source_evaluation(
+                    import_type, evaluation, test_run=False, source_evaluation=import_evaluation
+                )
                 forward_messages(request, success_messages, warnings)
                 return redirect('staff:semester_view', semester_id)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
-    return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
-        participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
-        contributor_excel_form=contributor_excel_form, contributor_copy_form=contributor_copy_form,
-        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
-        participant_test_passed=participant_test_passed, contributor_test_passed=contributor_test_passed))
+    return render(
+        request,
+        "staff_evaluation_person_management.html",
+        dict(
+            semester=semester,
+            evaluation=evaluation,
+            participant_excel_form=participant_excel_form,
+            participant_copy_form=participant_copy_form,
+            contributor_excel_form=contributor_excel_form,
+            contributor_copy_form=contributor_copy_form,
+            success_messages=success_messages,
+            errors=sorted_messages(errors),
+            warnings=sorted_messages(warnings),
+            participant_test_passed=participant_test_passed,
+            contributor_test_passed=contributor_test_passed,
+        ),
+    )
 
 
 @manager_required
@@ -1079,10 +1281,15 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
                 continue
 
             section_list = evaluation_sections if contribution.is_general else contributor_sections
-            section_list.append(TextAnswerSection(
-                questionnaire, contribution.contributor, contribution.label,
-                contribution.contributor in evaluation.course.responsibles.all(), text_results
-            ))
+            section_list.append(
+                TextAnswerSection(
+                    questionnaire,
+                    contribution.contributor,
+                    contribution.label,
+                    contribution.contributor in evaluation.course.responsibles.all(),
+                    text_results,
+                )
+            )
 
     return evaluation_sections, contributor_sections
 
@@ -1122,6 +1329,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
 
     template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
     return render(request, "staff_evaluation_textanswers_full.html", template_data)
+
 
 @reviewer_required
 def evaluation_textanswers_skip(request):
@@ -1241,7 +1449,9 @@ def questionnaire_view(request, questionnaire_id):
 @manager_required
 def questionnaire_create(request):
     questionnaire = Questionnaire()
-    InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    InlineQuestionFormset = inlineformset_factory(
+        Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',)
+    )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
@@ -1258,11 +1468,24 @@ def questionnaire_create(request):
 
 def make_questionnaire_edit_forms(request, questionnaire, editable):
     if editable:
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(
+            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',)
+        )
     else:
         question_count = questionnaire.questions.count()
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=0, exclude=('questionnaire',),
-                                                      can_delete=False, max_num=question_count, validate_max=True, min_num=question_count, validate_min=True)
+        InlineQuestionFormset = inlineformset_factory(
+            Questionnaire,
+            Question,
+            formset=AtLeastOneFormSet,
+            form=QuestionForm,
+            extra=0,
+            exclude=('questionnaire',),
+            can_delete=False,
+            max_num=question_count,
+            validate_max=True,
+            min_num=question_count,
+            validate_min=True,
+        )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
@@ -1311,7 +1534,9 @@ def get_identical_form_and_formset(questionnaire):
     Generates a Questionnaire creation form and formset filled out like the already exisiting Questionnaire
     specified in questionnaire_id. Used for copying and creating of new versions.
     """
-    inline_question_formset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+    inline_question_formset = inlineformset_factory(
+        Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',)
+    )
 
     form = QuestionnaireForm(instance=questionnaire)
     return form, inline_question_formset(instance=questionnaire, queryset=questionnaire.questions.all())
@@ -1323,7 +1548,9 @@ def questionnaire_copy(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(
+            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',)
+        )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
         formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
@@ -1356,8 +1583,9 @@ def questionnaire_new_version(request, questionnaire_id):
 
     if request.method == "POST":
         questionnaire = Questionnaire()
-        InlineQuestionFormset = inlineformset_factory(Questionnaire, Question, formset=AtLeastOneFormSet,
-                                                      form=QuestionForm, extra=1, exclude=('questionnaire',))
+        InlineQuestionFormset = inlineformset_factory(
+            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=('questionnaire',)
+        )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
         formset = InlineQuestionFormset(request.POST.copy(), instance=questionnaire, save_as_new=True)
@@ -1436,8 +1664,7 @@ def questionnaire_set_locked(request):
 def degree_index(request):
     degrees = Degree.objects.all()
 
-    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet,
-                                         can_delete=True, extra=1)
+    DegreeFormset = modelformset_factory(Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1)
     formset = DegreeFormset(request.POST or None, queryset=degrees)
 
     if formset.is_valid():
@@ -1452,8 +1679,7 @@ def degree_index(request):
 def course_type_index(request):
     course_types = CourseType.objects.all()
 
-    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet,
-                                             can_delete=True, extra=1)
+    CourseTypeFormset = modelformset_factory(CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1)
     formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
     if formset.is_valid():
@@ -1490,16 +1716,18 @@ def course_type_merge(request, main_type_id, other_type_id):
         return redirect('staff:course_type_index')
 
     courses_with_other_type = Course.objects.filter(type=other_type).order_by('semester__created_at', 'name_de')
-    return render(request, "staff_course_type_merge.html",
-        dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type))
+    return render(
+        request,
+        "staff_course_type_merge.html",
+        dict(main_type=main_type, other_type=other_type, courses_with_other_type=courses_with_other_type),
+    )
 
 
 @manager_required
 def text_answer_warnings_index(request):
     text_answer_warnings = TextAnswerWarning.objects.all()
 
-    TextAnswerWarningFormSet = modelformset_factory(TextAnswerWarning, form=TextAnswerWarningForm,
-        can_delete=True, extra=1)
+    TextAnswerWarningFormSet = modelformset_factory(TextAnswerWarning, form=TextAnswerWarningForm, can_delete=True, extra=1)
     formset = TextAnswerWarningFormSet(request.POST or None, queryset=text_answer_warnings)
 
     if formset.is_valid():
@@ -1507,10 +1735,14 @@ def text_answer_warnings_index(request):
         messages.success(request, _("Successfully updated text warning answers."))
         return redirect('staff:text_answer_warnings')
 
-    return render(request, "staff_text_answer_warnings.html", dict(
-        formset=formset,
-        text_answer_warnings=TextAnswerWarning.objects.all(),
-    ))
+    return render(
+        request,
+        "staff_text_answer_warnings.html",
+        dict(
+            formset=formset,
+            text_answer_warnings=TextAnswerWarning.objects.all(),
+        ),
+    )
 
 
 @manager_required
@@ -1521,7 +1753,8 @@ def user_index(request):
     if filter_users:
         users = users.exclude(is_active=False)
 
-    users = (users
+    users = (
+        users
         # the following six annotations basically add three bools indicating whether each user is part of a group or not.
         .annotate(manager_group_count=Sum(Case(When(groups__name="Manager", then=1), output_field=IntegerField())))
         .annotate(is_manager=ExpressionWrapper(Q(manager_group_count__exact=1), output_field=BooleanField()))
@@ -1529,8 +1762,16 @@ def user_index(request):
         .annotate(is_reviewer=ExpressionWrapper(Q(reviewer_group_count__exact=1), output_field=BooleanField()))
         .annotate(grade_publisher_group_count=Sum(Case(When(groups__name="Grade publisher", then=1), output_field=IntegerField())))
         .annotate(is_grade_publisher=ExpressionWrapper(Q(grade_publisher_group_count__exact=1), output_field=BooleanField()))
-        .prefetch_related('contributions', 'evaluations_participating_in', 'evaluations_participating_in__course__semester', 'represented_users', 'ccing_users', 'courses_responsible_for')
-        .order_by('last_name', 'first_name', 'email'))
+        .prefetch_related(
+            'contributions',
+            'evaluations_participating_in',
+            'evaluations_participating_in__course__semester',
+            'represented_users',
+            'ccing_users',
+            'courses_responsible_for',
+        )
+        .order_by('last_name', 'first_name', 'email')
+    )
 
     return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
 
@@ -1580,9 +1821,17 @@ def user_import(request):
 
     test_passed = import_file_exists(request.user.id, import_type)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
-    return render(request, "staff_user_import.html", dict(excel_form=excel_form,
-        success_messages=success_messages, errors=sorted_messages(errors), warnings=sorted_messages(warnings),
-        test_passed=test_passed))
+    return render(
+        request,
+        "staff_user_import.html",
+        dict(
+            excel_form=excel_form,
+            success_messages=success_messages,
+            errors=sorted_messages(errors),
+            warnings=sorted_messages(warnings),
+            test_passed=test_passed,
+        ),
+    )
 
 
 @manager_required
@@ -1592,20 +1841,23 @@ def user_edit(request, user_id):
     def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
         assert len(grantings) == 1
 
-        messages.info(request,
+        messages.info(
+            request,
             ngettext(
                 'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward point for the active semester.',
                 'The removal of evaluations has granted the user "{granting.user_profile.email}" {granting.value} reward points for the active semester.',
-                grantings[0].value
-            ).format(granting=grantings[0])
+                grantings[0].value,
+            ).format(granting=grantings[0]),
         )
 
     user = get_object_or_404(UserProfile, id=user_id)
     form = UserForm(request.POST or None, request.FILES or None, instance=user)
 
-    evaluations_contributing_to = Evaluation.objects.filter(
-        Q(contributions__contributor=user) | Q(course__responsibles__in=[user])
-    ).distinct().order_by('course__semester')
+    evaluations_contributing_to = (
+        Evaluation.objects.filter(Q(contributions__contributor=user) | Q(course__responsibles__in=[user]))
+        .distinct()
+        .order_by('course__semester')
+    )
 
     if form.is_valid():
         form.save()
@@ -1693,7 +1945,11 @@ def user_merge(request, main_user_id, other_user_id):
         return redirect('staff:user_index')
 
     merged_user, errors, warnings = merge_users(main_user, other_user, preview=True)
-    return render(request, "staff_user_merge.html", dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings))
+    return render(
+        request,
+        "staff_user_merge.html",
+        dict(main_user=main_user, other_user=other_user, merged_user=merged_user, errors=errors, warnings=warnings),
+    )
 
 
 @manager_required
@@ -1709,13 +1965,18 @@ def template_edit(request, template_id):
     available_variables = [
         "contact_email",
         "page_url",
-        "login_url",        # only if they need it
+        "login_url",  # only if they need it
         "user",
     ]
 
     if template.name == EmailTemplate.STUDENT_REMINDER:
         available_variables += ["first_due_in_days", "due_evaluations"]
-    elif template.name in [EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR, EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT, EmailTemplate.EDITOR_REVIEW_NOTICE, EmailTemplate.EDITOR_REVIEW_REMINDER]:
+    elif template.name in [
+        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
+        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
+        EmailTemplate.EDITOR_REVIEW_NOTICE,
+        EmailTemplate.EDITOR_REVIEW_REMINDER,
+    ]:
         available_variables += ["evaluations"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:
         available_variables += ["evaluations", "due_evaluations"]
@@ -1748,7 +2009,9 @@ def faq_section(request, section_id):
     section = get_object_or_404(FaqSection, id=section_id)
     questions = FaqQuestion.objects.filter(section=section)
 
-    InlineQuestionFormset = inlineformset_factory(FaqSection, FaqQuestion, form=FaqQuestionForm, can_delete=True, extra=1, exclude=('section',))
+    InlineQuestionFormset = inlineformset_factory(
+        FaqSection, FaqQuestion, form=FaqQuestionForm, can_delete=True, extra=1, exclude=('section',)
+    )
     formset = InlineQuestionFormset(request.POST or None, queryset=questions, instance=section)
 
     if formset.is_valid():

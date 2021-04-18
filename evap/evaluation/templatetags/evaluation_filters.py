@@ -30,7 +30,9 @@ STATE_DESCRIPTIONS = {
     'approved': _('All preparations are finished. The evaluation will begin once the defined start date is reached.'),
     'in_evaluation': _('The evaluation is currently running until the defined end date is reached.'),
     'evaluated': _('The evaluation has finished and will now be reviewed by the evaluation team.'),
-    'reviewed': _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'),
+    'reviewed': _(
+        'The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'
+    ),
     'published': _('The results for this evaluation have been published.'),
 }
 
@@ -40,7 +42,9 @@ StateValues = namedtuple('StateValues', ('order', 'icon', 'filter', 'description
 APPROVAL_STATES = {
     'new': StateValues(0, 'fas fa-circle icon-yellow', 'new', _('In preparation')),
     'prepared': StateValues(2, 'far fa-square icon-gray', 'prepared', _('Awaiting editor review')),
-    'editor_approved': StateValues(1, 'far fa-check-square icon-yellow', 'editor_approved', _('Approved by editor, awaiting manager review')),
+    'editor_approved': StateValues(
+        1, 'far fa-check-square icon-yellow', 'editor_approved', _('Approved by editor, awaiting manager review')
+    ),
     'approved': StateValues(3, 'far fa-check-square icon-green', 'approved', _('Approved by manager')),
 }
 
@@ -186,9 +190,11 @@ def hours_and_minutes(time_left_for_evaluation):
 
 @register.filter
 def has_nonresponsible_editor(evaluation):
-    return (evaluation.contributions.filter(role=Contribution.Role.EDITOR)
+    return (
+        evaluation.contributions.filter(role=Contribution.Role.EDITOR)
         .exclude(contributor__in=evaluation.course.responsibles.all())
-        .exists())
+        .exists()
+    )
 
 
 @register.filter

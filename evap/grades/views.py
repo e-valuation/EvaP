@@ -28,11 +28,7 @@ def prefetch_data(courses):
 
     course_data = []
     for course in courses:
-        course_data.append((
-            course,
-            course.midterm_grade_documents.count(),
-            course.final_grade_documents.count()
-        ))
+        course_data.append((course, course.midterm_grade_documents.count(), course.final_grade_documents.count()))
 
     return course_data
 
@@ -43,10 +39,9 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = (semester.courses
-        .filter(evaluations__wait_for_grade_upload_before_publishing=True)
-        .exclude(evaluations__state='new')
-        .distinct())
+    courses = (
+        semester.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True).exclude(evaluations__state='new').distinct()
+    )
     courses = prefetch_data(courses)
 
     template_data = dict(

@@ -3,13 +3,20 @@ from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import (Contribution, Course, Degree, EmailTemplate, Evaluation, Question,
-                                    Questionnaire, Semester, UserProfile)
-from evap.evaluation.tests.tools import (create_evaluation_with_responsible_and_editor, get_form_data_from_instance,
-                                         to_querydict)
-from evap.staff.forms import (ContributionForm, ContributionCopyForm, ContributionFormSet, CourseForm,
-                              EvaluationEmailForm, EvaluationForm, EvaluationCopyForm,
-                              QuestionnaireForm, SingleResultForm, UserForm)
+from evap.evaluation.models import Contribution, Course, Degree, EmailTemplate, Evaluation, Question, Questionnaire, Semester, UserProfile
+from evap.evaluation.tests.tools import create_evaluation_with_responsible_and_editor, get_form_data_from_instance, to_querydict
+from evap.staff.forms import (
+    ContributionForm,
+    ContributionCopyForm,
+    ContributionFormSet,
+    CourseForm,
+    EvaluationEmailForm,
+    EvaluationForm,
+    EvaluationCopyForm,
+    QuestionnaireForm,
+    SingleResultForm,
+    UserForm,
+)
 from evap.results.tools import cache_results, get_results
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
@@ -66,7 +73,7 @@ class QuestionnaireFormTest(TestCase):
 class EvaluationEmailFormTests(TestCase):
     def test_evaluation_email_form(self):
         """
-            Tests the EvaluationEmailForm with one valid and one invalid input dataset.
+        Tests the EvaluationEmailForm with one valid and one invalid input dataset.
         """
         evaluation = create_evaluation_with_responsible_and_editor()['evaluation']
         data = {"body": "wat", "subject": "some subject", "recipients": [EmailTemplate.Recipients.DUE_PARTICIPANTS]}
@@ -82,7 +89,7 @@ class EvaluationEmailFormTests(TestCase):
 class UserFormTests(TestCase):
     def test_user_form(self):
         """
-            Tests the UserForm with one valid and one invalid input dataset.
+        Tests the UserForm with one valid and one invalid input dataset.
         """
         user = baker.make(UserProfile)
         another_user = baker.make(UserProfile, email="another_user@institution.example.com")
@@ -96,9 +103,9 @@ class UserFormTests(TestCase):
 
     def test_user_with_same_email(self):
         """
-            Tests whether the user form correctly handles email adresses
-            that already exist in the database
-            Regression test for #590
+        Tests whether the user form correctly handles email adresses
+        that already exist in the database
+        Regression test for #590
         """
         user = baker.make(UserProfile, email="uiae@example.com")
 
@@ -129,8 +136,7 @@ class UserFormTests(TestCase):
     def test_results_cache_refreshed(self):
         contributor = baker.make(UserProfile, first_name="Peter")
         evaluation = baker.make(Evaluation, state="published")
-        baker.make(Contribution, contributor=contributor,
-                   evaluation=evaluation)
+        baker.make(Contribution, contributor=contributor, evaluation=evaluation)
 
         cache_results(evaluation)
         results_before = get_results(evaluation)
@@ -144,12 +150,12 @@ class UserFormTests(TestCase):
 
         self.assertCountEqual(
             (result.contributor.first_name for result in results_before.contribution_results if result.contributor),
-            ("Peter", ),
+            ("Peter",),
         )
 
         self.assertCountEqual(
             (result.contributor.first_name for result in results_after.contribution_results if result.contributor),
-            ("Patrick", ),
+            ("Patrick",),
         )
 
 
@@ -167,7 +173,7 @@ class SingleResultFormTests(TestCase):
             "answer_3": 2,
             "answer_4": 0,
             "answer_5": 2,
-            "course": course.pk
+            "course": course.pk,
         }
         form = SingleResultForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         self.assertTrue(form.is_valid())
@@ -228,7 +234,7 @@ class ContributionCopyFormTests(TestCase):
 class ContributionFormsetTests(TestCase):
     def test_contribution_form_set(self):
         """
-            Tests the ContributionFormset with various input data sets.
+        Tests the ContributionFormset with various input data sets.
         """
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile, _fill_optional=['first_name', 'last_name'])
@@ -238,16 +244,18 @@ class ContributionFormsetTests(TestCase):
 
         ContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 1,
-            'contributions-INITIAL_FORMS': 0,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-evaluation': evaluation.pk,
-            'contributions-0-questionnaires': questionnaire.pk,
-            'contributions-0-order': 0,
-            'contributions-0-role': Contribution.Role.EDITOR,
-            'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        })
+        data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 1,
+                'contributions-INITIAL_FORMS': 0,
+                'contributions-MAX_NUM_FORMS': 5,
+                'contributions-0-evaluation': evaluation.pk,
+                'contributions-0-questionnaires': questionnaire.pk,
+                'contributions-0-order': 0,
+                'contributions-0-role': Contribution.Role.EDITOR,
+                'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            }
+        )
         # no contributor
         self.assertFalse(ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data.copy()).is_valid())
         # valid
@@ -264,12 +272,18 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.is_valid())
         # regression for https://github.com/e-valuation/EvaP/issues/1082
         # assert same error message with and without questionnaire
-        self.assertEqual(formset.non_form_errors(), [('Duplicate contributor ({}) found. Each contributor should only be used once.').format(user1.full_name)])
+        self.assertEqual(
+            formset.non_form_errors(),
+            [('Duplicate contributor ({}) found. Each contributor should only be used once.').format(user1.full_name)],
+        )
 
         data['contributions-1-questionnaires'] = questionnaire.pk
         formset = ContributionFormset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertFalse(formset.is_valid())
-        self.assertEqual(formset.non_form_errors(), [('Duplicate contributor ({}) found. Each contributor should only be used once.').format(user1.full_name)])
+        self.assertEqual(
+            formset.non_form_errors(),
+            [('Duplicate contributor ({}) found. Each contributor should only be used once.').format(user1.full_name)],
+        )
 
         # two contributors
         data['contributions-1-contributor'] = user2.pk
@@ -277,8 +291,8 @@ class ContributionFormsetTests(TestCase):
 
     def test_dont_validate_deleted_contributions(self):
         """
-            Tests whether contributions marked for deletion are validated.
-            Regression test for #415 and #244
+        Tests whether contributions marked for deletion are validated.
+        Regression test for #415 and #244
         """
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile)
@@ -290,29 +304,31 @@ class ContributionFormsetTests(TestCase):
 
         # Here we have two editors (one of them deleted with no questionnaires), and a deleted contributor with no questionnaires.
 
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 3,
-            'contributions-INITIAL_FORMS': 0,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-evaluation': evaluation.pk,
-            'contributions-0-questionnaires': "",
-            'contributions-0-order': 0,
-            'contributions-0-role': Contribution.Role.EDITOR,
-            'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-0-contributor': user1.pk,
-            'contributions-1-evaluation': evaluation.pk,
-            'contributions-1-questionnaires': questionnaire.pk,
-            'contributions-1-order': 0,
-            'contributions-1-role': Contribution.Role.EDITOR,
-            'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-1-contributor': user2.pk,
-            'contributions-2-evaluation': evaluation.pk,
-            'contributions-2-questionnaires': "",
-            'contributions-2-order': 1,
-            'contributions-2-role': Contribution.Role.CONTRIBUTOR,
-            'contributions-2-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
-            'contributions-2-contributor': user2.pk,
-        })
+        data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 3,
+                'contributions-INITIAL_FORMS': 0,
+                'contributions-MAX_NUM_FORMS': 5,
+                'contributions-0-evaluation': evaluation.pk,
+                'contributions-0-questionnaires': "",
+                'contributions-0-order': 0,
+                'contributions-0-role': Contribution.Role.EDITOR,
+                'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-0-contributor': user1.pk,
+                'contributions-1-evaluation': evaluation.pk,
+                'contributions-1-questionnaires': questionnaire.pk,
+                'contributions-1-order': 0,
+                'contributions-1-role': Contribution.Role.EDITOR,
+                'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-1-contributor': user2.pk,
+                'contributions-2-evaluation': evaluation.pk,
+                'contributions-2-questionnaires': "",
+                'contributions-2-order': 1,
+                'contributions-2-role': Contribution.Role.CONTRIBUTOR,
+                'contributions-2-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+                'contributions-2-contributor': user2.pk,
+            }
+        )
 
         # Without deletion, this form should be invalid
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
@@ -328,9 +344,9 @@ class ContributionFormsetTests(TestCase):
     @staticmethod
     def test_deleted_empty_contribution_does_not_crash():
         """
-            When removing the empty extra contribution formset, validating the form should not crash.
-            Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
-            Regression test for #1057
+        When removing the empty extra contribution formset, validating the form should not crash.
+        Similarly, when removing the contribution formset of an existing contributor, and entering some data in the extra formset, it should not crash.
+        Regression test for #1057
         """
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile)
@@ -338,23 +354,25 @@ class ContributionFormsetTests(TestCase):
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 2,
-            'contributions-INITIAL_FORMS': 0,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-evaluation': evaluation.pk,
-            'contributions-0-questionnaires': questionnaire.pk,
-            'contributions-0-order': 0,
-            'contributions-0-role': Contribution.Role.EDITOR,
-            'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-0-contributor': user1.pk,
-            'contributions-1-evaluation': evaluation.pk,
-            'contributions-1-questionnaires': "",
-            'contributions-1-order': -1,
-            'contributions-1-role': Contribution.Role.CONTRIBUTOR,
-            'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
-            'contributions-1-contributor': "",
-        })
+        data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 2,
+                'contributions-INITIAL_FORMS': 0,
+                'contributions-MAX_NUM_FORMS': 5,
+                'contributions-0-evaluation': evaluation.pk,
+                'contributions-0-questionnaires': questionnaire.pk,
+                'contributions-0-order': 0,
+                'contributions-0-role': Contribution.Role.EDITOR,
+                'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-0-contributor': user1.pk,
+                'contributions-1-evaluation': evaluation.pk,
+                'contributions-1-questionnaires': "",
+                'contributions-1-order': -1,
+                'contributions-1-role': Contribution.Role.CONTRIBUTOR,
+                'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+                'contributions-1-contributor': "",
+            }
+        )
 
         # delete extra formset
         data['contributions-1-DELETE'] = 'on'
@@ -370,74 +388,88 @@ class ContributionFormsetTests(TestCase):
 
     def test_take_deleted_contributions_into_account(self):
         """
-            Tests whether contributions marked for deletion are properly taken into account
-            when the same contributor got added again in the same formset.
-            Regression test for #415
+        Tests whether contributions marked for deletion are properly taken into account
+        when the same contributor got added again in the same formset.
+        Regression test for #415
         """
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=user1, role=Contribution.Role.EDITOR,
-                                   textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS, questionnaires=[questionnaire])
+        contribution1 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+        )
 
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 2,
-            'contributions-INITIAL_FORMS': 1,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': contribution1.pk,
-            'contributions-0-evaluation': evaluation.pk,
-            'contributions-0-questionnaires': questionnaire.pk,
-            'contributions-0-order': 0,
-            'contributions-0-role': Contribution.Role.EDITOR,
-            'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-0-contributor': user1.pk,
-            'contributions-0-DELETE': 'on',
-            'contributions-1-evaluation': evaluation.pk,
-            'contributions-1-questionnaires': questionnaire.pk,
-            'contributions-1-order': 0,
-            'contributions-1-id': '',
-            'contributions-1-role': Contribution.Role.EDITOR,
-            'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-1-contributor': user1.pk,
-        })
+        data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 2,
+                'contributions-INITIAL_FORMS': 1,
+                'contributions-MAX_NUM_FORMS': 5,
+                'contributions-0-id': contribution1.pk,
+                'contributions-0-evaluation': evaluation.pk,
+                'contributions-0-questionnaires': questionnaire.pk,
+                'contributions-0-order': 0,
+                'contributions-0-role': Contribution.Role.EDITOR,
+                'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-0-contributor': user1.pk,
+                'contributions-0-DELETE': 'on',
+                'contributions-1-evaluation': evaluation.pk,
+                'contributions-1-questionnaires': questionnaire.pk,
+                'contributions-1-order': 0,
+                'contributions-1-id': '',
+                'contributions-1-role': Contribution.Role.EDITOR,
+                'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-1-contributor': user1.pk,
+            }
+        )
 
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_there_can_be_no_contributions(self):
         """
-            Tests that there can also be no contribution
-            Regression test for #1347
+        Tests that there can also be no contribution
+        Regression test for #1347
         """
         evaluation = baker.make(Evaluation)
         contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
 
-        data = to_querydict({
-            'contributions-TOTAL_FORMS': 0,
-            'contributions-INITIAL_FORMS': 1,
-            'contributions-MAX_NUM_FORMS': 5,
-        })
+        data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 0,
+                'contributions-INITIAL_FORMS': 1,
+                'contributions-MAX_NUM_FORMS': 5,
+            }
+        )
 
         formset = contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation}, data=data)
         self.assertTrue(formset.is_valid())
 
     def test_hidden_and_managers_only(self):
         """
-            Asserts that hidden questionnaires are shown to managers only if they are already selected for a
-            contribution of the Evaluation, and that manager only questionnaires are always shown.
-            Regression test for #593.
+        Asserts that hidden questionnaires are shown to managers only if they are already selected for a
+        contribution of the Evaluation, and that manager only questionnaires are always shown.
+        Regression test for #593.
         """
         evaluation = baker.make(Evaluation)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.EDITORS)
         questionnaire_hidden = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.HIDDEN)
-        questionnaire_managers_only = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS)
+        questionnaire_managers_only = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, visibility=Questionnaire.Visibility.MANAGERS
+        )
 
         # The normal and managers_only questionnaire should be shown.
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile), questionnaires=[])
 
-        inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        inline_contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        )
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only}
@@ -447,7 +479,9 @@ class ContributionFormsetTests(TestCase):
         # Suppose we had a hidden questionnaire already selected, that should be shown as well.
         contribution1.questionnaires.set([questionnaire_hidden])
 
-        inline_contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+        inline_contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        )
         formset = inline_contribution_formset(instance=evaluation, form_kwargs={'evaluation': evaluation})
 
         expected = {questionnaire, questionnaire_managers_only, questionnaire_hidden}
@@ -463,8 +497,9 @@ class ContributionFormsetTests(TestCase):
 
 class ContributionFormset775RegressionTests(TestCase):
     """
-        Various regression tests for #775
+    Various regression tests for #775
     """
+
     @classmethod
     def setUpTestData(cls):
         cls.evaluation = baker.make(Evaluation, name_en="some evaluation")
@@ -481,28 +516,32 @@ class ContributionFormset775RegressionTests(TestCase):
         )
         cls.contribution2 = baker.make(Contribution, contributor=cls.user2, evaluation=cls.evaluation)
 
-        cls.contribution_formset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0)
+        cls.contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        )
 
     def setUp(self):
-        self.data = to_querydict({
-            'contributions-TOTAL_FORMS': 2,
-            'contributions-INITIAL_FORMS': 2,
-            'contributions-MAX_NUM_FORMS': 5,
-            'contributions-0-id': str(self.contribution1.pk),  # browsers send strings so we should too
-            'contributions-0-evaluation': self.evaluation.pk,
-            'contributions-0-questionnaires': self.questionnaire.pk,
-            'contributions-0-order': 0,
-            'contributions-0-role': Contribution.Role.EDITOR,
-            'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            'contributions-0-contributor': self.user1.pk,
-            'contributions-1-id': str(self.contribution2.pk),
-            'contributions-1-evaluation': self.evaluation.pk,
-            'contributions-1-questionnaires': self.questionnaire.pk,
-            'contributions-1-order': 0,
-            'contributions-1-role': Contribution.Role.CONTRIBUTOR,
-            'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
-            'contributions-1-contributor': self.user2.pk,
-        })
+        self.data = to_querydict(
+            {
+                'contributions-TOTAL_FORMS': 2,
+                'contributions-INITIAL_FORMS': 2,
+                'contributions-MAX_NUM_FORMS': 5,
+                'contributions-0-id': str(self.contribution1.pk),  # browsers send strings so we should too
+                'contributions-0-evaluation': self.evaluation.pk,
+                'contributions-0-questionnaires': self.questionnaire.pk,
+                'contributions-0-order': 0,
+                'contributions-0-role': Contribution.Role.EDITOR,
+                'contributions-0-textanswer_visibility': Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                'contributions-0-contributor': self.user1.pk,
+                'contributions-1-id': str(self.contribution2.pk),
+                'contributions-1-evaluation': self.evaluation.pk,
+                'contributions-1-questionnaires': self.questionnaire.pk,
+                'contributions-1-order': 0,
+                'contributions-1-role': Contribution.Role.CONTRIBUTOR,
+                'contributions-1-textanswer_visibility': Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
+                'contributions-1-contributor': self.user2.pk,
+            }
+        )
 
     def test_swap_contributors(self):
         formset = self.contribution_formset(instance=self.evaluation, form_kwargs={'evaluation': self.evaluation}, data=self.data)
@@ -570,10 +609,12 @@ class ContributionFormset775RegressionTests(TestCase):
 class CourseFormTests(TestCase):
     def test_course_form_same_name(self):
         """
-            Test whether giving a course the same name as another course
-            in the same semester in the course edit form is invalid.
+        Test whether giving a course the same name as another course
+        in the same semester in the course edit form is invalid.
         """
-        courses = baker.make(Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2)
+        courses = baker.make(
+            Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2
+        )
 
         form_data = get_form_data_from_instance(CourseForm, courses[0])
         form = CourseForm(form_data, instance=courses[0])
@@ -584,9 +625,11 @@ class CourseFormTests(TestCase):
 
     def test_uniqueness_constraint_error_shown(self):
         """
-            Tests whether errors being caused by a uniqueness constraint are shown in the form
+        Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
-        courses = baker.make(Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2)
+        courses = baker.make(
+            Course, semester=baker.make(Semester), responsibles=[baker.make(UserProfile)], degrees=[baker.make(Degree)], _quantity=2
+        )
 
         form_data = get_form_data_from_instance(CourseForm, courses[1])
         form_data["name_de"] = courses[0].name_de
@@ -606,8 +649,8 @@ class CourseFormTests(TestCase):
 class EvaluationFormTests(TestCase):
     def test_evaluation_form_same_name(self):
         """
-            Test whether giving an evaluation the same name as another evaluation
-            in the same course in the evaluation edit form is invalid.
+        Test whether giving an evaluation the same name as another evaluation
+        in the same course in the evaluation edit form is invalid.
         """
         course = baker.make(Course, degrees=[baker.make(Degree)])
         evaluation1 = baker.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
@@ -640,8 +683,8 @@ class EvaluationFormTests(TestCase):
 
     def test_contributor_evaluation_form_date_validation(self):
         """
-            Tests validity of various start/end date combinations in
-            the two evaluation edit forms.
+        Tests validity of various start/end date combinations in
+        the two evaluation edit forms.
         """
         evaluation = baker.make(Evaluation)
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
@@ -669,7 +712,7 @@ class EvaluationFormTests(TestCase):
 
     def test_uniqueness_constraint_error_shown(self):
         """
-            Tests whether errors being caused by a uniqueness constraint are shown in the form
+        Tests whether errors being caused by a uniqueness constraint are shown in the form
         """
         course = baker.make(Course)
         evaluation1 = baker.make(Evaluation, course=course, name_de="Evaluierung 1", name_en="Evaluation 1")
@@ -685,7 +728,9 @@ class EvaluationFormTests(TestCase):
 
     def test_voter_cannot_be_removed_from_evaluation(self):
         student = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, course=baker.make(Course, degrees=[baker.make(Degree)]), participants=[student], voters=[student])
+        evaluation = baker.make(
+            Evaluation, course=baker.make(Course, degrees=[baker.make(Degree)]), participants=[student], voters=[student]
+        )
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
@@ -706,7 +751,9 @@ class EvaluationFormTests(TestCase):
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation, semester=semester)
         self.assertTrue(form.is_valid())
-        with patch('evap.results.views._delete_course_template_cache_impl') as delete_call, patch('evap.results.views.warm_up_template_cache') as warmup_call:
+        with patch('evap.results.views._delete_course_template_cache_impl') as delete_call, patch(
+            'evap.results.views.warm_up_template_cache'
+        ) as warmup_call:
             # save without changes
             form.save()
             self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).course, course1)
@@ -725,10 +772,12 @@ class EvaluationFormTests(TestCase):
 
     def test_locked_questionnaire(self):
         """
-            Asserts that locked (general) questionnaires can be changed by staff.
+        Asserts that locked (general) questionnaires can be changed by staff.
         """
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=False, visibility=Questionnaire.Visibility.EDITORS)
-        locked_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS)
+        locked_questionnaire = baker.make(
+            Questionnaire, type=Questionnaire.Type.TOP, is_locked=True, visibility=Questionnaire.Visibility.EDITORS
+        )
 
         semester = baker.make(Semester)
         evaluation = baker.make(Evaluation, course=baker.make(Course, semester=semester))

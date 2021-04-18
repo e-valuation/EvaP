@@ -41,7 +41,7 @@ class TestLanguageSignalReceiver(WebTest):
 
 
 class SaboteurException(Exception):
-    """ An exception class used for making sure that our mock is raising the exception and not some other unrelated code"""
+    """An exception class used for making sure that our mock is raising the exception and not some other unrelated code"""
 
 
 class TestLogExceptionsDecorator(TestCase):
@@ -49,10 +49,10 @@ class TestLogExceptionsDecorator(TestCase):
     @patch('evap.evaluation.management.commands.tools.logger.exception')
     def test_log_exceptions_decorator(self, mock_logger, __):
         """
-            Test whether the log exceptions decorator does its thing correctly.
-            update_evaluations is just a random management command that uses the decorator.
-            One could create a mock management command and call its handle method manually,
-            but to me it seemed safer to use a real one.
+        Test whether the log exceptions decorator does its thing correctly.
+        update_evaluations is just a random management command that uses the decorator.
+        One could create a mock management command and call its handle method manually,
+        but to me it seemed safer to use a real one.
         """
         with self.assertRaises(SaboteurException):
             management.call_command('update_evaluation_states')
@@ -63,15 +63,15 @@ class TestLogExceptionsDecorator(TestCase):
 
 class TestPythonVersion(TestCase):
     def test_dict_unpacking(self):
-        """ python >= 3.5 """
+        """python >= 3.5"""
         test_dict = {'a': 1, 'b': 2}
         self.assertEqual({**test_dict, 'b': 3, 'c': 4}, {'a': 1, 'b': 3, 'c': 4})
 
     def test_format_strings(self):
-        """ python >= 3.6 """
+        """python >= 3.6"""
         world = 'World'
         self.assertEqual(f'Hello {world}', 'Hello World')
 
     def test_breakpoint_available(self):
-        """ python >= 3.7 """
+        """python >= 3.7"""
         self.assertTrue(hasattr(builtins, 'breakpoint'))

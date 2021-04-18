@@ -13,7 +13,7 @@ class TestIndexView(WebTest):
     url = '/'
 
     def test_passworduser_login(self):
-        """ Tests whether a user can login with an incorrect and a correct password. """
+        """Tests whether a user can login with an incorrect and a correct password."""
         baker.make(UserProfile, email='password.user', password=make_password('evap'))
         response = self.app.get(self.url)
         password_form = response.forms[0]
@@ -24,7 +24,7 @@ class TestIndexView(WebTest):
         self.assertEqual(password_form.submit().status_code, 302)
 
     def test_login_for_staff_users_correctly_redirects(self):
-        """ Regression test for #1523: Access denied on manager login """
+        """Regression test for #1523: Access denied on manager login"""
         internal_email = 'manager@institution.example.com'  # external users don't necessarily have a proper redirect page
         baker.make(UserProfile, email=internal_email, password=make_password('evap'), groups=[Group.objects.get(name='Manager')])
 
@@ -37,9 +37,9 @@ class TestIndexView(WebTest):
         self.assertRedirects(response.follow(), '/results/')
 
     def test_send_new_login_key(self):
-        """ Tests whether requesting a new login key is only possible for existing users,
-            shows the expected success message and sends only one email to the requesting
-            user without people in cc even if the user has delegates and cc users. """
+        """Tests whether requesting a new login key is only possible for existing users,
+        shows the expected success message and sends only one email to the requesting
+        user without people in cc even if the user has delegates and cc users."""
         baker.make(UserProfile, email='asdf@example.com')
         response = self.app.get(self.url)
         email_form = response.forms[1]

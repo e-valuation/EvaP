@@ -28,7 +28,7 @@ class TestEventDeleteView(WebTestStaffMode):
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
     def test_deletion_failure(self):
-        """ try to delete event that can not be deleted, because people already redeemed points """
+        """try to delete event that can not be deleted, because people already redeemed points"""
         event = baker.make(RewardPointRedemptionEvent)
         baker.make(RewardPointRedemption, value=1, event=event)
 
@@ -69,7 +69,7 @@ class TestIndexView(WebTest):
         self.assertEqual(5, reward_points_of_user(self.student))
 
     def test_redeem_points_for_expired_event(self):
-        """ Regression test for #846 """
+        """Regression test for #846"""
         response = self.app.get(self.url, user=self.student)
         form = response.forms['reward-redemption-form']
         form.set('points-2', 1)
@@ -99,7 +99,7 @@ class TestEventCreateView(WebTestStaffMode):
         cls.manager = make_manager()
 
     def test_create_redemption_event(self):
-        """ submits a newly created redemption event and checks that the event has been created """
+        """submits a newly created redemption event and checks that the event has been created"""
         self.assertEqual(RewardPointRedemptionEvent.objects.count(), 0)
         response = self.app.get(self.url, user=self.manager)
 
@@ -123,7 +123,7 @@ class TestEventEditView(WebTestStaffMode):
         cls.event = baker.make(RewardPointRedemptionEvent, pk=1, name='old name')
 
     def test_edit_redemption_event(self):
-        """ submits a newly created redemption event and checks that the event has been created """
+        """submits a newly created redemption event and checks that the event has been created"""
         response = self.app.get(self.url, user=self.manager)
 
         form = response.forms['reward-point-redemption-event-form']
@@ -145,11 +145,13 @@ class TestExportView(WebTestStaffModeWith200Check):
         baker.make(RewardPointRedemption, value=1, event=event)
 
 
-@override_settings(REWARD_POINTS=[
-    (1 / 3, 1),
-    (2 / 3, 2),
-    (3 / 3, 3),
-])
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ]
+)
 class TestSemesterActivationView(WebTestStaffMode):
     url = '/rewards/reward_semester_activation/1/'
     csrf_checks = False
