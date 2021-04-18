@@ -66,6 +66,25 @@ jobs:
         run: pylint evap -j 0
 
 
+  formatter:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    name: Formatting
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Check code formatting
+        run: black --check evap
+
+
   backup-process:
     runs-on: ubuntu-18.04
 
