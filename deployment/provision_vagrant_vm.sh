@@ -65,6 +65,9 @@ systemctl reload apache2
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
 
+# upgrade pip. this works around a problem with a dependency of mozilla-django-oidc,
+# see https://github.com/pyca/cryptography/issues/5753
+sudo -H -u $USER $ENV_FOLDER/bin/pip install --upgrade pip
 # install requirements
 sudo -H -u $USER $ENV_FOLDER/bin/pip install -r $REPO_FOLDER/requirements-dev.txt
 
