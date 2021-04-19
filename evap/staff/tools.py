@@ -1,4 +1,5 @@
 import os
+from datetime import date, datetime, timedelta
 from enum import Enum
 
 from django.contrib import messages
@@ -294,8 +295,14 @@ def merge_users(main_user, other_user, preview=False):
 
 
 def find_unreviewed_evaluations(semester, excluded):
+    # as evaluations are open for an offset of hours after vote_end_datetime, the evaluations ending yesterday are also xcluded during offset
+    exclude_date = date.today()
+    if datetime.now().hour < settings.EVALUATION_END_OFFSET_HOURS:
+        exclude_date -= timedelta(days=1)
+
     return semester.evaluations.exclude(pk__in=excluded) \
         .exclude(state='published') \
+        .exclude(vote_end_date__gte=exclude_date) \
         .exclude(can_publish_text_results=False) \
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set")) \
