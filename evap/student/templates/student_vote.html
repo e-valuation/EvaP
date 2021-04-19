@@ -89,7 +89,7 @@
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
                                 <div class="mr-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse"
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %} bg-transparent" data-toggle="collapse"
                                         data-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="font-italic">{{ label }}</span>{% endif %}
