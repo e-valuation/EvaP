@@ -1895,6 +1895,7 @@ class TestEvaluationEmailView(WebTestStaffMode):
 
         self.assertEqual(len(mail.outbox), 2)
 
+
 @override_settings(EVALUATION_END_OFFSET_HOURS=26)
 class TestEvaluationTextAnswerView(WebTest):
     url = '/staff/semester/1/evaluation/1/textanswers'
