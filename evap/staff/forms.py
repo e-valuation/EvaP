@@ -483,7 +483,7 @@ class EvaluationEmailForm(forms.Form):
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
-        self.template.plain_body = self.cleaned_data.get('body')
+        self.template.plain_content = self.cleaned_data.get('body')
         self.template.send_to_users_in_evaluations([self.evaluation], self.recipient_groups, use_cc=True, request=request)
 
 
@@ -492,8 +492,8 @@ class RemindResponsibleForm(forms.Form):
     to = UserModelChoiceField(None, required=False, disabled=True, label=_("To"))
     cc = UserModelMultipleChoiceField(None, required=False, disabled=True, label=_("CC"))
     subject = forms.CharField(label=_("Subject"))
-    plain_body = forms.CharField(widget=forms.Textarea(), label=_("Plain Message"))
-    html_body = forms.CharField(widget=forms.Textarea(), label=_("HTML Message"))
+    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Message"))
+    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML Message"))
 
     def __init__(self, *args, responsible, **kwargs):
         super().__init__(*args, **kwargs)
@@ -504,14 +504,14 @@ class RemindResponsibleForm(forms.Form):
 
         self.template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_REMINDER)
         self.fields['subject'].initial = self.template.subject
-        self.fields['plain_body'].initial = self.template.plain_body
-        self.fields['html_body'].initial = self.template.html_body
+        self.fields['plain_content'].initial = self.template.plain_content
+        self.fields['html_content'].initial = self.template.html_content
 
     def send(self, request, evaluations):
         recipient = self.cleaned_data.get('to')
         self.template.subject = self.cleaned_data.get('subject')
-        self.template.plain_body = self.cleaned_data.get('plain_body')
-        self.template.html_body = self.cleaned_data.get('html_body')
+        self.template.plain_content = self.cleaned_data.get('plain_content')
+        self.template.html_content = self.cleaned_data.get('html_content')
         subject_params = {}
         body_params = {'user': recipient, 'evaluations': evaluations}
         self.template.send_to_user(recipient, subject_params, body_params, use_cc=True, request=request)
@@ -785,7 +785,7 @@ class UserMergeSelectionForm(forms.Form):
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
-        fields = ('subject', 'plain_body', 'html_body')
+        fields = ('subject', 'plain_content', 'html_content')
 
 
 class FaqSectionForm(forms.ModelForm):

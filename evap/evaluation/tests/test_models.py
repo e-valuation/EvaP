@@ -602,9 +602,9 @@ class TestLoginUrlEmail(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-        cls.template = baker.make(EmailTemplate, plain_body="{{ login_url }}")
+        cls.template = baker.make(EmailTemplate, plain_content="{{ login_url }}")
 
-        EmailTemplate.objects.filter(name="Login Key Created").update(plain_body="{{ user.login_url }}")
+        EmailTemplate.objects.filter(name="Login Key Created").update(plain_content="{{ user.login_url }}")
 
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
@@ -658,7 +658,7 @@ class TestEmailTemplate(TestCase):
         template.send_to_user(user, {}, {}, False, None)
 
     def test_send_multi_alternatives_email(self):
-        template = EmailTemplate(subject='Example', plain_body='Example body', html_body='<p>Example body</p>')
+        template = EmailTemplate(subject='Example', plain_content='Example body', html_content='<p>Example body</p>')
         template.send_to_user(self.user, {}, {}, False)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
@@ -668,7 +668,7 @@ class TestEmailTemplate(TestCase):
         self.assertIn('<p>Example body</p>', mail.outbox[0].alternatives[0][0])
 
     def test_send_only_plain_body_on_empty_html_body(self):
-        template = EmailTemplate(subject='Example', plain_body='Example body', html_body='')
+        template = EmailTemplate(subject='Example', plain_content='Example body', html_content='')
         template.send_to_user(self.user, {}, {}, False)
         self.assertEqual(mail.outbox[0].body, 'Example body')
         self.assertEqual(len(mail.outbox[0].alternatives), 0)

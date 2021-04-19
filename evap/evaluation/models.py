@@ -1577,8 +1577,8 @@ class EmailTemplate(models.Model):
     name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
-    plain_body = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
-    html_body = models.TextField(verbose_name=_("HTML"), validators=[validate_template])
+    plain_content = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
+    html_content = models.TextField(verbose_name=_("HTML"), validators=[validate_template])
 
     EDITOR_REVIEW_NOTICE = "Editor Review Notice"
     EDITOR_REVIEW_REMINDER = "Editor Review Reminder"
@@ -1678,19 +1678,19 @@ class EmailTemplate(models.Model):
         body_params['contact_email'] = settings.CONTACT_EMAIL
 
         subject = self.render_string(self.subject, subject_params)
-        plain_body = self.render_string(self.plain_body, body_params)
+        plain_content = self.render_string(self.plain_content, body_params)
 
         mail = EmailMultiAlternatives(
             subject=subject,
-            body=plain_body,
+            body=plain_content,
             to=[user.email],
             cc=cc_addresses,
             bcc=[a[1] for a in settings.MANAGERS],
             headers={'Reply-To': settings.REPLY_TO_EMAIL})
 
-        if self.html_body:
-            rendered_html_email_body = self.render_string(self.html_body, body_params)
-            html_template_params = dict({'email_body': rendered_html_email_body, 'email_subject': subject}, **body_params)
+        if self.html_content:
+            rendered_html_email_body = self.render_string(self.html_content, body_params)
+            html_template_params = dict({'email_content': rendered_html_email_body, 'email_subject': subject}, **body_params)
             wrapped_html_email_body = render_to_string('email_base.html', html_template_params)
             mail.attach_alternative(wrapped_html_email_body, "text/html")
 

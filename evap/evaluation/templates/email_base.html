@@ -12,7 +12,7 @@
         width: 15% !important;
       }
 
-      .email-body {
+      .email-content {
         width: 70% !important;
       }
     }
@@ -36,7 +36,7 @@
     <tr style="background-color: #FDFDFD;">
       <td class="spacer" style="width: 0px;">
       </td>
-      <td class="email-body" style="padding: 4%; width: 100%">
+      <td class="email-content" style="padding: 4%; width: 100%">
         <table style="background-color: white; width: 100%; border: 2px solid #F0F0F0; border-collapse: collapse;">
           <tr>
             <td style="text-align: center; font-size: 18px; padding: 10px; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
@@ -45,7 +45,7 @@
           </tr>
           <tr>
             <td style="padding: 2%">
-              {{ email_body|linebreaksbr }}
+              {{ email_content|linebreaksbr }}
             </td>
           </tr>
         </table>
