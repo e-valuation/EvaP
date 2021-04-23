@@ -5,6 +5,9 @@
         {% if wide %}
             {% include 'bootstrap_form_field_label.html' with field=field class='col-md-5' %}
             {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-7' %}
+        {% elif email_form %}
+            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-2' %}
+            {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-10' %}
         {% else %}
             {% include 'bootstrap_form_field_label.html' with field=field class='col-md-3' %}
             {% include 'bootstrap_form_field_widget.html' with field=field class='col-md-7' %}

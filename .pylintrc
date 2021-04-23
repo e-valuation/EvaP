@@ -23,6 +23,7 @@ jobs=4
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 load-plugins=pylint_django
+django-settings-module=evap.settings
 
 # Pickle collected data for later comparisons.
 persistent=yes

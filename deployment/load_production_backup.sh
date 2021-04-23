@@ -9,7 +9,7 @@ cd $(dirname $0)/.. # change to root directory
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
 ADDITIONAL_ARGUMENTS=""
-[[ ! -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && echo "Detected travis" && USERNAME="travis" && ENVDIR=~/virtualenv/python3.7 && ADDITIONAL_ARGUMENTS=" --noinput"
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR=/usr/local && ADDITIONAL_ARGUMENTS=" --noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -41,14 +41,14 @@ then
     exit 1
 fi
 
-[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 stop
+[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
 
 sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
 
-# compilemessages and compress regularly fail without any real issue.
+# sometimes, this fails for some random i18n test translation files.
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compilemessages || true
+sudo -H -u $USERNAME $ENVDIR/bin/python manage.py scss --production
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py collectstatic --noinput
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compress --verbosity=0 || true
 
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py reset_db $ADDITIONAL_ARGUMENTS
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py migrate
@@ -60,7 +60,7 @@ sudo -H -u $USERNAME $ENVDIR/bin/python manage.py refresh_results_cache
 
 sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache --cache=sessions
 
-[[ -z "$EVAP_RUNNING_INSIDE_TRAVIS" ]] && sudo service apache2 start
+[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 

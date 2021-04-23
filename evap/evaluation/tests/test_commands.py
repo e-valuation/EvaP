@@ -137,44 +137,6 @@ class TestAnonymizeCommand(TestCase):
         self.assertEqual(RatingAnswerCounter.objects.aggregate(Sum('count'))["count__sum"], answer_count_before)
 
 
-class TestRunCommand(TestCase):
-    @staticmethod
-    def test_calls_runserver():
-        args = ["manage.py", "runserver", "0.0.0.0:8000"]
-        with patch('django.core.management.execute_from_command_line') as mock:
-            management.call_command('run', stdout=StringIO())
-
-        mock.assert_called_once_with(args)
-
-
-class TestReloadTestdataCommand(TestCase):
-    @patch('builtins.input')
-    @patch('evap.evaluation.management.commands.reload_testdata.call_command')
-    def test_aborts(self, mock_call_command, mock_input):
-        mock_input.return_value = 'not yes'
-
-        management.call_command('reload_testdata', stdout=StringIO())
-
-        self.assertEqual(mock_call_command.call_count, 0)
-
-    @patch('builtins.input')
-    @patch('evap.evaluation.management.commands.reload_testdata.call_command')
-    def test_executes_key_commands(self, mock_call_command, mock_input):
-        mock_input.return_value = 'yes'
-
-        management.call_command('reload_testdata', stdout=StringIO())
-
-        mock_call_command.assert_any_call('reset_db', interactive=False)
-        mock_call_command.assert_any_call('migrate')
-        mock_call_command.assert_any_call('flush', interactive=False)
-        mock_call_command.assert_any_call('loaddata', 'test_data')
-        mock_call_command.assert_any_call('clear_cache')
-        mock_call_command.assert_any_call('refresh_results_cache')
-        mock_call_command.assert_any_call('clear_cache', '--cache=sessions')
-
-        self.assertEqual(mock_call_command.call_count, 7)
-
-
 class TestRefreshResultsCacheCommand(TestCase):
     def test_calls_cache_results(self):
         baker.make(Evaluation, state='published')
@@ -185,24 +147,56 @@ class TestRefreshResultsCacheCommand(TestCase):
         self.assertEqual(mock.call_count, Evaluation.objects.count())
 
 
+class TestScssCommand(TestCase):
+    def setUp(self):
+        self.scss_path = os.path.join(settings.STATICFILES_DIRS[0], 'scss', 'evap.scss')
+        self.css_path = os.path.join(settings.STATICFILES_DIRS[0], 'css', 'evap.css')
+
+    @patch('subprocess.run')
+    def test_scss_called(self, mock_subprocess_run):
+        management.call_command('scss')
+
+        mock_subprocess_run.assert_called_once_with(
+            ['sass', self.scss_path, self.css_path],
+            check=True,
+        )
+
+    @patch('subprocess.run')
+    def test_scss_watch_called(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = KeyboardInterrupt
+
+        management.call_command('scss', '--watch')
+
+        mock_subprocess_run.assert_called_once_with(
+            ['sass', self.scss_path, self.css_path, '--watch', '--poll'],
+            check=True,
+        )
+
+    @patch('subprocess.run')
+    def test_scss_production_called(self, mock_subprocess_run):
+        management.call_command('scss', '--production')
+
+        mock_subprocess_run.assert_called_once_with(
+            ['sass', self.scss_path, self.css_path, '--style', 'compressed', '--no-source-map'],
+            check=True,
+        )
+
+    @patch('subprocess.run')
+    def test_scss_called_with_no_sass_installed(self, mock_subprocess_run):
+        mock_subprocess_run.side_effect = FileNotFoundError()
+
+        stderr = StringIO()
+        management.call_command('scss', stderr=stderr)
+
+        self.assertEqual(stderr.getvalue(), 'Could not find sass command\n\n')
+
+
 class TestUpdateEvaluationStatesCommand(TestCase):
     def test_update_evaluations_called(self):
         with patch('evap.evaluation.models.Evaluation.update_evaluations') as mock:
             management.call_command('update_evaluation_states')
 
         self.assertEqual(mock.call_count, 1)
-
-
-class TestDumpTestDataCommand(TestCase):
-    @staticmethod
-    def test_dumpdata_called():
-        with patch('evap.evaluation.management.commands.dump_testdata.call_command') as mock:
-            management.call_command('dump_testdata')
-
-        outfile_name = os.path.join(settings.BASE_DIR, "evaluation", "fixtures", "test_data.json")
-        mock.assert_called_once_with('dumpdata', 'auth.group', 'evaluation', 'rewards', 'student', 'grades',
-                                     '--exclude=evaluation.LogEntry', indent=2, natural_foreign=True,
-                                     natural_primary=True, output=outfile_name)
 
 
 @override_settings(REMIND_X_DAYS_AHEAD_OF_END_DATE=[0, 2])

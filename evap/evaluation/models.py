@@ -382,7 +382,7 @@ class Evaluation(LoggedModel):
     # Disable to prevent editors from changing evaluation data
     allow_editors_to_edit = models.BooleanField(verbose_name=_("allow editors to edit"), default=True)
 
-    evaluation_evaluated = Signal(providing_args=['request', 'semester'])
+    evaluation_evaluated = Signal()
 
     # whether to wait for grade uploading before publishing results
     wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
@@ -858,6 +858,8 @@ class Contribution(LoggedModel):
             ('evaluation', 'contributor'),
         )
         ordering = ['order', ]
+        verbose_name = _("contribution")
+        verbose_name_plural = _("contributions")
 
     @property
     def unlogged_fields(self):
@@ -1144,6 +1146,9 @@ class Answer(models.Model):
     user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
     and `TextAnswer`."""
 
+    # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     question = models.ForeignKey(Question, models.PROTECT)
     contribution = models.ForeignKey(Contribution, models.PROTECT, related_name="%(class)s_set")
 
@@ -1160,8 +1165,6 @@ class RatingAnswerCounter(Answer):
     bipolar: -3, -2, -1, 0, 1, 2, 3; where a lower absolute means more agreement and the sign shows the pole
     yes / no: 1, 5; for 1 being the good answer"""
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
@@ -1175,8 +1178,6 @@ class RatingAnswerCounter(Answer):
 
 class TextAnswer(Answer):
     """A free-form text answer to a question."""
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     answer = models.TextField(verbose_name=_("answer"))
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)

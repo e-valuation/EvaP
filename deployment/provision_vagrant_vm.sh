@@ -11,12 +11,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 # install python stuff
 apt-get -q update
-apt-get -q install -y python3.7 python3.7-dev python3.7-venv python3-pip gettext
-
-# install sass
-apt-get -q install -y sassc
-# stay compatible to previous installations with sass
-ln -s /usr/bin/sassc /usr/bin/sass
+apt-get -q install -y python3.7 python3.7-dev python3-venv python3.7-venv gettext
 
 # setup postgres
 apt-get -q install -y postgresql
@@ -31,23 +26,27 @@ apt-get -q install -y redis-server
 apt-get -q install -y apache2 apache2-dev
 
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
-sudo useradd -m -u 1042 -s /bin/bash evap
+useradd -m -u 1042 -s /bin/bash evap
 # allow ssh login
-sudo cp -r /home/vagrant/.ssh /home/$USER/.ssh
-sudo chown -R $USER:$USER /home/$USER/.ssh
+cp -r /home/vagrant/.ssh /home/$USER/.ssh
+chown -R $USER:$USER /home/$USER/.ssh
 # allow sudo without password
-echo "$USER ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/evap
+echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 
 # link the mounted evap folder from the home directory
 ln -s /evap $REPO_FOLDER
 
-# setup virtualenv and mod_wsgi
+# install sass
+$REPO_FOLDER/deployment/install_dart_sass.sh
+
 sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
-sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel  # required, otherwise following installs fail
+# venv will use ensurepip to install a new version of pip. We need to update that version.
+sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
+sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel
 sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 
 # setup apache
-a2enmod expires
+a2enmod headers
 cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
 sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/mods-available/wsgi.load # note this uses '=' as alternate delimiter
 a2enmod wsgi
@@ -71,16 +70,16 @@ sudo -H -u $USER $ENV_FOLDER/bin/pip install -r $REPO_FOLDER/requirements-dev.tx
 
 # deploy localsettings and insert random key
 cp $REPO_FOLDER/deployment/localsettings.template.py $REPO_FOLDER/evap/localsettings.py
-sed -i -e "s/\${SECRET_KEY}/$(sudo head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" $REPO_FOLDER/evap/localsettings.py
+sed -i -e "s/\${SECRET_KEY}/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)/" $REPO_FOLDER/evap/localsettings.py
 
 # setup vm auto-completion
-sudo cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
+cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
 # setup evap
 cd /$USER
 git submodule update --init
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
-sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages
+sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de_DE --locale en_US
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py loaddata test_data.json
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py refresh_results_cache

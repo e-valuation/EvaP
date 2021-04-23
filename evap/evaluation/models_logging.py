@@ -8,7 +8,6 @@ from json import JSONEncoder
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
@@ -16,6 +15,8 @@ from django.forms.models import model_to_dict
 from django.template.defaultfilters import yesno
 from django.utils.formats import localize
 from django.utils.translation import gettext_lazy as _
+
+from evap.evaluation.tools import capitalize_first
 
 
 class FieldActionType(str, Enum):
@@ -56,7 +57,7 @@ def _choice_to_display(field, choice):  # does not support nested choices
 
 
 def _field_actions_for_field(field, actions):
-    label = getattr(field, "verbose_name", field.name).capitalize()
+    label = capitalize_first(getattr(field, "verbose_name", field.name))
 
     for field_action_type, items in actions.items():
         if field.many_to_many or field.many_to_one or field.one_to_one:
@@ -84,7 +85,7 @@ class LogEntry(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT)
     action_type = models.CharField(max_length=255, choices=[(value, value) for value in InstanceActionType])
     request_id = models.CharField(max_length=36, null=True, blank=True)
-    data = JSONField(default=dict, encoder=LogJSONEncoder)
+    data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
         ordering = ("-datetime", "-id")
@@ -113,7 +114,7 @@ class LogEntry(models.Model):
             message = _("A {cls} was deleted.")
 
         return message.format(
-            cls=self.content_type.model_class()._meta.verbose_name_raw,
+            cls=capitalize_first(self.content_type.model_class()._meta.verbose_name),
             obj=f'"{str(self.content_object)}"' if self.content_object else "",
         )
 

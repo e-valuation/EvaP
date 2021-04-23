@@ -52,6 +52,20 @@ class TestResultsView(WebTest):
         self.assertNotContains(page, evaluation2.full_name)
         caches['results'].clear()
 
+    @patch('evap.evaluation.models.Evaluation.can_be_seen_by', new=(lambda self, user: True))
+    def test_order(self):
+        student = baker.make(UserProfile, email="student@institution.example.com")
+
+        course = baker.make(Course)
+        evaluation1 = baker.make(Evaluation, name_de='random_evaluation_d', name_en='random_evaluation_a', course=course, state='published')
+        evaluation2 = baker.make(Evaluation, name_de='random_evaluation_c', name_en='random_evaluation_b', course=course, state='published')
+
+        page = self.app.get(self.url, user=student).body.decode()
+        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
+
+        page = self.app.get(self.url, user=student, extra_environ={'HTTP_ACCEPT_LANGUAGE': 'de'}).body.decode()
+        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
+
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(CACHES={
         'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', 'LOCATION': 'testing_cache_default'},

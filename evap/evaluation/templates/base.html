@@ -1,7 +1,6 @@
 {% spaceless %}
 {% load static %}
 {% load cache %}
-{% load compress %}
 {% load evaluation_filters %}
 {% load navbar_templatetags %}
 
@@ -13,17 +12,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>{% block title %}EvaP{% endblock %}</title>
 
-        {% compress css %}
-            <link rel="stylesheet" href="{% get_static_prefix %}css/select2.min.css" />
-            <link rel="stylesheet" href="{% get_static_prefix %}css/bootstrap-datetimepicker.min.css" />
-            <link type="text/x-scss" rel="stylesheet" href="{% get_static_prefix %}scss/evap.scss" />
-        {% endcompress %}
+        <link rel="stylesheet" href="{% static 'css/select2.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/bootstrap-datetimepicker.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/evap.css' %}" />
         {% if debug %}
-            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_gray.png" />
+            <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_gray.png' %}" />
         {% else %}
-            <link rel="icon" type="image/png" sizes="64x64" href="{% get_static_prefix %}images/favicon_64.png" />
-            <link rel="icon" type="image/png" sizes="32x32" href="{% get_static_prefix %}images/favicon_32.png" />
-            <link rel="icon" type="image/png" sizes="16x16" href="{% get_static_prefix %}images/favicon_16.png" />
+            <link rel="icon" type="image/png" sizes="64x64" href="{% static 'images/favicon_64.png' %}" />
+            <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon_32.png' %}" />
+            <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_16.png' %}" />
         {% endif %}
     {% endblock %}
 </head>
@@ -46,7 +43,7 @@
     {% endblock %}
 </div>
 
-<img class="print-brand-image d-none d-print-block" src="{% get_static_prefix %}images/evap.png" alt="{% trans 'Evaluation Platform' %}" />
+<img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
 
 <div class="container mb-4 pt-3">
     {% for message in messages %}
@@ -64,20 +61,17 @@
 
 {% include 'footer.html' %}
 
-{% compress js %}
-    <script type="text/javascript" src="{% get_static_prefix %}js/jquery-2.1.3.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/popper-1.14.1.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/popper-1.14.1.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 
-    <script type="text/javascript" src="{% get_static_prefix %}js/select2.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_de.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/locale/select2_en.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/plugins/jquery.formset.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/Sortable.min.js"></script>
-    <script type="text/javascript" src="{% get_static_prefix %}js/sortable_query_binding.js"></script>
+<script type="text/javascript" src="{% static 'js/select2.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/locale/select2_de.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/locale/select2_en.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/jquery.formset.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/Sortable.min.js' %}"></script>
 
-    <script type="text/javascript" src="{% get_static_prefix %}js/csrf_utils.js"></script>
-{% endcompress %}
+<script type="text/javascript" src="{% static 'js/csrf_utils.js' %}"></script>
 
 <script type="text/javascript">
     activateTooltips = function(selector = "") {

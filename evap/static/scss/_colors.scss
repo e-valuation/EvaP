@@ -39,10 +39,12 @@ $theme-colors: (
 );
 
 $vote-colors: (
-    green: $evap-green,
-    lime: $evap-lime,
-    yellow: $evap-yellow,
-    orange: $evap-orange,
-    red: $evap-red,
-    gray: $medium-gray
+    "green": $evap-green,
+    "lime": $evap-lime,
+    "yellow": $evap-yellow,
+    "orange": $evap-orange,
+    "red": $evap-red,
+    "gray": $medium-gray
 );
+
+$code-color: $darker-gray;

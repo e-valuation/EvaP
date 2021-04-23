@@ -1,5 +1,7 @@
 {% extends 'staff_base.html' %}
 
+{% load static %}
+
 {% block breadcrumb %}
     {{ block.super }}
     <li class="breadcrumb-item">{% trans 'Templates' %}</li>
@@ -8,11 +10,24 @@
 
 {% block content %}
     {{ block.super }}
+
     <form id="template-form" method="POST" enctype="multipart/form-data" class="form-horizontal multiselect-form">
         {% csrf_token %}
         <div class="card mb-3">
-            <div class="card-body">
-                {% include 'bootstrap_form.html' with form=form %}
+            <div class="card-body row">
+                <div class="col-9">
+                    {% include 'bootstrap_form.html' with form=form email_form=True %}
+                </div>
+                <div class="col-3">
+                    <p>{% trans 'The following variables are available for this email template:' %}</p>
+                    {% for variable in available_variables %}
+                        <button type="button" class="btn btn-sm btn-link text-dark pr-1" data-toggle="tooltip" data-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
+                            <span class="far fa-clipboard"></span>
+                        </button>
+                        <code>{{ variable }}</code>
+                        <br />
+                    {% endfor %}
+                </div>
             </div>
         </div>
         <div class="card card-submit-area text-center mb-3">
@@ -21,4 +36,9 @@
             </div>
         </div>
     </form>
+
+{% endblock %}
+
+{% block additional_javascript %}
+    <script type="text/javascript" src="{% static 'js/copy-to-clipboard.js' %}"></script>
 {% endblock %}

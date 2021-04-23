@@ -51,7 +51,7 @@
             formTemplate: (usesTemplate ? ".form-template" : null)
         });
 
-        $('#' + tableId + " tbody").sortable({
+        new Sortable($('#' + tableId + " tbody").get(0), {
             handle: ".fa-arrows-alt-v",
             draggable: ".sortable",
             scrollSensitivity: 70

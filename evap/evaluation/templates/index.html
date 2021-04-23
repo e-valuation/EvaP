@@ -23,7 +23,7 @@
                         <p class="card-text">
                             {% trans 'Log in using email and password.' %}
                         </p>
-                        <form class="d-flex flex-column" role="form"
+                        <form id="email-login-form" class="d-flex flex-column" role="form"
                             action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="submit_type" value="login_email" />

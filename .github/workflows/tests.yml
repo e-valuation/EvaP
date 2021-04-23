@@ -1,0 +1,113 @@
+name: EvaP Test Suite
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        include:
+          - name: Coverage
+            command: coverage run manage.py test && codecov -X gcov
+          - name: Debug mode
+            command: python manage.py test --debug-mode
+          - name: Reverse order
+            command: python manage.py test --reverse
+
+    name: ${{ matrix.name }}
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Run tests
+        run: ${{ matrix.command }}
+
+
+  linter:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    name: Linter
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Run linter
+        run: pylint evap -j 0
+
+
+  backup-process:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 6379:6379
+
+    name: Backup process
+
+    steps:
+      - name: Install sudo package
+        # otherwise, sudo commands in the scripts called will fail
+        run: apt update && apt install sudo
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Load test data
+        run: |
+          python manage.py migrate
+          python manage.py loaddata test_data
+      - name: Backup database
+        run: deployment/update_production.sh backup.json
+        env:
+          EVAP_OVERRIDE_BACKUP_FILENAME: true
+          EVAP_SKIP_CHECKOUT: true
+      - name: Reload backup
+        run: echo "yy" | deployment/load_production_backup.sh backup.json

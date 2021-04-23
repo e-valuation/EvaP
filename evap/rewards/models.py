@@ -51,7 +51,7 @@ class RewardPointGranting(models.Model):
     granting_time = models.DateTimeField(verbose_name=_("granting time"), auto_now_add=True)
     value = models.IntegerField(verbose_name=_("value"), default=0)
 
-    granted_by_removal = Signal(providing_args=['users'])
+    granted_by_removal = Signal()
 
 
 class RewardPointRedemption(models.Model):

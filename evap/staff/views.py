@@ -1706,7 +1706,26 @@ def template_edit(request, template_id):
         messages.success(request, _("Successfully updated template."))
         return redirect('staff:index')
 
-    return render(request, "staff_template_form.html", dict(form=form, template=template))
+    available_variables = [
+        "contact_email",
+        "page_url",
+        "login_url",        # only if they need it
+        "user",
+    ]
+
+    if template.name == EmailTemplate.STUDENT_REMINDER:
+        available_variables += ["first_due_in_days", "due_evaluations"]
+    elif template.name in [EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR, EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT, EmailTemplate.EDITOR_REVIEW_NOTICE, EmailTemplate.EDITOR_REVIEW_REMINDER]:
+        available_variables += ["evaluations"]
+    elif template.name == EmailTemplate.EVALUATION_STARTED:
+        available_variables += ["evaluations", "due_evaluations"]
+    elif template.name == EmailTemplate.DIRECT_DELEGATION:
+        available_variables += ["evaluation", "delegate_user"]
+
+    available_variables = ["{{ " + variable + " }}" for variable in available_variables]
+    available_variables.sort()
+
+    return render(request, "staff_template_form.html", dict(form=form, template=template, available_variables=available_variables))
 
 
 @manager_required
@@ -1765,15 +1784,6 @@ def download_sample_xls(_request, filename):
 
 
 @manager_required
-def development_components(request):
-    theme_colors = ['primary', 'secondary', 'success', 'info', 'warning', 'danger', 'light', 'dark']
-    template_data = {
-        'theme_colors': theme_colors
-    }
-    return render(request, "staff_development_components.html", template_data)
-
-
-@manager_required
 def export_contributor_results_view(request, contributor_id):
     contributor = get_object_or_404(UserProfile, id=contributor_id)
     return export_contributor_results(contributor)
@@ -1783,7 +1793,6 @@ def export_contributor_results_view(request, contributor_id):
 @staff_permission_required
 def enter_staff_mode(request):
     staff_mode.enter_staff_mode(request)
-    messages.success(request, _("Successfully entered staff mode."))
     return redirect('evaluation:index')
 
 
@@ -1791,5 +1800,4 @@ def enter_staff_mode(request):
 @staff_permission_required
 def exit_staff_mode(request):
     staff_mode.exit_staff_mode(request)
-    messages.success(request, _("Successfully exited staff mode."))
     return redirect('evaluation:index')

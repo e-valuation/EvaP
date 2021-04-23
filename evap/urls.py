@@ -1,6 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
-from django.urls import include, path
+from django.urls import include, path, re_path
 import django.contrib.auth.views
 
 
@@ -14,11 +13,14 @@ urlpatterns = [
     path("grades/", include('evap.grades.urls')),
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
-    url(r'^oidc/', include('mozilla_django_oidc.urls')),
+    re_path(r'^oidc/', include('mozilla_django_oidc.urls')),
 ]
 
-if settings.DEBUG and settings.ENABLE_DEBUG_TOOLBAR:
-    # pylint does not correctly evaluate this if, so it will raise an import-error on
-    # travis and a useless-suppression on a vagrant setup. Ignore both cases.
-    import debug_toolbar  # pylint: disable=import-error, useless-suppression
-    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+if settings.DEBUG:
+    urlpatterns += [path('development/', include('evap.development.urls'))]
+
+    if settings.ENABLE_DEBUG_TOOLBAR:
+        # pylint does not correctly evaluate this if, so it will raise an import-error on
+        # GitHub actions and a useless-suppression on a vagrant setup. Ignore both cases.
+        import debug_toolbar  # pylint: disable=import-error, useless-suppression
+        urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
