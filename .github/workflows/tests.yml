@@ -132,3 +132,23 @@ jobs:
           EVAP_SKIP_CHECKOUT: true
       - name: Reload backup
         run: echo "yy" | deployment/load_production_backup.sh backup.json
+
+  compile_scss:
+    runs-on: ubuntu-18.04
+
+    name: Compile Scss
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dart-sass
+        run: deployment/install_dart_sass.sh
+      - name: Compile Scss
+        run: sass evap/static/scss/evap.scss evap/static/css/evap.css
+      - name: Store Css
+        uses: actions/upload-artifact@v2
+        with:
+          name: css
+          path: evap/static/css/evap.css
