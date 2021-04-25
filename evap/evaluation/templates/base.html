@@ -161,6 +161,10 @@
             error: function(){}
         });
     };
+
+    function setSpinnerIcon(id) {
+        $("#" + id).removeClass().addClass('fas fa-spinner fa-spin');
+    };
 </script>
 
 {% block additional_javascript %}{% endblock %}
