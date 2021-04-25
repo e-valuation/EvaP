@@ -459,7 +459,8 @@ class ContributionCopyForm(ContributionForm):
 class EvaluationEmailForm(forms.Form):
     recipients = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.Recipients.choices, label=_("Send email to"))
     subject = forms.CharField(label=_("Subject"))
-    body = forms.CharField(widget=forms.Textarea(), label=_("Message"))
+    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Message"))
+    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML Message"))
 
     def __init__(self, *args, evaluation, export=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -467,7 +468,9 @@ class EvaluationEmailForm(forms.Form):
         self.evaluation = evaluation
         self.recipient_groups = None
         self.fields['subject'].required = not export
-        self.fields['body'].required = not export
+        self.fields['plain_content'].required = not export
+        self.fields['html_content'].required = not export
+
 
     def clean(self):
         self.recipient_groups = self.cleaned_data.get('recipients')
@@ -483,7 +486,8 @@ class EvaluationEmailForm(forms.Form):
 
     def send(self, request):
         self.template.subject = self.cleaned_data.get('subject')
-        self.template.plain_content = self.cleaned_data.get('body')
+        self.template.plain_content = self.cleaned_data.get('plain_content')
+        self.template.html_content = self.cleaned_data.get('html_content')
         self.template.send_to_users_in_evaluations([self.evaluation], self.recipient_groups, use_cc=True, request=request)
 
 

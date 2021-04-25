@@ -1688,11 +1688,10 @@ class EmailTemplate(models.Model):
             bcc=[a[1] for a in settings.MANAGERS],
             headers={'Reply-To': settings.REPLY_TO_EMAIL})
 
-        if self.html_content:
-            rendered_content = self.render_string(self.html_content, body_params)
-            wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': subject}, **body_params)
-            wrapped_content = render_to_string('email_base.html', wrapper_template_params)
-            mail.attach_alternative(wrapped_content, "text/html")
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params)
+        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': subject}, **body_params)
+        wrapped_content = render_to_string('email_base.html', wrapper_template_params)
+        mail.attach_alternative(wrapped_content, "text/html")
 
         try:
             mail.send(False)
