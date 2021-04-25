@@ -7,7 +7,6 @@ from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 from evap.evaluation.models import UserProfile
 from evap.evaluation.tools import clean_email
 from evap.rewards.tools import can_reward_points_be_used_by
-from evap.staff.tools import delete_navbar_cache_for_users
 
 
 class RequestAuthUserBackend(ModelBackend):
@@ -26,7 +25,6 @@ class RequestAuthUserBackend(ModelBackend):
 
         try:
             user = UserProfile.objects.get(login_key=key)
-            after_login_function(request, user, None)
             return user
         except UserProfile.DoesNotExist:
             return None
@@ -41,13 +39,8 @@ class EmailAuthenticationBackend(ModelBackend):
             return None
         else:
             if user.check_password(password):
-                after_login_function(request, user, None)
                 return user
         return None
-
-
-def after_login_function(request, user, _client):
-    delete_navbar_cache_for_users([user])
 
 
 def user_passes_test(test_func):
