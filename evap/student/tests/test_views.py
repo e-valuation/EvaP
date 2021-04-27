@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.db import connection
 from django.test.utils import override_settings, CaptureQueriesContext
 from django.urls import reverse
@@ -155,69 +157,33 @@ class TestVoteView(WebTest):
         )
 
     def fill_form(self, form, fill_general_complete=True, fill_contributors_complete=True):
+        contribution = self.evaluation.general_contribution
+        questionnaire = self.top_general_questionnaire
+        form[answer_field_id(contribution, questionnaire, self.top_text_question)] = "some text"
+        form[answer_field_id(contribution, questionnaire, self.top_grade_question)] = 3
+        form[answer_field_id(contribution, questionnaire, self.top_likert_question)] = 1
         form[
-            answer_field_id(
-                self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question
-            )
-        ] = "some text"
-        form[
-            answer_field_id(
-                self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question
-            )
-        ] = 3
-        form[
-            answer_field_id(
-                self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question
-            )
-        ] = 1
-        form[
-            answer_field_id(
-                self.evaluation.general_contribution,
-                self.top_general_questionnaire,
-                self.top_likert_question,
-                additional_textanswer=True,
-            )
+            answer_field_id(contribution, questionnaire, self.top_likert_question, additional_textanswer=True)
         ] = "some additional text"
 
-        form[
-            answer_field_id(
-                self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question
-            )
-        ] = "some bottom text"
-        form[
-            answer_field_id(
-                self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question
-            )
-        ] = 4
-
+        questionnaire = self.bottom_general_questionnaire
+        form[answer_field_id(contribution, questionnaire, self.bottom_text_question)] = "some bottom text"
+        form[answer_field_id(contribution, questionnaire, self.bottom_grade_question)] = 4
         if fill_general_complete:
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question
-                )
-            ] = 2
+            form[answer_field_id(contribution, questionnaire, self.bottom_likert_question)] = 2
 
+        contribution = self.contribution1
+        questionnaire = self.contributor_questionnaire
+        form[answer_field_id(contribution, questionnaire, self.contributor_text_question)] = "some other text"
+        form[answer_field_id(contribution, questionnaire, self.contributor_likert_question)] = 4
         form[
-            answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)
-        ] = "some other text"
-        form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
-        form[
-            answer_field_id(
-                self.contribution1,
-                self.contributor_questionnaire,
-                self.contributor_likert_question,
-                additional_textanswer=True,
-            )
+            answer_field_id(contribution, questionnaire, self.contributor_likert_question, additional_textanswer=True)
         ] = "some other additional text"
 
-        form[
-            answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)
-        ] = "some more text"
-
+        contribution = self.contribution2
+        form[answer_field_id(contribution, questionnaire, self.contributor_text_question)] = "some more text"
         if fill_contributors_complete:
-            form[
-                answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)
-            ] = 2
+            form[answer_field_id(contribution, questionnaire, self.contributor_likert_question)] = 2
 
     def test_incomplete_general_vote_form(self):
         """
@@ -233,95 +199,29 @@ class TestVoteView(WebTest):
 
         form = page.forms["student-vote-form"]
 
+        field_id = partial(answer_field_id, self.evaluation.general_contribution, self.top_general_questionnaire)
+        self.assertEqual(form[field_id(self.top_text_question)].value, "some text")
+        self.assertEqual(form[field_id(self.top_likert_question)].value, "1")
         self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question
-                )
-            ].value,
-            "some text",
+            form[field_id(self.top_likert_question, additional_textanswer=True)].value, "some additional text"
         )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question
-                )
-            ].value,
-            "1",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution,
-                    self.top_general_questionnaire,
-                    self.top_likert_question,
-                    additional_textanswer=True,
-                )
-            ].value,
-            "some additional text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question
-                )
-            ].value,
-            "3",
-        )
+        self.assertEqual(form[field_id(self.top_grade_question)].value, "3")
 
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question
-                )
-            ].value,
-            "some bottom text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question
-                )
-            ].value,
-            "4",
-        )
+        field_id = partial(answer_field_id, self.evaluation.general_contribution, self.bottom_general_questionnaire)
+        self.assertEqual(form[field_id(self.bottom_text_question)].value, "some bottom text")
+        self.assertEqual(form[field_id(self.bottom_grade_question)].value, "4")
 
+        field_id = partial(answer_field_id, self.contribution1, self.contributor_questionnaire)
+        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some other text")
+        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "4")
         self.assertEqual(
-            form[
-                answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)
-            ].value,
-            "some other text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)
-            ].value,
-            "4",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.contribution1,
-                    self.contributor_questionnaire,
-                    self.contributor_likert_question,
-                    additional_textanswer=True,
-                )
-            ].value,
+            form[field_id(self.contributor_likert_question, additional_textanswer=True)].value,
             "some other additional text",
         )
 
-        self.assertEqual(
-            form[
-                answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)
-            ].value,
-            "some more text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)
-            ].value,
-            "2",
-        )
+        field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
+        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
+        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "2")
 
     def test_incomplete_contributors_vote_form(self):
         """
@@ -337,97 +237,29 @@ class TestVoteView(WebTest):
 
         form = page.forms["student-vote-form"]
 
+        field_id = partial(answer_field_id, self.evaluation.general_contribution, self.top_general_questionnaire)
+        self.assertEqual(form[field_id(self.top_text_question)].value, "some text")
+        self.assertEqual(form[field_id(self.top_likert_question)].value, "1")
         self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question
-                )
-            ].value,
-            "some text",
+            form[field_id(self.top_likert_question, additional_textanswer=True)].value, "some additional text"
         )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question
-                )
-            ].value,
-            "1",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution,
-                    self.top_general_questionnaire,
-                    self.top_likert_question,
-                    additional_textanswer=True,
-                )
-            ].value,
-            "some additional text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question
-                )
-            ].value,
-            "3",
-        )
+        self.assertEqual(form[field_id(self.top_grade_question)].value, "3")
 
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question
-                )
-            ].value,
-            "some bottom text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_likert_question
-                )
-            ].value,
-            "2",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question
-                )
-            ].value,
-            "4",
-        )
+        field_id = partial(answer_field_id, self.evaluation.general_contribution, self.bottom_general_questionnaire)
+        self.assertEqual(form[field_id(self.bottom_text_question)].value, "some bottom text")
+        self.assertEqual(form[field_id(self.bottom_likert_question)].value, "2")
+        self.assertEqual(form[field_id(self.bottom_grade_question)].value, "4")
 
+        field_id = partial(answer_field_id, self.contribution1, self.contributor_questionnaire)
+        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some other text")
+        self.assertEqual(form[field_id(self.contributor_likert_question)].value, "4")
         self.assertEqual(
-            form[
-                answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)
-            ].value,
-            "some other text",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)
-            ].value,
-            "4",
-        )
-        self.assertEqual(
-            form[
-                answer_field_id(
-                    self.contribution1,
-                    self.contributor_questionnaire,
-                    self.contributor_likert_question,
-                    additional_textanswer=True,
-                )
-            ].value,
+            form[field_id(self.contributor_likert_question, additional_textanswer=True)].value,
             "some other additional text",
         )
 
-        self.assertEqual(
-            form[
-                answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)
-            ].value,
-            "some more text",
-        )
+        field_id = partial(answer_field_id, self.contribution2, self.contributor_questionnaire)
+        self.assertEqual(form[field_id(self.contributor_text_question)].value, "some more text")
 
     def test_answer(self):
         page = self.app.get(self.url, user=self.voting_user1, status=200)

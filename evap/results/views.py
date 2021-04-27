@@ -206,9 +206,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     # if the results are not cached, we need to attach distribution
     # information for rendering the distribution bar
     if evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING:
-        evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[
-            0
-        ]
+        prefetched = get_evaluations_with_prefetched_data([evaluation])
+        evaluation = get_evaluations_with_course_result_attributes(prefetched)[0]
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 

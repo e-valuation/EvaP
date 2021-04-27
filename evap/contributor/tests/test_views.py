@@ -113,7 +113,8 @@ class TestContributorEvaluationView(WebTestWith200Check):
         self.assertContains(page, "You cannot edit this evaluation because it has already been approved")
         self.assertNotContains(
             page,
-            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. "
+            "Once everything is okay, please approve the evaluation on the bottom of the page.",
         )
 
 
@@ -262,5 +263,6 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertNotContains(page, "You cannot edit this evaluation because it has already been approved")
         self.assertContains(
             page,
-            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. "
+            "Once everything is okay, please approve the evaluation on the bottom of the page.",
         )

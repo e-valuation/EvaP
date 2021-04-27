@@ -104,6 +104,7 @@ class ResultsExporter(ExcelExporter):
 
     @staticmethod
     def filter_evaluations(semesters, evaluation_states, degrees, course_types, contributor, include_not_enough_voters):
+        # pylint: disable=too-many-locals
         course_results_exist = False
         evaluations_with_results = list()
         used_questionnaires = set()
@@ -146,10 +147,8 @@ class ResultsExporter(ExcelExporter):
             evaluation.course_evaluations_count = evaluation.course.evaluations.count()
             if evaluation.course_evaluations_count > 1:
                 course_results_exist = True
-                evaluation.weight_percentage = int(
-                    (evaluation.weight / sum(evaluation.weight for evaluation in evaluation.course.evaluations.all()))
-                    * 100
-                )
+                weight_sum = sum(evaluation.weight for evaluation in evaluation.course.evaluations.all())
+                evaluation.weight_percentage = int((evaluation.weight / weight_sum) * 100)
                 evaluation.course.avg_grade = distribution_to_grade(
                     calculate_average_course_distribution(evaluation.course)
                 )

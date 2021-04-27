@@ -761,12 +761,8 @@ def semester_participation_export(_request, semester_id):
         number_of_optional_evaluations_voted_for = semester.evaluations.filter(
             voters=participant, is_rewarded=False
         ).count()
-        earned_reward_points = (
-            RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum("value"))[
-                "value__sum"
-            ]
-            or 0
-        )
+        query = RewardPointGranting.objects.filter(semester=semester, user_profile=participant).aggregate(Sum("value"))
+        earned_reward_points = query["value__sum"] or 0
         writer.writerow(
             [
                 participant.email,
@@ -1357,9 +1353,7 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
-    filename = "Login_keys-{evaluation.full_name}-{semester.short_name}.csv".format(
-        evaluation=evaluation, semester=semester
-    )
+    filename = f"Login_keys-{evaluation.full_name}-{semester.short_name}.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")

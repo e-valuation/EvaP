@@ -136,7 +136,10 @@ class MergeUsersTest(TestCase):
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
         # add attributes here only if you're actually dealing with them in merge_users().
-        additional_handled_attrs = {"grades_last_modified_user+", "Course_responsibles+"}
+        additional_handled_attrs = {
+            "grades_last_modified_user+",
+            "Course_responsibles+",
+        }
 
         actual_attrs = handled_attrs | additional_handled_attrs
 

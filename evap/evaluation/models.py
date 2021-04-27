@@ -59,7 +59,7 @@ class Semester(models.Model):
     )
 
     class Meta:
-        ordering = ("-created_at", "pk")
+        ordering = ["-created_at", "pk"]
         verbose_name = _("semester")
         verbose_name_plural = _("semesters")
 
@@ -190,7 +190,7 @@ class Questionnaire(models.Model):
             raise ValidationError({"is_locked": _("Contributor questionnaires cannot be locked.")})
 
     class Meta:
-        ordering = ("type", "order", "pk")
+        ordering = ["type", "order", "pk"]
         verbose_name = _("questionnaire")
         verbose_name_plural = _("questionnaires")
 
@@ -245,9 +245,7 @@ class Degree(models.Model):
     order = models.IntegerField(verbose_name=_("degree order"), default=-1)
 
     class Meta:
-        ordering = [
-            "order",
-        ]
+        ordering = ["order"]
 
     def __str__(self):
         return self.name
@@ -271,9 +269,7 @@ class CourseType(models.Model):
     order = models.IntegerField(verbose_name=_("course type order"), default=-1)
 
     class Meta:
-        ordering = [
-            "order",
-        ]
+        ordering = ["order"]
 
     def __str__(self):
         return self.name
@@ -311,10 +307,10 @@ class Course(LoggedModel):
     gets_no_grade_documents = models.BooleanField(verbose_name=_("gets no grade documents"), default=False)
 
     class Meta:
-        unique_together = (
-            ("semester", "name_de"),
-            ("semester", "name_en"),
-        )
+        unique_together = [
+            ["semester", "name_de"],
+            ["semester", "name_en"],
+        ]
         verbose_name = _("course")
         verbose_name_plural = _("courses")
 
@@ -440,10 +436,10 @@ class Evaluation(LoggedModel):
         REVIEWED = auto()
 
     class Meta:
-        unique_together = (
-            ("course", "name_de"),
-            ("course", "name_en"),
-        )
+        unique_together = [
+            ["course", "name_de"],
+            ["course", "name_en"],
+        ]
         verbose_name = _("evaluation")
         verbose_name_plural = _("evaluations")
 
@@ -461,12 +457,12 @@ class Evaluation(LoggedModel):
         assert self.vote_end_date >= self.vote_start_datetime.date()
 
         if hasattr(self, "state_change_source"):
-            state_changed_to = (
-                lambda self, state_set: self.state_change_source not in state_set and self.state in state_set
-            )
-            state_changed_from = (
-                lambda self, state_set: self.state_change_source in state_set and self.state not in state_set
-            )
+
+            def state_changed_to(self, state_set):
+                return self.state_change_source not in state_set and self.state in state_set
+
+            def state_changed_from(self, state_set):
+                return self.state_change_source in state_set and self.state not in state_set
 
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
@@ -1028,10 +1024,8 @@ class Contribution(LoggedModel):
     order = models.IntegerField(verbose_name=_("contribution order"), default=-1)
 
     class Meta:
-        unique_together = (("evaluation", "contributor"),)
-        ordering = [
-            "order",
-        ]
+        unique_together = [["evaluation", "contributor"]]
+        ordering = ["order"]
         verbose_name = _("contribution")
         verbose_name_plural = _("contributions")
 
@@ -1103,9 +1097,7 @@ class Question(models.Model):
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
     class Meta:
-        ordering = [
-            "order",
-        ]
+        ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 
@@ -1207,10 +1199,27 @@ BASE_YES_NO_CHOICES = {
 
 CHOICES = {
     Question.LIKERT: Choices(
-        names=[_("Strongly\nagree"), _("Agree"), _("Neutral"), _("Disagree"), _("Strongly\ndisagree"), _("No answer")],
+        names=[
+            _("Strongly\nagree"),
+            _("Agree"),
+            _("Neutral"),
+            _("Disagree"),
+            _("Strongly\ndisagree"),
+            _("No answer"),
+        ],
         **BASE_UNIPOLAR_CHOICES,
     ),
-    Question.GRADE: Choices(names=["1", "2", "3", "4", "5", _("No answer")], **BASE_UNIPOLAR_CHOICES),
+    Question.GRADE: Choices(
+        names=[
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            _("No answer"),
+        ],
+        **BASE_UNIPOLAR_CHOICES,
+    ),
     Question.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
         plus_name=_("Difficult"),
@@ -1301,8 +1310,22 @@ CHOICES = {
         ],
         **BASE_BIPOLAR_CHOICES,
     ),
-    Question.POSITIVE_YES_NO: Choices(names=[_("Yes"), _("No"), _("No answer")], **BASE_YES_NO_CHOICES),
-    Question.NEGATIVE_YES_NO: Choices(names=[_("No"), _("Yes"), _("No answer")], **BASE_YES_NO_CHOICES),
+    Question.POSITIVE_YES_NO: Choices(
+        names=[
+            _("Yes"),
+            _("No"),
+            _("No answer"),
+        ],
+        **BASE_YES_NO_CHOICES,
+    ),
+    Question.NEGATIVE_YES_NO: Choices(
+        names=[
+            _("No"),
+            _("Yes"),
+            _("No answer"),
+        ],
+        **BASE_YES_NO_CHOICES,
+    ),
 }
 
 
@@ -1334,7 +1357,7 @@ class RatingAnswerCounter(Answer):
     count = models.IntegerField(verbose_name=_("count"), default=0)
 
     class Meta:
-        unique_together = (("question", "contribution", "answer"),)
+        unique_together = [["question", "contribution", "answer"]]
         verbose_name = _("rating answer")
         verbose_name_plural = _("rating answers")
 
@@ -1358,9 +1381,7 @@ class TextAnswer(Answer):
     class Meta:
         # Prevent ordering by date for privacy reasons. Otherwise, entries
         # may be returned in insertion order.
-        ordering = [
-            "id",
-        ]
+        ordering = ["id"]
         verbose_name = _("text answer")
         verbose_name_plural = _("text answers")
 
@@ -1407,9 +1428,7 @@ class FaqSection(models.Model):
     title = translate(en="title_en", de="title_de")
 
     class Meta:
-        ordering = [
-            "order",
-        ]
+        ordering = ["order"]
         verbose_name = _("section")
         verbose_name_plural = _("sections")
 
@@ -1430,9 +1449,7 @@ class FaqQuestion(models.Model):
     answer = translate(en="answer_en", de="answer_de")
 
     class Meta:
-        ordering = [
-            "order",
-        ]
+        ordering = ["order"]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
 
@@ -1484,7 +1501,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ("last_name", "first_name", "email")
+        ordering = ["last_name", "first_name", "email"]
         verbose_name = _("user")
         verbose_name_plural = _("users")
 

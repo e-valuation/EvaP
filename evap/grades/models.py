@@ -16,9 +16,7 @@ def helper_upload_path(instance, filename):
 
 class GradeDocument(models.Model):
     course = models.ForeignKey(Course, models.PROTECT, related_name="grade_documents", verbose_name=_("course"))
-    file = models.FileField(
-        upload_to=helper_upload_path, verbose_name=_("File")
-    )  # upload_to="grades/{}/".format(course.id),
+    file = models.FileField(upload_to=helper_upload_path, verbose_name=_("File"))
 
     class Type(models.TextChoices):
         MIDTERM_GRADES = "MID", _("midterm grades")
@@ -40,7 +38,7 @@ class GradeDocument(models.Model):
     class Meta:
         verbose_name = _("Grade Document")
         verbose_name_plural = _("Grade Documents")
-        unique_together = (("course", "description_de"), ("course", "description_en"))
+        unique_together = [["course", "description_de"], ["course", "description_en"]]
 
     def __str__(self):
         return self.description

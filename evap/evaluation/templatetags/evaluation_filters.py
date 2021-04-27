@@ -48,9 +48,17 @@ STATE_DESCRIPTIONS = {
 # values for approval states shown to staff
 StateValues = namedtuple("StateValues", ("order", "icon", "filter", "description"))
 APPROVAL_STATES = {
-    Evaluation.State.NEW: StateValues(0, "fas fa-circle icon-yellow", Evaluation.State.NEW, _("In preparation")),
+    Evaluation.State.NEW: StateValues(
+        0,
+        "fas fa-circle icon-yellow",
+        Evaluation.State.NEW,
+        _("In preparation"),
+    ),
     Evaluation.State.PREPARED: StateValues(
-        2, "far fa-square icon-gray", Evaluation.State.PREPARED, _("Awaiting editor review")
+        2,
+        "far fa-square icon-gray",
+        Evaluation.State.PREPARED,
+        _("Awaiting editor review"),
     ),
     Evaluation.State.EDITOR_APPROVED: StateValues(
         1,

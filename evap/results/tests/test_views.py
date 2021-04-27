@@ -537,9 +537,9 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
         self.app.get(url, user=contributor, status=200)
         with run_in_staff_mode(self):
             self.app.get(url, user=manager, status=200)
-        self.app.get(
-            url, user=student_external, status=200
-        )  # this external user participates in the evaluation and can see the results
+
+        # this external user participates in the evaluation and can see the results
+        self.app.get(url, user=student_external, status=200)
 
 
 class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
