@@ -43,7 +43,10 @@ APPROVAL_STATES = {
     'new': StateValues(0, 'fas fa-circle icon-yellow', 'new', _('In preparation')),
     'prepared': StateValues(2, 'far fa-square icon-gray', 'prepared', _('Awaiting editor review')),
     'editor_approved': StateValues(
-        1, 'far fa-check-square icon-yellow', 'editor_approved', _('Approved by editor, awaiting manager review')
+        1,
+        'far fa-check-square icon-yellow',
+        'editor_approved',
+        _('Approved by editor, awaiting manager review'),
     ),
     'approved': StateValues(3, 'far fa-check-square icon-green', 'approved', _('Approved by manager')),
 }

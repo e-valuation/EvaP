@@ -88,7 +88,7 @@ class LogEntry(models.Model):
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
-        ordering = ("-datetime", "-id")
+        ordering = ["-datetime", "-id"]
 
     @property
     def field_context_data(self):

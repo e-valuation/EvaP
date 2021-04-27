@@ -427,7 +427,9 @@ class TestUserImportView(WebTestStaffMode):
 
         self.assertContains(
             page,
-            'The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)',
+            'The import run will create 2 users:<br />'
+            'Lucilia Manilium (lucilia.manilium@institution.example.com)<br />'
+            'Bastius Quid (bastius.quid@external.example.com)',
         )
         self.assertContains(page, 'Import previously uploaded file')
 
@@ -933,10 +935,14 @@ class TestSemesterImportView(WebTestStaffMode):
         general_error = 'Errors occurred while parsing the input data. No data was imported.'
         self.assertContains(reply, general_error)
         degree_error = (
-            'Error: No degree is associated with the import name &quot;Diploma&quot;. Please manually create it first.'
+            'Error: No degree is associated with the import name &quot;Diploma&quot;. '
+            'Please manually create it first.'
         )
         self.assertContains(reply, degree_error)
-        course_type_error = 'Error: No course type is associated with the import name &quot;Praktikum&quot;. Please manually create it first.'
+        course_type_error = (
+            'Error: No course type is associated with the import name &quot;Praktikum&quot;. '
+            'Please manually create it first.'
+        )
         self.assertContains(reply, course_type_error)
         is_graded_error = '&quot;is_graded&quot; of course Deal is maybe, but must be yes or no'
         self.assertContains(reply, is_graded_error)
@@ -1764,9 +1770,9 @@ class TestEvaluationEditView(WebTestStaffMode):
 
         for name in ["a", "b", "c", "d", "e"]:
             self.assertIn(
-                "The removal as participant has granted the user &quot;{}@institution.example.com&quot; 3 reward points for the semester.".format(
-                    name
-                ),
+                "The removal as participant has granted the user "
+                "&quot;{}@institution.example.com&quot; "
+                "3 reward points for the semester.".format(name),
                 page,
             )
 

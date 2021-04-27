@@ -36,18 +36,17 @@ SMALL_COURSE_SIZE = 5  # up to which number of participants the evaluation gets 
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# percentages for calculating an evaluation's total average grade
-CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
-CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = (
-    6  # non-grade questions are weighted this much for each contributor's average grade
-)
-CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the evaluation's average grade
-GENERAL_GRADE_QUESTIONS_WEIGHT = (
-    1  # the average grade of all general grade questions is weighted this much for the evaluation's average grade
-)
-GENERAL_NON_GRADE_QUESTIONS_WEIGHT = (
-    1  # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
-)
+## percentages for calculating an evaluation's total average grade
+# grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4
+# non-grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6
+# the average contribution grade is weighted this much for the evaluation's average grade
+CONTRIBUTIONS_WEIGHT = 1
+# the average grade of all general grade questions is weighted this much for the evaluation's average grade
+GENERAL_GRADE_QUESTIONS_WEIGHT = 1
+# the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
+GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
@@ -100,12 +99,12 @@ PAGE_URL = "localhost:8000"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'evap',  # Or path to database file if using sqlite3.
-        'USER': 'postgres',  # Not used with sqlite3.
-        'PASSWORD': '',  # Not used with sqlite3.
-        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'evap',
+        'USER': 'postgres',
+        'PASSWORD': '',
+        'HOST': '',  # Set to empty string for localhost
+        'PORT': '',  # Set to empty string for default
         'CONN_MAX_AGE': 600,
     }
 }
@@ -114,18 +113,27 @@ CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://127.0.0.1:6379/0',
-        'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient', 'MAX_ENTRIES': 5000},
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+        },
     },
     'results': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://127.0.0.1:6379/1',
         'TIMEOUT': None,  # is always invalidated manually
-        'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient', 'MAX_ENTRIES': 100000},
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 100000,
+        },
     },
     'sessions': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://127.0.0.1:6379/2',
-        'OPTIONS': {'CLIENT_CLASS': 'django_redis.client.DefaultClient', 'MAX_ENTRIES': 5000},
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'MAX_ENTRIES': 5000,
+        },
     },
 }
 
@@ -400,9 +408,9 @@ if TESTING:
             'LOCATION': 'testing_cache_sessions',
         },
     }
-    # give random char field values a reasonable length
     from model_bakery import random_gen
 
+    # give random char field values a reasonable length
     BAKER_CUSTOM_FIELDS_GEN = {'django.db.models.CharField': lambda: random_gen.gen_string(20)}
 
 
