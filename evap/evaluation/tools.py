@@ -20,7 +20,7 @@ def is_prefetched(instance, attribute_name):
 
 
 def is_external_email(email):
-    return not any([email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS])
+    return not any(email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS)
 
 
 def sort_formset(request, formset):

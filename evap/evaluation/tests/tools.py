@@ -79,7 +79,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
-    baker.make(
+    contribution = baker.make(
         Contribution,
         evaluation=evaluation,
         contributor=editor,
@@ -92,6 +92,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         'evaluation': evaluation,
         'responsible': responsible,
         'editor': editor,
+        'contribution': contribution,
     }
 
 

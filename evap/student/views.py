@@ -17,9 +17,8 @@ from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.tools import question_id
 
-from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                textanswers_visible_to, normalized_distribution)
+from evap.results.tools import (annotate_distributions_and_grades, get_evaluations_with_course_result_attributes,
+                                textanswers_visible_to)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -52,14 +51,8 @@ def index(request):
             inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]['num_voters']
             inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]['num_participants']
 
-    for evaluation in evaluations:
-        if evaluation.state == "published":
-            if not evaluation.is_single_result:
-                evaluation.distribution = calculate_average_distribution(evaluation)
-            else:
-                evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
-                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
-            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+    annotate_distributions_and_grades(e for e in evaluations if e.state == "published")
+
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
 
     # evaluations must be sorted for regrouping them in the template

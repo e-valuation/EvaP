@@ -29,11 +29,11 @@ def forward_messages(request, success_messages, warnings):
 
 
 class ImportType(Enum):
-    User = 'user'
-    Contributor = 'contributor'
-    Participant = 'participant'
-    Semester = 'semester'
-    UserBulkUpdate = 'user_bulk_update'
+    USER = 'user'
+    CONTRIBUTOR = 'contributor'
+    PARTICIPANT = 'participant'
+    SEMESTER = 'semester'
+    USER_BULK_UPDATE = 'user_bulk_update'
 
 
 def generate_import_filename(user_id, import_type):

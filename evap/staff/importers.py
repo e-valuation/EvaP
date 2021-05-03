@@ -677,10 +677,10 @@ class PersonImporter:
 
         # the user import also makes these users active
         user_list, importer.success_messages, importer.warnings, importer.errors = UserImporter.process(file_content, test_run)
-        if import_type == ImportType.Participant:
+        if import_type == ImportType.PARTICIPANT:
             importer.process_participants(evaluation, test_run, user_list)
         else:
-            assert import_type == ImportType.Contributor
+            assert import_type == ImportType.CONTRIBUTOR
             importer.process_contributors(evaluation, test_run, user_list)
 
         return importer.success_messages, importer.warnings, importer.errors
@@ -689,11 +689,11 @@ class PersonImporter:
     def process_source_evaluation(cls, import_type, evaluation, test_run, source_evaluation):
         importer = cls()
 
-        if import_type == ImportType.Participant:
+        if import_type == ImportType.PARTICIPANT:
             user_list = list(source_evaluation.participants.all())
             importer.process_participants(evaluation, test_run, user_list)
         else:
-            assert import_type == ImportType.Contributor
+            assert import_type == ImportType.CONTRIBUTOR
             user_list = list(UserProfile.objects.filter(contributions__evaluation=source_evaluation))
             importer.process_contributors(evaluation, test_run, user_list)
 

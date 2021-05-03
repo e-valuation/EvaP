@@ -388,7 +388,7 @@ class Evaluation(LoggedModel):
     wait_for_grade_upload_before_publishing = models.BooleanField(verbose_name=_("wait for grade upload before publishing"), default=True)
 
     class TextAnswerReviewState(Enum):
-        do_not_call_in_templates = True
+        do_not_call_in_templates = True  # pylint: disable=invalid-name
         NO_TEXTANSWERS = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
