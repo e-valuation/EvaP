@@ -159,10 +159,9 @@ class LoginTestsWithCSRF(WebTest):
         form = page.forms['email-login-form']
         form['email'] = self.staff_user.email
         form['password'] = self.staff_user_password
-        form.submit()
+        page = form.submit().follow().follow()
 
         # staff user should now be logged in and see the logout button
-        page = self.app.get(reverse('results:index'))
         self.assertContains(page, 'Logout')
 
         # log out user
@@ -174,11 +173,9 @@ class LoginTestsWithCSRF(WebTest):
         form = page.forms['email-login-form']
         form['email'] = self.staff_user.email
         form['password'] = self.staff_user_password
-        form.submit()
+        page = form.submit().follow().follow()
 
         # enter staff mode
-        page = self.app.get(reverse('results:index'))
-        page.forms['enter-staff-mode-form'].submit()
-        page = self.app.get(reverse('results:index'))
+        page = page.forms['enter-staff-mode-form'].submit().follow().follow()
         self.assertTrue('staff_mode_start_time' in self.app.session)
         self.assertContains(page, 'Users')

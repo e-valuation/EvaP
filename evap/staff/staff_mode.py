@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 
 from evap.settings import STAFF_MODE_TIMEOUT, STAFF_MODE_INFO_TIMEOUT
-from evap.staff.tools import delete_navbar_cache_for_users
 
 
 def staff_mode_middleware(get_response):
@@ -59,11 +58,9 @@ def update_staff_mode(request):
 
 def enter_staff_mode(request):
     update_staff_mode(request)
-    delete_navbar_cache_for_users([request.user])
 
 
 def exit_staff_mode(request):
     if is_in_staff_mode(request):
         del request.session['staff_mode_start_time']
         request.session.modified = True
-        delete_navbar_cache_for_users([request.user])
