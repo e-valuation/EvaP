@@ -103,14 +103,14 @@
                         <div class="btn-group">
                             <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Regular mode' %}">
-                                    <span class="fas fa-user"></span>
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Regular mode' %}" onclick="setSpinnerIcon('span-exit-staff-mode')">
+                                    <span id="span-exit-staff-mode" class="fas fa-user"></span>
                                 </button>
                             </form>
                             <form id="enter-staff-mode-form" class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Staff mode' %}">
-                                    <span class="fas fa-briefcase"></span>
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Staff mode' %}" onclick="setSpinnerIcon('span-enter-staff-mode')">
+                                    <span id="span-enter-staff-mode" class="fas fa-briefcase"></span>
                                 </button>
                             </form>
                         </div>

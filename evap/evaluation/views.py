@@ -13,8 +13,10 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import NewKeyForm, LoginEmailForm
-from evap.middleware import no_login_required
 from evap.evaluation.models import FaqSection, EmailTemplate, Semester
+from evap.middleware import no_login_required
+from evap.staff.tools import delete_navbar_cache_for_users
+
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +89,9 @@ def index(request):
             openid_active=settings.ACTIVATE_OPEN_ID_LOGIN,
         )
         return render(request, "index.html", template_data)
+
+    # the cached navbar might contain CSRF tokens that are invalid after a new login
+    delete_navbar_cache_for_users([request.user])
 
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
