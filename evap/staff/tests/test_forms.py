@@ -66,7 +66,7 @@ class QuestionnaireFormTest(TestCase):
 class EvaluationEmailFormTests(TestCase):
     def test_evaluation_email_form(self):
         """
-            Tests the EvaluationEmailForm with one valid and one invalid input dataset.
+            Tests the EvaluationEmailForm with two valid and one invalid input datasets.
         """
         evaluation = create_evaluation_with_responsible_and_editor()['evaluation']
         data = {"plain_content": "wat", "html_content": "<p>wat</p>", "subject": "some subject", "recipients": [EmailTemplate.Recipients.DUE_PARTICIPANTS]}
@@ -74,7 +74,11 @@ class EvaluationEmailFormTests(TestCase):
         self.assertTrue(form.is_valid())
         form.send(None)
 
-        data = {"body": "wat", "subject": "some subject"}
+        data = {"plain_content": "wat", "html_content": "", "subject": "some subject", "recipients": [EmailTemplate.Recipients.DUE_PARTICIPANTS]}
+        form = EvaluationEmailForm(evaluation=evaluation, data=data)
+        self.assertTrue(form.is_valid())
+
+        data = {"plain_content": "wat", "html_content": "<p>wat</p>", "subject": "some subject"}
         form = EvaluationEmailForm(evaluation=evaluation, data=data)
         self.assertFalse(form.is_valid())
 

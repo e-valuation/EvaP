@@ -469,7 +469,7 @@ class EvaluationEmailForm(forms.Form):
         self.recipient_groups = None
         self.fields['subject'].required = not export
         self.fields['plain_content'].required = not export
-        self.fields['html_content'].required = not export
+        self.fields['html_content'].required = False
 
 
     def clean(self):
