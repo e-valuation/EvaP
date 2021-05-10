@@ -1953,7 +1953,8 @@ class TestEvaluationEmailView(WebTestStaffMode):
         form = page.forms["evaluation-email-form"]
         form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
-        form["body"] = "asdf"
+        form["plain_content"] = "asdf"
+        form["html_content"] = "<p>asdf</p>"
         form.submit()
 
         self.assertEqual(len(mail.outbox), 2)
@@ -2533,9 +2534,6 @@ class TestTemplateEditView(WebTestStaffMode):
         cls.manager = make_manager()
 
     def test_emailtemplate(self):
-        """
-            Tests the emailtemplate view with one valid and two invalid input datasets.
-        """
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
@@ -2551,7 +2549,7 @@ class TestTemplateEditView(WebTestStaffMode):
         self.assertEqual(EmailTemplate.objects.get(pk=1).plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(EmailTemplate.objects.get(pk=1).html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-        form["html_content"] = ""
+        form["html_content"] = " invalid tag: {{}}"
         form.submit()
         self.assertEqual(EmailTemplate.objects.get(pk=1).plain_content, "plain_content: mflkd862xmnbo5")
         self.assertEqual(EmailTemplate.objects.get(pk=1).html_content, "html_content: <p>mflkd862xmnbo5</p>")

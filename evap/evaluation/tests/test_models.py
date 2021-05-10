@@ -658,20 +658,20 @@ class TestEmailTemplate(TestCase):
         template.send_to_user(user, {}, {}, False, None)
 
     def test_send_multi_alternatives_email(self):
-        template = EmailTemplate(subject='Example', plain_content='Example body', html_content='<p>Example body</p>')
+        template = EmailTemplate(subject='Example', plain_content='Example plain content', html_content='<p>Example html content</p>')
         template.send_to_user(self.user, {}, {}, False)
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
-        self.assertEqual(mail.outbox[0].body, 'Example body')
+        self.assertEqual(mail.outbox[0].body, 'Example plain content')
         self.assertEqual(len(mail.outbox[0].alternatives), 1)
         self.assertEqual(mail.outbox[0].alternatives[0][1], 'text/html')
-        self.assertIn('<p>Example body</p>', mail.outbox[0].alternatives[0][0])
+        self.assertIn('<p>Example html content</p>', mail.outbox[0].alternatives[0][0])
 
-    def test_send_only_plain_body_on_empty_html_body(self):
-        template = EmailTemplate(subject='Example', plain_content='Example body', html_content='')
+    def test_copy_plain_content_on_empty_html_content(self):
+        template = EmailTemplate(subject='Example', plain_content='Example plain content', html_content='')
         template.send_to_user(self.user, {}, {}, False)
-        self.assertEqual(mail.outbox[0].body, 'Example body')
-        self.assertEqual(len(mail.outbox[0].alternatives), 0)
+        self.assertEqual(mail.outbox[0].body, 'Example plain content')
+        self.assertIn('Example plain content', mail.outbox[0].alternatives[0][0])
 
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
