@@ -2,7 +2,7 @@
     <div class="col-md-2">
         <div class="nav nav-pills btn-switch btn-group-vertical float-right" role="tablist">
             {% for field in fields %}
-                <a class="px-2 py-1 space-normal font-weight-bold btn btn-light text-center nav-link {% ifequal forloop.counter 1 %}show active{% endifequal %}" href="#tab-{{ field.id_for_label }}" data-toggle="pill" role="tab" aria-controls="pills-{{ field.label }}" aria-selected="{% ifequal forloop.counter 1 %}true{% endifequal %}">
+                <a class="px-2 py-1 space-normal font-weight-bold btn btn-light text-center nav-link {% if forloop.first %}show active{% endif %}" href="#tab-{{ field.id_for_label }}" data-toggle="pill" role="tab" aria-controls="pills-{{ field.label }}" aria-selected="{% if forloop.first %}true{% endif %}">
                     {{ field.label }}
                 </a>
             {% endfor %}
@@ -10,7 +10,7 @@
     </div>
     <div class="tab-content col-md-10">
         {% for field in fields %}
-            <div class="tab-pane fade {% ifequal forloop.counter 1 %}show active{% endifequal %}" id="tab-{{ field.id_for_label }}" role="tabpanel" aria-labelledby="pills-{{ field.label }}-tab">
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ field.id_for_label }}" role="tabpanel" aria-labelledby="pills-{{ field.label }}-tab">
                 {% include 'bootstrap_form_field_widget.html' with field=field %}
             </div>
         {% endfor %}
