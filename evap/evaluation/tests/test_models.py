@@ -673,6 +673,12 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(mail.outbox[0].body, 'Example plain content')
         self.assertIn('Example plain content', mail.outbox[0].alternatives[0][0])
 
+    def test_escape_special_characters_in_html_email(self):
+        template = EmailTemplate(subject='<h1>Special Email</h1>', plain_content='Example plain content', html_content='Special Content: {{special_content}}')
+        template.send_to_user(self.user, {}, {"special_content": "0 < 1"}, False)
+        self.assertIn('&lt;h1&gt;Special Email&lt;/h1&gt;', mail.outbox[0].alternatives[0][0])
+        self.assertIn('Special Content: 0 &lt; 1', mail.outbox[0].alternatives[0][0])
+
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
         delegate_b = baker.make(UserProfile, email='delegate-b@example.com')

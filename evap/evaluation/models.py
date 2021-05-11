@@ -23,6 +23,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import escape
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
@@ -1629,8 +1630,8 @@ class EmailTemplate(models.Model):
         return list(recipients)
 
     @staticmethod
-    def render_string(text, dictionary):
-        return Template(text).render(Context(dictionary, autoescape=False))
+    def render_string(text, dictionary, autoescape=False):
+        return Template(text).render(Context(dictionary, autoescape))
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
@@ -1688,8 +1689,8 @@ class EmailTemplate(models.Model):
             bcc=[a[1] for a in settings.MANAGERS],
             headers={'Reply-To': settings.REPLY_TO_EMAIL})
 
-        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params)
-        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': subject}, **body_params)
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params, True)
+        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
         wrapped_content = render_to_string('email_base.html', wrapper_template_params)
         mail.attach_alternative(wrapped_content, "text/html")
 
