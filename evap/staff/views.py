@@ -1025,7 +1025,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, file_content=file_content)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
- 
+
         else:
             if 'import' in operation:
                 if 'replace' in operation:
@@ -1041,10 +1041,10 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                         deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
                     import_evaluation = copy_form.cleaned_data['evaluation']
                     success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
-   
+
             if 'replace' in operation:
                 success_messages.insert(0, format_html(deletion_message, deleted_person_count, evaluation.name))
-               
+
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 

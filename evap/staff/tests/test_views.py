@@ -1818,7 +1818,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-copy-form"]
         form["evaluation"] = str(self.evaluation2.pk)
-        page = form.submit(name="operation", value="copy-contributors")
+        page = form.submit(name="operation", value="copy-replace-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(new_contributor_count, UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count())
