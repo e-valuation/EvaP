@@ -1678,29 +1678,34 @@ class EmailTemplate(models.Model):
         body_params['page_url'] = settings.PAGE_URL
         body_params['contact_email'] = settings.CONTACT_EMAIL
 
-        subject = self.render_string(self.subject, subject_params)
-        plain_content = self.render_string(self.plain_content, body_params)
-
-        mail = EmailMultiAlternatives(
-            subject=subject,
-            body=plain_content,
-            to=[user.email],
-            cc=cc_addresses,
-            bcc=[a[1] for a in settings.MANAGERS],
-            headers={'Reply-To': settings.REPLY_TO_EMAIL})
-
-        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params, True)
-        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
-        wrapped_content = render_to_string('email_base.html', wrapper_template_params)
-        mail.attach_alternative(wrapped_content, "text/html")
+        mail = self.construct_mail(user.email, cc_addresses, subject_params, body_params)
 
         try:
             mail.send(False)
-            logger.info(('Sent email "{}" to {}.').format(subject, user.full_name_with_additional_info))
+            logger.info(('Sent email "{}" to {}.').format(mail.subject, user.full_name_with_additional_info))
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
+
+    def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
+        subject = self.render_string(self.subject, subject_params)
+        plain_content = self.render_string(self.plain_content, body_params)
+
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params, True)
+        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
+        wrapped_content = render_to_string('email_base.html', wrapper_template_params)
+
+        mail = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_content,
+            to=[to_email],
+            cc=cc_addresses,
+            bcc=[a[1] for a in settings.MANAGERS],
+            headers={'Reply-To': settings.REPLY_TO_EMAIL},
+            alternatives=[(wrapped_content, "text/html")])
+
+        return mail
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
