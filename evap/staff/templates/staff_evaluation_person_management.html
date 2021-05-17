@@ -20,17 +20,17 @@
                             <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
-            	        {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}                    
+            	        {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
                     </div>
-                    <div class="card-footer text-center">                      
+                    <div class="card-footer text-center">
                         {% if not participant_test_passed %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                        <div class="mt-2">
-                            <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary mr-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
-                            <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace all' %}</button>
-                        </div>
+                            <div class="mt-2">
+                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary mr-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace all' %}</button>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -76,10 +76,10 @@
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                         {% else %}
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
-                        <div class="mt-2">
-                            <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                            <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace all' %}</button>
-                        </div>
+                            <div class="mt-2">
+                                <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace all' %}</button>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -142,19 +142,19 @@
         };
     </script>
 
-{% trans 'Replace participants' as title %}
-{% blocktrans asvar question %}Do you really want to delete all existing participants and replace them with participant data from the Excel file?{% endblocktrans %}
-{% trans 'Replace participants' as action_text %}
-{% include 'confirmation_modal.html' with modal_id='replaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
-<script type="text/javascript">
-    function replaceParticipantsModalAction(dataId) {
-        var input = $("<input>")
-           .attr("type", "hidden")
-           .attr("name", "operation").val(dataId);
-        $('#participant-import-form').append(input);
-        $('#participant-import-form').submit();
-    };
-</script>
+    {% trans 'Replace participants' as title %}
+    {% blocktrans asvar question %}Do you really want to delete all existing participants and replace them with participant data from the Excel file?{% endblocktrans %}
+    {% trans 'Replace participants' as action_text %}
+    {% include 'confirmation_modal.html' with modal_id='replaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
+    <script type="text/javascript">
+        function replaceParticipantsModalAction(dataId) {
+            var input = $("<input>")
+            .attr("type", "hidden")
+            .attr("name", "operation").val(dataId);
+            $('#participant-import-form').append(input);
+            $('#participant-import-form').submit();
+        };
+    </script>
 
     {% trans 'Copy participants' as title %}
     {% blocktrans asvar question %}Do you really want to copy the participants?{% endblocktrans %}
@@ -166,7 +166,7 @@
             .attr("type", "hidden")
             .attr("name", "operation").val(dataId);
             $('#participant-copy-form').append(input);
-            $('#participant-copy-form').submit();  
+            $('#participant-copy-form').submit();
         };
     </script>
 
@@ -194,7 +194,7 @@
             .attr("type", "hidden")
             .attr("name", "operation").val(dataId);
             $('#contributor-import-form').append(input);
-            $('#contributor-import-form').submit(); 
+            $('#contributor-import-form').submit();
         };
     </script>
 
@@ -207,8 +207,8 @@
             var input = $("<input>")
             .attr("type", "hidden")
             .attr("name", "operation").val(dataId);
-            $('#participant-import-form').append(input);
-            $('#participant-import-form').submit();
+            $('#contributor-import-form').append(input);
+            $('#contributor-import-form').submit();
         };
     </script>
 
@@ -222,7 +222,7 @@
             .attr("type", "hidden")
             .attr("name", "operation").val(dataId);
             $('#contributor-copy-form').append(input);
-            $('#contributor-copy-form').submit(); 
+            $('#contributor-copy-form').submit();
         };
     </script>
 

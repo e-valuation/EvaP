@@ -1459,7 +1459,7 @@ class TestEvaluationCreateView(WebTestStaffMode):
 
 
 class TestEvaluationCopyView(WebTestStaffMode):
-    
+
 
     @classmethod
     def setUpTestData(cls):
@@ -1735,7 +1735,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(self.evaluation2.participants.count(), original_participant_count)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="replace-participants")
+        form.submit(name="operation", value="import-replace-participants") #Hier macht er nix, aber wieso
         self.assertEqual(self.evaluation2.participants.count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -1752,10 +1752,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count())
 
-    def test_copy_participants(self):
+    def test_replace_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
-
-        original_participant_count = self.evaluation.participants.count()
 
         form = page.forms["participant-copy-form"]
         form["evaluation"] = str(self.evaluation2.pk)
@@ -1795,7 +1793,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), original_contributor_count)
 
         form = page.forms["contributor-import-form"]
-        form.submit(name="operation", value="replace-contributors")
+        form.submit(name="operation", value="import-replace-contributors")
         self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
 
         page = self.app.get(self.url, user=self.manager)
@@ -1815,8 +1813,6 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
     def test_copy_replace_contributors(self):
         page = self.app.get(self.url, user=self.manager)
-
-        original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
         form = page.forms["contributor-copy-form"]
         form["evaluation"] = str(self.evaluation2.pk)

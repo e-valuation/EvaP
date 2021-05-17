@@ -974,25 +974,23 @@ def evaluation_email(request, semester_id, evaluation_id):
 
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
-def delete_users_from_evaluation(evaluation, operation):
-    deleted_person_count = 0
-    deletion_message = ""
+def helper_delete_users_from_evaluation(evaluation, operation):
     if 'participants' in operation:
         deleted_person_count = evaluation.participants.count()
         deletion_message = _("{} participants were deleted from evaluation {}")
         evaluation.participants.clear()
-
     elif 'contributors' in operation:
         deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
         deletion_message = _("{} contributors were deleted from evaluation {}")
         evaluation.contributions.exclude(contributor=None).delete()
+
     return deleted_person_count, deletion_message
 
 @manager_required
 def evaluation_person_management(request, semester_id, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals, too-many-branches
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
@@ -1018,7 +1016,6 @@ def evaluation_person_management(request, semester_id, evaluation_id):
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
-
         if 'test' in operation:
             delete_import_file(request.user.id, import_type)  # remove old files if still exist
             excel_form.fields['excel_file'].required = True
@@ -1028,11 +1025,11 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 success_messages, warnings, errors = PersonImporter.process_file_content(import_type, evaluation, test_run=True, file_content=file_content)
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
-        
+ 
         else:
             if 'import' in operation:
                 if 'replace' in operation:
-                    deleted_person_count, deletion_message = delete_users_from_evaluation(evaluation, operation)
+                    deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
                 file_content = get_import_file_content_or_raise(request.user.id, import_type)
                 success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
                 delete_import_file(request.user.id, import_type)
@@ -1041,13 +1038,13 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 copy_form.evaluation_selection_required = True
                 if copy_form.is_valid():
                     if 'replace' in operation:
-                        deleted_person_count, deletion_message = delete_users_from_evaluation(evaluation, operation)
+                        deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
                     import_evaluation = copy_form.cleaned_data['evaluation']
                     success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
-            
+   
             if 'replace' in operation:
                 success_messages.insert(0, format_html(deletion_message, deleted_person_count, evaluation.name))
-                
+               
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 
