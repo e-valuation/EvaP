@@ -39,8 +39,8 @@
       <td class="email-content" style="padding: 4%; width: 100%">
         <table style="background-color: white; width: 100%; border: 2px solid #F0F0F0; border-collapse: collapse;">
           <tr>
-            <td style="text-align: center; font-size: 18px; padding: 10px; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
-              {{ email_subject|linebreaks }}
+            <td style="text-align: center; font-size: 18px; padding: 1em; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
+              {{ email_subject|linebreaksbr }}
             </td>
           </tr>
           <tr>
@@ -50,7 +50,7 @@
           </tr>
         </table>
       </td>
-      <td class="spacer">
+      <td class="spacer" style="width: 0px;">
       </td>
     </tr>
   </table>
