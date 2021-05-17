@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, timedelta
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 import logging
 import operator
 import secrets
@@ -25,7 +25,7 @@ from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
-from evap.evaluation.models_logging import LoggedModel
+from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
 
 logger = logging.getLogger(__name__)
@@ -847,6 +847,18 @@ class Evaluation(LoggedModel):
     @property
     def unlogged_fields(self):
         return super().unlogged_fields + ["voters", "is_single_result", "can_publish_text_results", "_voter_count", "_participant_count"]
+
+    @classmethod
+    def transform_log_action(cls, field_action):
+        import pdb
+        pdb.set_trace()
+        if field_action.label == "State":
+            return FieldAction(
+                field_action.label,
+                field_action.type,
+                [cls.state_to_str(state) for state in field_action.items]
+            )
+        return field_action
 
 
 @receiver(post_transition, sender=Evaluation)

@@ -57,8 +57,8 @@ class TestResultsView(WebTest):
         student = baker.make(UserProfile, email="student@institution.example.com")
 
         course = baker.make(Course)
-        evaluation1 = baker.make(Evaluation, name_de='random_evaluation_d', name_en='random_evaluation_a', course=course, state='published')
-        evaluation2 = baker.make(Evaluation, name_de='random_evaluation_c', name_en='random_evaluation_b', course=course, state='published')
+        evaluation1 = baker.make(Evaluation, name_de='random_evaluation_d', name_en='random_evaluation_a', course=course, state=Evaluation.State.PUBLISHED)
+        evaluation2 = baker.make(Evaluation, name_de='random_evaluation_c', name_en='random_evaluation_b', course=course, state=Evaluation.State.PUBLISHED)
 
         page = self.app.get(self.url, user=student).body.decode()
         self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
