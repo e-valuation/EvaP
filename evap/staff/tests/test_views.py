@@ -1686,6 +1686,7 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
     url = "/staff/semester/1/evaluation/1/person_management"
+    url2 = "/staff/semester/1/evaluation/2/person_management"
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -1697,6 +1698,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester))
         profiles = baker.make(UserProfile, _quantity=42)
         cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles)
+        cls.contribution2 = baker.make(Contribution, evaluation=cls.evaluation2, contributor=baker.make(UserProfile))
 
     @classmethod
     def tearDown(cls):
@@ -1723,7 +1725,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_replace_valid_participants_file(self):
-        page = self.app.get(self.url, user=self.manager)
+        page = self.app.get(self.url2, user=self.manager)
 
         original_participant_count = self.evaluation2.participants.count()
 
@@ -1735,10 +1737,10 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertEqual(self.evaluation2.participants.count(), original_participant_count)
 
         form = page.forms["participant-import-form"]
-        form.submit(name="operation", value="import-replace-participants") #Hier macht er nix, aber wieso
+        form.submit(name="operation", value="import-replace-participants")
         self.assertEqual(self.evaluation2.participants.count(), 2)
 
-        page = self.app.get(self.url, user=self.manager)
+        page = self.app.get(self.url2, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_copy_participants(self):
@@ -1781,7 +1783,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotContains(page, 'Import previously uploaded file')
 
     def test_replace_valid_contributors_file(self):
-        page = self.app.get(self.url, user=self.manager)
+        page = self.app.get(self.url2, user=self.manager)
 
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count()
 
