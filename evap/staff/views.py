@@ -974,6 +974,7 @@ def evaluation_email(request, semester_id, evaluation_id):
 
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
+
 def helper_delete_users_from_evaluation(evaluation, operation):
     if 'participants' in operation:
         deleted_person_count = evaluation.participants.count()
