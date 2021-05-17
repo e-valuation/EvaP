@@ -295,7 +295,7 @@ def merge_users(main_user, other_user, preview=False):
 
 
 def find_unreviewed_evaluations(semester, excluded):
-    # as evaluations are open for an offset of hours after vote_end_datetime, the evaluations ending yesterday are also xcluded during offset
+    # as evaluations are open for an offset of hours after vote_end_datetime, the evaluations ending yesterday are also excluded during offset
     exclude_date = date.today()
     if datetime.now().hour < settings.EVALUATION_END_OFFSET_HOURS:
         exclude_date -= timedelta(days=1)

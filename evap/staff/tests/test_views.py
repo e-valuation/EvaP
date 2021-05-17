@@ -1896,7 +1896,6 @@ class TestEvaluationEmailView(WebTestStaffMode):
         self.assertEqual(len(mail.outbox), 2)
 
 
-@override_settings(EVALUATION_END_OFFSET_HOURS=26)
 class TestEvaluationTextAnswerView(WebTest):
     url = '/staff/semester/1/evaluation/1/textanswers'
 
@@ -1910,7 +1909,7 @@ class TestEvaluationTextAnswerView(WebTest):
         cls.evaluation = baker.make(
             Evaluation,
             pk=1,
-            course=baker.make(Course, semester=semester),
+            course__semester=semester,
             participants=[student1, cls.student2],
             voters=[student1],
             state="in_evaluation"
@@ -1932,16 +1931,13 @@ class TestEvaluationTextAnswerView(WebTest):
 
         cls.evaluation2 = baker.make(
             Evaluation,
-            pk=2,
-            course=baker.make(Course, semester=semester),
+            course__semester=semester,
             participants=[student1],
             voters=[student1, cls.student2],
             vote_start_datetime=datetime.datetime.now() - datetime.timedelta(days=5),
             vote_end_date=datetime.date.today() - datetime.timedelta(days=4),
             can_publish_text_results=True
         )
-
-        cls.evaluation2.general_contribution.questionnaires.set([top_general_questionnaire])
 
         contribution2 = baker.make(
             Contribution,
@@ -1980,18 +1976,19 @@ class TestEvaluationTextAnswerView(WebTest):
             page = self.app.get(self.url + '?view=full', user=self.manager, status=200)
             self.assertContains(page, self.answer)
 
-    def test_exclude_unreviewed_evaluations(self):
-        # evaluation that ended 2 days ago is definitely finished and should be proposed
+    @override_settings(EVALUATION_END_OFFSET_HOURS=26)
+    def test_exclude_unfinished_evaluations(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
+            # evaluation2 is finished and should show up
             self.assertContains(page, self.evaluation2.full_name)
 
-        # with an offset of 26 hours, evaluations with vote_end_date yesterday haven't finished yet
         self.evaluation2.vote_end_date = datetime.date.today() - datetime.timedelta(days=1)
         self.evaluation2.save()
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
+            # unfinished because still in EVALUATION_END_OFFSET_HOURS
             self.assertNotContains(page, self.evaluation2.full_name)
 
 
