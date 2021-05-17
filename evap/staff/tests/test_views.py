@@ -35,6 +35,7 @@ from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,
+    render_pages,
 )
 from evap.results.tools import cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
@@ -419,6 +420,12 @@ class TestUserImportView(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
+
+    @render_pages
+    def render_pages(self):
+        return {
+            "normal": self.app.get(self.url, user=self.manager).content,
+        }
 
     def test_success_handling(self):
         """

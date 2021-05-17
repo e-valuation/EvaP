@@ -11,7 +11,7 @@
     },
     "jest": {
         "rootDir": "evap/static/ts",
-        "testMatch": ["**/tests/unit/**/*.ts"],
+        "testMatch": ["**/tests/unit/**/*.ts", "**/tests/frontend/**/*.ts"],
         "moduleDirectories": [
             "node_modules",
             "evap/static/ts"
