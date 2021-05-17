@@ -107,7 +107,7 @@ def evaluation_view(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not evaluation.is_user_editor_or_delegate(user) or evaluation.state not in [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]:
+    if not evaluation.is_user_editor_or_delegate(user) or Evaluation.State.NEW < evaluation.state < Evaluation.State.PUBLISHED:
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
@@ -198,7 +198,7 @@ def evaluation_preview(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and evaluation.state in [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]):
+    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and Evaluation.State.NEW < evaluation.state < Evaluation.State.PUBLISHED):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]

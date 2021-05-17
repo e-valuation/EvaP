@@ -292,7 +292,7 @@ def get_evaluations_with_course_result_attributes(evaluations):
 
 
 def calculate_average_distribution(evaluation):
-    assert evaluation.state in {Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
+    assert evaluation.state >= Evaluation.State.IN_EVALUATION
 
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None
