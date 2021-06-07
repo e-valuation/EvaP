@@ -1,11 +1,11 @@
 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
-{% if email_form and form.html_content in form.visible_fields %}
-    {% with bodies=form.visible_fields|slice:"-2:" rest=form.visible_fields|slice:":-2" %}
-        {% for field in rest %}
+{% if fields_as_pills %}
+    {% for field in form %}
+        {% if field not in fields_as_pills %}
             {% include 'bootstrap_form_field.html' with field=field %}
-        {% endfor %}
-        {% include 'bootstrap_form_pill_group.html' with fields=bodies %}
-    {% endwith %}
+        {% endif %}
+    {% endfor %}
+    {% include 'bootstrap_form_pill_group.html' with fields=fields_as_pills %}
 {% else %}
     {% for field in form %}
         {% include 'bootstrap_form_field.html' with field=field %}

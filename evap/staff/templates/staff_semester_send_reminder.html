@@ -17,7 +17,7 @@
                 <fieldset>
                     <div class="row justify-content-center">
                         <div class="email-form col-9">
-                            {% include 'bootstrap_form.html' with form=form email_form=True %}
+                            {% include 'bootstrap_form.html' with form=form email_form=True fields_as_pills=form.visible_fields|slice:"-2:" %}
                         </div>
                     </div>
                 </fieldset>
