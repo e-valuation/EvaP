@@ -6,17 +6,6 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="viewport" content="width=device-width; initial-scale=1; shrink-to-fit=no"/>
   <title>EvaP</title>
-  <style>
-    @media (min-width: 768px) {
-      .spacer {
-        width: 15% !important;
-      }
-
-      .email-content {
-        width: 70% !important;
-      }
-    }
-  </style>
 </head>
 
 <body style="margin: 0px; padding: 0px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; background-color: #ffffff;">
@@ -34,23 +23,19 @@
 
   <table style="width: 100%; border-collapse: collapse;">
     <tr style="background-color: #FDFDFD;">
-      <td class="spacer" style="width: 0px;">
-      </td>
-      <td class="email-content" style="padding: 4%; width: 100%">
-        <table style="background-color: white; width: 100%; border: 2px solid #F0F0F0; border-collapse: collapse;">
+      <td style="padding: 1em; width: 100%; text-align: center;">
+        <table style="background-color: white; max-width: 1000px; margin: 0 auto; border: 2px solid #F0F0F0; border-collapse: collapse;">
           <tr>
-            <td style="text-align: center; font-size: 18px; padding: 1em; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
+            <td style="text-align: center; font-size: 18px; padding: 1.25em; background-color: #F8F8F8; border-bottom: 2px solid #F0F0F0">
               {{ email_subject|linebreaksbr }}
             </td>
           </tr>
           <tr>
-            <td style="padding: 2%">
+            <td style="padding: 1em; text-align: left;">
               {{ email_content|linebreaksbr }}
             </td>
           </tr>
         </table>
-      </td>
-      <td class="spacer" style="width: 0px;">
       </td>
     </tr>
   </table>
