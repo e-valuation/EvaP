@@ -21,19 +21,19 @@
 {% endwith %}
 
 {% if state < evaluation.State.IN_EVALUATION %}
-    <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+    <td class="icon" data-col="state-evaluating" data-order="1" data-filter={{ evaluation.state }}>
         <span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span>
     </td>
 {% elif state == evaluation.State.APPROVED %}
-    <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
+    <td class="icon" data-col="state-evaluating" data-order="1" data-filter={{ evaluation.state }}>
         <span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Waiting for evaluation period to start' %}"></span>
     </td>
 {% elif state == evaluation.State.IN_EVALUATION %}
-    <td class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
+    <td class="icon" data-col="state-evaluating" data-order="2" data-filter={{ evaluation.state }}>
         <span class="fas fa-play icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}"></span>
     </td>
 {% elif state >= evaluation.State.EVALUATED %}
-    <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
+    <td class="icon" data-col="state-evaluating" data-order="3" data-filter={{ evaluation.state }}>
         <span class="fas fa-stop icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}"></span>
     </td>
 {% endif %}
