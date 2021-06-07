@@ -68,7 +68,6 @@ def _field_actions_for_field(field, actions):
         elif hasattr(field, "choices") and field.choices:
             # convert values from choice-based fields to their display equivalent
             items = [_choice_to_display(field, item) for item in items]
-        # TODO: check for Evaluation.State
         elif isinstance(field, models.BooleanField):
             # convert boolean to yes/no
             items = list(map(yesno, items))
@@ -275,8 +274,8 @@ class LoggedModel(models.Model):
         """Specify a list of field names so that these fields don't get logged."""
         return ['id', 'order']
 
-    @classmethod
-    def transform_log_action(cls, field_action):
+    @staticmethod
+    def transform_log_action(field_action):
         return field_action
 
 

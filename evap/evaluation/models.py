@@ -850,8 +850,6 @@ class Evaluation(LoggedModel):
 
     @classmethod
     def transform_log_action(cls, field_action):
-        import pdb
-        pdb.set_trace()
         if field_action.label == "State":
             return FieldAction(
                 field_action.label,
