@@ -1976,7 +1976,7 @@ class TestEvaluationTextAnswerView(WebTest):
             page = self.app.get(self.url + '?view=full', user=self.manager, status=200)
             self.assertContains(page, self.answer)
 
-    # keeps test safe from potential time zone changes and leap seconds
+    # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
     @override_settings(EVALUATION_END_OFFSET_HOURS=26)
     def test_exclude_unfinished_evaluations(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
