@@ -1909,7 +1909,7 @@ class TestEvaluationTextAnswerView(WebTest):
         cls.evaluation = baker.make(
             Evaluation,
             pk=1,
-            course=baker.make(Course, semester=semester),
+            course__semester=semester,
             participants=[student1, cls.student2],
             voters=[student1],
             state="in_evaluation"
@@ -1928,6 +1928,29 @@ class TestEvaluationTextAnswerView(WebTest):
         )
         cls.answer = 'should show up'
         baker.make(TextAnswer, contribution=contribution, question=question, answer=cls.answer)
+
+        cls.evaluation2 = baker.make(
+            Evaluation,
+            course__semester=semester,
+            participants=[student1],
+            voters=[student1, cls.student2],
+            vote_start_datetime=datetime.datetime.now() - datetime.timedelta(days=5),
+            vote_end_date=datetime.date.today() - datetime.timedelta(days=4),
+            can_publish_text_results=True
+        )
+
+        contribution2 = baker.make(
+            Contribution,
+            evaluation=cls.evaluation2,
+            contributor=baker.make(UserProfile),
+            questionnaires=[questionnaire],
+        )
+        cls.text_answer = baker.make(
+            TextAnswer,
+            contribution=contribution2,
+            question=question,
+            answer='test answer text',
+        )
 
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
@@ -1952,6 +1975,22 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             page = self.app.get(self.url + '?view=full', user=self.manager, status=200)
             self.assertContains(page, self.answer)
+
+    # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
+    @override_settings(EVALUATION_END_OFFSET_HOURS=26)
+    def test_exclude_unfinished_evaluations(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager, status=200)
+            # evaluation2 is finished and should show up
+            self.assertContains(page, self.evaluation2.full_name)
+
+        self.evaluation2.vote_end_date = datetime.date.today() - datetime.timedelta(days=1)
+        self.evaluation2.save()
+        with run_in_staff_mode(self):
+            page = self.app.get(self.url, user=self.manager, status=200)
+            # unfinished because still in EVALUATION_END_OFFSET_HOURS
+            self.assertNotContains(page, self.evaluation2.full_name)
 
 
 class TestEvaluationTextAnswerEditView(WebTest):
