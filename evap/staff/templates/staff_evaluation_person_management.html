@@ -20,7 +20,7 @@
                             <button type="button" class="btn-link" onclick="copyHeaders(['Title', 'First name', 'Last name', 'Email'])">{% trans 'Copy headers to clipboard' %}</button>).
                             {% trans 'This will create all containing users.' %}
                         </p>
-            	        {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
+                    {% include 'bootstrap_form.html' with form=participant_excel_form wide=True %}
                     </div>
                     <div class="card-footer text-center">
                         {% if not participant_test_passed %}
@@ -48,7 +48,7 @@
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyreplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace all' %}</button>
+                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace all' %}</button>
                     </div>
                 </div>
             </form>
@@ -175,7 +175,7 @@
     {% trans 'Replace participants' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='copyreplaceParticipantsModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
-        function copyreplaceParticipantsModalAction(dataId) {
+        function copyReplaceParticipantsModalAction(dataId) {
             var input = $("<input>")
             .attr("type", "hidden")
             .attr("name", "operation").val(dataId);

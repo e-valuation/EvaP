@@ -988,6 +988,7 @@ def helper_delete_users_from_evaluation(evaluation, operation):
     return deleted_person_count, deletion_message
 
 @manager_required
+@transaction.atomic
 def evaluation_person_management(request, semester_id, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
@@ -1028,9 +1029,12 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                     save_import_file(excel_file, request.user.id, import_type)
 
         else:
+            additional_messages = []
+            if 'replace' in operation:
+                deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
+                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.name)
+
             if 'import' in operation:
-                if 'replace' in operation:
-                    deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
                 file_content = get_import_file_content_or_raise(request.user.id, import_type)
                 success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
                 delete_import_file(request.user.id, import_type)
@@ -1038,13 +1042,10 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             elif 'copy' in operation:
                 copy_form.evaluation_selection_required = True
                 if copy_form.is_valid():
-                    if 'replace' in operation:
-                        deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
                     import_evaluation = copy_form.cleaned_data['evaluation']
                     success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
 
-            if 'replace' in operation:
-                success_messages.insert(0, format_html(deletion_message, deleted_person_count, evaluation.name))
+            success_messages.insert(0, additional_messages)
 
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
