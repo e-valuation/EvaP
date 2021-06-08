@@ -1696,7 +1696,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         semester = baker.make(Semester, pk=1)
         cls.manager = make_manager()
         profiles1 = baker.make(UserProfile, _quantity=31)
-        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants = profiles1)
+        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=profiles1)
         profiles2 = baker.make(UserProfile, _quantity=42)
         cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles2)
         cls.contribution2 = baker.make(Contribution, evaluation=cls.evaluation2, contributor=baker.make(UserProfile))
