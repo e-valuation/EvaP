@@ -93,6 +93,7 @@ class TestVoteView(WebTest):
         form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)] = "some text"
         form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)] = 3
         form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)] = 1
+        form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question, additional_textanswer=True)] = "some additional text"
 
         form[answer_field_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)] = "some bottom text"
         form[answer_field_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_grade_question)] = 4
@@ -102,6 +103,7 @@ class TestVoteView(WebTest):
 
         form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)] = "some other text"
         form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)] = 4
+        form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question, additional_textanswer=True)] = "some other additional text"
 
         form[answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)] = "some more text"
 
@@ -124,6 +126,7 @@ class TestVoteView(WebTest):
 
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
+        self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question, additional_textanswer=True)].value, "some additional text")
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
 
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
@@ -131,6 +134,7 @@ class TestVoteView(WebTest):
 
         self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value, "some other text")
         self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value, "4")
+        self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question, additional_textanswer=True)].value, "some other additional text")
 
         self.assertEqual(form[answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)].value, "some more text")
         self.assertEqual(form[answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_likert_question)].value, "2")
@@ -151,6 +155,7 @@ class TestVoteView(WebTest):
 
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_text_question)].value, "some text")
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question)].value, "1")
+        self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_likert_question, additional_textanswer=True)].value, "some additional text")
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.top_general_questionnaire, self.top_grade_question)].value, "3")
 
         self.assertEqual(form[answer_field_id(self.evaluation.general_contribution, self.bottom_general_questionnaire, self.bottom_text_question)].value, "some bottom text")
@@ -159,6 +164,7 @@ class TestVoteView(WebTest):
 
         self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_text_question)].value, "some other text")
         self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question)].value, "4")
+        self.assertEqual(form[answer_field_id(self.contribution1, self.contributor_questionnaire, self.contributor_likert_question, additional_textanswer=True)].value, "some other additional text")
 
         self.assertEqual(form[answer_field_id(self.contribution2, self.contributor_questionnaire, self.contributor_text_question)].value, "some more text")
 
@@ -175,7 +181,7 @@ class TestVoteView(WebTest):
         response = form.submit()
         self.assertEqual(SUCCESS_MAGIC_STRING, response.body.decode())
 
-        self.assertEqual(len(TextAnswer.objects.all()), 8)
+        self.assertEqual(len(TextAnswer.objects.all()), 12)
         self.assertEqual(len(RatingAnswerCounter.objects.all()), 6)
 
         self.assertEqual(RatingAnswerCounter.objects.filter(question=self.top_likert_question).count(), 1)
@@ -195,8 +201,10 @@ class TestVoteView(WebTest):
         self.assertEqual(RatingAnswerCounter.objects.get(question=self.contributor_likert_question, contribution=self.contribution2).answer, 2)
 
         self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question).count(), 2)
+        self.assertEqual(TextAnswer.objects.filter(question=self.top_likert_question).count(), 2)
         self.assertEqual(TextAnswer.objects.filter(question=self.bottom_text_question).count(), 2)
         self.assertEqual(TextAnswer.objects.filter(question=self.contributor_text_question).count(), 4)
+        self.assertEqual(TextAnswer.objects.filter(question=self.contributor_likert_question).count(), 2)
 
         self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[0].contribution, self.evaluation.general_contribution)
         self.assertEqual(TextAnswer.objects.filter(question=self.top_text_question)[1].contribution, self.evaluation.general_contribution)
@@ -204,11 +212,17 @@ class TestVoteView(WebTest):
         answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution1).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some other text"] * 2)
 
+        answers = TextAnswer.objects.filter(question=self.contributor_likert_question, contribution=self.contribution1).values_list('answer', flat=True)
+        self.assertEqual(list(answers), ["some other additional text"] * 2)
+
         answers = TextAnswer.objects.filter(question=self.contributor_text_question, contribution=self.contribution2).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some more text"] * 2)
 
         answers = TextAnswer.objects.filter(question=self.top_text_question, contribution=self.evaluation.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some text"] * 2)
+
+        answers = TextAnswer.objects.filter(question=self.top_likert_question, contribution=self.evaluation.general_contribution).values_list('answer', flat=True)
+        self.assertEqual(list(answers), ["some additional text"] * 2)
 
         answers = TextAnswer.objects.filter(question=self.bottom_text_question, contribution=self.evaluation.general_contribution).values_list('answer', flat=True)
         self.assertEqual(list(answers), ["some bottom text"] * 2)
