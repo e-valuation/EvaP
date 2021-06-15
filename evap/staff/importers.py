@@ -635,15 +635,15 @@ class PersonImporter:
         users_to_add = [user for user in user_list if user not in evaluation_participants]
 
         if already_related:
-            msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.name)
+            msg = format_html(_("The following {} users are already participants in evaluation {}:"), len(already_related), evaluation.full_name)
             msg += create_user_list_html_string_for_message(already_related)
             self.warnings[ImporterWarning.GENERAL].append(msg)
 
         if not test_run:
             evaluation.participants.add(*users_to_add)
-            msg = format_html(_("{} participants added to the evaluation {}:"), len(users_to_add), evaluation.name)
+            msg = format_html(_("{} participants added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
         else:
-            msg = format_html(_("{} participants would be added to the evaluation {}:"), len(users_to_add), evaluation.name)
+            msg = format_html(_("{} participants would be added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
         msg += create_user_list_html_string_for_message(users_to_add)
 
         self.success_messages.append(msg)
@@ -652,7 +652,7 @@ class PersonImporter:
         already_related_contributions = Contribution.objects.filter(evaluation=evaluation, contributor__in=user_list)
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
-            msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.name)
+            msg = format_html(_("The following {} users are already contributing to evaluation {}:"), len(already_related), evaluation.full_name)
             msg += create_user_list_html_string_for_message(already_related)
             self.warnings[ImporterWarning.GENERAL].append(msg)
 
@@ -664,9 +664,9 @@ class PersonImporter:
             for user in users_to_add:
                 order = Contribution.objects.filter(evaluation=evaluation).count()
                 Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
-            msg = format_html(_("{} contributors added to the evaluation {}:"), len(users_to_add), evaluation.name)
+            msg = format_html(_("{} contributors added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
         else:
-            msg = format_html(_("{} contributors would be added to the evaluation {}:"), len(users_to_add), evaluation.name)
+            msg = format_html(_("{} contributors would be added to the evaluation {}:"), len(users_to_add), evaluation.full_name)
         msg += create_user_list_html_string_for_message(users_to_add)
 
         self.success_messages.append(msg)
