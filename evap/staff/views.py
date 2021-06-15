@@ -875,11 +875,17 @@ def helper_evaluation_edit(request, semester, evaluation):
                 ).format(granting=granting)
             )
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+    editable = evaluation.can_be_edited_by_manager
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation,
+        Contribution,
+        formset=ContributionFormSet,
+        form=ContributionForm,
+        extra=1 if editable else 0
+    )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
-    editable = evaluation.can_be_edited_by_manager
 
     operation = request.POST.get('operation')
 
