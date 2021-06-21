@@ -174,7 +174,7 @@ def _get_results_impl(evaluation):
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
-                if question.is_text_question and evaluation.can_publish_text_results:
+                elif question.is_text_question and evaluation.can_publish_text_results:
                     results.append(text_result)
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
         contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
