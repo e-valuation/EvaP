@@ -1459,16 +1459,15 @@ class TestEvaluationCreateView(WebTestStaffMode):
 
 
 class TestEvaluationCopyView(WebTestStaffMode):
-    url = '/staff/semester/1/evaluation/1/copy'
+
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, pk=1)
+        cls.semester = baker.make(Semester)
         cls.course = baker.make(Course, semester=cls.semester)
         cls.evaluation = baker.make(
             Evaluation,
-            pk=1,
             course=cls.course,
             name_de="Das Original",
             name_en="The Original",
@@ -1481,6 +1480,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
                 evaluation=cls.evaluation,
                 contributor=baker.make(UserProfile),
             )
+        cls.url = f'/staff/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}/copy'
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -1686,6 +1686,7 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
     url = "/staff/semester/1/evaluation/1/person_management"
+    url2 = "/staff/semester/1/evaluation/2/person_management"
     filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
     filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -1694,9 +1695,11 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
     def setUpTestData(cls):
         semester = baker.make(Semester, pk=1)
         cls.manager = make_manager()
-        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester))
-        profiles = baker.make(UserProfile, _quantity=42)
-        cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles)
+        profiles1 = baker.make(UserProfile, _quantity=31)
+        cls.evaluation = baker.make(Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=profiles1)
+        profiles2 = baker.make(UserProfile, _quantity=42)
+        cls.evaluation2 = baker.make(Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles2)
+        cls.contribution2 = baker.make(Contribution, evaluation=cls.evaluation2, contributor=baker.make(UserProfile))
 
     @classmethod
     def tearDown(cls):
@@ -1722,6 +1725,22 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
+    def test_replace_valid_participants_file(self):
+        page = self.app.get(self.url2, user=self.manager)
+
+        form = page.forms["participant-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test-participants")
+
+        self.assertNotEqual(self.evaluation2.participants.count(), 2)
+
+        form = page.forms["participant-import-form"]
+        form.submit(name="operation", value="import-replace-participants")
+        self.assertEqual(self.evaluation2.participants.count(), 2)
+
+        page = self.app.get(self.url2, user=self.manager)
+        self.assertNotContains(page, 'Import previously uploaded file')
+
     def test_copy_participants(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -1732,6 +1751,17 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = form.submit(name="operation", value="copy-participants")
 
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count())
+
+    def test_replace_copy_participants(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        self.assertNotEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
+
+        form = page.forms["participant-copy-form"]
+        form["evaluation"] = str(self.evaluation2.pk)
+        page = form.submit(name="operation", value="copy-replace-participants")
+
+        self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
 
     def test_import_valid_contributors_file(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1752,6 +1782,22 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         self.assertNotContains(page, 'Import previously uploaded file')
 
+    def test_replace_valid_contributors_file(self):
+        page = self.app.get(self.url2, user=self.manager)
+
+        form = page.forms["contributor-import-form"]
+        form["excel_file"] = (self.filename_valid,)
+        page = form.submit(name="operation", value="test-contributors")
+
+        self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
+
+        form = page.forms["contributor-import-form"]
+        form.submit(name="operation", value="import-replace-contributors")
+        self.assertEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertNotContains(page, 'Import previously uploaded file')
+
     def test_copy_contributors(self):
         page = self.app.get(self.url, user=self.manager)
 
@@ -1763,6 +1809,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
         self.assertEqual(new_contributor_count, original_contributor_count + UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count())
+
+    def test_copy_replace_contributors(self):
+        page = self.app.get(self.url, user=self.manager)
+
+        old_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
+        self.assertNotEqual(old_contributor_count, UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count())
+
+        form = page.forms["contributor-copy-form"]
+        form["evaluation"] = str(self.evaluation2.pk)
+        page = form.submit(name="operation", value="copy-replace-contributors")
+
+        new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
+        self.assertEqual(new_contributor_count, UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count())
 
     def test_import_participants_error_handling(self):
         """

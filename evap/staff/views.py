@@ -16,6 +16,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
@@ -980,11 +981,24 @@ def evaluation_email(request, semester_id, evaluation_id):
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
 
+def helper_delete_users_from_evaluation(evaluation, operation):
+    if 'participants' in operation:
+        deleted_person_count = evaluation.participants.count()
+        deletion_message = _("{} participants were deleted from evaluation {}")
+        evaluation.participants.clear()
+    elif 'contributors' in operation:
+        deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
+        deletion_message = _("{} contributors were deleted from evaluation {}")
+        evaluation.contributions.exclude(contributor=None).delete()
+
+    return deleted_person_count, deletion_message
+
 @manager_required
+@transaction.atomic
 def evaluation_person_management(request, semester_id, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals, too-many-branches
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
@@ -1002,8 +1016,8 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test-participants', 'import-participants', 'copy-participants',
-                             'test-contributors', 'import-contributors', 'copy-contributors'):
+        if operation not in ('test-participants', 'import-participants', 'copy-participants', 'import-replace-participants', 'copy-replace-participants',
+                             'test-contributors', 'import-contributors', 'copy-contributors', 'import-replace-contributors', 'copy-replace-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
         import_type = ImportType.PARTICIPANT if 'participants' in operation else ImportType.CONTRIBUTOR
@@ -1020,20 +1034,27 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
-        elif 'import' in operation:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
-            delete_import_file(request.user.id, import_type)
+        else:
+            additional_messages = []
+            if 'replace' in operation:
+                deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
+                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.full_name)
+
+            if 'import' in operation:
+                file_content = get_import_file_content_or_raise(request.user.id, import_type)
+                success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
+                delete_import_file(request.user.id, import_type)
+
+            elif 'copy' in operation:
+                copy_form.evaluation_selection_required = True
+                if copy_form.is_valid():
+                    import_evaluation = copy_form.cleaned_data['evaluation']
+                    success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
+
+            success_messages.insert(0, additional_messages)
+
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
-
-        elif 'copy' in operation:
-            copy_form.evaluation_selection_required = True
-            if copy_form.is_valid():
-                import_evaluation = copy_form.cleaned_data['evaluation']
-                success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
-                forward_messages(request, success_messages, warnings)
-                return redirect('staff:semester_view', semester_id)
 
     participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
     contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
