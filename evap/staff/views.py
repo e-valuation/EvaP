@@ -1032,7 +1032,7 @@ def evaluation_person_management(request, semester_id, evaluation_id):
             additional_messages = []
             if 'replace' in operation:
                 deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
-                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.name)
+                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.full_name)
 
             if 'import' in operation:
                 file_content = get_import_file_content_or_raise(request.user.id, import_type)
