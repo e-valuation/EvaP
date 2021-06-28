@@ -1,6 +1,6 @@
 <div class="card mb-3">
     <div class="card-body">
-         {% if heading %}<h4 class="card-title">{{ heading }}</h4>{% endif %} 
+         {% if heading %}<h4 class="card-title">{{ heading }}</h4>{% endif %}
         <div class="form-check mb-2">
             <input class="form-check-input" id="send_email{{ id_suffix }}" type="checkbox" name="send_email{{ id_suffix }}"
                 checked onclick="$('#email_form{{ id_suffix }}').toggle();" />
@@ -8,17 +8,17 @@
         </div>
         <div class="email-form" id="email_form{{ id_suffix}}">
             <div class="form-group d-flex">
-                <div class="form-label">Email subject</div>
+                <div class="form-label">{% trans 'Email subject' %}<div>
                 <div class="form-field"><input class="form-control" name="email_subject{{ id_suffix }}" type="text" value="{{ email_template.subject }}" /></div>
             </div>
             <div class="form-group d-flex">
                 <div class="form-label">
                     <div class="nav nav-pills btn-switch btn-group-vertical float-right" role="tablist">
                         <a class="p-1 space-normal font-weight-bold btn btn-light text-center nav-link show active" href="#tab-plain{{ id_suffix }}" data-toggle="pill" role="tab" aria-controls="pills-plain{{ id_suffix }}" aria-selected="true">
-                            Plain Text
+                            {% trans 'Plain Text' %}
                         </a>
                         <a class="p-1 space-normal font-weight-bold btn btn-light text-center nav-link" href="#tab-html{{ id_suffix }}" data-toggle="pill" role="tab" aria-controls="pills-html{{ id_suffix }}" aria-selected="false">
-                            HTML
+                            {% trans 'HTML' %}
                         </a>
                     </div>
                 </div>
