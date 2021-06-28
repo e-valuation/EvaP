@@ -13,9 +13,9 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
-        <ul class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
+        <span class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
             <a href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" alt=""/></a>
-        </ul>
+        </span>
         <ul class="navbar-nav justify-content-center">
             {% if user.is_authenticated %}
                 {% if user.is_participant %}
@@ -93,7 +93,7 @@
         </ul>
         <ul class="navbar-nav justify-content-end">
             <li class="nav-item"><a class="nav-link" href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a></li>
-            <div class="nav-item btn-switch-navbar my-auto">
+            <li class="nav-item btn-switch-navbar my-auto">
                 <div class="btn-group">
                     {% for language_code, language_name in languages %}
                         <button type="button"{% if current_language == language_code %} disabled{% endif %} onclick="setLanguage('{{ language_code }}');"
@@ -102,10 +102,10 @@
                         </button>
                     {% endfor %}
                 </div>
-            </div>
+            </li>
             {% if user.is_authenticated %}
                 {% if user.has_staff_permission %}
-                    <div class="nav-item btn-switch-navbar my-auto pl-2">
+                    <li class="nav-item btn-switch-navbar my-auto pl-2">
                         <div class="btn-group">
                             <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
                                 {% csrf_token %}
@@ -120,7 +120,7 @@
                                 </button>
                             </form>
                         </div>
-                    </div>
+                    </li>
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
