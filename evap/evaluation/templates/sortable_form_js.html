@@ -23,8 +23,9 @@
                 row.find('input[id$=-order]').val(row.parent().children().length);
 
                 // We have to empty the formset, otherwise sometimes old contents from
-                // invalid forms are copied
-                row.find("input:checkbox,:radio").removeAttr("checked");
+                // invalid forms are copied (#644).
+                // Checkboxes with 'data-keep' need to stay checked.
+                row.find("input:checkbox:not([data-keep]),:radio").removeAttr("checked");
 
                 //Disable active buttons from bootstrap button groups
                 row.find("label").removeClass("active");

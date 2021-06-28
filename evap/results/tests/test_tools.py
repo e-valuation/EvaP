@@ -365,6 +365,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         cls.evaluation = baker.make(Evaluation, course=baker.make(Course, responsibles=[cls.responsible1, cls.responsible2, cls.responsible_without_contribution]), state='published', can_publish_text_results=True)
         cls.questionnaire = baker.make(Questionnaire)
         cls.question = baker.make(Question, questionnaire=cls.questionnaire, type=Question.TEXT)
+        cls.question_likert = baker.make(Question, questionnaire=cls.questionnaire, type=Question.LIKERT)
         cls.general_contribution = cls.evaluation.general_contribution
         cls.general_contribution.questionnaires.set([cls.questionnaire])
         cls.responsible1_contribution = baker.make(
@@ -399,6 +400,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
         )
         cls.general_contribution_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.general_contribution, state=TextAnswer.State.PUBLISHED)
         cls.responsible1_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.responsible1_contribution, state=TextAnswer.State.PUBLISHED)
+        cls.responsible1_additional_textanswer = baker.make(TextAnswer, question=cls.question_likert, contribution=cls.responsible1_contribution, state=TextAnswer.State.PUBLISHED)
         cls.responsible2_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.responsible2_contribution, state=TextAnswer.State.PUBLISHED)
         cls.contributor_own_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.contributor_own_contribution, state=TextAnswer.State.PUBLISHED)
         cls.contributor_general_textanswer = baker.make(TextAnswer, question=cls.question, contribution=cls.contributor_general_contribution, state=TextAnswer.State.PUBLISHED)
@@ -408,8 +410,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
 
     def test_contributors_and_delegate_count_in_textanswer_visibility_info(self):
         textanswers = [
-            self.general_contribution_textanswer, self.responsible1_textanswer, self.responsible2_textanswer,
-            self.contributor_own_textanswer, self.contributor_general_textanswer
+            self.general_contribution_textanswer, self.responsible1_textanswer, self.responsible1_additional_textanswer,
+            self.responsible2_textanswer, self.contributor_own_textanswer, self.contributor_general_textanswer
         ]
         visible_to = [textanswers_visible_to(textanswer.contribution) for textanswer in textanswers]
         users_seeing_contribution = [(set(), set()) for _ in range(len(textanswers))]
@@ -428,6 +430,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
 
         expected_delegate_counts = [
             2,  # delegate1, delegate2
+            2,  # delegate1, contributor_general
             2,  # delegate1, contributor_general
             0,
             1,  # delegate1

@@ -1095,7 +1095,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
         for questionnaire in contribution.questionnaires.all():
             text_results = []
 
-            for question in questionnaire.text_questions:
+            for question in questionnaire.questions.all():
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
                 if filter_textanswers:
                     answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)

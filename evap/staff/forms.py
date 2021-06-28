@@ -650,12 +650,23 @@ class ContributionCopyFormSet(ContributionFormSet):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type')
+        fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type', 'allows_additional_textanswers')
         widgets = {
             'text_de': forms.Textarea(attrs={'rows': 2}),
             'text_en': forms.Textarea(attrs={'rows': 2}),
             'order': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.type in [Question.TEXT, Question.HEADING]:
+            self.fields['allows_additional_textanswers'].disabled = True
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('type') in [Question.TEXT, Question.HEADING]:
+            self.cleaned_data['allows_additional_textanswers'] = False
+        return self.cleaned_data
 
 
 class QuestionnairesAssignForm(forms.Form):

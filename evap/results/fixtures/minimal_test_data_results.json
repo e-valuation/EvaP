@@ -61,6 +61,7 @@
     "questionnaire": 1,
     "text_en": "how?",
     "text_de": "how?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -71,6 +72,7 @@
     "questionnaire": 1,
     "text_en": "how much?",
     "text_de": "how much?",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -81,6 +83,7 @@
     "questionnaire": 2,
     "text_en": "how?",
     "text_de": "how?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -91,6 +94,7 @@
     "questionnaire": 2,
     "text_en": "how much?",
     "text_de": "how much?",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -101,6 +105,7 @@
     "questionnaire": 2,
     "text_en": "your grade",
     "text_de": "your grade",
+    "allows_additional_textanswers": false,
     "type": 2
   }
 },
@@ -111,6 +116,7 @@
     "questionnaire": 2,
     "text_en": "can you see me?",
     "text_de": "can you see me?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -233,6 +239,50 @@
     "original_answer": null,
     "contribution": 1,
     "state": "PU"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000017",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "answer": ".responsible_contributor_additional_orig_published.",
+    "question": 2,
+    "original_answer": null,
+    "contribution": 6,
+    "state": "PU"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000018",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "answer": ".responsible_contributor_additional_orig_hidden.",
+    "question": 2,
+    "original_answer": null,
+    "contribution": 6,
+    "state": "HI"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000019",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "answer": ".general_additional_orig_published.",
+    "question": 4,
+    "original_answer": null,
+    "contribution": 1,
+    "state": "PU"
+  }
+},
+{
+  "pk": "00000000-0000-0000-0000-000000000020",
+  "model": "evaluation.textanswer",
+  "fields": {
+    "answer": ".general_additional_orig_hidden.",
+    "question": 4,
+    "original_answer": null,
+    "contribution": 1,
+    "state": "HI"
   }
 },
 {

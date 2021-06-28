@@ -926,6 +926,7 @@ class Question(models.Model):
     text_de = models.CharField(max_length=1024, verbose_name=_("question text (german)"))
     text_en = models.CharField(max_length=1024, verbose_name=_("question text (english)"))
     text = translate(en='text_en', de='text_de')
+    allows_additional_textanswers = models.BooleanField(default=True, verbose_name=_("allow additional text answers"))
 
     type = models.PositiveSmallIntegerField(choices=QUESTION_TYPES, verbose_name=_("question type"))
 
@@ -933,6 +934,11 @@ class Question(models.Model):
         ordering = ['order', ]
         verbose_name = _("question")
         verbose_name_plural = _("questions")
+
+    def save(self, *args, **kwargs):
+        if self.type in [Question.TEXT, Question.HEADING]:
+            self.allows_additional_textanswers = False
+        super().save(*args, **kwargs)
 
     @property
     def answer_class(self):
@@ -982,6 +988,10 @@ class Question(models.Model):
     @property
     def is_heading_question(self):
         return self.type == self.HEADING
+
+    @property
+    def can_have_textanswers(self):
+        return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
 
 Choices = namedtuple('Choices', ('cssClass', 'values', 'colors', 'grades', 'names'))

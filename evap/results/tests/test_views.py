@@ -448,6 +448,8 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertIn(".contributor_orig_private.", page)
@@ -457,12 +459,16 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
         self.assertIn(".responsible_contributor_changed_published.", page)
         self.assertIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_manager(self):
         page = self.app.get("/results/semester/1/evaluation/1?view=full", user=self.manager)
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertIn(".contributor_orig_private.", page)
@@ -472,6 +478,8 @@ class TestResultsTextanswerVisibilityForManager(WebTestStaffMode):
         self.assertIn(".responsible_contributor_changed_published.", page)
         self.assertIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
 
 class TestResultsTextanswerVisibility(WebTest):
@@ -486,6 +494,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertNotIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -495,12 +505,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_responsible_contributor(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="responsible_contributor@institution.example.com")
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertNotIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -510,12 +524,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertIn(".responsible_contributor_changed_published.", page)
         self.assertIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_delegate_for_responsible(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="delegate_for_responsible@institution.example.com")
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertNotIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -525,12 +543,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_contributor(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="contributor@institution.example.com")
         self.assertNotIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertNotIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertNotIn(".general_changed_published.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertIn(".contributor_orig_private.", page)
@@ -540,12 +562,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_delegate_for_contributor(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="delegate_for_contributor@institution.example.com")
         self.assertNotIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertNotIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertNotIn(".general_changed_published.", page)
         self.assertIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -555,12 +581,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_contributor_general_textanswers(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="contributor_general_textanswers@institution.example.com")
         self.assertIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertIn(".general_changed_published.", page)
         self.assertNotIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -570,12 +600,16 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_student(self):
         page = self.app.get("/results/semester/1/evaluation/1", user="student@institution.example.com")
         self.assertNotIn(".general_orig_published.", page)
         self.assertNotIn(".general_orig_hidden.", page)
         self.assertNotIn(".general_orig_published_changed.", page)
+        self.assertNotIn(".general_additional_orig_published.", page)
+        self.assertNotIn(".general_additional_orig_hidden.", page)
         self.assertNotIn(".general_changed_published.", page)
         self.assertNotIn(".contributor_orig_published.", page)
         self.assertNotIn(".contributor_orig_private.", page)
@@ -585,6 +619,8 @@ class TestResultsTextanswerVisibility(WebTest):
         self.assertNotIn(".responsible_contributor_changed_published.", page)
         self.assertNotIn(".responsible_contributor_orig_private.", page)
         self.assertNotIn(".responsible_contributor_orig_notreviewed.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_published.", page)
+        self.assertNotIn(".responsible_contributor_additional_orig_hidden.", page)
 
     def test_textanswer_visibility_for_student_external(self):
         # the external user does not participate in or contribute to the evaluation and therefore can't see the results
