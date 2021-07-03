@@ -160,12 +160,8 @@ class TestEnrollmentImporter(TestCase):
         cls.vote_end_date = date(2017, 3, 10)
         baker.make(CourseType, name_de="Seminar", import_names=["Seminar", "S"])
         baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
-        degree_bachelor = Degree.objects.get(name_de="Bachelor")
-        degree_bachelor.import_names = ["Bachelor", "B. Sc."]
-        degree_bachelor.save()
-        degree_master = Degree.objects.get(name_de="Master")
-        degree_master.import_names = ["Master", "M. Sc."]
-        degree_master.save()
+        Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
+        Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
     def test_valid_file_import(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
@@ -320,12 +316,12 @@ class TestPersonImporter(TestCase):
     def test_import_existing_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.CONTRIBUTOR, self.evaluation1,
                                                                                   test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.CONTRIBUTOR, self.evaluation1,
                                                                                   test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0])
@@ -336,14 +332,14 @@ class TestPersonImporter(TestCase):
     def test_import_new_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.CONTRIBUTOR, self.evaluation1,
                                                                             test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Contributor, self.evaluation1,
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.CONTRIBUTOR, self.evaluation1,
                                                                             test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
@@ -352,12 +348,12 @@ class TestPersonImporter(TestCase):
         self.assertEqual(set(UserProfile.objects.filter(contributions__evaluation=self.evaluation1)), set([self.contributor1, self.contributor2]))
 
     def test_import_existing_participant(self):
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1,
                                                                                   test_run=True, source_evaluation=self.evaluation1)
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1,
                                                                                   test_run=False, source_evaluation=self.evaluation1)
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
         self.assertIn("The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0])
@@ -366,12 +362,12 @@ class TestPersonImporter(TestCase):
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)
 
     def test_import_new_participant(self):
-        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1,
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1,
                                                                             test_run=True, source_evaluation=self.evaluation2)
         self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.Participant, self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2)
         self.assertIn("1 participants added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 

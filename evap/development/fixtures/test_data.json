@@ -105,7 +105,7 @@
     "type": 10,
     "name_de": "Vorlesung 1 - Inhalt",
     "name_en": "Lecture 1 - Content",
-    "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt allgemeine Sachfragen zu den Themen der Vorlesung.",
+    "description_de": "Fragebogen für eine Vorlesung. Enthält allgemeine Sachfragen zu den Themen der Vorlesung.",
     "description_en": "Questionnaire for a lecture. Consists of general questions concerning the lecture's topics.",
     "public_name_de": "Vorlesungsinhalte",
     "public_name_en": "Lecture's contents",
@@ -121,11 +121,11 @@
   "pk": 50,
   "fields": {
     "type": 10,
-    "name_de": "Vorlesung 4 - \u00dcbung",
+    "name_de": "Vorlesung 4 - Übung",
     "name_en": "Lecture 4 - Exercise",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 4 Fragen zu einer vorlesungsbegleitenden \u00dcbung.",
+    "description_de": "Dieser Fragebogen enthält 4 Fragen zu einer vorlesungsbegleitenden Übung.",
     "description_en": "This questionnaire contains 4 questions for an exercise accompanying a lecture.",
-    "public_name_de": "\u00dcbung",
+    "public_name_de": "Übung",
     "public_name_en": "Exercise",
     "teaser_de": "",
     "teaser_en": "",
@@ -141,7 +141,7 @@
     "type": 10,
     "name_de": "Vorlesung 2 - Lehrmittel",
     "name_en": "Lecture 2 - learning material",
-    "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt Fragen zu den Lehrmitteln.",
+    "description_de": "Fragebogen für eine Vorlesung. Enthält Fragen zu den Lehrmitteln.",
     "description_en": "Questionnaire for a lecture. Consists of questions about the learning material.",
     "public_name_de": "Lehrmittel",
     "public_name_en": "Learning material",
@@ -159,7 +159,7 @@
     "type": 10,
     "name_de": "Vorlesung 3 - Sonstiges",
     "name_en": "Lecture 3 - Miscellaneous",
-    "description_de": "Fragebogen f\u00fcr eine Vorlesung. Enth\u00e4lt Fragen zu u.a. Lernerfolg, Zeitaufwand und Transparenz der Bewertungskriterien.",
+    "description_de": "Fragebogen für eine Vorlesung. Enthält Fragen zu u.a. Lernerfolg, Zeitaufwand und Transparenz der Bewertungskriterien.",
     "description_en": "Questionnaire for a lecture. Consists of questions about e.g. learning success, effort, and transparency of the evaluation criteria.",
     "public_name_de": "Sonstiges",
     "public_name_en": "Miscellaneous",
@@ -177,7 +177,7 @@
     "type": 30,
     "name_de": "Sonstiges",
     "name_en": "Miscellaneous",
-    "description_de": "Dieser Fragebogen enth\u00e4lt eine Frage f\u00fcr sonstige Kommentare.",
+    "description_de": "Dieser Fragebogen enthält eine Frage für sonstige Kommentare.",
     "description_en": "This questionnaire consists of one question for general remarks.",
     "public_name_de": "Sonstiges",
     "public_name_en": "Miscellaneous",
@@ -195,7 +195,7 @@
     "type": 20,
     "name_de": "Dozent",
     "name_en": "Lecturer",
-    "description_de": "6 Fragen f\u00fcr Personen, die Dozent einer Vorlesung waren. Wenn sie mehrmals, aber nicht durchg\u00e4ngig Vortr\u00e4ge gehalten haben (in Vorlesungen oder Seminaren), kann der Fragebogen auch verwendet werden.",
+    "description_de": "6 Fragen für Personen, die Dozent einer Vorlesung waren. Wenn sie mehrmals, aber nicht durchgängig Vorträge gehalten haben (in Vorlesungen oder Seminaren), kann der Fragebogen auch verwendet werden.",
     "description_en": "6 questions for people who gave lectures in this course. Please select it also for persons who only gave presentations for a few times (in lectures or seminars).",
     "public_name_de": "Dozent/in",
     "public_name_en": "Lecturer",
@@ -211,13 +211,13 @@
   "pk": 85,
   "fields": {
     "type": 20,
-    "name_de": "\u00dcbungsleiter",
+    "name_de": "Übungsleiter",
     "name_en": "Exercise Supervisor",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen zu Personen, die beim \u00dcbungsbetrieb leitend oder unterst\u00fctzend mitgewirkt haben.",
+    "description_de": "Dieser Fragebogen enthält 6 Fragen zu Personen, die beim Übungsbetrieb leitend oder unterstützend mitgewirkt haben.",
     "description_en": "This questionnaire contains 6 questions about people who supported the exercises in a leading or assisting way.",
-    "public_name_de": "\u00dcbungsleiter/in",
+    "public_name_de": "Übungsleiter/in",
     "public_name_en": "Exercise supervisor",
-    "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie \u00dcbungsleiterin/der \u00dcbungsleiter ...",
+    "teaser_de": "Bitte nutze das Feld \"Keine Angabe\", wenn du diese Person nicht beurteilen kannst.\r\n\r\nDie Übungsleiterin/der Übungsleiter ...",
     "teaser_en": "Please select \"No answer\" if you can't evaluate this person.\r\n\r\nThe person supervising the exercises ...",
     "order": 35,
     "visibility": 2,
@@ -231,7 +231,7 @@
     "type": 10,
     "name_de": "Seminar",
     "name_en": "Seminar",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen zur Beurteilung eines Seminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
+    "description_de": "Dieser Fragebogen enthält 8 Fragen zur Beurteilung eines Seminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
     "description_en": "This questionnaire contains 8 questions for a seminar referring to e.g. the selection of topics, effort and evaluation criteria.",
     "public_name_de": "Seminar",
     "public_name_en": "Seminar",
@@ -249,7 +249,7 @@
     "type": 20,
     "name_de": "Seminarleiter_alt",
     "name_en": "Seminar lecturer_old",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen f\u00fcr Seminarleiter bzw. Seminarbetreuer.",
+    "description_de": "Dieser Fragebogen enthält 8 Fragen für Seminarleiter bzw. Seminarbetreuer.",
     "description_en": "This questionnaire contains 8 questions for the leader or supervisor of a seminar.",
     "public_name_de": "Seminarleiter/in",
     "public_name_en": "Seminar lecturer",
@@ -267,7 +267,7 @@
     "type": 10,
     "name_de": "Projekt",
     "name_en": "Project",
-    "description_de": "Dieser Fragebogen bezieht sich auf Projekte und enth\u00e4lt 6 Fragen zum Aufwand, Lernerfolg und zur Transparenz der Bewertungskriterien.",
+    "description_de": "Dieser Fragebogen bezieht sich auf Projekte und enthält 6 Fragen zum Aufwand, Lernerfolg und zur Transparenz der Bewertungskriterien.",
     "description_en": "This questionnaire refers to projects and contains 6 questions concerning the effort, learnings and transparency of evaluation criteria.",
     "public_name_de": "Projekt",
     "public_name_en": "Project",
@@ -285,7 +285,7 @@
     "type": 20,
     "name_de": "Projektbetreuer",
     "name_en": "Project's supervisor",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen zur Bewertung eines Projektbetreuers.",
+    "description_de": "Dieser Fragebogen enthält 6 Fragen zur Bewertung eines Projektbetreuers.",
     "description_en": "This questionnaire contains 6 questions about a person who supervised students in a project.",
     "public_name_de": "Projektbetreuer/in",
     "public_name_en": "Project's supervisor",
@@ -303,11 +303,11 @@
     "type": 20,
     "name_de": "Kommentare zum Verantwortlichen",
     "name_en": "Remarks on the responsible person",
-    "description_de": "Dieser Fragebogen soll dem f\u00fcr die Lehrveranstaltung verantwortlichen Dozenten zugeordnet werden, falls dieser die Veranstaltung nicht selbst gehalten hat.\r\nEr sollte nicht gemeinsam mit \"Kommentare zur Person\" verwendet werden.",
+    "description_de": "Dieser Fragebogen soll dem für die Lehrveranstaltung verantwortlichen Dozenten zugeordnet werden, falls dieser die Veranstaltung nicht selbst gehalten hat.\r\nEr sollte nicht gemeinsam mit \"Kommentare zur Person\" verwendet werden.",
     "description_en": "Please select this questionnaire for the person who is responsible for a course but not actively involved.\r\nIt should not be used along with the \"Remarks on a person\" questionnaire.",
     "public_name_de": "Kommentare zum Verantwortlichen",
     "public_name_en": "Remarks on the responsible person",
-    "teaser_de": "Zu einer Lehrveranstaltung geh\u00f6ren nicht nur das Halten von Vortr\u00e4gen und das Korrigieren von \u00dcbungsbl\u00e4ttern. Im Vorfeld m\u00fcssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die M\u00f6glichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
+    "teaser_de": "Zu einer Lehrveranstaltung gehören nicht nur das Halten von Vorträgen und das Korrigieren von Übungsblättern. Im Vorfeld müssen z.B. auch interessante Themen gefunden oder das Seminarkonzept entworfen werden. Oftmals bekommen wir Studenten diesen Aufwand nicht mit. Hier hast du die Möglichkeit, ein paar Kommentare an den Verantwortlichen zu richten.",
     "teaser_en": "Teaching a course does not only consist of giving talks and correcting exercises. Even before the course starts, someone has to decide on interesting topics or seminar concepts. The amount of work this takes usually isn't visible to students. However, here you can leave some remarks on the responsible person of the course.",
     "order": 60,
     "visibility": 2,
@@ -321,7 +321,7 @@
     "type": 20,
     "name_de": "Tutor",
     "name_en": "Tutor",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 5 Fragen f\u00fcr Personen, die Studenten bei \u00dcbungsaufgaben betreut haben. Er ist inhaltlich \u00e4hnlich zum \u00dcbungsleiter-Fragebogen, ist aber etwas umfangreicher.\r\n",
+    "description_de": "Dieser Fragebogen enthält 5 Fragen für Personen, die Studenten bei Übungsaufgaben betreut haben. Er ist inhaltlich ähnlich zum Übungsleiter-Fragebogen, ist aber etwas umfangreicher.\r\n",
     "description_en": "This questionnaire contains 5 questions for persons who supervised students with an exercise. It resembles the questionnaire for exercise leaders, but has different and more questions.",
     "public_name_de": "Tutor/in",
     "public_name_en": "Tutor",
@@ -339,11 +339,11 @@
     "type": 20,
     "name_de": "Kommentare zur Person",
     "name_en": "Personal Feedback",
-    "description_de": "Dieser Fragebogen kann f\u00fcr alle Mitwirkenden genutzt werden, die sichtbar f\u00fcr Studenten an einer Lehrveranstaltung beteiligt waren. Er enth\u00e4lt eine Textfrage.",
+    "description_de": "Dieser Fragebogen kann für alle Mitwirkenden genutzt werden, die sichtbar für Studenten an einer Lehrveranstaltung beteiligt waren. Er enthält eine Textfrage.",
     "description_en": "This questionnaire can be used for all kinds of contributors who actively participated in a course. It contains one text question for general remarks on that person.",
     "public_name_de": "Kommentare zur Person",
     "public_name_en": "Personal Feedback",
-    "teaser_de": "Egal ob Dozent, \u00dcbungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was k\u00f6nnte er oder sie verbessern?",
+    "teaser_de": "Egal ob Dozent, Übungsleiter oder Seminar-/Projektbetreuer, alle an einer Lehrveranstaltung beteiligten Personen haben viel Zeit in die Vorbereitung und Betreuung gesteckt. Nutze diese Frage, um konstruktives Feedback zu geben. Was fandest du gut? Was könnte er oder sie verbessern?",
     "teaser_en": "All the lecturers and seminar/project/exercise leaders put a lot of time into the preparation and supervision of a course. Please use this question to give constructive feedback. What did you like? What could he/she improve for the next time?",
     "order": 60,
     "visibility": 2,
@@ -357,7 +357,7 @@
     "type": 10,
     "name_de": "Kommentare zu weiteren Mitwirkenden",
     "name_en": "Remarks on additional contributors",
-    "description_de": "Dieser Fragebogen kann f\u00fcr Lehrveranstaltungen genutzt werden, bei denen zus\u00e4tzliche Personen mitgewirkt haben, die nicht gesondert aufgef\u00fchrt sind.\r\nEr enth\u00e4lt lediglich eine Textfrage.",
+    "description_de": "Dieser Fragebogen kann für Lehrveranstaltungen genutzt werden, bei denen zusätzliche Personen mitgewirkt haben, die nicht gesondert aufgeführt sind.\r\nEr enthält lediglich eine Textfrage.",
     "description_en": "This questionnaire can be used for all courses that have additional contributors who weren't explicitly named.\r\nIt contains just one text question.",
     "public_name_de": "Kommentare zu weiteren Mitwirkenden",
     "public_name_en": "Remarks on additional contributors",
@@ -375,7 +375,7 @@
     "type": 10,
     "name_de": "Bachelorprojekt 0 - Allgemeines",
     "name_en": "Bachelor's project 0 - General Questions",
-    "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur allgemeinen Bewertung.",
+    "description_de": "Fragebogen für ein Bachelorprojekt. Enthält Fragen zur allgemeinen Bewertung.",
     "description_en": "Questionnaire for a bachelor's project. Consists of questions for general evaluation.",
     "public_name_de": "Bachelorprojekt - Allgemeines",
     "public_name_en": "Bachelor's project - General questions",
@@ -393,7 +393,7 @@
     "type": 10,
     "name_de": "Bachelorprojekt 1 - Aufwand/Zeitplanung",
     "name_en": "Bachelor's project 1 - Effort/time management",
-    "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zum Aufwand und der Zeitplanung.",
+    "description_de": "Fragebogen für ein Bachelorprojekt. Enthält Fragen zum Aufwand und der Zeitplanung.",
     "description_en": "Questionnaire for a bachelor's project. Consists of questions about effort and time management.",
     "public_name_de": "Bachelorprojekt - Aufwand und Zeitplanung",
     "public_name_en": "Bachelor's project - Effort and time management",
@@ -411,7 +411,7 @@
     "type": 10,
     "name_de": "Bachelorprojekt 2 - Betreuung/Praxispartner",
     "name_en": "Bachelor's project 2 - Supervision/business partner",
-    "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur Betreuung und dem Projektpartner.",
+    "description_de": "Fragebogen für ein Bachelorprojekt. Enthält Fragen zur Betreuung und dem Projektpartner.",
     "description_en": "Questionnaire for a bachelor's project. Consists of questions about supervision and the business partner.",
     "public_name_de": "Bachelorprojekt - Betreuung und Praxispartner",
     "public_name_en": "Bachelor's project - Supervision and business partner",
@@ -429,7 +429,7 @@
     "type": 10,
     "name_de": "Bachelorprojekt 3 - Bachelorarbeit",
     "name_en": "Bachelor's project 3 - Bachelor's thesis",
-    "description_de": "Fragebogen f\u00fcr ein Bachelorprojekt. Enth\u00e4lt Fragen zur Bachelorarbeit.",
+    "description_de": "Fragebogen für ein Bachelorprojekt. Enthält Fragen zur Bachelorarbeit.",
     "description_en": "Questionnaire for a bachelor's project. Consists of questions about the bachelor's thesis.",
     "public_name_de": "Bachelorprojekt - Bachelorarbeit",
     "public_name_en": "Bachelor's project - Bachelor's thesis",
@@ -465,7 +465,7 @@
     "type": 10,
     "name_de": "Masterprojekt 0 - Allgemeines",
     "name_en": "Master's project 0 - General questions",
-    "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zur allgemeinen Bewertung.",
+    "description_de": "Fragebogen für ein Masterprojekt. Enthält Fragen zur allgemeinen Bewertung.",
     "description_en": "Questionnaire for a master's project. Consists of questions for general evaluation.",
     "public_name_de": "Masterprojekt - Allgemeines",
     "public_name_en": "Master's project - General questions",
@@ -483,7 +483,7 @@
     "type": 10,
     "name_de": "Masterprojekt 1 - Aufwand/Zeitplanung",
     "name_en": "Master's project 1 - Effort/time management",
-    "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zum Aufwand und der Zeitplanung.",
+    "description_de": "Fragebogen für ein Masterprojekt. Enthält Fragen zum Aufwand und der Zeitplanung.",
     "description_en": "Questionnaire for a master's project. Consists of questions about effort and time management.",
     "public_name_de": "Masterprojekt - Aufwand und Zeitplanung",
     "public_name_en": "Master's project - Effort and time management",
@@ -501,7 +501,7 @@
     "type": 10,
     "name_de": "Masterprojekt 2 - Betreuung",
     "name_en": "Master's project 2 - Supervision",
-    "description_de": "Fragebogen f\u00fcr ein Masterprojekt. Enth\u00e4lt Fragen zur Betreuung.",
+    "description_de": "Fragebogen für ein Masterprojekt. Enthält Fragen zur Betreuung.",
     "description_en": "Questionnaire for a master's project. Consists of questions about supervision.",
     "public_name_de": "Masterprojekt - Betreuung",
     "public_name_en": "Master's project - Supervision",
@@ -519,7 +519,7 @@
     "type": 10,
     "name_de": "Masterarbeit",
     "name_en": "Master's thesis",
-    "description_de": "Fragebogen f\u00fcr eine Masterarbeit.",
+    "description_de": "Fragebogen für eine Masterarbeit.",
     "description_en": "Questionnaire for a master's thesis.",
     "public_name_de": "Masterarbeit",
     "public_name_en": "Master's thesis",
@@ -537,7 +537,7 @@
     "type": 10,
     "name_de": "Projektseminar",
     "name_en": "Project seminar",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 9 Fragen zur Beurteilung eines Projektseminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
+    "description_de": "Dieser Fragebogen enthält 9 Fragen zur Beurteilung eines Projektseminars, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
     "description_en": "This questionnaire contains 9 questions for a project seminar referring to e.g. the selection of topics, effort and evaluation criteria.",
     "public_name_de": "Projektseminar",
     "public_name_en": "Project seminar",
@@ -555,7 +555,7 @@
     "type": 10,
     "name_de": "D-School-Seminar",
     "name_en": "D-School seminar",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen zur Beurteilung eines D-School-Seminares, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
+    "description_de": "Dieser Fragebogen enthält 8 Fragen zur Beurteilung eines D-School-Seminares, u.a. Auswahl der Themen, Aufwand, Bewertungskriterien.",
     "description_en": "This questionnaire contains 8 questions for a D-School seminar referring to e.g. the selection of topics, effort and evaluation criteria.",
     "public_name_de": "D-School-Seminar",
     "public_name_en": "D-School seminar",
@@ -573,7 +573,7 @@
     "type": 10,
     "name_de": "Studienbegleitendes Seminar",
     "name_en": "Seminar accompanying the first bachelor's semester",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 7 Fragen zur Beurteilung des Studienbegleitenden Seminares w\u00e4hrend des ersten Bachelorsemesters.",
+    "description_de": "Dieser Fragebogen enthält 7 Fragen zur Beurteilung des Studienbegleitenden Seminares während des ersten Bachelorsemesters.",
     "description_en": "This questionnaire contains 7 questions for the seminar accompanying the first bachelor's semester.",
     "public_name_de": "Studienbegleitendes Seminar",
     "public_name_en": "Seminar accompanying the first bachelor's semester",
@@ -591,7 +591,7 @@
     "type": 20,
     "name_de": "Seminarleiter",
     "name_en": "Seminar lecturer",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 8 Fragen f\u00fcr Seminarleiter bzw. Seminarbetreuer.",
+    "description_de": "Dieser Fragebogen enthält 8 Fragen für Seminarleiter bzw. Seminarbetreuer.",
     "description_en": "This questionnaire contains 8 questions for the leader or supervisor of a seminar.",
     "public_name_de": "Seminarleiter/in",
     "public_name_en": "Seminar lecturer",
@@ -609,7 +609,7 @@
     "type": 20,
     "name_de": "D-School Coach",
     "name_en": "D-School Coach",
-    "description_de": "Dieser Fragebogen enth\u00e4lt 6 Fragen f\u00fcr D-School Coaches.",
+    "description_de": "Dieser Fragebogen enthält 6 Fragen für D-School Coaches.",
     "description_en": "This questionnaire contains 6 questions for D-School coaches.",
     "public_name_de": "Coach",
     "public_name_en": "Coach",
@@ -643,13 +643,13 @@
   "pk": 110,
   "fields": {
     "type": 10,
-    "name_de": "Zuk\u00fcnftige Teilnahme",
+    "name_de": "Zukünftige Teilnahme",
     "name_en": "Future participation",
-    "description_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
+    "description_de": "Zwei Fragen bezüglich Schwierigkeit und zukünftiger Teilnahme am Kurs",
     "description_en": "Two questions about the difficulty and a future version of the course",
-    "public_name_de": "Zuk\u00fcnftige Teilnahme",
+    "public_name_de": "Zukünftige Teilnahme",
     "public_name_en": "Future participation",
-    "teaser_de": "Zwei Fragen bez\u00fcglich Schwierigkeit und zuk\u00fcnftiger Teilnahme am Kurs",
+    "teaser_de": "Zwei Fragen bezüglich Schwierigkeit und zukünftiger Teilnahme am Kurs",
     "teaser_en": "Two questions about the difficulty and a future version of the course",
     "order": 61,
     "visibility": 2,
@@ -744,6 +744,7 @@
     "questionnaire": 1,
     "text_de": "Einzelergebnis",
     "text_en": "Single result",
+    "allows_additional_textanswers": true,
     "type": 2
   }
 },
@@ -753,8 +754,9 @@
   "fields": {
     "order": 255,
     "questionnaire": 48,
-    "text_de": "Aus der Vorlesung habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus der Vorlesung habe ich etwas mitnehmen können.",
     "text_en": "I learned something in the lecture.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -766,6 +768,7 @@
     "questionnaire": 48,
     "text_de": "Die in der Vorlesung vermittelten Techniken schienen aktuell.",
     "text_en": "The techniques taught in the lecture seemed to be up to date.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -777,6 +780,7 @@
     "questionnaire": 48,
     "text_de": "Die Inhalte der Vorlesung bauten sinnvoll aufeinander auf.",
     "text_en": "The content of the lecture was well structured.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -786,8 +790,9 @@
   "fields": {
     "order": 259,
     "questionnaire": 50,
-    "text_de": "Die \u00dcbung trug zu meinem Verst\u00e4ndnis bei.",
+    "text_de": "Die Übung trug zu meinem Verständnis bei.",
     "text_en": "The exercise contributed to my comprehension of the lecture.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -797,8 +802,9 @@
   "fields": {
     "order": 260,
     "questionnaire": 50,
-    "text_de": "Vorlesung und \u00dcbung waren gut aufeinander abgestimmt",
+    "text_de": "Vorlesung und Übung waren gut aufeinander abgestimmt",
     "text_en": "Lecture and exercise were well synchronized.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -808,8 +814,9 @@
   "fields": {
     "order": 262,
     "questionnaire": 50,
-    "text_de": "Das fachliche Niveau der \u00dcbung war angemessen.",
+    "text_de": "Das fachliche Niveau der Übung war angemessen.",
     "text_en": "The technical level of the exercise was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -819,8 +826,9 @@
   "fields": {
     "order": 313,
     "questionnaire": 48,
-    "text_de": "Diese Themenbl\u00f6cke fand ich besonders interessant:",
+    "text_de": "Diese Themenblöcke fand ich besonders interessant:",
     "text_en": "These topics were most interesting for me:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -830,8 +838,9 @@
   "fields": {
     "order": 314,
     "questionnaire": 48,
-    "text_de": "Diese Themenbl\u00f6cke fand ich weniger interessant:",
+    "text_de": "Diese Themenblöcke fand ich weniger interessant:",
     "text_en": "These topics were less interesting for me:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -841,8 +850,9 @@
   "fields": {
     "order": 315,
     "questionnaire": 81,
-    "text_de": "Es gab ausreichend Lehrmittel (Skripte, Folien, Videos, B\u00fccher...)",
+    "text_de": "Es gab ausreichend Lehrmittel (Skripte, Folien, Videos, Bücher...)",
     "text_en": "The amount of provided learning material was sufficient.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -854,6 +864,7 @@
     "questionnaire": 81,
     "text_de": "Die bereitgestellten Lehrmittel waren hilfreich.",
     "text_en": "The provided learning material was useful.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -863,8 +874,9 @@
   "fields": {
     "order": 317,
     "questionnaire": 81,
-    "text_de": "Die Lehrmittel standen rechtzeitig zur Verf\u00fcgung.",
+    "text_de": "Die Lehrmittel standen rechtzeitig zur Verfügung.",
     "text_en": "The learning material was provided in time.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -874,8 +886,9 @@
   "fields": {
     "order": 318,
     "questionnaire": 81,
-    "text_de": "Was waren die St\u00e4rken und die Schw\u00e4chen der Lehrmittel?",
+    "text_de": "Was waren die Stärken und die Schwächen der Lehrmittel?",
     "text_en": "Which were the strengths and weaknesses of the learning material?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -885,8 +898,9 @@
   "fields": {
     "order": 319,
     "questionnaire": 82,
-    "text_de": "Die Vorlesung hat mir Spa\u00df/ Freude bereitet.",
+    "text_de": "Die Vorlesung hat mir Spaß/ Freude bereitet.",
     "text_en": "I enjoyed the lecture.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -898,6 +912,7 @@
     "questionnaire": 82,
     "text_de": "Ich bin zufrieden mit dem Lernerfolg.",
     "text_en": "I am satisfied with my learning success.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -907,8 +922,9 @@
   "fields": {
     "order": 321,
     "questionnaire": 82,
-    "text_de": "Die Vorlesung hat mich in die Lage versetzt, das Thema selbst\u00e4ndig zu vertiefen.",
+    "text_de": "Die Vorlesung hat mich in die Lage versetzt, das Thema selbständig zu vertiefen.",
     "text_en": "The lecture provided all information and skills that I need to deepen my knowledge in this topic.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -918,8 +934,9 @@
   "fields": {
     "order": 322,
     "questionnaire": 82,
-    "text_de": "Die Vorlesung ist f\u00fcr mein Studium wichtig.",
+    "text_de": "Die Vorlesung ist für mein Studium wichtig.",
     "text_en": "The lecture is important for my studies.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -929,8 +946,9 @@
   "fields": {
     "order": 323,
     "questionnaire": 82,
-    "text_de": "Ich empfand den Zeitaufwand f\u00fcr die Veranstaltung insgesamt als angemessen.",
+    "text_de": "Ich empfand den Zeitaufwand für die Veranstaltung insgesamt als angemessen.",
     "text_en": "I think the expenditure of time for the course was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -942,6 +960,7 @@
     "questionnaire": 83,
     "text_de": "Sonstige Kommentare",
     "text_en": "General remarks",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -951,8 +970,9 @@
   "fields": {
     "order": 325,
     "questionnaire": 84,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -964,6 +984,7 @@
     "questionnaire": 84,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -975,6 +996,7 @@
     "questionnaire": 84,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... adressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -986,6 +1008,7 @@
     "questionnaire": 84,
     "text_de": "... gestaltete die Veranstaltung interessant.",
     "text_en": "... gave the course in an interesting way.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -997,6 +1020,7 @@
     "questionnaire": 84,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1006,8 +1030,9 @@
   "fields": {
     "order": 330,
     "questionnaire": 50,
-    "text_de": "Wie bewertest du die \u00dcbung im Hinblick auf Umfang und Nutzen?",
+    "text_de": "Wie bewertest du die Übung im Hinblick auf Umfang und Nutzen?",
     "text_en": "How do you evaluate the exercise concerning amount and usefulness?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1017,8 +1042,9 @@
   "fields": {
     "order": 331,
     "questionnaire": 50,
-    "text_de": "Wie bewertest du die Schwierigkeit der \u00dcbung?",
+    "text_de": "Wie bewertest du die Schwierigkeit der Übung?",
     "text_en": "How do you evaluate the difficulty of the exercises?",
+    "allows_additional_textanswers": true,
     "type": 6
   }
 },
@@ -1028,8 +1054,9 @@
   "fields": {
     "order": 332,
     "questionnaire": 85,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1041,6 +1068,7 @@
     "questionnaire": 85,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1050,8 +1078,9 @@
   "fields": {
     "order": 335,
     "questionnaire": 85,
-    "text_de": "... stand auch au\u00dferhalb der regul\u00e4ren \u00dcbungstermine zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb der regulären Übungstermine zur Verfügung.",
     "text_en": "... was available even outside the regular exercise meetings.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1061,8 +1090,9 @@
   "fields": {
     "order": 336,
     "questionnaire": 86,
-    "text_de": "Das Seminar hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1072,8 +1102,9 @@
   "fields": {
     "order": 337,
     "questionnaire": 86,
-    "text_de": "Die Seminarthemen fand ich gut ausgew\u00e4hlt.",
+    "text_de": "Die Seminarthemen fand ich gut ausgewählt.",
     "text_en": "The seminar's topics were chosen very well.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1083,8 +1114,9 @@
   "fields": {
     "order": 338,
     "questionnaire": 86,
-    "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte f\u00fcr eigene Recherche.",
+    "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte für eigene Recherche.",
     "text_en": "The provided learning material was a good start for own research.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1096,6 +1128,7 @@
     "questionnaire": 86,
     "text_de": "Wie bewertest du den Aufwand des Seminars?",
     "text_en": "How do you evaluate the expenditure of time for the course?",
+    "allows_additional_textanswers": true,
     "type": 8
   }
 },
@@ -1105,8 +1138,9 @@
   "fields": {
     "order": 340,
     "questionnaire": 86,
-    "text_de": "Aus dem Seminar habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus dem Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1118,6 +1152,7 @@
     "questionnaire": 86,
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1129,6 +1164,7 @@
     "questionnaire": 86,
     "text_de": "Was hat das Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the seminar?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1138,8 +1174,9 @@
   "fields": {
     "order": 343,
     "questionnaire": 87,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1151,6 +1188,7 @@
     "questionnaire": 87,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1162,6 +1200,7 @@
     "questionnaire": 87,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1173,6 +1212,7 @@
     "questionnaire": 87,
     "text_de": "... gestaltete das Seminar interessant.",
     "text_en": "... conducted the seminar in an interesting way.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1184,6 +1224,7 @@
     "questionnaire": 87,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1193,8 +1234,9 @@
   "fields": {
     "order": 348,
     "questionnaire": 87,
-    "text_de": "... stand auch au\u00dferhalb des Seminars zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1206,6 +1248,7 @@
     "questionnaire": 87,
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1215,8 +1258,9 @@
   "fields": {
     "order": 350,
     "questionnaire": 88,
-    "text_de": "Das Projekt hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1226,8 +1270,9 @@
   "fields": {
     "order": 351,
     "questionnaire": 88,
-    "text_de": "Ich empfand den Zeitaufwand f\u00fcr das Projekt als angemessen.",
+    "text_de": "Ich empfand den Zeitaufwand für das Projekt als angemessen.",
     "text_en": "I think the expenditure of time for the project was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1237,8 +1282,9 @@
   "fields": {
     "order": 352,
     "questionnaire": 88,
-    "text_de": "Aus dem Projekt habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus dem Projekt habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1248,8 +1294,9 @@
   "fields": {
     "order": 353,
     "questionnaire": 89,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1261,6 +1308,7 @@
     "questionnaire": 89,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1272,6 +1320,7 @@
     "questionnaire": 89,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1283,6 +1332,7 @@
     "questionnaire": 89,
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supervising me/my team.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1294,6 +1344,7 @@
     "questionnaire": 89,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1303,8 +1354,9 @@
   "fields": {
     "order": 358,
     "questionnaire": 90,
-    "text_de": "Hier kannst du Lob und Kritik an den Verantwortlichen der Lehrveranstaltung loswerden. Bitte sei h\u00f6flich und konstruktiv!",
+    "text_de": "Hier kannst du Lob und Kritik an den Verantwortlichen der Lehrveranstaltung loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to the responsible person here. Be polite and constructive!",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1314,8 +1366,9 @@
   "fields": {
     "order": 359,
     "questionnaire": 91,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1327,6 +1380,7 @@
     "questionnaire": 91,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... could equip me with knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1338,6 +1392,7 @@
     "questionnaire": 91,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1347,8 +1402,9 @@
   "fields": {
     "order": 362,
     "questionnaire": 91,
-    "text_de": "... gestaltete die \u00dcbung interessant.",
+    "text_de": "... gestaltete die Übung interessant.",
     "text_en": "... conducted the excercise in an interesting way.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1360,6 +1416,7 @@
     "questionnaire": 91,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well-prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1369,8 +1426,9 @@
   "fields": {
     "order": 364,
     "questionnaire": 92,
-    "text_de": "Hier kannst du Lob und Kritik zur Person loswerden. Bitte sei h\u00f6flich und konstruktiv!",
+    "text_de": "Hier kannst du Lob und Kritik zur Person loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to the person here. Be polite and constructive!",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1380,8 +1438,9 @@
   "fields": {
     "order": 365,
     "questionnaire": 93,
-    "text_de": "Hier kannst du Lob und Kritik zu weiteren Mitwirkenden loswerden. Bitte sei h\u00f6flich und konstruktiv!",
+    "text_de": "Hier kannst du Lob und Kritik zu weiteren Mitwirkenden loswerden. Bitte sei höflich und konstruktiv!",
     "text_en": "Please give your feedback to additional contributors here. Be polite and constructive!",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1393,6 +1452,7 @@
     "questionnaire": 85,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1404,6 +1464,7 @@
     "questionnaire": 82,
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1413,8 +1474,9 @@
   "fields": {
     "order": 368,
     "questionnaire": 84,
-    "text_de": "... stand auch au\u00dferhalb der Veranstaltung zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb der Veranstaltung zur Verfügung.",
     "text_en": "... was available even outside the course.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1424,8 +1486,9 @@
   "fields": {
     "order": 369,
     "questionnaire": 91,
-    "text_de": "... stand auch au\u00dferhalb der regul\u00e4ren Termine zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb der regulären Termine zur Verfügung.",
     "text_en": "... was avalable even outside the regular meetings.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1435,8 +1498,9 @@
   "fields": {
     "order": 370,
     "questionnaire": 89,
-    "text_de": "... stand auch au\u00dferhalb der Meetings zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb der Meetings zur Verfügung.",
     "text_en": "... was available even outside the meetings.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1448,6 +1512,7 @@
     "questionnaire": 85,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1459,6 +1524,7 @@
     "questionnaire": 88,
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1468,8 +1534,9 @@
   "fields": {
     "order": 373,
     "questionnaire": 86,
-    "text_de": "Durch welche \u00c4nderungen k\u00f6nnte man das Seminar noch verbessern?",
+    "text_de": "Durch welche Änderungen könnte man das Seminar noch verbessern?",
     "text_en": "How could the seminar be further improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1479,8 +1546,9 @@
   "fields": {
     "order": 374,
     "questionnaire": 94,
-    "text_de": "Das Projekt hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1492,6 +1560,7 @@
     "questionnaire": 94,
     "text_de": "Das Projekt passt inhaltlich in das bisherige Studium.",
     "text_en": "The project's topic fits into my studies.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1503,6 +1572,7 @@
     "questionnaire": 94,
     "text_de": "Das Projektthema war interessant.",
     "text_en": "The project's topic was interesting.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1512,8 +1582,9 @@
   "fields": {
     "order": 377,
     "questionnaire": 94,
-    "text_de": "Das Projektthema passte zu meinen Interessen und F\u00e4higkeiten.",
+    "text_de": "Das Projektthema passte zu meinen Interessen und Fähigkeiten.",
     "text_en": "The project matched my interests and skills.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1525,6 +1596,7 @@
     "questionnaire": 94,
     "text_de": "Das Projekt entsprach meiner Vorstellung.",
     "text_en": "The project met my expectations.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1536,6 +1608,7 @@
     "questionnaire": 94,
     "text_de": "Die Aufgabenstellung war klar spezifiziert.",
     "text_en": "The tasks were clearly specified.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1545,8 +1618,9 @@
   "fields": {
     "order": 380,
     "questionnaire": 94,
-    "text_de": "Bei einer wiederholten Wahl w\u00fcrde ich das gleiche Projekt w\u00e4hlen.",
+    "text_de": "Bei einer wiederholten Wahl würde ich das gleiche Projekt wählen.",
     "text_en": "I would choose the same project again.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1556,8 +1630,9 @@
   "fields": {
     "order": 381,
     "questionnaire": 94,
-    "text_de": "Was hat dir am Projekt besonders gefallen? Wie h\u00e4tte man das Projekt besser gestalten k\u00f6nnen?",
+    "text_de": "Was hat dir am Projekt besonders gefallen? Wie hätte man das Projekt besser gestalten können?",
     "text_en": "What was the best part of the project? What could be improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1567,8 +1642,9 @@
   "fields": {
     "order": 382,
     "questionnaire": 95,
-    "text_de": "Wie bewertest du den Zeitaufwand f\u00fcr das Projekt?",
+    "text_de": "Wie bewertest du den Zeitaufwand für das Projekt?",
     "text_en": "How do you evaluate the expenditure of time for the project?",
+    "allows_additional_textanswers": true,
     "type": 8
   }
 },
@@ -1580,6 +1656,7 @@
     "questionnaire": 95,
     "text_de": "Es haben sich alle Teilnehmer ausgeglichen beteiligt.",
     "text_en": "All team members participated equally.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1589,8 +1666,9 @@
   "fields": {
     "order": 384,
     "questionnaire": 95,
-    "text_de": "Die Zeitvorgaben f\u00fcr die Teil-Aufgaben waren realistisch.",
+    "text_de": "Die Zeitvorgaben für die Teil-Aufgaben waren realistisch.",
     "text_en": "The deadlines for sub-task were realistic.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1600,8 +1678,9 @@
   "fields": {
     "order": 385,
     "questionnaire": 95,
-    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung von Pressemitteilung, Plakat und Pr\u00e4sentation zur Verf\u00fcgung.",
+    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung von Pressemitteilung, Plakat und Präsentation zur Verfügung.",
     "text_en": "The time for preparation of the press release, poster and presentation was sufficient.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1613,6 +1692,7 @@
     "questionnaire": 95,
     "text_de": "Sonstige Kommentare zu Aufwand und Zeitplanung:",
     "text_en": "Additional remarks on effort and time management:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1624,6 +1704,7 @@
     "questionnaire": 96,
     "text_de": "Der Professor zeigte Interesse am Projekt und dessen Ergebnis.",
     "text_en": "The professor was interested in the project and its results.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1633,8 +1714,9 @@
   "fields": {
     "order": 389,
     "questionnaire": 96,
-    "text_de": "Der Professor hat sich w\u00e4hrend des Projektzeitraumes eingebracht.",
+    "text_de": "Der Professor hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The professor contributed to the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1644,8 +1726,9 @@
   "fields": {
     "order": 390,
     "questionnaire": 96,
-    "text_de": "Der Projektpartner hat sich w\u00e4hrend des Projektzeitraumes eingebracht.",
+    "text_de": "Der Projektpartner hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The business partner contributed to the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1657,6 +1740,7 @@
     "questionnaire": 96,
     "text_de": "Die Betreuung durch den Lehrstuhl war zufriedenstellend.",
     "text_en": "The supervision by the chair was satisfying.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1668,6 +1752,7 @@
     "questionnaire": 96,
     "text_de": "Die Betreuung durch den Projektpartner war zufriedenstellend.",
     "text_en": "The supervision by the business project partner was satisfying.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1679,6 +1764,7 @@
     "questionnaire": 96,
     "text_de": "Sonstige Kommentare zur Betreuung und zum Projektpartner:",
     "text_en": "Additional remarks on supervision and the business partner:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1690,6 +1776,7 @@
     "questionnaire": 97,
     "text_de": "Mein Bachelorarbeitsthema war interessant.",
     "text_en": "The topic of my bachelor thesis was interesting.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1701,6 +1788,7 @@
     "questionnaire": 97,
     "text_de": "Mein Bachelorarbeitsthema passte zu meinen Vertiefungsgebieten.",
     "text_en": "The topic of my bachelor's thesis matched my areas of specialization.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1710,8 +1798,9 @@
   "fields": {
     "order": 396,
     "questionnaire": 97,
-    "text_de": "Es war leicht, aus dem Projektthema Themen f\u00fcr die Bachelorarbeiten abzuleiten.",
+    "text_de": "Es war leicht, aus dem Projektthema Themen für die Bachelorarbeiten abzuleiten.",
     "text_en": "It was easy to derive the topics of the bachelor's theses out of the project's scope.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1723,6 +1812,7 @@
     "questionnaire": 97,
     "text_de": "Das Thema meiner Bachelorarbeit war inhaltlich nahe am Projekt.",
     "text_en": "The topic of my bachelor's thesis was directly derived from the scope of the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1732,8 +1822,9 @@
   "fields": {
     "order": 398,
     "questionnaire": 97,
-    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Bachelorarbeit zur Verf\u00fcgung.",
+    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Bachelorarbeit zur Verfügung.",
     "text_en": "The time for the preparation of my bachelor's thesis was sufficient.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1745,6 +1836,7 @@
     "questionnaire": 97,
     "text_de": "Sonstige Kommentare zur Bachelorarbeit:",
     "text_en": "Additional remarks on the bachelor's thesis:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1754,8 +1846,9 @@
   "fields": {
     "order": 400,
     "questionnaire": 98,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1767,6 +1860,7 @@
     "questionnaire": 98,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1778,6 +1872,7 @@
     "questionnaire": 98,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... adressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1789,6 +1884,7 @@
     "questionnaire": 98,
     "text_de": "... gestaltete die Veranstaltung interessant.",
     "text_en": "... gave the course in an interesting way.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1798,8 +1894,9 @@
   "fields": {
     "order": 404,
     "questionnaire": 99,
-    "text_de": "Das Projekt hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Projekt hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1811,6 +1908,7 @@
     "questionnaire": 99,
     "text_de": "Das Projekt passt inhaltlich in das bisherige Studium.",
     "text_en": "The project's topic fits into my studies.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1822,6 +1920,7 @@
     "questionnaire": 99,
     "text_de": "Das Projektthema war interessant.",
     "text_en": "The project's topic was interesting.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1831,8 +1930,9 @@
   "fields": {
     "order": 407,
     "questionnaire": 99,
-    "text_de": "Das Projektthema passte zu meinen Interessen und F\u00e4higkeiten.",
+    "text_de": "Das Projektthema passte zu meinen Interessen und Fähigkeiten.",
     "text_en": "The project matched my interests and skills.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1844,6 +1944,7 @@
     "questionnaire": 99,
     "text_de": "Das Projekt entsprach meiner Vorstellung.",
     "text_en": "The project met my expectations.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1855,6 +1956,7 @@
     "questionnaire": 99,
     "text_de": "Die Aufgabenstellung war klar spezifiziert.",
     "text_en": "The tasks were clearly specified.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1864,8 +1966,9 @@
   "fields": {
     "order": 410,
     "questionnaire": 99,
-    "text_de": "Bei einer wiederholten Wahl w\u00fcrde ich das gleiche Projekt w\u00e4hlen.",
+    "text_de": "Bei einer wiederholten Wahl würde ich das gleiche Projekt wählen.",
     "text_en": "I would choose the same project again.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1875,8 +1978,9 @@
   "fields": {
     "order": 411,
     "questionnaire": 99,
-    "text_de": "Was hat dir am Projekt besonders gefallen? Wie h\u00e4tte man das Projekt besser gestalten k\u00f6nnen?",
+    "text_de": "Was hat dir am Projekt besonders gefallen? Wie hätte man das Projekt besser gestalten können?",
     "text_en": "What was the best part of the project? What could be improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1888,6 +1992,7 @@
     "questionnaire": 100,
     "text_de": "Wie bewertest du den Zeitaufwand?",
     "text_en": "How do you evaluate the expenditure of time?",
+    "allows_additional_textanswers": true,
     "type": 8
   }
 },
@@ -1899,6 +2004,7 @@
     "questionnaire": 100,
     "text_de": "Es haben sich alle Teilnehmer ausgeglichen beteiligt.",
     "text_en": "All team members participated equally.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1908,8 +2014,9 @@
   "fields": {
     "order": 414,
     "questionnaire": 100,
-    "text_de": "Die Zeitvorgaben f\u00fcr die Teil-Aufgaben waren realistisch.",
+    "text_de": "Die Zeitvorgaben für die Teil-Aufgaben waren realistisch.",
     "text_en": "The deadlines for sub-tasks were realistic.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1921,6 +2028,7 @@
     "questionnaire": 100,
     "text_de": "Sonstige Kommentare zu Aufwand und Zeitplanung:",
     "text_en": "Additional remarks on effort and time management:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1932,6 +2040,7 @@
     "questionnaire": 101,
     "text_de": "Der Professor zeigte Interesse am Projekt und dessen Ergebnis.",
     "text_en": "The professor was interested in the project and its results.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1941,8 +2050,9 @@
   "fields": {
     "order": 417,
     "questionnaire": 101,
-    "text_de": "Der Professor hat sich w\u00e4hrend des Projektzeitraumes eingebracht.",
+    "text_de": "Der Professor hat sich während des Projektzeitraumes eingebracht.",
     "text_en": "The professor contributed to the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1954,6 +2064,7 @@
     "questionnaire": 101,
     "text_de": "Die Betreuung durch den Lehrstuhl war zufriedenstellend.",
     "text_en": "The supervision by the chair was satisfying.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1965,6 +2076,7 @@
     "questionnaire": 101,
     "text_de": "Sonstige Kommentare zur Betreuung:",
     "text_en": "Additional remarks on supervision:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -1976,6 +2088,7 @@
     "questionnaire": 102,
     "text_de": "Mein Masterarbeitsthema war interessant.",
     "text_en": "The topic of my master's thesis was interesting.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1987,6 +2100,7 @@
     "questionnaire": 102,
     "text_de": "Mein Masterarbeitsthema passte zu meinen Vertiefungsgebieten.",
     "text_en": "The topic of my master thesis matched my areas of specialization.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -1996,8 +2110,9 @@
   "fields": {
     "order": 422,
     "questionnaire": 102,
-    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Masterarbeit zur Verf\u00fcgung.",
+    "text_de": "Es stand ausreichend Zeit zur Ausarbeitung der Masterarbeit zur Verfügung.",
     "text_en": "The time for the preparation of my master's thesis was sufficient.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2009,6 +2124,7 @@
     "questionnaire": 102,
     "text_de": "Sonstige Kommentare zur Masterarbeit:",
     "text_en": "Additional remarks on the master's thesis:",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2018,8 +2134,9 @@
   "fields": {
     "order": 428,
     "questionnaire": 85,
-    "text_de": "... konnte Sachverhalte sehr gut erkl\u00e4ren.",
+    "text_de": "... konnte Sachverhalte sehr gut erklären.",
     "text_en": "... did explain issues very well.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2031,6 +2148,7 @@
     "questionnaire": 88,
     "text_de": "Was hat das Projekt besonders ausgezeichnet?",
     "text_en": "What were the strengths of the project?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2040,8 +2158,9 @@
   "fields": {
     "order": 430,
     "questionnaire": 88,
-    "text_de": "Durch welche \u00c4nderungen k\u00f6nnte man das Projekt noch verbessern?",
+    "text_de": "Durch welche Änderungen könnte man das Projekt noch verbessern?",
     "text_en": "How could the project be further improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2053,6 +2172,7 @@
     "questionnaire": 98,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2062,8 +2182,9 @@
   "fields": {
     "order": 432,
     "questionnaire": 104,
-    "text_de": "Das Projektseminar hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Projektseminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the project seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2073,8 +2194,9 @@
   "fields": {
     "order": 433,
     "questionnaire": 104,
-    "text_de": "Die Seminarthemen fand ich gut ausgew\u00e4hlt.",
+    "text_de": "Die Seminarthemen fand ich gut ausgewählt.",
     "text_en": "The seminar's topics were chosen very well.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2084,8 +2206,9 @@
   "fields": {
     "order": 434,
     "questionnaire": 104,
-    "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte f\u00fcr eigene Recherche.",
+    "text_de": "Die bereitgestellten Materialien waren gute Einstiegspunkte für eigene Recherche.",
     "text_en": "The provided learning material was a good start for own research.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2095,8 +2218,9 @@
   "fields": {
     "order": 435,
     "questionnaire": 104,
-    "text_de": "Ich empfand den Aufwand f\u00fcr das Projektseminar als angemessen.",
+    "text_de": "Ich empfand den Aufwand für das Projektseminar als angemessen.",
     "text_en": "I think the expenditure of time for the project seminar was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2106,8 +2230,9 @@
   "fields": {
     "order": 436,
     "questionnaire": 104,
-    "text_de": "Aus dem Projektseminar habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus dem Projektseminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the project seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2119,6 +2244,7 @@
     "questionnaire": 104,
     "text_de": "Ich kann nachvollziehen, wie und nach welchen Kriterien die Bewertung erfolgt.",
     "text_en": "I can understand how the grading is influenced by specific criteria.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2130,6 +2256,7 @@
     "questionnaire": 104,
     "text_de": "Die theoretischen Inhalte des Seminars haben mir bei der Bearbeitung des Projekts geholfen.",
     "text_en": "The theoretical contents of the seminar helped me working on the project.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2141,6 +2268,7 @@
     "questionnaire": 104,
     "text_de": "Was hat das Projektseminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the project seminar?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2150,8 +2278,9 @@
   "fields": {
     "order": 440,
     "questionnaire": 104,
-    "text_de": "Durch welche \u00c4nderungen k\u00f6nnte man das Projektseminar noch verbessern?",
+    "text_de": "Durch welche Änderungen könnte man das Projektseminar noch verbessern?",
     "text_en": "How could the project seminar be further improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2161,8 +2290,9 @@
   "fields": {
     "order": 441,
     "questionnaire": 105,
-    "text_de": "Das Seminar hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2172,8 +2302,9 @@
   "fields": {
     "order": 442,
     "questionnaire": 105,
-    "text_de": "Das Projektthema fand ich gut ausgew\u00e4hlt.",
+    "text_de": "Das Projektthema fand ich gut ausgewählt.",
     "text_en": "The project topic was chosen very well.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2183,8 +2314,9 @@
   "fields": {
     "order": 443,
     "questionnaire": 105,
-    "text_de": "Ich empfand den Aufwand f\u00fcr das Seminar als angemessen.",
+    "text_de": "Ich empfand den Aufwand für das Seminar als angemessen.",
     "text_en": "I think the expenditure of time for the seminar was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2194,8 +2326,9 @@
   "fields": {
     "order": 444,
     "questionnaire": 105,
-    "text_de": "Aus dem Seminar habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus dem Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2205,8 +2338,9 @@
   "fields": {
     "order": 445,
     "questionnaire": 105,
-    "text_de": "Ich kann mir vorstellen, Ans\u00e4tze und Methoden aus dem Design Thinking auch bei zuk\u00fcnftigen Projekten anzuwenden.",
+    "text_de": "Ich kann mir vorstellen, Ansätze und Methoden aus dem Design Thinking auch bei zukünftigen Projekten anzuwenden.",
     "text_en": "I can imagine using design thinking principles and methods in future projects.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2216,8 +2350,9 @@
   "fields": {
     "order": 446,
     "questionnaire": 105,
-    "text_de": "Das Seminar ist eine Bereicherung f\u00fcr meinen Studiengang.",
+    "text_de": "Das Seminar ist eine Bereicherung für meinen Studiengang.",
     "text_en": "The seminar is a good additional contribution to my major subject. ",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2229,6 +2364,7 @@
     "questionnaire": 105,
     "text_de": "Was hat das Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the seminar?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2238,8 +2374,9 @@
   "fields": {
     "order": 448,
     "questionnaire": 105,
-    "text_de": "Durch welche \u00c4nderungen k\u00f6nnte man das Seminar noch verbessern?",
+    "text_de": "Durch welche Änderungen könnte man das Seminar noch verbessern?",
     "text_en": "How could the seminar be further improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2249,8 +2386,9 @@
   "fields": {
     "order": 449,
     "questionnaire": 106,
-    "text_de": "Das Studienbegleitende Seminar hat mir Spa\u00df/Freude bereitet.",
+    "text_de": "Das Studienbegleitende Seminar hat mir Spaß/Freude bereitet.",
     "text_en": "I enjoyed the accompanying seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2260,8 +2398,9 @@
   "fields": {
     "order": 450,
     "questionnaire": 106,
-    "text_de": "Die Vortr\u00e4ge fand ich gut ausgew\u00e4hlt.",
+    "text_de": "Die Vorträge fand ich gut ausgewählt.",
     "text_en": "The topics of the talks were chosen very well.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2271,8 +2410,9 @@
   "fields": {
     "order": 451,
     "questionnaire": 106,
-    "text_de": "Ich empfand den Aufwand f\u00fcr das Studienbegleitende Seminar als angemessen.",
+    "text_de": "Ich empfand den Aufwand für das Studienbegleitende Seminar als angemessen.",
     "text_en": "I think the expenditure of time for the accompanying seminar was appropriate.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2282,8 +2422,9 @@
   "fields": {
     "order": 452,
     "questionnaire": 106,
-    "text_de": "Aus dem Studienbegleitenden Seminar habe ich etwas mitnehmen k\u00f6nnen.",
+    "text_de": "Aus dem Studienbegleitenden Seminar habe ich etwas mitnehmen können.",
     "text_en": "I learned something from the accompanying seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2295,6 +2436,7 @@
     "questionnaire": 106,
     "text_de": "Das Studienbegleitende Seminar hat mir beim Einstieg in das Studium geholfen.",
     "text_en": "The accompanying seminar helped me to get started with my studies.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2306,6 +2448,7 @@
     "questionnaire": 106,
     "text_de": "Was hat das Studienbegleitende Seminar besonders ausgezeichnet?",
     "text_en": "What were the strengths of the accompanying seminar?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2315,8 +2458,9 @@
   "fields": {
     "order": 455,
     "questionnaire": 106,
-    "text_de": "Durch welche \u00c4nderungen k\u00f6nnte man das Studienbegleitende  Seminar noch verbessern?",
+    "text_de": "Durch welche Änderungen könnte man das Studienbegleitende  Seminar noch verbessern?",
     "text_en": "How could the accompanying seminar be further improved?",
+    "allows_additional_textanswers": false,
     "type": 0
   }
 },
@@ -2326,8 +2470,9 @@
   "fields": {
     "order": 457,
     "questionnaire": 107,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2339,6 +2484,7 @@
     "questionnaire": 107,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2350,6 +2496,7 @@
     "questionnaire": 107,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2361,6 +2508,7 @@
     "questionnaire": 107,
     "text_de": "... gestaltete das Seminar interessant.",
     "text_en": "... conducted the seminar in an interesting way.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2372,6 +2520,7 @@
     "questionnaire": 107,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2383,6 +2532,7 @@
     "questionnaire": 107,
     "text_de": "... hat den Seminarablauf gut gestaltet.",
     "text_en": "... created a good structure of the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2394,6 +2544,7 @@
     "questionnaire": 107,
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2403,8 +2554,9 @@
   "fields": {
     "order": 464,
     "questionnaire": 107,
-    "text_de": "... stand auch au\u00dferhalb des Seminars zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2414,8 +2566,9 @@
   "fields": {
     "order": 465,
     "questionnaire": 108,
-    "text_de": "... verhielt sich gegen\u00fcber den Studierenden respektvoll.",
+    "text_de": "... verhielt sich gegenüber den Studierenden respektvoll.",
     "text_en": "... showed respect for the students.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2427,6 +2580,7 @@
     "questionnaire": 108,
     "text_de": "... konnte mir Wissen vermitteln.",
     "text_en": "... imparted knowledge.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2438,6 +2592,7 @@
     "questionnaire": 108,
     "text_de": "... ging auf Fragen und Anregungen ein.",
     "text_en": "... addressed questions and proposals.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2449,6 +2604,7 @@
     "questionnaire": 108,
     "text_de": "... wirkte gut vorbereitet.",
     "text_en": "... seemed to be well prepared.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2460,6 +2616,7 @@
     "questionnaire": 108,
     "text_de": "... hat mich/mein Team aktiv betreut.",
     "text_en": "... made a good job in actively supporting me/my team.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2469,8 +2626,9 @@
   "fields": {
     "order": 470,
     "questionnaire": 108,
-    "text_de": "... stand auch au\u00dferhalb des Seminars zur Verf\u00fcgung.",
+    "text_de": "... stand auch außerhalb des Seminars zur Verfügung.",
     "text_en": "... was available even outside the seminar.",
+    "allows_additional_textanswers": true,
     "type": 1
   }
 },
@@ -2480,8 +2638,9 @@
   "fields": {
     "order": 471,
     "questionnaire": 109,
-    "text_de": "Wie w\u00fcrdest du die Veranstaltung insgesamt bewerten?",
+    "text_de": "Wie würdest du die Veranstaltung insgesamt bewerten?",
     "text_en": "How would you grade the course in total?",
+    "allows_additional_textanswers": true,
     "type": 2
   }
 },
@@ -2491,8 +2650,9 @@
   "fields": {
     "order": 2,
     "questionnaire": 110,
-    "text_de": "W\u00fcrden Sie eine Fortsetzung des Kurses besuchen?",
+    "text_de": "Würden Sie eine Fortsetzung des Kurses besuchen?",
     "text_en": "Would you enroll in a continued version of this course?",
+    "allows_additional_textanswers": true,
     "type": 3
   }
 },
@@ -2504,6 +2664,7 @@
     "questionnaire": 110,
     "text_de": "Fanden Sie den Kurs zu schwer?",
     "text_en": "Was the course too difficult?",
+    "allows_additional_textanswers": true,
     "type": 6
   }
 },
@@ -2513,8 +2674,9 @@
   "fields": {
     "order": 342,
     "questionnaire": 86,
-    "text_de": "Wie empfandest du die Gr\u00f6\u00dfe des Seminars?",
+    "text_de": "Wie empfandest du die Größe des Seminars?",
     "text_en": "How do you feel about the size of the seminar?",
+    "allows_additional_textanswers": true,
     "type": 9
   }
 },
@@ -2524,8 +2686,9 @@
   "fields": {
     "order": 332,
     "questionnaire": 50,
-    "text_de": "Es gab gen\u00fcgend \u00dcbungen.",
+    "text_de": "Es gab genügend Übungen.",
     "text_en": "There were sufficient exercises.",
+    "allows_additional_textanswers": true,
     "type": 7
   }
 },
@@ -2537,6 +2700,7 @@
     "questionnaire": 84,
     "text_de": "... ist in einem angenehmen Tempo vorangeschritten.",
     "text_en": "... had a comfortable pace.",
+    "allows_additional_textanswers": true,
     "type": 10
   }
 },
@@ -93800,6 +93964,17 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "5a67150f-572b-4e86-93cb-84fb9e26be05",
+  "fields": {
+    "question": 353,
+    "contribution": 1256,
+    "answer": "Lorem ipsum dolor sit amet",
+    "original_answer": null,
+    "state": "PU"
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "5a7ccdab-041e-46a9-94f9-9416e748998f",
   "fields": {
     "question": 364,
@@ -94036,6 +94211,17 @@
     "question": 318,
     "contribution": 4128,
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,",
+    "original_answer": null,
+    "state": "PU"
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "5d5b0184-e057-42f9-99d1-7d0431478e8a",
+  "fields": {
+    "question": 319,
+    "contribution": 864,
+    "answer": "Lorem ipsum",
     "original_answer": null,
     "state": "PU"
   }
@@ -96885,6 +97071,17 @@
     "question": 313,
     "contribution": 884,
     "answer": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et",
+    "original_answer": null,
+    "state": "PU"
+  }
+},
+{
+  "model": "evaluation.textanswer",
+  "pk": "804a780c-274f-4738-880e-cbdd4d890410",
+  "fields": {
+    "question": 367,
+    "contribution": 864,
+    "answer": "Lorem ipsum dolor sit amet",
     "original_answer": null,
     "state": "PU"
   }
@@ -104811,6 +105008,17 @@
 },
 {
   "model": "evaluation.textanswer",
+  "pk": "df4aadd7-bf92-43fd-9c6e-6ed3446af3a4",
+  "fields": {
+    "question": 352,
+    "contribution": 864,
+    "answer": "Lorem ipsum dolor",
+    "original_answer": null,
+    "state": "PU"
+  }
+},
+{
+  "model": "evaluation.textanswer",
   "pk": "df70bdfe-deb3-4f79-8ffe-908c2df50e99",
   "fields": {
     "question": 364,
@@ -107547,7 +107755,7 @@
   "pk": 4,
   "fields": {
     "order": 3,
-    "title_de": "Details f\u00fcr Dozenten",
+    "title_de": "Details für Dozenten",
     "title_en": "Details for Lecturers"
   }
 },
@@ -107556,7 +107764,7 @@
   "pk": 5,
   "fields": {
     "order": 4,
-    "title_de": "Details f\u00fcr Studierende",
+    "title_de": "Details für Studierende",
     "title_en": "Details for Students"
   }
 },
@@ -107568,8 +107776,8 @@
     "order": 1,
     "question_de": "Was ist EvaP?",
     "question_en": "What is EvaP?",
-    "answer_de": "EvaP ist eine Evaluierungsplattform f\u00fcr Lehrveranstaltungen an Universit\u00e4ten.<br />Entwickelt wurde sie urspr\u00fcnglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universit\u00e4t Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ \u2013 eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung \u2013 im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufw\u00e4ndig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
-    "answer_en": "EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ \u2013 a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
+    "answer_de": "EvaP ist eine Evaluierungsplattform für Lehrveranstaltungen an Universitäten.<br />Entwickelt wurde sie ursprünglich am <a href=\"http://www.hpi.uni-potsdam.de/\">Hasso-Plattner-Institut (HPI)</a> an der Universität Potsdam und ist mittlerweile ein Open-Source-Projekt auf <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />Von 2005 bis 2011 war am HPI die Plattform EvaJ – eine von Studierenden im Rahmen eines Seminars entwickelte Java-Anwendung – im Einsatz. 2011 entschied sich der Fachschaftsrat, die Evaluierungssoftware neu zu entwickeln, da eine Wartung technisch zu aufwändig geworden war. Das neue System namens EvaP basiert nun auf der Programmiersprache Python.",
+    "answer_en": "EvaP is an online platform being used for evaluation of university courses.<br />At first developed at <a href=\"http://www.hpi.uni-potsdam.de/willkommen.html?L=1\">Hasso Plattner Institute (HPI)</a> at the University of Potsdam in Germany, it is now an Open Source project on <a href=\"https://github.com/e-valuation/EvaP\">GitHub</a>.<br />From 2005 to 2011 HPI used the older platform EvaJ – a Java application implemented by students during a seminar. In 2011 the student representatives decided to redevelop the evaluation platform when the old system became unmaintainable. The new platform called EvaP is now written in the Python programming language."
   }
 },
 {
@@ -107580,7 +107788,7 @@
     "order": 2,
     "question_de": "Wer betreibt die Plattform?",
     "question_en": "Who runs the platform?",
-    "answer_de": "F\u00fcr den Betrieb der Plattform und den Ablauf der Evaluierung ist das Evaluierungsteam verantwortlich.",
+    "answer_de": "Für den Betrieb der Plattform und den Ablauf der Evaluierung ist das Evaluierungsteam verantwortlich.",
     "answer_en": "The evaluation team is running the platform and is responsible for the evaluation process."
   }
 },
@@ -107592,7 +107800,7 @@
     "order": 3,
     "question_de": "Wie melde ich mich auf der Plattform an?",
     "question_en": "How do I login on the platform?",
-    "answer_de": "F\u00fcr die Anmeldung gibt es zwei M\u00f6glichkeiten:<ul><li>Als Dozent oder Student mit dem Login.</li><li>Als externer Nutzer mit einem Anmeldeschl\u00fcssel, der per E\u2011Mail versendet wird.</li></ul>",
+    "answer_de": "Für die Anmeldung gibt es zwei Möglichkeiten:<ul><li>Als Dozent oder Student mit dem Login.</li><li>Als externer Nutzer mit einem Anmeldeschlüssel, der per E‑Mail versendet wird.</li></ul>",
     "answer_en": "There are two options to login:<ul><li>Lecturers and Students can use their login credentials.</li><li>External users have to use a login key, which they can get via email.</li></ul>"
   }
 },
@@ -107602,9 +107810,9 @@
   "fields": {
     "section": 1,
     "order": 4,
-    "question_de": "Warum braucht man als externer Nutzer einen Anmeldeschl\u00fcssel und wie funktioniert dieser?",
+    "question_de": "Warum braucht man als externer Nutzer einen Anmeldeschlüssel und wie funktioniert dieser?",
     "question_en": "Why do external users need a login key and how does it work?",
-    "answer_de": "Externe Dozenten und Studenten besitzen keinen Login. Dennoch muss sichergestellt werden, dass sie sich als der richtige Nutzer auf der Plattform anmelden k\u00f6nnen.<br />Um sich einen Anmeldeschl\u00fcssel generieren zu lassen, m\u00fcssen Sie Ihre E-Mail-Adresse angeben. Verwenden Sie dazu bitte die Adresse, die bei der Anmeldung f\u00fcr die Veranstaltung verwendet wurde, da nur diese an das Evaluierungsteam weitergegeben und somit auf der Plattform hinterlegt wird.<br />Sie erhalten Ihren Schl\u00fcssel anschlie\u00dfend per E-Mail zugeschickt und k\u00f6nnen sich mit diesem anmelden. Da der Schl\u00fcssel eindeutig Ihrer E-Mail-Adresse zugeordnet werden kann, wei\u00df die Plattform, welcher Nutzer sich gerade anmeldet.",
+    "answer_de": "Externe Dozenten und Studenten besitzen keinen Login. Dennoch muss sichergestellt werden, dass sie sich als der richtige Nutzer auf der Plattform anmelden können.<br />Um sich einen Anmeldeschlüssel generieren zu lassen, müssen Sie Ihre E-Mail-Adresse angeben. Verwenden Sie dazu bitte die Adresse, die bei der Anmeldung für die Veranstaltung verwendet wurde, da nur diese an das Evaluierungsteam weitergegeben und somit auf der Plattform hinterlegt wird.<br />Sie erhalten Ihren Schlüssel anschließend per E-Mail zugeschickt und können sich mit diesem anmelden. Da der Schlüssel eindeutig Ihrer E-Mail-Adresse zugeordnet werden kann, weiß die Plattform, welcher Nutzer sich gerade anmeldet.",
     "answer_en": "External lecturers and students don't have login credentials. But the platform still needs to make sure that they can login as the correct user.<br />If you want to get a login key for yourself, you need to enter your email address on the login page. Please make sure to use the email address which was used during enrolment for the course, as that one is given to the evaluation team and is already registered on the platform.<br />You will immediately get your key via email. This key is linked to your email address, so the platform can identify you when using the key to login."
   }
 },
@@ -107616,7 +107824,7 @@
     "order": 5,
     "question_de": "Wie kann ich mich registrieren?",
     "question_en": "How can I register?",
-    "answer_de": "Nutzer werden f\u00fcr neue Studierende und Dozenten automatisch angelegt. Zus\u00e4tzlich kann das Evaluierungsteam weitere Nutzer anlegen, falls dies notwendig ist.<br />Eine selbstst\u00e4ndige Registrierung ist nicht m\u00f6glich.",
+    "answer_de": "Nutzer werden für neue Studierende und Dozenten automatisch angelegt. Zusätzlich kann das Evaluierungsteam weitere Nutzer anlegen, falls dies notwendig ist.<br />Eine selbstständige Registrierung ist nicht möglich.",
     "answer_en": "Users are created automatically for new students and lecturers. Additional users can be added by the evaluation team if necessary.<br />An autonomous registration is not possible."
   }
 },
@@ -107628,7 +107836,7 @@
     "order": 1,
     "question_de": "Was ist die Evaluierung?",
     "question_en": "What is the evaluation?",
-    "answer_de": "Die Evaluierung ist die Beurteilung von Lehrveranstaltungen. Ziel ist es, die Qualit\u00e4t der Lehre zu verbessern, indem Dozenten, Studierende und Verwaltung Feedback zu den einzelnen Veranstaltungen erhalten.<br />Die Studierenden k\u00f6nnen auf dieser Online-Plattform anonym Frageb\u00f6gen f\u00fcr ihre belegten Lehrveranstaltungen ausf\u00fcllen. Die Auswertung der Frageb\u00f6gen wird anschlie\u00dfend ver\u00f6ffentlicht und ist ebenfalls online zug\u00e4nglich.",
+    "answer_de": "Die Evaluierung ist die Beurteilung von Lehrveranstaltungen. Ziel ist es, die Qualität der Lehre zu verbessern, indem Dozenten, Studierende und Verwaltung Feedback zu den einzelnen Veranstaltungen erhalten.<br />Die Studierenden können auf dieser Online-Plattform anonym Fragebögen für ihre belegten Lehrveranstaltungen ausfüllen. Die Auswertung der Fragebögen wird anschließend veröffentlicht und ist ebenfalls online zugänglich.",
     "answer_en": "Evaluation is the process of getting feedback for courses. It aims at helping to improve the quality of teaching by providing this feedback to lecturers, students and management.<br />This online platform allows students to anonymously complete questionnaires for all the courses they are enrolled in. Afterwards the results will be published online."
   }
 },
@@ -107640,7 +107848,7 @@
     "order": 2,
     "question_de": "Woher kommen die Daten?",
     "question_en": "Where does the data come from?",
-    "answer_de": "In jedem Semester erh\u00e4lt das Evaluierungsteam vom Studienreferat die Belegungsdaten. Diese Informationen enthalten alle Lehrveranstaltungen, den jeweiligen verantwortlichen Dozenten und die Belegungen der Studierenden. Somit ist sichergestellt, dass in EvaP alle Lehrveranstaltungen eingetragen sind und die Studierenden nur Veranstaltungen bewerten k\u00f6nnen, die sie auch tats\u00e4chlich belegt haben. Sollten Sie Fehler in den Daten bemerken, wenden Sie sich bitte an das Evaluierungsteam.",
+    "answer_de": "In jedem Semester erhält das Evaluierungsteam vom Studienreferat die Belegungsdaten. Diese Informationen enthalten alle Lehrveranstaltungen, den jeweiligen verantwortlichen Dozenten und die Belegungen der Studierenden. Somit ist sichergestellt, dass in EvaP alle Lehrveranstaltungen eingetragen sind und die Studierenden nur Veranstaltungen bewerten können, die sie auch tatsächlich belegt haben. Sollten Sie Fehler in den Daten bemerken, wenden Sie sich bitte an das Evaluierungsteam.",
     "answer_en": "Every semester the evaluation team is getting the enrolment data by the by the office of student affairs. This includes all courses, their responsible lecturers and the enrolment information of all students. In this way it's ensured that all courses are available for evaluation and that students can only vote for the courses they are enrolled in. If you should find any mistake, please send a message to the evaluation team."
   }
 },
@@ -107650,9 +107858,9 @@
   "fields": {
     "section": 2,
     "order": 3,
-    "question_de": "Wie sind Frageb\u00f6gen aufgebaut?",
+    "question_de": "Wie sind Fragebögen aufgebaut?",
     "question_en": "How are the questionnaires created?",
-    "answer_de": "Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Frageb\u00f6gen, z.B. Fragen zu Lehrmitteln, einem \u00dcbungsleiter oder dem Inhalt der Veranstaltung. Jeder dieser Frageb\u00f6gen wiederum besteht aus einer oder mehreren Fragen.",
+    "answer_de": "Die Evaluierung einer Lehrveranstaltung besteht aus mehreren Fragebögen, z.B. Fragen zu Lehrmitteln, einem Übungsleiter oder dem Inhalt der Veranstaltung. Jeder dieser Fragebögen wiederum besteht aus einer oder mehreren Fragen.",
     "answer_en": "The evaluation of a course consists of several questionnaires, e.g. questions about learning materials, exercise supervisors or the contents of the lecture. Each of these questionnaires holds one or several questions."
   }
 },
@@ -107664,7 +107872,7 @@
     "order": 4,
     "question_de": "Welche Arten von Fragen gibt es?",
     "question_en": "What types of questions are asked?",
-    "answer_de": "Grunds\u00e4tzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer f\u00fcnfstufigen Skala ermitteln. Es ist auch m\u00f6glich, mit \u201ekeine Angabe\u201c zu stimmen.</li><li>Textfragen, auf die man in einem Textfeld antworten kann.</li></ul>",
+    "answer_de": "Grundsätzlich gibt es zwei Fragetypen:<ul><li>Sogenannte Likert-Fragen, die Zustimmung bzw. Ablehnung auf einer fünfstufigen Skala ermitteln. Es ist auch möglich, mit „keine Angabe“ zu stimmen.</li><li>Textfragen, auf die man in einem Textfeld antworten kann.</li></ul>",
     "answer_en": "There are two types of questions:<ul><li>So called Likert questions that ask for agreement or disagreement on a five-step scale. It's also possible to answer \"No answer\".</li><li>Questions, where you can give your answer in a text field.</li></ul>"
   }
 },
@@ -107674,9 +107882,9 @@
   "fields": {
     "section": 2,
     "order": 5,
-    "question_de": "Wie werden Frageb\u00f6gen einer Lehrveranstaltung zugeordnet?",
+    "question_de": "Wie werden Fragebögen einer Lehrveranstaltung zugeordnet?",
     "question_en": "How are the questionnaires for a course selected?",
-    "answer_de": "Zu Beginn nimmt das Evaluierungsteam die Zuordnung passender Frageb\u00f6gen vor. Au\u00dferdem k\u00f6nnen Dozenten weitere Frageb\u00f6gen erg\u00e4nzen, falls Sie zus\u00e4tzliche Fragen stellen wollen.",
+    "answer_de": "Zu Beginn nimmt das Evaluierungsteam die Zuordnung passender Fragebögen vor. Außerdem können Dozenten weitere Fragebögen ergänzen, falls Sie zusätzliche Fragen stellen wollen.",
     "answer_en": "The initial selection is done by the evaluation team. In addition lecturers can add more questionnaires if they would like to ask further questions."
   }
 },
@@ -107686,9 +107894,9 @@
   "fields": {
     "section": 3,
     "order": 1,
-    "question_de": "Wann sind die Ergebnisse verf\u00fcgbar?",
+    "question_de": "Wann sind die Ergebnisse verfügbar?",
     "question_en": "When are the results published?",
-    "answer_de": "Die Ergebnisse der Evaluierung werden ver\u00f6ffentlicht, nachdem der Evaluierungszeitraum abgelaufen ist und alle Noten der Veranstaltung bekanntgegeben wurden.",
+    "answer_de": "Die Ergebnisse der Evaluierung werden veröffentlicht, nachdem der Evaluierungszeitraum abgelaufen ist und alle Noten der Veranstaltung bekanntgegeben wurden.",
     "answer_en": "The results of the evaluation will be published after the evaluation period ended and after all grades of the course have been published."
   }
 },
@@ -107698,9 +107906,9 @@
   "fields": {
     "section": 3,
     "order": 2,
-    "question_de": "In welcher Form werden die Ergebnisse ver\u00f6ffentlicht?",
+    "question_de": "In welcher Form werden die Ergebnisse veröffentlicht?",
     "question_en": "In which form will the results be published?",
-    "answer_de": "Die Plattform bietet jedem angemeldeten Nutzer die M\u00f6glichkeit, die Ergebnisse der vergangenen Semester einzusehen. F\u00fcr jede Lehrveranstaltung werden eine Gesamtnote und eine Note pro gestellte Likert-Frage angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen zudem die Textantworten sehen, die \u00fcber sie selbst abgegeben wurden. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.",
+    "answer_de": "Die Plattform bietet jedem angemeldeten Nutzer die Möglichkeit, die Ergebnisse der vergangenen Semester einzusehen. Für jede Lehrveranstaltung werden eine Gesamtnote und eine Note pro gestellte Likert-Frage angezeigt.<br />Mitwirkende einer Lehrveranstaltung können zudem die Textantworten sehen, die über sie selbst abgegeben wurden. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.",
     "answer_en": "Every logged-in user can see the results of past semesters on the platform. There are total grades per course and per Likert question.<br />Contributors of a course can also see the text answers that were given to them. The responsible lecturer can see all text answers about the course."
   }
 },
@@ -107712,7 +107920,7 @@
     "order": 3,
     "question_de": "Wie werden die Noten berechnet?",
     "question_en": "How are the grades calculated?",
-    "answer_de": "Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden \u00fcber den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Volle Zustimmung entspricht einer 1, volle Ablehnung einer 5. Alle Personennoten werden zusammen mit 50% gewichtet und die Noten der Sachfragen ergeben zusammen die restlichen 50%.",
+    "answer_de": "Die Gesamtnote ist der gewichtete Mittelwert aller Teilnoten. Die Teilnoten werden über den Durchschnitt aller abgegebenen Likert-Fragen berechnet. Volle Zustimmung entspricht einer 1, volle Ablehnung einer 5. Alle Personennoten werden zusammen mit 50% gewichtet und die Noten der Sachfragen ergeben zusammen die restlichen 50%.",
     "answer_en": "The total grade is the weighted average of all intermediate grades. The intermediate grades are calculated as the average of all Likert results. Strong agreement counts as 1, strong disagreement as 5. All person-related grades weigh 50% and all the other grades contribute to the remaining 50%."
   }
 },
@@ -107724,8 +107932,8 @@
     "order": 4,
     "question_de": "Warum sind manche Noten nicht sichtbar?",
     "question_en": "Why are not all grades visible?",
-    "answer_de": "Um zumindest eine grundlegende Aussagekraft zu haben, werden Noten erst dann angezeigt, wenn 20% der Teilnehmer der Lehrveranstaltung \u2013 mindestens aber zwei Teilnehmer \u2013 die entsprechende Frage beantwortet haben (\u201ekeine Angabe\u201c z\u00e4hlt dabei nicht als Stimme). Eine Gesamtnote wird ebenfalls erst ab dieser Grenze angezeigt.<br />Mitwirkende einer Lehrveranstaltung k\u00f6nnen unabh\u00e4ngig von der Grenze alle Noten sehen, die sie selbst betreffen. Der Verantwortliche einer Lehrveranstaltung kann alle Noten einsehen.",
-    "answer_en": "To get at least a basic significance, grades are only shown when at least 20% of the participants of a course \u2013 and not less than two participants \u2013 answered the related question (\"No answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
+    "answer_de": "Um zumindest eine grundlegende Aussagekraft zu haben, werden Noten erst dann angezeigt, wenn 20% der Teilnehmer der Lehrveranstaltung – mindestens aber zwei Teilnehmer – die entsprechende Frage beantwortet haben („keine Angabe“ zählt dabei nicht als Stimme). Eine Gesamtnote wird ebenfalls erst ab dieser Grenze angezeigt.<br />Mitwirkende einer Lehrveranstaltung können unabhängig von der Grenze alle Noten sehen, die sie selbst betreffen. Der Verantwortliche einer Lehrveranstaltung kann alle Noten einsehen.",
+    "answer_en": "To get at least a basic significance, grades are only shown when at least 20% of the participants of a course – and not less than two participants – answered the related question (\"No answer\" is not counted as an answer). The total grades are also not shown before this threshold was reached.<br />Irrespective of the number of participants, contributors of a course can see all grades related to them. The responsible lecturer can see all grades."
   }
 },
 {
@@ -107736,7 +107944,7 @@
     "order": 1,
     "question_de": "Was sind Stellvertreter?",
     "question_en": "What are delegates?",
-    "answer_de": "F\u00fcr die Vorbereitung der Evaluierung werden bestimmte Informationen von den Dozenten ben\u00f6tigt. EvaP bietet Ihnen in Ihrem Profil die M\u00f6glichkeit, einen oder mehrere Stellvertreter zu definieren. Diese erhalten die gleichen Bearbeitungsrechte wie Sie selbst und k\u00f6nnen die ben\u00f6tigten Informationen stellvertretend eintragen.",
+    "answer_de": "Für die Vorbereitung der Evaluierung werden bestimmte Informationen von den Dozenten benötigt. EvaP bietet Ihnen in Ihrem Profil die Möglichkeit, einen oder mehrere Stellvertreter zu definieren. Diese erhalten die gleichen Bearbeitungsrechte wie Sie selbst und können die benötigten Informationen stellvertretend eintragen.",
     "answer_en": "For the preparation of the evaluation some additional data is needed from the lecturers. In your profile EvaP provides the functionality to define one or more delegates who will get edit rights for all your courses and can then add the needed information in your name."
   }
 },
@@ -107746,9 +107954,9 @@
   "fields": {
     "section": 4,
     "order": 2,
-    "question_de": "Welche Informationen muss ich f\u00fcr eine Lehrveranstaltung angeben und warum?",
+    "question_de": "Welche Informationen muss ich für eine Lehrveranstaltung angeben und warum?",
     "question_en": "What information do I have to provide for my courses and why?",
-    "answer_de": "<ul><li>Den <em>Evaluierungszeitraum</em>: Dieser bestimmt, in welchem Zeitraum der Fragebogen f\u00fcr die an der Lehrveranstaltung teilnehmenden Studierenden zur Evaluierung bereitsteht. Das Evaluierungsteam legt beim Anlegen der Veranstaltung einen Standardzeitraum fest, der f\u00fcr viele Veranstaltungen individuell angepasst werden muss.<br />Mehr Informationen dazu finden Sie in der n\u00e4chsten Frage.</li><li>Die <em>passenden Frageb\u00f6gen</em>: Auch hier w\u00e4hlt das Evaluierungsteam bereits Standard-Frageb\u00f6gen aus, die sich nach der Art der Lehrveranstaltung (Vorlesung, Seminar, Projekt etc.) richten. Bitte stellen Sie sicher, dass die Auswahl auf Ihre Veranstaltung zutrifft.</li><li>Alle <em>Mitwirkenden</em>: Die Belegungsdaten, anhand derer das Evaluierungsteam die Veranstaltung anlegt, beinhalten die Information \u00fcber den Verantwortlichen der Lehrveranstaltung, nicht aber \u00fcber die eventuell zus\u00e4tzlich beteiligten Dozenten, \u00dcbungsleiter, Seminarbetreuer etc. F\u00fcgen Sie bitte alle weiteren Personen hinzu und legen Sie die passenden Frageb\u00f6gen fest.</li></ul>Alle weiteren Daten sollten bereits korrekt eingetragen sein. Wenn Sie dennoch Fehler feststellen, wenden Sie sich bitte an das Evaluierungsteam.",
+    "answer_de": "<ul><li>Den <em>Evaluierungszeitraum</em>: Dieser bestimmt, in welchem Zeitraum der Fragebogen für die an der Lehrveranstaltung teilnehmenden Studierenden zur Evaluierung bereitsteht. Das Evaluierungsteam legt beim Anlegen der Veranstaltung einen Standardzeitraum fest, der für viele Veranstaltungen individuell angepasst werden muss.<br />Mehr Informationen dazu finden Sie in der nächsten Frage.</li><li>Die <em>passenden Fragebögen</em>: Auch hier wählt das Evaluierungsteam bereits Standard-Fragebögen aus, die sich nach der Art der Lehrveranstaltung (Vorlesung, Seminar, Projekt etc.) richten. Bitte stellen Sie sicher, dass die Auswahl auf Ihre Veranstaltung zutrifft.</li><li>Alle <em>Mitwirkenden</em>: Die Belegungsdaten, anhand derer das Evaluierungsteam die Veranstaltung anlegt, beinhalten die Information über den Verantwortlichen der Lehrveranstaltung, nicht aber über die eventuell zusätzlich beteiligten Dozenten, Übungsleiter, Seminarbetreuer etc. Fügen Sie bitte alle weiteren Personen hinzu und legen Sie die passenden Fragebögen fest.</li></ul>Alle weiteren Daten sollten bereits korrekt eingetragen sein. Wenn Sie dennoch Fehler feststellen, wenden Sie sich bitte an das Evaluierungsteam.",
     "answer_en": "<ul><li>The <em>evaluation period</em>: This is the timeframe in which participating students can evaluate your course. An initial period is set by the evaluation team, but this needs to be individually redefined for many courses.<br />You can find more information on the evaluation period in the next question.</li><li><em>Adequate questionnaires</em>: These are also preselected by the evaluation team based on the type of the course (Lecture, Seminar, Project, etc.). Please make sure that the selection is appropriate for your course.</li><li>All <em>contributors</em>: The enrolment data imported into the system contains the responsible lecturer for each course. In many cases there are more people involved in the course (lecturers, teaching assistants, etc.). Please add all additional persons with their appropriate questionnaires.</li></ul>All other information about your courses should already have been entered correctly. If you find any mistakes, please contact the evaluation team."
   }
 },
@@ -107760,7 +107968,7 @@
     "order": 3,
     "question_de": "Wie sollte der Evaluierungszeitraum festgelegt werden?",
     "question_en": "How should the evaluation period be defined?",
-    "answer_de": "Die Evaluierung darf die Notengebung nicht beeinflussen und umgekehrt. Dies soll dadurch gew\u00e4hrleistet werden, indem die Evaluierung vor der letzten Pr\u00fcfungsleistung abgeschlossen wird und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten ver\u00f6ffentlicht werden. Der Evaluierungszeitraum sollte mindestens eine Woche umfassen und wird standardm\u00e4\u00dfig auf die letzten Wochen der Vorlesungszeit gesetzt. Im Folgenden werden ein paar Beispiele gegeben:<ul><li><em>Vorlesung mit oder ohne Zwischenklausur</em>: Die Evaluierung sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die Studierenden einen umfassenden \u00dcberblick \u00fcber die Lehrveranstaltung erhalten haben und der Hauptteil der Pr\u00fcfungsleistung noch nicht erbracht ist. In diesem Fall kann der Standard belassen werden, sofern die Klausur nicht vor Ende der Vorlesungszeit angesetzt ist.</li><li><em>Blockseminar mit mehreren Terminen</em>: Die Evaluierung kann direkt vor dem letzten Pr\u00fcfungsblock abgeschlossen werden. Der Evaluierungszeitraum sollte aber nur bis dahin verschoben werden, falls es im letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die Evaluierung auch nach der Pr\u00fcfung stattfinden.</li><li><em>Blockseminar in der vorlesungsfreien Zeit</em>: Hier sollte der Evaluierungszeitraum unbedingt nach hinten verschoben werden. Gibt es zwischen Lehrinhalt und Pr\u00fcfung keine ausreichende Zeit, so sollte die Evaluierung nach der Pr\u00fcfung durchgef\u00fchrt werden.</li><li><em>Paper-/Projektseminar</em>: Nach dem letzten regelm\u00e4\u00dfigen Treffen oder Vortrag w\u00e4re ein geeigneter Termin. Sollten die Noten nicht schon vor dem regul\u00e4ren Evaluierungszeitraum ver\u00f6ffentlicht werden, wird dazu geraten, den Standardtermin zu belassen, damit die Studierenden nicht zu viele verschiedene Evaluierungszeitr\u00e4ume haben.</li></ul>",
+    "answer_de": "Die Evaluierung darf die Notengebung nicht beeinflussen und umgekehrt. Dies soll dadurch gewährleistet werden, indem die Evaluierung vor der letzten Prüfungsleistung abgeschlossen wird und die Ergebnisse der Evaluierung erst nach Bekanntgabe der Noten veröffentlicht werden. Der Evaluierungszeitraum sollte mindestens eine Woche umfassen und wird standardmäßig auf die letzten Wochen der Vorlesungszeit gesetzt. Im Folgenden werden ein paar Beispiele gegeben:<ul><li><em>Vorlesung mit oder ohne Zwischenklausur</em>: Die Evaluierung sollte vor der Endklausur stattfinden, da zu diesem Zeitpunkt die Studierenden einen umfassenden Überblick über die Lehrveranstaltung erhalten haben und der Hauptteil der Prüfungsleistung noch nicht erbracht ist. In diesem Fall kann der Standard belassen werden, sofern die Klausur nicht vor Ende der Vorlesungszeit angesetzt ist.</li><li><em>Blockseminar mit mehreren Terminen</em>: Die Evaluierung kann direkt vor dem letzten Prüfungsblock abgeschlossen werden. Der Evaluierungszeitraum sollte aber nur bis dahin verschoben werden, falls es im letzten Block keinen oder nur noch kaum Lehrinhalt gibt. Ansonsten kann die Evaluierung auch nach der Prüfung stattfinden.</li><li><em>Blockseminar in der vorlesungsfreien Zeit</em>: Hier sollte der Evaluierungszeitraum unbedingt nach hinten verschoben werden. Gibt es zwischen Lehrinhalt und Prüfung keine ausreichende Zeit, so sollte die Evaluierung nach der Prüfung durchgeführt werden.</li><li><em>Paper-/Projektseminar</em>: Nach dem letzten regelmäßigen Treffen oder Vortrag wäre ein geeigneter Termin. Sollten die Noten nicht schon vor dem regulären Evaluierungszeitraum veröffentlicht werden, wird dazu geraten, den Standardtermin zu belassen, damit die Studierenden nicht zu viele verschiedene Evaluierungszeiträume haben.</li></ul>",
     "answer_en": "The evaluation must not influence the course's grading and vice versa. This should be ensured by ending the evaluation before the final exam and publishing the evaluation's results not before the grades of the course have been published. The evaluation period should be at least one week and its standard value are the last weeks of the lecture period. Here are some examples:<ul><li><em>Lecture with or without midterm exams</em>: The evaluation should take place before the final exam, because the students will then already have a broad overview about the course and the main part of the exams is still to come. In this case the standard value for the evaluation period can be retained unless the exam takes place before the end of the lecture period.</li><li><em>Compact seminar with several dates</em>: The evaluation can be done directly before the last examination. The evaluation period should only be moved there if the last date does not have a lot of teaching content. Otherwise the evaluation can be done after the exam.</li><li><em>Compact seminar during the semester break</em>: In this case the evaluation period must be deferred. If there is not enough time between teaching content and examination, the evaluation can be done after the exam.</li><li><em>Paper/project seminar</em>: An optimal evaluation period would be after the last regular meeting or talk. If the grades will not be published before the end of the standard evaluation period, this period should not be changed to not create too many different evaluation periods for the students.</li></ul>"
   }
 },
@@ -107770,9 +107978,9 @@
   "fields": {
     "section": 4,
     "order": 4,
-    "question_de": "Was bedeuten die Zust\u00e4nde einer Lehrveranstaltung?",
+    "question_de": "Was bedeuten die Zustände einer Lehrveranstaltung?",
     "question_en": "What do the states of a course mean?",
-    "answer_de": "Es gibt acht verschiedene Zust\u00e4nde, die eine Lehrveranstaltung durchlaufen kann:<ol><li><em>Neu</em><br />Direkt nach dem Import oder dem manuellen Anlegen einer Lehrveranstaltung befindet sie sich in diesem Zustand. Das Evaluierungsteam kontrolliert die Daten und l\u00e4sst die Lehrveranstaltungen in den n\u00e4chsten Zustand \u00fcbergehen. Wenn dies passiert, wird von der Plattform eine E-Mail an die Dozenten und ihre Stellvertreter verschickt.</li><li><em>Vorbereitet</em><br />In diesem Zustand k\u00f6nnen die Dozenten und ihre Stellvertreter ihre Lehrveranstaltungen bearbeiten und anschlie\u00dfend best\u00e4tigen.</li><li><em>Vom Dozenten best\u00e4tigt</em><br />Nachdem ein Dozent eine Lehrveranstaltung best\u00e4tigt hat, \u00fcberpr\u00fcft das Evaluierungsteam die Daten erneut und best\u00e4tigt schlie\u00dflich den Kurs.</li><li><em>Best\u00e4tigt</em><br />Nachdem ein Kurs vom Evaluierungsteam best\u00e4tigt wurde, befindet er in diesem Zustand. Die Evaluierung beginnt automatisch, sobald der Evaluierungszeitraum erreicht ist.</li><li><em>In Evaluierung</em><br />In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li><li><em>Evaluiert</em><br />Nach Ablauf des Evaluierungszeitraumes gehen evaluierte Lehrveranstaltungen automatisch in diesen Zustand \u00fcber. Vom Evaluierungsteam werden alle Textantworten durchgesehen und Beleidigungen entfernt.</li><li><em>\u00fcberpr\u00fcft</em><br />Sobald alle Textantworten \u00fcberpr\u00fcft wurden, verbleibt die Lehrveranstaltung bis zu ihrer Ver\u00f6ffentlichung in diesem Zustand.</li><li><em>Ver\u00f6ffentlicht</em><br />Das Evaluierungsteam ver\u00f6ffentlicht die Ergebnisse der Lehrveranstaltungen manuell. Bei benoteten Veranstaltungen geschieht dies erst nach Ver\u00f6ffentlichung der Noten. Sie, Ihre Stellvertreter und alle Mitwirkenden der Lehrveranstaltung werden per E-Mail dar\u00fcber benachrichtigt.<br />Alle ver\u00f6ffentlichten Veranstaltungen k\u00f6nnen auf der Plattform eingesehen werden.</li></ol>",
+    "answer_de": "Es gibt acht verschiedene Zustände, die eine Lehrveranstaltung durchlaufen kann:<ol><li><em>Neu</em><br />Direkt nach dem Import oder dem manuellen Anlegen einer Lehrveranstaltung befindet sie sich in diesem Zustand. Das Evaluierungsteam kontrolliert die Daten und lässt die Lehrveranstaltungen in den nächsten Zustand übergehen. Wenn dies passiert, wird von der Plattform eine E-Mail an die Dozenten und ihre Stellvertreter verschickt.</li><li><em>Vorbereitet</em><br />In diesem Zustand können die Dozenten und ihre Stellvertreter ihre Lehrveranstaltungen bearbeiten und anschließend bestätigen.</li><li><em>Vom Dozenten bestätigt</em><br />Nachdem ein Dozent eine Lehrveranstaltung bestätigt hat, überprüft das Evaluierungsteam die Daten erneut und bestätigt schließlich den Kurs.</li><li><em>Bestätigt</em><br />Nachdem ein Kurs vom Evaluierungsteam bestätigt wurde, befindet er in diesem Zustand. Die Evaluierung beginnt automatisch, sobald der Evaluierungszeitraum erreicht ist.</li><li><em>In Evaluierung</em><br />In diesem Zustand werden die Stimmen der Teilnehmer erfasst.</li><li><em>Evaluiert</em><br />Nach Ablauf des Evaluierungszeitraumes gehen evaluierte Lehrveranstaltungen automatisch in diesen Zustand über. Vom Evaluierungsteam werden alle Textantworten durchgesehen und Beleidigungen entfernt.</li><li><em>überprüft</em><br />Sobald alle Textantworten überprüft wurden, verbleibt die Lehrveranstaltung bis zu ihrer Veröffentlichung in diesem Zustand.</li><li><em>Veröffentlicht</em><br />Das Evaluierungsteam veröffentlicht die Ergebnisse der Lehrveranstaltungen manuell. Bei benoteten Veranstaltungen geschieht dies erst nach Veröffentlichung der Noten. Sie, Ihre Stellvertreter und alle Mitwirkenden der Lehrveranstaltung werden per E-Mail darüber benachrichtigt.<br />Alle veröffentlichten Veranstaltungen können auf der Plattform eingesehen werden.</li></ol>",
     "answer_en": "There are eight different states in which a course can be:<ol><li><em>new</em><br />After importing or manually creating a course it has this state. The evaluation team checks the data and let the course switch to the next state. Once this happens the lecturers and their delegates will get an email from the platform.</li><li><em>prepared</em><br />This is the state where lecturers and their delegates can edit and approve the course.</li><li><em>lecturer approved</em><br />After a lecturer approved a course it will be again checked by the evaluation team who will do the final approval.</li><li><em>approved</em><br />After the evaluation team approved a course it will stay in this state until the evaluation period is reached.</li><li><em>in evaluation</em><br />When the course is in this state its participants can do the evaluation.</li><li><em>evaluated</em><br />After the evaluation period ended the course switches to this state. The evaluation team will now check all text answers and remove personal affronts if necessary.</li><li><em>reviewed</em><br />After reviewing all text answers the course stays in this state until it's published.</li><li><em>published</em><br />The evaluation team publishes the results of the evaluation manually after the grades for the course have been published (in case there are some). The responsible lecturer, defined delegates and all contributors of a course will be notified once the results are published.<br />They can then be seen on the platform.</li></ol>"
   }
 },
@@ -107782,9 +107990,9 @@
   "fields": {
     "section": 4,
     "order": 5,
-    "question_de": "Welche E\u2011Mail-Benachrichtigungen erhalte ich wann?",
+    "question_de": "Welche E‑Mail-Benachrichtigungen erhalte ich wann?",
     "question_en": "When do I get which emails?",
-    "answer_de": "W\u00e4hrend das Evaluierungsteam die Evaluierung vorbereitet, erhalten Sie und Ihre Stellvertreter eine E-Mail mit einem Link zur Evaluierungsplattform. Darin werden Sie gebeten, die oben aufgef\u00fchrten Informationen f\u00fcr alle Ihre Lehrveranstaltungen anzupassen und zu erg\u00e4nzen.<br />Sobald die Evaluierungsergebnisse Ihrer Lehrveranstaltungen ver\u00f6ffentlicht werden, erhalten Sie, Ihre Stellvertreter und alle Mitwirkenden der Veranstaltung eine E-Mail, die Sie dar\u00fcber benachrichtigt.",
+    "answer_de": "Während das Evaluierungsteam die Evaluierung vorbereitet, erhalten Sie und Ihre Stellvertreter eine E-Mail mit einem Link zur Evaluierungsplattform. Darin werden Sie gebeten, die oben aufgeführten Informationen für alle Ihre Lehrveranstaltungen anzupassen und zu ergänzen.<br />Sobald die Evaluierungsergebnisse Ihrer Lehrveranstaltungen veröffentlicht werden, erhalten Sie, Ihre Stellvertreter und alle Mitwirkenden der Veranstaltung eine E-Mail, die Sie darüber benachrichtigt.",
     "answer_en": "After the evaluation team prepared your courses, you and your delegates will receive an email with a link to the evaluation platform. In this email you will be asked to complete the above mentioned information about your courses.<br />After the evaluation results of your courses have been published, you, your delegates and all contributors of this course will get another email informing about the publication."
   }
 },
@@ -107796,7 +108004,7 @@
     "order": 6,
     "question_de": "Welche Informationen sehe ich auf den Ergebnisseiten?",
     "question_en": "Which information can I see on the result pages?",
-    "answer_de": "Sie sehen f\u00fcr alle Likert-Fragen die jeweiligen Durchschnittsnoten, eine prozentuale Verteilung und die Zahl der abgegebenen Stimmen. Au\u00dferdem k\u00f6nnen Sie die Antworten auf Textfragen sehen, wenn diese Sie pers\u00f6nlich betreffen oder sie verantwortlich f\u00fcr die Lehrveranstaltung sind. Beleidigungen in Textantworten werden vom Evaluierungsteam entfernt, zus\u00e4tzliche Filter gibt es nicht.",
+    "answer_de": "Sie sehen für alle Likert-Fragen die jeweiligen Durchschnittsnoten, eine prozentuale Verteilung und die Zahl der abgegebenen Stimmen. Außerdem können Sie die Antworten auf Textfragen sehen, wenn diese Sie persönlich betreffen oder sie verantwortlich für die Lehrveranstaltung sind. Beleidigungen in Textantworten werden vom Evaluierungsteam entfernt, zusätzliche Filter gibt es nicht.",
     "answer_en": "You can see the average grades, percentages of the distribution and the number of total votes for all Likert questions. Furthermore you can see the answers to text answers on your own person. The responsible lecturer of a course can see the answers to everyone. Personal affronts in the text answers are removed by the evaluation team. Other than that there are no filters."
   }
 },
@@ -107808,7 +108016,7 @@
     "order": 1,
     "question_de": "Ist meine Bewertung anonym?",
     "question_en": "Is the evaluation anonymous?",
-    "answer_de": "Ja. Die Plattform stellt sicher, dass die erfassten Stimmen keinem Nutzer zugeordnet werden k\u00f6nnen. Es wird gespeichert, wer eine Stimme f\u00fcr eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausf\u00fcllt. Wenn du also nicht gerade der einzige abstimmende Teilnehmer bist, ist es technisch nicht mehr nachvollziehbar, welche Noten oder Textantworten von dir stammen.<br />Bei Textfragen gibt es jedoch nur eine technische Anonymit\u00e4t. Durch den gew\u00e4hlten Schreibstil und den Inhalt er Antwort kann es dem Dozenten gerade bei kleinen Veranstaltungen m\u00f6glich sein, die Textantworten einzelnen Personen zuzuschreiben. Beim Formulieren der Textantworten sollte dir das bewusst sein.",
+    "answer_de": "Ja. Die Plattform stellt sicher, dass die erfassten Stimmen keinem Nutzer zugeordnet werden können. Es wird gespeichert, wer eine Stimme für eine Veranstaltung abgegeben hat, nicht jedoch, welcher Nutzer den Fragebogen wie ausfüllt. Wenn du also nicht gerade der einzige abstimmende Teilnehmer bist, ist es technisch nicht mehr nachvollziehbar, welche Noten oder Textantworten von dir stammen.<br />Bei Textfragen gibt es jedoch nur eine technische Anonymität. Durch den gewählten Schreibstil und den Inhalt er Antwort kann es dem Dozenten gerade bei kleinen Veranstaltungen möglich sein, die Textantworten einzelnen Personen zuzuschreiben. Beim Formulieren der Textantworten sollte dir das bewusst sein.",
     "answer_en": "Yes. The platform ensures that votes can't be related to a user. It saves who participated in a course's evaluation but not who voted how. As long as you are not the only participant in a course's evaluation no relation can be made.<br />When giving text answers there is only a technical anonymity. Your style of writing and the content of the answer might allow lecturers to guess who wrote the text answer, especially in small courses. When writing your answer you should be aware of that."
   }
 },
@@ -107818,9 +108026,9 @@
   "fields": {
     "section": 5,
     "order": 2,
-    "question_de": "Wie (vollst\u00e4ndig) muss ich den Fragebogen ausf\u00fcllen?",
+    "question_de": "Wie (vollständig) muss ich den Fragebogen ausfüllen?",
     "question_en": "How complete should my answers be?",
-    "answer_de": "So vollst\u00e4ndig wie m\u00f6glich. Bitte gib eine Stimme f\u00fcr jede Frage ab, die du beurteilen kannst. Nur bei einer hohen Teilnahmequote sind die Ergebnisse aussagekr\u00e4ftig und geben den Dozenten und dem Evaluierungsteam hilfreiches Feedback. Textantworten ben\u00f6tigen zwar mehr Zeit zum Eintippen, sind daf\u00fcr aber besonders wertvolle R\u00fcckmeldungen.",
+    "answer_de": "So vollständig wie möglich. Bitte gib eine Stimme für jede Frage ab, die du beurteilen kannst. Nur bei einer hohen Teilnahmequote sind die Ergebnisse aussagekräftig und geben den Dozenten und dem Evaluierungsteam hilfreiches Feedback. Textantworten benötigen zwar mehr Zeit zum Eintippen, sind dafür aber besonders wertvolle Rückmeldungen.",
     "answer_en": "As complete as possible. Please vote for everything that you can evaluate. Only high participation rates result in significant values that can help the lecturers and evaluation team. Text answers take more time to write but are very important feedback."
   }
 },
@@ -107832,8 +108040,8 @@
     "order": 3,
     "question_de": "Was passiert mit meinen Textantworten?",
     "question_en": "What happens to my text answers?",
-    "answer_de": "Alle Textantworten zu Mitwirkenden der Lehrveranstaltung werden f\u00fcr die jeweilige Person ver\u00f6ffentlicht. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.<br />Bevor die Textantworten ver\u00f6ffentlicht werden, entfernt das Evaluierungsteam Beleidigungen und angreifende \u00c4u\u00dferungen. Bitte halte deine Kritik also freundlich und konstruktiv \u2013 sonst hilft sie keinem weiter.",
-    "answer_en": "All text answers on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all text answers about the course.<br />Before text answers are published, the evaluation team will remove personal affronts if necessary. Please provide constructive and polite feedback \u2013 only this can lead to positive changes."
+    "answer_de": "Alle Textantworten zu Mitwirkenden der Lehrveranstaltung werden für die jeweilige Person veröffentlicht. Der Verantwortliche einer Lehrveranstaltung kann alle Textantworten zur Veranstaltung einsehen.<br />Bevor die Textantworten veröffentlicht werden, entfernt das Evaluierungsteam Beleidigungen und angreifende Äußerungen. Bitte halte deine Kritik also freundlich und konstruktiv – sonst hilft sie keinem weiter.",
+    "answer_en": "All text answers on contributors of a course will be shown to these persons. The responsible lecturer of a course can see all text answers about the course.<br />Before text answers are published, the evaluation team will remove personal affronts if necessary. Please provide constructive and polite feedback – only this can lead to positive changes."
   }
 },
 {
@@ -107844,7 +108052,7 @@
     "order": 4,
     "question_de": "Kann ich auf bereits zuvor gegebene Antworten verweisen?",
     "question_en": "Can I refer to other answers?",
-    "answer_de": "Nein. Es nicht m\u00f6glich, sich komplette ausgef\u00fcllte Frageb\u00f6gen anzusehen. Die Stimmen und Textantworten werden pro Frage aggregiert angezeigt. Wenn du in einer Textantwort schreibst \u201ewie oben schon erw\u00e4hnt\u201c, kann der Dozent die zugeh\u00f6rige Antwort nicht finden.",
+    "answer_de": "Nein. Es nicht möglich, sich komplette ausgefüllte Fragebögen anzusehen. Die Stimmen und Textantworten werden pro Frage aggregiert angezeigt. Wenn du in einer Textantwort schreibst „wie oben schon erwähnt“, kann der Dozent die zugehörige Antwort nicht finden.",
     "answer_en": "No. The questionnaires are not stored as a whole. Votes and text answers will be aggregated per question. If you would write \"see above\", the lecturer can't find the respective answer."
   }
 },
@@ -128100,8 +128308,8 @@
   "pk": 1,
   "fields": {
     "name": "Editor Review Notice",
-    "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New courses ready for approval",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe.\r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertretende hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen k\u00f6nnen Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Evaluierungen innerhalb der n\u00e4chsten Woche Folgendes zu \u00fcberpr\u00fcfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Evaluierung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Evaluierungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New courses ready for approval",
+    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen innerhalb der nächsten Woche Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128110,7 +128318,7 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, wir w\u00fcrden uns \u00fcber deine Stimme freuen :)\r\nBei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can give your opinion on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. We\u2019re looking forward to receive your feedback :)\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, wir würden uns über deine Stimme freuen :)\r\nBei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can give your opinion on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. We’re looking forward to receive your feedback :)\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128118,8 +128326,8 @@
   "pk": 3,
   "fields": {
     "name": "Publishing Notice Contributor",
-    "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung ({{ contact_email }}).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Evaluierungsergebnisse veröffentlicht / Evaluation results published",
+    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128128,7 +128336,7 @@
   "fields": {
     "name": "Login Key Created",
     "subject": "[EvaP] Ihr Anmeldelink / Your login URL",
-    "body": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link k\u00f6nnen Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:\r\nWith the following one-time URL you can login to the evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\nIf you have any questions or feedback, please contact the Evaluation Team ({{ contact_email }})."
+    "body": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link können Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:\r\nWith the following one-time URL you can login to the evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\nIf you have any questions or feedback, please contact the Evaluation Team ({{ contact_email }})."
   }
 },
 {
@@ -128137,7 +128345,7 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nf\u00fcr die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, die Dozenten und wir freuen uns \u00fcber deine Bewertung. Bei Fragen und R\u00fcckmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank f\u00fcr deine M\u00fche und viele Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. The lecturers and we are looking forward to receive your feedback. If you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, die Dozenten und wir freuen uns über deine Bewertung. Bei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. The lecturers and we are looking forward to receive your feedback. If you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128145,8 +128353,8 @@
   "pk": 6,
   "fields": {
     "name": "Editor Review Reminder",
-    "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur \u00dcberpr\u00fcfung bereit / New Evaluation ready for approval",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchf\u00fchren zu k\u00f6nnen, ben\u00f6tigen wir Ihre Mithilfe.\r\n\r\nSie k\u00f6nnen die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" k\u00f6nnen Sie Stellvertretende hinzuf\u00fcgen, die damit Bearbeitungsrechte f\u00fcr alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen k\u00f6nnen Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschr\u00e4nken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link k\u00f6nnen Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir m\u00f6chten Sie bitten, f\u00fcr Ihre Evaluierungen sobald wie m\u00f6glich Folgendes zu \u00fcberpr\u00fcfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Evaluierung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nFolgende Evaluierungen ben\u00f6tigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New Evaluation ready for approval",
+    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen sobald wie möglich Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128155,7 +128363,7 @@
   "fields": {
     "name": "Direct Delegation",
     "subject": "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation",
-    "body": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung f\u00fcr \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP ({{ page_url }}) vorzubereiten.\r\n\r\nBitte \u00fcberpr\u00fcfen Sie m\u00f6glichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Pr\u00fcfungsleistung (Klausur, Pr\u00fcfung, Ausarbeitung etc.).\r\n    - Wurden die f\u00fcr die Veranstaltung geeigneten Frageb\u00f6gen ausgew\u00e4hlt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, \u00dcbungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? F\u00fcgen Sie bitte alle weiteren Personen mit den passenden Frageb\u00f6gen hinzu.\r\n\r\nVielen Dank im Voraus f\u00fcr Ihre M\u00fche!\r\nBei Fragen und R\u00fcckmeldungen k\u00f6nnen Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP ({{ page_url }}).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "body": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung für \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP ({{ page_url }}) vorzubereiten.\r\n\r\nBitte überprüfen Sie möglichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Veranstaltung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP ({{ page_url }}).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -128163,8 +128371,8 @@
   "pk": 8,
   "fields": {
     "name": "Publishing Notice Participant",
-    "subject": "[EvaP] Evaluierungsergebnisse ver\u00f6ffentlicht / Evaluation results published",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben ver\u00f6ffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %} - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse k\u00f6nnen auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und R\u00fcckmeldungen stehen wir gerne zur Verf\u00fcgung ({{ contact_email }}).\r\n\r\nFreundliche Gr\u00fc\u00dfe,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %} - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "subject": "[EvaP] Evaluierungsergebnisse veröffentlicht / Evaluation results published",
+    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %} - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %} - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
   }
 },
 {
@@ -130392,7 +130600,7 @@
   "model": "student.textanswerwarning",
   "pk": 1,
   "fields": {
-    "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabh\u00e4ngig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
+    "warning_text_de": "Es sieht so aus, als ob du auf eine andere Antwort verweist. Alle Antworten werden unabhängig voneinander gespeichert, also werden andere nicht wissen, worauf du dich beziehst.",
     "warning_text_en": "It looks like you are referencing another answer. All answers are saved independently of each other, so others won't know which answer you are referring to.",
     "trigger_strings": "[\"s.o.\", \"s. o.\", \"siehe oben\", \"wie oben\", \"see above\", \"bereits erw\\u00e4hnt\", \"already stated\"]",
     "order": 0
@@ -142169,8 +142377,8 @@
   "fields": {
     "state": "published",
     "course": 26,
-    "name_de": "C\u00b3: Konsistente Fahrzeug Gruppierung",
-    "name_en": "C\u00b3: Consistent Car Clustering",
+    "name_de": "C³: Konsistente Fahrzeug Gruppierung",
+    "name_en": "C³: Consistent Car Clustering",
     "weight": 1,
     "is_single_result": false,
     "is_rewarded": true,
@@ -157583,7 +157791,7 @@
   "pk": 32,
   "fields": {
     "semester": 18,
-    "name_de": "Einf\u00fchrung in das Design Thinking",
+    "name_de": "Einführung in das Design Thinking",
     "name_en": "Introduction Design Thinking",
     "type": 2,
     "is_private": false,
@@ -157603,7 +157811,7 @@
   "pk": 33,
   "fields": {
     "semester": 17,
-    "name_de": "Einf\u00fchrung in das Design Thinking (BA)",
+    "name_de": "Einführung in das Design Thinking (BA)",
     "name_en": "Introduction of Design Thinking (BA)",
     "type": 3,
     "is_private": false,
@@ -157623,7 +157831,7 @@
   "pk": 34,
   "fields": {
     "semester": 21,
-    "name_de": "Einf\u00fchrung in das Design Thinking (MA)",
+    "name_de": "Einführung in das Design Thinking (MA)",
     "name_en": "Introduction Design Thinking (MA)",
     "type": 1,
     "is_private": false,
@@ -157823,7 +158031,7 @@
   "pk": 44,
   "fields": {
     "semester": 18,
-    "name_de": "F\u00fchrungskompetenz",
+    "name_de": "Führungskompetenz",
     "name_en": "Leadership Competence",
     "type": 3,
     "is_private": false,
@@ -157883,8 +158091,8 @@
   "pk": 47,
   "fields": {
     "semester": 21,
-    "name_de": "Gamification f\u00fcr openHPI",
-    "name_en": "Gamification f\u00fcr openHPI",
+    "name_de": "Gamification für openHPI",
+    "name_en": "Gamification für openHPI",
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
@@ -158203,7 +158411,7 @@
   "pk": 64,
   "fields": {
     "semester": 18,
-    "name_de": "Implementierung einer Mehrschichtenarchitektur f\u00fcr das Tumor-Dokumentationssystem GTDS",
+    "name_de": "Implementierung einer Mehrschichtenarchitektur für das Tumor-Dokumentationssystem GTDS",
     "name_en": "An implementation of a multi tier architecture for cancer documentation system GTDS",
     "type": 2,
     "is_private": false,
@@ -158323,8 +158531,8 @@
   "pk": 70,
   "fields": {
     "semester": 19,
-    "name_de": "Interaktionen auf 10.000 m\u00b2-Fu\u00dfb\u00f6den",
-    "name_en": "Interaction on 10.000m\u00b2 interactive floors",
+    "name_de": "Interaktionen auf 10.000 m²-Fußböden",
+    "name_en": "Interaction on 10.000m² interactive floors",
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
@@ -158343,7 +158551,7 @@
   "pk": 71,
   "fields": {
     "semester": 18,
-    "name_de": "Interaktive 3D-Modelle auf mobilen Ger\u00e4ten",
+    "name_de": "Interaktive 3D-Modelle auf mobilen Geräten",
     "name_en": "Interactive 3D Models on mobile Devices",
     "type": 4,
     "is_private": false,
@@ -158783,7 +158991,7 @@
   "pk": 93,
   "fields": {
     "semester": 17,
-    "name_de": "Pers\u00f6nlichkeits- und Selbstmanagement",
+    "name_de": "Persönlichkeits- und Selbstmanagement",
     "name_en": "Personality and Selfmanagement",
     "type": 1,
     "is_private": false,
@@ -158963,8 +159171,8 @@
   "pk": 103,
   "fields": {
     "semester": 18,
-    "name_de": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
-    "name_en": "Pr\u00e4sentationsdesign und visuelle Kommunikation",
+    "name_de": "Präsentationsdesign und visuelle Kommunikation",
+    "name_en": "Präsentationsdesign und visuelle Kommunikation",
     "type": 1,
     "is_private": false,
     "gets_no_grade_documents": false,
@@ -159003,7 +159211,7 @@
   "pk": 105,
   "fields": {
     "semester": 18,
-    "name_de": "Recht f\u00fcr Ingenieure I",
+    "name_de": "Recht für Ingenieure I",
     "name_en": "Law for Engineers I",
     "type": 3,
     "is_private": false,
@@ -159023,7 +159231,7 @@
   "pk": 106,
   "fields": {
     "semester": 19,
-    "name_de": "Recht f\u00fcr Ingenieure II",
+    "name_de": "Recht für Ingenieure II",
     "name_en": "Law for Engineers II",
     "type": 2,
     "is_private": false,
@@ -159143,8 +159351,8 @@
   "pk": 112,
   "fields": {
     "semester": 19,
-    "name_de": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
-    "name_en": "Semantische Erschlie\u00dfung des tele-TASK-Archivs",
+    "name_de": "Semantische Erschließung des tele-TASK-Archivs",
+    "name_en": "Semantische Erschließung des tele-TASK-Archivs",
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
@@ -159523,7 +159731,7 @@
   "pk": 132,
   "fields": {
     "semester": 17,
-    "name_de": "Trends und Konzepte in der Software-Industrie II - Hauptspeicherdatenbanken f\u00fcr Gesch\u00e4ftsanwendungen.",
+    "name_de": "Trends und Konzepte in der Software-Industrie II - Hauptspeicherdatenbanken für Geschäftsanwendungen.",
     "name_en": "Trends and Concepts in the Software Industry II - Main Memory Databases for Enterprise Applications.",
     "type": 1,
     "is_private": false,
@@ -159563,8 +159771,8 @@
   "pk": 134,
   "fields": {
     "semester": 19,
-    "name_de": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
-    "name_en": "Virtuelle Maschinen und Ausf\u00fchrungsumgebungen",
+    "name_de": "Virtuelle Maschinen und Ausführungsumgebungen",
+    "name_en": "Virtuelle Maschinen und Ausführungsumgebungen",
     "type": 3,
     "is_private": false,
     "gets_no_grade_documents": false,
@@ -159583,7 +159791,7 @@
   "pk": 135,
   "fields": {
     "semester": 18,
-    "name_de": "Visualisierungswerkzeug f\u00fcr Systemevolution",
+    "name_de": "Visualisierungswerkzeug für Systemevolution",
     "name_en": "A Visualization Tool for Software System Evolution",
     "type": 5,
     "is_private": false,
@@ -159603,7 +159811,7 @@
   "pk": 136,
   "fields": {
     "semester": 21,
-    "name_de": "Wer spricht wor\u00fcber?",
+    "name_de": "Wer spricht worüber?",
     "name_en": "Who talks about what?",
     "type": 3,
     "is_private": false,
@@ -159643,7 +159851,7 @@
   "pk": 138,
   "fields": {
     "semester": 19,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
+    "name_de": "Überzeugend Präsentieren - der erste Eindruck zählt",
     "name_en": "Presenting Succesfully - First Impression Counts",
     "type": 4,
     "is_private": false,
@@ -159663,7 +159871,7 @@
   "pk": 139,
   "fields": {
     "semester": 18,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - der erste Eindruck z\u00e4hlt",
+    "name_de": "Überzeugend Präsentieren - der erste Eindruck zählt",
     "name_en": "Presenting Succesfully - First Impression Counts",
     "type": 3,
     "is_private": false,
@@ -159683,7 +159891,7 @@
   "pk": 140,
   "fields": {
     "semester": 21,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren - noch besser auftreten",
+    "name_de": "Überzeugend Präsentieren - noch besser auftreten",
     "name_en": "Presenting Succesfully - How to Make an Even Better Impression",
     "type": 3,
     "is_private": false,
@@ -159703,7 +159911,7 @@
   "pk": 141,
   "fields": {
     "semester": 17,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren I",
+    "name_de": "Überzeugend Präsentieren I",
     "name_en": "Effective Presentations I",
     "type": 2,
     "is_private": false,
@@ -159723,7 +159931,7 @@
   "pk": 142,
   "fields": {
     "semester": 17,
-    "name_de": "\u00dcberzeugend Pr\u00e4sentieren II",
+    "name_de": "Überzeugend Präsentieren II",
     "name_en": "Effective Presentations II",
     "type": 4,
     "is_private": false,

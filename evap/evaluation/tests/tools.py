@@ -8,7 +8,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Degree, Evaluation, Questionnaire, UserProfile
-from evap.student.tools import question_id
+from evap.student.tools import answer_field_id
 
 
 def to_querydict(dictionary):
@@ -41,9 +41,9 @@ def let_user_vote_for_evaluation(app, user, evaluation):
         for questionnaire in contribution.questionnaires.all():
             for question in questionnaire.questions.all():
                 if question.is_text_question:
-                    form[question_id(contribution, questionnaire, question)] = "Lorem ispum"
+                    form[answer_field_id(contribution, questionnaire, question)] = "Lorem ispum"
                 elif question.is_rating_question:
-                    form[question_id(contribution, questionnaire, question)] = 1
+                    form[answer_field_id(contribution, questionnaire, question)] = 1
     form.submit()
 
 
@@ -79,7 +79,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         evaluation_params['id'] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
-    baker.make(
+    contribution = baker.make(
         Contribution,
         evaluation=evaluation,
         contributor=editor,
@@ -92,6 +92,7 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         'evaluation': evaluation,
         'responsible': responsible,
         'editor': editor,
+        'contribution': contribution,
     }
 
 

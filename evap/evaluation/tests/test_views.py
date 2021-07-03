@@ -74,7 +74,7 @@ class TestContactEmail(WebTest):
             user=user,
         )
         self.assertEqual(len(mail.outbox), 1)
-
+        self.assertTrue(mail.outbox[0].reply_to == ["user@institution.example.com"])
 
 class TestChangeLanguageView(WebTest):
     url = '/set_lang'

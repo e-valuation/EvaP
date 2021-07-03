@@ -16,6 +16,7 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _, gettext_lazy
 from django.utils.translation import get_language, ngettext
 from django.views.decorators.http import require_POST
@@ -450,7 +451,7 @@ def semester_import(request, semester_id):
         raise PermissionDenied
 
     excel_form = ImportForm(request.POST or None, request.FILES or None)
-    import_type = ImportType.Semester
+    import_type = ImportType.SEMESTER
 
     errors = {}
     warnings = {}
@@ -865,7 +866,7 @@ def helper_evaluation_edit(request, semester, evaluation):
     # and no other strong references are being kept.
     # See https://github.com/e-valuation/EvaP/issues/1361 for more information and discussion.
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
+    def notify_reward_points(grantings, **_kwargs):
         for granting in grantings:
             messages.info(request,
                 ngettext(
@@ -875,11 +876,17 @@ def helper_evaluation_edit(request, semester, evaluation):
                 ).format(granting=granting)
             )
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1)
+    editable = evaluation.can_be_edited_by_manager
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation,
+        Contribution,
+        formset=ContributionFormSet,
+        form=ContributionForm,
+        extra=1 if editable else 0
+    )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
-    editable = evaluation.can_be_edited_by_manager
 
     operation = request.POST.get('operation')
 
@@ -974,11 +981,24 @@ def evaluation_email(request, semester_id, evaluation_id):
     return render(request, "staff_evaluation_email.html", dict(semester=semester, evaluation=evaluation, form=form))
 
 
+def helper_delete_users_from_evaluation(evaluation, operation):
+    if 'participants' in operation:
+        deleted_person_count = evaluation.participants.count()
+        deletion_message = _("{} participants were deleted from evaluation {}")
+        evaluation.participants.clear()
+    elif 'contributors' in operation:
+        deleted_person_count = evaluation.contributions.exclude(contributor=None).count()
+        deletion_message = _("{} contributors were deleted from evaluation {}")
+        evaluation.contributions.exclude(contributor=None).delete()
+
+    return deleted_person_count, deletion_message
+
 @manager_required
+@transaction.atomic
 def evaluation_person_management(request, semester_id, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals, too-many-branches
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
@@ -996,11 +1016,11 @@ def evaluation_person_management(request, semester_id, evaluation_id):
 
     if request.method == "POST":
         operation = request.POST.get('operation')
-        if operation not in ('test-participants', 'import-participants', 'copy-participants',
-                             'test-contributors', 'import-contributors', 'copy-contributors'):
+        if operation not in ('test-participants', 'import-participants', 'copy-participants', 'import-replace-participants', 'copy-replace-participants',
+                             'test-contributors', 'import-contributors', 'copy-contributors', 'import-replace-contributors', 'copy-replace-contributors'):
             raise SuspiciousOperation("Invalid POST operation")
 
-        import_type = ImportType.Participant if 'participants' in operation else ImportType.Contributor
+        import_type = ImportType.PARTICIPANT if 'participants' in operation else ImportType.CONTRIBUTOR
         excel_form = participant_excel_form if 'participants' in operation else contributor_excel_form
         copy_form = participant_copy_form if 'participants' in operation else contributor_copy_form
 
@@ -1014,23 +1034,30 @@ def evaluation_person_management(request, semester_id, evaluation_id):
                 if not errors:
                     save_import_file(excel_file, request.user.id, import_type)
 
-        elif 'import' in operation:
-            file_content = get_import_file_content_or_raise(request.user.id, import_type)
-            success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
-            delete_import_file(request.user.id, import_type)
+        else:
+            additional_messages = []
+            if 'replace' in operation:
+                deleted_person_count, deletion_message = helper_delete_users_from_evaluation(evaluation, operation)
+                additional_messages = format_html(deletion_message, deleted_person_count, evaluation.full_name)
+
+            if 'import' in operation:
+                file_content = get_import_file_content_or_raise(request.user.id, import_type)
+                success_messages, warnings, __ = PersonImporter.process_file_content(import_type, evaluation, test_run=False, file_content=file_content)
+                delete_import_file(request.user.id, import_type)
+
+            elif 'copy' in operation:
+                copy_form.evaluation_selection_required = True
+                if copy_form.is_valid():
+                    import_evaluation = copy_form.cleaned_data['evaluation']
+                    success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
+
+            success_messages.insert(0, additional_messages)
+
             forward_messages(request, success_messages, warnings)
             return redirect('staff:semester_view', semester_id)
 
-        elif 'copy' in operation:
-            copy_form.evaluation_selection_required = True
-            if copy_form.is_valid():
-                import_evaluation = copy_form.cleaned_data['evaluation']
-                success_messages, warnings, errors = PersonImporter.process_source_evaluation(import_type, evaluation, test_run=False, source_evaluation=import_evaluation)
-                forward_messages(request, success_messages, warnings)
-                return redirect('staff:semester_view', semester_id)
-
-    participant_test_passed = import_file_exists(request.user.id, ImportType.Participant)
-    contributor_test_passed = import_file_exists(request.user.id, ImportType.Contributor)
+    participant_test_passed = import_file_exists(request.user.id, ImportType.PARTICIPANT)
+    contributor_test_passed = import_file_exists(request.user.id, ImportType.CONTRIBUTOR)
     # casting warnings to a normal dict is necessary for the template to iterate over it.
     return render(request, "staff_evaluation_person_management.html", dict(semester=semester, evaluation=evaluation,
         participant_excel_form=participant_excel_form, participant_copy_form=participant_copy_form,
@@ -1068,7 +1095,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
         for questionnaire in contribution.questionnaires.all():
             text_results = []
 
-            for question in questionnaire.text_questions:
+            for question in questionnaire.questions.all():
                 answers = TextAnswer.objects.filter(contribution=contribution, question=question)
                 if filter_textanswers:
                     answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)
@@ -1550,7 +1577,7 @@ def user_create(request):
 @manager_required
 def user_import(request):
     excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    import_type = ImportType.User
+    import_type = ImportType.USER
 
     errors = {}
     warnings = {}
@@ -1589,7 +1616,7 @@ def user_import(request):
 def user_edit(request, user_id):
     # See comment in helper_evaluation_edit
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
-    def notify_reward_points(grantings, **_kwargs):  # pylint: disable=unused-variable
+    def notify_reward_points(grantings, **_kwargs):
         assert len(grantings) == 1
 
         messages.info(request,
@@ -1635,7 +1662,7 @@ def user_bulk_update(request):
     form = UserBulkUpdateForm(request.POST or None, request.FILES or None)
     operation = request.POST.get('operation')
     test_run = operation == 'test'
-    import_type = ImportType.UserBulkUpdate
+    import_type = ImportType.USER_BULK_UPDATE
 
     if request.POST:
         if operation not in ('test', 'bulk_update'):

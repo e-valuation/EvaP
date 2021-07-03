@@ -295,12 +295,12 @@ class EvaluationForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
+
         vote_start_datetime = self.cleaned_data.get('vote_start_datetime')
         vote_end_date = self.cleaned_data.get('vote_end_date')
-        if vote_start_datetime and vote_end_date:
-            if vote_start_datetime.date() > vote_end_date:
-                self.add_error("vote_start_datetime", "")
-                self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
+        if vote_start_datetime and vote_end_date and vote_start_datetime.date() > vote_end_date:
+            self.add_error("vote_start_datetime", "")
+            self.add_error("vote_end_date", _("The first day of evaluation must be before the last one."))
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
@@ -650,12 +650,23 @@ class ContributionCopyFormSet(ContributionFormSet):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type')
+        fields = ('order', 'questionnaire', 'text_de', 'text_en', 'type', 'allows_additional_textanswers')
         widgets = {
             'text_de': forms.Textarea(attrs={'rows': 2}),
             'text_en': forms.Textarea(attrs={'rows': 2}),
             'order': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.type in [Question.TEXT, Question.HEADING]:
+            self.fields['allows_additional_textanswers'].disabled = True
+
+    def clean(self):
+        super().clean()
+        if self.cleaned_data.get('type') in [Question.TEXT, Question.HEADING]:
+            self.cleaned_data['allows_additional_textanswers'] = False
+        return self.cleaned_data
 
 
 class QuestionnairesAssignForm(forms.Form):

@@ -12,6 +12,7 @@ from django.db import transaction
 
 from evap.evaluation.models import (CHOICES, Contribution, Course, CourseType, Degree,
         NO_ANSWER, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.management.commands.tools import confirm_harmful_operation
 
 
 class Command(BaseCommand):
@@ -34,16 +35,8 @@ class Command(BaseCommand):
         self.stdout.write("")
         self.stdout.write("WARNING! This will anonymize all the data in")
         self.stdout.write("the database and cause IRREPARABLE DATA LOSS.")
-        if input("Are you sure you want to continue? (yes/no)") != "yes":
-            self.stdout.write("Aborting...")
+        if not confirm_harmful_operation(self.stdout):
             return
-        self.stdout.write("")
-        if not settings.DEBUG:
-            self.stdout.write("DEBUG is disabled. Are you sure you are not running")
-            if input("on a production system and want to continue? (yes/no)") != "yes":
-                self.stdout.write("Aborting...")
-                return
-            self.stdout.write("")
 
         self.anonymize_data()
 

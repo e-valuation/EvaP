@@ -163,7 +163,8 @@ def contact(request):
         mail = EmailMessage(
             subject=subject,
             body="{}\n{}\n\n{}".format(title, request.user.email, message),
-            to=[settings.CONTACT_EMAIL])
+            to=[settings.CONTACT_EMAIL],
+            reply_to=[request.user.email])
         try:
             mail.send()
             logger.info('Sent contact email: \n{}\n'.format(mail.message()))

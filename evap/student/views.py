@@ -15,11 +15,10 @@ from evap.evaluation.models import Evaluation, NO_ANSWER, Semester, RatingAnswer
 
 from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
-from evap.student.tools import question_id
+from evap.student.tools import answer_field_id
 
-from evap.results.tools import (calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                textanswers_visible_to, normalized_distribution)
+from evap.results.tools import (annotate_distributions_and_grades, get_evaluations_with_course_result_attributes,
+                                textanswers_visible_to)
 
 SUCCESS_MAGIC_STRING = 'vote submitted successfully'
 
@@ -52,14 +51,8 @@ def index(request):
             inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]['num_voters']
             inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]['num_participants']
 
-    for evaluation in evaluations:
-        if evaluation.state == "published":
-            if not evaluation.is_single_result:
-                evaluation.distribution = calculate_average_distribution(evaluation)
-            else:
-                evaluation.single_result_rating_result = get_single_result_rating_result(evaluation)
-                evaluation.distribution = normalized_distribution(evaluation.single_result_rating_result.counts)
-            evaluation.avg_grade = distribution_to_grade(evaluation.distribution)
+    annotate_distributions_and_grades(e for e in evaluations if e.state == "published")
+
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
 
     # evaluations must be sorted for regrouping them in the template
@@ -149,6 +142,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
 
 @participant_required
 def vote(request, evaluation_id):
+    # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-branches
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
@@ -170,7 +164,7 @@ def vote(request, evaluation_id):
                     if question.is_heading_question:
                         continue
 
-                    identifier = question_id(contribution, questionnaire, question)
+                    identifier = answer_field_id(contribution, questionnaire, question)
                     value = questionnaire_form.cleaned_data.get(identifier)
 
                     if question.is_text_question:
@@ -181,6 +175,11 @@ def vote(request, evaluation_id):
                             answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
                             answer_counter.count += 1
                             answer_counter.save()
+                        if question.allows_additional_textanswers:
+                            textanswer_identifier = answer_field_id(contribution, questionnaire, question, additional_textanswer=True)
+                            textanswer_value = questionnaire_form.cleaned_data.get(textanswer_identifier)
+                            if textanswer_value:
+                                TextAnswer.objects.create(contribution=contribution, question=question, answer=textanswer_value)
 
         # Update all answer rows to make sure no system columns give away which one was last modified
         # see https://github.com/e-valuation/EvaP/issues/1384
