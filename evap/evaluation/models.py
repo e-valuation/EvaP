@@ -1692,7 +1692,7 @@ class EmailTemplate(models.Model):
         subject = self.render_string(self.subject, subject_params)
         plain_content = self.render_string(self.plain_content, body_params)
 
-        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content, body_params, autoescape=True)
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content.replace('\n', '<br />'), body_params, autoescape=True)
         wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
         wrapped_content = render_to_string('email_base.html', wrapper_template_params)
 
