@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, timedelta
-from enum import Enum, IntEnum, auto
+from enum import Enum, auto
 import logging
 import operator
 import secrets

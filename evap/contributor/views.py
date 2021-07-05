@@ -107,7 +107,7 @@ def evaluation_view(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not evaluation.is_user_editor_or_delegate(user) or Evaluation.State.NEW < evaluation.state < Evaluation.State.PUBLISHED:
+    if not evaluation.is_user_editor_or_delegate(user) or not Evaluation.State.NEW < evaluation.state < Evaluation.State.PUBLISHED:
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
