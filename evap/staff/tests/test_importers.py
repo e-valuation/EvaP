@@ -176,7 +176,7 @@ class TestEnrollmentImporter(TestCase):
         old_user_count = UserProfile.objects.all().count()
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn("Successfully created 23 courses/evaluations, 6 students and 17 contributors:", "".join(success_messages))
+        self.assertIn("Successfully created 23 courses/evaluations, 6 participants and 17 contributors:", "".join(success_messages))
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
@@ -197,7 +197,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(len(warnings_test), 1)
 
         success_messages, warnings_no_test, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn("Successfully created 1 courses/evaluations, 2 students and 1 contributors", "".join(success_messages))
+        self.assertIn("Successfully created 1 courses/evaluations, 2 participants and 1 contributors", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
 
@@ -211,7 +211,7 @@ class TestEnrollmentImporter(TestCase):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn("Successfully created 2 courses/evaluations, 4 students and 2 contributors:", "".join(success_messages))
+        self.assertIn("Successfully created 2 courses/evaluations, 4 participants and 2 contributors:", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
