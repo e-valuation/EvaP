@@ -27,13 +27,13 @@
                     <tbody>
                         {% for form in formset %}
                             <tr class="select2tr sortable">
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
                                 <td class="movable">
                                     <span class="movable-icon fas fa-arrows-alt-v"></span>
                                 </td>
                                 <td>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
                                 <td>
