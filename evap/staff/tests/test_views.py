@@ -2649,7 +2649,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form = page.forms["questionnaire-assign-form"]
         form[self.course_type_1.name] = [self.questionnaire_1.pk, self.questionnaire_2.pk]
         form[self.course_type_2.name] = [self.questionnaire_2.pk]
-        form["All contributors"] = [self.questionnaire_responsible.pk]
+        form["all-contributors"] = [self.questionnaire_responsible.pk]
 
         response = form.submit()
         self.assertIn("Successfully", str(response))
