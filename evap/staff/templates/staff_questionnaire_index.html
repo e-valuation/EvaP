@@ -48,7 +48,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete questionnaire' as title %}
-    {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the questionnaire <strong data-label=""></strong>?' as question %}
     {% trans 'Delete questionnaire' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">

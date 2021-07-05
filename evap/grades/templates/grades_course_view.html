@@ -53,7 +53,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete grade document' as title %}
-    {% trans 'Do you really want to delete the grade document <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the grade document <strong data-label=""></strong>?' as question %}
     {% trans 'Delete grade document' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradedocumentModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">

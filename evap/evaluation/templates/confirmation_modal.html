@@ -13,7 +13,7 @@
                 {{ question|safe }}
             </div>
             <div class="modal-footer">
-                <button type="button" id="btn-action" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</button>
+                <button type="button" id="btn-action-{{ modal_id }}" class="btn btn-{{ btn_type }}" data-dismiss="modal">{{ action_text }}</button>
                 <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
             </div>
         </div>
@@ -23,9 +23,9 @@
 <script type="text/javascript">
     function {{ modal_id }}Show(dataId, dataLabel) {
         // call the modal's action function when action button was pressed and give dataId as parameter
-        $('#{{ modal_id }} #btn-action').unbind().click(function(){ {{ modal_id }}Action(dataId); });
+        $('#btn-action-{{ modal_id }}').unbind().click(function(){ {{ modal_id }}Action(dataId); });
         // put the dataLabel text in the right place
-        $('#{{ modal_id }} #data-label').text(dataLabel);
+        $('#{{modal_id}} [data-label=""]').text(dataLabel);
         // show modal
         $('#{{ modal_id }}').modal();
     }
