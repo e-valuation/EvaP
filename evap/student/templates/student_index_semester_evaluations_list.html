@@ -156,7 +156,7 @@
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
-                                            {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state <= evaluation.State.REVIEWED %}
+                                            {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% if evaluation|weight_info %}{% blocktrans with percentage=evaluation|weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %} {% endif %}{% trans 'The results have not been published yet.' %}{% if evaluation.participates_in %} {% trans 'You will receive an email when the results are published.' %}{% endif %}">
                                                     {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
                                                 </div>

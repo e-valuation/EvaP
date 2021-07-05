@@ -11,7 +11,7 @@
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
         class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}
             {% if links_to_results_page %} hover-row{% endif %}
-            {% if evaluation.State.IN_EVALUATION <= evaluation.state < evaluation.State.PUBLISHED %}
+            {% if evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state < evaluation.State.PUBLISHED %}
                 preview-row
             {% endif %}">
     <div data-col="name"{% if not is_subentry %} data-order="{{ evaluation.course.name|lower }}"{% endif %}>
