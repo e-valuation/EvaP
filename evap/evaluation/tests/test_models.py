@@ -668,10 +668,10 @@ class TestEmailTemplate(TestCase):
         self.assertIn('<p>Example html content</p>', mail.outbox[0].alternatives[0][0])
 
     def test_copy_plain_content_on_empty_html_content(self):
-        template = EmailTemplate(subject='Example', plain_content='Example plain content', html_content='')
+        template = EmailTemplate(subject='Example', plain_content='Example plain content\nWith newline', html_content='')
         template.send_to_user(self.user, {}, {}, False)
-        self.assertEqual(mail.outbox[0].body, 'Example plain content')
-        self.assertIn('Example plain content', mail.outbox[0].alternatives[0][0])
+        self.assertEqual(mail.outbox[0].body, 'Example plain content\nWith newline')
+        self.assertIn('Example plain content<br />With newline', mail.outbox[0].alternatives[0][0])
 
     def test_escape_special_characters_in_html_email(self):
         template = EmailTemplate(subject='<h1>Special Email</h1>', plain_content='Example plain content', html_content='Special Content: {{special_content}}')
