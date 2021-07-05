@@ -41,7 +41,7 @@ def int_to_str(apps, _schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0121_prepare_evaluation_state_fsm_int'),
+        ('evaluation', '0122_prepare_evaluation_state_fsm_int'),
     ]
 
     operations = [

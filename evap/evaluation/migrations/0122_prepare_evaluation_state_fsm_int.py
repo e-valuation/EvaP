@@ -5,7 +5,7 @@ import django_fsm
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('evaluation', '0120_use_django_db_models_jsonfield'),
+        ('evaluation', '0121_add_allows_textanswers_to_question'),
     ]
 
     operations = [
