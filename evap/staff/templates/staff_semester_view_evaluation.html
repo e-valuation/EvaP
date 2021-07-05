@@ -20,7 +20,7 @@
     </td>
 {% endwith %}
 
-{% if state < evaluation.State.IN_EVALUATION %}
+{% if state < evaluation.State.APPROVED %}
     <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
         <span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span>
     </td>
