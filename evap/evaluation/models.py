@@ -1630,7 +1630,7 @@ class EmailTemplate(models.Model):
         return list(recipients)
 
     @staticmethod
-    def render_string(text, dictionary, autoescape=False):
+    def render_string(text, dictionary, *, autoescape=True):
         return Template(text).render(Context(dictionary, autoescape))
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
@@ -1689,10 +1689,10 @@ class EmailTemplate(models.Model):
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
 
     def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
-        subject = self.render_string(self.subject, subject_params)
-        plain_content = self.render_string(self.plain_content, body_params)
+        subject = self.render_string(self.subject, subject_params, autoescape=False)
+        plain_content = self.render_string(self.plain_content, body_params, autoescape=False)
 
-        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content.replace('\n', '<br />'), body_params, autoescape=True)
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content.replace('\n', '<br />'), body_params)
         wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
         wrapped_content = render_to_string('email_base.html', wrapper_template_params)
 
