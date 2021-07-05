@@ -431,9 +431,20 @@ class TestEnrollmentImporter(TestCase):
     def test_existing_course_is_not_recreated(self):
         existing_course, existing_course_evaluation = self.create_existing_course()
 
-        old_course_count = Course.objects.count()
-        old_dict = model_to_dict(existing_course)
-        self.assertFalse(existing_course_evaluation.participants.exists())
+        excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn('The import run will create one course/evaluation and one user:<br />newDiam newSed (new345@external.institution.com)', success_messages)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        self.assertIn('Successfully created one course/evaluation, no students<br />newDiam newSed (new345@external.institution.com)', success_messages)
+
+        old_evaluation_count = Evaluation.objects.all().count()
+        Evaluation.objects.get(course__name_de="newBauen").delete()
+        Course.objects.get(name_de="newBauen").delete()
+        self.assertEqual(Evaluation.objects.all().count(), old_evaluation_count-1)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn('The import run will create one course/evaluation and no users.', success_messages)
+        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        self.assertIn('Successfully created one course/evaluation, no students and no contributors.', success_messages)
 
         __, warnings, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
