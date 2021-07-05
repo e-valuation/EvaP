@@ -409,7 +409,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn('The import run will create one course/evaluation and one user:<br />newDiam newSed (new345@external.institution.com)', success_messages)
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn('Successfully created one course/evaluation, no students<br />newDiam newSed (new345@external.institution.com)', success_messages)
-        
+
         old_evaluation_count = Evaluation.objects.all().count()
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
