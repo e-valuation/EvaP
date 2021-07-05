@@ -93,14 +93,14 @@
         <div class="card-footer d-flex">
             <div class="lcr-left"></div>
             <div class="lcr-center" data-action-set="reviewing">
-                <button role="button" data-action="publish" class="btn btn-sm btn-outline-secondary">
+                <button data-action="publish" class="btn btn-sm btn-outline-secondary">
                     {% trans 'yes' %}
                 </button>
-                <button role="button" data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
+                <button data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
                     title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-toggle="tooltip">
                     {% trans 'private' %}
                 </button>
-                <button role="button" data-action="hide" class="btn btn-sm btn-outline-secondary">
+                <button data-action="hide" class="btn btn-sm btn-outline-secondary">
                     {% trans 'no' %}
                 </button>
             </div>
@@ -111,20 +111,20 @@
                             {% trans 'Review next evaluation' %}
                         </a>
                     {% endfor %}
-                    <button role="button" data-skip-evaluation class="btn btn-sm btn-outline-primary">
+                    <button data-skip-evaluation class="btn btn-sm btn-outline-primary">
                         {% trans 'Skip evaluation' %}
                     </button>
                 {% endif %}
-                <button role="button" data-startover="all" class="btn btn-sm btn-outline-primary">
+                <button data-startover="all" class="btn btn-sm btn-outline-primary">
                     {% trans 'Show all again' %}
                 </button>
-                <button role="button" data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
+                <button data-startover="unreviewed" class="btn btn-sm btn-outline-primary">
                     {% trans 'Show unreviewed' %}
                 </button>
             </div>
             <div class="lcr-right">
                 <div data-action-set="reviewing">
-                    <button role="button" data-action="unreview" class="btn btn-sm btn-outline-secondary">
+                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
                         {% trans 'unreview' %}
                     </button>
                 </div>
