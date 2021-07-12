@@ -22,7 +22,7 @@ STATE_NAMES = {
 }
 
 STR_TO_STATE = {
-    s: i for i,s in Evaluation.STATE_STR_CONVERSION.items()
+    s: i for i, s in Evaluation.STATE_STR_CONVERSION.items()
 }
 
 
@@ -116,9 +116,11 @@ def weight_info(evaluation):
 def statename(state):
     return STATE_NAMES.get(state)
 
+
 @register.filter
 def statedescription(state):
     return STATE_DESCRIPTIONS.get(state)
+
 
 @register.filter
 def approval_state_values(state):
@@ -130,6 +132,7 @@ def approval_state_values(state):
 @register.filter
 def approval_state_icon(state):
     return approval_state_values(state).icon
+
 
 @register.filter
 def can_results_page_be_seen_by(evaluation, user):

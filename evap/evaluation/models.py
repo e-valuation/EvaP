@@ -436,7 +436,7 @@ class Evaluation(LoggedModel):
             from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
 
             if (state_changed_to(self, STATES_WITH_RESULTS_CACHING)
-                    or self.state_change_source == Evaluation.State.EVALUATED and self.state == Evaluation.State.REVIEWED): # reviewing changes results -> cache update required
+                    or self.state_change_source == Evaluation.State.EVALUATED and self.state == Evaluation.State.REVIEWED):  # reviewing changes results -> cache update required
                 from evap.results.tools import cache_results
                 cache_results(self)
             elif state_changed_from(self, STATES_WITH_RESULTS_CACHING):
