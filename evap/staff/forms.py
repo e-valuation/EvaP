@@ -676,7 +676,7 @@ class QuestionnairesAssignForm(forms.Form):
         for course_type in course_types:
             self.fields[course_type.name] = forms.ModelMultipleChoiceField(required=False, queryset=Questionnaire.objects.general_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN))
         contributor_questionnaires = Questionnaire.objects.contributor_questionnaires().exclude(visibility=Questionnaire.Visibility.HIDDEN)
-        self.fields['All contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
+        self.fields['all-contributors'] = forms.ModelMultipleChoiceField(label=_('All contributors'), required=False, queryset=contributor_questionnaires)
 
 
 class UserForm(forms.ModelForm):

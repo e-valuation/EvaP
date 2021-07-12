@@ -28,14 +28,14 @@
             {% for form in formset %}
                 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                 <tr class="contribution select2tr{% if editable %} sortable{% endif %}">
-                    {% for field in form.hidden_fields %}
-                        {{ field }}
-                    {% endfor %}
                     <td class="movable">
                         {% if editable %}<span class="movable-icon fas fa-arrows-alt-v"></span>{% endif %}
                     </td>
 
                     <td>
+                        {% for field in form.hidden_fields %}
+                            {{ field }}
+                        {% endfor %}
                         {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
                         <div class="form-check mt-2" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
@@ -56,7 +56,12 @@
                         {% trans 'Text answer visibility' %}:<br />
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
                         <br /><br />
-                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}: <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle" title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}"></span><br />
+                        <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}:
+                            <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle"
+                                title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
+                            </span>
+                        </span>
+                        <br />
                         {{ form.label }}
                         {% include 'bootstrap_form_errors.html' with errors=form.label.errors %}
                     </td>

@@ -82,7 +82,7 @@
                 <a class="btn btn-sm btn-light d-print-none ml-2" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
             {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
                 <div class="btn-group d-print-none ml-2" role="group">
-                    <button type="button" id="btnDownload" role="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
+                    <button type="button" id="btnDownload" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
                         {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>

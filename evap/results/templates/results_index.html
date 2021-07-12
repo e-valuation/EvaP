@@ -13,10 +13,10 @@
         <div class="card-body">
             <h5 class="card-title">
                 {% trans 'Filter' %}
-                <div class="reset-button float-right" data-reset="filter">
+                <span class="reset-button float-right" data-reset="filter">
                     <span class="fas fa-eraser"></span>
                     {% trans 'Clear all filters' %}
-                </div>
+                </span>
             </h5>
             <div class="row">
                 <div class="col-12 col-lg">
@@ -40,7 +40,7 @@
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}"  data-filter="{{ course_type.name }}"name="courseType" id="courseType-{{ course_type.id }}" />
+                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}" data-filter="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}" />
                                 <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
                                     {{ course_type.name }}
                                 </label>
@@ -68,10 +68,10 @@
         <div class="card-body pb-lg-0">
             <h5 class="card-title mb-lg-0">
                 {% trans 'Order' %}
-                <div class="reset-button float-right d-none d-lg-block" data-reset="order">
+                <span class="reset-button float-right d-none d-lg-block" data-reset="order">
                     <span class="fas fa-sort-amount-down"></span>
                     {% trans 'Order by evaluation and semester' %}
-                </div>
+                </span>
             </h5>
             <div class="grid-header results-grid-row d-none d-lg-grid">
                 <div data-col="name" class="col-order">{% trans 'Evaluation' %}</div>

@@ -5,7 +5,8 @@
 {% load navbar_templatetags %}
 
 {% endspaceless %}<!DOCTYPE html>
-<html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     {% block header %}
         <meta charset="utf-8" />
@@ -33,7 +34,6 @@
     {% endif %}
 {% endblock %}
 
-{% get_current_language as LANGUAGE_CODE %}
 <div class="sticky-top d-print-none">
     {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
         {% include_navbar user LANGUAGE_CODE %}

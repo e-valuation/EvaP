@@ -221,7 +221,7 @@
                         {% csrf_token %}
                         <div class="modal-header">
                             <h5 class="modal-title" id="{{ modal_id }}Label">{% trans 'Delegate preparation' %}</h5>
-                            <button role="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></a>
+                            <button class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></button>
                         </div>
                         <div class="modal-body">
                             {% trans 'Do you really want to delegate the preparation of the evaluation <strong id="data-label"></strong>?' %}
@@ -230,8 +230,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" id="btn-action" class="btn btn-primary">{% trans 'Delegate preparation' %}</a>
-                            <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</a>
+                            <button type="submit" id="btn-action" class="btn btn-primary">{% trans 'Delegate preparation' %}</button>
+                            <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
                         </div>
                     </form>
                 </div>

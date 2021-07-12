@@ -585,9 +585,9 @@ def semester_questionnaire_assign(request, semester_id):
         for evaluation in evaluations:
             if form.cleaned_data[evaluation.course.type.name]:
                 evaluation.general_contribution.questionnaires.set(form.cleaned_data[evaluation.course.type.name])
-            if form.cleaned_data['All contributors']:
+            if form.cleaned_data['all-contributors']:
                 for contribution in evaluation.contributions.exclude(contributor=None):
-                    contribution.questionnaires.set(form.cleaned_data['All contributors'])
+                    contribution.questionnaires.set(form.cleaned_data['all-contributors'])
             evaluation.save()
 
         messages.success(request, _("Successfully assigned questionnaires."))
@@ -1011,10 +1011,10 @@ def evaluation_person_management(request, semester_id, evaluation_id):
         raise PermissionDenied
 
     # Each form required two times so the errors can be displayed correctly
-    participant_excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    participant_copy_form = EvaluationParticipantCopyForm(request.POST or None)
-    contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None)
+    participant_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="pe")
+    participant_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="pc")
+    contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="ce")
+    contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="cc")
 
     errors = {}
     warnings = {}

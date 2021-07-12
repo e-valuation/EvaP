@@ -29,12 +29,12 @@
         </div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
-        <small>
         <div class="callout callout-info">
-            <b>{% trans 'Questionnaire Preview' %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            <small>
+                <b>{% trans 'Questionnaire Preview' %}</b><br />
+                {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            </small>
         </div>
-    </small>
     {% endif %}
     <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
