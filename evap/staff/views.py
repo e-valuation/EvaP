@@ -1011,10 +1011,10 @@ def evaluation_person_management(request, semester_id, evaluation_id):
         raise PermissionDenied
 
     # Each form required two times so the errors can be displayed correctly
-    participant_excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    participant_copy_form = EvaluationParticipantCopyForm(request.POST or None)
-    contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None)
-    contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None)
+    participant_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="pe")
+    participant_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="pc")
+    contributor_excel_form = UserImportForm(request.POST or None, request.FILES or None, prefix="ce")
+    contributor_copy_form = EvaluationParticipantCopyForm(request.POST or None, prefix="cc")
 
     errors = {}
     warnings = {}

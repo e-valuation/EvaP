@@ -1712,7 +1712,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_participant_count = self.evaluation.participants.count()
 
         form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertContains(page, 'Import previously uploaded file')
@@ -1729,7 +1729,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
@@ -1747,7 +1747,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_participant_count = self.evaluation.participants.count()
 
         form = page.forms["participant-copy-form"]
-        form["evaluation"] = str(self.evaluation2.pk)
+        form["pc-evaluation"] = str(self.evaluation2.pk)
         page = form.submit(name="operation", value="copy-participants")
 
         self.assertEqual(self.evaluation.participants.count(), original_participant_count + self.evaluation2.participants.count())
@@ -1758,7 +1758,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
 
         form = page.forms["participant-copy-form"]
-        form["evaluation"] = str(self.evaluation2.pk)
+        form["pc-evaluation"] = str(self.evaluation2.pk)
         page = form.submit(name="operation", value="copy-replace-participants")
 
         self.assertEqual(self.evaluation.participants.count(), self.evaluation2.participants.count())
@@ -1769,7 +1769,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
         form = page.forms["contributor-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertContains(page, 'Import previously uploaded file')
@@ -1786,7 +1786,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = (self.filename_valid,)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
@@ -1804,7 +1804,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
         form = page.forms["contributor-copy-form"]
-        form["evaluation"] = str(self.evaluation2.pk)
+        form["cc-evaluation"] = str(self.evaluation2.pk)
         page = form.submit(name="operation", value="copy-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
@@ -1817,7 +1817,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotEqual(old_contributor_count, UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count())
 
         form = page.forms["contributor-copy-form"]
-        form["evaluation"] = str(self.evaluation2.pk)
+        form["cc-evaluation"] = str(self.evaluation2.pk)
         page = form.submit(name="operation", value="copy-replace-contributors")
 
         new_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
@@ -1830,7 +1830,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_invalid,)
+        form["pe-excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test-participants")
 
@@ -1847,7 +1847,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-participants")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
@@ -1861,7 +1861,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["excel_file"] = (self.filename_invalid,)
+        form["ce-excel_file"] = (self.filename_invalid,)
 
         reply = form.submit(name="operation", value="test-contributors")
 
@@ -1878,7 +1878,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = (self.filename_valid,)
 
         reply = form.submit(name="operation", value="test-contributors")
         self.assertContains(reply, "The existing user would be overwritten with the following data:<br />"
@@ -1889,7 +1889,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = (self.filename_valid,)
 
         # Should throw SuspiciousOperation Exception.
         reply = form.submit(name="operation", value="hackit", expect_errors=True)
