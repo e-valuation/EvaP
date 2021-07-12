@@ -3,7 +3,7 @@ from model_bakery import baker
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 
-from evap.contributor.forms import DelegatesForm, EditorContributionForm, EvaluationForm
+from evap.contributor.forms import EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
@@ -21,28 +21,6 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation)
         self.assertTrue(all(form.fields[field].disabled for field in form.fields))
-
-
-class UserFormTests(TestCase):
-
-    def test_settings_form(self):
-        """
-            Tests whether the settings form can be submitted without errors
-        """
-        user = baker.make(UserProfile, email="testuser@institution.example.com")
-        delegate = baker.make(UserProfile, email="delegate@institution.example.com")
-
-        self.assertFalse(user.delegates.filter(email="delegate@institution.example.com").exists())
-
-        form_data = get_form_data_from_instance(DelegatesForm, user)
-        form_data["delegates"] = [delegate.pk]  # add delegate
-
-        form = DelegatesForm(form_data, instance=user)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        user = UserProfile.objects.get(email="testuser@institution.example.com")
-        self.assertTrue(user.delegates.filter(email="delegate@institution.example.com").exists())
 
 
 class ContributionFormsetTests(TestCase):

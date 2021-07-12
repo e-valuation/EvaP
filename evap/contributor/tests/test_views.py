@@ -82,25 +82,6 @@ class TestContributorView(WebTestWith200Check):
         cls.test_users = [users['editor'], users['responsible']]
 
 
-class TestContributorSettingsView(WebTest):
-    url = '/contributor/settings'
-
-    @classmethod
-    def setUpTestData(cls):
-        result = create_evaluation_with_responsible_and_editor()
-        cls.responsible = result['responsible']
-
-    def test_save_settings(self):
-        user = baker.make(UserProfile)
-        page = self.app.get(self.url, user=self.responsible, status=200)
-        form = page.forms["settings-form"]
-        form["delegates"] = [user.pk]
-        form.submit()
-
-        self.responsible.refresh_from_db()
-        self.assertEqual(list(self.responsible.delegates.all()), [user])
-
-
 class TestContributorEvaluationView(WebTestWith200Check):
     url = f'/contributor/evaluation/{TESTING_EVALUATION_ID}'
 

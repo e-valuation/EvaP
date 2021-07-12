@@ -12,4 +12,5 @@ urlpatterns = [
     path("legal_notice", views.legal_notice, name="legal_notice"),
     path("contact", views.contact, name="contact"),
     path("key/<int:key>", views.login_key_authentication, name="login_key_authentication"),
+    path("profile", views.profile_edit, name="profile_edit"),
 ]

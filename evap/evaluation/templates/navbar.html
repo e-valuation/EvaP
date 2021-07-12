@@ -125,9 +125,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">
-                        {% if user.is_editor %}
-                            <a class="dropdown-item" href="{% url 'contributor:settings_edit' %}">{% trans 'Settings' %}</a>
-                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'evaluation:profile_edit' %}">{% trans 'Profile' %}</a>
                         <a class="dropdown-item" href="{% url 'django-auth-logout' %}">{% trans 'Logout' %}</a>
                     </div>
                 </li>
