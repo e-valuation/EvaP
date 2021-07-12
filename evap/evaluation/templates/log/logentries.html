@@ -23,9 +23,7 @@
             </p>
 
             {% for log in log_group %}
-                <p>
-                    {% include "log/changed_fields_entry.html" with log=log %}
-                </p>
+                {% include "log/changed_fields_entry.html" with log=log %}
             {% endfor %}
         </li>
     {% endfor %}
