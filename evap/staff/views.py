@@ -332,7 +332,7 @@ def semester_evaluation_operation(request, semester_id):
     raw_target_state = request.GET.get('target_state')
     try:
         target_state = int(raw_target_state)
-    except:
+    except Exception:
         raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state))
 
     if target_state not in EVALUATION_OPERATIONS.keys():
@@ -1004,7 +1004,7 @@ def helper_delete_users_from_evaluation(evaluation, operation):
 def evaluation_person_management(request, semester_id, evaluation_id):
     # This view indeed handles 4 tasks. However, they are tightly coupled, splitting them up
     # would lead to more code duplication. Thus, we decided to leave it as is for now
-    # pylint: disable=too-many-locals, too-many-branches
+    # pylint: disable=too-many-locals
     semester = get_object_or_404(Semester, id=semester_id)
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
     if evaluation.participations_are_archived:
