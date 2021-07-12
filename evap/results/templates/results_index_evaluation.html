@@ -9,7 +9,11 @@
 {% cache evaluation|evaluation_results_cache_timeout evaluation_result_template_fragment evaluation.id LANGUAGE_CODE links_to_results_page using="results" %}
 
 <{% if links_to_results_page %}a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}"{% else %}div{% endif %}
-        class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}{% if links_to_results_page %} hover-row{% endif %}{% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %} preview-row{% endif %}">
+        class="results-grid-row {% if not is_subentry %}heading-row{% else %}evaluation-row{% endif %}
+            {% if links_to_results_page %} hover-row{% endif %}
+            {% if evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state < evaluation.State.PUBLISHED %}
+                preview-row
+            {% endif %}">
     <div data-col="name"{% if not is_subentry %} data-order="{{ evaluation.course.name|lower }}"{% endif %}>
         <div>
             {% if is_subentry %}
@@ -29,11 +33,11 @@
                 {{ evaluation.full_name }}
             {% endif %}
             {% if evaluation.is_single_result %} ({{ evaluation.vote_start_datetime|date }}){% endif %}
-            {% if evaluation.state == 'in_evaluation' %}
+            {% if evaluation.state == evaluation.State.IN_EVALUATION %}
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running' %}"></span>
-            {% elif evaluation.state == 'evaluated' %}
+            {% elif evaluation.state == evaluation.State.EVALUATED %}
                 <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-yellow" title="{% trans 'Results not yet published' %}"></span>
-            {% elif evaluation.state == 'reviewed' %}
+            {% elif evaluation.state == evaluation.State.REVIEWED %}
                 {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
                     <span data-toggle="tooltip" data-placement="top" class="fas fa-chart-bar icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
                 {% else %}

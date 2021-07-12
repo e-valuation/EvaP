@@ -65,7 +65,7 @@
                             {% endif %}
                             {% for evaluation in evaluations|dictsort:"name" %}
                                 <tr {# staff users should be able to access evaluations through the student index only if it actually has published results #}
-                                    {% if evaluation.state == 'published' and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
+                                    {% if evaluation.state == evaluation.State.PUBLISHED and evaluation.can_publish_rating_results and not semester.results_are_archived and evaluation|can_results_page_be_seen_by:request.user %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
@@ -75,9 +75,9 @@
                                             {% if evaluation.voted_for %}
                                                 <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="far fa-fw fa-smile" aria-hidden="true"></span></span>
                                             {% elif evaluation.participates_in %}
-                                                {% if evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
+                                                {% if evaluation.state > evaluation.State.IN_EVALUATION %}
                                                     <span class="text text-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="far fa-fw fa-frown" aria-hidden="true"></span></span>
-                                                {% elif evaluation.state == 'in_evaluation' %}
+                                                {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
                                                     <span class="text text-primary" data-toggle="tooltip" data-placement="top" title="{% trans 'You can take part in this evaluation above.' %}"><span class="fas fa-fw fa-arrow-up" aria-hidden="true"></span></span>
                                                 {% else %}
                                                     <span class="text text-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-clock" aria-hidden="true"></span></span>
@@ -138,13 +138,13 @@
                                     <td>
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.is_single_result %}
-                                                {% if evaluation.state == 'published' %}
+                                                {% if evaluation.state == evaluation.State.PUBLISHED %}
                                                     <span data-toggle="tooltip" data-placement="top" title="{% trans 'Individual participants are not stored for single results. The number shown here is the number of votes received.' %}">
                                                         {% include 'progress_bar_fill.html' with icon='user' total=evaluation.single_result_rating_result.count_sum fill=100 %}
                                                     </span>
                                                 {% endif %}
                                             {% else %}
-                                                {% if evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
+                                                {% if evaluation.state > evaluation.State.IN_EVALUATION %}
                                                     {% include 'progress_bar.html' with icon='user' done=evaluation.num_voters total=evaluation.num_participants %}
                                                 {% else %}
                                                     {% include 'progress_bar_fill.html' with icon='user' total=evaluation.num_participants fill=0 %}
@@ -154,9 +154,9 @@
                                     </td>
                                     <td class="text-right">
                                         {% if not semester.results_are_archived %}
-                                            {% if evaluation.state == 'published' %}
+                                            {% if evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
-                                            {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' %}
+                                            {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}
                                                 <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% if evaluation|weight_info %}{% blocktrans with percentage=evaluation|weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %} {% endif %}{% trans 'The results have not been published yet.' %}{% if evaluation.participates_in %} {% trans 'You will receive an email when the results are published.' %}{% endif %}">
                                                     {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
                                                 </div>

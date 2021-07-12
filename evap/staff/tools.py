@@ -301,7 +301,7 @@ def find_unreviewed_evaluations(semester, excluded):
         exclude_date -= timedelta(days=1)
 
     return semester.evaluations.exclude(pk__in=excluded) \
-        .exclude(state='published') \
+        .exclude(state=Evaluation.State.PUBLISHED) \
         .exclude(vote_end_date__gte=exclude_date) \
         .exclude(can_publish_text_results=False) \
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED) \

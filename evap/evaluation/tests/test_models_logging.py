@@ -18,7 +18,7 @@ class TestLoggedModel(TestCase):
         self.evaluation = baker.make(
             Evaluation,
             course=self.course,
-            state="prepared",
+            state=Evaluation.State.PREPARED,
             vote_start_datetime=self.old_start_date,
             vote_end_date=date.today() + timedelta(days=20),
         )

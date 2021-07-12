@@ -5,7 +5,7 @@
 
 <td>
     {% if request.user.is_manager and not info_only and not semester.participations_are_archived %}
-        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'reviewed' or state == 'published' %}
+        {% if state <= evaluation.State.APPROVED or state >= evaluation.State.REVIEWED %}
             <div class="form-check" data-toggle="tooltip" data-placement="top" title="{% trans 'Select for evaluation operation' %}">
                 <input class="form-check-input" type="checkbox" name="evaluation" id="evaluation{{ evaluation.id }}" value="{{ evaluation.id }}" />
                 <label class="form-check-label" for="evaluation{{ evaluation.id }}"></label>
@@ -20,19 +20,19 @@
     </td>
 {% endwith %}
 
-{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+{% if state < evaluation.State.APPROVED %}
     <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
         <span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation did not start yet' %}"></span>
     </td>
-{% elif state == 'approved' %}
+{% elif state == evaluation.State.APPROVED %}
     <td class="icon" data-col="state-evaluating" data-order="1" data-filter="evaluation_not_yet_started">
         <span class="fas fa-pause icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Waiting for evaluation period to start' %}"></span>
     </td>
-{% elif state == 'in_evaluation' %}
+{% elif state == evaluation.State.IN_EVALUATION %}
     <td class="icon" data-col="state-evaluating" data-order="2" data-filter="in_evaluation">
         <span class="fas fa-play icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'In evaluation' %}"></span>
     </td>
-{% elif state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+{% elif state >= evaluation.State.EVALUATED %}
     <td class="icon" data-col="state-evaluating" data-order="3" data-filter="evaluated">
         <span class="fas fa-stop icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluated' %}"></span>
     </td>
@@ -56,11 +56,11 @@
     </td>
 {% endif %}
 
-{% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' or state == 'in_evaluation' or state == 'evaluated' %}
+{% if state < evaluation.State.REVIEWED %}
     <td class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
         <span class="fas fa-chart-bar icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'Evaluation not finished' %}"></span>
     </td>
-{% elif state == 'reviewed' %}
+{% elif state == evaluation.State.REVIEWED %}
     {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
         <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
             <span class="fas fa-chart-bar icon-red" data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
@@ -70,7 +70,7 @@
             <span class="fas fa-chart-bar icon-yellow" data-toggle="tooltip" data-placement="top" title="{% trans 'Results not yet published' %}"></span>
         </td>
     {% endif %}
-{% elif state == 'published' %}
+{% elif state == evaluation.State.PUBLISHED %}
     <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
         <span class="fas fa-chart-bar icon-green" data-toggle="tooltip" data-placement="top" title="{% trans 'Results published' %}"></span>
     </td>
@@ -89,7 +89,7 @@
     </div>
     <div class="font-italic">
         {{ evaluation.course.responsibles_names }}
-        {% if info_only or not request.user.is_manager or state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+        {% if info_only or not request.user.is_manager or state >= evaluation.State.IN_EVALUATION %}
             <span class="small" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of contributors' %}">
                 ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)
             </span>
@@ -104,7 +104,7 @@
         <span class="badge badge-pill badge-dark" data-toggle="tooltip" data-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
     {% endif %}
 
-    {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+    {% if state < evaluation.State.APPROVED %}
         {% if not evaluation.all_contributions_have_questionnaires %}
             {% if not evaluation.general_contribution_has_questionnaires %}
                 <span class="badge badge-danger">{% trans 'Evaluation has no questionnaires' %}</span>
@@ -117,7 +117,7 @@
 <td data-col="period" data-order="{{ evaluation|ordering_index }}">
     {% include 'staff_evaluation_evaluation_period.html' %}
 </td>
-{% if state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' or state == 'published' %}
+{% if state >= evaluation.State.IN_EVALUATION %}
     {% if not evaluation.is_single_result %}
         <td class="multi-progress-bar">
             {% if evaluation.can_publish_average_grade %}
@@ -129,7 +129,7 @@
                     {% include 'progress_bar.html' with done=evaluation.num_voters total=evaluation.num_participants icon='user' warning=True %}
                 </span>
             {% endif %}
-            {% if evaluation.num_textanswers > 0 and state != 'published' and not info_only %}
+            {% if evaluation.num_textanswers > 0 and state != evaluation.State.PUBLISHED and not info_only %}
                 <a class="no-underline" href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" data-toggle="tooltip" data-placement="left" title="{% trans 'Review text answers' %}">
                     {% include 'progress_bar.html' with done=evaluation.num_reviewed_textanswers total=evaluation.num_textanswers icon='comment' %}
                 </a>
@@ -194,15 +194,15 @@
                 <span class="fas fa-envelope" aria-hidden="true"></span>
             </a>
         {% endif %}
-        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
+        {% if state < evaluation.State.IN_EVALUATION %}
             <a href="{% url 'staff:evaluation_preview' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
                 <span class="fas fa-eye" aria-hidden="true"></span>
             </a>
-        {% elif state == 'in_evaluation' or state == 'evaluated' or state == 'reviewed' and evaluation|can_results_page_be_seen_by:request.user %}
+        {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Preview results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>
-        {% elif state == 'published' and evaluation|can_results_page_be_seen_by:request.user %}
+        {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Results' %}">
                 <span class="fas fa-chart-bar" aria-hidden="true"></span>
             </a>

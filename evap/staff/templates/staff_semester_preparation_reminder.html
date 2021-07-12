@@ -44,7 +44,7 @@
                     </thead>
                     <tbody>
                         {% for evaluation in evaluations %}
-                            <tr{% if evaluation.state != 'prepared' %} class="deactivate"{% endif %}>
+                            <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
                                 <th scope="row">
                                     {% with approval_state_values=evaluation.state|approval_state_values %}
                                         <span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span>

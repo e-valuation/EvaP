@@ -519,7 +519,7 @@
     "voters": [],
     "course": 1,
     "_voter_count": 17,
-    "state": "published",
+    "state": 80,
     "participants": [],
     "vote_end_date": "2014-09-30",
     "name_en": "an evaluation",

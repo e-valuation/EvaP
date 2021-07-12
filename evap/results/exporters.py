@@ -262,9 +262,9 @@ class ResultsExporter(ExcelExporter):
             self.cur_row = 0
             self.cur_col = 0
 
-            evaluation_states = ['published']
+            evaluation_states = [Evaluation.State.PUBLISHED]
             if include_unpublished:
-                evaluation_states.extend(['evaluated', 'reviewed'])
+                evaluation_states.extend([Evaluation.State.EVALUATED, Evaluation.State.REVIEWED])
 
             evaluations_with_results, used_questionnaires, course_results_exist = self.filter_evaluations(
                 semesters,

@@ -4,44 +4,48 @@ from django.forms import TypedChoiceField
 from django.template import Library
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.models import BASE_UNIPOLAR_CHOICES, Contribution
+from evap.evaluation.models import BASE_UNIPOLAR_CHOICES, Contribution, Evaluation
 from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
 
 
 # the names displayed for contributors
 STATE_NAMES = {
-    'new': _('new'),
-    'prepared': _('prepared'),
-    'editor_approved': _('editor approved'),
-    'approved': _('approved'),
-    'in_evaluation': _('in evaluation'),
-    'evaluated': _('evaluated'),
-    'reviewed': _('reviewed'),
-    'published': _('published'),
+    Evaluation.State.NEW: _("new"),
+    Evaluation.State.PREPARED: _("prepared"),
+    Evaluation.State.EDITOR_APPROVED: _("editor approved"),
+    Evaluation.State.APPROVED: _("approved"),
+    Evaluation.State.IN_EVALUATION: _("in evaluation"),
+    Evaluation.State.EVALUATED: _("evaluated"),
+    Evaluation.State.REVIEWED: _("reviewed"),
+    Evaluation.State.PUBLISHED: _("published"),
+}
+
+STR_TO_STATE = {
+    s: i for i, s in Evaluation.STATE_STR_CONVERSION.items()
 }
 
 
 # the descriptions used in tooltips for contributors
 STATE_DESCRIPTIONS = {
-    'new': _('The evaluation was newly created and will be prepared by the evaluation team.'),
-    'prepared': _('The evaluation was prepared by the evaluation team and is now available for editors.'),
-    'editor_approved': _('The evaluation was approved by an editor and will now be checked by the evaluation team.'),
-    'approved': _('All preparations are finished. The evaluation will begin once the defined start date is reached.'),
-    'in_evaluation': _('The evaluation is currently running until the defined end date is reached.'),
-    'evaluated': _('The evaluation has finished and will now be reviewed by the evaluation team.'),
-    'reviewed': _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'),
-    'published': _('The results for this evaluation have been published.'),
+    Evaluation.State.NEW: _('The evaluation was newly created and will be prepared by the evaluation team.'),
+    Evaluation.State.PREPARED: _('The evaluation was prepared by the evaluation team and is now available for editors.'),
+    Evaluation.State.EDITOR_APPROVED: _('The evaluation was approved by an editor and will now be checked by the evaluation team.'),
+    Evaluation.State.APPROVED: _('All preparations are finished. The evaluation will begin once the defined start date is reached.'),
+    Evaluation.State.IN_EVALUATION: _('The evaluation is currently running until the defined end date is reached.'),
+    Evaluation.State.EVALUATED: _('The evaluation has finished and will now be reviewed by the evaluation team.'),
+    Evaluation.State.REVIEWED: _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'),
+    Evaluation.State.PUBLISHED: _('The results for this evaluation have been published.'),
 }
 
 
 # values for approval states shown to staff
 StateValues = namedtuple('StateValues', ('order', 'icon', 'filter', 'description'))
 APPROVAL_STATES = {
-    'new': StateValues(0, 'fas fa-circle icon-yellow', 'new', _('In preparation')),
-    'prepared': StateValues(2, 'far fa-square icon-gray', 'prepared', _('Awaiting editor review')),
-    'editor_approved': StateValues(1, 'far fa-check-square icon-yellow', 'editor_approved', _('Approved by editor, awaiting manager review')),
-    'approved': StateValues(3, 'far fa-check-square icon-green', 'approved', _('Approved by manager')),
+    Evaluation.State.NEW: StateValues(0, 'fas fa-circle icon-yellow', Evaluation.State.NEW, _('In preparation')),
+    Evaluation.State.PREPARED: StateValues(2, 'far fa-square icon-gray', Evaluation.State.PREPARED, _('Awaiting editor review')),
+    Evaluation.State.EDITOR_APPROVED: StateValues(1, 'far fa-check-square icon-yellow', Evaluation.State.EDITOR_APPROVED, _('Approved by editor, awaiting manager review')),
+    Evaluation.State.APPROVED: StateValues(3, 'far fa-check-square icon-green', Evaluation.State.APPROVED, _('Approved by manager')),
 }
 
 
@@ -60,9 +64,9 @@ def zip_choices(counts, choices):
 
 @register.filter
 def ordering_index(evaluation):
-    if evaluation.state in ['new', 'prepared', 'editor_approved', 'approved']:
+    if evaluation.state < Evaluation.State.IN_EVALUATION:
         return evaluation.days_until_evaluation
-    if evaluation.state == "in_evaluation":
+    if evaluation.state == Evaluation.State.IN_EVALUATION:
         return 100000 + evaluation.days_left_for_evaluation
     return 200000 + evaluation.days_left_for_evaluation
 
@@ -122,18 +126,12 @@ def statedescription(state):
 def approval_state_values(state):
     if state in APPROVAL_STATES:
         return APPROVAL_STATES[state]
-    if state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
-        return APPROVAL_STATES['approved']
-    return None
+    return APPROVAL_STATES[Evaluation.State.APPROVED]
 
 
 @register.filter
 def approval_state_icon(state):
-    if state in APPROVAL_STATES:
-        return APPROVAL_STATES[state].icon
-    if state in ['in_evaluation', 'evaluated', 'reviewed', 'published']:
-        return APPROVAL_STATES['approved'].icon
-    return None
+    return approval_state_values(state).icon
 
 
 @register.filter

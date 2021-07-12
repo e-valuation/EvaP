@@ -10,8 +10,8 @@ from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
         Evaluation
 
 
-STATES_WITH_RESULTS_CACHING = {'evaluated', 'reviewed', 'published'}
-STATES_WITH_RESULT_TEMPLATE_CACHING = {'published'}
+STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
+STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
 
 
 GRADE_COLORS = {
@@ -139,9 +139,9 @@ def cache_results(evaluation):
 
 
 def get_results(evaluation):
-    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {'in_evaluation'}
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {Evaluation.State.IN_EVALUATION}
 
-    if evaluation.state == 'in_evaluation':
+    if evaluation.state == Evaluation.State.IN_EVALUATION:
         return _get_results_impl(evaluation)
 
     cache_key = get_results_cache_key(evaluation)
@@ -245,7 +245,7 @@ def average_non_grade_rating_questions_distribution(results):
 
 
 def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
-    if check_for_unpublished_evaluations and course.evaluations.exclude(state="published").exists():
+    if check_for_unpublished_evaluations and course.evaluations.exclude(state=Evaluation.State.PUBLISHED).exists():
         return None
 
     return avg_distribution([
@@ -262,7 +262,7 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
 def get_evaluations_with_course_result_attributes(evaluations):
     courses_with_unpublished_evaluations = (Course.objects
         .filter(evaluations__in=evaluations)
-        .filter(Exists(Evaluation.objects.filter(course=OuterRef('pk')).exclude(state="published")))
+        .filter(Exists(Evaluation.objects.filter(course=OuterRef('pk')).exclude(state=Evaluation.State.PUBLISHED)))
         .values_list('id', flat=True)
     )
 
@@ -292,7 +292,7 @@ def get_evaluations_with_course_result_attributes(evaluations):
 
 
 def calculate_average_distribution(evaluation):
-    assert evaluation.state in {'in_evaluation', 'evaluated', 'reviewed', 'published'}
+    assert evaluation.state >= Evaluation.State.IN_EVALUATION
 
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None

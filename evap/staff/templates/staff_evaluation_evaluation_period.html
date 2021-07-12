@@ -8,7 +8,7 @@
         {{ evaluation.vote_end_date }} ({% blocktrans count runtime=evaluation.runtime %}{{ runtime }} day{% plural %}{{ runtime }} days{% endblocktrans %}){% endif %}
     </span><br />
     {% if not start_only %}
-        {% if state == 'new' or state == 'prepared' or state == 'editor_approved' or state == 'approved' %}
+        {% if state < evaluation.State.IN_EVALUATION  %}
             {% if evaluation.days_until_evaluation < 0 %}
                 <div class="badge badge-danger">
                     {% trans 'Overdue' %}
@@ -18,7 +18,7 @@
                     {% trans 'Begins in' %} {{ evaluation.vote_start_datetime|timeuntil }}
                 </div>
             {% endif %}
-        {% elif state == 'in_evaluation' %}
+        {% elif state == evaluation.State.IN_EVALUATION %}
             <div class="badge {% if evaluation.days_left_for_evaluation <= 3 %}badge-dark{% else %}badge-light{% endif %}">
                 {% trans 'Ends in' %} {{ evaluation.vote_end_datetime|timeuntil }}
             </div>

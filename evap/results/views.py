@@ -114,7 +114,7 @@ def get_evaluations_with_prefetched_data(evaluations):
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
+    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state=Evaluation.State.PUBLISHED)
     evaluations = evaluations.select_related('course', 'course__semester')
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
 
@@ -122,7 +122,7 @@ def index(request):
         additional_evaluations = get_evaluations_with_prefetched_data(
             Evaluation.objects.filter(
                 course__semester__in=semesters,
-                state__in=['in_evaluation', 'evaluated', 'reviewed']
+                state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED],
             )
         )
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
@@ -302,9 +302,9 @@ def get_evaluations_of_course(course, request):
     course_evaluations = []
 
     if course.evaluations.count() > 1:
-        course_evaluations = [evaluation for evaluation in course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)]
+        course_evaluations = [evaluation for evaluation in course.evaluations.filter(state=Evaluation.State.PUBLISHED) if evaluation.can_be_seen_by(request.user)]
         if request.user.is_reviewer:
-            course_evaluations += course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
+            course_evaluations += course.evaluations.filter(state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED])
 
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
 

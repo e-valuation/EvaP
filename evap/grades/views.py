@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django_sendfile import sendfile
 
 from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
-from evap.evaluation.models import Course, Semester, EmailTemplate
+from evap.evaluation.models import Course, Evaluation, Semester, EmailTemplate
 from evap.grades.models import GradeDocument
 from evap.grades.forms import GradeDocumentForm
 
@@ -45,7 +45,7 @@ def semester_view(request, semester_id):
 
     courses = (semester.courses
         .filter(evaluations__wait_for_grade_upload_before_publishing=True)
-        .exclude(evaluations__state='new')
+        .exclude(evaluations__state=Evaluation.State.NEW)
         .distinct())
     courses = prefetch_data(courses)
 
@@ -77,7 +77,7 @@ def course_view(request, semester_id, course_id):
 
 def on_grading_process_finished(course):
     evaluations = course.evaluations.all()
-    if all(evaluation.state == 'reviewed' for evaluation in evaluations):
+    if all(evaluation.state == Evaluation.State.REVIEWED for evaluation in evaluations):
         for evaluation in evaluations:
             assert evaluation.grading_process_is_finished
         for evaluation in evaluations:

@@ -101,9 +101,9 @@
                                 </tr>
                             {% endif %}
                             {% for evaluation in evaluations|dictsort:"name" %}
-                                <tr {% if evaluation|is_user_editor_or_delegate:user and evaluation.state == 'prepared' %}
+                                <tr {% if evaluation|is_user_editor_or_delegate:user and evaluation.state == evaluation.State.PREPARED %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row hover-row-info" data-url="{% url 'contributor:evaluation_edit' evaluation.id %}"
-                                    {% elif evaluation.state == 'published' and evaluation|can_results_page_be_seen_by:user %}
+                                    {% elif evaluation.state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:user %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %} hover-row results-row" data-url="{% url 'results:evaluation_detail' semester.id evaluation.id %}"
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
@@ -150,7 +150,7 @@
                                             {{ evaluation.vote_end_date }}<br />
                                         {% endif %}
                                     </td>
-                                    {% if evaluation.state == 'in_evaluation' or evaluation.state == 'evaluated' or evaluation.state == 'reviewed' or evaluation.state == 'published' %}
+                                    {% if evaluation.state >= evaluation.State.IN_EVALUATION %}
                                         {% if evaluation.is_single_result %}
                                             <td class="text-center"><span class="fas fa-user"></span>&nbsp;{{ evaluation.single_result_rating_result.count_sum }}</td>
                                         {% else %}
@@ -162,9 +162,9 @@
                                         </td>
                                     {% endif %}
                                     <td class="text-right">
-                                        {% if evaluation.state != 'published' and not evaluation.is_single_result %}
+                                        {% if evaluation.state != evaluation.State.PUBLISHED and not evaluation.is_single_result %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
-                                                {% if evaluation.state == 'prepared' %}
+                                                {% if evaluation.state == evaluation.State.PREPARED %}
                                                     <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
                                                         data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}">
                                                         <span class="fas fa-pencil-alt"></span>
@@ -177,7 +177,7 @@
                                                             <span class="fas fa-hand-point-right fa-flip-horizontal"></span>
                                                         </a>
                                                     {% endif %}
-                                                {% elif evaluation.state == 'editor_approved' or evaluation.state == 'approved' %}
+                                                {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
                                                         data-toggle="tooltip" data-placement="top"
                                                         title="{% trans 'You already approved the evaluation, the edit form will be disabled.' %}">
@@ -191,11 +191,11 @@
                                                     <span class="fas fa-eye"></span>
                                                 </a>
                                             {% endif %}
-                                        {% elif evaluation.state != 'published' and evaluation.is_single_result %}
+                                        {% elif evaluation.state != evaluation.State.PUBLISHED and evaluation.is_single_result %}
                                             <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
                                             </div>
-                                        {% elif evaluation.state == 'published' %}
+                                        {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                         {% endif %}
                                     </td>

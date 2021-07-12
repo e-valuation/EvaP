@@ -144,7 +144,7 @@ class ContributionFormsetWebTests(WebTest):
             when the user submits the form with errors.
             Regression test for #456.
         """
-        evaluation = baker.make(Evaluation, pk=1, state="prepared")
+        evaluation = baker.make(Evaluation, pk=1, state=Evaluation.State.PREPARED)
         user1 = baker.make(UserProfile, email="user1@institution.example.com")
         user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
