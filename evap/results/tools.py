@@ -240,21 +240,15 @@ def avg_distribution(weighted_distributions):
 
 def average_grade_questions_distribution(results):
     return avg_distribution(
-        [
-            (unipolarized_distribution(result), result.count_sum)
-            for result in results
-            if result.question.is_grade_question
-        ]
+        (unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_grade_question
     )
 
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [
-            (unipolarized_distribution(result), result.count_sum)
-            for result in results
-            if result.question.is_non_grade_rating_question
-        ],
+        (unipolarized_distribution(result), result.count_sum)
+        for result in results
+        if result.question.is_non_grade_rating_question
     )
 
 
@@ -263,17 +257,15 @@ def calculate_average_course_distribution(course, check_for_unpublished_evaluati
         return None
 
     return avg_distribution(
-        [
+        (
             (
-                (
-                    calculate_average_distribution(evaluation)
-                    if not evaluation.is_single_result
-                    else normalized_distribution(get_single_result_rating_result(evaluation).counts)
-                ),
-                evaluation.weight,
-            )
-            for evaluation in course.evaluations.all()
-        ]
+                calculate_average_distribution(evaluation)
+                if not evaluation.is_single_result
+                else normalized_distribution(get_single_result_rating_result(evaluation).counts)
+            ),
+            evaluation.weight,
+        )
+        for evaluation in course.evaluations.all()
     )
 
 
@@ -321,37 +313,41 @@ def calculate_average_distribution(evaluation):
     evaluation_results = grouped_results.pop(None, [])
 
     average_contributor_distribution = avg_distribution(
-        [
-            (
-                avg_distribution(
-                    [
-                        (
-                            average_grade_questions_distribution(contributor_results),
-                            settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT,
-                        ),
-                        (
-                            average_non_grade_rating_questions_distribution(contributor_results),
-                            settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT,
-                        ),
-                    ]
-                ),
-                max(
-                    (result.count_sum for result in contributor_results if result.question.is_rating_question),
-                    default=0,
-                ),
-            )
-            for contributor_results in grouped_results.values()
-        ]
+        (
+            avg_distribution(
+                [
+                    (
+                        average_grade_questions_distribution(contributor_results),
+                        settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT,
+                    ),
+                    (
+                        average_non_grade_rating_questions_distribution(contributor_results),
+                        settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT,
+                    ),
+                ]
+            ),
+            max(
+                (result.count_sum for result in contributor_results if result.question.is_rating_question),
+                default=0,
+            ),
+        )
+        for contributor_results in grouped_results.values()
     )
 
     return avg_distribution(
         [
-            (average_grade_questions_distribution(evaluation_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
+            (
+                average_grade_questions_distribution(evaluation_results),
+                settings.GENERAL_GRADE_QUESTIONS_WEIGHT,
+            ),
             (
                 average_non_grade_rating_questions_distribution(evaluation_results),
                 settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT,
             ),
-            (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT),
+            (
+                average_contributor_distribution,
+                settings.CONTRIBUTIONS_WEIGHT,
+            ),
         ]
     )
 
