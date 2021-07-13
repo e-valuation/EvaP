@@ -459,7 +459,7 @@ class EnrollmentImporter(ExcelImporter):
             for evaluation, participants in participants_per_evaluation.items():
                 evaluation.participants.add(*participants)
 
-        msg = format_html(_("Successfully created {} courses/evaluations, {} students and {} contributors:"),
+        msg = format_html(_("Successfully created {} courses/evaluations, {} participants and {} contributors:"),
             len(self.evaluations), len(students_created), len(responsibles_created))
         msg += create_user_list_html_string_for_message(students_created + responsibles_created)
         self.success_messages.append(msg)

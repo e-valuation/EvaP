@@ -1,9 +1,13 @@
+import logging
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 
 class LoginEmailForm(forms.Form):
@@ -90,3 +94,22 @@ class UserModelChoiceField(forms.ModelChoiceField):
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.full_name_with_additional_info
+
+
+class DelegatesForm(forms.ModelForm):
+    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
+                                             required=False)
+
+    class Meta:
+        model = UserProfile
+        fields = ('delegates',)
+        field_classes = {
+            'delegates': UserModelMultipleChoiceField,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kw):
+        super().save(*args, **kw)
+        logger.info('User "{}" edited the settings.'.format(self.instance.email))

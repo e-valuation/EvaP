@@ -1,17 +1,14 @@
 from datetime import datetime, timedelta
-import logging
 
 from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext_lazy as _
-from evap.evaluation.forms import UserModelMultipleChoiceField, UserModelChoiceField
+from evap.evaluation.forms import UserModelChoiceField
 from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import date_to_datetime
 from evap.staff.forms import ContributionForm
-
-logger = logging.getLogger(__name__)
 
 
 class EvaluationForm(forms.ModelForm):
@@ -91,25 +88,6 @@ class EditorContributionForm(ContributionForm):
         self.fields['contributor'].queryset = UserProfile.objects.filter(
             (Q(is_active=True) & Q(is_proxy_user=False)) | Q(pk=existing_contributor_pk)
         )
-
-
-class DelegatesForm(forms.ModelForm):
-    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
-                                             required=False)
-
-    class Meta:
-        model = UserProfile
-        fields = ('delegates',)
-        field_classes = {
-            'delegates': UserModelMultipleChoiceField,
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def save(self, *args, **kw):
-        super().save(*args, **kw)
-        logger.info('User "{}" edited the settings.'.format(self.instance.email))
 
 
 class DelegateSelectionForm(forms.Form):

@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.i18n import set_language
 
-from evap.evaluation.forms import NewKeyForm, LoginEmailForm
+from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
 from evap.evaluation.models import FaqSection, EmailTemplate, Semester
 from evap.middleware import no_login_required
 from evap.staff.tools import delete_navbar_cache_for_users
@@ -185,3 +185,28 @@ def set_lang(request):
         user.save()
 
     return set_language(request)
+
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    if user.is_editor:
+        form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, _("Successfully updated your profile."))
+            return redirect('evaluation:profile_edit')
+
+        return render(request, "profile.html", dict(
+            user=user,
+            form=form,
+            delegate_of=user.represented_users.all(),
+            cc_users=user.cc_users.all(),
+            ccing_users=user.ccing_users.all(),
+        ))
+
+    return render(request, "profile.html", dict(
+        user=user,
+    ))

@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from evap.contributor.forms import EvaluationForm, DelegatesForm, EditorContributionForm, DelegateSelectionForm
-from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required, editor_required
+from evap.contributor.forms import EvaluationForm, EditorContributionForm, DelegateSelectionForm
+from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ResultsExporter
@@ -80,25 +80,6 @@ def index(request):
         delegate_selection_form=DelegateSelectionForm(),
     )
     return render(request, "contributor_index.html", template_data)
-
-
-@editor_required
-def settings_edit(request):
-    user = request.user
-    form = DelegatesForm(request.POST or None, request.FILES or None, instance=user)
-
-    if form.is_valid():
-        form.save()
-
-        messages.success(request, _("Successfully updated your settings."))
-        return redirect('contributor:settings_edit')
-
-    return render(request, "contributor_settings.html", dict(
-        form=form,
-        delegate_of=user.represented_users.all(),
-        cc_users=user.cc_users.all(),
-        ccing_users=user.ccing_users.all(),
-    ))
 
 
 @editor_or_delegate_required

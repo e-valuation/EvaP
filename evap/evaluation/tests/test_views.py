@@ -6,7 +6,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check
+from evap.evaluation.tests.tools import create_evaluation_with_responsible_and_editor, WebTestWith200Check
 
 
 class TestIndexView(WebTest):
@@ -87,3 +87,29 @@ class TestChangeLanguageView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.language, 'en')
+
+
+class TestProfileView(WebTest):
+    url = '/profile'
+
+    @classmethod
+    def setUpTestData(cls):
+        result = create_evaluation_with_responsible_and_editor()
+        cls.responsible = result['responsible']
+
+    def test_save_settings(self):
+        user = baker.make(UserProfile)
+        page = self.app.get(self.url, user=self.responsible, status=200)
+        form = page.forms["settings-form"]
+        form["delegates"] = [user.pk]
+        form.submit()
+
+        self.responsible.refresh_from_db()
+        self.assertEqual(list(self.responsible.delegates.all()), [user])
+
+    def test_view_settings_as_non_editor(self):
+        user = baker.make(UserProfile, email="testuser@example.com")
+        page = self.app.get(self.url, user=user, status=200)
+        self.assertIn("Personal information", page)
+        self.assertNotIn("Delegates", page)
+        self.assertIn(user.email, page)
