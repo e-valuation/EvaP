@@ -138,6 +138,10 @@ td.icon {
     padding-left: 4px;
 }
 
+.space-normal {
+    white-space: normal;
+}
+
 @media print {
     @import "print";
 }

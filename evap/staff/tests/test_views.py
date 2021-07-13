@@ -787,7 +787,8 @@ class TestSendReminderView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["send-reminder-form"]
-        form["body"] = "uiae"
+        form["plain_content"] = "uiae"
+        form["html_content"] = "<p>uiae</p>"
         form.submit()
 
         self.assertEqual(len(mail.outbox), 1)
@@ -1244,8 +1245,9 @@ class TestEvaluationOperationView(WebTestStaffMode):
                 'user': user,
                 'subject': email_template.subject,
                 'subject_params': subject_params,
-                'body': email_template.body,
+                'plain_content': email_template.plain_content,
                 'body_params': body_params,
+                'html_content': email_template.html_content,
                 'use_cc': use_cc,
                 'additional_cc_users': set(additional_cc_users),
             })
@@ -1254,7 +1256,8 @@ class TestEvaluationOperationView(WebTestStaffMode):
         form = response.forms['evaluation-operation-form']
         form['send_email'] = True
         form['email_subject'] = 'New evaluations ready for review'
-        form['email_body'] = 'There are evaluations that need your approval.'
+        form['email_plain'] = 'There are evaluations that need your approval.'
+        form['email_html'] = '<p>There are evaluations that need your approval.</p>'
 
         with patch.object(EmailTemplate, 'send_to_user', mock):
             form.submit()
@@ -1270,8 +1273,9 @@ class TestEvaluationOperationView(WebTestStaffMode):
             'user': self.responsible,
             'subject': 'New evaluations ready for review',
             'subject_params': {},
-            'body': 'There are evaluations that need your approval.',
+            'plain_content': 'There are evaluations that need your approval.',
             'body_params': {'user': self.responsible, 'evaluations': [evaluation]},
+            'html_content': '<p>There are evaluations that need your approval.</p>',
             'use_cc': True,
             'additional_cc_users': set(),
         }])
@@ -1949,7 +1953,8 @@ class TestEvaluationEmailView(WebTestStaffMode):
         form = page.forms["evaluation-email-form"]
         form.get("recipients", index=0).checked = True  # send to all participants
         form["subject"] = "asdf"
-        form["body"] = "asdf"
+        form["plain_content"] = "asdf"
+        form["html_content"] = "<p>asdf</p>"
         form.submit()
 
         self.assertEqual(len(mail.outbox), 2)
@@ -2529,20 +2534,25 @@ class TestTemplateEditView(WebTestStaffMode):
         cls.manager = make_manager()
 
     def test_emailtemplate(self):
-        """
-            Tests the emailtemplate view with one valid and one invalid input datasets.
-        """
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["template-form"]
         form["subject"] = "subject: mflkd862xmnbo5"
-        form["body"] = "body: mflkd862xmnbo5"
+        form["plain_content"] = "plain_content: mflkd862xmnbo5"
+        form["html_content"] = "html_content: <p>mflkd862xmnbo5</p>"
         form.submit()
 
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_content, "plain_content: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
-        form["body"] = " invalid tag: {{}}"
+        form["plain_content"] = " invalid tag: {{}}"
         form.submit()
-        self.assertEqual(EmailTemplate.objects.get(pk=1).body, "body: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_content, "plain_content: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_content, "html_content: <p>mflkd862xmnbo5</p>")
+
+        form["html_content"] = " invalid tag: {{}}"
+        form.submit()
+        self.assertEqual(EmailTemplate.objects.get(pk=1).plain_content, "plain_content: mflkd862xmnbo5")
+        self.assertEqual(EmailTemplate.objects.get(pk=1).html_content, "html_content: <p>mflkd862xmnbo5</p>")
 
 
 class TestTextAnswerWarningsView(WebTestStaffMode):

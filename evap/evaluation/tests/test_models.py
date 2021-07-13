@@ -602,9 +602,9 @@ class TestLoginUrlEmail(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-        cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
+        cls.template = baker.make(EmailTemplate, plain_content="{{ login_url }}")
 
-        EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
+        EmailTemplate.objects.filter(name="Login Key Created").update(plain_content="{{ user.login_url }}")
 
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
@@ -656,6 +656,28 @@ class TestEmailTemplate(TestCase):
         user = baker.make(UserProfile, email=None)
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         template.send_to_user(user, {}, {}, False, None)
+
+    def test_send_multi_alternatives_email(self):
+        template = EmailTemplate(subject='Example', plain_content='Example plain content', html_content='<p>Example html content</p>')
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
+        self.assertEqual(mail.outbox[0].body, 'Example plain content')
+        self.assertEqual(len(mail.outbox[0].alternatives), 1)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], 'text/html')
+        self.assertIn('<p>Example html content</p>', mail.outbox[0].alternatives[0][0])
+
+    def test_copy_plain_content_on_empty_html_content(self):
+        template = EmailTemplate(subject='Example', plain_content='Example plain content\nWith newline', html_content='')
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(mail.outbox[0].body, 'Example plain content\nWith newline')
+        self.assertIn('Example plain content<br />With newline', mail.outbox[0].alternatives[0][0])
+
+    def test_escape_special_characters_in_html_email(self):
+        template = EmailTemplate(subject='<h1>Special Email</h1>', plain_content='Example plain content', html_content='Special Content: {{special_content}}')
+        template.send_to_user(self.user, {}, {"special_content": "0 < 1"}, False)
+        self.assertIn('&lt;h1&gt;Special Email&lt;/h1&gt;', mail.outbox[0].alternatives[0][0])
+        self.assertIn('Special Content: 0 &lt; 1', mail.outbox[0].alternatives[0][0])
 
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email='delegate-a@example.com')

@@ -1,4 +1,13 @@
 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
-{% for field in form %}
-    {% include 'bootstrap_form_field.html' with field=field %}
-{% endfor %}
+{% if fields_as_pills %}
+    {% for field in form %}
+        {% if field not in fields_as_pills %}
+            {% include 'bootstrap_form_field.html' with field=field %}
+        {% endif %}
+    {% endfor %}
+    {% include 'bootstrap_form_pill_group.html' with fields=fields_as_pills %}
+{% else %}
+    {% for field in form %}
+        {% include 'bootstrap_form_field.html' with field=field %}
+    {% endfor %}
+{% endif %}

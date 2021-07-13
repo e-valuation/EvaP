@@ -21,7 +21,7 @@ from evap.evaluation.models import (CHOICES, Contribution, Course, Evaluation, E
 class TestAnonymizeCommand(TestCase):
     @classmethod
     def setUpTestData(cls):
-        baker.make(EmailTemplate, name="name", subject="Subject", body="Body.")
+        baker.make(EmailTemplate, name="name", subject="Subject", plain_content="Body.")
         baker.make(UserProfile,
           email="secret.email@hpi.de",
           title="Prof.",

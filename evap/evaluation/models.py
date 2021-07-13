@@ -12,16 +12,18 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Group,
 from django.contrib.postgres.fields import ArrayField
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
 from django.db.models import Count, Q, Manager, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
 from django.template.base import TemplateSyntaxError
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import escape
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
@@ -1576,7 +1578,8 @@ class EmailTemplate(models.Model):
     name = models.CharField(max_length=1024, unique=True, verbose_name=_("Name"))
 
     subject = models.CharField(max_length=1024, verbose_name=_("Subject"), validators=[validate_template])
-    body = models.TextField(verbose_name=_("Body"), validators=[validate_template])
+    plain_content = models.TextField(verbose_name=_("Plain Text"), validators=[validate_template])
+    html_content = models.TextField(verbose_name=_("HTML"), validators=[validate_template])
 
     EDITOR_REVIEW_NOTICE = "Editor Review Notice"
     EDITOR_REVIEW_REMINDER = "Editor Review Reminder"
@@ -1627,8 +1630,8 @@ class EmailTemplate(models.Model):
         return list(recipients)
 
     @staticmethod
-    def render_string(text, dictionary):
-        return Template(text).render(Context(dictionary, autoescape=False))
+    def render_string(text, dictionary, *, autoescape=True):
+        return Template(text).render(Context(dictionary, autoescape))
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
@@ -1675,24 +1678,34 @@ class EmailTemplate(models.Model):
         body_params['page_url'] = settings.PAGE_URL
         body_params['contact_email'] = settings.CONTACT_EMAIL
 
-        subject = self.render_string(self.subject, subject_params)
-        body = self.render_string(self.body, body_params)
-
-        mail = EmailMessage(
-            subject=subject,
-            body=body,
-            to=[user.email],
-            cc=cc_addresses,
-            bcc=[a[1] for a in settings.MANAGERS],
-            headers={'Reply-To': settings.REPLY_TO_EMAIL})
+        mail = self.construct_mail(user.email, cc_addresses, subject_params, body_params)
 
         try:
             mail.send(False)
-            logger.info(('Sent email "{}" to {}.').format(subject, user.full_name_with_additional_info))
+            logger.info(('Sent email "{}" to {}.').format(mail.subject, user.full_name_with_additional_info))
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
             logger.exception('An exception occurred when sending the following email to user "{}":\n{}\n'.format(user.full_name_with_additional_info, mail.message()))
+
+    def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
+        subject = self.render_string(self.subject, subject_params, autoescape=False)
+        plain_content = self.render_string(self.plain_content, body_params, autoescape=False)
+
+        rendered_content = self.render_string(self.html_content if self.html_content else self.plain_content.replace('\n', '<br />'), body_params)
+        wrapper_template_params = dict({'email_content': rendered_content, 'email_subject': escape(subject)}, **body_params)
+        wrapped_content = render_to_string('email_base.html', wrapper_template_params)
+
+        mail = EmailMultiAlternatives(
+            subject=subject,
+            body=plain_content,
+            to=[to_email],
+            cc=cc_addresses,
+            bcc=[a[1] for a in settings.MANAGERS],
+            headers={'Reply-To': settings.REPLY_TO_EMAIL},
+            alternatives=[(wrapped_content, "text/html")])
+
+        return mail
 
     @classmethod
     def send_reminder_to_user(cls, user, first_due_in_days, due_evaluations):
