@@ -28,7 +28,14 @@ from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
 from evap.evaluation.models_logging import FieldAction, LoggedModel
-from evap.evaluation.tools import clean_email, date_to_datetime, translate, is_external_email, is_prefetched
+from evap.evaluation.tools import (
+    clean_email,
+    date_to_datetime,
+    translate,
+    is_external_email,
+    is_prefetched,
+    vote_end_datetime,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -526,8 +533,7 @@ class Evaluation(LoggedModel):
 
     @property
     def vote_end_datetime(self):
-        # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
-        return date_to_datetime(self.vote_end_date) + timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
+        return vote_end_datetime(self.vote_end_date)
 
     @property
     def runtime(self):

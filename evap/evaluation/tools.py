@@ -33,6 +33,11 @@ def date_to_datetime(date):
     return datetime.datetime(year=date.year, month=date.month, day=date.day)
 
 
+def vote_end_datetime(vote_end_date):
+    # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
+    return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
+
+
 @receiver(user_logged_in)
 def set_or_get_language(user, request, **_kwargs):
     if user.language:
