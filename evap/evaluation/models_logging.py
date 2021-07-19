@@ -139,9 +139,9 @@ class LoggedModel(models.Model):
         that don't name m2m fields.
         """
         fields = [
-            field.name for field in type(self)._meta.get_fields() if
-            field.name not in self.unlogged_fields
-            and not field.many_to_many
+            field.name
+            for field in type(self)._meta.get_fields()
+            if field.name not in self.unlogged_fields and not field.many_to_many
         ]
         return model_to_dict(self, fields)
 
@@ -172,7 +172,9 @@ class LoggedModel(models.Model):
                 if deleted_value is not None
             }
             # as the instance is being deleted, we also need to pull out all m2m values
-            m2m_field_names = [field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields]
+            m2m_field_names = [
+                field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields
+            ]
             for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
                 changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}
         else:
@@ -245,7 +247,8 @@ class LoggedModel(models.Model):
         Return a queryset with all logentries that should be shown with this model.
         """
         return LogEntry.objects.filter(
-            attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
+            attached_to_object_type=ContentType.objects.get_for_model(type(self)),
+            attached_to_object_id=self.pk,
         )
 
     def grouped_logentries(self):
@@ -253,10 +256,13 @@ class LoggedModel(models.Model):
         Returns a list of lists of logentries for display. The order is not changed.
         Logentries are grouped if they have a matching request_id.
         """
-        yield from (list(group) for key, group in itertools.groupby(
-            self.related_logentries().select_related("user"),
-            lambda entry: entry.request_id or entry.pk,
-        ))
+        yield from (
+            list(group)
+            for key, group in itertools.groupby(
+                self.related_logentries().select_related("user"),
+                lambda entry: entry.request_id or entry.pk,
+            )
+        )
 
     @property
     def object_to_attach_logentries_to(self):
@@ -272,7 +278,7 @@ class LoggedModel(models.Model):
     @property
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
-        return ['id', 'order']
+        return ["id", "order"]
 
     @staticmethod
     def transform_log_action(field_action):
@@ -286,18 +292,24 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     if not isinstance(instance, LoggedModel):
         return
 
-    field_name = next((field.name for field in type(instance)._meta.many_to_many
-                       if getattr(type(instance), field.name).through == sender), None)
+    field_name = next(
+        (
+            field.name
+            for field in type(instance)._meta.many_to_many
+            if getattr(type(instance), field.name).through == sender
+        ),
+        None,
+    )
 
     if field_name in instance.unlogged_fields:
         return
 
     m2m_changes = defaultdict(lambda: defaultdict(list))
-    if action == 'pre_remove':
+    if action == "pre_remove":
         m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
-    elif action == 'pre_add':
+    elif action == "pre_add":
         m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
-    elif action == 'pre_clear':
+    elif action == "pre_clear":
         m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
 
     if m2m_changes:

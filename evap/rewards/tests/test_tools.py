@@ -9,17 +9,19 @@ from evap.rewards.models import SemesterActivation, RewardPointGranting
 from evap.rewards.tools import reward_points_of_user
 
 
-@override_settings(REWARD_POINTS=[
-    (1 / 3, 1),
-    (2 / 3, 2),
-    (3 / 3, 3),
-])
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ]
+)
 class TestGrantRewardPoints(WebTest):
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
-        cls.student = baker.make(UserProfile, email='student@institution.example.com')
+        cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=[cls.student])
 
         questionnaire = baker.make(Questionnaire)
@@ -45,7 +47,9 @@ class TestGrantRewardPoints(WebTest):
 
     def test_semester_activated_not_all_evaluations(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
-        baker.make(Evaluation, course=baker.make(Course, semester=self.evaluation.course.semester), participants=[self.student])
+        baker.make(
+            Evaluation, course=baker.make(Course, semester=self.evaluation.course.semester), participants=[self.student]
+        )
         self.form.submit()
         self.assertEqual(1, reward_points_of_user(self.student))
 
@@ -54,29 +58,45 @@ class TestGrantRewardPoints(WebTest):
         baker.make(RewardPointGranting, user_profile=self.student, value=0, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
-        self.assertEqual(2, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
+        self.assertEqual(
+            2,
+            RewardPointGranting.objects.filter(
+                user_profile=self.student, semester=self.evaluation.course.semester
+            ).count(),
+        )
 
     def test_already_got_enough_points(self):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         baker.make(RewardPointGranting, user_profile=self.student, value=3, semester=self.evaluation.course.semester)
         self.form.submit()
         self.assertEqual(3, reward_points_of_user(self.student))
-        self.assertEqual(1, RewardPointGranting.objects.filter(user_profile=self.student, semester=self.evaluation.course.semester).count())
+        self.assertEqual(
+            1,
+            RewardPointGranting.objects.filter(
+                user_profile=self.student, semester=self.evaluation.course.semester
+            ).count(),
+        )
 
 
-@override_settings(REWARD_POINTS=[
-    (1 / 3, 1),
-    (2 / 3, 2),
-    (3 / 3, 3),
-])
+@override_settings(
+    REWARD_POINTS=[
+        (1 / 3, 1),
+        (2 / 3, 2),
+        (3 / 3, 3),
+    ]
+)
 class TestGrantRewardPointsParticipationChange(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.evaluation = baker.make(Evaluation)
         already_evaluated = baker.make(Evaluation, course=baker.make(Course, semester=cls.evaluation.course.semester))
         SemesterActivation.objects.create(semester=cls.evaluation.course.semester, is_active=True)
-        cls.student = baker.make(UserProfile, email="student@institution.example.com",
-            evaluations_participating_in=[cls.evaluation, already_evaluated], evaluations_voted_for=[already_evaluated])
+        cls.student = baker.make(
+            UserProfile,
+            email="student@institution.example.com",
+            evaluations_participating_in=[cls.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+        )
 
     def test_participant_removed_from_evaluation(self):
         self.evaluation.participants.remove(self.student)

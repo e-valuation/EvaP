@@ -60,6 +60,6 @@ class TestMissingMigrations(TestCase):
     def test_for_missing_migrations(self):
         output = StringIO()
         try:
-            call_command('makemigrations', dry_run=True, check=True, stdout=output)
+            call_command("makemigrations", dry_run=True, check=True, stdout=output)
         except SystemExit:
             self.fail("There are model changes not reflected in migrations, please run makemigrations.")

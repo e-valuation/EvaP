@@ -21,38 +21,53 @@ STATE_NAMES = {
     Evaluation.State.PUBLISHED: _("published"),
 }
 
-STR_TO_STATE = {
-    s: i for i, s in Evaluation.STATE_STR_CONVERSION.items()
-}
+STR_TO_STATE = {s: i for i, s in Evaluation.STATE_STR_CONVERSION.items()}
 
 
 # the descriptions used in tooltips for contributors
 STATE_DESCRIPTIONS = {
-    Evaluation.State.NEW: _('The evaluation was newly created and will be prepared by the evaluation team.'),
-    Evaluation.State.PREPARED: _('The evaluation was prepared by the evaluation team and is now available for editors.'),
-    Evaluation.State.EDITOR_APPROVED: _('The evaluation was approved by an editor and will now be checked by the evaluation team.'),
-    Evaluation.State.APPROVED: _('All preparations are finished. The evaluation will begin once the defined start date is reached.'),
-    Evaluation.State.IN_EVALUATION: _('The evaluation is currently running until the defined end date is reached.'),
-    Evaluation.State.EVALUATED: _('The evaluation has finished and will now be reviewed by the evaluation team.'),
-    Evaluation.State.REVIEWED: _('The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published.'),
-    Evaluation.State.PUBLISHED: _('The results for this evaluation have been published.'),
+    Evaluation.State.NEW: _("The evaluation was newly created and will be prepared by the evaluation team."),
+    Evaluation.State.PREPARED: _(
+        "The evaluation was prepared by the evaluation team and is now available for editors."
+    ),
+    Evaluation.State.EDITOR_APPROVED: _(
+        "The evaluation was approved by an editor and will now be checked by the evaluation team."
+    ),
+    Evaluation.State.APPROVED: _(
+        "All preparations are finished. The evaluation will begin once the defined start date is reached."
+    ),
+    Evaluation.State.IN_EVALUATION: _("The evaluation is currently running until the defined end date is reached."),
+    Evaluation.State.EVALUATED: _("The evaluation has finished and will now be reviewed by the evaluation team."),
+    Evaluation.State.REVIEWED: _(
+        "The evaluation has finished and was reviewed by the evaluation team. You will receive an email when its results are published."
+    ),
+    Evaluation.State.PUBLISHED: _("The results for this evaluation have been published."),
 }
 
 
 # values for approval states shown to staff
-StateValues = namedtuple('StateValues', ('order', 'icon', 'filter', 'description'))
+StateValues = namedtuple("StateValues", ("order", "icon", "filter", "description"))
 APPROVAL_STATES = {
-    Evaluation.State.NEW: StateValues(0, 'fas fa-circle icon-yellow', Evaluation.State.NEW, _('In preparation')),
-    Evaluation.State.PREPARED: StateValues(2, 'far fa-square icon-gray', Evaluation.State.PREPARED, _('Awaiting editor review')),
-    Evaluation.State.EDITOR_APPROVED: StateValues(1, 'far fa-check-square icon-yellow', Evaluation.State.EDITOR_APPROVED, _('Approved by editor, awaiting manager review')),
-    Evaluation.State.APPROVED: StateValues(3, 'far fa-check-square icon-green', Evaluation.State.APPROVED, _('Approved by manager')),
+    Evaluation.State.NEW: StateValues(0, "fas fa-circle icon-yellow", Evaluation.State.NEW, _("In preparation")),
+    Evaluation.State.PREPARED: StateValues(
+        2, "far fa-square icon-gray", Evaluation.State.PREPARED, _("Awaiting editor review")
+    ),
+    Evaluation.State.EDITOR_APPROVED: StateValues(
+        1,
+        "far fa-check-square icon-yellow",
+        Evaluation.State.EDITOR_APPROVED,
+        _("Approved by editor, awaiting manager review"),
+    ),
+    Evaluation.State.APPROVED: StateValues(
+        3, "far fa-check-square icon-green", Evaluation.State.APPROVED, _("Approved by manager")
+    ),
 }
 
 
 register = Library()
 
 
-@register.filter(name='zip')
+@register.filter(name="zip")
 def _zip(a, b):
     return zip(a, b)
 
@@ -97,7 +112,7 @@ def to_colors(choices):
     if not choices:
         # When displaying the course distribution, there are no associated voting choices.
         # In that case, we just use the colors of a unipolar scale.
-        return BASE_UNIPOLAR_CHOICES['colors']
+        return BASE_UNIPOLAR_CHOICES["colors"]
     return choices.colors
 
 
@@ -139,7 +154,7 @@ def can_results_page_be_seen_by(evaluation, user):
     return evaluation.can_results_page_be_seen_by(user)
 
 
-@register.filter(name='can_reward_points_be_used_by')
+@register.filter(name="can_reward_points_be_used_by")
 def _can_reward_points_be_used_by(user):
     return can_reward_points_be_used_by(user)
 
@@ -167,12 +182,12 @@ def is_user_responsible_or_contributor_or_delegate(evaluation, user):
 @register.filter
 def message_class(level):
     return {
-        'debug': 'info',
-        'info': 'info',
-        'success': 'success',
-        'warning': 'warning',
-        'error': 'danger',
-    }.get(level, 'info')
+        "debug": "info",
+        "info": "info",
+        "success": "success",
+        "warning": "warning",
+        "error": "danger",
+    }.get(level, "info")
 
 
 @register.filter
@@ -184,9 +199,11 @@ def hours_and_minutes(time_left_for_evaluation):
 
 @register.filter
 def has_nonresponsible_editor(evaluation):
-    return (evaluation.contributions.filter(role=Contribution.Role.EDITOR)
+    return (
+        evaluation.contributions.filter(role=Contribution.Role.EDITOR)
         .exclude(contributor__in=evaluation.course.responsibles.all())
-        .exists())
+        .exists()
+    )
 
 
 @register.filter

@@ -17,13 +17,16 @@ def staff_mode_middleware(get_response):
     def middleware(request):
         if is_in_staff_mode(request):
             current_time = time.time()
-            if current_time <= request.session.get('staff_mode_start_time', 0) + STAFF_MODE_TIMEOUT:
+            if current_time <= request.session.get("staff_mode_start_time", 0) + STAFF_MODE_TIMEOUT:
                 # just refresh time
                 update_staff_mode(request)
             else:
                 exit_staff_mode(request)
                 # only show info message if not too much time has passed
-                if current_time <= request.session.get('staff_mode_start_time', 0) + STAFF_MODE_TIMEOUT + STAFF_MODE_INFO_TIMEOUT:
+                if (
+                    current_time
+                    <= request.session.get("staff_mode_start_time", 0) + STAFF_MODE_TIMEOUT + STAFF_MODE_INFO_TIMEOUT
+                ):
                     messages.info(request, _("Your staff mode timed out."))
 
         if is_in_staff_mode(request):
@@ -46,13 +49,13 @@ def staff_mode_middleware(get_response):
 
 
 def is_in_staff_mode(request):
-    return 'staff_mode_start_time' in request.session
+    return "staff_mode_start_time" in request.session
 
 
 def update_staff_mode(request):
     assert request.user.has_staff_permission
 
-    request.session['staff_mode_start_time'] = time.time()
+    request.session["staff_mode_start_time"] = time.time()
     request.session.modified = True
 
 
@@ -62,5 +65,5 @@ def enter_staff_mode(request):
 
 def exit_staff_mode(request):
     if is_in_staff_mode(request):
-        del request.session['staff_mode_start_time']
+        del request.session["staff_mode_start_time"]
         request.session.modified = True

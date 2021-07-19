@@ -29,14 +29,16 @@ class TestContributorDirectDelegationView(WebTest):
     def test_direct_delegation_request(self):
         data = {"delegate_to": self.non_editor.id}
         page = self.app.post(
-            f'/contributor/evaluation/{self.evaluation.id}/direct_delegation',
+            f"/contributor/evaluation/{self.evaluation.id}/direct_delegation",
             params=data,
             user=self.editor,
         ).follow()
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
+            "{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.".format(
+                str(self.non_editor), str(self.evaluation)
+            ),
         )
 
         contribution = Contribution.objects.get(contributor=self.non_editor)
@@ -55,14 +57,16 @@ class TestContributorDirectDelegationView(WebTest):
 
         data = {"delegate_to": self.non_editor.id}
         page = self.app.post(
-            f'/contributor/evaluation/{self.evaluation.id}/direct_delegation',
+            f"/contributor/evaluation/{self.evaluation.id}/direct_delegation",
             params=data,
             user=self.editor,
         ).follow()
 
         self.assertContains(
             page,
-            '{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.'.format(str(self.non_editor), str(self.evaluation))
+            "{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.".format(
+                str(self.non_editor), str(self.evaluation)
+            ),
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
@@ -74,22 +78,22 @@ class TestContributorDirectDelegationView(WebTest):
 
 
 class TestContributorView(WebTestWith200Check):
-    url = '/contributor/'
+    url = "/contributor/"
 
     @classmethod
     def setUpTestData(cls):
         users = create_evaluation_with_responsible_and_editor()
-        cls.test_users = [users['editor'], users['responsible']]
+        cls.test_users = [users["editor"], users["responsible"]]
 
 
 class TestContributorEvaluationView(WebTestWith200Check):
-    url = f'/contributor/evaluation/{TESTING_EVALUATION_ID}'
+    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}"
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
-        cls.responsible = result['responsible']
-        cls.editor = result['editor']
+        cls.responsible = result["responsible"]
+        cls.editor = result["editor"]
 
         cls.test_users = [cls.editor, cls.responsible]
 
@@ -107,18 +111,21 @@ class TestContributorEvaluationView(WebTestWith200Check):
 
         page = self.app.get(self.url, user=self.editor)
         self.assertContains(page, "You cannot edit this evaluation because it has already been approved")
-        self.assertNotContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
+        self.assertNotContains(
+            page,
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+        )
 
 
 class TestContributorEvaluationPreviewView(WebTestWith200Check):
-    url = f'/contributor/evaluation/{TESTING_EVALUATION_ID}/preview'
+    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}/preview"
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
-        cls.responsible = result['responsible']
+        cls.responsible = result["responsible"]
 
-        cls.test_users = [result['editor'], result['responsible']]
+        cls.test_users = [result["editor"], result["responsible"]]
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
@@ -130,36 +137,36 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
 
 
 class TestContributorEvaluationEditView(WebTest):
-    url = '/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID
+    url = "/contributor/evaluation/%s/edit" % TESTING_EVALUATION_ID
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
-        cls.responsible = result['responsible']
-        cls.editor = result['editor']
+        cls.responsible = result["responsible"]
+        cls.editor = result["editor"]
 
     def setUp(self):
         self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_not_authenticated(self):
         """
-            Asserts that an unauthorized user gets redirected to the login page.
+        Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
-        self.assertRedirects(response, '/?next=/contributor/evaluation/%s/edit' % TESTING_EVALUATION_ID)
+        self.assertRedirects(response, "/?next=/contributor/evaluation/%s/edit" % TESTING_EVALUATION_ID)
 
     def test_wrong_usergroup(self):
         """
-            Asserts that a user who is not part of the usergroup
-            that is required for a specific view gets a 403.
-            Regression test for #483
+        Asserts that a user who is not part of the usergroup
+        that is required for a specific view gets a 403.
+        Regression test for #483
         """
         self.app.get(self.url, user="student@institution.example.com", status=403)
 
     def test_wrong_state(self):
         """
-            Asserts that a contributor attempting to edit an evaluation
-            that is in a state where editing is not allowed gets a 403.
+        Asserts that a contributor attempting to edit an evaluation
+        that is in a state where editing is not allowed gets a 403.
         """
         self.evaluation.editor_approve()
         self.evaluation.save()
@@ -168,8 +175,8 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_contributor_evaluation_edit(self):
         """
-            Tests whether the "save" button in the contributor's evaluation edit view does not
-            change the evaluation's state, and that the "approve" button does that.
+        Tests whether the "save" button in the contributor's evaluation edit view does not
+        change the evaluation's state, and that the "approve" button does that.
         """
         page = self.app.get(self.url, user=self.responsible, status=200)
         form = page.forms["evaluation-form"]
@@ -195,29 +202,29 @@ class TestContributorEvaluationEditView(WebTest):
             is_locked=True,
             visibility=Questionnaire.Visibility.EDITORS,
         )
-        responsible = UserProfile.objects.get(email='responsible@institution.example.com')
+        responsible = UserProfile.objects.get(email="responsible@institution.example.com")
         evaluation = baker.make(
             Evaluation,
             course=baker.make(Course, responsibles=[responsible]),
             state=Evaluation.State.PREPARED,
-            pk=TESTING_EVALUATION_ID+1
+            pk=TESTING_EVALUATION_ID + 1,
         )
         evaluation.general_contribution.questionnaires.set([locked_questionnaire])
 
-        page = self.app.get(f'/contributor/evaluation/{evaluation.pk}/edit', user=responsible, status=200)
-        form = page.forms['evaluation-form']
+        page = self.app.get(f"/contributor/evaluation/{evaluation.pk}/edit", user=responsible, status=200)
+        form = page.forms["evaluation-form"]
 
         # see https://github.com/Pylons/webtest/issues/138
         for name_field_tuple in form.field_order[:]:
-            if 'disabled' in name_field_tuple[1].attrs:
+            if "disabled" in name_field_tuple[1].attrs:
                 form.field_order.remove(name_field_tuple)
 
-        response = form.submit(name='operation', value='save')
+        response = form.submit(name="operation", value="save")
         self.assertIn("Successfully updated evaluation", response.follow())
 
     def test_contributor_evaluation_edit_preview(self):
         """
-            Asserts that the preview button either renders a preview or shows an error.
+        Asserts that the preview button either renders a preview or shows an error.
         """
         page = self.app.get(self.url, user=self.responsible)
         form = page.forms["evaluation-form"]
@@ -237,8 +244,8 @@ class TestContributorEvaluationEditView(WebTest):
 
     def test_contact_modal_escape(self):
         """
-            Asserts that the evaluation title is correctly escaped in the contact modal.
-            Regression test for #1060
+        Asserts that the evaluation title is correctly escaped in the contact modal.
+        Regression test for #1060
         """
         self.evaluation.name_en = "Adam & Eve"
         self.evaluation.save()
@@ -253,4 +260,7 @@ class TestContributorEvaluationEditView(WebTest):
     def test_information_message(self):
         page = self.app.get(self.url, user=self.editor)
         self.assertNotContains(page, "You cannot edit this evaluation because it has already been approved")
-        self.assertContains(page, "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.")
+        self.assertContains(
+            page,
+            "Please review the evaluation's details below, add all contributors and select suitable questionnaires. Once everything is okay, please approve the evaluation on the bottom of the page.",
+        )

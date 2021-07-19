@@ -21,9 +21,9 @@ class NavbarCacheTest(WebTest):
         self.app.get("/results/", user="user1@institution.example.com")
         self.app.get("/results/", user="user2@institution.example.com")
 
-        cache_key1 = make_template_fragment_key('navbar', [user1.email, 'en'])
-        cache_key2 = make_template_fragment_key('navbar', [user2.email, 'en'])
-        cache_key_anonymous = make_template_fragment_key('navbar', ['', 'en'])
+        cache_key1 = make_template_fragment_key("navbar", [user1.email, "en"])
+        cache_key2 = make_template_fragment_key("navbar", [user2.email, "en"])
+        cache_key_anonymous = make_template_fragment_key("navbar", ["", "en"])
 
         self.assertIsNotNone(cache.get(cache_key1))
         self.assertIsNotNone(cache.get(cache_key2))
@@ -44,7 +44,8 @@ class MergeUsersTest(TestCase):
         cls.user3 = baker.make(UserProfile, email="test3@institution.example.com")
         cls.group1 = baker.make(Group, pk=4)
         cls.group2 = baker.make(Group, pk=5)
-        cls.main_user = baker.make(UserProfile,
+        cls.main_user = baker.make(
+            UserProfile,
             title="Dr.",
             first_name="Main",
             last_name="",
@@ -53,9 +54,10 @@ class MergeUsersTest(TestCase):
             delegates=[cls.user1, cls.user2],
             represented_users=[cls.user3],
             cc_users=[cls.user1],
-            ccing_users=[]
+            ccing_users=[],
         )
-        cls.other_user = baker.make(UserProfile,
+        cls.other_user = baker.make(
+            UserProfile,
             title="",
             first_name="Other",
             last_name="User",
@@ -65,16 +67,28 @@ class MergeUsersTest(TestCase):
             represented_users=[cls.user1],
             cc_users=[],
             ccing_users=[cls.user1, cls.user2],
-            is_superuser=True
+            is_superuser=True,
         )
         cls.course1 = baker.make(Course, responsibles=[cls.main_user])
         cls.course2 = baker.make(Course, responsibles=[cls.main_user])
         cls.course3 = baker.make(Course, responsibles=[cls.other_user])
-        cls.evaluation1 = baker.make(Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user])  # this should make the merge fail
-        cls.evaluation2 = baker.make(Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user])
-        cls.evaluation3 = baker.make(Evaluation, course=cls.course3, name_de="evaluation3", participants=[cls.other_user], voters=[cls.other_user])
+        cls.evaluation1 = baker.make(
+            Evaluation, course=cls.course1, name_de="evaluation1", participants=[cls.main_user, cls.other_user]
+        )  # this should make the merge fail
+        cls.evaluation2 = baker.make(
+            Evaluation, course=cls.course2, name_de="evaluation2", participants=[cls.main_user], voters=[cls.main_user]
+        )
+        cls.evaluation3 = baker.make(
+            Evaluation,
+            course=cls.course3,
+            name_de="evaluation3",
+            participants=[cls.other_user],
+            voters=[cls.other_user],
+        )
         cls.contribution1 = baker.make(Contribution, contributor=cls.main_user, evaluation=cls.evaluation1)
-        cls.contribution2 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation1)  # this should make the merge fail
+        cls.contribution2 = baker.make(
+            Contribution, contributor=cls.other_user, evaluation=cls.evaluation1
+        )  # this should make the merge fail
         cls.contribution3 = baker.make(Contribution, contributor=cls.other_user, evaluation=cls.evaluation2)
         cls.rewardpointgranting_main = baker.make(RewardPointGranting, user_profile=cls.main_user)
         cls.rewardpointgranting_other = baker.make(RewardPointGranting, user_profile=cls.other_user)
@@ -101,16 +115,16 @@ class MergeUsersTest(TestCase):
 
         # some attributes we don't care about when merging
         ignored_attrs = {
-            'id',  # nothing to merge here
-            'password',  # not used in production
-            'last_login',  # something to really not care about
-            'user_permissions',  # we don't use permissions
-            'logentry',  # wtf
-            'login_key',  # we decided to discard other_user's login key
-            'login_key_valid_until',  # not worth dealing with
-            'language',  # Not worth dealing with
-            'Evaluation_voters+',  # some more intermediate models, for an explanation see above
-            'Evaluation_participants+',  # intermediate model
+            "id",  # nothing to merge here
+            "password",  # not used in production
+            "last_login",  # something to really not care about
+            "user_permissions",  # we don't use permissions
+            "logentry",  # wtf
+            "login_key",  # we decided to discard other_user's login key
+            "login_key_valid_until",  # not worth dealing with
+            "language",  # Not worth dealing with
+            "Evaluation_voters+",  # some more intermediate models, for an explanation see above
+            "Evaluation_participants+",  # intermediate model
         }
         expected_attrs = set(all_attrs) - ignored_attrs
 
@@ -122,10 +136,7 @@ class MergeUsersTest(TestCase):
 
         # attributes that are handled in the merge method but that are not present in the merged_user dict
         # add attributes here only if you're actually dealing with them in merge_users().
-        additional_handled_attrs = {
-            'grades_last_modified_user+',
-            'Course_responsibles+'
-        }
+        additional_handled_attrs = {"grades_last_modified_user+", "Course_responsibles+"}
 
         actual_attrs = handled_attrs | additional_handled_attrs
 
@@ -133,8 +144,8 @@ class MergeUsersTest(TestCase):
 
     def test_merge_users_does_not_change_data_on_fail(self):
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should fail
-        self.assertCountEqual(errors, ['contributions', 'evaluations_participating_in'])
-        self.assertCountEqual(warnings, ['rewards'])
+        self.assertCountEqual(errors, ["contributions", "evaluations_participating_in"])
+        self.assertCountEqual(warnings, ["rewards"])
 
         # assert that nothing has changed
         self.main_user.refresh_from_db()
@@ -182,7 +193,7 @@ class MergeUsersTest(TestCase):
 
         __, errors, warnings = merge_users(self.main_user, self.other_user)  # merge should succeed
         self.assertEqual(errors, [])
-        self.assertEqual(warnings, ['rewards'])  # rewards warning is still there
+        self.assertEqual(warnings, ["rewards"])  # rewards warning is still there
 
         self.main_user.refresh_from_db()
 

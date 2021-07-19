@@ -11,10 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class LoginEmailForm(forms.Form):
-    """Form encapsulating the login with email and password, for example from an Active Directory.
-    """
+    """Form encapsulating the login with email and password, for example from an Active Directory."""
 
-    email = forms.CharField(label=_("Email"), max_length=254, widget=forms.EmailInput(attrs={'autofocus': True}))
+    email = forms.CharField(label=_("Email"), max_length=254, widget=forms.EmailInput(attrs={"autofocus": True}))
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
 
     def __init__(self, request, *args, **kwargs):
@@ -28,10 +27,10 @@ class LoginEmailForm(forms.Form):
         self.user_cache = None
         super().__init__(*args, **kwargs)
 
-    @sensitive_variables('password')
+    @sensitive_variables("password")
     def clean_password(self):
-        email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
+        email = self.cleaned_data.get("email")
+        password = self.cleaned_data.get("password")
 
         email = email.lower()
 
@@ -44,7 +43,9 @@ class LoginEmailForm(forms.Form):
 
     def check_for_test_cookie(self):
         if self.request and not self.request.session.test_cookie_worked():
-            raise forms.ValidationError(_("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in."))
+            raise forms.ValidationError(
+                _("Your Web browser doesn't appear to have cookies enabled. Cookies are required for logging in.")
+            )
 
     def get_user_id(self):
         if self.user_cache:
@@ -64,17 +65,21 @@ class NewKeyForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get("email")
 
         if not UserProfile.email_needs_login_key(email):
-            raise forms.ValidationError(_("HPI users cannot request login keys. Please login using your domain credentials."))
+            raise forms.ValidationError(
+                _("HPI users cannot request login keys. Please login using your domain credentials.")
+            )
 
         try:
             user = UserProfile.objects.get(email__iexact=email)
             self.user_cache = user
         except UserProfile.DoesNotExist as e:
             raise forms.ValidationError(
-                _("No user with this email address was found. Please make sure to enter the email address used for registration.")
+                _(
+                    "No user with this email address was found. Please make sure to enter the email address used for registration."
+                )
             ) from e
 
         if not user.is_active:
@@ -97,14 +102,15 @@ class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 
 class DelegatesForm(forms.ModelForm):
-    delegates = UserModelMultipleChoiceField(queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True),
-                                             required=False)
+    delegates = UserModelMultipleChoiceField(
+        queryset=UserProfile.objects.exclude(is_active=False).exclude(is_proxy_user=True), required=False
+    )
 
     class Meta:
         model = UserProfile
-        fields = ('delegates',)
+        fields = ("delegates",)
         field_classes = {
-            'delegates': UserModelMultipleChoiceField,
+            "delegates": UserModelMultipleChoiceField,
         }
 
     def __init__(self, *args, **kwargs):

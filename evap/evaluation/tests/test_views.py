@@ -10,43 +10,50 @@ from evap.evaluation.tests.tools import create_evaluation_with_responsible_and_e
 
 
 class TestIndexView(WebTest):
-    url = '/'
+    url = "/"
 
     def test_passworduser_login(self):
-        """ Tests whether a user can login with an incorrect and a correct password. """
-        baker.make(UserProfile, email='password.user', password=make_password('evap'))
+        """Tests whether a user can login with an incorrect and a correct password."""
+        baker.make(UserProfile, email="password.user", password=make_password("evap"))
         response = self.app.get(self.url)
         password_form = response.forms[0]
-        password_form['email'] = 'password.user'
-        password_form['password'] = 'asd'
+        password_form["email"] = "password.user"
+        password_form["password"] = "asd"
         self.assertEqual(password_form.submit().status_code, 200)
-        password_form['password'] = 'evap'
+        password_form["password"] = "evap"
         self.assertEqual(password_form.submit().status_code, 302)
 
     def test_login_for_staff_users_correctly_redirects(self):
-        """ Regression test for #1523: Access denied on manager login """
-        internal_email = 'manager@institution.example.com'  # external users don't necessarily have a proper redirect page
-        baker.make(UserProfile, email=internal_email, password=make_password('evap'), groups=[Group.objects.get(name='Manager')])
+        """Regression test for #1523: Access denied on manager login"""
+        internal_email = (
+            "manager@institution.example.com"  # external users don't necessarily have a proper redirect page
+        )
+        baker.make(
+            UserProfile,
+            email=internal_email,
+            password=make_password("evap"),
+            groups=[Group.objects.get(name="Manager")],
+        )
 
         response = self.app.get(self.url)
         password_form = response.forms[0]
-        password_form['email'] = internal_email
-        password_form['password'] = 'evap'
+        password_form["email"] = internal_email
+        password_form["password"] = "evap"
         response = password_form.submit()
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
-        self.assertRedirects(response.follow(), '/results/')
+        self.assertRedirects(response.follow(), "/results/")
 
     def test_send_new_login_key(self):
-        """ Tests whether requesting a new login key is only possible for existing users,
-            shows the expected success message and sends only one email to the requesting
-            user without people in cc even if the user has delegates and cc users. """
-        baker.make(UserProfile, email='asdf@example.com')
+        """Tests whether requesting a new login key is only possible for existing users,
+        shows the expected success message and sends only one email to the requesting
+        user without people in cc even if the user has delegates and cc users."""
+        baker.make(UserProfile, email="asdf@example.com")
         response = self.app.get(self.url)
         email_form = response.forms[1]
-        email_form['email'] = "doesnotexist@example.com"
+        email_form["email"] = "doesnotexist@example.com"
         self.assertIn("No user with this email address was found", email_form.submit())
         email = "asdf@example.com"
-        email_form['email'] = email
+        email_form["email"] = email
         self.assertIn("We sent you", email_form.submit().follow())
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].to == [email])
@@ -54,13 +61,13 @@ class TestIndexView(WebTest):
 
 
 class TestLegalNoticeView(WebTestWith200Check):
-    url = '/legal_notice'
-    test_users = ['']
+    url = "/legal_notice"
+    test_users = [""]
 
 
 class TestFAQView(WebTestWith200Check):
-    url = '/faq'
-    test_users = ['']
+    url = "/faq"
+    test_users = [""]
 
 
 class TestContactEmail(WebTest):
@@ -69,33 +76,34 @@ class TestContactEmail(WebTest):
     def test_sends_mail(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
         self.app.post(
-            '/contact',
-            params={'message': 'feedback message', 'title': 'some title', 'sender_email': 'unique@mail.de'},
+            "/contact",
+            params={"message": "feedback message", "title": "some title", "sender_email": "unique@mail.de"},
             user=user,
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(mail.outbox[0].reply_to == ["user@institution.example.com"])
 
+
 class TestChangeLanguageView(WebTest):
-    url = '/set_lang'
+    url = "/set_lang"
     csrf_checks = False
 
     def test_changes_language(self):
-        user = baker.make(UserProfile, email='tester@institution.example.com', language='de')
+        user = baker.make(UserProfile, email="tester@institution.example.com", language="de")
 
-        self.app.post(self.url, params={'language': 'en'}, user=user)
+        self.app.post(self.url, params={"language": "en"}, user=user)
 
         user.refresh_from_db()
-        self.assertEqual(user.language, 'en')
+        self.assertEqual(user.language, "en")
 
 
 class TestProfileView(WebTest):
-    url = '/profile'
+    url = "/profile"
 
     @classmethod
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor()
-        cls.responsible = result['responsible']
+        cls.responsible = result["responsible"]
 
     def test_save_settings(self):
         user = baker.make(UserProfile)

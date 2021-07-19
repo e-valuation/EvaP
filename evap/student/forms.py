@@ -5,7 +5,7 @@ from evap.evaluation.models import CHOICES
 
 
 class HeadingField(forms.Field):
-    """ Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
+    """Pseudo field used to store and display headings inside a QuestionnaireVotingForm.
     Does not handle any kind of input."""
 
     def __init__(self, label):
@@ -13,39 +13,39 @@ class HeadingField(forms.Field):
 
 
 class TextAnswerField(forms.CharField):
-
     def __init__(self, *args, related_answer_field_id=None, **kwargs):
         self.related_answer_field_id = related_answer_field_id
-        kwargs['required'] = False
-        kwargs['widget'] = forms.Textarea(attrs={'related_answer_field_id': self.related_answer_field_id})
+        kwargs["required"] = False
+        kwargs["widget"] = forms.Textarea(attrs={"related_answer_field_id": self.related_answer_field_id})
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        del kwargs['required']
-        del kwargs['widget']
+        del kwargs["required"]
+        del kwargs["widget"]
         if self.related_answer_field_id is not None:
-            kwargs['related_answer_field_id'] = self.related_answer_field_id
+            kwargs["related_answer_field_id"] = self.related_answer_field_id
         return name, path, args, kwargs
 
 
 class RatingAnswerField(forms.TypedChoiceField):
-
     def __init__(self, widget_choices, *args, allows_textanswer=False, **kwargs):
         self.allows_textanswer = allows_textanswer
-        kwargs['coerce'] = int
-        kwargs['widget'] = forms.RadioSelect(attrs={
-            'allows_textanswer': self.allows_textanswer,
-            'choices': widget_choices,
-        })
+        kwargs["coerce"] = int
+        kwargs["widget"] = forms.RadioSelect(
+            attrs={
+                "allows_textanswer": self.allows_textanswer,
+                "choices": widget_choices,
+            }
+        )
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        del kwargs['coerce']
-        del kwargs['widget']
+        del kwargs["coerce"]
+        del kwargs["widget"]
         if self.allows_textanswer:
-            kwargs['allows_textanswer'] = self.allows_textanswer
+            kwargs["allows_textanswer"] = self.allows_textanswer
         return name, path, args, kwargs
 
 
@@ -76,5 +76,7 @@ class QuestionnaireVotingForm(forms.Form):
 
             if question.is_rating_question and question.allows_additional_textanswers:
                 textanswer_field = TextAnswerField(label=question.text, related_answer_field_id=identifier)
-                textanswer_identifier = answer_field_id(contribution, questionnaire, question, additional_textanswer=True)
+                textanswer_identifier = answer_field_id(
+                    contribution, questionnaire, question, additional_textanswer=True
+                )
                 self.fields[textanswer_identifier] = textanswer_field
