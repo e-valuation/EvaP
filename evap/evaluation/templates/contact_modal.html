@@ -69,7 +69,7 @@
         $.ajax({
             url : "/contact",
             type : "POST",
-            data : { message: message, title: "{{ title }}" },
+            data : { message: message, title: "{{ title|escapejs }}" },
             success : function(json) {
                 $('#{{ modal_id }}').modal('hide');
                 $('#successMessageModal_{{ modal_id }}').modal('show');
