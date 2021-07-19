@@ -40,7 +40,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: pip install -r requirements-test.txt
+        run: pip install -r requirements-dev.txt
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Run tests
@@ -59,7 +59,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: pip install -r requirements-test.txt
+        run: pip install -r requirements-dev.txt
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Run linter
@@ -78,7 +78,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: pip install -r requirements-test.txt
+        run: pip install -r requirements-dev.txt
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Check code formatting
@@ -116,7 +116,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Install dependencies
-        run: pip install -r requirements-test.txt
+        run: pip install -r requirements-dev.txt
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Load test data
