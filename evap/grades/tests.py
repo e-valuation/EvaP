@@ -55,14 +55,14 @@ class GradeUploadTest(WebTest):
                 grade_document.file.delete()
 
     def helper_upload_grades(self, course, final_grades):
-        upload_files = [('file', 'grades.txt', b"Some content")]
+        upload_files = [("file", "grades.txt", b"Some content")]
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
             "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
             params={"description_en": "Grades", "description_de": "Grades"},
             user=self.grade_publisher,
-            content_type='multipart/form-data',
+            content_type="multipart/form-data",
             upload_files=upload_files,
         ).follow()
         return response
@@ -73,7 +73,9 @@ class GradeUploadTest(WebTest):
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        response = self.app.get("/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student)
+        response = self.app.get(
+            "/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student
+        )
         self.assertEqual(response.status_code, 200)
 
         # tear down
@@ -127,7 +129,8 @@ class GradeUploadTest(WebTest):
         evaluation.end_review()
         evaluation.save()
         self.helper_check_final_grade_upload(
-            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
+            course, evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count()
+        )
 
         # state: published
         evaluation.publish()
@@ -144,15 +147,21 @@ class GradeUploadTest(WebTest):
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
+        response = self.app.post(
+            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        )
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertTrue(evaluation.course.gets_no_grade_documents)
         # evaluation should get published here
         self.assertEqual(evaluation.state, Evaluation.State.PUBLISHED)
-        self.assertEqual(len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count())
+        self.assertEqual(
+            len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count()
+        )
 
-        response = self.app.post("/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher)
+        response = self.app.post(
+            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        )
         self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
@@ -170,7 +179,7 @@ class GradeUploadTest(WebTest):
 
 
 class GradeDocumentIndexTest(WebTest):
-    url = '/grades/'
+    url = "/grades/"
 
     @classmethod
     def setUpTestData(cls):
@@ -189,7 +198,7 @@ class GradeDocumentIndexTest(WebTest):
 
 
 class GradeSemesterViewTest(WebTest):
-    url = '/grades/semester/1'
+    url = "/grades/semester/1"
 
     @classmethod
     def setUpTestData(cls):
@@ -208,11 +217,11 @@ class GradeSemesterViewTest(WebTest):
 
     def test_403_on_deleted(self):
         baker.make(Semester, pk=1, grade_documents_are_deleted=True)
-        self.app.get('/grades/semester/1', user=self.grade_publisher, status=403)
+        self.app.get("/grades/semester/1", user=self.grade_publisher, status=403)
 
 
 class GradeCourseViewTest(WebTest):
-    url = '/grades/semester/1/course/1'
+    url = "/grades/semester/1/course/1"
 
     @classmethod
     def setUpTestData(cls):
@@ -225,9 +234,11 @@ class GradeCourseViewTest(WebTest):
     def test_does_not_crash(self):
         semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
         baker.make(Evaluation, course=baker.make(Course, pk=1, semester=semester), state=Evaluation.State.PREPARED)
-        self.app.get('/grades/semester/1/course/1', user=self.grade_publisher, status=200)
+        self.app.get("/grades/semester/1/course/1", user=self.grade_publisher, status=200)
 
     def test_403_on_archived_semester(self):
         archived_semester = baker.make(Semester, pk=1, grade_documents_are_deleted=True)
-        baker.make(Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state=Evaluation.State.PREPARED)
-        self.app.get('/grades/semester/1/course/1', user=self.grade_publisher, status=403)
+        baker.make(
+            Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state=Evaluation.State.PREPARED
+        )
+        self.app.get("/grades/semester/1/course/1", user=self.grade_publisher, status=403)

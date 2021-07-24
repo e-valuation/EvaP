@@ -34,7 +34,7 @@ class FuzzyInt(int):
 
 
 def let_user_vote_for_evaluation(app, user, evaluation):
-    url = '/student/vote/{}'.format(evaluation.id)
+    url = "/student/vote/{}".format(evaluation.id)
     page = app.get(url, user=user, status=200)
     form = page.forms["student-vote-form"]
     for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
@@ -63,8 +63,8 @@ def get_form_data_from_instance(FormClass, instance, **kwargs):
 
 
 def create_evaluation_with_responsible_and_editor(evaluation_id=None):
-    responsible = baker.make(UserProfile, email='responsible@institution.example.com')
-    editor = baker.make(UserProfile, email='editor@institution.example.com')
+    responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+    editor = baker.make(UserProfile, email="editor@institution.example.com")
 
     in_one_hour = (timezone.now() + timedelta(hours=1)).replace(second=0, microsecond=0)
     tomorrow = (timezone.now() + timedelta(days=1)).date
@@ -72,11 +72,11 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         state=Evaluation.State.PREPARED,
         course=baker.make(Course, degrees=[baker.make(Degree)], responsibles=[responsible]),
         vote_start_datetime=in_one_hour,
-        vote_end_date=tomorrow
+        vote_end_date=tomorrow,
     )
 
     if evaluation_id:
-        evaluation_params['id'] = evaluation_id
+        evaluation_params["id"] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
     contribution = baker.make(
@@ -89,33 +89,28 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
     evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
 
     return {
-        'evaluation': evaluation,
-        'responsible': responsible,
-        'editor': editor,
-        'contribution': contribution,
+        "evaluation": evaluation,
+        "responsible": responsible,
+        "editor": editor,
+        "contribution": contribution,
     }
 
 
 def make_manager():
     return baker.make(
         UserProfile,
-        email='manager@institution.example.com',
-        groups=[Group.objects.get(name='Manager')],
+        email="manager@institution.example.com",
+        groups=[Group.objects.get(name="Manager")],
     )
 
 
 def make_contributor(user, evaluation):
-    """ Make user a contributor of evaluation. """
-    return baker.make(
-        Contribution,
-        evaluation=evaluation,
-        contributor=user,
-        role=Contribution.Role.CONTRIBUTOR
-    )
+    """Make user a contributor of evaluation."""
+    return baker.make(Contribution, evaluation=evaluation, contributor=user, role=Contribution.Role.CONTRIBUTOR)
 
 
 def make_editor(user, evaluation):
-    """ Make user an editor of evaluation. """
+    """Make user an editor of evaluation."""
     return baker.make(
         Contribution,
         evaluation=evaluation,

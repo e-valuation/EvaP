@@ -27,28 +27,28 @@ def redirect_user_to_start_page(user):
 
     if user.is_reviewer:
         if active_semester is not None:
-            return redirect('staff:semester_view', active_semester.id)
-        return redirect('staff:index')
+            return redirect("staff:semester_view", active_semester.id)
+        return redirect("staff:index")
 
     if user.is_grade_publisher:
         if active_semester is not None:
-            return redirect('grades:semester_view', active_semester.id)
-        return redirect('grades:index')
+            return redirect("grades:semester_view", active_semester.id)
+        return redirect("grades:index")
 
     if user.is_student:
-        return redirect('student:index')
+        return redirect("student:index")
     if user.is_responsible_or_contributor_or_delegate:
-        return redirect('contributor:index')
+        return redirect("contributor:index")
 
-    return redirect('results:index')
+    return redirect("results:index")
 
 
 @no_login_required
 @sensitive_post_parameters("password")
 def index(request):
     """Main entry page into EvaP providing all the login options available. The OpenID login is thought to be used for
-       internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
-       students or visiting contributors. A login with email and password is available if OpenID is deactivated.
+    internal users. The login key mechanism is meant to be used to include external participants, e.g. visiting
+    students or visiting contributors. A login with email and password is available if OpenID is deactivated.
     """
 
     # parse the form data into the respective form
@@ -57,7 +57,7 @@ def index(request):
     login_email_form = LoginEmailForm(request, request.POST if submit_type == "login_email" else None)
 
     # process form data
-    if request.method == 'POST':
+    if request.method == "POST":
         if new_key_form.is_valid():
             # user wants a new login key
             profile = new_key_form.get_user()
@@ -67,7 +67,7 @@ def index(request):
             EmailTemplate.send_login_url_to_user(new_key_form.get_user())
 
             messages.success(request, _("We sent you an email with a one-time login URL. Please check your inbox."))
-            return redirect('evaluation:index')
+            return redirect("evaluation:index")
 
         if login_email_form.is_valid():
             # user would like to login with email and password and passed password test
@@ -76,7 +76,7 @@ def index(request):
             # clean up our test cookie
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
-            return redirect('evaluation:index')
+            return redirect("evaluation:index")
 
     # if not logged in by now, render form
     if not request.user.is_authenticated:
@@ -107,20 +107,20 @@ def login_key_authentication(request, key):
 
     if user and not user.is_active:
         messages.error(request, _("Inactive users are not allowed to login."))
-        return redirect('evaluation:index')
+        return redirect("evaluation:index")
 
     # If we already have an authenticated user don't try to login a new user. Show an error message if another user
     # tries to login with a URL in this situation.
     if request.user.is_authenticated:
         if user != request.user:
-            messages.error(request, _("Another user is currently logged in. Please logout first and then use the login URL again."))
-        return redirect('evaluation:index')
+            messages.error(
+                request, _("Another user is currently logged in. Please logout first and then use the login URL again.")
+            )
+        return redirect("evaluation:index")
 
     if user and user.login_key_valid_until >= date.today():
         if request.method != "POST":
-            template_data = {
-                'username': user.full_name
-            }
+            template_data = {"username": user.full_name}
             return render(request, "external_user_confirm_login.html", template_data)
 
         # User is valid. Set request.user and persist user in the session by logging the user in.
@@ -138,7 +138,7 @@ def login_key_authentication(request, key):
     else:
         messages.warning(request, _("Invalid login URL. Please request a new one below."))
 
-    return redirect('evaluation:index')
+    return redirect("evaluation:index")
 
 
 @no_login_required
@@ -164,13 +164,16 @@ def contact(request):
             subject=subject,
             body="{}\n{}\n\n{}".format(title, request.user.email, message),
             to=[settings.CONTACT_EMAIL],
-            reply_to=[request.user.email])
+            reply_to=[request.user.email],
+        )
         try:
             mail.send()
-            logger.info('Sent contact email: \n{}\n'.format(mail.message()))
+            logger.info("Sent contact email: \n{}\n".format(mail.message()))
             return HttpResponse()
         except Exception:
-            logger.exception('An exception occurred when sending the following contact email:\n{}\n'.format(mail.message()))
+            logger.exception(
+                "An exception occurred when sending the following contact email:\n{}\n".format(mail.message())
+            )
             raise
 
     return HttpResponseBadRequest()
@@ -181,7 +184,7 @@ def contact(request):
 def set_lang(request):
     if request.user.is_authenticated:
         user = request.user
-        user.language = request.POST['language']
+        user.language = request.POST["language"]
         user.save()
 
     return set_language(request)
@@ -197,16 +200,24 @@ def profile_edit(request):
             form.save()
 
             messages.success(request, _("Successfully updated your profile."))
-            return redirect('evaluation:profile_edit')
+            return redirect("evaluation:profile_edit")
 
-        return render(request, "profile.html", dict(
+        return render(
+            request,
+            "profile.html",
+            dict(
+                user=user,
+                form=form,
+                delegate_of=user.represented_users.all(),
+                cc_users=user.cc_users.all(),
+                ccing_users=user.ccing_users.all(),
+            ),
+        )
+
+    return render(
+        request,
+        "profile.html",
+        dict(
             user=user,
-            form=form,
-            delegate_of=user.represented_users.all(),
-            cc_users=user.cc_users.all(),
-            ccing_users=user.ccing_users.all(),
-        ))
-
-    return render(request, "profile.html", dict(
-        user=user,
-    ))
+        ),
+    )

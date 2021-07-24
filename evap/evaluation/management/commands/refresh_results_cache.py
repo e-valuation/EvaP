@@ -8,13 +8,13 @@ from evap.results.views import warm_up_template_cache
 
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Clears the cache and pre-warms it with the results of all evaluations'
+    args = ""
+    help = "Clears the cache and pre-warms it with the results of all evaluations"
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
         self.stdout.write("Clearing results cache...")
-        caches['results'].clear()
+        caches["results"].clear()
 
         self.stdout.write("Calculating results for all evaluations...")
 

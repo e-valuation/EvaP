@@ -5,8 +5,8 @@ from evap.evaluation.management.commands.tools import confirm_harmful_operation
 
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Drops the database, recreates it and then loads the testdata.'
+    args = ""
+    help = "Drops the database, recreates it and then loads the testdata."
 
     def handle(self, *args, **options):
         self.stdout.write("")
@@ -35,6 +35,6 @@ class Command(BaseCommand):
         call_command("refresh_results_cache")
 
         self.stdout.write('Executing "python manage.py clear_cache --cache=sessions"')
-        call_command('clear_cache', '--cache=sessions')
+        call_command("clear_cache", "--cache=sessions")
 
-        self.stdout.write('Done.')
+        self.stdout.write("Done.")

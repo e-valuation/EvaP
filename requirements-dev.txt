@@ -1,5 +1,7 @@
 -r requirements.txt
 coverage
+codecov
 django-debug-toolbar>=1.6
 pylint==2.8.2
 pylint-django==2.4.4
+black==21.7b0

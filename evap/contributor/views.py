@@ -9,7 +9,16 @@ from django.views.decorators.http import require_POST
 
 from evap.contributor.forms import EvaluationForm, EditorContributionForm, DelegateSelectionForm
 from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required
-from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile, EmailTemplate
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    Degree,
+    Evaluation,
+    Semester,
+    UserProfile,
+    EmailTemplate,
+)
 from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
@@ -23,20 +32,29 @@ def index(request):
     show_delegated = get_parameter_from_url_or_session(request, "show_delegated", True)
 
     represented_proxy_users = user.represented_users.filter(is_proxy_user=True)
-    contributor_visible_states = [Evaluation.State.PREPARED, Evaluation.State.EDITOR_APPROVED, Evaluation.State.APPROVED, Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED]
+    contributor_visible_states = [
+        Evaluation.State.PREPARED,
+        Evaluation.State.EDITOR_APPROVED,
+        Evaluation.State.APPROVED,
+        Evaluation.State.IN_EVALUATION,
+        Evaluation.State.EVALUATED,
+        Evaluation.State.REVIEWED,
+        Evaluation.State.PUBLISHED,
+    ]
     own_courses = Course.objects.filter(
-        Q(evaluations__state__in=contributor_visible_states) & (
-            Q(responsibles=user) |
-            Q(evaluations__contributions__contributor=user) |
-            Q(evaluations__contributions__contributor__in=represented_proxy_users) |
-            Q(responsibles__in=represented_proxy_users)
+        Q(evaluations__state__in=contributor_visible_states)
+        & (
+            Q(responsibles=user)
+            | Q(evaluations__contributions__contributor=user)
+            | Q(evaluations__contributions__contributor__in=represented_proxy_users)
+            | Q(responsibles__in=represented_proxy_users)
         )
     )
 
-    own_evaluations = (Evaluation.objects
-        .filter(course__in=own_courses)
-        .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef('id'), contributions__contributor=user)))
-        .prefetch_related('course', 'course__evaluations', 'course__degrees', 'course__type', 'course__semester')
+    own_evaluations = (
+        Evaluation.objects.filter(course__in=own_courses)
+        .annotate(contributes_to=Exists(Evaluation.objects.filter(id=OuterRef("id"), contributions__contributor=user)))
+        .prefetch_related("course", "course__evaluations", "course__degrees", "course__type", "course__semester")
     )
     own_evaluations = [evaluation for evaluation in own_evaluations if evaluation.can_be_seen_by(user)]
 
@@ -44,35 +62,42 @@ def index(request):
     if show_delegated:
         represented_users = user.represented_users.exclude(is_proxy_user=True)
         delegated_courses = Course.objects.filter(
-            Q(evaluations__state__in=contributor_visible_states) & (
-                Q(responsibles__in=represented_users) |
-                Q(
+            Q(evaluations__state__in=contributor_visible_states)
+            & (
+                Q(responsibles__in=represented_users)
+                | Q(
                     evaluations__contributions__role=Contribution.Role.EDITOR,
                     evaluations__contributions__contributor__in=represented_users,
                 )
             )
         )
-        delegated_evaluations = (Evaluation.objects
-            .filter(course__in=delegated_courses)
-            .prefetch_related('course', 'course__evaluations', 'course__degrees', 'course__type', 'course__semester')
+        delegated_evaluations = Evaluation.objects.filter(course__in=delegated_courses).prefetch_related(
+            "course", "course__evaluations", "course__degrees", "course__type", "course__semester"
         )
         delegated_evaluations = [evaluation for evaluation in delegated_evaluations if evaluation.can_be_seen_by(user)]
         for evaluation in delegated_evaluations:
             evaluation.delegated_evaluation = True
         displayed_evaluations += set(delegated_evaluations) - set(displayed_evaluations)
 
-    displayed_evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))  # evaluations must be sorted for regrouping them in the template
+    displayed_evaluations.sort(
+        key=lambda evaluation: (evaluation.course.name, evaluation.name)
+    )  # evaluations must be sorted for regrouping them in the template
 
     annotate_distributions_and_grades(e for e in displayed_evaluations if e.state == Evaluation.State.PUBLISHED)
     displayed_evaluations = get_evaluations_with_course_result_attributes(displayed_evaluations)
 
     semesters = Semester.objects.all()
-    semester_list = [dict(
-        semester_name=semester.name,
-        id=semester.id,
-        is_active=semester.is_active,
-        evaluations=[evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id]
-    ) for semester in semesters]
+    semester_list = [
+        dict(
+            semester_name=semester.name,
+            id=semester.id,
+            is_active=semester.is_active,
+            evaluations=[
+                evaluation for evaluation in displayed_evaluations if evaluation.course.semester_id == semester.id
+            ],
+        )
+        for semester in semesters
+    ]
 
     template_data = dict(
         semester_list=semester_list,
@@ -88,10 +113,15 @@ def evaluation_view(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not evaluation.is_user_editor_or_delegate(user) or not Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.REVIEWED:
+    if (
+        not evaluation.is_user_editor_or_delegate(user)
+        or not Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.REVIEWED
+    ):
         raise PermissionDenied
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0)
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0
+    )
 
     form = EvaluationForm(request.POST or None, instance=evaluation)
     formset = InlineContributionFormset(request.POST or None, instance=evaluation)
@@ -113,7 +143,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True, for_rendering_in_modal=True)[1].content.decode()
+            preview_response = get_valid_form_groups_or_render_vote_page(
+                request, evaluation, preview=True, for_rendering_in_modal=True
+            )[1].content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -129,16 +161,20 @@ def evaluation_edit(request, evaluation_id):
     if not (evaluation.is_user_editor_or_delegate(request.user) and evaluation.state == Evaluation.State.PREPARED):
         raise PermissionDenied
 
-    post_operation = request.POST.get('operation') if request.POST else None
-    preview = post_operation == 'preview'
+    post_operation = request.POST.get("operation") if request.POST else None
+    preview = post_operation == "preview"
 
-    InlineContributionFormset = inlineformset_factory(Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1)
+    InlineContributionFormset = inlineformset_factory(
+        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+    )
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
-    formset = InlineContributionFormset(request.POST or None, instance=evaluation, form_kwargs={'evaluation': evaluation})
+    formset = InlineContributionFormset(
+        request.POST or None, instance=evaluation, form_kwargs={"evaluation": evaluation}
+    )
 
     forms_are_valid = evaluation_form.is_valid() and formset.is_valid()
     if forms_are_valid and not preview:
-        if post_operation not in ('save', 'approve'):
+        if post_operation not in ("save", "approve"):
             raise SuspiciousOperation("Invalid POST operation")
 
         form_has_changed = evaluation_form.has_changed() or formset.has_changed()
@@ -146,7 +182,7 @@ def evaluation_edit(request, evaluation_id):
         evaluation_form.save()
         formset.save()
 
-        if post_operation == 'approve':
+        if post_operation == "approve":
             evaluation.editor_approve()
             evaluation.save()
             if form_has_changed:
@@ -156,7 +192,7 @@ def evaluation_edit(request, evaluation_id):
         else:
             messages.success(request, _("Successfully updated evaluation."))
 
-        return redirect('contributor:index')
+        return redirect("contributor:index")
 
     preview_html = None
     if preview and forms_are_valid:
@@ -169,7 +205,9 @@ def evaluation_edit(request, evaluation_id):
             messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
 
     sort_formset(request, formset)
-    template_data = dict(form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html)
+    template_data = dict(
+        form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html
+    )
     return render(request, "contributor_evaluation_form.html", template_data)
 
 
@@ -179,7 +217,10 @@ def evaluation_preview(request, evaluation_id):
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
 
     # check rights
-    if not (evaluation.is_user_responsible_or_contributor_or_delegate(user) and Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.REVIEWED):
+    if not (
+        evaluation.is_user_responsible_or_contributor_or_delegate(user)
+        and Evaluation.State.PREPARED <= evaluation.state <= Evaluation.State.REVIEWED
+    ):
         raise PermissionDenied
 
     return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
@@ -196,10 +237,10 @@ def evaluation_direct_delegation(request, evaluation_id):
     contribution, created = Contribution.objects.update_or_create(
         evaluation=evaluation,
         contributor=delegate_user,
-        defaults={'role': Contribution.Role.EDITOR},
+        defaults={"role": Contribution.Role.EDITOR},
     )
     if created:
-        contribution.order = evaluation.contributions.all().aggregate(Max('order'))['order__max'] + 1
+        contribution.order = evaluation.contributions.all().aggregate(Max("order"))["order__max"] + 1
         contribution.save()
 
     template = EmailTemplate.objects.get(name=EmailTemplate.DIRECT_DELEGATION)
@@ -213,10 +254,12 @@ def evaluation_direct_delegation(request, evaluation_id):
     messages.add_message(
         request,
         messages.SUCCESS,
-        _('{} was added as a contributor for evaluation "{}" and was sent an email with further information.').format(str(delegate_user), str(evaluation))
+        _('{} was added as a contributor for evaluation "{}" and was sent an email with further information.').format(
+            str(delegate_user), str(evaluation)
+        ),
     )
 
-    return redirect('contributor:index')
+    return redirect("contributor:index")
 
 
 def export_contributor_results(contributor):
@@ -228,7 +271,7 @@ def export_contributor_results(contributor):
         [(Degree.objects.all(), CourseType.objects.all())],
         include_not_enough_voters=True,
         include_unpublished=False,
-        contributor=contributor
+        contributor=contributor,
     )
     return response
 

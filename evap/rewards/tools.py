@@ -11,8 +11,15 @@ from django.contrib.auth.decorators import login_required
 
 from evap.evaluation.models import Semester, Evaluation, UserProfile
 
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
-                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
+from evap.rewards.models import (
+    RewardPointGranting,
+    RewardPointRedemption,
+    RewardPointRedemptionEvent,
+    SemesterActivation,
+    NoPointsSelected,
+    NotEnoughPoints,
+    RedemptionEventExpired,
+)
 
 
 @login_required
@@ -37,11 +44,7 @@ def save_redemptions(request, redemptions):
             if event.redeem_end_date < date.today():
                 raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
 
-            RewardPointRedemption.objects.create(
-                user_profile=request.user,
-                value=redemptions[event_id],
-                event=event
-            )
+            RewardPointRedemption.objects.create(user_profile=request.user, value=redemptions[event_id], event=event)
 
 
 def can_reward_points_be_used_by(user):
@@ -73,7 +76,10 @@ def grant_reward_points_if_eligible(user, semester):
         return None, False
 
     # How many points have been granted to this user vs how many should they have (this semester)
-    granted_points = RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum('value'))['value__sum'] or 0
+    granted_points = (
+        RewardPointGranting.objects.filter(user_profile=user, semester=semester).aggregate(Sum("value"))["value__sum"]
+        or 0
+    )
     progress = float(required_evaluations.filter(voters=user).count()) / float(required_evaluations.count())
     target_points = max([points for threshold, points in settings.REWARD_POINTS if threshold <= progress], default=0)
     missing_points = target_points - granted_points
@@ -92,23 +98,34 @@ def grant_eligible_reward_points_for_semester(request, semester):
         if granting:
             reward_point_sum += granting.value
     if reward_point_sum:
-        message = ngettext("{count} reward point was granted on already completed questionnaires.",
-                           "{count} reward points were granted on already completed questionnaires.", reward_point_sum).format(count=reward_point_sum)
+        message = ngettext(
+            "{count} reward point was granted on already completed questionnaires.",
+            "{count} reward points were granted on already completed questionnaires.",
+            reward_point_sum,
+        ).format(count=reward_point_sum)
         messages.success(request, message)
 
 
 # Signal handlers
 
+
 @receiver(Evaluation.evaluation_evaluated)
 def grant_reward_points_after_evaluate(request, semester, **_kwargs):
     granting, completed_evaluation = grant_reward_points_if_eligible(request.user, semester)
     if granting:
-        message = ngettext("You just earned {count} reward point for this semester.",
-                           "You just earned {count} reward points for this semester.", granting.value).format(count=granting.value)
+        message = ngettext(
+            "You just earned {count} reward point for this semester.",
+            "You just earned {count} reward points for this semester.",
+            granting.value,
+        ).format(count=granting.value)
 
         if completed_evaluation:
             message += " " + _("You now received all possible reward points for this semester. Great!")
-        elif Evaluation.objects.filter(participants=request.user, course__semester=semester, is_rewarded=True).exclude(state__gte=Evaluation.State.EVALUATED, voters=request.user).exists():
+        elif (
+            Evaluation.objects.filter(participants=request.user, course__semester=semester, is_rewarded=True)
+            .exclude(state__gte=Evaluation.State.EVALUATED, voters=request.user)
+            .exists()
+        ):
             # at least one evaluation exists that the user hasn't evaluated and is not past its evaluation period
             message += " " + _("We're looking forward to receiving feedback for your other evaluations as well.")
 
@@ -118,7 +135,7 @@ def grant_reward_points_after_evaluate(request, semester, **_kwargs):
 @receiver(models.signals.m2m_changed, sender=Evaluation.participants.through)
 def grant_reward_points_after_delete(instance, action, reverse, pk_set, **_kwargs):
     # if users do not need to evaluate anymore, they may have earned reward points
-    if action == 'post_remove':
+    if action == "post_remove":
         grantings = []
 
         if reverse:

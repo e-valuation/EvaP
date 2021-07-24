@@ -31,7 +31,7 @@ class RewardPointRedemptionEvent(models.Model):
         return True
 
     def redemptions_by_user(self):
-        redemptions = self.reward_point_redemptions.order_by('user_profile')
+        redemptions = self.reward_point_redemptions.order_by("user_profile")
         redemptions_dict = OrderedDict()
         for redemption in redemptions:
             if redemption.user_profile not in redemptions_dict:
@@ -67,5 +67,5 @@ class RewardPointRedemption(models.Model):
 
 
 class SemesterActivation(models.Model):
-    semester = models.OneToOneField(Semester, models.CASCADE, related_name='rewards_active')
+    semester = models.OneToOneField(Semester, models.CASCADE, related_name="rewards_active")
     is_active = models.BooleanField(default=False)

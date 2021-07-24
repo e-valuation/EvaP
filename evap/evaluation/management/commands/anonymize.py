@@ -10,26 +10,36 @@ from django.core.management.base import BaseCommand
 from django.core.serializers.base import ProgressBar
 from django.db import transaction
 
-from evap.evaluation.models import (CHOICES, Contribution, Course, CourseType, Degree,
-        NO_ANSWER, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.models import (
+    CHOICES,
+    Contribution,
+    Course,
+    CourseType,
+    Degree,
+    NO_ANSWER,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    UserProfile,
+)
 from evap.evaluation.management.commands.tools import confirm_harmful_operation
 
 
 class Command(BaseCommand):
-    args = ''
-    help = 'Anonymizes all the data'
+    args = ""
+    help = "Anonymizes all the data"
     requires_migrations_checks = True
 
-    data_dir = 'anonymize_data'
-    firstnames_filename = 'first_names.txt'
-    lastnames_filename = 'last_names.txt'
-    lorem_ipsum_filename = 'lorem_ipsum.txt'
+    data_dir = "anonymize_data"
+    firstnames_filename = "first_names.txt"
+    lastnames_filename = "last_names.txt"
+    lorem_ipsum_filename = "lorem_ipsum.txt"
 
-    ignore_email_usernames = ['evap', 'student', 'contributor', 'delegate', 'responsible']
+    ignore_email_usernames = ["evap", "student", "contributor", "delegate", "responsible"]
 
-    previous_institution_domains = ['hpi.uni-potsdam.de', 'institution.example.com', 'hpi.de', 'student.hpi.de']
+    previous_institution_domains = ["hpi.uni-potsdam.de", "institution.example.com", "hpi.de", "student.hpi.de"]
     new_institution_domain = settings.INSTITUTION_EMAIL_DOMAINS[0]
-    new_external_domain = 'external.example.com'
+    new_external_domain = "external.example.com"
 
     def handle(self, *args, **options):
         self.stdout.write("")
@@ -45,11 +55,11 @@ class Command(BaseCommand):
 
         # load placeholders
         with open(os.path.join(abs_data_dir, Command.firstnames_filename)) as firstnames_file:
-            first_names = firstnames_file.read().strip().split('\n')
+            first_names = firstnames_file.read().strip().split("\n")
         with open(os.path.join(abs_data_dir, Command.lastnames_filename)) as lastnames_file:
-            last_names = lastnames_file.read().strip().split('\n')
+            last_names = lastnames_file.read().strip().split("\n")
         with open(os.path.join(abs_data_dir, Command.lorem_ipsum_filename)) as lorem_ipsum_file:
-            lorem_ipsum = lorem_ipsum_file.read().strip().split(' ')
+            lorem_ipsum = lorem_ipsum_file.read().strip().split(" ")
 
         try:
             with transaction.atomic():
@@ -82,9 +92,11 @@ class Command(BaseCommand):
         fake_usernames = set()
 
         if len(first_names) * len(last_names) < len(user_profiles) * 1.5:
-            self.stdout.write("Warning: There are few example names compared to all that real data to be anonymized. "
+            self.stdout.write(
+                "Warning: There are few example names compared to all that real data to be anonymized. "
                 + "Consider adding more data to the first_names.txt and last_names.txt files in the anonymize_data "
-                + "folder.")
+                + "folder."
+            )
 
         while len(fake_usernames) < len(user_profiles):
             fake_usernames.add((random.choice(first_names), random.choice(last_names)))  # nosec
@@ -92,7 +104,7 @@ class Command(BaseCommand):
         for i, user in enumerate(user_profiles):
             # Give users unique temporary emails to counter identity errors due to the emails being unique
             if user.email:
-                if user.email.split('@')[0] in Command.ignore_email_usernames:
+                if user.email.split("@")[0] in Command.ignore_email_usernames:
                     continue
                 user.email = f"<User.{i}>@{user.email.split('@')[1]}"
                 user.save()
@@ -100,16 +112,16 @@ class Command(BaseCommand):
         # Actually replace all the real user data
         self.stdout.write("Replacing email addresses and login keys with fake ones...")
         for user, name in zip(user_profiles, fake_usernames):
-            if user.email and user.email.split('@')[0] in Command.ignore_email_usernames:
+            if user.email and user.email.split("@")[0] in Command.ignore_email_usernames:
                 continue
             user.first_name = name[0]
             user.last_name = name[1]
 
             if user.email:
-                old_domain = user.email.split('@')[1]
+                old_domain = user.email.split("@")[1]
                 is_institution_domain = old_domain in Command.previous_institution_domains
                 new_domain = Command.new_institution_domain if is_institution_domain else Command.new_external_domain
-                user.email = (user.first_name + '.' + user.last_name).lower() + '@' + new_domain
+                user.email = (user.first_name + "." + user.last_name).lower() + "@" + new_domain
 
             if user.login_key is not None:
                 # Create a new login key
@@ -231,7 +243,9 @@ class Command(BaseCommand):
                     missing_values = set(CHOICES[question.type].values).difference(set(c.answer for c in counters))
                     missing_values.discard(NO_ANSWER)  # don't add NO_ANSWER counter if it didn't exist before
                     for value in missing_values:
-                        counters.append(RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0))
+                        counters.append(
+                            RatingAnswerCounter(question=question, contribution=contribution, answer=value, count=0)
+                        )
 
                     generated_counts = [random.random() for c in counters]  # nosec
                     generated_sum = sum(generated_counts)
@@ -257,5 +271,5 @@ class Command(BaseCommand):
     # Returns a string with the same number of lorem ipsum words as the given text
     @staticmethod
     def lorem(text, lorem_ipsum):
-        word_count = len(text.split(' '))
-        return ' '.join(itertools.islice(itertools.cycle(lorem_ipsum), word_count))
+        word_count = len(text.split(" "))
+        return " ".join(itertools.islice(itertools.cycle(lorem_ipsum), word_count))
