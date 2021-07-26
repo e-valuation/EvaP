@@ -11,7 +11,7 @@ DATABASES = {
 }
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = "${SECRET_KEY}"
+SECRET_KEY = "${SECRET_KEY}"  # nosec
 
 # Make apache work when DEBUG == False
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]

@@ -12,10 +12,10 @@ doc-warnings: no
 strictness: veryhigh
 pep8:
   disable:
-    - E501  # line too long - we don't enforce some fixed line length but rather complain about long lines in reviews.
-    - W503  # line break before operator - looks better and PEP8 allows it
-    - E128  # hanging indents not allowed - we indent differently
-    - E126  # overindentation - we indent differently
+    - E501  # line too long - code formatting is done by black
+    - W503  # line break before operator
+    - E128  # hanging indents not allowed
+    - E126  # overindentation
     - N802  # function name should be lowercase - lots of false positives in tests that pylint doesn't show
     - N803  # argument name should be lowercase - pylint has this as well (and there we tweaked it)
     - N806  # variable in function should be lowercase - lots of false positives, mostly Formset classes made from factories
@@ -28,4 +28,6 @@ pyflakes:
     - F403  # pylint handles this.
     - F401  # pylint handles this.
 pylint:
-  run: false # we run pylint on GitHub
+  run: false # we run pylint manually
+dodgy:
+  run: false # duplicates messages of bandit, but ignores #nosec comments. Not configurable.

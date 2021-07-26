@@ -144,7 +144,7 @@ tr.evaluation-row:not(.heading-row) {
 
 .current-row-follows + .results-grid-row {
     border-radius: 0.2rem;
-    box-shadow: inset 0px 0px 6px $evap-dark-blue;
+    box-shadow: inset 0 0 6px $evap-dark-blue;
 }
 
 .heading-row {

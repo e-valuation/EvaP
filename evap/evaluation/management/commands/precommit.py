@@ -17,7 +17,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         # subprocess call so our sys.argv check in settings.py works
-        subprocess.run(["./manage.py", "test"], check=False)
+        subprocess.run(["./manage.py", "test"], check=False)  # nosec
 
         call_command("lint")
         call_command("format")

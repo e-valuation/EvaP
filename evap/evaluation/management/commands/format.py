@@ -9,4 +9,4 @@ class Command(BaseCommand):
     requires_migrations_checks = False
 
     def handle(self, *args, **options):
-        subprocess.run(["black", "evap"], check=False)
+        subprocess.run(["black", "evap"], check=False)  # nosec

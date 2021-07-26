@@ -367,10 +367,10 @@ OIDC_USERNAME_ALGO = ""
 OIDC_RP_SCOPES = "openid email profile"
 
 OIDC_RP_CLIENT_ID = "evap"
-OIDC_RP_CLIENT_SECRET = "evap-secret"
+OIDC_RP_CLIENT_SECRET = "evap-secret"  # nosec
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = "https://example.com/auth"
-OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"
+OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
 OIDC_OP_USER_ENDPOINT = "https://example.com/me"
 OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 

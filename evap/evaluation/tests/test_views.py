@@ -18,9 +18,9 @@ class TestIndexView(WebTest):
         response = self.app.get(self.url)
         password_form = response.forms[0]
         password_form["email"] = "password.user"
-        password_form["password"] = "asd"
+        password_form["password"] = "asd"  # nosec
         self.assertEqual(password_form.submit().status_code, 200)
-        password_form["password"] = "evap"
+        password_form["password"] = "evap"  # nosec
         self.assertEqual(password_form.submit().status_code, 302)
 
     def test_login_for_staff_users_correctly_redirects(self):

@@ -1,4 +1,4 @@
-SECRET_KEY = "evap-github-actions-secret-key"
+SECRET_KEY = "evap-github-actions-secret-key"  # nosec
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
