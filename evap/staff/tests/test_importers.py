@@ -359,6 +359,13 @@ class TestEnrollmentImporter(TestCase):
             },
         )
 
+    def test_unknown_degree_error(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_unknown_degree_error_filedata)
+        __, __, errors = EnrollmentImporter.process(excel_content, baker.make(Semester), None, None, test_run=False)
+        missing_degree_errors = errors[ImporterError.DEGREE_MISSING]
+        self.assertEqual(len(missing_degree_errors), 1)
+        self.assertIn("manually create it first", missing_degree_errors[0])
+
     def test_replace_consecutive_and_trailing_spaces(self):
         excel_content = excel_data.create_memory_excel_file(
             excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata
