@@ -37,18 +37,21 @@ class TestStudentIndexView(WebTestWith200Check):
     def test_num_queries_is_constant(self):
         semester1 = baker.make(Semester)
         semester2 = baker.make(Semester, participations_are_archived=True)
+        course = baker.make(Course, semester=semester1)
         baker.make(
             Evaluation,
-            course__semester=semester1,
+            course=course,
             state=Evaluation.State.PUBLISHED,
             participants=[self.user],
+            _bulk_create=True,
             _quantity=100,
         )
         baker.make(
             Evaluation,
-            course__semester=semester2,
+            course=course,
             state=Evaluation.State.PUBLISHED,
             participants=[self.user],
+            _bulk_create=True,
             _quantity=100,
         )
 

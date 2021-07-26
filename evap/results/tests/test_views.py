@@ -171,7 +171,7 @@ class TestResultsView(WebTest):
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
         """Regression test for #1248"""
-        participants = baker.make(UserProfile, _quantity=2)
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=2)
         evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
@@ -389,7 +389,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        participants = baker.make(UserProfile, _quantity=20)
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
         baker.make(
@@ -413,7 +413,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
-        students = baker.make(UserProfile, _quantity=10)
+        students = baker.make(UserProfile, _bulk_create=True, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
         cls.evaluation = baker.make(
