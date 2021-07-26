@@ -1294,7 +1294,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         response = form.submit("target_state", value=str(new_state))
 
         form = response.forms["evaluation-operation-form"]
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
         self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, new_state)
 
@@ -2618,7 +2618,7 @@ class TestCourseTypeMergeView(WebTestStaffMode):
     def test_merge_works(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["course-type-merge-form"]
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
@@ -2881,7 +2881,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form[self.course_type_2.name] = [self.questionnaire_2.pk]
         form["all-contributors"] = [self.questionnaire_responsible.pk]
 
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
 
         self.assertEqual(
