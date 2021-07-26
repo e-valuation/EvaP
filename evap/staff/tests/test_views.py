@@ -124,7 +124,7 @@ class TestUserIndexView(WebTestStaffMode):
             _participant_count=1,
             _voter_count=1,
         )
-        baker.make(UserProfile, _quantity=num_users, evaluations_participating_in=[evaluation])
+        baker.make(UserProfile, _bulk_create=True, _quantity=num_users, evaluations_participating_in=[evaluation])
 
         with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
             self.app.get(self.url, user=self.manager)
@@ -1294,7 +1294,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         response = form.submit("target_state", value=str(new_state))
 
         form = response.forms["evaluation-operation-form"]
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
         self.assertEqual(Evaluation.objects.get(pk=evaluation.pk).state, new_state)
 
@@ -1612,7 +1612,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
             name_de="Das Original",
             name_en="The Original",
         )
-        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.general_questionnaires = baker.make(Questionnaire, _bulk_create=True, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
         for __ in range(3):
             baker.make(
@@ -1846,6 +1846,7 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
             RatingAnswerCounter,
             question=question,
             contribution=contribution,
+            _bulk_create=True,
             _quantity=len(answer_counts),
             answer=iter(answer_counts.keys()),
             count=iter(answer_counts.values()),
@@ -1875,11 +1876,11 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
     def setUpTestData(cls):
         semester = baker.make(Semester, pk=1)
         cls.manager = make_manager()
-        profiles1 = baker.make(UserProfile, _quantity=31)
+        profiles1 = baker.make(UserProfile, _bulk_create=True, _quantity=31)
         cls.evaluation = baker.make(
             Evaluation, pk=1, course=baker.make(Course, semester=semester), participants=profiles1
         )
-        profiles2 = baker.make(UserProfile, _quantity=42)
+        profiles2 = baker.make(UserProfile, _bulk_create=True, _quantity=42)
         cls.evaluation2 = baker.make(
             Evaluation, pk=2, course=baker.make(Course, semester=semester), participants=profiles2
         )
@@ -2576,7 +2577,7 @@ class TestCourseTypeView(WebTestStaffMode):
         )
 
     def test_import_names_duplicated_error(self):
-        baker.make(CourseType, _quantity=2)
+        baker.make(CourseType, _bulk_create=True, _quantity=2)
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["course-type-form"]
         self.set_import_names(form["form-0-import_names"], ["Vorlesung", "v"])
@@ -2617,7 +2618,7 @@ class TestCourseTypeMergeView(WebTestStaffMode):
     def test_merge_works(self):
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["course-type-merge-form"]
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
 
         self.assertFalse(CourseType.objects.filter(name_en="Obsolete course type").exists())
@@ -2828,7 +2829,7 @@ class TestDegreeView(WebTestStaffMode):
         )
 
     def test_import_names_duplicated_error(self):
-        baker.make(Degree, _quantity=2)
+        baker.make(Degree, _bulk_create=True, _quantity=2)
         page = self.app.get(self.url, user=self.manager, status=200)
         form = page.forms["degree-form"]
         helper_set_dynamic_choices_field_value(form["form-0-import_names"], ["Master of Arts", "M"])
@@ -2880,7 +2881,7 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         form[self.course_type_2.name] = [self.questionnaire_2.pk]
         form["all-contributors"] = [self.questionnaire_responsible.pk]
 
-        response = form.submit()
+        response = form.submit().follow()
         self.assertIn("Successfully", str(response))
 
         self.assertEqual(

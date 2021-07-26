@@ -645,7 +645,7 @@ class ParticipationArchivingTests(TestCase):
         )
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-        users = baker.make(UserProfile, _quantity=3)
+        users = baker.make(UserProfile, _bulk_create=True, _quantity=3)
         cls.evaluation.participants.set(users)
         cls.evaluation.voters.set(users[:2])
 

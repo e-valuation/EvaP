@@ -74,10 +74,18 @@ class TestAnonymizeCommand(TestCase):
         cls.general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
         cls.contributor_questions = baker.make(
-            Question, _quantity=10, questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys()))
+            Question,
+            _bulk_create=True,
+            _quantity=10,
+            questionnaire=cls.contributor_questionnaire,
+            type=cycle(iter(CHOICES.keys())),
         )
         cls.general_questions = baker.make(
-            Question, _quantity=10, questionnaire=cls.contributor_questionnaire, type=cycle(iter(CHOICES.keys()))
+            Question,
+            _bulk_create=True,
+            _quantity=10,
+            questionnaire=cls.contributor_questionnaire,
+            type=cycle(iter(CHOICES.keys())),
         )
 
         cls.contributor = baker.make(UserProfile)

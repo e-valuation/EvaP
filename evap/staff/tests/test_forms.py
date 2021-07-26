@@ -230,7 +230,9 @@ class ContributionCopyFormTests(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             label="Teacher",
         )
-        cls.questionnaires = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _quantity=2)
+        cls.questionnaires = baker.make(
+            Questionnaire, type=Questionnaire.Type.CONTRIBUTOR, _bulk_create=True, _quantity=2
+        )
         cls.contribution.questionnaires.set(cls.questionnaires)
 
     def test_initial_from_original(self):
@@ -907,7 +909,7 @@ class EvaluationCopyFormTests(TestCase):
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
         cls.course = baker.make(Course, semester=cls.semester)
-        cls.participants = baker.make(UserProfile, _quantity=8)
+        cls.participants = baker.make(UserProfile, _bulk_create=True, _quantity=8)
         cls.evaluation = baker.make(
             Evaluation,
             course=cls.course,
@@ -916,7 +918,7 @@ class EvaluationCopyFormTests(TestCase):
             participants=cls.participants,
             voters=cls.participants[:6],
         )
-        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.general_questionnaires = baker.make(Questionnaire, _bulk_create=True, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
 
     def test_initial_from_original(self):
