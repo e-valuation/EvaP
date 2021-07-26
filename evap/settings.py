@@ -262,6 +262,8 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 ROOT_URLCONF = "evap.urls"
 
 WSGI_APPLICATION = "evap.wsgi.application"
