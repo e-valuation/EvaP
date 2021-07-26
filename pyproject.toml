@@ -7,3 +7,58 @@ extend-exclude = """\
     .*/urls\\.py|\
     .*/migrations/.*\
 """
+
+
+
+[tool.pylint.master]
+jobs = 0
+
+load-plugins = ["pylint_django"]
+django-settings-module = "evap.settings"
+
+[tool.pylint.basic]
+variable-rgx = "[A-Za-z_][A-Za-z0-9_]{2,60}$"
+argument-rgx = "[A-Za-z_][A-Za-z0-9_]{0,40}$"
+function-rgx = "[a-z_][a-z0-9_]{2,60}$"
+attr-rgx = "[a-z_][a-z0-9_]{1,60}$"
+
+# Allow longer names in tests as test_* methods are usually named a bit more verbose
+method-rgx = "([a-z_][a-z0-9_]{2,60}$)|(test_[a-z0-9_]{2,80}$)"
+
+# allowing exactly four digits at the beginning for migrations
+module-rgx = "([0-9]{4})?([a-z_][a-z0-9_]*)$"
+
+good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown"]
+
+[tool.pylint.format]
+expected-line-ending-format = "LF"
+
+[tool.pylint.messages_control]
+enable = ["all"]
+disable = [
+    "locally-disabled",               # we allow locally disabling some checks if we think it makes sense to do that.
+    "suppressed-message",
+    "line-too-long",                  # black does code formatting for us
+    "too-many-public-methods",        # reported for some models, that won't change
+    "too-few-public-methods",         # noisy, e.g. exception classes, mixins etc
+    "no-member",                      # false positives, deals badly with django classes
+    "logging-format-interpolation",   # decided against the proposed change in favor of .format()
+    "too-many-ancestors",             # noisy, reported for all test classes
+    "missing-docstring",              # yeah... we don't have those
+    "protected-access",               # for us that means "be careful", not "don't do it"
+    "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
+    "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
+
+    # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
+    "duplicate-code",                 # Can not be suppressed for the 4 false positives we have: https://github.com/PyCQA/pylint/issues/214
+]
+
+
+
+[tool.coverage.run]
+branch = true
+omit = ["*migrations*", "*__init__.py"]
+source = ["evap"]
+
+[tool.coverage.report]
+omit = ["*/migrations/*", "*__init__.py"]
