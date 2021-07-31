@@ -40,3 +40,11 @@ src
 
 # python env subdir
 env/
+venv/
+
+# notes to self
+todo.txt
+todo
+
+# flake8 configuration
+setup.cfg

@@ -43,6 +43,14 @@ That's it!
 
 We'd love to see contributions, feel free to fork! You should probably branch off ``master``, the branch ``release`` is used for stable revisions.
 
+Before committing, run the following commands:
+- `./manage.py test` (runs the test suite)
+- `./manage.py lint` (runs the linter)
+- `./manage.py format` (applies automatic code formatting on Python files)
+
+or, to combine all three, simply run `./manage.py precommit`
+
+You can also set up `pylint` and `black` in your IDE to avoid doing this manually all the time.
 
 ## License
 

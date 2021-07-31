@@ -295,3 +295,32 @@ class TestSendRemindersCommand(TestCase):
 
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
+
+
+class TestLintCommand(TestCase):
+    @staticmethod
+    @patch("subprocess.run")
+    def test_pylint_called(mock_subprocess_run):
+        management.call_command("lint")
+        mock_subprocess_run.assert_called_once_with(["pylint", "evap"], check=False)
+
+
+class TestFormatCommand(TestCase):
+    @staticmethod
+    @patch("subprocess.run")
+    def test_black_called(mock_subprocess_run):
+        management.call_command("format")
+        mock_subprocess_run.assert_called_once_with(["black", "evap"], check=False)
+
+
+class TestPrecommitCommand(TestCase):
+    @patch("subprocess.run")
+    @patch("evap.evaluation.management.commands.precommit.call_command")
+    def test_subcommands_called(self, mock_call_command, mock_subprocess_run):
+        management.call_command("precommit")
+
+        mock_subprocess_run.assert_called_with(["./manage.py", "test"], check=False)
+
+        self.assertEqual(mock_call_command.call_count, 2)
+        mock_call_command.assert_any_call("lint")
+        mock_call_command.assert_any_call("format")
