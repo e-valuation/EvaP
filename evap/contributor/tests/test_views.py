@@ -96,9 +96,7 @@ class TestContributorEvaluationView(WebTestWith200Check):
         cls.editor = result["editor"]
 
         cls.test_users = [cls.editor, cls.responsible]
-
-    def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -125,11 +123,9 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
     def setUpTestData(cls):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
         cls.responsible = result["responsible"]
-
         cls.test_users = [result["editor"], result["responsible"]]
 
-    def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_wrong_state(self):
         self.evaluation.revert_to_new()
@@ -145,9 +141,7 @@ class TestContributorEvaluationEditView(WebTest):
         result = create_evaluation_with_responsible_and_editor(evaluation_id=TESTING_EVALUATION_ID)
         cls.responsible = result["responsible"]
         cls.editor = result["editor"]
-
-    def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
+        cls.evaluation = Evaluation.objects.get(pk=TESTING_EVALUATION_ID)
 
     def test_not_authenticated(self):
         """

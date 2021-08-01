@@ -431,9 +431,6 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
             Contribution, contributor=responsible, evaluation=cls.evaluation, questionnaires=[questionnaire]
         )
 
-    def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-
     def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
         page = self.app.get("/results/semester/2/evaluation/22", user=user_email, expect_errors=expect_page_not_visible)
         if expect_page_not_visible:
