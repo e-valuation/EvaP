@@ -46,9 +46,6 @@ class GradeUploadTest(WebTest):
 
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-    def setUp(self):
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
-
     def tearDown(self):
         for course in Course.objects.all():
             for grade_document in course.grade_documents.all():

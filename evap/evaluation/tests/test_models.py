@@ -653,10 +653,6 @@ class ParticipationArchivingTests(TestCase):
         """refresh_from_db does not work with evaluations"""
         self.evaluation = self.semester.evaluations.first()
 
-    def setUp(self):
-        self.semester.refresh_from_db()
-        self.refresh_evaluation()
-
     def test_counts_dont_change(self):
         """
         Asserts that evaluation.num_voters evaluation.num_participants don't change after archiving.

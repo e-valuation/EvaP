@@ -95,11 +95,6 @@ class MergeUsersTest(TestCase):
         cls.rewardpointredemption_main = baker.make(RewardPointRedemption, user_profile=cls.main_user)
         cls.rewardpointredemption_other = baker.make(RewardPointRedemption, user_profile=cls.other_user)
 
-    def setUp(self):
-        # merge users changes these instances in such a way that refresh_from_db doesn't work anymore.
-        self.main_user = UserProfile.objects.get(first_name="Main", last_name="")
-        self.other_user = UserProfile.objects.get(email="other@test.com")
-
     def test_merge_handles_all_attributes(self):
         user1 = baker.make(UserProfile)
         user2 = baker.make(UserProfile)

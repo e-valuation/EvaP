@@ -9,25 +9,26 @@ from evap.evaluation.models_logging import FieldAction
 
 
 class TestLoggedModel(TestCase):
-    def setUp(self):
-        self.old_start_date = datetime.now()
-        self.new_start_date = self.old_start_date + timedelta(days=10)
+    @classmethod
+    def setUpTestData(cls):
+        cls.old_start_date = datetime.now()
+        cls.new_start_date = cls.old_start_date + timedelta(days=10)
 
-        self.course = baker.make(Course)
+        cls.course = baker.make(Course)
 
-        self.evaluation = baker.make(
+        cls.evaluation = baker.make(
             Evaluation,
-            course=self.course,
+            course=cls.course,
             state=Evaluation.State.PREPARED,
-            vote_start_datetime=self.old_start_date,
+            vote_start_datetime=cls.old_start_date,
             vote_end_date=date.today() + timedelta(days=20),
         )
-        self.evaluation.save()  # first logentry
+        cls.evaluation.save()  # first logentry
 
-        self.evaluation.vote_start_datetime = self.new_start_date
-        self.evaluation.save()  # second logentry
+        cls.evaluation.vote_start_datetime = cls.new_start_date
+        cls.evaluation.save()  # second logentry
 
-        self.logentry = self.evaluation.related_logentries()[1]
+        cls.logentry = cls.evaluation.related_logentries()[1]
 
     def test_voters_not_in_evaluation_data(self):
         self.assertFalse(any("voters" in entry.data for entry in self.evaluation.related_logentries()))

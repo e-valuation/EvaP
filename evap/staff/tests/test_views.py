@@ -1645,10 +1645,6 @@ class TestEvaluationCopyView(WebTestStaffMode):
 class TestCourseEditView(WebTestStaffMode):
     url = "/staff/semester/1/course/1/edit"
 
-    def setUp(self):
-        super().setUp()
-        self.course = Course.objects.get(pk=self.course.pk)
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -1683,10 +1679,6 @@ class TestCourseEditView(WebTestStaffMode):
 )
 class TestEvaluationEditView(WebTestStaffMode):
     url = "/staff/semester/1/evaluation/1/edit"
-
-    def setUp(self):
-        super().setUp()
-        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
 
     @classmethod
     def setUpTestData(cls):
