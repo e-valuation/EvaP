@@ -8,7 +8,12 @@ from model_bakery import baker
 from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import merge_users, delete_navbar_cache_for_users, remove_user_from_represented_and_ccing_users
+from evap.staff.tools import (
+    merge_users,
+    delete_navbar_cache_for_users,
+    remove_user_from_represented_and_ccing_users,
+    merge_dictionaries_of_sets,
+)
 
 
 class NavbarCacheTest(WebTest):
@@ -258,3 +263,9 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual(len(messages), 4)
+
+
+class MiscellaneousToolsTest(TestCase):
+    def test_merge_dictionaries_of_sets(self):
+        self.assertEqual(merge_dictionaries_of_sets({"a": set([1])}, {"b": set([2])}), {"a": set([1]), "b": set([2])})
+        self.assertEqual(merge_dictionaries_of_sets({"a": set([1])}, {"a": set([2])}), {"a": set([1, 2])})
