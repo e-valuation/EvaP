@@ -420,8 +420,8 @@ class EnrollmentImporter(ExcelImporter):
             self.enrollments.append((evaluation_data, student_data))
 
     def check_evaluation_data_correctness(self, semester):
-        degree_names = set()
-        course_type_names = set()
+        missing_degree_names = set()
+        missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
             if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
                 self.errors[ImporterError.COURSE].append(
@@ -432,9 +432,9 @@ class EnrollmentImporter(ExcelImporter):
                     _("Course {} does already exist in this semester.").format(evaluation_data.name_de)
                 )
             if "degrees" in evaluation_data.errors:
-                degree_names |= evaluation_data.errors["degrees"]
+                missing_degree_names |= evaluation_data.errors["degrees"]
             if "course_type" in evaluation_data.errors:
-                course_type_names.add(evaluation_data.errors["course_type"])
+                missing_course_type_names.add(evaluation_data.errors["course_type"])
             if "is_graded" in evaluation_data.errors:
                 self.errors[ImporterError.IS_GRADED].append(
                     _('"is_graded" of course {} is {}, but must be {} or {}').format(
@@ -445,13 +445,13 @@ class EnrollmentImporter(ExcelImporter):
                     )
                 )
 
-        for degree_name in degree_names:
+        for degree_name in missing_degree_names:
             self.errors[ImporterError.DEGREE_MISSING].append(
                 _('Error: No degree is associated with the import name "{}". Please manually create it first.').format(
                     degree_name
                 )
             )
-        for course_type_name in course_type_names:
+        for course_type_name in missing_course_type_names:
             self.errors[ImporterError.COURSE_TYPE_MISSING].append(
                 _(
                     'Error: No course type is associated with the import name "{}". Please manually create it first.'
