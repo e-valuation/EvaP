@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import create_user_list_html_string_for_message, ImportType
+from evap.staff.tools import create_user_list_html_string_for_message, ImportType, merge_dictionaries_of_sets
 
 
 def sorted_messages(messages):
@@ -405,6 +405,9 @@ class EnrollmentImporter(ExcelImporter):
                     ).format(sheet, row + 1, evaluation_data.name_en)
                 )
                 self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
+                self.evaluations[evaluation_id].errors = merge_dictionaries_of_sets(
+                    self.evaluations[evaluation_id].errors, evaluation_data.errors
+                )
             elif evaluation_data != self.evaluations[evaluation_id]:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(
