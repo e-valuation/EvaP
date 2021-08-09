@@ -96,10 +96,14 @@
             <li class="nav-item btn-switch-navbar my-auto">
                 <div class="btn-group">
                     {% for language_code, language_name in languages %}
-                        <button type="button"{% if current_language == language_code %} disabled{% endif %} onclick="setLanguage('{{ language_code }}');"
-                            class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
-                            {{ language_code|upper }}
-                        </button>
+                        <form class="form-inline" method="post" action="{% url 'evaluation:set_lang' %}">
+                            {% csrf_token %}
+                            <input name="language" type="hidden" value="{{ language_code }}">
+                            <button type="submit"{% if current_language == language_code %} disabled{% endif %} onclick="setSpinnerIcon('span-set-language-{{ language_code }}')"
+                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
+                                <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
+                            </button>
+                        </form>
                     {% endfor %}
                 </div>
             </li>
