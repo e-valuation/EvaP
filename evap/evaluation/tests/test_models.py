@@ -488,13 +488,13 @@ class TestEvaluations(WebTest):
         textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
         del evaluation.num_textanswers  # reset cached_property cache
 
-        # text_answer_review_state should be REVIEW_NEEDED as long as we are still in_evaluation
+        # text_answer_review_state should be NO_REVIEW_NEEDED as long as we are still in_evaluation
         self.assert_textanswer_review_state(
             evaluation,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
         )
 
         evaluation.end_evaluation()

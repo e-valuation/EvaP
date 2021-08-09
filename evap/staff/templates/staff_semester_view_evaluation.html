@@ -38,9 +38,9 @@
     </td>
 {% endif %}
 
-{% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS %}
-    <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_textanswers">
-        <span class="fas fa-comment icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available' %}"></span>
+{% if evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_TEXTANSWERS or evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED %}
+    <td class="icon" data-col="state-textanswers" data-order="3" data-filter="no_review">
+        <span class="fas fa-comment icon-gray" data-toggle="tooltip" data-placement="top" title="{% trans 'No text answers available or evaluation not yet finished' %}"></span>
     </td>
 {% elif evaluation.textanswer_review_state == evaluation.TextAnswerReviewState.REVIEW_URGENT %}
     <td class="icon" data-col="state-textanswers" data-order="1" data-filter="unreviewed_textanswers_urgent">
