@@ -38,7 +38,7 @@
                 </div>
             </div>
             <div class="card border-dark">
-                <form class="card-body d-flex flex-column"
+                <form id="request-login-form" class="card-body d-flex flex-column"
                     action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />

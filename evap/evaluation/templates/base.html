@@ -152,18 +152,8 @@
             .mouseout(() => row.addClass("hover-row"));
     });
 
-    function setLanguage(language) {
-        $.ajax({
-            type: "POST",
-            url: "{% url 'evaluation:set_lang' %}",
-            data: {"language": language},
-            success: function(){ location.reload(); },
-            error: function(){}
-        });
-    };
-
     function setSpinnerIcon(id) {
-        $("#" + id).removeClass().addClass('fas fa-spinner fa-spin');
+        $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
     };
 </script>
 
