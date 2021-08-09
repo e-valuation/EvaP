@@ -132,6 +132,14 @@ test_enrollment_data_import_names_filedata = {
     ]
 }
 
+test_unknown_degree_error_filedata = {
+    'Sheet 1': [
+        ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
+        ['bachelor', 'Doe', 'John', 'john.doe@institution.example.com', 'Vorlesung', 'yes', 'Neovim kompilieren', 'compiling Neovim', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@institution.example.com'],
+        ['beginner', 'Roe', 'Jane', 'jane.roe@institution.example.com', 'Vorlesung', 'yes', 'Neovim kompilieren', 'compiling Neovim', 'Prof. Dr.', 'Prorsus', 'Christoph', '123@institution.example.com'],
+    ],
+}
+
 valid_user_courses_import_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],

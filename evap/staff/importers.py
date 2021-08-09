@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import create_user_list_html_string_for_message, ImportType
+from evap.staff.tools import create_user_list_html_string_for_message, ImportType, merge_dictionaries_of_sets
 
 
 def sorted_messages(messages):
@@ -405,6 +405,9 @@ class EnrollmentImporter(ExcelImporter):
                     ).format(sheet, row + 1, evaluation_data.name_en)
                 )
                 self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
+                self.evaluations[evaluation_id].errors = merge_dictionaries_of_sets(
+                    self.evaluations[evaluation_id].errors, evaluation_data.errors
+                )
             elif evaluation_data != self.evaluations[evaluation_id]:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(
@@ -420,8 +423,8 @@ class EnrollmentImporter(ExcelImporter):
             self.enrollments.append((evaluation_data, student_data))
 
     def check_evaluation_data_correctness(self, semester):
-        degree_names = set()
-        course_type_names = set()
+        missing_degree_names = set()
+        missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
             if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
                 self.errors[ImporterError.COURSE].append(
@@ -432,9 +435,9 @@ class EnrollmentImporter(ExcelImporter):
                     _("Course {} does already exist in this semester.").format(evaluation_data.name_de)
                 )
             if "degrees" in evaluation_data.errors:
-                degree_names |= evaluation_data.errors["degrees"]
+                missing_degree_names |= evaluation_data.errors["degrees"]
             if "course_type" in evaluation_data.errors:
-                course_type_names.add(evaluation_data.errors["course_type"])
+                missing_course_type_names.add(evaluation_data.errors["course_type"])
             if "is_graded" in evaluation_data.errors:
                 self.errors[ImporterError.IS_GRADED].append(
                     _('"is_graded" of course {} is {}, but must be {} or {}').format(
@@ -445,13 +448,13 @@ class EnrollmentImporter(ExcelImporter):
                     )
                 )
 
-        for degree_name in degree_names:
+        for degree_name in missing_degree_names:
             self.errors[ImporterError.DEGREE_MISSING].append(
                 _('Error: No degree is associated with the import name "{}". Please manually create it first.').format(
                     degree_name
                 )
             )
-        for course_type_name in course_type_names:
+        for course_type_name in missing_course_type_names:
             self.errors[ImporterError.COURSE_TYPE_MISSING].append(
                 _(
                     'Error: No course type is associated with the import name "{}". Please manually create it first.'

@@ -1,5 +1,6 @@
 import os
 from datetime import date, datetime, timedelta
+from typing import Dict, Set, Any
 from enum import Enum
 
 from django.contrib import messages
@@ -368,3 +369,11 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def merge_dictionaries_of_sets(a: Dict[Any, Set], b: Dict[Any, Set]) -> Dict[Any, Set]:
+    return {
+        **a,
+        **b,
+        **({key: (a[key] | b[key]) for key in a if key in b}),
+    }
