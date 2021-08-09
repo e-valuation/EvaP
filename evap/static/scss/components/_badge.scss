@@ -60,6 +60,13 @@
     text-shadow: none;
 }
 
+.badge-primary-outline {
+    background-color: $white;
+    color: $evap-dark-blue;
+    border: 1px solid $evap-dark-blue;
+    padding: 0.16em 0.35em;
+}
+
 .badge-secondary-outline {
     background-color: $white;
     color: $secondary;
