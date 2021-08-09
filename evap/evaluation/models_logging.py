@@ -185,7 +185,7 @@ class LoggedModel(models.Model):
 
     def log_m2m_change(self, field_name, action_type: FieldActionType, change_list):
         # This might be called multiple times with cumulating changes
-        # But this is fine, since the old data will be overwritten in the LogEntry.data
+        # But this is fine, since the old changes will be included in the latest log update
         # See https://github.com/e-valuation/EvaP/issues/1594
         self._m2m_changes[field_name][action_type] += change_list
         self._update_log(self._m2m_changes, InstanceActionType.CHANGE)
