@@ -131,6 +131,7 @@ class LoggedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._logentry = None
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """
@@ -182,8 +183,12 @@ class LoggedModel(models.Model):
 
         return changes
 
-    def log_m2m_change(self, changes):
-        self._update_log(changes, InstanceActionType.CHANGE)
+    def log_m2m_change(self, field_name, action_type: FieldActionType, change_list):
+        # This might be called multiple times with cumulating changes
+        # But this is fine, since the old changes will be included in the latest log update
+        # See https://github.com/e-valuation/EvaP/issues/1594
+        self._m2m_changes[field_name][action_type] += change_list
+        self._update_log(self._m2m_changes, InstanceActionType.CHANGE)
 
     def log_instance_create(self):
         changes = self._get_change_data(InstanceActionType.CREATE)
@@ -304,13 +309,9 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     if field_name in instance.unlogged_fields:
         return
 
-    m2m_changes = defaultdict(lambda: defaultdict(list))
     if action == "pre_remove":
-        m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
+        instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
     elif action == "pre_add":
-        m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
+        instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
     elif action == "pre_clear":
-        m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
-
-    if m2m_changes:
-        instance.log_m2m_change(m2m_changes)
+        instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])

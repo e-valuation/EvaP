@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.formats import localize
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Course, Contribution, Questionnaire
+from evap.evaluation.models import Evaluation, Course, Contribution, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction
 
 
@@ -82,3 +82,18 @@ class TestLoggedModel(TestCase):
 
         baker.make(Contribution, evaluation=self.evaluation, label=None)
         self.assertNotIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+
+    def test_simultaneous_add_and_remove(self):
+        # Regression test for https://github.com/e-valuation/EvaP/issues/1594
+        participant1 = baker.make(UserProfile)
+        participant2 = baker.make(UserProfile)
+        self.evaluation.participants.add(participant1)
+        # Refresh reference to evaluation, to force new log entry
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.evaluation.participants.remove(participant1)
+        self.evaluation.participants.add(participant2)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant2.id], "remove": [participant1.id]}},
+        )
