@@ -438,6 +438,7 @@ class Evaluation(LoggedModel):
     class TextAnswerReviewState(Enum):
         do_not_call_in_templates = True  # pylint: disable=invalid-name
         NO_TEXTANSWERS = auto()
+        NO_REVIEW_NEEDED = auto()
         REVIEW_NEEDED = auto()
         REVIEW_URGENT = auto()
         REVIEWED = auto()
@@ -879,10 +880,10 @@ class Evaluation(LoggedModel):
         if self.num_textanswers == self.num_reviewed_textanswers:
             return self.TextAnswerReviewState.REVIEWED
 
-        if self.state != Evaluation.State.EVALUATED:
-            return self.TextAnswerReviewState.REVIEW_NEEDED
+        if self.state < Evaluation.State.EVALUATED:
+            return self.TextAnswerReviewState.NO_REVIEW_NEEDED
 
-        if self.grading_process_is_finished:
+        if self.state == Evaluation.State.EVALUATED and self.grading_process_is_finished:
             return self.TextAnswerReviewState.REVIEW_URGENT
 
         return self.TextAnswerReviewState.REVIEW_NEEDED

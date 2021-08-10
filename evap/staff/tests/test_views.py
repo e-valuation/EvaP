@@ -592,23 +592,27 @@ class TestSemesterView(WebTestStaffMode):
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_TEXTANSWERS
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
-        expected_count = page.body.decode().count("no_textanswers")
+        expected_count = page.body.decode().count("no_review")
+
+        textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED
+        page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
+        self.assertEqual(page.body.decode().count("no_review"), expected_count)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_NEEDED
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
         # + 1 because the buttons at the top of the page contain it two times (once for _urgent)
         self.assertEqual(page.body.decode().count("unreviewed_textanswers"), expected_count + 1)
-        self.assertEqual(page.body.decode().count("no_textanswers"), 1)
+        self.assertEqual(page.body.decode().count("no_review"), 1)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEW_URGENT
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
         self.assertEqual(page.body.decode().count("unreviewed_textanswers_urgent"), expected_count)
-        self.assertEqual(page.body.decode().count("no_textanswers"), 1)
+        self.assertEqual(page.body.decode().count("no_review"), 1)
 
         textanswer_review_state_mock.return_value = Evaluation.TextAnswerReviewState.REVIEWED
         page = self.app.get(f"/staff/semester/{evaluation.course.semester.id}", user=self.manager)
         self.assertEqual(page.body.decode().count("textanswers_reviewed"), expected_count)
-        self.assertEqual(page.body.decode().count("no_textanswers"), 1)
+        self.assertEqual(page.body.decode().count("no_review"), 1)
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
