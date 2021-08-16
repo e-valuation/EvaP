@@ -23,7 +23,7 @@ sudo -u postgres createdb -O evap evap
 apt-get -q install -y redis-server
 
 # install apache
-apt-get -q install -y apache2 apache2-dev
+apt-get -q install -y apache2 apache2-dev libnghttp2
 
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
 useradd -m -u 1042 -s /bin/bash evap
@@ -46,6 +46,7 @@ sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel
 sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 
 # setup apache
+a2enmod http2
 a2enmod headers
 cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
 sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/mods-available/wsgi.load # note this uses '=' as alternate delimiter
