@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
@@ -16,8 +16,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }}" data-dismiss="modal" disabled>{{ action_text }}</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }}" data-bs-dismiss="modal" disabled>{{ action_text }}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
                 </div>
             </form>
         </div>

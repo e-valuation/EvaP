@@ -48,7 +48,7 @@
 <div class="container mb-4 pt-3">
     {% for message in messages %}
         <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
-            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{ message }}
         </div>
     {% endfor %}
@@ -72,7 +72,7 @@
 
 <script type="text/javascript">
     activateTooltips = function(selector = "") {
-        $(selector + ' [data-toggle="tooltip"]')
+        $(selector + ' [data-bs-toggle="tooltip"]')
             .tooltip({container: 'body', html: true, trigger: 'hover'})
             .on('inserted.bs.tooltip', event => {
                 // trigger an immediate update of the tooltip to avoid later reposition
@@ -116,7 +116,7 @@
 
     // fix Bootstrap bug that selecting toggle buttons via keyboard controls is only visually
     // https://github.com/twbs/bootstrap/issues/26855
-    $(document).on("click", '[data-toggle^="button"] input[type="radio"]', function(event) {
+    $(document).on("click", '[data-bs-toggle^="button"] input[type="radio"]', function(event) {
         // Bootstrap will call event.preventDefault() which results into a reset of the radio buttons before the keyboard input.
         // To work around this, we set the method to one without side effects.
         event.preventDefault = () => true;

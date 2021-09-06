@@ -2,7 +2,7 @@
     <div class="col-md-2">
         <div class="nav nav-pills btn-switch btn-group-vertical float-end" role="tablist">
             {% for field in fields %}
-                <a class="px-2 py-1 space-normal fw-bold btn btn-light text-center nav-link {% if forloop.first %}show active{% endif %}" href="#tab-{{ field.id_for_label }}" data-toggle="pill" role="tab" aria-controls="pills-{{ field.label }}" aria-selected="{% if forloop.first %}true{% endif %}">
+                <a class="px-2 py-1 space-normal fw-bold btn btn-light text-center nav-link {% if forloop.first %}show active{% endif %}" href="#tab-{{ field.id_for_label }}" data-bs-toggle="pill" role="tab" aria-controls="pills-{{ field.label }}" aria-selected="{% if forloop.first %}true{% endif %}">
                     {{ field.label }}
                 </a>
             {% endfor %}

@@ -2,7 +2,7 @@
     {% for answer in question_result.answers %}
         <li>
             {% if answer.is_private %}
-                <span data-toggle="tooltip" data-placement="left" class="fas fa-info-circle" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>
+                <span data-bs-toggle="tooltip" data-bs-placement="left" class="fas fa-info-circle" title="{% trans 'This answer is only visible to you. Other contributors and your delegates can not see it.' %}"></span>
             {% endif %}
             {{ answer.answer|linebreaksbr }}
         </li>

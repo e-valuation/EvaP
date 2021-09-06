@@ -4,7 +4,7 @@
     {% if formelement.field.disabled or disabled %} disabled{% endif %}
     {% if choice.data.selected %} active{% endif %}
     {% if formelement.errors %} choice-error{% endif %}"
-    data-toggle="tooltip" data-placement="top" title="{{ tooltip }}">
+    data-bs-toggle="tooltip" data-bs-placement="top" title="{{ tooltip }}">
     <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}"
     autocomplete="off" {% if choice.data.selected %}checked{% endif %} />
     {{ choice.choice_label }}

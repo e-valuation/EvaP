@@ -47,7 +47,7 @@
                             <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
                                 <th scope="row">
                                     {% with approval_state_values=evaluation.state|approval_state_values %}
-                                        <span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span>
+                                        <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
                                     {% endwith %}
                                     <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
                                     {% include 'evaluation_badges.html' with mode='manager' %}

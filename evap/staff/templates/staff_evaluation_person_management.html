@@ -116,7 +116,7 @@
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="export-login-keys" type="submit" class="btn btn-sm btn-primary form-submit-btn"
-                        {% if not evaluation.has_external_participant %} disabled data-toggle="tooltip" data-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
+                        {% if not evaluation.has_external_participant %} disabled data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "This evaluation has no external participants." %}"{% endif %}>
                             {% trans 'Export login keys' %}
                         </button>
                     </div>

@@ -8,7 +8,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="hotkeys-modal-title">Hotkeys</h5>
-                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -24,7 +24,7 @@
                     <tr><td><kbd>M</kbd></td><td>{% trans 'Show unreviewed' %}</td></tr>
                 </table>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -33,8 +33,8 @@
     <div class="card card-outline-primary slider">
         <div class="card-header">
             {% trans 'Text answers' %}
-            <span class="hotkey-btn" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="{% trans 'Hotkeys' %}">
-                <span class="far fa-keyboard" data-toggle="modal" data-target="#hotkeys-modal"></span>
+            <span class="hotkey-btn" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Hotkeys' %}">
+                <span class="far fa-keyboard" data-bs-toggle="modal" data-bs-target="#hotkeys-modal"></span>
             </span>
         </div>
         <div class="card-body slider-inner px-0">
@@ -97,7 +97,7 @@
                     {% trans 'yes' %}
                 </button>
                 <button data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
-                    title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-toggle="tooltip">
+                    title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
                     {% trans 'private' %}
                 </button>
                 <button data-action="hide" class="btn btn-sm btn-outline-secondary">

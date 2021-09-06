@@ -89,7 +89,7 @@
                                     <td></td>
                                     <td>
                                         {% if course.not_all_evaluations_are_published %}
-                                            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
+                                            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Course result is not yet available.' %}">
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
                                             </div>
                                         {% else %}
@@ -109,17 +109,17 @@
                                     <td>
                                         <div class="evaluation-name">
                                             {% if evaluation.delegated_evaluation %}
-                                                <span class="badge badge-secondary-outline" data-toggle="tooltip" data-placement="top"
+                                                <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are a delegate of a contributor who can edit the evaluation.' %}">
                                                     <span class="fas fa-user-friends"></span>
                                                 </span>
                                             {% elif evaluation.contributes_to %}
-                                                <span class="badge badge-primary-outline" data-toggle="tooltip" data-placement="top"
+                                                <span class="badge bg-primary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are listed as a contributor for this evaluation.' %}">
                                                     <span class="fas fa-chalkboard-teacher"></span>
                                                 </span>
                                             {% else %}
-                                                <span class="badge badge-secondary-outline" data-toggle="tooltip" data-placement="top"
+                                                <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are not listed as a contributor for this evaluation.' %}">
                                                     <span class="fas fa-user-slash"></span>
                                                 </span>
@@ -144,7 +144,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <span data-toggle="tooltip" data-placement="left" title="{{ evaluation.state|statedescription }}">{{ evaluation.state|statename }}</span>
+                                        <span data-bs-toggle="tooltip" data-bs-placement="left" title="{{ evaluation.state|statedescription }}">{{ evaluation.state|statename }}</span>
                                     </td>
                                     <td>
                                         {% if evaluation.is_single_result %}
@@ -170,12 +170,12 @@
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
                                                     <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
-                                                        data-toggle="tooltip" data-placement="top" title="{% trans 'Edit or approve' %}">
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit or approve' %}">
                                                         <span class="fas fa-pencil-alt"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
-                                                        <a href="#" class="btn btn-sm btn-dark" data-toggle="tooltip"
-                                                            data-placement="top" title="{% trans 'Delegate preparation' %}"
+                                                        <a href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                                            data-bs-placement="top" title="{% trans 'Delegate preparation' %}"
                                                             onclick="delegateSelectionModalShow(`{{ evaluation.full_name }}`, `{% url 'contributor:evaluation_direct_delegation' evaluation.id %}`);return false;"
                                                         >
                                                             <span class="fas fa-hand-point-right fa-flip-horizontal"></span>
@@ -183,7 +183,7 @@
                                                     {% endif %}
                                                 {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
-                                                        data-toggle="tooltip" data-placement="top"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You already approved the evaluation, the edit form will be disabled.' %}">
                                                         <span class="fas fa-pencil-alt"></span>
                                                     </a>
@@ -191,12 +191,12 @@
                                             {% endif %}
                                             {% if evaluation|is_user_responsible_or_contributor_or_delegate:user %}
                                                 <a href="{% url 'contributor:evaluation_preview' evaluation.id %}" class="btn btn-sm btn-light"
-                                                    data-toggle="tooltip" data-placement="top" title="{% trans 'Preview' %}">
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}">
                                                     <span class="fas fa-eye"></span>
                                                 </a>
                                             {% endif %}
                                         {% elif evaluation.state != evaluation.State.PUBLISHED and evaluation.is_single_result %}
-                                            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
+                                            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
                                                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
                                             </div>
                                         {% elif evaluation.state == evaluation.State.PUBLISHED %}
@@ -225,7 +225,7 @@
                         {% csrf_token %}
                         <div class="modal-header">
                             <h5 class="modal-title" id="{{ modal_id }}Label">{% trans 'Delegate preparation' %}</h5>
-                            <button class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                            <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             {% trans 'Do you really want to delegate the preparation of the evaluation <strong id="data-label"></strong>?' %}
@@ -235,7 +235,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="submit" id="btn-action" class="btn btn-primary">{% trans 'Delegate preparation' %}</button>
-                            <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
                         </div>
                     </form>
                 </div>
