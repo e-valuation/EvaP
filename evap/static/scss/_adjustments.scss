@@ -22,6 +22,21 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 .btn-link {
     padding: 0;
     border: none;
+    background-color: transparent;
+}
+
+// change btn text colors for better contrast
+.btn-secondary {
+    @include button-variant($secondary, $secondary, $color: $white, $hover-color: $white, $disabled-color: $white);
+}
+.btn-outline-secondary {
+    @include button-outline-variant($secondary, $color-hover: $white);
+}
+.btn-danger {
+    @include button-variant($danger, $danger, $color: $white, $hover-color: $white, $disabled-color: $white);
+}
+.btn-outline-danger {
+    @include button-outline-variant($danger, $color-hover: $white);
 }
 
 // select2 adjustments

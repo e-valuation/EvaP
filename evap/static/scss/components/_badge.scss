@@ -56,7 +56,7 @@
 
 .badge-disabled {
     background-color: $light-gray;
-    color: lighten($medium-gray, 5%);
+    color: tint-color($medium-gray, 10%);
     text-shadow: none;
 }
 

@@ -69,7 +69,7 @@
     @include border-top-radius($card-border-radius);
 }
 [data-layer="1"] {
-    background-color: theme-color("light");
+    background-color: $light;
     border-left: $card-border-width solid $card-border-color;
     border-right: $card-border-width solid $card-border-color;
 }

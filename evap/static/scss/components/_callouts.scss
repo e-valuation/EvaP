@@ -43,7 +43,7 @@
 
     &.closed:hover,
     &.closed:active {
-        background-color: darken($evap-light-blue, 10%);
+        background-color: shade-color($evap-light-blue, 20%);
     }
 }
 

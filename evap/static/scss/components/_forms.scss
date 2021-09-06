@@ -87,11 +87,11 @@ select[multiple] {
     }
 
     &:hover ~ .form-check-label::before {
-        background-color: darken($light-gray, 10%);
+        background-color: shade-color($light-gray, 20%);
     }
 
     &:checked:hover ~ .form-check-label::before {
-        background-color: darken($evap-dark-blue, 10%);
+        background-color: shade-color($evap-dark-blue, 20%);
     }
 
     &:focus ~ .form-check-label::before {
