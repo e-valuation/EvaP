@@ -15,11 +15,11 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
-    RatingAnswerCounter,
     Semester,
     UserProfile,
     TextAnswer,
 )
+from evap.evaluation.tests.tools import make_rating_answer_counters
 from evap.results.exporters import ResultsExporter, TextAnswerExporter
 from evap.results.tools import cache_results, get_results
 from evap.results.views import filter_text_answers
@@ -65,18 +65,10 @@ class TestExporters(TestCase):
             [questionnaire_1, questionnaire_2, questionnaire_3, questionnaire_4]
         )
 
-        baker.make(
-            RatingAnswerCounter, question=question_1, contribution=evaluation.general_contribution, answer=3, count=100
-        )
-        baker.make(
-            RatingAnswerCounter, question=question_2, contribution=evaluation.general_contribution, answer=3, count=100
-        )
-        baker.make(
-            RatingAnswerCounter, question=question_3, contribution=evaluation.general_contribution, answer=3, count=100
-        )
-        baker.make(
-            RatingAnswerCounter, question=question_4, contribution=evaluation.general_contribution, answer=3, count=100
-        )
+        make_rating_answer_counters(question_1, evaluation.general_contribution)
+        make_rating_answer_counters(question_2, evaluation.general_contribution)
+        make_rating_answer_counters(question_3, evaluation.general_contribution)
+        make_rating_answer_counters(question_4, evaluation.general_contribution)
 
         cache_results(evaluation)
 
@@ -124,7 +116,7 @@ class TestExporters(TestCase):
         contribution = baker.make(
             Contribution, evaluation=evaluation, questionnaires=[questionnaire], contributor=contributor
         )
-        baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
+        make_rating_answer_counters(likert_question, contribution)
 
         cache_results(evaluation)
 
@@ -213,14 +205,10 @@ class TestExporters(TestCase):
         question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([questionnaire])
-        baker.make(
-            RatingAnswerCounter, question=question, contribution=evaluation_1.general_contribution, answer=3, count=2
-        )
+        make_rating_answer_counters(question, evaluation_1.general_contribution)
 
         evaluation_2.general_contribution.questionnaires.set([questionnaire])
-        baker.make(
-            RatingAnswerCounter, question=question, contribution=evaluation_2.general_contribution, answer=3, count=2
-        )
+        make_rating_answer_counters(question, evaluation_2.general_contribution)
 
         binary_content = BytesIO()
         ResultsExporter().export(
@@ -374,14 +362,9 @@ class TestExporters(TestCase):
         used_question = baker.make(Question, type=Question.LIKERT, questionnaire=used_questionnaire)
         unused_questionnaire = baker.make(Questionnaire)
         unused_question = baker.make(Question, type=Question.LIKERT, questionnaire=unused_questionnaire)
-        baker.make(
-            RatingAnswerCounter,
-            question=used_question,
-            contribution=evaluation.general_contribution,
-            answer=3,
-            count=10,
-        )
+
         evaluation.general_contribution.questionnaires.set([used_questionnaire, unused_questionnaire])
+        make_rating_answer_counters(used_question, evaluation.general_contribution)
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
@@ -432,18 +415,9 @@ class TestExporters(TestCase):
         questionnaire2 = baker.make(Questionnaire, order=2)
         question1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire1)
         question2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire2)
-        baker.make(
-            RatingAnswerCounter, answer=1, count=1, question=question1, contribution=evaluation.general_contribution
-        )
-        baker.make(
-            RatingAnswerCounter, answer=3, count=1, question=question1, contribution=evaluation.general_contribution
-        )
-        baker.make(
-            RatingAnswerCounter, answer=2, count=1, question=question2, contribution=evaluation.general_contribution
-        )
-        baker.make(
-            RatingAnswerCounter, answer=4, count=1, question=question2, contribution=evaluation.general_contribution
-        )
+
+        make_rating_answer_counters(question1, evaluation.general_contribution, {1: 1, 3: 1})
+        make_rating_answer_counters(question2, evaluation.general_contribution, {2: 1, 4: 1})
 
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
@@ -472,16 +446,13 @@ class TestExporters(TestCase):
             for i in range(3)
         ]
 
-        grades_per_eval = [[1, 2], [2, 3], [1, 3]]
+        grades_per_eval = [{1: 1, 2: 1}, {2: 1, 3: 1}, {1: 1, 3: 1}]
         expected_average = 2.0
 
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire)
         for grades, e in zip(grades_per_eval, evaluations):
-            for grade in grades:
-                baker.make(
-                    RatingAnswerCounter, answer=grade, count=1, question=question, contribution=e.general_contribution
-                )
+            make_rating_answer_counters(question, e.general_contribution, grades)
             e.general_contribution.questionnaires.set([questionnaire])
         for evaluation in evaluations:
             cache_results(evaluation)
@@ -502,13 +473,10 @@ class TestExporters(TestCase):
         )
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=Question.POSITIVE_YES_NO, questionnaire=questionnaire)
+
         # 1,5 are yes, no according to RatingAnswerCounter class definition
-        baker.make(
-            RatingAnswerCounter, answer=1, count=4, question=question, contribution=evaluation.general_contribution
-        )
-        baker.make(
-            RatingAnswerCounter, answer=5, count=2, question=question, contribution=evaluation.general_contribution
-        )
+        make_rating_answer_counters(question, evaluation.general_contribution, {1: 4, 5: 2})
+
         evaluation.general_contribution.questionnaires.set([questionnaire])
         cache_results(evaluation)
 
@@ -543,28 +511,14 @@ class TestExporters(TestCase):
         contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
-        baker.make(
-            RatingAnswerCounter,
-            question=general_question,
-            contribution=evaluation_1.general_contribution,
-            answer=1,
-            count=2,
-        )
+        make_rating_answer_counters(general_question, evaluation_1.general_contribution, {1: 2})
         evaluation_2.general_contribution.questionnaires.set([general_questionnaire])
-        baker.make(
-            RatingAnswerCounter,
-            question=general_question,
-            contribution=evaluation_2.general_contribution,
-            answer=4,
-            count=2,
-        )
+        make_rating_answer_counters(general_question, evaluation_2.general_contribution, {4: 2})
 
         contribution.questionnaires.set([contributor_questionnaire])
-        baker.make(RatingAnswerCounter, question=contributor_question, contribution=contribution, answer=3, count=2)
+        make_rating_answer_counters(contributor_question, contribution, {3: 2})
         other_contribution.questionnaires.set([contributor_questionnaire])
-        baker.make(
-            RatingAnswerCounter, question=contributor_question, contribution=other_contribution, answer=2, count=2
-        )
+        make_rating_answer_counters(contributor_question, other_contribution, {2: 2})
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)
