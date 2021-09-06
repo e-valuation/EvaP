@@ -24,15 +24,15 @@
                 <div class="modal-body">
                     {{ teaser }}
                     <br /><br />
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}SenderName" class="control-label">{% trans 'Sender' %}:</label>
                         <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}" />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}Subject" class="control-label">{% trans 'Subject' %}:</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}" />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}MessageText" class="control-label">{% trans 'Message' %}:</label>
                         <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
