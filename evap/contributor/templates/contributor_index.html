@@ -12,9 +12,7 @@
         <div class="callout-header d-flex">
             <span class="fas fa-info-circle callout-icon"></span>
             <span>{% trans 'Information for contributors' %}</span>
-            <button type="button" class="close callout-closable-close ml-auto" data-dismiss="modal" aria-label="Close">
-                <span class="fas fa-times"></span>
-            </button>
+            <button type="button" class="btn-close callout-closable-close ml-auto" data-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="callout-content small">
             <b>{% trans 'Delegates' %}</b><br />
@@ -227,7 +225,7 @@
                         {% csrf_token %}
                         <div class="modal-header">
                             <h5 class="modal-title" id="{{ modal_id }}Label">{% trans 'Delegate preparation' %}</h5>
-                            <button class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></button>
+                            <button class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             {% trans 'Do you really want to delegate the preparation of the evaluation <strong id="data-label"></strong>?' %}

@@ -48,9 +48,7 @@
 <div class="container mb-4 pt-3">
     {% for message in messages %}
         <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
-                <span class="fas fa-times"></span>
-            </button>
+            <button type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
             {{ message }}
         </div>
     {% endfor %}
