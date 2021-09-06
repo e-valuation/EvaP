@@ -13,7 +13,7 @@
         <div class="card-body">
             <h5 class="card-title">
                 {% trans 'Filter' %}
-                <span class="reset-button float-right" data-reset="filter">
+                <span class="reset-button float-end" data-reset="filter">
                     <span class="fas fa-eraser"></span>
                     {% trans 'Clear all filters' %}
                 </span>
@@ -68,7 +68,7 @@
         <div class="card-body pb-lg-0">
             <h5 class="card-title mb-lg-0">
                 {% trans 'Order' %}
-                <span class="reset-button float-right d-none d-lg-block" data-reset="order">
+                <span class="reset-button float-end d-none d-lg-block" data-reset="order">
                     <span class="fas fa-sort-amount-down"></span>
                     {% trans 'Order by evaluation and semester' %}
                 </span>
@@ -81,7 +81,7 @@
                 <div data-col="result" class="col-order">{% trans 'Distribution and average grade' %}</div>
             </div>
             <div class="d-flex d-lg-none">
-                <div class="mr-2 btn-switch btn-group btn-group-toggle icon-buttons" data-toggle="buttons">
+                <div class="me-2 btn-switch btn-group btn-group-toggle icon-buttons" data-bs-toggle="buttons">
                     <label class="btn btn-light btn-lg active">
                         <input type="radio" name="result-sort-order" value="asc" />
                         <span class="fas fa-sort-alpha-down"></span>

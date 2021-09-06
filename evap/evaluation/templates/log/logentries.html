@@ -5,7 +5,7 @@
     {% for log_group in logged_object.grouped_logentries %}
         <li class="list-group-item">
             <p>
-                <span class="pr-3">
+                <span class="pe-3">
                     <span class="far fa-clock" aria-hidden="true"></span>
                     {{ log_group.0.datetime|date:"SHORT_DATETIME_FORMAT" }}
                 </span>

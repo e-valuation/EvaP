@@ -28,7 +28,7 @@
                         {% else %}
                             <button name="operation" value="test-participants" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
-                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary mr-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
+                                <button name="operation" value="import-participants" type="button" onclick="importParticipantsModalShow('import-participants');" class="btn btn-sm btn-primary me-1 form-submit-btn";>{% trans 'Import previously uploaded file' %}</button>
                                 <button name="operation" value="import-replace-participants" type="button" onclick="replaceParticipantsModalShow('import-replace-participants');" class="btn btn-sm btn-danger form-submit-btn">{% trans 'Replace participants' %}</button>
                             </div>
                         {% endif %}
@@ -48,7 +48,7 @@
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="copy-participants" type="button" onclick="copyParticipantsModalShow('copy-participants');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy participants' %}</button>
-                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace participants' %}</button>
+                        <button name="operation" value="copy-replace-participants" type="button" onclick="copyReplaceParticipantsModalShow('copy-replace-participants');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace participants' %}</button>
                     </div>
                 </div>
             </form>
@@ -78,7 +78,7 @@
                             <button name="operation" value="test-contributors" type="submit" class="btn btn-sm btn-light form-submit-btn">{% trans 'Upload and test' %}</button>
                             <div class="mt-2">
                                 <button name="operation" value="import-contributors" type="button" onclick="importContributorsModalShow('import-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Import previously uploaded file' %}</button>
-                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                                <button name="operation" value="import-replace-contributors" type="button" onclick="replaceContributorsModalShow('import-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                             </div>
                         {% endif %}
                     </div>
@@ -97,7 +97,7 @@
                     </div>
                     <div class="card-footer text-center">
                         <button name="operation" value="copy-contributors" type="button" onclick="copyContributorsModalShow('copy-contributors');" class="btn btn-sm btn-primary form-submit-btn">{% trans 'Copy contributors' %}</button>
-                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ml-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
+                        <button name="operation" value="copy-replace-contributors" type="button" onclick="copyReplaceContributorsModalShow('copy-replace-contributors');" class="btn btn-sm btn-danger ms-1 form-submit-btn">{% trans 'Replace contributors' %}</button>
                     </div>
                 </div>
             </form>

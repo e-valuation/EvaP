@@ -4,7 +4,7 @@
     {% if semester.evaluations %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}{% if semester.results_are_archived %} deactivate{% endif %}">
             <div class="card-header d-flex">
-                <span class="mr-auto">
+                <span class="me-auto">
                     {{ semester.semester_name }}
                 </span>
                 {% if semester.results_are_archived %}
@@ -29,7 +29,7 @@
                                     <td></td>
                                     <td>
                                         <div class="d-flex">
-                                            <span class="font-weight-bold mr-auto">
+                                            <span class="fw-bold me-auto">
                                                 {{ course.name }}
                                             </span>
                                             {% if can_download_grades and not semester.grade_documents_are_deleted %}
@@ -70,7 +70,7 @@
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                     {% endif %}>
-                                    <td class="pl-2 full-size">
+                                    <td class="ps-2 full-size">
                                         {% if not evaluation.is_single_result %}
                                             {% if evaluation.voted_for %}
                                                 <span class="text text-success" data-toggle="tooltip" data-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="far fa-fw fa-smile" aria-hidden="true"></span></span>
@@ -89,9 +89,9 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    <td {% if course.evaluation_count > 1 %}class="pl-4" {% endif %}>
+                                    <td {% if course.evaluation_count > 1 %}class="ps-4" {% endif %}>
                                         <div class="d-flex">
-                                            <span class="font-weight-bold mr-auto{% if course.evaluation_count > 1 %} text-secondary{% endif %}">
+                                            <span class="fw-bold me-auto{% if course.evaluation_count > 1 %} text-secondary{% endif %}">
                                                 {% if course.evaluation_count > 1 %}
                                                     {% if evaluation.name %}
                                                         {{ evaluation.name }}
@@ -152,7 +152,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         {% if not semester.results_are_archived %}
                                             {% if evaluation.state == evaluation.State.PUBLISHED %}
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}

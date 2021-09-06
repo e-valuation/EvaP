@@ -16,7 +16,7 @@
                 id="makeActiveSemesterButton" type="button"
                 {% if semester.is_active %}
                     disabled
-                    data-toggle="tooltip" data-placement="top"
+                    data-bs-toggle="tooltip" data-bs-placement="top"
                     title="{% blocktrans %}This is the active semester{% endblocktrans %}"
                 {% endif %}>
                 {% trans 'Make active' %}
@@ -60,12 +60,12 @@
         <div class="card-header d-flex">
             <a class="collapse-toggle collapsed" data-toggle="collapse" href="#overviewCard" aria-expanded="false" aria-controls="overviewCard" onclick="saveCollapseState()">{% trans 'Overview' %}</a>
             {% if request.user.is_manager %}
-                <div class="ml-auto">
+                <div class="ms-auto">
                     {% if not semester.participations_are_archived %}
                         <a href="{% url 'staff:semester_preparation_reminder' semester.id %}" class="btn btn-sm btn-light">{% trans 'Preparation reminder' %}</a>
-                        <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Grade publish reminder' %}</a>
+                        <a href="{% url 'staff:semester_grade_reminder' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Grade publish reminder' %}</a>
                     {% endif %}
-                    <div class="btn-switch ml-2">
+                    <div class="btn-switch ms-2">
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
@@ -130,13 +130,13 @@
                 </li>
             </ul>
             {% if request.user.is_manager %}
-                <div class="ml-auto">
+                <div class="ms-auto">
                     {% if not semester.participations_are_archived %}
                         <a class="btn btn-sm btn-light" href="{% url 'staff:semester_import' semester.id %}">
                             {% trans 'Import' %}
                         </a>
                     {% endif %}
-                    <div class="btn-group ml-2" role="group">
+                    <div class="btn-group ms-2" role="group">
                         <button type="button" id="btnExport" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Export' %}</button>
                         <div class="dropdown-menu" aria-labelledby="btnExport">
                             <a class="dropdown-item" href="{% url 'staff:semester_export' semester.id %}">{% trans 'Export results' %}</a>
@@ -145,7 +145,7 @@
                         </div>
                     </div>
                     {% if not semester.participations_are_archived %}
-                        <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ml-2">{% trans 'Assign questionnaires' %}</a>
+                        <a href="{% url 'staff:semester_questionnaire_assign' semester.id %}" class="btn btn-sm btn-light ms-2">{% trans 'Assign questionnaires' %}</a>
                     {% endif %}
                 </div>
             {% endif %}
@@ -157,7 +157,7 @@
                         <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
                             {% trans 'Create evaluation' %}
                         </a>
-                        <a class="btn btn-sm btn-dark ml-2" href="{% url 'staff:single_result_create' semester.id %}">
+                        <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
                             {% trans 'Create single result' %}
                         </a>
                     </div>
@@ -171,7 +171,7 @@
                     </div>
                 </div>
                 <div class="btn-switch mb-2" id="evaluation-filter-buttons">
-                    <div class="btn-switch-label my-auto pr-0">{% trans 'Filter' %}</div>
+                    <div class="btn-switch-label my-auto pe-0">{% trans 'Filter' %}</div>
                     <div>
                         <div class="btn-switch btn-group icon-buttons">
                             {% for approval_state in approval_states %}

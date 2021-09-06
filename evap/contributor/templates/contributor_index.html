@@ -12,7 +12,7 @@
         <div class="callout-header d-flex">
             <span class="fas fa-info-circle callout-icon"></span>
             <span>{% trans 'Information for contributors' %}</span>
-            <button type="button" class="btn-close callout-closable-close ml-auto" data-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close callout-closable-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="callout-content small">
             <b>{% trans 'Delegates' %}</b><br />
@@ -35,11 +35,11 @@
         </div>
     </div>
     <div class="d-flex mb-3">
-        <div class="ml-auto d-print-none">
+        <div class="ms-auto d-print-none">
             <a href="{% url 'contributor:export' %}" class="btn btn-sm btn-light">{% trans 'Export results' %}</a>
         </div>
         {% if user.is_delegate %}
-            <div class="btn-switch btn-switch-light mb-auto ml-2 d-print-none">
+            <div class="btn-switch btn-switch-light mb-auto ms-2 d-print-none">
                 <div class="btn-switch-label"><span class="fas fa-user-friends"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
@@ -165,7 +165,7 @@
                                             <span class="fas fa-user"></span> {{ evaluation.num_participants }}
                                         </td>
                                     {% endif %}
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         {% if evaluation.state != evaluation.State.PUBLISHED and not evaluation.is_single_result %}
                                             {% if evaluation|is_user_editor_or_delegate:user %}
                                                 {% if evaluation.state == evaluation.State.PREPARED %}

@@ -12,7 +12,7 @@
 
     {% if responsible_list %}
         <div class="d-flex mb-3">
-            <div class="mr-auto">
+            <div class="me-auto">
                 <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
             </div>
         </div>
@@ -21,7 +21,7 @@
     {% for responsible, evaluations, delegates in responsible_list %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
-                <span class="pl-1 mr-auto">
+                <span class="ps-1 me-auto">
                     <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% trans 'Delegates' %}:
                     {% for delegate in delegates %}
                         <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}

@@ -4,7 +4,7 @@
     margin: 0 0 20px;
     padding: 15px 30px 15px 15px;
     border-left: 5px solid $dark-gray;
-    @include border-right-radius($alert-border-radius);
+    @include border-end-radius($alert-border-radius);
 }
 
 .callout-header {

@@ -33,7 +33,7 @@
                             <th style="width: 10%" class="col-order" data-col="complete">{% trans 'Evaluation completed' %}</th>
                             <th style="width: 10%" class="col-order" data-col="midterm-grades">{% trans 'Midterm grade documents' %}</th>
                             <th style="width: 10%" class="col-order" data-col="final-grades">{% trans 'Final grade documents' %}</th>
-                            <th style="width: 15%" class="text-right">{% trans 'Actions' %}</th>
+                            <th style="width: 15%" class="text-end">{% trans 'Actions' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,7 +62,7 @@
                                         </a>
                                     {% endif %}
                                 </td>
-                                <td class="text-right" style="min-width:72px">
+                                <td class="text-end" style="min-width:72px">
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
                                             <button type="button" {{ disable_if_archived }} onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-toggle="tooltip" data-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">

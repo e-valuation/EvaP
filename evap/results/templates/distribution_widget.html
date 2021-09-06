@@ -3,10 +3,10 @@
 {% spaceless %}
     {% if question_result.has_answers %}
         <div class="result-widget d-flex"
-            data-toggle="tooltip" data-placement="left" data-fallback-placement='["left", "bottom"]'
+            data-bs-toggle="tooltip" data-bs-placement="left" data-fallback-placement='["left", "bottom"]'
             title="{% include 'result_widget_tooltip.html' with question_result=question_result %}"
         >
-            <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} mr-2 mr-lg-3">
+            <div class="badge-participants badge-participants-{{ question_result.count_sum|participationclass:num_voters }} me-2 me-lg-3">
                 <span class="fas fa-user"></span> {{ question_result.count_sum }}
             </div>
 
@@ -14,7 +14,7 @@
         </div>
     {% else %}
         <div class="d-flex" data-toggle="tooltip" data-placement="left" data-fallback-placement='["left", "bottom"]' title="{% trans 'Not enough answers were given.' %}">
-            <div class="badge-participants badge-disabled mr-2 mr-lg-3">
+            <div class="badge-participants badge-disabled me-2 me-lg-3">
                 {% if question_result.is_published %}
                     <span class="fas fa-user"></span> {{ question_result.count_sum }}
                 {% else %}
