@@ -1188,7 +1188,7 @@ def helper_single_result_edit(request, semester, evaluation):
             raise SuspiciousOperation("Modifying this evaluation is not allowed.")
 
         form.save()
-        messages.success(request, _("Successfully created single result."))
+        messages.success(request, _("Successfully updated single result."))
         return redirect("staff:semester_view", semester.id)
 
     return render(
