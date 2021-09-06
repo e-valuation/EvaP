@@ -12,7 +12,7 @@
     color: $medium-gray;
     background-color: $white;
 }
-.badge-info, .badge-warning {
+.bg-info, .bg-warning {
     color: $darker-gray;
 }
 
@@ -60,14 +60,14 @@
     text-shadow: none;
 }
 
-.badge-primary-outline {
+.bg-primary-outline {
     background-color: $white;
     color: $evap-dark-blue;
     border: 1px solid $evap-dark-blue;
     padding: 0.16em 0.35em;
 }
 
-.badge-secondary-outline {
+.bg-secondary-outline {
     background-color: $white;
     color: $secondary;
     border: 1px solid $secondary;

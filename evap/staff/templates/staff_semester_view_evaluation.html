@@ -101,15 +101,15 @@
     </div>
     {% include 'evaluation_badges.html' with mode='manager' %}
     {% if evaluation.num_course_evaluations > 1 %}
-        <span class="badge badge-pill badge-dark" data-toggle="tooltip" data-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
+        <span class="badge rounded-pill bg-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Weight' %}">{{ evaluation.weight }}</span>
     {% endif %}
 
     {% if state < evaluation.State.APPROVED %}
         {% if not evaluation.all_contributions_have_questionnaires %}
             {% if not evaluation.general_contribution_has_questionnaires %}
-                <span class="badge badge-danger">{% trans 'Evaluation has no questionnaires' %}</span>
+                <span class="badge bg-danger">{% trans 'Evaluation has no questionnaires' %}</span>
             {% else %}
-                <span class="badge badge-warning">{% trans 'Not all contributors have questionnaires' %}</span>
+                <span class="badge bg-warning">{% trans 'Not all contributors have questionnaires' %}</span>
             {% endif %}
         {% endif %}
     {% endif %}

@@ -47,7 +47,7 @@
                                                 {% endif %}
                                             {% endif %}
                                         </div>
-                                        <span class="badge badge-secondary">{{ course.type }}</span>
+                                        <span class="badge bg-secondary">{{ course.type }}</span>
                                         <i class="small">{{ course.responsibles_names }}</i>
                                     </td>
                                     <td></td>
@@ -123,13 +123,13 @@
                                             {% endif %}
                                         </div>
                                         {% if course.evaluation_count == 1 %}
-                                            <span class="badge badge-secondary">{{ course.type }}</span>
+                                            <span class="badge bg-secondary">{{ course.type }}</span>
                                         {% endif %}
                                         {% if evaluation.is_midterm_evaluation %}
-                                            <span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>
+                                            <span class="badge bg-dark">{% trans 'Midterm evaluation' %}</span>
                                         {% endif %}
                                         {% if evaluation.is_single_result %}
-                                            <span class="badge badge-success">{% trans 'Single result' %}</span>
+                                            <span class="badge bg-success">{% trans 'Single result' %}</span>
                                         {% endif %}
                                         {% if course.evaluation_count == 1 %}
                                             <i class="small">{{ course.responsibles_names }}</i>

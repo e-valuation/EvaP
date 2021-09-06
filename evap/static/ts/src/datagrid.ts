@@ -289,7 +289,7 @@ export class EvaluationGrid extends TableGrid {
     private static createBadgePill(count: number): HTMLElement {
         const badgeClass = count === 0 ? "badge-btn-zero" : "badge-btn";
         const pill = document.createElement("span");
-        pill.classList.add("badge", "badge-pill", badgeClass);
+        pill.classList.add("badge", "rounded-pill", badgeClass);
         pill.textContent = count.toString();
         return pill;
     }

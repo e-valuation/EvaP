@@ -51,14 +51,14 @@
             <div class="row mb-2">
                 {% for color in theme_colors %}
                     <div class="col">
-                        <div class="badge badge-{{ color }}">{{ color|title }}</div>
+                        <div class="badge bg-{{ color }}">{{ color|title }}</div>
                     </div>
                 {% endfor %}
             </div>
             <div class="row mb-2">
                 <div class="col"></div>
                 <div class="col">
-                    <div class="badge badge-secondary-outline">Secondary Outline</div>
+                    <div class="badge bg-secondary-outline">Secondary Outline</div>
                 </div>
                 <div class="col"></div>
                 <div class="col"></div>
@@ -70,26 +70,26 @@
             <div class="row mb-2">
                 {% for color in theme_colors %}
                     <div class="col">
-                        <div class="badge badge-pill badge-{{ color }}">{{ color|title }}</div>
+                        <div class="badge rounded-pill bg-{{ color }}">{{ color|title }}</div>
                     </div>
                 {% endfor %}
             </div>
             <div class="row">
                 <div class="col-3">
                     <button type="button" class="btn btn-sm btn-light">
-                        <div class="badge badge-pill badge-btn">17</div>
+                        <div class="badge rounded-pill badge-btn">17</div>
                     </button>
                 </div>
                 <div class="col-3">
                     <button type="button" class="btn btn-sm btn-light">
                         Sum
-                        <div class="badge badge-pill badge-btn">25</div>
+                        <div class="badge rounded-pill badge-btn">25</div>
                     </button>
                 </div>
                 <div class="col-3">
                     <button type="button" class="btn btn-sm btn-light">
                         Zero
-                        <div class="badge badge-pill badge-btn-zero">0</div>
+                        <div class="badge rounded-pill badge-btn-zero">0</div>
                     </button>
                 </div>
             </div>
@@ -484,7 +484,7 @@
                             Let all cells contain a link so that the whole row appears as one link.
                         </td>
                         <td>
-                            <div class="badge badge-primary">Badge</div>
+                            <div class="badge bg-primary">Badge</div>
                         </td>
                     </tr>
                 </tbody>

@@ -51,17 +51,17 @@
                         <td><strong>{% trans 'Groups' %}</strong></td>
                         <td{% if main_user.groups.all %} class="table-info"{% endif %}>
                             {% for group in main_user.groups.all %}
-                                <span class="badge badge-secondary">{{ group.name }}</span>
+                                <span class="badge bg-secondary">{{ group.name }}</span>
                             {% endfor %}
                         </td>
                         <td{% if other_user.groups.all %} class="table-info"{% endif %}>
                             {% for group in other_user.groups.all %}
-                                <span class="badge badge-secondary">{{ group.name }}</span>
+                                <span class="badge bg-secondary">{{ group.name }}</span>
                             {% endfor %}
                         </td>
                         <td{% if merged_user.groups %} class="table-success"{% endif %}>
                             {% for group in merged_user.groups %}
-                                <span class="badge badge-secondary">{{ group }}</span>
+                                <span class="badge bg-secondary">{{ group }}</span>
                             {% endfor %}
                         </td>
                     </tr>

@@ -47,14 +47,14 @@
                     <label class="col-md-3 pe-4 form-label">{% trans 'Degrees' %}</label>
                     <div class="col-md-7 form-static-text">
                         {% for degree in evaluation.course.degrees.all %}
-                            <span class="badge badge-primary">{{ degree }}</span>
+                            <span class="badge bg-primary">{{ degree }}</span>
                         {% endfor %}
                     </div>
                 </div>
                 <div class="d-flex">
                     <label class="col-md-3 pe-4 form-label">{% trans 'Course type' %}</label>
                     <div class="col-md-7 form-static-text">
-                        <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
+                        <span class="badge bg-secondary">{{ evaluation.course.type }}</span>
                     </div>
                 </div>
             </div>
