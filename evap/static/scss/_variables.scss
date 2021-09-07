@@ -2,12 +2,15 @@
 
 $fa-font-path: "../font-awesome/webfonts";
 
+$enable-smooth-scroll: false;
+
 $grid-breakpoints: (
     xs: 0,
     sm: 576px,
     md: 768px,
     lg: 1008px,
-    xl: 1200px
+    xl: 1200px,
+    xxl: 1400px
 );
 
 $print-breakpoint: lg;
@@ -18,7 +21,8 @@ $container-max-widths: (
     sm: 540px,
     md: 720px,
     lg: 1000px,
-    xl: 1140px
+    xl: 1140px,
+    xxl: 1320px
 );
 
 $border-color: $medium-gray;
@@ -56,6 +60,11 @@ $tooltip-opacity: 1;
 
 $breadcrumb-padding-y: 3px;
 $breadcrumb-padding-x: 0.5rem;
-$breadcrumb-item-padding: 0.3rem;
+$breadcrumb-item-padding-x: 0.3rem;
 $breadcrumb-margin-bottom: 0;
 $breadcrumb-bg: $darker-gray;
+
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$small-font-size: 0.8rem;
