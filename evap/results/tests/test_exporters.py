@@ -416,8 +416,8 @@ class TestExporters(TestCase):
         question1 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire1)
         question2 = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire2)
 
-        make_rating_answer_counters(question1, evaluation.general_contribution, {1: 1, 3: 1})
-        make_rating_answer_counters(question2, evaluation.general_contribution, {2: 1, 4: 1})
+        make_rating_answer_counters(question1, evaluation.general_contribution, [1, 0, 1, 0, 0])
+        make_rating_answer_counters(question2, evaluation.general_contribution, [0, 1, 0, 1, 0])
 
         evaluation.general_contribution.questionnaires.set([questionnaire1, questionnaire2])
         cache_results(evaluation)
@@ -446,7 +446,7 @@ class TestExporters(TestCase):
             for i in range(3)
         ]
 
-        grades_per_eval = [{1: 1, 2: 1}, {2: 1, 3: 1}, {1: 1, 3: 1}]
+        grades_per_eval = [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [1, 0, 1, 0, 0]]
         expected_average = 2.0
 
         questionnaire = baker.make(Questionnaire)
@@ -474,8 +474,7 @@ class TestExporters(TestCase):
         questionnaire = baker.make(Questionnaire)
         question = baker.make(Question, type=Question.POSITIVE_YES_NO, questionnaire=questionnaire)
 
-        # 1,5 are yes, no according to RatingAnswerCounter class definition
-        make_rating_answer_counters(question, evaluation.general_contribution, {1: 4, 5: 2})
+        make_rating_answer_counters(question, evaluation.general_contribution, [4, 2])
 
         evaluation.general_contribution.questionnaires.set([questionnaire])
         cache_results(evaluation)
@@ -511,14 +510,14 @@ class TestExporters(TestCase):
         contributor_question = baker.make(Question, type=Question.LIKERT, questionnaire=contributor_questionnaire)
 
         evaluation_1.general_contribution.questionnaires.set([general_questionnaire])
-        make_rating_answer_counters(general_question, evaluation_1.general_contribution, {1: 2})
+        make_rating_answer_counters(general_question, evaluation_1.general_contribution, [2, 0, 0, 0, 0])
         evaluation_2.general_contribution.questionnaires.set([general_questionnaire])
-        make_rating_answer_counters(general_question, evaluation_2.general_contribution, {4: 2})
+        make_rating_answer_counters(general_question, evaluation_2.general_contribution, [0, 0, 0, 2, 0])
 
         contribution.questionnaires.set([contributor_questionnaire])
-        make_rating_answer_counters(contributor_question, contribution, {3: 2})
+        make_rating_answer_counters(contributor_question, contribution, [0, 0, 2, 0, 0])
         other_contribution.questionnaires.set([contributor_questionnaire])
-        make_rating_answer_counters(contributor_question, other_contribution, {2: 2})
+        make_rating_answer_counters(contributor_question, other_contribution, [0, 2, 0, 0, 0])
 
         cache_results(evaluation_1)
         cache_results(evaluation_2)

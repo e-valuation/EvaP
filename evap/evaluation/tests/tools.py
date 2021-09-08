@@ -8,6 +8,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
+    CHOICES,
     Contribution,
     Course,
     Degree,
@@ -131,12 +132,17 @@ def make_rating_answer_counters(question, contribution, answer_counts=None):
     """
     Create RatingAnswerCounters for a question for a contribution.
     Examples:
-    make_rating_answer_counters(rating_question, contribution, {1:15, 2:12, 4:100, 5:2})
-    make_rating_answer_counters(yesno_question, contribution, {1:15, 5:2})
-    make_rating_answer_counters(bipolar_question, contribution, {-3:20, -2:15, 0:1, 1:15, 3:2})
+    make_rating_answer_counters(rating_question, contribution, [5, 15, 40, 60, 30])
+    make_rating_answer_counters(yesno_question, contribution, [15, 2])
+    make_rating_answer_counters(bipolar_question, contribution, [5, 5, 15, 30, 25, 15, 10])
     """
+    expected_counts = len(CHOICES[question.type].grades)
+
     if answer_counts is None:
-        answer_counts = {1: 20}
+        answer_counts = [0] * expected_counts
+        answer_counts[0] = 42
+
+    assert len(answer_counts) == expected_counts
 
     return baker.make(
         RatingAnswerCounter,
@@ -144,6 +150,6 @@ def make_rating_answer_counters(question, contribution, answer_counts=None):
         contribution=contribution,
         _bulk_create=True,
         _quantity=len(answer_counts),
-        answer=iter(answer_counts.keys()),
-        count=iter(answer_counts.values()),
+        answer=iter(CHOICES[question.type].values),
+        count=iter(answer_counts),
     )

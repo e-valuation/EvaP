@@ -1837,7 +1837,7 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
         contribution.save()
 
         question = Questionnaire.single_result_questionnaire().questions.get()
-        make_rating_answer_counters(question, contribution, {1: 5, 2: 15, 3: 40, 4: 60, 5: 30})
+        make_rating_answer_counters(question, contribution, [5, 15, 40, 60, 30])
 
 
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):

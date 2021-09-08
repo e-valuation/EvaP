@@ -221,7 +221,7 @@ class TestResultsViewContributionWarning(WebTest):
         cls.url = "/results/semester/%s/evaluation/%s" % (cls.semester.id, cls.evaluation.id)
 
     def test_many_answers_evaluation_no_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, {3: 10})
+        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -232,7 +232,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        make_rating_answer_counters(self.likert_question, self.contribution, {3: 3})
+        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
@@ -369,7 +369,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
-        make_rating_answer_counters(likert_question, evaluation.general_contribution, {1: 20})
+        make_rating_answer_counters(likert_question, evaluation.general_contribution, [20, 0, 0, 0, 0])
         cache_results(evaluation)
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"

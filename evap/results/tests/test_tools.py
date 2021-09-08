@@ -86,7 +86,7 @@ class TestCalculateResults(TestCase):
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
 
-        make_rating_answer_counters(question, contribution1, {1: 5, 2: 15, 3: 40, 4: 60, 5: 30})
+        make_rating_answer_counters(question, contribution1, [5, 15, 40, 60, 30])
 
         cache_results(evaluation)
         evaluation_results = get_results(evaluation)
@@ -116,7 +116,7 @@ class TestCalculateResults(TestCase):
             Contribution, contributor=contributor1, evaluation=evaluation, questionnaires=[questionnaire]
         )
 
-        make_rating_answer_counters(question, contribution1, {-3: 5, -2: 5, -1: 15, 0: 30, 1: 25, 2: 15, 3: 10})
+        make_rating_answer_counters(question, contribution1, [5, 5, 15, 30, 25, 15, 10])
 
         cache_results(evaluation)
         evaluation_results = get_results(evaluation)
@@ -205,14 +205,14 @@ class TestCalculateAverageDistribution(TestCase):
     def test_average_grade(self):
         question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=Question.GRADE)
 
-        make_rating_answer_counters(self.question_grade, self.contribution1, {2: 1})
-        make_rating_answer_counters(self.question_grade, self.contribution2, {4: 2})
-        make_rating_answer_counters(question_grade2, self.contribution1, {1: 1})
-        make_rating_answer_counters(self.question_likert, self.contribution1, {3: 4})
-        make_rating_answer_counters(self.question_likert, self.general_contribution, {5: 5})
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, {3: 3})
-        make_rating_answer_counters(self.question_bipolar, self.general_contribution, {3: 2})
-        make_rating_answer_counters(self.question_bipolar_2, self.general_contribution, {-1: 4})
+        make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0])
+        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 0, 0, 2, 0])
+        make_rating_answer_counters(question_grade2, self.contribution1, [1, 0, 0, 0, 0])
+        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0])
+        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
+        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2])
+        make_rating_answer_counters(self.question_bipolar_2, self.general_contribution, [0, 0, 4, 0, 0, 0, 0])
 
         cache_results(self.evaluation)
 
@@ -251,11 +251,11 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_without_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, {1: 1, 3: 1})
-        make_rating_answer_counters(self.question_grade, self.contribution2, {4: 1, 2: 1})
-        make_rating_answer_counters(self.question_likert, self.contribution1, {3: 3, 5: 3})
-        make_rating_answer_counters(self.question_likert, self.general_contribution, {5: 5})
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, {3: 3})
+        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
+        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
+        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
+        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
+        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
 
         cache_results(self.evaluation)
 
@@ -282,12 +282,12 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_with_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, {1: 1, 3: 1})
-        make_rating_answer_counters(self.question_grade, self.contribution2, {4: 1, 2: 1})
-        make_rating_answer_counters(self.question_likert, self.contribution1, {3: 3, 5: 3})
-        make_rating_answer_counters(self.question_likert, self.general_contribution, {5: 5})
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, {3: 3})
-        make_rating_answer_counters(self.question_grade, self.general_contribution, {2: 10})
+        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
+        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
+        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
+        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
+        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
+        make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 10, 0, 0, 0])
 
         cache_results(self.evaluation)
 
@@ -314,7 +314,7 @@ class TestCalculateAverageDistribution(TestCase):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        make_rating_answer_counters(questionnaire.questions.first(), contribution, {1: 1, 4: 1})
+        make_rating_answer_counters(questionnaire.questions.first(), contribution, [1, 0, 0, 1, 0])
 
         cache_results(single_result_evaluation)
         distribution = calculate_average_distribution(single_result_evaluation)
@@ -339,16 +339,14 @@ class TestCalculateAverageDistribution(TestCase):
         )
 
         evaluation.general_contribution.questionnaires.set([self.questionnaire])
-        make_rating_answer_counters(self.question_grade, evaluation.general_contribution, {1: 1})
+        make_rating_answer_counters(self.question_grade, evaluation.general_contribution, [1, 0, 0, 0, 0])
         cache_results(evaluation)
 
         distribution = calculate_average_distribution(evaluation)
         self.assertEqual(distribution[0], 1)
 
     def test_unipolarized_unipolar(self):
-        answer_counters = make_rating_answer_counters(
-            self.question_likert, self.general_contribution, {1: 5, 2: 3, 3: 1, 4: 1, 5: 0}
-        )
+        answer_counters = make_rating_answer_counters(self.question_likert, self.general_contribution, [5, 3, 1, 1, 0])
 
         result = RatingResult(self.question_likert, answer_counters)
         distribution = unipolarized_distribution(result)
@@ -360,7 +358,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_unipolarized_bipolar(self):
         answer_counters = make_rating_answer_counters(
-            self.question_bipolar, self.general_contribution, {-3: 0, -2: 1, -1: 4, 0: 8, 1: 2, 2: 2, 3: 3}
+            self.question_bipolar, self.general_contribution, [0, 1, 4, 8, 2, 2, 3]
         )
 
         result = RatingResult(self.question_bipolar, answer_counters)
@@ -373,7 +371,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_unipolarized_yesno(self):
         question_yesno = baker.make(Question, questionnaire=self.questionnaire, type=Question.POSITIVE_YES_NO)
-        answer_counters = make_rating_answer_counters(question_yesno, self.general_contribution, {1: 57, 5: 43})
+        answer_counters = make_rating_answer_counters(question_yesno, self.general_contribution, [57, 43])
 
         result = RatingResult(question_yesno, answer_counters)
         distribution = unipolarized_distribution(result)
@@ -384,7 +382,7 @@ class TestCalculateAverageDistribution(TestCase):
         self.assertAlmostEqual(distribution[4], 0.43)
 
     def test_calculate_average_course_distribution(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, {1: 2})
+        make_rating_answer_counters(self.question_grade, self.contribution1, [2, 0, 0, 0, 0])
 
         course = self.evaluation.course
         single_result = baker.make(
@@ -404,7 +402,7 @@ class TestCalculateAverageDistribution(TestCase):
         contribution = baker.make(
             Contribution, evaluation=single_result, contributor=None, questionnaires=[single_result_questionnaire]
         )
-        make_rating_answer_counters(single_result_question, contribution, {2: 1, 3: 1})
+        make_rating_answer_counters(single_result_question, contribution, [0, 1, 1, 0, 0])
         cache_results(single_result)
         cache_results(self.evaluation)
 
