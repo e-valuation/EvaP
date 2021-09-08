@@ -20,11 +20,10 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
-    RatingAnswerCounter,
     Semester,
     UserProfile,
 )
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager
+from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manager, make_rating_answer_counters
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data
@@ -222,9 +221,7 @@ class TestResultsViewContributionWarning(WebTest):
         cls.url = "/results/semester/%s/evaluation/%s" % (cls.semester.id, cls.evaluation.id)
 
     def test_many_answers_evaluation_no_warning(self):
-        baker.make(
-            RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=10
-        )
+        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertNotIn("Only a few participants answered these questions.", page)
@@ -235,9 +232,7 @@ class TestResultsViewContributionWarning(WebTest):
         self.assertNotIn("Only a few participants answered these questions.", page)
 
     def test_few_answers_evaluation_show_warning(self):
-        baker.make(
-            RatingAnswerCounter, question=self.likert_question, contribution=self.contribution, answer=3, count=3
-        )
+        make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 3, 0, 0])
         cache_results(self.evaluation)
         page = self.app.get(self.url, user=self.manager, status=200)
         self.assertIn("Only a few participants answered these questions.", page)
@@ -295,27 +290,9 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.evaluation.general_contribution.questionnaires.set([top_questionnaire, bottom_questionnaire])
         self.contribution.questionnaires.set([contributor_questionnaire])
 
-        baker.make(
-            RatingAnswerCounter,
-            question=top_likert_question,
-            contribution=self.evaluation.general_contribution,
-            answer=2,
-            count=100,
-        )
-        baker.make(
-            RatingAnswerCounter,
-            question=contributor_likert_question,
-            contribution=self.contribution,
-            answer=1,
-            count=100,
-        )
-        baker.make(
-            RatingAnswerCounter,
-            question=bottom_likert_question,
-            contribution=self.evaluation.general_contribution,
-            answer=3,
-            count=100,
-        )
+        make_rating_answer_counters(top_likert_question, self.evaluation.general_contribution)
+        make_rating_answer_counters(contributor_likert_question, self.contribution)
+        make_rating_answer_counters(bottom_likert_question, self.evaluation.general_contribution)
 
         cache_results(self.evaluation)
 
@@ -343,7 +320,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         contribution = baker.make(
             Contribution, evaluation=self.evaluation, questionnaires=[questionnaire], contributor=contributor
         )
-        baker.make(RatingAnswerCounter, question=likert_question, contribution=contribution, answer=3, count=100)
+        make_rating_answer_counters(likert_question, contribution)
 
         cache_results(self.evaluation)
 
@@ -392,13 +369,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation.participants.set(participants)
         evaluation.voters.set(participants)
-        baker.make(
-            RatingAnswerCounter,
-            question=likert_question,
-            contribution=evaluation.general_contribution,
-            answer=1,
-            count=20,
-        )
+        make_rating_answer_counters(likert_question, evaluation.general_contribution, [20, 0, 0, 0, 0])
         cache_results(evaluation)
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"

@@ -34,6 +34,7 @@ from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_manager,
     create_evaluation_with_responsible_and_editor,
+    make_rating_answer_counters,
 )
 from evap.results.tools import cache_results, get_results
 from evap.rewards.models import SemesterActivation, RewardPointGranting
@@ -1836,17 +1837,7 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
         contribution.save()
 
         question = Questionnaire.single_result_questionnaire().questions.get()
-        answer_counts = {1: 5, 2: 15, 3: 40, 4: 60, 5: 30}
-
-        baker.make(
-            RatingAnswerCounter,
-            question=question,
-            contribution=contribution,
-            _bulk_create=True,
-            _quantity=len(answer_counts),
-            answer=iter(answer_counts.keys()),
-            count=iter(answer_counts.values()),
-        )
+        make_rating_answer_counters(question, contribution, [5, 15, 40, 60, 30])
 
 
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):

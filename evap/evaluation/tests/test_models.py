@@ -25,7 +25,12 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.grades.models import GradeDocument
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
+from evap.evaluation.tests.tools import (
+    let_user_vote_for_evaluation,
+    make_contributor,
+    make_editor,
+    make_rating_answer_counters,
+)
 from evap.results.tools import calculate_average_distribution, cache_results
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
@@ -219,13 +224,7 @@ class TestEvaluations(WebTest):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(
-            RatingAnswerCounter,
-            answer=1,
-            count=1,
-            question=Questionnaire.single_result_questionnaire().questions.first(),
-            contribution=contribution,
-        )
+        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
         evaluation.skip_review_single_result()
         evaluation.publish()
         evaluation.save()
@@ -253,13 +252,7 @@ class TestEvaluations(WebTest):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(
-            RatingAnswerCounter,
-            answer=1,
-            count=1,
-            question=Questionnaire.single_result_questionnaire().questions.first(),
-            contribution=contribution,
-        )
+        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
 
         single_result.skip_review_single_result()
         single_result.publish()  # used to crash

@@ -7,7 +7,16 @@ from django.utils import timezone
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Degree, Evaluation, Questionnaire, UserProfile
+from evap.evaluation.models import (
+    CHOICES,
+    Contribution,
+    Course,
+    Degree,
+    Evaluation,
+    Questionnaire,
+    RatingAnswerCounter,
+    UserProfile,
+)
 from evap.student.tools import answer_field_id
 
 
@@ -116,4 +125,31 @@ def make_editor(user, evaluation):
         evaluation=evaluation,
         contributor=user,
         role=Contribution.Role.EDITOR,
+    )
+
+
+def make_rating_answer_counters(question, contribution, answer_counts=None):
+    """
+    Create RatingAnswerCounters for a question for a contribution.
+    Examples:
+    make_rating_answer_counters(rating_question, contribution, [5, 15, 40, 60, 30])
+    make_rating_answer_counters(yesno_question, contribution, [15, 2])
+    make_rating_answer_counters(bipolar_question, contribution, [5, 5, 15, 30, 25, 15, 10])
+    """
+    expected_counts = len(CHOICES[question.type].grades)
+
+    if answer_counts is None:
+        answer_counts = [0] * expected_counts
+        answer_counts[0] = 42
+
+    assert len(answer_counts) == expected_counts
+
+    return baker.make(
+        RatingAnswerCounter,
+        question=question,
+        contribution=contribution,
+        _bulk_create=True,
+        _quantity=len(answer_counts),
+        answer=iter(CHOICES[question.type].values),
+        count=iter(answer_counts),
     )
