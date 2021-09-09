@@ -39,6 +39,42 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
     @include button-outline-variant($danger, $color-hover: $white);
 }
 
+// accordion adjustments
+.accordion-flush .accordion-item {
+    border: 1px solid $dark-gray;
+
+    &:last-child {
+        border: 1px solid $dark-gray;
+    }
+}
+.accordion-body ul {
+    margin-bottom: 0;
+}
+
+// move accordion icon to the left
+.accordion-button {
+    &:not(.collapsed) {
+        &::before {
+            background-image: escape-svg($accordion-button-active-icon);
+            transform: $accordion-icon-transform;
+        }
+    }
+
+    &::after { display: none; }
+    &::before {
+        flex-shrink: 0;
+        width: $accordion-icon-width;
+        height: $accordion-icon-width;
+        margin-right: 1rem;
+        content: "";
+        background-image: escape-svg($accordion-button-icon);
+        background-repeat: no-repeat;
+        background-size: $accordion-icon-width;
+        @include transition($accordion-icon-transition);
+    }
+}
+
+
 // select2 adjustments
 .select2-container--default .select2-selection--single {
     height: 38px;
