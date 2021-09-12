@@ -165,7 +165,8 @@
 
     {% if preview_html %}
         <script type="text/javascript">
-            $('#previewModal').modal();
+            var previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewModal.show();
         </script>
     {% endif %}
 {% endblock %}

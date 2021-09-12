@@ -177,7 +177,8 @@
                             {% for approval_state in approval_states %}
                                 {% with approval_state_values=approval_state|approval_state_values %}
                                     <button type="button" class="btn btn-sm btn-light" data-filter="{{ approval_state }}"
-                                        data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}">
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                        title="{{ approval_state_values.description }}">
                                         <span class="{{ approval_state_values.icon }}"></span>
                                     </button>
                                 {% endwith %}
@@ -185,51 +186,62 @@
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_yet_started"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation did not start yet' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Evaluation did not start yet' %}">
                                 <span class="fas fa-pause icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="in_evaluation"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'In evaluation' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'In evaluation' %}">
                                 <span class="fas fa-play icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluated"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluated' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Evaluated' %}">
                                 <span class="fas fa-stop icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" class="btn btn-sm btn-light" data-filter="no_review"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'No text answers available or evaluation not yet finished' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'No text answers available or evaluation not yet finished' %}">
                                 <span class="fas fa-comment icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers_urgent"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Text answers awaiting urgent review because grading process is finished' %}">
                                 <span class="fas fa-comment icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="unreviewed_textanswers"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers awaiting review' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Text answers awaiting review' %}">
                                 <span class="fas fa-comment icon-yellow"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="textanswers_reviewed"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Text answers reviewed' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Text answers reviewed' %}">
                                 <span class="fas fa-comment icon-green"></span>
                             </button>
                         </div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation not finished' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Evaluation not finished' %}">
                                 <span class="fas fa-chart-bar icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Results not yet published although grading process is finished' %}">
                                 <span class="fas fa-chart-bar icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Results not yet published' %}">
                                 <span class="fas fa-chart-bar icon-yellow"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
-                                data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results published' %}">
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
+                                title="{% trans 'Results published' %}">
                                 <span class="fas fa-chart-bar icon-green"></span>
                             </button>
                         </div>
@@ -421,7 +433,7 @@
         }
     </script>
     {% trans 'Delete semester' as title %}
-    {% trans 'Do you really want to delete the semester <strong data-label=""></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.' as question %}
+    {% blocktrans asvar question %}Do you really want to delete the semester <strong data-label=""></strong>? All courses and evaluations will be deleted as well as all results. If you are sure, enter the name of the semester below.{% endblocktrans %}
     {% trans 'Delete semester' as action_text %}
     {% include 'confirmation_text_modal.html' with modal_id='deleteSemesterModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
@@ -563,7 +575,9 @@
         }
 
         if(localStorage['selected_tab'] === 'courses') {
-            $('#coursesTab').tab('show');
+            var coursesTab = document.getElementById('coursesTab');
+            var coursesTabTrigger = new bootstrap.Tab(coursesTab);
+            coursesTabTrigger.show();
         }
 
         function saveSelectedTab(tab) {

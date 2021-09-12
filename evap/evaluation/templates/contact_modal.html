@@ -45,9 +45,12 @@
 </div>
 
 <script type="text/javascript">
+    var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+    var successMessageModal_{{ modal_id }} = new bootstrap.Modal(document.getElementById('successMessageModal_{{ modal_id }}'));
+
     function {{ modal_id }}Show() {
         $('#{{ modal_id }}ActionButton').unbind().click(function(event){ {{ modal_id }}Action(event); });
-        $('#{{ modal_id }}').modal();
+        {{ modal_id }}.show();
     }
     function {{ modal_id }}Action(event) {
         var actionButton = $('#{{ modal_id }}ActionButton');
@@ -57,7 +60,7 @@
         message = $('#{{ modal_id }}MessageText').val();
 
         if (message.trim() == "") {
-            $('#{{ modal_id }}').modal('hide');
+            {{ modal_id }}.hide();
             actionButton.prop('disabled', false);
             return;
         }
@@ -69,11 +72,11 @@
             type : "POST",
             data : { message: message, title: "{{ title|escapejs }}" },
             success : function(json) {
-                $('#{{ modal_id }}').modal('hide');
-                $('#successMessageModal_{{ modal_id }}').modal('show');
+                {{ modal_id }}.hide();
+                successMessageModal_{{ modal_id }}.show();
                 $('#{{ modal_id }}MessageText').val("");
                 setTimeout(function(){
-                    $('#successMessageModal_{{ modal_id }}').modal('hide');
+                    successMessageModal_{{ modal_id }}.hide();
                     actionButton.prop('disabled', false);
                 }, 3000);
             },

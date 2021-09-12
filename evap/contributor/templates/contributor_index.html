@@ -228,7 +228,7 @@
                             <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            {% trans 'Do you really want to delegate the preparation of the evaluation <strong id="data-label"></strong>?' %}
+                            {% trans 'Do you really want to delegate the preparation of the evaluation <strong data-label=""></strong>?' %}
                             <div class="pt-4">
                                 {% include 'bootstrap_form.html' with form=delegate_selection_form wide=True %}
                             </div>
@@ -248,7 +248,7 @@
                 $('#{{ modal_id }} form').attr('action', action);
 
                 // put the correct evaluation name in the modal
-                $('#{{ modal_id }} #data-label').text(evaluationName);
+                $('#{{ modal_id }} [data-label=""]').text(evaluationName);
 
                 // fix incorrect select2 width calculation that occurrs because the select2 is applied while the modal is invisible
                 $('#{{ modal_id }} span.select2').width("100%");
@@ -257,7 +257,8 @@
                 $('#{{ modal_id }} select').val(null).trigger('change');
 
                 // show modal
-                $('#{{ modal_id }}').modal();
+                var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+                {{ modal_id }}.show();
             }
         </script>
     {% endwith %}

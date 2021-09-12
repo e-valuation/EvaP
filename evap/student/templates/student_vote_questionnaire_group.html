@@ -19,12 +19,12 @@
                         <div class="row row-question">
                     {% endif %}
                         {% if field|is_choice_field %}
-                            <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between {% if field.errors %} choice-error{% endif %}">
+                            <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between{% if field.errors %} choice-error{% endif %}">
                                 <span class="me-1">
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}
-                                    <span class="my-auto" data-bs-toggle="tooltip" title="{% trans 'Add a text answer to this question' %}">
+                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% trans 'Add a text answer to this question' %}">
                                         <button type="button" class="btn btn-textanswer collapsed" data-bs-toggle="collapse" data-bs-target=".collapse-{{ field.name }}">
                                             <span class="far fa-comment"></span>
                                         </button>

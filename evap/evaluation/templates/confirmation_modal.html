@@ -25,6 +25,7 @@
         // put the dataLabel text in the right place
         $('#{{modal_id}} [data-label=""]').text(dataLabel);
         // show modal
-        $('#{{ modal_id }}').modal();
+        var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+        {{ modal_id }}.show();
     }
 </script>
