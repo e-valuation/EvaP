@@ -562,12 +562,11 @@
             $(this).find('.btn').toggleClass('btn-secondary');
         });
 
-        if (localStorage['show_overview'] === 'true') {
-            $('#overviewCard').collapse('show');
-        }
-        else {
-            $('#overviewCard').collapse('hide');
-        }
+
+        var overviewCard = document.getElementById('overviewCard');
+        var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
+            toggle: localStorage['show_overview'] === 'true'
+        });
 
         function saveCollapseState() {
             var state = localStorage['show_overview'] === 'true';
