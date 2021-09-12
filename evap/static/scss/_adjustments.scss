@@ -74,6 +74,16 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
     }
 }
 
+// make buttons in btn-groups usable in forms
+.btn-switch-navbar .btn-group > :not(:last-child) > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.btn-switch-navbar .btn-group > :not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 
 // select2 adjustments
 .select2-container--default .select2-selection--single {
