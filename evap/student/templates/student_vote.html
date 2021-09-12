@@ -309,7 +309,7 @@
 
             document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
                 const contributorId = button.dataset.markNoAnswersFor;
-                const voteArea = document.querySelector(`#vote-area-${contributorId}`);
+                const voteArea = document.getElementById(`vote-area-${contributorId}`);
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
                 button.addEventListener("click", () => {
@@ -324,7 +324,7 @@
                     sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
-                    $(voteArea).collapse("hide");
+                    var voteAreaCollapse = new bootstrap.Collapse(voteArea, {hide: true});
                     collapseToggle.classList.add("tab-selectable");
 
                     // Disable this button, until user changes a value
