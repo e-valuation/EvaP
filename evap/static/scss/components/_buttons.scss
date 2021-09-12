@@ -159,25 +159,6 @@ a:not([href]):not(.disabled) {
     max-width: 16em;
 }
 
-.btn-option {
-    background-color: $white;
-    border-color: $light-gray;
-    color: $black;
-}
-.btn-option.active {
-    background-color: $evap-dark-blue;
-    color: $white;
-}
-.btn-option.disabled {
-    opacity: 0.6;
-}
-.btn-option:hover:not(.disabled) {
-    background-color: $light-gray;
-}
-.btn-option.active:hover:not(.disabled) {
-    background-color: shade-color($evap-dark-blue, 20%);
-}
-
 .vote-btn {
     width: 6rem;
     height: 2.5rem;

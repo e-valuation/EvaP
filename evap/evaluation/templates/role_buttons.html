@@ -1,6 +1,6 @@
 {% load evaluation_filters %}
 
-<div class="btn-group btn-group-toggle" data-bs-toggle="buttons">
+<div class="btn-group">
     {% for choice in form.role %}
         {% if choice.data.value == form.instance.Role.EDITOR %}
             {% trans 'Able to edit the evaluation for preparation.' as tooltip %}
