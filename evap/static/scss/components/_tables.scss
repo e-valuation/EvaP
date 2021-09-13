@@ -112,6 +112,13 @@
     height: 2.5rem;
 }
 
+tr.heading-row td {
+    border-bottom: none;
+}
+tr.heading-row:not(:first-child) td {
+    border-top: 1px solid $light-gray;
+}
+
 tr.heading-row.course-row {
     td {
         padding-bottom: 0.2rem;
@@ -154,6 +161,6 @@ tr.evaluation-row:not(.heading-row) {
     }
 }
 
-.table-headerless tr:first-child td {
-    border-top-width: 0;
+.table-headerless tr:last-child td {
+    border-bottom-width: 0;
 }
