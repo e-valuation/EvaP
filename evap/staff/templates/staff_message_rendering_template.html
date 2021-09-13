@@ -1,48 +1,48 @@
 {% for message in success_messages %}
-    <div class="alert alert-success alert-dismissable">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    <div class="alert alert-success alert-dismissible">
         {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 {% endfor %}
 
 {% for key, errorlist in errors.items %}
     <div class="card collapsible card-outline-danger mb-3">
         <div class="card-header">
-              <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ key.value }}Card" aria-expanded="false"
-                aria-controls="{{ key.value }}Card">
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ key.value }}Card" aria-expanded="false"
+                    aria-controls="{{ key.value }}Card">
                 {{ key.label }}
             </a>
         </div>
         <div class="collapse show" id="{{ key.value }}Card">
             <div class="card-body">
                 {% for error in errorlist %}
-                    <div class="alert alert-danger alert-dismissable">
-                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-                          {{ error }}
-                      </div>
-                  {% endfor %}
-              </div>
-          </div>
-      </div>
+                    <div class="alert alert-danger alert-dismissible">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endfor %}
 
 {% for key, warninglist in warnings.items %}
     <div class="card card-outline-warning collapsible mb-3">
         <div class="card-header">
-              <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ key.value }}Card" aria-expanded="false"
-                aria-controls="{{ key.value }}Card">
+            <a class="collapse-toggle" data-bs-toggle="collapse" href="#{{ key.value }}Card" aria-expanded="false"
+                    aria-controls="{{ key.value }}Card">
                 {{ key.label }}
             </a>
         </div>
         <div class="collapse show" id="{{ key.value }}Card">
             <div class="card-body">
                 {% for warning in warninglist %}
-                    <div class="alert alert-warning alert-dismissable">
-                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-                          {{ warning }}
-                      </div>
-                  {% endfor %}
-              </div>
-          </div>
-      </div>
+                    <div class="alert alert-warning alert-dismissible">
+                        {{ warning }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endfor %}

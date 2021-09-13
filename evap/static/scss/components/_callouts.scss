@@ -18,7 +18,7 @@
 
 .callout-content {
     max-height: 500px;
-    max-width: 1200px;
+    max-width: 1300px;
     padding-top: 20px;
     overflow: hidden;
 }
@@ -26,16 +26,19 @@
 .callout-warning {
     background-color: $evap-light-yellow;
     border-color: $evap-yellow;
+    color: shade-color($evap-yellow, 60%);
 }
 
 .callout-danger {
     background-color: $evap-light-red;
     border-color: $evap-red;
+    color: shade-color($evap-red, 60%);
 }
 
 .callout-info {
     background-color: $evap-light-blue;
     border-color: $evap-dark-blue;
+    color: shade-color($evap-dark-blue, 60%);
 
     .callout-header {
         color: $evap-dark-blue;

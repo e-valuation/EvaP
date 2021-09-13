@@ -49,9 +49,9 @@
 
         <div class="container mb-4 pt-3">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags|message_class }} alert-dismissable">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
                     {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
 
