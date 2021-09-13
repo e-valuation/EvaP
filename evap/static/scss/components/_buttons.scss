@@ -219,12 +219,16 @@ a.collapse-toggle {
         &:hover {
             background-color: change-color($color, $lightness: 85%);
         }
-
-        &.active {
-            background-color: $color;
-            color: change-color($color, $lightness: 30%);
-        }
     }
+
+    .btn-check:checked + .vote-btn-#{$name} {
+        background-color: $color;
+        color: change-color($color, $lightness: 30%);
+    }
+}
+
+.btn-group > .vote-btn {
+    flex: 0 1 auto;
 }
 
 .btn-area {
