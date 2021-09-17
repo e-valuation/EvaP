@@ -9,13 +9,13 @@
         <h3 class="col-9 mb-0">
             {{ semester.name }}
         </h3>
-        <div class="input-group col-3">
-            <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-            <div class="input-group-append">
+        <div class="col-3">
+            <div class="input-group">
+                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
                     <span class="fas fa-backspace"></span>
                 </button>
-              </div>
+            </div>
         </div>
     </div>
 
