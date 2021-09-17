@@ -44,7 +44,7 @@
                                 </td>
                                 <td>
                                     {% if form.instance.can_be_deleted_by_manager %}
-                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
                                         <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
                                             title="{% trans 'This degree cannot be deleted because it is used for at least one course.' %}">

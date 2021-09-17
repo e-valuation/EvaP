@@ -40,7 +40,7 @@
                                 <td>
                                     {% include 'multiple_checkbox_widget.html' with field=form.selected_course_types %}
                                 </td>
-                                <td>{{ form.DELETE }}</td>
+                                <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

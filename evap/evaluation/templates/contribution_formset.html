@@ -67,7 +67,7 @@
                     </td>
                     <td>
                     {% if editable %}
-                        {{ form.DELETE }}
+                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                     {% endif %}
                     </td>
                 </tr>
