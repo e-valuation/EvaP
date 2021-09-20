@@ -83,6 +83,8 @@ jobs:
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Check code formatting
         run: black --check evap
+      - name: Check imports formatting
+        run: isort . --check --diff
 
 
   backup-process:
