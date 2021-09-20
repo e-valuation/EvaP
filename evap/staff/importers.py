@@ -574,7 +574,7 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation.participants.add(*participants)
 
             msg = format_html(
-                ngettext('Successfully created one course/evaluation,', 'Successfully created %(evaluation)d courses/evaluations,', len(self.evaluations),) % {'evaluation': len(self.evaluations)}
+                ngettext('Successfully created one course/evaluation,', 'Successfully created {evaluation} courses/evaluations,', len(self.evaluations),).format(evaluation = len(self.evaluations))
             )
             if len(students_created) == 0 and len(responsibles_created) == 0:
                 msg += format_html(_(" no students and no contributors."))
@@ -583,13 +583,13 @@ class EnrollmentImporter(ExcelImporter):
                     msg += format_html(_(" no students"))
                 else:
                     msg += format_html(
-                        ngettext(' one student', ' %(users)d students', len(students_created),) % {'users': len(students_created)}
+                        ngettext(' one student', ' {users} students', len(students_created),).format(users = len(students_created))
                     )
                     if len(responsibles_created) == 0:
                         msg += format_html(_(" and no contributors:"))
                     else:
                         msg += format_html(
-                            ngettext(' and one contributor:', ' and %(users)d contributors:', len(responsibles_created),) % {'users': len(responsibles_created)}
+                            ngettext(' and one contributor:', ' and {users} contributors:', len(responsibles_created),).format(users = len(responsibles_created))
                         )
                 msg += create_user_list_html_string_for_message(students_created + responsibles_created)
         self.success_messages.append(msg)
@@ -599,12 +599,12 @@ class EnrollmentImporter(ExcelImporter):
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
         msg = format_html(
-            ngettext('The import run will create one course/evaluation', 'The import run will create %(evaluation)d courses/evaluations', len(self.evaluations),) % {'evaluation': len(self.evaluations)}
+            ngettext('The import run will create one course/evaluation', 'The import run will create {evaluation} courses/evaluations', len(self.evaluations),).format(evaluation = len(self.evaluations))
         )
         if len(filtered_users) == 0:
             msg += format_html(_(" and no users."))
         else:
-            msg += format_html(ngettext(' and one user:', ' and %(users)d users:', len(filtered_users),) % {'users': len(filtered_users)})
+            msg += format_html(ngettext(' and one user:', ' and {users} users:', len(filtered_users),).format(users = len(filtered_users)))
             msg += create_user_list_html_string_for_message(filtered_users)
         self.success_messages.append(msg)
 
@@ -702,7 +702,7 @@ class UserImporter(ExcelImporter):
         if len(created_users) == 0:
             msg = format_html(_("No users were created"))
         else:
-            msg = format_html(ngettext('Successfully created one user:', 'Successfully created %(users)d users:', len(created_users),) % {'users': len(created_users)})
+            msg = format_html(ngettext('Successfully created one user:', 'Successfully created {users} users:', len(created_users),).format(users = len(created_users)))
             msg += create_user_list_html_string_for_message(created_users)
         self.success_messages.append(msg)
         return new_participants
@@ -724,7 +724,7 @@ class UserImporter(ExcelImporter):
         if len(filtered_users) == 0:
             msg = format_html(_("The import run will create no users"))
         else:
-            msg = format_html(ngettext('The import run will create one user:', 'The import run will create %(users)d users:', len(filtered_users),) % {'users': len(filtered_users)})
+            msg = format_html(ngettext('The import run will create one user:', 'The import run will create {users} users:', len(filtered_users),).format(users = len(filtered_users)))
             msg += create_user_list_html_string_for_message(filtered_users)
         self.success_messages.append(msg)
 
@@ -783,14 +783,13 @@ class PersonImporter:
 
         if already_related:
             msg = format_html(
-                ngettext('The following user is already participant in evaluation %(name)s:', 'The following %(users)d are already participants in evaluation %(name)s:', len(already_related),) % {'users': len(already_related),'name': evaluation.full_name}
+                ngettext('The following user is already participant in evaluation {name}:', 'The following {users} are already participants in evaluation {name}:', len(already_related),).format(users = len(already_related), name = evaluation.full_name)
             )
             msg += create_user_list_html_string_for_message(already_related)
             self.warnings[ImporterWarning.GENERAL].append(msg)
 
         if len(users_to_add) == 0:
             if not test_run:
-                evaluation.participants.add(*users_to_add)
                 msg = format_html(_("Zero participants added to the evaluation {}"), evaluation.full_name)
             else:
                 msg = format_html(_("Zero participants would be added to the evaluation {}"), evaluation.full_name)
@@ -799,11 +798,11 @@ class PersonImporter:
             if not test_run:
                 evaluation.participants.add(*users_to_add)
                 msg = format_html(
-                    ngettext('One participant added to the evaluation %(name)s:', '%(users)d participants added to the evaluation %(name)s:', len(users_to_add),) % {'users': len(users_to_add),'name': evaluation.full_name}
+                    ngettext('One participant added to the evaluation {name}:', '{users} participants added to the evaluation {name}:', len(users_to_add),).format(name = evaluation.full_name, users = len(users_to_add))
                 )
             else:
                 msg = format_html(
-                    ngettext('One participant would be added to the evaluation %(name)s:', '%(users)d participants would be added to the evaluation %(name)s:', len(users_to_add),) % {'users': len(users_to_add),'name': evaluation.full_name}
+                    ngettext('One participant would be added to the evaluation {name}:', '{users} participants would be added to the evaluation {name}:', len(users_to_add),).format(name = evaluation.full_name, users = len(users_to_add))
                 )
             msg += create_user_list_html_string_for_message(users_to_add)
 
@@ -814,12 +813,7 @@ class PersonImporter:
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = format_html(
-                _("The following {} users are already contributing to evaluation {}:"),
-                len(already_related),
-                evaluation.full_name
-            )
-            msg = format_html(
-                ngettext('The following user is already contributing to evaluation %(name)s:', 'The following %(users)d users are already contributing to evaluation %(name)s:', len(already_related),) % {'users': len(already_related),'name': evaluation.full_name}
+                ngettext('The following user is already contributing to evaluation {name}:', 'The following {users} users are already contributing to evaluation {name}:', len(already_related),).format(users = len(already_related), name = evaluation.full_name)
             )
             msg += create_user_list_html_string_for_message(already_related)
             self.warnings[ImporterWarning.GENERAL].append(msg)
@@ -830,7 +824,6 @@ class PersonImporter:
 
         if len(users_to_add) == 0:
             if not test_run:
-                evaluation.participants.add(*users_to_add)
                 msg = format_html(_("Zero contributors added to the evaluation {}"), evaluation.full_name)
             else:
                 msg = format_html(_("Zero contributors would be added to the evaluation {}"), evaluation.full_name)
@@ -840,11 +833,11 @@ class PersonImporter:
                     order = Contribution.objects.filter(evaluation=evaluation).count()
                     Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
                 msg = format_html(
-                    ngettext('One contributor added to the evaluation %(name)s:', '%(user)s contributors added to the evaluation %(name)s:', len(users_to_add),) % {'user': len(users_to_add), 'name': evaluation.full_name}
+                    ngettext('One contributor added to the evaluation {name}:', '{user} contributors added to the evaluation {name}:', len(users_to_add),).format(user = len(users_to_add), name = evaluation.full_name)
                 )
             else:
                 msg = format_html(
-                    ngettext('One contributor would be added to the evaluation %(name)s:', '%(user)s contributors would be added to the evaluation %(name)s:', len(users_to_add),) % {'user': len(users_to_add), 'name': evaluation.full_name}
+                    ngettext('One contributor would be added to the evaluation {name}:', '{user} contributors would be added to the evaluation {name}:', len(users_to_add),).format(user = len(users_to_add), name = evaluation.full_name)
                 )
             msg += create_user_list_html_string_for_message(users_to_add)
 
