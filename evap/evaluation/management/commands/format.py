@@ -10,3 +10,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         subprocess.run(["black", "evap"], check=False)  # nosec
+        subprocess.run(["isort", "."], check=False)  # nosec

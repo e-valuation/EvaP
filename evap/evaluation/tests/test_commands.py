@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from io import StringIO
 from itertools import chain, cycle
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.conf import settings
 from django.core import mail, management
@@ -305,11 +305,16 @@ class TestLintCommand(TestCase):
 
 
 class TestFormatCommand(TestCase):
-    @staticmethod
     @patch("subprocess.run")
-    def test_black_called(mock_subprocess_run):
+    def test_formatters_called(self, mock_subprocess_run):
         management.call_command("format")
-        mock_subprocess_run.assert_called_once_with(["black", "evap"], check=False)
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 2)
+        mock_subprocess_run.assert_has_calls(
+            [
+                call(["black", "evap"], check=False),
+                call(["isort", "."], check=False),
+            ]
+        )
 
 
 class TestPrecommitCommand(TestCase):
