@@ -174,22 +174,28 @@ class TestUserImporter(TestCase):
 
     def test_user_success_messages(self):
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn('The import run will create 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)', success_messages)
+        self.assertIn('The import run will create 2 users:', success_messages[3])
+        self.assertIn('lucilia.manilium@institution.example.com', success_messages[3])
+        self.assertIn('bastius.quid@external.example.com', success_messages[3])
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
         old_user_count = UserProfile.objects.count()
-        self.assertIn('Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)', success_messages)
+        self.assertIn('Successfully created 2 users:', success_messages[2])
+        self.assertIn('lucilia.manilium@institution.example.com', success_messages[2])
+        self.assertIn('bastius.quid@external.example.com', success_messages[2])
         UserProfile.objects.get(email="lucilia.manilium@institution.example.com").delete()
         self.assertEqual(UserProfile.objects.count(), old_user_count-1)
 
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn('The import run will create one user:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)', success_messages)
+        self.assertIn('The import run will create one user:', success_messages[3])
+        self.assertIn('lucilia.manilium@institution.example.com', success_messages[3])
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn('Successfully created one user:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)', success_messages)
+        self.assertIn('Successfully created one user:', success_messages[2])
+        self.assertIn('lucilia.manilium@institution.example.com', success_messages[2])
 
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn('The import run will create no users', success_messages)
+        self.assertIn('The import run will create no users', success_messages[3])
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn('No users were created', success_messages)
+        self.assertIn('No users were created', success_messages[2])
 
 class TestEnrollmentImporter(TestCase):
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
@@ -400,15 +406,15 @@ class TestEnrollmentImporter(TestCase):
     def test_enrollment_success_messages(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn('The import run will create 23 courses/evaluations and 23 users:<br />Bastius Quid (bastius.quid@external.example.com)<br />Diam Sed (345@external.example.com)<br />Eirmod Nonumy (456@external.example.com)<br />Electram Romano (111@external.example.com)<br />Invidunt Tempor (789@external.example.com)<br />Diam Synephebos (diam.synephebos@institution.example.com)<br />Elitr Sadipscing (234@external.example.com)<br />Graecis Sic (890@external.example.com)<br />Labore Takimata (678@external.example.com)<br />Sanctus Aliquyam (567@external.example.com)<br />Sit Dolor (asd@external.example.com)<br />Ipsum Lorem (ipsum.lorem@institution.example.com)<br />Consetetur Amet (123@external.example.com)<br />Latinas Menandri (latinas.menandri@institution.example.com)<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Christoph Prorsus (123@institution.example.com)<br />Eadamque Praeterea (345@institution.example.com)<br />Ferdi Itaque (789@institution.example.com)<br />Probabo Itch (234@institution.example.com)<br />Tam Sed (456@institution.example.com)<br />Torquate Metrodorus (torquate.metrodorus@institution.example.com)<br />Augendas Multi (567@institution.example.com)<br />Invitat Honoris (111@institution.example.com)', success_messages)
+        self.assertIn('The import run will create 23 courses/evaluations and 23 users:', success_messages[4])
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn('Successfully created 23 courses/evaluations, 6 students and 17 contributors:<br />Bastius Quid (bastius.quid@external.example.com)<br />Diam Synephebos (diam.synephebos@institution.example.com)<br />Ipsum Lorem (ipsum.lorem@institution.example.com)<br />Latinas Menandri (latinas.menandri@institution.example.com)<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Torquate Metrodorus (torquate.metrodorus@institution.example.com)<br />Diam Sed (345@external.example.com)<br />Eirmod Nonumy (456@external.example.com)<br />Electram Romano (111@external.example.com)<br />Invidunt Tempor (789@external.example.com)<br />Elitr Sadipscing (234@external.example.com)<br />Graecis Sic (890@external.example.com)<br />Labore Takimata (678@external.example.com)<br />Sanctus Aliquyam (567@external.example.com)<br />Sit Dolor (asd@external.example.com)<br />Consetetur Amet (123@external.example.com)<br />Christoph Prorsus (123@institution.example.com)<br />Eadamque Praeterea (345@institution.example.com)<br />Ferdi Itaque (789@institution.example.com)<br />Probabo Itch (234@institution.example.com)<br />Tam Sed (456@institution.example.com)<br />Augendas Multi (567@institution.example.com)<br />Invitat Honoris (111@institution.example.com)', success_messages)
+        self.assertIn('Successfully created 23 courses/evaluations, 6 students and 17 contributors:', success_messages[3])
 
         excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn('The import run will create one course/evaluation and one user:<br />newDiam newSed (new345@external.institution.com)', success_messages)
+        self.assertIn('The import run will create one course/evaluation and one user:', success_messages[3])
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn('Successfully created one course/evaluation, no students<br />newDiam newSed (new345@external.institution.com)', success_messages)
+        self.assertIn('Successfully created one course/evaluation, no students', success_messages[2])
 
         old_evaluation_count = Evaluation.objects.all().count()
         Evaluation.objects.get(course__name_de="newBauen").delete()
