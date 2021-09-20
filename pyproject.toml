@@ -8,7 +8,12 @@ extend-exclude = """\
     .*/migrations/.*\
 """
 
-
+[tool.isort]
+profile = "black"
+src_paths = ["evap"]
+line_length = 120
+skip_gitignore = true
+extend_skip_glob = ["**/migrations/*"]
 
 [tool.pylint.master]
 jobs = 0
