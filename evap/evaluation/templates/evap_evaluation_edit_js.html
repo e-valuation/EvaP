@@ -12,8 +12,8 @@
                     questionnaireChanged = true;
             })
 
-            roleChanged = ! row.find("input[id$=-role_0]").parent().hasClass("active");
-            commVisibilityChanged = ! row.find("input[id$=_visibility_0]").parent().hasClass("active");
+            roleChanged = ! row.find("input[id$=-role_0]").prop("checked");
+            commVisibilityChanged = ! row.find("input[id$=_visibility_0]").prop("checked");
             labelChanged = row.find("input[id$=-label]").val();
 
             return idChanged || nameChanged || questionnaireChanged || roleChanged || commVisibilityChanged || labelChanged;

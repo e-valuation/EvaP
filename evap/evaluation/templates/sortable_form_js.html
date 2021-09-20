@@ -27,9 +27,6 @@
                 // Checkboxes with 'data-keep' need to stay checked.
                 row.find("input:checkbox:not([data-keep]),:radio").removeAttr("checked");
 
-                //Disable active buttons from bootstrap button groups
-                row.find("label").removeClass("active");
-
                 row.find("input:text,textarea").val("");
 
                 row.find("select").each(function(){
@@ -41,7 +38,6 @@
                 row.find(".btn-group").each(function() {
                     var inputs = $(this).find("input");
                     $(inputs[0]).prop("checked", true);
-                    $(inputs[0]).parent().addClass("active");
                 });
 
                 //Remove all error messages
