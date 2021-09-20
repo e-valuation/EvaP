@@ -2,7 +2,6 @@ from django.urls import path
 
 from evap.contributor import views
 
-
 app_name = "contributor"
 
 urlpatterns = [

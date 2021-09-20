@@ -1,28 +1,28 @@
-from datetime import date, timedelta
-import os
 import itertools
-from math import floor
+import os
 import random
-
 from collections import defaultdict
+from datetime import date, timedelta
+from math import floor
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.serializers.base import ProgressBar
 from django.db import transaction
 
+from evap.evaluation.management.commands.tools import confirm_harmful_operation
 from evap.evaluation.models import (
     CHOICES,
+    NO_ANSWER,
     Contribution,
     Course,
     CourseType,
     Degree,
-    NO_ANSWER,
     RatingAnswerCounter,
     Semester,
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.management.commands.tools import confirm_harmful_operation
 
 
 class Command(BaseCommand):

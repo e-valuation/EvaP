@@ -1,15 +1,14 @@
-from unittest.mock import patch
-from io import StringIO
 import random
+from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group
 from django.core.cache import caches
 from django.core.management import call_command
-from django.test.testcases import TestCase
 from django.db import connection
 from django.test import override_settings
+from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
-
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -27,7 +26,7 @@ from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_manag
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
 from evap.results.views import get_evaluations_with_prefetched_data
-from evap.staff.tests.utils import helper_exit_staff_mode, run_in_staff_mode, WebTestStaffMode
+from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
 
 class TestResultsView(WebTest):

@@ -8,9 +8,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+import logging
 import os
 import sys
-import logging
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 

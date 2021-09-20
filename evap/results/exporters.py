@@ -1,20 +1,19 @@
+import warnings
 from collections import OrderedDict, defaultdict
 from itertools import chain, repeat
-import warnings
-
-from django.db.models import Q
-from django.utils.translation import gettext as _
 
 import xlwt
+from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from evap.evaluation.models import CourseType, Degree, Evaluation, Questionnaire
 from evap.evaluation.tools import ExcelExporter
 from evap.results.tools import (
-    get_results,
     calculate_average_course_distribution,
     calculate_average_distribution,
     distribution_to_grade,
     get_grade_color,
+    get_results,
 )
 
 

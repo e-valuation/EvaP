@@ -1,6 +1,5 @@
 import os
 import time
-
 from contextlib import contextmanager
 
 from django_webtest import WebTest

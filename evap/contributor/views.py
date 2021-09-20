@@ -7,19 +7,19 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from evap.contributor.forms import EvaluationForm, EditorContributionForm, DelegateSelectionForm
-from evap.evaluation.auth import responsible_or_contributor_or_delegate_required, editor_or_delegate_required
+from evap.contributor.forms import DelegateSelectionForm, EditorContributionForm, EvaluationForm
+from evap.evaluation.auth import editor_or_delegate_required, responsible_or_contributor_or_delegate_required
 from evap.evaluation.models import (
     Contribution,
     Course,
     CourseType,
     Degree,
+    EmailTemplate,
     Evaluation,
     Semester,
     UserProfile,
-    EmailTemplate,
 )
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
+from evap.evaluation.tools import FileResponse, get_parameter_from_url_or_session, sort_formset
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
 from evap.staff.forms import ContributionFormSet

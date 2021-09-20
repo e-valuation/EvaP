@@ -2,7 +2,6 @@ from django.urls import path
 
 from evap.rewards import views
 
-
 app_name = "rewards"
 
 urlpatterns = [

@@ -1,8 +1,9 @@
 import os
 from datetime import date, datetime, timedelta
-from typing import Dict, Set, Any
 from enum import Enum
+from typing import Any, Dict, Set
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.core.cache import cache
@@ -10,7 +11,6 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
-from django.conf import settings
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -18,7 +18,7 @@ from evap.evaluation.models import Contribution, Course, Evaluation, TextAnswer,
 from evap.evaluation.models_logging import LogEntry
 from evap.evaluation.tools import clean_email, is_external_email
 from evap.grades.models import GradeDocument
-from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING
+from evap.results.tools import STATES_WITH_RESULTS_CACHING, cache_results
 
 
 def forward_messages(request, success_messages, warnings):

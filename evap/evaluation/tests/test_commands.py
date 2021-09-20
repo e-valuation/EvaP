@@ -1,26 +1,25 @@
-from collections import defaultdict
-from datetime import datetime, date, timedelta
-from io import StringIO
-from itertools import chain, cycle
 import os
 import random
+from collections import defaultdict
+from datetime import date, datetime, timedelta
+from io import StringIO
+from itertools import chain, cycle
 from unittest.mock import patch
 
 from django.conf import settings
-from django.core import management, mail
+from django.core import mail, management
 from django.db.models import Sum
 from django.test import TestCase
 from django.test.utils import override_settings
-
 from model_bakery import baker
 
 from evap.evaluation.models import (
     CHOICES,
+    NO_ANSWER,
     Contribution,
     Course,
-    Evaluation,
     EmailTemplate,
-    NO_ANSWER,
+    Evaluation,
     Question,
     Questionnaire,
     RatingAnswerCounter,

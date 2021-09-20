@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from django.utils.translation import gettext_lazy as _
-from django.dispatch import Signal
 from django.db import models
+from django.dispatch import Signal
+from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.models import UserProfile, Semester
+from evap.evaluation.models import Semester, UserProfile
 
 
 class NoPointsSelected(Exception):

@@ -3,7 +3,6 @@ from datetime import timedelta
 from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
-
 from django_webtest import WebTest
 from model_bakery import baker
 

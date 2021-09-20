@@ -1,5 +1,6 @@
 from django.template import Library
-from evap.results.tools import get_grade_color, normalized_distribution, STATES_WITH_RESULT_TEMPLATE_CACHING
+
+from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, get_grade_color, normalized_distribution
 
 register = Library()
 

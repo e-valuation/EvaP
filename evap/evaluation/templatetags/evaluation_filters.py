@@ -8,7 +8,6 @@ from evap.evaluation.models import BASE_UNIPOLAR_CHOICES, Contribution, Evaluati
 from evap.rewards.tools import can_reward_points_be_used_by
 from evap.student.forms import HeadingField
 
-
 # the names displayed for contributors
 STATE_NAMES = {
     Evaluation.State.NEW: _("new"),

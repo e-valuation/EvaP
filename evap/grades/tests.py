@@ -1,8 +1,7 @@
 from datetime import date, datetime, timedelta
 
-from django.core import mail
 from django.contrib.auth.models import Group
-
+from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
 

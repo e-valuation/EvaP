@@ -1,18 +1,17 @@
-from django.test import TestCase
 from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
-
+from django.test import TestCase
 from model_bakery import baker
 
-from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
+from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
 from evap.staff.tools import (
-    merge_users,
     delete_navbar_cache_for_users,
-    remove_user_from_represented_and_ccing_users,
     merge_dictionaries_of_sets,
+    merge_users,
+    remove_user_from_represented_and_ccing_users,
 )
 
 

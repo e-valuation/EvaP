@@ -1,15 +1,16 @@
-from collections.abc import Iterable
 import logging
+from collections.abc import Iterable
 
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
-from django.db.models import Q, Max
+from django.db.models import Max, Q
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
 from django.http.request import QueryDict
 from django.utils.text import normalize_newlines
 from django.utils.translation import gettext_lazy as _
+
 from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import (
     Contribution,
@@ -28,9 +29,9 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import date_to_datetime
-from evap.staff.tools import remove_user_from_represented_and_ccing_users
-from evap.results.tools import cache_results, STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING, cache_results
 from evap.results.views import update_template_cache, update_template_cache_of_published_evaluations_in_course
+from evap.staff.tools import remove_user_from_represented_and_ccing_users
 from evap.student.models import TextAnswerWarning
 
 logger = logging.getLogger(__name__)

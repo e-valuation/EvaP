@@ -2,21 +2,20 @@ import logging
 from datetime import date, timedelta
 
 from django.conf import settings
-from django.contrib import messages, auth
+from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_POST
 from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
 
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
-from evap.evaluation.models import FaqSection, EmailTemplate, Semester
+from evap.evaluation.models import EmailTemplate, FaqSection, Semester
 from evap.middleware import no_login_required
 from evap.staff.tools import delete_navbar_cache_for_users
-
 
 logger = logging.getLogger(__name__)
 

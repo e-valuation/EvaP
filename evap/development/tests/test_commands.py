@@ -1,9 +1,9 @@
-from io import StringIO
 import os
-from unittest.mock import patch, call
+from io import StringIO
+from unittest.mock import call, patch
 
-from django.core import management
 from django.conf import settings
+from django.core import management
 from django.test import TestCase
 
 

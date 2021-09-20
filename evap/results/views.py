@@ -2,31 +2,31 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import Count, QuerySet
+from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
-from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile, Course
 from evap.evaluation.auth import internal_required
+from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import FileResponse
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
+    STATES_WITH_RESULT_TEMPLATE_CACHING,
+    HeadingResult,
+    RatingResult,
+    TextResult,
     annotate_distributions_and_grades,
-    get_results,
     calculate_average_distribution,
+    can_textanswer_be_seen_by,
     distribution_to_grade,
     get_evaluations_with_course_result_attributes,
+    get_results,
     get_single_result_rating_result,
-    HeadingResult,
-    TextResult,
-    RatingResult,
-    can_textanswer_be_seen_by,
-    STATES_WITH_RESULT_TEMPLATE_CACHING,
 )
 
 

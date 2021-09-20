@@ -3,21 +3,20 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q, Sum, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q, Sum
 
 from evap.evaluation.models import (
     CHOICES,
     NO_ANSWER,
     Contribution,
+    Course,
+    Evaluation,
     Question,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
     UserProfile,
-    Course,
-    Evaluation,
 )
-
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
