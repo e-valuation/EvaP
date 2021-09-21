@@ -2,7 +2,6 @@ from django.urls import path
 
 from evap.grades import views
 
-
 app_name = "grades"
 
 urlpatterns = [

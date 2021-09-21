@@ -2,14 +2,14 @@ import os
 from datetime import date, datetime
 from unittest.mock import patch
 
-from django.test import TestCase, override_settings
 from django.conf import settings
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
-from evap.evaluation.models import Course, Degree, UserProfile, Semester, Evaluation, Contribution, CourseType
-from evap.staff.importers import UserImporter, EnrollmentImporter, PersonImporter, ImporterError, ImporterWarning
-from evap.staff.tools import ImportType
 import evap.staff.fixtures.excel_files_test_data as excel_data
+from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
+from evap.staff.importers import EnrollmentImporter, ImporterError, ImporterWarning, PersonImporter, UserImporter
+from evap.staff.tools import ImportType
 
 
 class TestUserImporter(TestCase):

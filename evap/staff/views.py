@@ -1,27 +1,29 @@
 import csv
-from dataclasses import dataclass
-from datetime import datetime, date
 from collections import OrderedDict, defaultdict, namedtuple
-from xlrd import open_workbook
-from xlutils.copy import copy as copy_workbook
+from dataclasses import dataclass
+from datetime import date, datetime
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.dispatch import receiver
 from django.db import IntegrityError, transaction
 from django.db.models import BooleanField, Case, Count, ExpressionWrapper, IntegerField, Prefetch, Q, Sum, When
+from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import gettext as _, gettext_lazy
-from django.utils.translation import get_language, ngettext
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
+from xlrd import open_workbook
+from xlutils.copy import copy as copy_workbook
+
 from evap.contributor.views import export_contributor_results
-from evap.evaluation.auth import reviewer_required, manager_required, staff_permission_required
+from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -38,34 +40,34 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import get_parameter_from_url_or_session, sort_formset, FileResponse
+from evap.evaluation.tools import FileResponse, get_parameter_from_url_or_session, sort_formset
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
-from evap.results.tools import calculate_average_distribution, distribution_to_grade, TextResult
+from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
 from evap.results.views import update_template_cache_of_published_evaluations_in_course
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff import staff_mode
 from evap.staff.forms import (
     AtLeastOneFormSet,
-    ContributionForm,
     ContributionCopyForm,
-    ContributionFormSet,
     ContributionCopyFormSet,
+    ContributionForm,
+    ContributionFormSet,
     CourseForm,
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
     DegreeForm,
     EmailTemplateForm,
+    EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
-    EvaluationCopyForm,
     EvaluationParticipantCopyForm,
     ExportSheetForm,
     FaqQuestionForm,
     FaqSectionForm,
-    ModelWithImportNamesFormSet,
     ImportForm,
+    ModelWithImportNamesFormSet,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
@@ -79,21 +81,21 @@ from evap.staff.forms import (
     UserImportForm,
     UserMergeSelectionForm,
 )
-from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
+from evap.staff.importers import EnrollmentImporter, PersonImporter, UserImporter, sorted_messages
 from evap.staff.tools import (
+    ImportType,
     bulk_update_users,
     delete_import_file,
     delete_navbar_cache_for_users,
+    find_unreviewed_evaluations,
     forward_messages,
     get_import_file_content_or_raise,
     import_file_exists,
     merge_users,
     save_import_file,
-    find_unreviewed_evaluations,
-    ImportType,
 )
-from evap.student.models import TextAnswerWarning
 from evap.student.forms import QuestionnaireVotingForm
+from evap.student.models import TextAnswerWarning
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 

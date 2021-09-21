@@ -3,7 +3,6 @@ from django.views.generic import RedirectView
 
 from evap.staff import views
 
-
 app_name = "staff"
 
 urlpatterns = [

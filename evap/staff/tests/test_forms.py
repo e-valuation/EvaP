@@ -1,8 +1,10 @@
 from unittest.mock import patch
+
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
 from model_bakery import baker
 
+from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -19,20 +21,19 @@ from evap.evaluation.tests.tools import (
     get_form_data_from_instance,
     to_querydict,
 )
+from evap.results.tools import cache_results, get_results
 from evap.staff.forms import (
-    ContributionForm,
     ContributionCopyForm,
+    ContributionForm,
     ContributionFormSet,
     CourseForm,
+    EvaluationCopyForm,
     EvaluationEmailForm,
     EvaluationForm,
-    EvaluationCopyForm,
     QuestionnaireForm,
     SingleResultForm,
     UserForm,
 )
-from evap.results.tools import cache_results, get_results
-from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 
 
 class QuestionnaireFormTest(TestCase):

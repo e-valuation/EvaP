@@ -1,31 +1,29 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext as _
-from django.utils.translation import get_language
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
 from django.core.exceptions import SuspiciousOperation
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
-from evap.evaluation.auth import reward_user_required, manager_required
+from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
 from evap.evaluation.tools import FileResponse
-
-from evap.staff.views import semester_view
-
+from evap.rewards.exporters import RewardsExporter
+from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
+    NoPointsSelected,
+    NotEnoughPoints,
+    RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
     RewardPointRedemptionEvent,
     SemesterActivation,
-    NoPointsSelected,
-    NotEnoughPoints,
-    RedemptionEventExpired,
 )
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, save_redemptions, reward_points_of_user
-from evap.rewards.forms import RewardPointRedemptionEventForm
-from evap.rewards.exporters import RewardsExporter
+from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
+from evap.staff.views import semester_view
 
 
 @reward_user_required

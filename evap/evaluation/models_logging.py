@@ -1,8 +1,8 @@
+import itertools
+import threading
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, time
 from enum import Enum
-import itertools
-import threading
 from json import JSONEncoder
 
 from django.conf import settings

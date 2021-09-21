@@ -1,7 +1,7 @@
 from django import forms
 
-from evap.student.tools import answer_field_id
 from evap.evaluation.models import CHOICES
+from evap.student.tools import answer_field_id
 
 
 class HeadingField(forms.Field):

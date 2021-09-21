@@ -1,12 +1,11 @@
-from django.core import mail
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
-
+from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import create_evaluation_with_responsible_and_editor, WebTestWith200Check
+from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
 class TestIndexView(WebTest):

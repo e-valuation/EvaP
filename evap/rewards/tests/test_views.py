@@ -2,19 +2,18 @@ from datetime import date, timedelta
 
 from django.test import override_settings
 from django.urls import reverse
-
 from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager
 from evap.rewards.models import (
-    RewardPointRedemptionEvent,
     RewardPointGranting,
     RewardPointRedemption,
+    RewardPointRedemptionEvent,
     SemesterActivation,
 )
-from evap.rewards.tools import reward_points_of_user, is_semester_activated
+from evap.rewards.tools import is_semester_activated, reward_points_of_user
 from evap.staff.tests.utils import WebTestStaffMode, WebTestStaffModeWith200Check
 
 

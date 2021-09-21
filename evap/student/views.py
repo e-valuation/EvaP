@@ -4,24 +4,22 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q, F
+from django.db.models import Exists, F, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, NO_ANSWER, Semester, RatingAnswerCounter, TextAnswer
-
-from evap.student.models import TextAnswerWarning
-from evap.student.forms import QuestionnaireVotingForm
-from evap.student.tools import answer_field_id
-
+from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer
 from evap.results.tools import (
     annotate_distributions_and_grades,
     get_evaluations_with_course_result_attributes,
     textanswers_visible_to,
 )
+from evap.student.forms import QuestionnaireVotingForm
+from evap.student.models import TextAnswerWarning
+from evap.student.tools import answer_field_id
 
 SUCCESS_MAGIC_STRING = "vote submitted successfully"
 

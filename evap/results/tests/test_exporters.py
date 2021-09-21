@@ -1,10 +1,9 @@
 from io import BytesIO
 
-from model_bakery import baker
+import xlrd
 from django.test import TestCase
 from django.utils import translation
-
-import xlrd
+from model_bakery import baker
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.models import (
@@ -16,8 +15,8 @@ from evap.evaluation.models import (
     Question,
     Questionnaire,
     Semester,
-    UserProfile,
     TextAnswer,
+    UserProfile,
 )
 from evap.evaluation.tests.tools import make_rating_answer_counters
 from evap.results.exporters import ResultsExporter, TextAnswerExporter

@@ -1,22 +1,21 @@
 from functools import partial
 
 from django.db import connection
-from django.test.utils import override_settings, CaptureQueriesContext
+from django.test.utils import CaptureQueriesContext, override_settings
 from django.urls import reverse
-
 from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
-    UserProfile,
-    Evaluation,
-    Questionnaire,
-    Question,
+    Answer,
     Contribution,
-    TextAnswer,
+    Evaluation,
+    Question,
+    Questionnaire,
     RatingAnswerCounter,
     Semester,
-    Answer,
+    TextAnswer,
+    UserProfile,
 )
 from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.student.tools import answer_field_id

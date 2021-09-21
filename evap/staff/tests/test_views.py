@@ -1,18 +1,18 @@
 import datetime
 import os
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
+import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.urls import reverse
 from django.test import override_settings
 from django.test.testcases import TestCase
-
+from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
-import xlrd
 
+import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import (
     Contribution,
     Course,
@@ -20,8 +20,8 @@ from evap.evaluation.models import (
     Degree,
     EmailTemplate,
     Evaluation,
-    FaqSection,
     FaqQuestion,
+    FaqSection,
     Question,
     Questionnaire,
     RatingAnswerCounter,
@@ -31,23 +31,22 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
-    create_evaluation_with_responsible_and_editor,
     make_rating_answer_counters,
 )
 from evap.results.tools import cache_results, get_results
-from evap.rewards.models import SemesterActivation, RewardPointGranting
+from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
 from evap.staff.tests.utils import (
+    WebTestStaffMode,
+    WebTestStaffModeWith200Check,
     helper_delete_all_import_files,
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
-    WebTestStaffMode,
-    WebTestStaffModeWith200Check,
 )
 from evap.staff.views import get_evaluations_with_prefetched_data
-import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.student.models import TextAnswerWarning
 
 

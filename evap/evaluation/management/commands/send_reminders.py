@@ -1,11 +1,11 @@
 import datetime
 import logging
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from evap.evaluation.models import Evaluation, EmailTemplate
 from evap.evaluation.management.commands.tools import log_exceptions
+from evap.evaluation.models import EmailTemplate, Evaluation
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
-from collections import defaultdict, namedtuple
-from datetime import date, datetime, timedelta
-from enum import Enum, auto
 import logging
 import operator
 import secrets
 import uuid
+from collections import defaultdict, namedtuple
+from datetime import date, datetime, timedelta
+from enum import Enum, auto
 
 from django.conf import settings
 from django.contrib import messages
@@ -14,7 +14,7 @@ from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError, models, transaction
-from django.db.models import Count, Q, Manager, OuterRef, Subquery
+from django.db.models import Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
@@ -22,8 +22,8 @@ from django.template.base import TemplateSyntaxError
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
+from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
 
@@ -31,9 +31,9 @@ from evap.evaluation.models_logging import FieldAction, LoggedModel
 from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
-    translate,
     is_external_email,
     is_prefetched,
+    translate,
     vote_end_datetime,
 )
 
@@ -475,7 +475,7 @@ class Evaluation(LoggedModel):
             # It's clear that results.models will need to reference evaluation.models' classes in ForeignKeys.
             # However, this method only makes sense as a method of Evaluation. Thus, we can't get rid of these imports
             # pylint: disable=import-outside-toplevel
-            from evap.results.tools import STATES_WITH_RESULTS_CACHING, STATES_WITH_RESULT_TEMPLATE_CACHING
+            from evap.results.tools import STATES_WITH_RESULT_TEMPLATE_CACHING, STATES_WITH_RESULTS_CACHING
 
             if (
                 state_changed_to(self, STATES_WITH_RESULTS_CACHING)

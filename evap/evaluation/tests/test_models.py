@@ -1,12 +1,11 @@
-from datetime import datetime, timedelta, date
-from unittest.mock import patch, Mock, call
+from datetime import date, datetime, timedelta
+from unittest.mock import Mock, call, patch
 
 from django.contrib.auth.models import Group
+from django.core import mail
+from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from django.core.cache import caches
-from django.core import mail
-
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -24,14 +23,14 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.grades.models import GradeDocument
 from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
     make_contributor,
     make_editor,
     make_rating_answer_counters,
 )
-from evap.results.tools import calculate_average_distribution, cache_results
+from evap.grades.models import GradeDocument
+from evap.results.tools import cache_results, calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 

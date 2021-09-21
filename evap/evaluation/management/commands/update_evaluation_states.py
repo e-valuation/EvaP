@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from evap.evaluation.models import Evaluation
 from evap.evaluation.management.commands.tools import log_exceptions
+from evap.evaluation.models import Evaluation
 
 
 @log_exceptions

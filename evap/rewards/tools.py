@@ -2,23 +2,22 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Sum
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
-from django.dispatch import receiver
-from django.contrib.auth.decorators import login_required
 
-from evap.evaluation.models import Semester, Evaluation, UserProfile
-
+from evap.evaluation.models import Evaluation, Semester, UserProfile
 from evap.rewards.models import (
+    NoPointsSelected,
+    NotEnoughPoints,
+    RedemptionEventExpired,
     RewardPointGranting,
     RewardPointRedemption,
     RewardPointRedemptionEvent,
     SemesterActivation,
-    NoPointsSelected,
-    NotEnoughPoints,
-    RedemptionEventExpired,
 )
 
 

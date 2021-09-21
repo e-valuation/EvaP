@@ -1,7 +1,6 @@
-from model_bakery import baker
-
 from django.forms.models import inlineformset_factory
 from django.test import TestCase
+from model_bakery import baker
 
 from evap.contributor.forms import EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile

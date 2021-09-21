@@ -1,21 +1,20 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.core.exceptions import PermissionDenied
-from django.contrib import messages
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.views.decorators.http import require_POST, require_GET
-
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_GET, require_POST
 from django_sendfile import sendfile
 
 from evap.evaluation.auth import (
-    grade_publisher_required,
     grade_downloader_required,
     grade_publisher_or_manager_required,
+    grade_publisher_required,
 )
-from evap.evaluation.models import Course, Evaluation, Semester, EmailTemplate
-from evap.grades.models import GradeDocument
+from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.grades.forms import GradeDocumentForm
+from evap.grades.models import GradeDocument
 
 
 @grade_publisher_required

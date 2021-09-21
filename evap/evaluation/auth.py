@@ -1,7 +1,7 @@
 from functools import wraps
 
-from django.core.exceptions import PermissionDenied
 from django.contrib.auth.backends import ModelBackend
+from django.core.exceptions import PermissionDenied
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
 from evap.evaluation.models import UserProfile

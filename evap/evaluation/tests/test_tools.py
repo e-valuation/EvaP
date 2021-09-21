@@ -3,14 +3,13 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management
-from django.urls import reverse
 from django.test.testcases import TestCase
+from django.urls import reverse
 from django.utils import translation
-
 from model_bakery import baker
 
-from evap.evaluation.tests.tools import WebTest
 from evap.evaluation.models import UserProfile
+from evap.evaluation.tests.tools import WebTest
 
 
 class TestLanguageSignalReceiver(WebTest):
