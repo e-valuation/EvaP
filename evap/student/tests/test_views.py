@@ -1,7 +1,6 @@
 from functools import partial
 
-from django.db import connection
-from django.test.utils import CaptureQueriesContext, override_settings
+from django.test.utils import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
@@ -17,7 +16,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import WebTestWith200Check
+from evap.evaluation.tests.tools import FuzzyInt, WebTestWith200Check
 from evap.student.tools import answer_field_id
 from evap.student.views import SUCCESS_MAGIC_STRING
 
@@ -51,12 +50,8 @@ class TestStudentIndexView(WebTestWith200Check):
             _quantity=100,
         )
 
-        with CaptureQueriesContext(connection) as context:
+        with self.assertNumQueries(FuzzyInt(0, 100)):
             self.app.get(self.url, user=self.user)
-
-        num_queries = context.final_queries - context.initial_queries
-
-        self.assertLess(num_queries, 100)
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])

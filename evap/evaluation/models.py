@@ -1337,9 +1337,11 @@ CHOICES = {
 
 
 class Answer(models.Model):
-    """An abstract answer to a question. For anonymity purposes, the answering
-    user ist not stored in the object. Concrete subclasses are `RatingAnswerCounter`,
-    and `TextAnswer`."""
+    """
+    An abstract answer to a question. For anonymity purposes, the answering
+    user ist not stored in the object. Concrete subclasses are
+    `RatingAnswerCounter`, and `TextAnswer`.
+    """
 
     # we use UUIDs to hide insertion order. See https://github.com/e-valuation/EvaP/wiki/Data-Economy
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -1354,11 +1356,13 @@ class Answer(models.Model):
 
 
 class RatingAnswerCounter(Answer):
-    """A rating answer counter to a question.
+    """
+    A rating answer counter to a question.
     The interpretation depends on the type of question:
     unipolar: 1, 2, 3, 4, 5; where lower value means more agreement
     bipolar: -3, -2, -1, 0, 1, 2, 3; where a lower absolute means more agreement and the sign shows the pole
-    yes / no: 1, 5; for 1 being the good answer"""
+    yes / no: 1, 5; for 1 being the good answer
+    """
 
     answer = models.IntegerField(verbose_name=_("answer"))
     count = models.IntegerField(verbose_name=_("count"), default=0)
@@ -1373,6 +1377,7 @@ class TextAnswer(Answer):
     """A free-form text answer to a question."""
 
     answer = models.TextField(verbose_name=_("answer"))
+    # If the text answer was changed during review, original_answer holds the original text. Otherwise, it's null.
     original_answer = models.TextField(verbose_name=_("original answer"), blank=True, null=True)
 
     class State(models.TextChoices):

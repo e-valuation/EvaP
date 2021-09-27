@@ -262,4 +262,18 @@ a.collapse-toggle {
     height: 2.5rem;
     background-color: $lighter-gray;
     border-color: $medium-gray;
+
+    & > .fa-comment {
+        color: $darker-gray;
+    }
+
+    &.has-contents > .fa-comment {
+        font-weight: 900;
+    }
+
+    box-shadow: inset 0 0 10px $dark-gray;
+
+    &.collapsed {
+        box-shadow: none;
+    }
 }

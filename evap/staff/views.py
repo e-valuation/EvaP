@@ -1,7 +1,9 @@
 import csv
+import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
+from typing import Any, Container, Dict
 
 from django.conf import settings
 from django.contrib import messages
@@ -1376,31 +1378,42 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
     evaluation_sections = []
     contributor_sections = []
+    evaluation_responsibles = list(evaluation.course.responsibles.all())
 
-    for contribution in evaluation.contributions.all().prefetch_related("questionnaires"):
-        for questionnaire in contribution.questionnaires.all():
-            text_results = []
+    raw_answers = (
+        TextAnswer.objects.filter(contribution__evaluation=evaluation)
+        .prefetch_related("contribution", "question__questionnaire", "question")
+        .order_by("contribution", "question__questionnaire", "question")
+    )
+    if filter_textanswers:
+        raw_answers = raw_answers.filter(state=TextAnswer.State.NOT_REVIEWED)
 
-            for question in questionnaire.questions.all():
-                answers = TextAnswer.objects.filter(contribution=contribution, question=question)
-                if filter_textanswers:
-                    answers = answers.filter(state=TextAnswer.State.NOT_REVIEWED)
-                if answers:
-                    text_results.append(TextResult(question=question, answers=answers))
+    questionnaire_answer_groups = itertools.groupby(
+        raw_answers, lambda answer: (answer.contribution, answer.question.questionnaire)
+    )
 
-            if not text_results:
+    for (contribution, questionnaire), questionnaire_answers in questionnaire_answer_groups:
+        text_results = []
+        for question, answers in itertools.groupby(questionnaire_answers, lambda answer: answer.question):
+            answers = list(answers)
+            if not answers:
                 continue
+            text_results.append(TextResult(question=question, answers=answers))
 
-            section_list = evaluation_sections if contribution.is_general else contributor_sections
-            section_list.append(
-                TextAnswerSection(
-                    questionnaire,
-                    contribution.contributor,
-                    contribution.label,
-                    contribution.contributor in evaluation.course.responsibles.all(),
-                    text_results,
-                )
-            )
+        if not text_results:
+            continue
+
+        section = TextAnswerSection(
+            questionnaire,
+            contribution.contributor,
+            contribution.label,
+            contribution.contributor in evaluation_responsibles,
+            text_results,
+        )
+        if contribution.is_general:
+            evaluation_sections.append(section)
+        else:
+            contributor_sections.append(section)
 
     return evaluation_sections, contributor_sections
 
@@ -1583,50 +1596,50 @@ def questionnaire_create(request):
     return render(request, "staff_questionnaire_form.html", dict(form=form, formset=formset, editable=True))
 
 
+def disable_all_except_named(fields: Dict[str, Any], names_of_editable: Container[str]):
+    for name, field in fields.items():
+        if name not in names_of_editable:
+            field.disabled = True
+
+
 def make_questionnaire_edit_forms(request, questionnaire, editable):
     if editable:
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=("questionnaire",)
-        )
+        formset_kwargs = {"extra": 1}
     else:
         question_count = questionnaire.questions.count()
-        InlineQuestionFormset = inlineformset_factory(
-            Questionnaire,
-            Question,
-            formset=AtLeastOneFormSet,
-            form=QuestionForm,
-            extra=0,
-            exclude=("questionnaire",),
-            can_delete=False,
-            max_num=question_count,
-            validate_max=True,
-            min_num=question_count,
-            validate_min=True,
-        )
+        formset_kwargs = {
+            "extra": 0,
+            "can_delete": False,
+            "validate_min": True,
+            "validate_max": True,
+            "min_num": question_count,
+            "max_num": question_count,
+        }
+    InlineQuestionFormset = inlineformset_factory(
+        Questionnaire,
+        Question,
+        formset=AtLeastOneFormSet,
+        form=QuestionForm,
+        exclude=("questionnaire",),
+        **formset_kwargs,
+    )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
     formset = InlineQuestionFormset(request.POST or None, instance=questionnaire)
 
     if not editable:
-        editable_fields = ["visibility", "is_locked", "name_de", "name_en", "description_de", "description_en", "type"]
-
-        for name, field in form.fields.items():
-            if name not in editable_fields:
-                field.disabled = True
+        disable_all_except_named(
+            form.fields, ["visibility", "is_locked", "name_de", "name_en", "description_de", "description_en", "type"]
+        )
         for question_form in formset.forms:
-            for name, field in question_form.fields.items():
-                if name != "id":
-                    field.disabled = True
+            disable_all_except_named(question_form.fields, ["id"])
 
         # disallow type changed from and to contributor
-        if questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
-            form.fields["type"].choices = [
-                choice for choice in Questionnaire.Type.choices if choice[0] == Questionnaire.Type.CONTRIBUTOR
-            ]
-        else:
-            form.fields["type"].choices = [
-                choice for choice in Questionnaire.Type.choices if choice[0] != Questionnaire.Type.CONTRIBUTOR
-            ]
+        form.fields["type"].choices = [
+            choice
+            for choice in Questionnaire.Type.choices
+            if (choice[0] == Questionnaire.Type.CONTRIBUTOR) == (questionnaire.type == Questionnaire.Type.CONTRIBUTOR)
+        ]
 
     return form, formset
 
