@@ -1,68 +1,70 @@
-import os
 from datetime import date, datetime
 from unittest.mock import patch
 
-from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.forms.models import model_to_dict
 from django.test import TestCase, override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.staff.importers import EnrollmentImporter, ImporterError, ImporterWarning, PersonImporter, UserImporter
+from evap.staff.importers import ImporterLogEntry, import_enrollments, import_persons_from_evaluation, import_users
 from evap.staff.tools import ImportType, user_edit_link
 
 
-class TestUserImporter(TestCase):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
+class TestUserImport(TestCase):
     # valid user import tested in tests/test_views.py, TestUserImportView
 
     @classmethod
     def setUpTestData(cls):
-        with open(cls.filename_valid, "rb") as excel_file:
-            cls.valid_excel_content = excel_file.read()
-        with open(cls.filename_invalid, "rb") as excel_file:
-            cls.invalid_excel_content = excel_file.read()
-        with open(cls.filename_random, "rb") as excel_file:
-            cls.random_excel_content = excel_file.read()
+        cls.valid_excel_file_content = excel_data.create_memory_excel_file(excel_data.valid_user_import_filedata)
+        cls.missing_values_excel_file_content = excel_data.create_memory_excel_file(
+            excel_data.missing_values_user_import_filedata
+        )
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.duplicate_excel_content = excel_data.create_memory_excel_file(excel_data.duplicate_user_import_filedata)
+        cls.mismatching_excel_content = excel_data.create_memory_excel_file(excel_data.mismatching_user_import_filedata)
         cls.numerical_excel_content = excel_data.create_memory_excel_file(
             excel_data.numerical_data_in_user_data_filedata
         )
 
+        cls.wrong_column_count_excel_content = excel_data.create_memory_excel_file(
+            excel_data.wrong_column_count_excel_data
+        )
+
     def test_test_run_does_not_change_database(self):
         original_users = list(UserProfile.objects.all())
-        UserImporter.process(self.valid_excel_content, test_run=True)
+        import_users(self.valid_excel_file_content, test_run=True)
         self.assertEqual(original_users, list(UserProfile.objects.all()))
 
     def test_test_and_notest_equality(self):
-        # success messages are supposed to be different in a test and import run
-        list_test, __, warnings_test, errors_test = UserImporter.process(self.valid_excel_content, test_run=True)
-        list_notest, __, warnings_notest, errors_notest = UserImporter.process(self.valid_excel_content, test_run=False)
+        list_test, importer_log_test = import_users(self.valid_excel_file_content, test_run=True)
+        list_notest, importer_log_notest = import_users(self.valid_excel_file_content, test_run=False)
 
         notest_string_list = [f"{user.full_name} {user.email}" for user in list_notest]
         test_string_list = [f"{user.full_name} {user.email}" for user in list_test]
 
         self.assertEqual(notest_string_list, test_string_list)
-        self.assertEqual(warnings_test, warnings_notest)
-        self.assertEqual(errors_test, errors_notest)
+
+        # success messages are supposed to be different in a test and import run
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
 
     def test_created_users(self):
         original_user_count = UserProfile.objects.count()
 
-        user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+        user_list, importer_log = import_users(self.valid_excel_file_content, test_run=False)
 
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
         self.assertIn(
             "Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)",
             success_messages,
         )
         self.assertIn("Successfully read Excel file.", success_messages)
-        self.assertEqual(warnings, {})
-        self.assertEqual(errors, {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
+        self.assertEqual(importer_log.errors_by_category(), {})
 
         self.assertEqual(len(user_list), 2)
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
@@ -73,70 +75,120 @@ class TestUserImporter(TestCase):
     def test_duplicate_warning(self):
         user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
 
-        __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        __, importer_log_test = import_users(self.valid_excel_file_content, test_run=True)
+        __, importer_log_notest = import_users(self.valid_excel_file_content, test_run=False)
 
-        self.assertEqual(warnings_test, warnings_no_test)
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
         self.assertEqual(
-            warnings_test[ImporterWarning.DUPL],
+            [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.DUPL]],
             [
-                "An existing user has the same first and last name as a new user:<br />"
-                f" -  Lucilia Manilium, luma@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+                "A user in the import file has the same first and last name as an existing user:<br />"
+                f" -  Lucilia Manilium, luma@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
             ],
         )
 
     def test_ignored_duplicate_warning(self):
-        __, __, warnings_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=True)
-        __, __, warnings_no_test, __ = UserImporter.process(self.duplicate_excel_content, test_run=False)
+        __, importer_log_test = import_users(self.duplicate_excel_content, test_run=True)
+        __, importer_log_notest = import_users(self.duplicate_excel_content, test_run=False)
 
-        self.assertEqual(warnings_test, warnings_no_test)
+        self.assertEqual(importer_log_test.errors_by_category(), {})
+        self.assertEqual(importer_log_notest.errors_by_category(), {})
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
         self.assertEqual(
-            warnings_test[ImporterWarning.IGNORED],
-            ["The duplicated row 4 in sheet 'Users' was ignored. It was first found in sheet 'Users' on row 3."],
+            [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.IGNORED]],
+            ['Sheet "Users", row 4: The duplicated row was ignored. It was first found at Sheet "Users", row 3.'],
+        )
+
+    def test_user_data_mismatch_in_file(self):
+        __, importer_log_test = import_users(self.mismatching_excel_content, test_run=True)
+        __, importer_log_notest = import_users(self.mismatching_excel_content, test_run=False)
+
+        self.assertEqual(importer_log_test.warnings_by_category(), {})
+        self.assertEqual(importer_log_notest.warnings_by_category(), {})
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
+        self.assertEqual(
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.USER]],
+            [
+                'Sheet "Users", row 4: The users\'s data (email: bastius.quid@external.example.com) is different to a previous row.'
+            ],
+        )
+
+    def test_user_data_mismatch_to_database(self):
+        user_basti = baker.make(
+            UserProfile, first_name="Basti", last_name="Quid", email="bastius.quid@external.example.com"
+        )
+
+        __, importer_log = import_users(self.valid_excel_file_content, test_run=True)
+        self.assertEqual(
+            [
+                "The existing user would be overwritten with the following data:<br />"
+                f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
+                " -  Bastius Quid, bastius.quid@external.example.com (import)",
+            ],
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.NAME]],
+        )
+
+        __, importer_log = import_users(self.valid_excel_file_content, test_run=False)
+        self.assertEqual(
+            [
+                "The existing user was overwritten with the following data:<br />"
+                f" -  Basti Quid, bastius.quid@external.example.com [{user_edit_link(user_basti.pk)}] (existing)<br />"
+                " -  Bastius Quid, bastius.quid@external.example.com (import)"
+            ],
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.NAME]],
         )
 
     def test_random_file_error(self):
         original_user_count = UserProfile.objects.count()
 
-        __, __, __, errors_test = UserImporter.process(self.random_excel_content, test_run=True)
-        __, __, __, errors_no_test = UserImporter.process(self.random_excel_content, test_run=False)
+        __, importer_log_test = import_users(self.random_excel_file_content, test_run=True)
+        __, importer_log_notest = import_users(self.random_excel_file_content, test_run=False)
 
-        self.assertEqual(errors_test, errors_no_test)
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertEqual(
-            errors_test[ImporterError.SCHEMA],
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.SCHEMA]],
             ["Couldn't read the file. Error: File is not a zip file"],
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
-    def test_invalid_file_error(self):
+    def test_missing_values_error(self):
         original_user_count = UserProfile.objects.count()
 
-        __, __, __, errors_test = UserImporter.process(self.invalid_excel_content, test_run=True)
-        __, __, __, errors_no_test = UserImporter.process(self.invalid_excel_content, test_run=False)
+        __, importer_log_test = import_users(self.missing_values_excel_file_content, test_run=True)
+        __, importer_log_notest = import_users(self.missing_values_excel_file_content, test_run=False)
 
-        self.assertEqual(errors_test, errors_no_test)
-        self.assertEqual(errors_test[ImporterError.USER], ['Sheet "Sheet1", row 2: Email address is missing.'])
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertEqual(
-            errors_test[ImporterError.GENERAL], ["Errors occurred while parsing the input data. No data was imported."]
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.USER]],
+            [
+                'Sheet "Sheet 1", row 2: User missing.firstname@institution.example.com: First name is missing.',
+                'Sheet "Sheet 1", row 3: User missing.lastname@institution.example.com: Last name is missing.',
+                'Sheet "Sheet 1", row 4: Email address is missing.',
+            ],
         )
+        self.assertEqual(
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.RESULT]],
+            ["Errors occurred while parsing the input data. No data was imported."],
+        )
+        self.assertEqual(len(importer_log_test.errors_by_category()), 2)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
         user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
-        __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
+        __, importer_log_test = import_users(self.valid_excel_file_content, test_run=True)
         self.assertEqual(
-            warnings_test[ImporterWarning.INACTIVE],
+            [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
                 f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
             ],
         )
 
-        __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
+        __, importer_log_notest = import_users(self.valid_excel_file_content, test_run=False)
         self.assertEqual(
-            warnings_no_test[ImporterWarning.INACTIVE],
+            [msg.message for msg in importer_log_notest.warnings_by_category()[ImporterLogEntry.Category.INACTIVE]],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
                 f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
@@ -145,36 +197,67 @@ class TestUserImporter(TestCase):
 
         self.assertEqual(UserProfile.objects.count(), 2)
 
+    @patch("evap.evaluation.models.UserProfile.full_clean")
+    def test_validation_error(self, mocked_validation):
+        mocked_validation.side_effect = [None, ValidationError("TEST")]
+
+        original_user_count = UserProfile.objects.count()
+        user_list, importer_log = import_users(self.valid_excel_file_content, test_run=False)
+        self.assertEqual(UserProfile.objects.count(), original_user_count)
+
+        self.assertEqual(user_list, [])
+        self.assertEqual(
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.USER]],
+            [
+                "User bastius.quid@external.example.com: Error when validating: ['TEST']",
+            ],
+        )
+
     @override_settings(DEBUG=False)
-    @patch("evap.evaluation.models.UserProfile.objects.update_or_create")
+    @patch("evap.evaluation.models.UserProfile.objects.bulk_create")
     def test_unhandled_exception(self, mocked_db_access):
         mocked_db_access.side_effect = Exception("Contact your database admin right now!")
-        result, __, __, errors = UserImporter.process(self.valid_excel_content, test_run=False)
+        result, importer_log = import_users(self.valid_excel_file_content, test_run=False)
         self.assertEqual(result, [])
         self.assertIn(
-            "Import finally aborted after exception: 'Contact your database admin right now!'",
-            errors[ImporterError.GENERAL],
+            "Import aborted after exception: 'Contact your database admin right now!'. No data was imported.",
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.GENERAL]],
         )
 
     def test_disallow_non_string_types(self):
-        imported_users, __, __, errors = UserImporter.process(self.numerical_excel_content, test_run=False)
+        imported_users, importer_log = import_users(self.numerical_excel_content, test_run=False)
         self.assertEqual(len(imported_users), 0)
-        self.assertIn("The input data is malformed. No data was imported.", errors[ImporterError.GENERAL])
+        self.assertEqual(
+            ["Errors occurred while parsing the input data. No data was imported."],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.RESULT]],
+        )
         # The sheet has a float in row 3 and an int row 4. All others rows only contain strings.
-        self.assertSetEqual(
-            {
-                "Wrong data type in sheet 'Users' in row 3. Please make sure all cells are string types, not numerical.",
-                "Wrong data type in sheet 'Users' in row 4. Please make sure all cells are string types, not numerical.",
-            },
-            set(errors[ImporterError.SCHEMA]),
+        self.assertCountEqual(
+            [
+                'Sheet "Users", row 3: Wrong data type. Please make sure all cells are string types, not numerical.',
+                'Sheet "Users", row 4: Wrong data type. Please make sure all cells are string types, not numerical.',
+            ],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.SCHEMA]],
+        )
+
+    def test_wrong_column_count(self):
+        imported_users, importer_log = import_users(self.wrong_column_count_excel_content, test_run=False)
+        self.assertEqual(len(imported_users), 0)
+        self.assertEqual(
+            ["Errors occurred while parsing the input data. No data was imported."],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.RESULT]],
+        )
+        self.assertEqual(
+            ["Wrong number of columns in sheet 'Sheet 1'. Expected: 4, actual: 3"],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.GENERAL]],
         )
 
 
-class TestEnrollmentImporter(TestCase):
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
+class TestEnrollmentImport(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.semester = baker.make(Semester)
         cls.vote_start_datetime = datetime(2017, 1, 10)
         cls.vote_end_date = date(2017, 3, 10)
@@ -206,27 +289,28 @@ class TestEnrollmentImporter(TestCase):
         return existing_course, existing_course_evaluation
 
     def test_valid_file_import(self):
-        success_messages, warnings, errors = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, None, None, test_run=True
-        )
+        importer_log = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
-        self.assertEqual(errors, {})
-        self.assertEqual(warnings, {})
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
 
         old_user_count = UserProfile.objects.all().count()
 
-        success_messages, warnings, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 23 courses/evaluations, 6 participants and 17 contributors:",
             "".join(success_messages),
         )
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
-        self.assertEqual(errors, {})
-        self.assertEqual(warnings, {})
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
 
         self.assertEqual(Evaluation.objects.all().count(), 23)
         expected_user_count = old_user_count + 23
@@ -235,28 +319,29 @@ class TestEnrollmentImporter(TestCase):
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
 
-        success_messages, warnings_test, errors = EnrollmentImporter.process(
-            excel_content, self.semester, None, None, test_run=True
-        )
-        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
-        self.assertEqual(errors, {})
+        importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        success_messages_test = [msg.message for msg in importer_log_test.success_messages()]
+        self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages_test))
+        self.assertEqual(importer_log_test.errors_by_category(), {})
         self.assertEqual(
-            warnings_test[ImporterWarning.DEGREE],
+            [msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.DEGREE]],
             [
-                'Sheet "MA Belegungen", row 3: The course\'s "Build" degree differs from it\'s degree in a previous row. '
-                "Both degrees have been set for the course."
+                'Sheet "MA Belegungen", row 3: The degree of course "Build" differs from its degrees in previous rows. '
+                "All degrees have been set for the course."
             ],
         )
-        self.assertEqual(len(warnings_test), 1)
+        self.assertEqual(len(importer_log_test.warnings_by_category()), 1)
 
-        success_messages, warnings_no_test, errors = EnrollmentImporter.process(
+        importer_log_notest = import_enrollments(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
+        success_messages_notest = [msg.message for msg in importer_log_notest.success_messages()]
         self.assertIn(
-            "Successfully created 1 courses/evaluations, 2 participants and 1 contributors", "".join(success_messages)
+            "Successfully created 1 courses/evaluations, 2 participants and 1 contributors",
+            "".join(success_messages_notest),
         )
-        self.assertEqual(errors, {})
-        self.assertEqual(warnings_no_test, warnings_test)
+        self.assertEqual(importer_log_test.errors_by_category(), {})
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_test.warnings_by_category())
 
         self.assertEqual(Course.objects.all().count(), 1)
         self.assertEqual(Evaluation.objects.all().count(), 1)
@@ -265,27 +350,37 @@ class TestEnrollmentImporter(TestCase):
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_errors_are_merged(self):
+        """Whitebox regression test for #1711. Importers were rewritten afterwards, so this test has limited meaning now."""
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_error_merge_filedata)
-        __, warnings, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Both degrees have been set for the course", "".join(warnings[ImporterWarning.DEGREE]))
-        self.assertIn("is probably not, but must be", "".join(errors[ImporterError.IS_GRADED]))
-        self.assertIn("jaminar", "".join(errors[ImporterError.COURSE_TYPE_MISSING]))
-        self.assertIn("Beginner", "".join(errors[ImporterError.DEGREE_MISSING]))
-        self.assertIn("Grandmaster", "".join(errors[ImporterError.DEGREE_MISSING]))
+
+        errors = [entry.message for entry in importer_log.messages if entry.level == ImporterLogEntry.Level.ERROR]
+
+        self.assertCountEqual(
+            errors,
+            [
+                'Sheet "MA Belegungen", row 2 and 1 other place: No course type is associated with the import name "jaminar". Please manually create it first.',
+                'Sheet "MA Belegungen", row 2 and 1 other place: "is_graded" is probably not, but must be yes or no',
+                'Sheet "MA Belegungen", row 2: No degree is associated with the import name "Grandmaster". Please manually create it first.',
+                'Sheet "MA Belegungen", row 3: No degree is associated with the import name "Beginner". Please manually create it first.',
+                "Errors occurred while parsing the input data. No data was imported.",
+            ],
+        )
 
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
-        success_messages, warnings, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn(
             "Successfully created 2 courses/evaluations, 4 participants and 2 contributors:", "".join(success_messages)
         )
-        self.assertEqual(errors, {})
-        self.assertEqual(warnings, {})
+        self.assertEqual(importer_log.errors_by_category(), {})
+        self.assertEqual(importer_log.warnings_by_category(), {})
 
         self.assertEqual(Course.objects.all().count(), 2)
         course_spelling = Course.objects.get(name_en="Spelling")
@@ -297,17 +392,17 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-
-        __, warnings_test, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, None, None, test_run=True
-        )
-        __, warnings_no_test, __ = EnrollmentImporter.process(
+        importer_log_test = import_enrollments(self.default_excel_content, self.semester, None, None, test_run=True)
+        importer_log_notest = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
-        self.assertEqual(warnings_test, warnings_no_test)
+        self.assertEqual(importer_log_test.warnings_by_category(), importer_log_notest.warnings_by_category())
         self.assertCountEqual(
-            warnings_test[ImporterWarning.MANY],
+            [
+                msg.message
+                for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.TOO_MANY_ENROLLMENTS]
+            ],
             {
                 "Warning: User ipsum.lorem@institution.example.com has 6 enrollments, which is a lot.",
                 "Warning: User lucilia.manilium@institution.example.com has 6 enrollments, which is a lot.",
@@ -319,18 +414,18 @@ class TestEnrollmentImporter(TestCase):
         )
 
     def test_random_file_error(self):
-        with open(self.filename_random, "rb") as excel_file:
-            excel_content = excel_file.read()
-
         original_user_count = UserProfile.objects.count()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        importer_log_test = import_enrollments(self.random_excel_file_content, self.semester, None, None, test_run=True)
+        importer_log_notest = import_enrollments(
+            self.random_excel_file_content, self.semester, None, None, test_run=False
+        )
 
-        self.assertEqual(errors_test, errors_no_test)
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
+        self.assertEqual(1, len(importer_log_test.errors_by_category()[ImporterLogEntry.Category.SCHEMA]))
         self.assertEqual(
-            errors_test[ImporterError.SCHEMA],
-            ["Couldn't read the file. Error: File is not a zip file"],
+            importer_log_test.errors_by_category()[ImporterLogEntry.Category.SCHEMA][0].message,
+            "Couldn't read the file. Error: File is not a zip file",
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
@@ -339,70 +434,93 @@ class TestEnrollmentImporter(TestCase):
 
         original_user_count = UserProfile.objects.count()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        importer_log_test = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        importer_log_notest = import_enrollments(excel_content, self.semester, None, None, test_run=False)
 
-        self.assertEqual(errors_test, errors_no_test)
+        self.assertEqual(importer_log_test.errors_by_category(), importer_log_notest.errors_by_category())
         self.assertCountEqual(
-            errors_test[ImporterError.USER],
-            {
-                "Sheet \"MA Belegungen\", row 3: The users's data (email: bastius.quid@external.example.com) differs from it's data in a previous row.",
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.USER]],
+            [
+                'Sheet "MA Belegungen", row 3: The users\'s data (email: bastius.quid@external.example.com) is different to a previous row.',
                 'Sheet "MA Belegungen", row 7: Email address is missing.',
                 'Sheet "MA Belegungen", row 10: Email address is missing.',
-            },
+            ],
         )
         self.assertCountEqual(
-            errors_test[ImporterError.COURSE],
-            {
-                'Sheet "MA Belegungen", row 18: The German name for course "Bought" already exists for another course.',
-                'Sheet "MA Belegungen", row 20: The course\'s "Cost" data differs from it\'s data in a previous row.',
-            },
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.COURSE]],
+            [
+                'Sheet "MA Belegungen", row 18: The German name for course "Bought" is already used for another course in the import file.',
+                'Sheet "MA Belegungen", row 20: The data of course "Cost" differs from its data in a previous row.',
+            ],
         )
         self.assertEqual(
-            errors_test[ImporterError.DEGREE_MISSING],
-            ['Error: No degree is associated with the import name "Diploma". Please manually create it first.'],
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.DEGREE_MISSING]],
+            [
+                'Sheet "MA Belegungen", row 8 and 1 other place: No degree is associated with the import name "Diploma". Please manually create it first.'
+            ],
         )
         self.assertEqual(
-            errors_test[ImporterError.COURSE_TYPE_MISSING],
-            ['Error: No course type is associated with the import name "Praktikum". Please manually create it first.'],
+            [
+                msg.message
+                for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.COURSE_TYPE_MISSING]
+            ],
+            [
+                'Sheet "MA Belegungen", row 11 and 1 other place: No course type is associated with the import name "Praktikum". Please manually create it first.'
+            ],
         )
         self.assertEqual(
-            errors_test[ImporterError.IS_GRADED], ['"is_graded" of course Deal is maybe, but must be yes or no']
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.IS_GRADED]],
+            ['Sheet "MA Belegungen", row 5: "is_graded" is maybe, but must be yes or no'],
         )
         self.assertEqual(
-            errors_test[ImporterError.GENERAL], ["Errors occurred while parsing the input data. No data was imported."]
+            [msg.message for msg in importer_log_test.errors_by_category()[ImporterLogEntry.Category.RESULT]],
+            ["Errors occurred while parsing the input data. No data was imported."],
         )
-        self.assertEqual(len(errors_test), 6)
+        self.assertEqual(len(importer_log_test.errors_by_category()), 6)
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
         semester = baker.make(Semester)
-        baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
-        baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
+        baker.make(Course, name_de="Scheinen2", name_en="Shine", semester=semester)
+        baker.make(Course, name_de="Stehlen", name_en="Steal2", semester=semester)
 
-        __, __, errors = EnrollmentImporter.process(self.default_excel_content, semester, None, None, test_run=False)
-
+        importer_log = import_enrollments(self.default_excel_content, semester, None, None, test_run=False)
         self.assertCountEqual(
-            errors[ImporterError.COURSE],
-            {
-                "Course Shine (EN) already exists in this semester with different german name.",
-                "Course Stehlen (DE) already exists in this semester with different english name.",
-            },
+            [
+                'Sheet "BA Belegungen", row 8: Course "Shine" (EN) already exists in this semester with a different german name.',
+                'Sheet "BA Belegungen", row 10: Course "Stehlen" (DE) already exists in this semester with a different english name.',
+            ],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.COURSE]],
         )
 
     def test_unknown_degree_error(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_unknown_degree_error_filedata)
-        __, __, errors = EnrollmentImporter.process(excel_content, baker.make(Semester), None, None, test_run=False)
-        missing_degree_errors = errors[ImporterError.DEGREE_MISSING]
+        importer_log = import_enrollments(excel_content, baker.make(Semester), None, None, test_run=False)
+        missing_degree_errors = importer_log.errors_by_category()[ImporterLogEntry.Category.DEGREE_MISSING]
         self.assertEqual(len(missing_degree_errors), 1)
-        self.assertIn("manually create it first", missing_degree_errors[0])
+        self.assertIn("manually create it first", missing_degree_errors[0].message)
+
+    @patch("evap.evaluation.models.UserProfile.full_clean")
+    def test_validation_error(self, mocked_validation):
+        mocked_validation.side_effect = [None] * 5 + [ValidationError("TEST")] + [None] * 50
+
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=False)
+
+        self.assertEqual(
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.USER]],
+            [
+                "User diam.synephebos@institution.example.com: Error when validating: ['TEST']",
+            ],
+        )
 
     def test_replace_consecutive_and_trailing_spaces(self):
         excel_content = excel_data.create_memory_excel_file(
             excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata
         )
 
-        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        importer_log = import_enrollments(excel_content, self.semester, None, None, test_run=True)
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
     def test_existing_course_is_not_recreated(self):
@@ -412,9 +530,33 @@ class TestEnrollmentImporter(TestCase):
         old_dict = model_to_dict(existing_course)
         self.assertFalse(existing_course_evaluation.participants.exists())
 
-        __, __, __ = EnrollmentImporter.process(
+        importer_log_test = import_enrollments(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=True
+        )
+        importer_log_notest = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
+
+        warnings_test = [
+            msg.message for msg in importer_log_test.warnings_by_category()[ImporterLogEntry.Category.EXISTS]
+        ]
+
+        warnings_notest = [
+            msg.message for msg in importer_log_notest.warnings_by_category()[ImporterLogEntry.Category.EXISTS]
+        ]
+
+        self.assertIn(
+            'Course "Shake" already exists. The course will not be created, instead users are imported into the '
+            + "evaluation of the existing course and any additional degrees are added.",
+            warnings_test,
+        )
+        self.assertListEqual(warnings_test, warnings_notest)
+
+        success_messages_test_joined = "".join(msg.message for msg in importer_log_test.success_messages())
+        self.assertIn("The import run will create 22 courses/evaluations", success_messages_test_joined)
+
+        success_messages_notest_joined = "".join(msg.message for msg in importer_log_notest.success_messages())
+        self.assertIn("Successfully created 22 courses/evaluations", success_messages_notest_joined)
 
         expected_course_count = old_course_count + 22
         self.assertEqual(Course.objects.count(), expected_course_count)
@@ -425,41 +567,13 @@ class TestEnrollmentImporter(TestCase):
             existing_course_evaluation.participants.all(),
         )
 
-    def test_existing_course_is_not_recreated_messages(self):
-        self.create_existing_course()
-
-        success_messages_test, test_warnings_test, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=True
-        )
-
-        success_messages, warnings, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
-
-        self.assertIn(
-            "Course Shake (Schütteln) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added.",
-            warnings[ImporterWarning.EXISTS],
-        )
-        self.assertListEqual(
-            test_warnings_test[ImporterWarning.EXISTS],
-            warnings[ImporterWarning.EXISTS],
-        )
-        self.assertIn(
-            "The import run will create 22 courses/evaluations",
-            "".join(success_messages_test),
-        )
-        self.assertIn(
-            "Successfully created 22 courses/evaluations",
-            "".join(success_messages),
-        )
-
     def test_existing_course_degree_is_added(self):
         existing_course, __ = self.create_existing_course()
 
         # The existing course exactly matches one course in the import data by default. To create a conflict, the degrees are changed
         existing_course.degrees.set([Degree.objects.get(name_de="Master")])
 
-        EnrollmentImporter.process(
+        import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
@@ -476,12 +590,18 @@ class TestEnrollmentImporter(TestCase):
         old_course_count = Course.objects.count()
         old_dict = model_to_dict(existing_course)
 
-        __, __, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
-        self.assertIn("the course type does not match", "".join(errors[ImporterError.COURSE]))
-        self.assertIn("the responsibles of the course do not match", "".join(errors[ImporterError.COURSE]))
+        self.assertIn(
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
+            + "semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the course type does not match"
+            + "<br /> - the responsibles of the course do not match",
+            [entry.message for entry in importer_log.errors_by_category()[ImporterLogEntry.Category.COURSE]],
+        )
+
         self.assertEqual(Course.objects.count(), old_course_count)
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
@@ -493,14 +613,15 @@ class TestEnrollmentImporter(TestCase):
         old_course_count = Course.objects.count()
         old_dict = model_to_dict(existing_course)
 
-        __, __, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in "
+            + "this semester, but the courses can not be merged for the following reasons:"
             + "<br /> - the existing course does not have exactly one evaluation",
-            errors[ImporterError.COURSE],
+            [entry.message for entry in importer_log.errors_by_category()[ImporterLogEntry.Category.COURSE]],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
         existing_course.refresh_from_db()
@@ -514,21 +635,42 @@ class TestEnrollmentImporter(TestCase):
         old_course_count = Course.objects.count()
         old_dict = model_to_dict(existing_course)
 
-        __, __, errors = EnrollmentImporter.process(
+        importer_log = import_enrollments(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            "Sheet &quot;BA Belegungen&quot;, row 2 and 1 other place: Course &quot;Shake&quot; already exists in this "
+            + "semester, but the courses can not be merged for the following reasons:"
             + "<br /> - the evaluation of the existing course has a mismatching grading specification",
-            errors[ImporterError.COURSE],
+            [entry.message for entry in importer_log.errors_by_category()[ImporterLogEntry.Category.COURSE]],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
 
+    def test_wrong_column_count(self):
+        wrong_column_count_excel_content = excel_data.create_memory_excel_file(excel_data.wrong_column_count_excel_data)
+        importer_log = import_enrollments(wrong_column_count_excel_content, self.semester, None, None, test_run=True)
+        self.assertEqual(
+            ["Errors occurred while parsing the input data. No data was imported."],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.RESULT]],
+        )
+        self.assertEqual(
+            ["Wrong number of columns in sheet 'Sheet 1'. Expected: 12, actual: 3"],
+            [msg.message for msg in importer_log.errors_by_category()[ImporterLogEntry.Category.GENERAL]],
+        )
 
-class TestPersonImporter(TestCase):
+    def test_user_data_mismatch_to_database(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+
+        # Just check that the checker is called. It is already tested in UserImportTest.test_user_data_mismatch_to_database
+        with patch("evap.staff.importers.user.UserDataMismatchChecker.check_userdata") as mock:
+            import_enrollments(excel_content, self.semester, None, None, test_run=True)
+            self.assertGreater(mock.call_count, 50)
+
+
+class TestPersonImport(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.participant1 = baker.make(UserProfile, email="participant1@example.com")
@@ -544,20 +686,24 @@ class TestPersonImporter(TestCase):
     def test_import_existing_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
+            "The following 1 users are already contributing to evaluation",
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 contributors added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
+            "The following 1 users are already contributing to evaluation",
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
@@ -568,17 +714,19 @@ class TestPersonImporter(TestCase):
     def test_import_new_contributor(self):
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
@@ -589,35 +737,41 @@ class TestPersonImporter(TestCase):
         )
 
     def test_import_existing_participant(self):
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0]
+            "The following 1 users are already participants in evaluation",
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("0 participants added to the evaluation", "".join(success_messages))
         self.assertIn(
-            "The following 1 users are already participants in evaluation", warnings[ImporterWarning.GENERAL][0]
+            "The following 1 users are already participants in evaluation",
+            [msg.message for msg in importer_log.warnings_by_category()[ImporterLogEntry.Category.GENERAL]][0],
         )
 
         self.assertEqual(self.evaluation1.participants.count(), 1)
         self.assertEqual(self.evaluation1.participants.get(), self.participant1)
 
     def test_import_new_participant(self):
-        success_messages, __, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
-        success_messages, __, __ = PersonImporter.process_source_evaluation(
+        importer_log = import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
+        success_messages = [msg.message for msg in importer_log.success_messages()]
         self.assertIn("1 participants added to the evaluation", "".join(success_messages))
         self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
@@ -628,13 +782,13 @@ class TestPersonImporter(TestCase):
         self.participant2.is_active = False
         self.participant2.save()
 
-        PersonImporter.process_source_evaluation(
+        import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.participant2.refresh_from_db()
         self.assertFalse(self.participant2.is_active)
 
-        PersonImporter.process_source_evaluation(
+        import_persons_from_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.participant2.refresh_from_db()
@@ -644,13 +798,13 @@ class TestPersonImporter(TestCase):
         self.contributor2.is_active = False
         self.contributor2.save()
 
-        PersonImporter.process_source_evaluation(
+        import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.contributor2.refresh_from_db()
         self.assertFalse(self.contributor2.is_active)
 
-        PersonImporter.process_source_evaluation(
+        import_persons_from_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.contributor2.refresh_from_db()

@@ -327,10 +327,10 @@ class TestUserMergeView(WebTestStaffModeWith200Check):
 class TestUserBulkUpdateView(WebTestStaffMode):
     url = "/staff/user/bulk_update"
     filename = os.path.join(settings.BASE_DIR, "staff/fixtures/test_user_bulk_update_file.txt")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
+        cls.random_excel_file_content = excel_data.random_file_content
         cls.manager = make_manager()
 
     def test_testrun_deletes_no_users(self):
@@ -355,8 +355,8 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
         error_string = (
             "Multiple users match the email testuser1@institution.example.com:"
-            + "<br />Elisabeth Fröhlich (testuser1@institution.example.com)"
-            + "<br />Tony Kuchenbuch (testuser1@internal.example.com)"
+            "<br />Elisabeth Fröhlich (testuser1@institution.example.com)"
+            "<br />Tony Kuchenbuch (testuser1@internal.example.com)"
         )
         button_substring = 'value="bulk_update"'
 
@@ -461,7 +461,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
     def test_wrong_files_dont_crash(self):
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-bulk-update-form"]
-        form["user_file"] = (self.filename_random,)
+        form["user_file"] = ("import.xls", self.random_excel_file_content)
         reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
 
@@ -477,12 +477,15 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
 class TestUserImportView(WebTestStaffMode):
     url = "/staff/user/import"
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
     def setUpTestData(cls):
+        cls.valid_excel_file_content = excel_data.create_memory_excel_file(excel_data.valid_user_import_filedata)
+        cls.missing_values_excel_file_content = excel_data.create_memory_excel_file(
+            excel_data.missing_values_user_import_filedata
+        )
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.manager = make_manager()
 
     @render_pages
@@ -497,7 +500,7 @@ class TestUserImportView(WebTestStaffMode):
         """
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test")
 
         self.assertContains(
@@ -523,11 +526,19 @@ class TestUserImportView(WebTestStaffMode):
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_invalid,)
+        form["excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -542,14 +553,14 @@ class TestUserImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
 
         helper_delete_all_import_files(self.manager.id)
@@ -558,7 +569,7 @@ class TestUserImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (self.filename_valid,)
+        form["excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         form.submit(name="operation", value="hackit", status=400)
 
@@ -911,10 +922,10 @@ class TestSemesterDeleteGradeDocumentsView(DeleteViewTestMixin, WebTestStaffMode
 
 
 class TestSemesterImportView(WebTestStaffMode):
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
     @classmethod
     def setUpTestData(cls):
+        cls.random_excel_file_content = excel_data.random_file_content
+
         cls.manager = make_manager()
         semester = baker.make(Semester)
         cls.url = f"/staff/semester/{semester.pk}/import"
@@ -991,20 +1002,24 @@ class TestSemesterImportView(WebTestStaffMode):
         general_error = "Errors occurred while parsing the input data. No data was imported."
         self.assertContains(reply, general_error)
         degree_error = (
-            "Error: No degree is associated with the import name &quot;Diploma&quot;. "
+            "Sheet &quot;MA Belegungen&quot;, row 8 and 1 other place: "
+            "No degree is associated with the import name &quot;Diploma&quot;. "
             "Please manually create it first."
         )
         self.assertContains(reply, degree_error)
         course_type_error = (
-            "Error: No course type is associated with the import name &quot;Praktikum&quot;. "
+            "Sheet &quot;MA Belegungen&quot;, row 11 and 1 other place: "
+            "No course type is associated with the import name &quot;Praktikum&quot;. "
             "Please manually create it first."
         )
         self.assertContains(reply, course_type_error)
-        is_graded_error = "&quot;is_graded&quot; of course Deal is maybe, but must be yes or no"
+        is_graded_error = (
+            "Sheet &quot;MA Belegungen&quot;, row 5: &quot;is_graded&quot; is maybe, but must be yes or no"
+        )
         self.assertContains(reply, is_graded_error)
         user_error = (
             "Sheet &quot;MA Belegungen&quot;, row 3: The users&#x27;s data"
-            " (email: bastius.quid@external.example.com) differs from it&#x27;s data in a previous row."
+            " (email: bastius.quid@external.example.com) is different to a previous row."
         )
         self.assertContains(reply, user_error)
         self.assertContains(reply, "Sheet &quot;MA Belegungen&quot;, row 7: Email address is missing.")
@@ -1041,8 +1056,8 @@ class TestSemesterImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         helper_delete_all_import_files(self.manager.id)
 
@@ -2010,13 +2025,16 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
-    filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
-
     @classmethod
     def setUpTestData(cls):
+        cls.valid_excel_file_content = excel_data.create_memory_excel_file(excel_data.valid_user_import_filedata)
+        cls.missing_values_excel_file_content = excel_data.create_memory_excel_file(
+            excel_data.missing_values_user_import_filedata
+        )
+        cls.random_excel_file_content = excel_data.random_file_content
+
         semester = baker.make(Semester)
+
         cls.manager = make_manager()
         profiles1 = baker.make(UserProfile, _bulk_create=True, _quantity=31)
         cls.evaluation = baker.make(Evaluation, course__semester=semester, participants=profiles1)
@@ -2038,7 +2056,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_participant_count = self.evaluation.participants.count()
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertContains(page, "Import previously uploaded file")
@@ -2055,7 +2073,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-participants")
 
         self.assertNotEqual(self.evaluation2.participants.count(), 2)
@@ -2097,7 +2115,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         original_contributor_count = UserProfile.objects.filter(contributions__evaluation=self.evaluation).count()
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertContains(page, "Import previously uploaded file")
@@ -2119,7 +2137,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url2, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
         page = form.submit(name="operation", value="test-contributors")
 
         self.assertNotEqual(UserProfile.objects.filter(contributions__evaluation=self.evaluation2).count(), 2)
@@ -2167,11 +2185,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_invalid,)
+        form["pe-excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test-participants")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -2181,14 +2207,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-participants")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
         helper_delete_all_import_files(self.manager.id)
@@ -2197,11 +2223,19 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_invalid,)
+        form["ce-excel_file"] = ("import.xls", self.missing_values_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
 
-        self.assertContains(reply, "Sheet &quot;Sheet1&quot;, row 2: Email address is missing.")
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 2: User missing.firstname@institution.example.com: First name is missing.",
+        )
+        self.assertContains(
+            reply,
+            "Sheet &quot;Sheet 1&quot;, row 3: User missing.lastname@institution.example.com: Last name is missing.",
+        )
+        self.assertContains(reply, "Sheet &quot;Sheet 1&quot;, row 4: Email address is missing.")
         self.assertContains(reply, "Errors occurred while parsing the input data. No data was imported.")
         self.assertNotContains(reply, "Import previously uploaded file")
 
@@ -2211,14 +2245,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
-        form["ce-excel_file"] = (self.filename_valid,)
+        form["ce-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         reply = form.submit(name="operation", value="test-contributors")
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            f" -  None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}] (existing)<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (import)",
         )
         self.assertContains(reply, "Import previously uploaded file")
         helper_delete_all_import_files(self.manager.id)
@@ -2227,7 +2261,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
-        form["pe-excel_file"] = (self.filename_valid,)
+        form["pe-excel_file"] = ("import.xls", self.valid_excel_file_content)
 
         form.submit(name="operation", value="hackit", status=400)
 
