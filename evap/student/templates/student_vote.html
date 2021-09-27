@@ -195,9 +195,9 @@
                     }
 
                     // show all non-empty additional text answer fields
-                    $(".collapse textarea").each(function(index) {
-                        if($(this).val()){
-                            $($(this).closest(".row")).find(".btn-textanswer").click()
+                    document.querySelectorAll(".collapse textarea").forEach(el => {
+                        if (el.value.length !== 0) {
+                            el.closest(".row").getElementsByClassName("btn-textanswer")[0].click();
                         }
                     });
                 },
@@ -343,6 +343,24 @@
                 });
             });
 
+            document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
+                const textfieldClass = textanswerButton.dataset.target;
+                const textfield = textanswerButton.closest(".row").querySelector(textfieldClass + " textarea");
+                textanswerButton.addEventListener("click", () => {
+                    // focus textarea when opening the collapsed area
+                    const isOpening = textanswerButton.classList.contains("collapsed");
+                    if (isOpening) {
+                        requestAnimationFrame(() => textfield.focus());
+                    }
+                });
+                textfield.addEventListener("input", () => {
+                    if (textfield.value.length !== 0)
+                        textanswerButton.classList.add("has-contents");
+                    else
+                        textanswerButton.classList.remove("has-contents");
+                });
+                textfield.dispatchEvent(new Event("input"));
+            });
 
             // handle text_results_publish_confirmation checkbox changes
             function updateTextResultsPublishConfirmation() {
@@ -448,6 +466,7 @@
                                 block: "center",
                             });
                             textField.value += e.key;
+                            textField.dispatchEvent(new Event("input"));
                         }
                     }
                     return;

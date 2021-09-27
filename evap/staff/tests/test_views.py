@@ -2205,6 +2205,10 @@ class TestEvaluationTextAnswerView(WebTest):
             answer="test answer text",
         )
 
+        cls.num_questions = 100
+        for _ in range(cls.num_questions):
+            baker.make(TextAnswer, question__questionnaire=questionnaire, answer="yeet")
+
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
         with run_in_staff_mode(self):
@@ -2244,6 +2248,12 @@ class TestEvaluationTextAnswerView(WebTest):
             page = self.app.get(self.url, user=self.manager, status=200)
             # unfinished because still in EVALUATION_END_OFFSET_HOURS
             self.assertNotContains(page, self.evaluation2.full_name)
+
+    def test_num_queries_is_constant(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            with self.assertNumQueries(FuzzyInt(0, self.num_questions)):
+                self.app.get(self.url, user=self.manager)
 
 
 class TestEvaluationTextAnswerEditView(WebTest):
