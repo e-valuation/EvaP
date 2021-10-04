@@ -927,27 +927,27 @@ class TestEmailTemplate(TestCase):
 
         expected_calls = [
             # these 4 are included since they are contributors for evaluation1 which can publish the average grade
-            call(responsible1, {}, {"user": responsible1, "evaluations": [evaluation1]}, use_cc=True),
-            call(editor1, {}, {"user": editor1, "evaluations": [evaluation1]}, use_cc=True),
-            call(contributor1, {}, {"user": contributor1, "evaluations": [evaluation1]}, use_cc=True),
+            call(responsible1, {}, {"user": responsible1, "evaluations": {evaluation1}}, use_cc=True),
+            call(editor1, {}, {"user": editor1, "evaluations": {evaluation1}}, use_cc=True),
+            call(contributor1, {}, {"user": contributor1, "evaluations": {evaluation1}}, use_cc=True),
             call(
-                contributor_both, {}, {"user": contributor_both, "evaluations": [evaluation1, evaluation2]}, use_cc=True
+                contributor_both, {}, {"user": contributor_both, "evaluations": {evaluation1, evaluation2}}, use_cc=True
             ),
             # contributor2 has textanswers, so they are notified
-            call(contributor2, {}, {"user": contributor2, "evaluations": [evaluation2]}, use_cc=True),
+            call(contributor2, {}, {"user": contributor2, "evaluations": {evaluation2}}, use_cc=True),
         ]
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
-            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            EmailTemplate.send_contributor_publish_notifications({evaluation1, evaluation2})
             # Assert that all expected publish notifications are sent to contributors.
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
         # if general textanswers for an evaluation exist, all responsibles should also be notified
         baker.make(TextAnswer, contribution=evaluation2.general_contribution)
-        expected_calls.append(call(responsible2, {}, {"user": responsible2, "evaluations": [evaluation2]}, use_cc=True))
+        expected_calls.append(call(responsible2, {}, {"user": responsible2, "evaluations": {evaluation2}}, use_cc=True))
 
         with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
-            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+            EmailTemplate.send_contributor_publish_notifications({evaluation1, evaluation2})
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
 

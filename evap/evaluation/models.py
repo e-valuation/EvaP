@@ -1807,6 +1807,10 @@ class EmailTemplate(models.Model):
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
+            evaluations_with_date = dict()
+            for evaluation in user_evaluations:
+                evaluations_with_date[evaluation] = (evaluation.vote_end_date - date.today()).days
+            evaluations_with_date = sorted(evaluations_with_date.items(), key=operator.itemgetter(0))
             body_params = {
                 "user": user,
                 "evaluations": user_evaluations,
@@ -1934,7 +1938,7 @@ class EmailTemplate(models.Model):
                         evaluations_per_contributor[textanswer.contribution.contributor].add(evaluation)
 
         for contributor, evaluation_set in evaluations_per_contributor.items():
-            body_params = {"user": contributor, "evaluations": list(evaluation_set)}
+            body_params = {"user": contributor, "evaluations": evaluation_set}
             template.send_to_user(contributor, {}, body_params, use_cc=True)
 
     @classmethod
