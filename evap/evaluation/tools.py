@@ -4,11 +4,8 @@ from urllib.parse import quote
 
 import xlwt
 from django.conf import settings
-from django.contrib.auth import user_logged_in
-from django.dispatch import receiver
 from django.http import HttpResponse
-from django.utils import translation
-from django.utils.translation import LANGUAGE_SESSION_KEY, get_language
+from django.utils.translation import get_language
 
 
 def is_prefetched(instance, attribute_name):
@@ -36,16 +33,6 @@ def date_to_datetime(date):
 def vote_end_datetime(vote_end_date):
     # The evaluation actually ends at EVALUATION_END_OFFSET_HOURS:00 of the day AFTER self.vote_end_date.
     return date_to_datetime(vote_end_date) + datetime.timedelta(hours=24 + settings.EVALUATION_END_OFFSET_HOURS)
-
-
-@receiver(user_logged_in)
-def set_or_get_language(user, request, **_kwargs):
-    if user.language:
-        translation.activate(user.language)
-    else:
-        user.language = get_language()
-        user.save()
-    request.session[LANGUAGE_SESSION_KEY] = user.language
 
 
 def get_parameter_from_url_or_session(request, parameter, default=False):
