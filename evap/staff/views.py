@@ -1425,6 +1425,8 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
@@ -1476,7 +1478,9 @@ def evaluation_textanswers_update_publish(request):
     evaluation_id = request.POST["evaluation_id"]
 
     evaluation = Evaluation.objects.get(pk=evaluation_id)
-    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
+    if evaluation.course.semester.results_are_archived:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
@@ -1512,6 +1516,8 @@ def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_i
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
