@@ -623,3 +623,35 @@ class TestPersonImporter(TestCase):
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
         self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
+
+    def test_imported_participants_are_made_active(self):
+        self.participant2.is_active = False
+        self.participant2.save()
+
+        PersonImporter.process_source_evaluation(
+            ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+        )
+        self.participant2.refresh_from_db()
+        self.assertFalse(self.participant2.is_active)
+
+        PersonImporter.process_source_evaluation(
+            ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
+        )
+        self.participant2.refresh_from_db()
+        self.assertTrue(self.participant2.is_active)
+
+    def test_imported_contributors_are_made_active(self):
+        self.contributor2.is_active = False
+        self.contributor2.save()
+
+        PersonImporter.process_source_evaluation(
+            ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
+        )
+        self.contributor2.refresh_from_db()
+        self.assertFalse(self.contributor2.is_active)
+
+        PersonImporter.process_source_evaluation(
+            ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
+        )
+        self.contributor2.refresh_from_db()
+        self.assertTrue(self.contributor2.is_active)

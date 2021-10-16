@@ -852,13 +852,7 @@ class PersonImporter:
             user_list = list(UserProfile.objects.filter(contributions__evaluation=source_evaluation))
             importer.process_contributors(evaluation, test_run, user_list)
 
-        cls.make_users_active(user_list)
+        if not test_run:
+            UserProfile.objects.filter(pk__in=[user.pk for user in user_list]).update(is_active=True)
 
         return importer.success_messages, importer.warnings, importer.errors
-
-    @staticmethod
-    def make_users_active(user_list):
-        for user in user_list:
-            if not user.is_active:
-                user.is_active = True
-                user.save()
