@@ -328,7 +328,7 @@
 
                 voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
                     .forEach(radioInput => {
-                        radioInput.labels[0].addEventListener("click", () => {
+                        radioInput.addEventListener("click", () => {
                             collapseToggle.classList.remove("tab-selectable");
                             button.classList.add("tab-selectable");
                             button.disabled = false;
