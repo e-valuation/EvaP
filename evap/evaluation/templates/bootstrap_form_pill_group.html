@@ -1,8 +1,8 @@
 <div class="mb-3 d-md-flex">
-    <div class="col-md-2 pe-4">
-        <div class="nav flex-column nav-pills" role="tablist">
+    <div class="col-md-2 pe-4 form-label">
+        <div class="nav flex-column nav-pills btn-switch" role="tablist">
             {% for field in fields %}
-                <button class="nav-link text-end{% if forloop.first %} active{% endif %}" data-bs-toggle="pill" data-bs-target="#tab-{{ field.id_for_label }}" type="button" role="tab">
+                <button class="nav-link fw-bold text-end{% if forloop.first %} active{% endif %}" data-bs-toggle="pill" data-bs-target="#tab-{{ field.id_for_label }}" type="button" role="tab">
                     {{ field.label }}
                 </button>
             {% endfor %}

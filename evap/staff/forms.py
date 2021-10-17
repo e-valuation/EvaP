@@ -535,8 +535,8 @@ class EvaluationEmailForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(), choices=EmailTemplate.Recipients.choices, label=_("Send email to")
     )
     subject = forms.CharField(label=_("Subject"))
-    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Message"))
-    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML Message"))
+    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Text"))
+    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML"))
 
     def __init__(self, *args, evaluation, export=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -575,8 +575,8 @@ class RemindResponsibleForm(forms.Form):
     to = UserModelChoiceField(None, required=False, disabled=True, label=_("To"))
     cc = UserModelMultipleChoiceField(None, required=False, disabled=True, label=_("CC"))
     subject = forms.CharField(label=_("Subject"))
-    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Message"))
-    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML Message"))
+    plain_content = forms.CharField(widget=forms.Textarea(), label=_("Plain Text"))
+    html_content = forms.CharField(widget=forms.Textarea(), label=_("HTML"))
 
     def __init__(self, *args, responsible, **kwargs):
         super().__init__(*args, **kwargs)

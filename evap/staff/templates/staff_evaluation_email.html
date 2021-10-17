@@ -18,12 +18,12 @@
                                 {% for field in rest %}
                                     {% if field.name == 'recipients' %}
                                         <div class="mb-3 d-flex">
-                                            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-2' %}
+                                            {% include 'bootstrap_form_field_label.html' with field=field class='col-md-2 pe-4' %}
                                             <div class="col-md-7{% if field.errors %} is-invalid{% endif %}">
                                                 <div class="btn-group btn-group-toggle mb-1" data-bs-toggle="buttons">
                                                     {% for choice in field %}
-                                                        <label class="btn btn-sm btn-light{% if choice.data.value in field.value %} active{% endif %}{% if field.errors %} error-label{% endif %}">
-                                                            <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.value in field.value %} checked{% endif %} />
+                                                        <input id="{{ choice.id_for_label }}" class="btn-check" name="{{ choice.data.name }}" type="checkbox" value="{{ choice.data.value }}" autocomplete="off"{% if choice.data.value in field.value %} checked{% endif %} />
+                                                        <label class="btn btn-sm btn-outline-primary{% if field.errors %} error-label{% endif %}" for="{{ choice.id_for_label }}">
                                                             {{ choice.choice_label }} {{ choice.id }}
                                                         </label>
                                                     {% endfor %}
