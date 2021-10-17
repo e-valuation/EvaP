@@ -98,18 +98,21 @@
             templateForm.insertAfter($('.select2form'));
 
             // put this into a function for later re-use
-            applySelect2 = function(elem) {
+            applySelect2 = function(elem, parent = $(document.body)) {
                 elem.each(function() {
                     $(this).select2({
                         language: "{{ LANGUAGE_CODE }}",
                         placeholder: "{% trans 'Please select...' %}",
                         minimumResultsForSearch: 15,
                         minimumInputLength: $(this).children('option').length > 50 ? 3 : 0,
-                        allowClear: this.multiple
+                        allowClear: this.multiple,
+                        dropdownParent: parent
                     });
                 });
             };
-            applySelect2($('select').not('.form-template select').not('[disabled]').not('.no-select2'));
+            applySelect2($('select').not('.form-template select').not('[disabled]').not('.no-select2').not('#id_delegate_to'));
+            // handle delegation modal, which includes a dropdown select field
+            applySelect2($('select#id_delegate_to'), $('#delegateSelectionModal'));
 
             // don't use the placeholder text on disabled select2 elements
             applySelect2Disabled = function(elem) {
