@@ -818,7 +818,7 @@ def semester_preparation_reminder(request, semester_id):
     responsibles = list(
         set(responsible for evaluation in prepared_evaluations for responsible in evaluation.course.responsibles.all())
     )
-    responsibles.sort(key=lambda responsible: (responsible.last_name, responsible.first_name))
+    responsibles.sort(key=lambda responsible: responsible.sorting_key)
 
     responsible_list = [
         (
@@ -855,7 +855,7 @@ def semester_grade_reminder(request, semester_id):
     courses.sort(key=lambda course: course.name)
 
     responsibles = list(set(responsible for course in courses for responsible in course.responsibles.all()))
-    responsibles.sort(key=lambda responsible: (responsible.last_name.lower(), responsible.first_name.lower()))
+    responsibles.sort(key=lambda responsible: responsible.sorting_key)
 
     responsible_list = [
         (responsible, [course for course in courses if responsible in course.responsibles.all()])

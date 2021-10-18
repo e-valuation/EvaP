@@ -355,7 +355,7 @@ class Course(LoggedModel):
     @cached_property
     def responsibles_names(self):
         ordered_responsibles = sorted(
-            self.responsibles.all(), key=lambda responsible: (responsible.last_name, responsible.full_name)
+            self.responsibles.all(), key=lambda responsible: responsible.sorting_key
         )
         return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
@@ -1551,6 +1551,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         if "@" in self.email:
             return name + " (" + self.email.split("@")[0] + ")"
         return name + " (" + self.email + ")"
+
+    @property
+    def sorting_key(self):
+        return (
+            (self.last_name or "").lower(),
+            (self.first_name or "").lower(),
+            (self.email or "").lower()
+        )
 
     def __str__(self):
         return self.full_name

@@ -568,6 +568,13 @@ class TestUserProfile(TestCase):
         del user.is_student
         self.assertFalse(user.is_student)
 
+    def test_sorting_key(self):
+        sandy = baker.make(UserProfile, last_name="Cheeks", email="sandy.cheeks@krustykrab.com")
+        spongebob = baker.make(UserProfile, email="spongebob.squarepants@krustykrab.com")
+
+        result = sorted([sandy, spongebob], key=lambda user: user.sorting_key)
+        self.assertEqual(result, [spongebob, sandy])
+
     def test_can_be_deleted_by_manager(self):
         user = baker.make(UserProfile)
         baker.make(Evaluation, participants=[user], state=Evaluation.State.NEW)
