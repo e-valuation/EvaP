@@ -44,6 +44,7 @@ export function pageHandler(fileName: string, fn: (page: Page) => void): (done?:
                 await page.evaluate(() => {
                     localStorage.clear();
                 });
+                await page.close();
                 done!(reason);
             }
         }
