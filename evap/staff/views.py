@@ -1421,7 +1421,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 @reviewer_required
 def evaluation_textanswers(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_manager:
+    if semester.results_are_archived:
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 

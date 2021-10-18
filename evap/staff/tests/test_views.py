@@ -2268,6 +2268,12 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=403)
 
+    def test_archived(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=403)
+
 
 class TestEvaluationTextAnswerEditView(WebTest):
     @classmethod
@@ -2325,6 +2331,12 @@ class TestEvaluationTextAnswerEditView(WebTest):
 
             self.text_answer.refresh_from_db()
             self.assertEqual(self.text_answer.answer, "edited answer text")
+
+        # archive and it shouldn't work anymore
+        Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=403)
+        Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=False)
 
         # publish and it shouldn't work anymore
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
@@ -2713,6 +2725,11 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     def test_published(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+
+    def test_archived(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
 
 
