@@ -1719,7 +1719,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
         # Sort evaluations by number of days left for evaluation and bring them to following format:
         # [(evaluation, due_in_days), ...]
-        return sorted(due_evaluations.items(), key=operator.itemgetter(1))
+        return sorted(due_evaluations.items(), key=lambda tuple: (tuple[1], tuple[0].full_name))
 
 
 def validate_template(value):
