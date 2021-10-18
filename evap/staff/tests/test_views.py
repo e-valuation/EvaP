@@ -2263,10 +2263,7 @@ class TestEvaluationTextAnswerView(WebTest):
                 self.app.get(self.url, user=self.manager)
 
     def test_published(self):
-        self.evaluation.end_evaluation()
-        self.evaluation.end_review()
-        self.evaluation.publish()
-        self.evaluation.save()
+        Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.app.get(self.url, user=self.manager, status=403)
 
 
@@ -2328,10 +2325,7 @@ class TestEvaluationTextAnswerEditView(WebTest):
             self.assertEqual(self.text_answer.answer, "edited answer text")
 
     def test_published(self):
-        self.evaluation.end_evaluation()
-        self.evaluation.end_review()
-        self.evaluation.publish()
-        self.evaluation.save()
+        Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.app.get(self.url, user=self.manager, status=403)
 
 
@@ -2714,9 +2708,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
 
     def test_published(self):
-        self.evaluation.end_evaluation()
-        self.evaluation.end_review()
-        self.evaluation.publish()
+        Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.evaluation.save()
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "publish", expect_errors=True)
 
