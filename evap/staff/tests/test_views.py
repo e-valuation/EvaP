@@ -2263,8 +2263,10 @@ class TestEvaluationTextAnswerView(WebTest):
                 self.app.get(self.url, user=self.manager)
 
     def test_published(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.app.get(self.url, user=self.manager, status=403)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=403)
 
 
 class TestEvaluationTextAnswerEditView(WebTest):
@@ -2324,9 +2326,10 @@ class TestEvaluationTextAnswerEditView(WebTest):
             self.text_answer.refresh_from_db()
             self.assertEqual(self.text_answer.answer, "edited answer text")
 
-    def test_published(self):
+        # publish and it shouldn't work anymore
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.app.get(self.url, user=self.manager, status=403)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=403)
 
 
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
@@ -2708,9 +2711,9 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
 
     def test_published(self):
+        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.evaluation.save()
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "publish", expect_errors=True)
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
