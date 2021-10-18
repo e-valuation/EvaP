@@ -248,7 +248,7 @@
                             <col style="width: 12em" />
                             <col style="width: 10.5em" />
                         </colgroup>
-                        <thead>
+                        <thead {% if num_evaluations is 0 %} hidden {% endif %}>
                             <tr>
                                 <th></th>
                                 <th class="col-order" data-col="state-approval"></th>
@@ -339,7 +339,7 @@
                         <col style="width: 12em" />
                         <col style="width: 9em" />
                     </colgroup>
-                    <thead>
+                    <thead {% if num_evaluations is 0 %} hidden {% endif %}>
                         <tr>
                             <th class="col-order" data-col="name">{% trans 'Course' %}</th>
                             <th class="col-order" data-col="responsible">{% trans 'Responsible' %}</th>
