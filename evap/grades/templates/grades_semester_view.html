@@ -124,11 +124,14 @@
 {% block additional_javascript %}
     <script type="module">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
-        new TableGrid({
-            storageKey: "grades-semester-{{ semester.id }}-data-grid",
-            table: document.querySelector(".grade-course-table"),
-            searchInput: document.querySelector("input[name=search]"),
-            resetSearch: document.querySelector("[data-reset=search]"),
-        }).init();
+        const table = document.querySelector(".grade-course-table");
+        if (table) {
+            new TableGrid({
+                storageKey: "grades-semester-{{ semester.id }}-data-grid",
+                table,
+                searchInput: document.querySelector("input[name=search]"),
+                resetSearch: document.querySelector("[data-reset=search]"),
+            }).init();
+        }
     </script>
 {% endblock %}
