@@ -573,7 +573,9 @@ class TestUserProfile(TestCase):
         spongebob = baker.make(UserProfile, email="spongebob.squarepants@krustykrab.com")
 
         result = sorted([sandy, spongebob], key=lambda user: user.sorting_key)
+        resultWithLanguageLevelOrdering = sorted([sandy, spongebob])
         self.assertEqual(result, [spongebob, sandy])
+        self.assertEqual(resultWithLanguageLevelOrdering, [spongebob, sandy])
 
     def test_can_be_deleted_by_manager(self):
         user = baker.make(UserProfile)

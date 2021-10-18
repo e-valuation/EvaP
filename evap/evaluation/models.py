@@ -5,6 +5,7 @@ import uuid
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
+from functools import total_ordering
 
 from django.conf import settings
 from django.contrib import messages
@@ -354,9 +355,7 @@ class Course(LoggedModel):
 
     @cached_property
     def responsibles_names(self):
-        ordered_responsibles = sorted(
-            self.responsibles.all(), key=lambda responsible: responsible.sorting_key
-        )
+        ordered_responsibles = sorted(self.responsibles.all())
         return ", ".join([responsible.full_name for responsible in ordered_responsibles])
 
     @property
@@ -1483,6 +1482,7 @@ class UserProfileManager(BaseUserManager):
         return user
 
 
+@total_ordering
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     # null=True because certain external users don't have an address
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True, verbose_name=_("email address"))
@@ -1559,6 +1559,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             (self.first_name or "").lower(),
             (self.email or "").lower()
         )
+
+    def __lt__(self, other):
+        return self.sorting_key < other.sorting_key
 
     def __str__(self):
         return self.full_name
