@@ -80,26 +80,6 @@
             </div>
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <fieldset>
-                    <div class="d-flex">
-                        <h5 class="card-title me-auto">{% trans 'Participants' %}</h5>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
-                                {% trans 'Request changes' %}
-                            </button>
-                        </div>
-                    </div>
-                    <p>{% trans 'These people will be invited for the evaluation. Please let us know if this data is not correct.' %}</p>
-                    <ul>
-                        {% for p in evaluation.participants.all|dictsort:'last_name' %}
-                            <li>{{ p.full_name }}</li>
-                        {% endfor %}
-                    </ul>
-                </fieldset>
-            </div>
-        </div>
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}

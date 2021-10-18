@@ -121,6 +121,7 @@ $alert-colors: (
 // select2 adjustments
 .select2-container--default .select2-selection--single {
     height: 38px;
+    width: 94%;
 
     .select2-selection__rendered {
         padding-top: 4px;
@@ -138,6 +139,12 @@ $alert-colors: (
 .select2-container .select2-selection--multiple .select2-selection__rendered {
     // When displaying long items, they should be wrapped into multiple lines instead of cutting them of
     white-space: normal;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    float: unset;
+    max-width: 90%;
+    width: fit-content;
 }
 
 .select2-container .select2-search--inline {
