@@ -16,7 +16,7 @@
             {% else %}
                 {% with related_answer_field_id=field.field.widget.attrs.related_answer_field_id allows_textanswer=field.field.widget.attrs.allows_textanswer%}
                     {% if not related_answer_field_id %}
-                        <div class="row">
+                        <div class="row row-question">
                     {% endif %}
                         {% if field|is_choice_field %}
                             <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between {% if field.errors %} choice-error{% endif %}">

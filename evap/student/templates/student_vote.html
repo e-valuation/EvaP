@@ -195,7 +195,7 @@
                     }
 
                     // show all non-empty additional text answer fields
-                    document.querySelectorAll(".collapse textarea").forEach(el => {
+                    document.querySelectorAll(".row-question .collapse textarea").forEach(el => {
                         if (el.value.length !== 0) {
                             el.closest(".row").getElementsByClassName("btn-textanswer")[0].click();
                         }
