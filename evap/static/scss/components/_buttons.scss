@@ -258,6 +258,10 @@ a.collapse-toggle {
 
     box-shadow: inset 0 0 10px $dark-gray;
 
+    &:focus {
+        box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
+    }
+
     &.collapsed {
         box-shadow: none;
     }

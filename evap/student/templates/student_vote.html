@@ -185,10 +185,6 @@
                 autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
-                    // update vote button states
-                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
-                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
-
                     // restore publish confirmation state
                     if (textResultsPublishConfirmation.bottomCard) {
                         updateTextResultsPublishConfirmation();
@@ -313,18 +309,16 @@
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
                 button.addEventListener("click", () => {
-                    voteArea.querySelectorAll(".vote-btn.active").forEach(el => el.classList.remove("active"));
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
-                        const voteButton = radioInput.closest(".vote-btn");
-                        voteButton.classList.add("active");
-                        clearChoiceError(voteButton);
+                        clearChoiceError(radioInput);
                     });
 
                     sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
-                    var voteAreaCollapse = new bootstrap.Collapse(voteArea, {hide: true});
+                    var voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
+                    voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
 
                     // Disable this button, until user changes a value
@@ -348,7 +342,7 @@
             });
 
             document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
-                const textfieldClass = textanswerButton.dataset.target;
+                const textfieldClass = textanswerButton.dataset.bsTarget;
                 const textfield = textanswerButton.closest(".row").querySelector(textfieldClass + " textarea");
                 textanswerButton.addEventListener("click", () => {
                     // focus textarea when opening the collapsed area
@@ -358,7 +352,7 @@
                     }
                 });
                 textfield.addEventListener("input", () => {
-                    if (textfield.value.length !== 0)
+                    if (textfield.value.trim().length !== 0)
                         textanswerButton.classList.add("has-contents");
                     else
                         textanswerButton.classList.remove("has-contents");
@@ -390,22 +384,18 @@
             }
 
             function selectByNumberKey(row, num) {
+                let index = 2 * num - 1;
                 if (num === 0) {
                     // Select "No answer"
-                    num = row.children.length;
+                    index = row.children.length - 1;
                 }
-                const index = num - 1;
 
                 if (!(0 <= index && index < row.children.length)) {
                     return;
                 }
 
-                const maybeNextElement = row
-                    .children[index]
-                    .getElementsByClassName("num-selectable");
-                if (maybeNextElement.length === 1) {
-                    maybeNextElement[0].click();
-                }
+                const nextElement = row.children[index];
+                nextElement.click();
             }
 
             const studentForm = document.getElementById("student-vote-form");
@@ -500,7 +490,7 @@
 
                 e.preventDefault();
                 let nextElement;
-                const alreadySelectedElement = nextRow.querySelector(".active .tab-selectable");
+                const alreadySelectedElement = nextRow.querySelector(".tab-selectable:checked");
 
                 if (alreadySelectedElement) {
                     nextElement = alreadySelectedElement;
