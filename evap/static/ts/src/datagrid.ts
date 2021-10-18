@@ -215,8 +215,12 @@ export class TableGrid extends DataGrid {
     private resetSearch: HTMLButtonElement;
 
     constructor({table, resetSearch, ...options}: TableGridParameters) {
+        const head = table.querySelector("thead")
+        if (!head) {
+            throw new Error("exepcted <table> to have <thead>, found decapitated instead");
+        }
         super({
-            head: table.querySelector("thead")!,
+            head,
             container: table.querySelector("tbody")!,
             ...options,
         });
