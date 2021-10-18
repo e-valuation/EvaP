@@ -1513,7 +1513,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
     class Meta:
-        ordering = ["last_name", "first_name", "email"]
+        ordering = ["last_name", "first_name", "email"] # keep in sync with #sorting_key
         verbose_name = _("user")
         verbose_name_plural = _("users")
 
@@ -1553,7 +1553,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return name + " (" + self.email + ")"
 
     @property
-    def sorting_key(self):
+    def sorting_key(self): # keep in sync with Meta#ordering
         return (
             (self.last_name or "").lower(),
             (self.first_name or "").lower(),
