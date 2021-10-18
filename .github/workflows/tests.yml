@@ -132,3 +132,97 @@ jobs:
           EVAP_SKIP_CHECKOUT: true
       - name: Reload backup
         run: echo "yy" | deployment/load_production_backup.sh backup.json
+
+  compile_scss:
+    runs-on: ubuntu-18.04
+
+    name: Compile Scss
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install dart-sass
+        run: deployment/install_dart_sass.sh
+      - name: Compile Scss
+        run: sass evap/static/scss/evap.scss evap/static/css/evap.css
+      - name: Store Css
+        uses: actions/upload-artifact@v2
+        with:
+          name: css
+          path: evap/static/css/evap.css
+
+
+  render_pages:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    name: Render Html pages
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Render pages
+        run: coverage run manage.py ts render_pages && codecov -X gcov -F render-pages
+      - name: Store rendered pages
+        uses: actions/upload-artifact@v2
+        with:
+          name: rendered-pages
+          path: evap/static/ts/rendered
+
+
+  typescript:
+    runs-on: ubuntu-18.04
+
+    needs: [ compile_scss, render_pages ]
+
+    name: Test Typescript
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install packages
+        run: sudo apt-get install xvfb libgbm1
+      - name: Setup Node
+        uses: actions/setup-node@v2
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Compile Typescript
+        run: npx tsc --project evap/static/ts/tsconfig.compile.json
+      - name: Load rendered pages
+        uses: actions/download-artifact@v2
+        with:
+          name: rendered-pages
+          path: evap/static/ts/rendered
+      - name: Load Css
+        uses: actions/download-artifact@v2
+        with:
+          name: css
+          path: evap/static/css
+      - name: Run tests
+        run: xvfb-run --auto-servernum npx jest

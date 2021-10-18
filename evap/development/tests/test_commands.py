@@ -66,6 +66,7 @@ class TestRunCommand(TestCase):
         mock.assert_has_calls(
             [
                 call(["manage.py", "scss"]),
+                call(["manage.py", "ts", "compile"]),
                 call(["manage.py", "runserver", "0.0.0.0:8000"]),
             ]
         )

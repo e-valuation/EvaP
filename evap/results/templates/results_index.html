@@ -130,31 +130,29 @@
     <script type="module">
         import {ResultGrid} from "{% static 'js/datagrid.js' %}";
 
-        $(document).ready(() => {
-            new ResultGrid().init({
-                storageKey: "results-data-grid",
-                head: $(".grid-header"),
-                container: $("#results-grid"),
-                searchInput: $("input[name=search]"),
-                filterCheckboxes: {
-                    semester: {
-                        checkboxes: $("input[name=semester]"),
-                        selector: "[data-col=semester]",
-                    },
-                    degree: {
-                        checkboxes: $("input[name=degree]"),
-                        selector: ".badge-degree",
-                    },
-                    courseType: {
-                        checkboxes: $("input[name=courseType"),
-                        selector: ".badge-course-type",
-                    },
-                },
-                sortColumnSelect: $("[name=result-sort-column]"),
-                sortOrderCheckboxes: $("[name=result-sort-order]"),
-                resetFilter: $("[data-reset=filter]"),
-                resetOrder: $("[data-reset=order]"),
-            });
-        });
+        new ResultGrid({
+            storageKey: "results-data-grid",
+            head: document.querySelector(".grid-header"),
+            container: document.querySelector("#results-grid"),
+            searchInput: document.querySelector("input[name=search]"),
+            filterCheckboxes: new Map([
+                ["semester", {
+                    checkboxes: [...document.querySelectorAll("input[name=semester]")],
+                    selector: "[data-col=semester]",
+                }],
+                ["degree", {
+                    checkboxes: [...document.querySelectorAll("input[name=degree]")],
+                    selector: ".badge-degree",
+                }],
+                ["courseType", {
+                    checkboxes: [...document.querySelectorAll("input[name=courseType]")],
+                    selector: ".badge-course-type",
+                }],
+            ]),
+            sortColumnSelect: document.querySelector("[name=result-sort-column]"),
+            sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
+            resetFilter: document.querySelector("[data-reset=filter]"),
+            resetOrder: document.querySelector("[data-reset=order]"),
+        }).init();
     </script>
 {% endblock %}

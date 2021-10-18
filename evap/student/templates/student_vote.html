@@ -195,7 +195,7 @@
                     }
 
                     // show all non-empty additional text answer fields
-                    document.querySelectorAll(".collapse textarea").forEach(el => {
+                    document.querySelectorAll(".row-question .collapse textarea").forEach(el => {
                         if (el.value.length !== 0) {
                             el.closest(".row").getElementsByClassName("btn-textanswer")[0].click();
                         }
@@ -249,7 +249,7 @@
             updateLastSavedLabel()
             setInterval(updateLastSavedLabel, 1000);
 
-            initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
+            initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
 
             var form = $('#student-vote-form');
 
@@ -301,6 +301,12 @@
                 return false;
             });
 
+            function clearChoiceError(voteButton) {
+                voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
+                    highlightedElement.classList.remove("choice-error");
+                });
+            }
+
             document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
                 const contributorId = button.dataset.markNoAnswersFor;
                 const voteArea = document.querySelector(`#vote-area-${contributorId}`);
@@ -310,7 +316,9 @@
                     voteArea.querySelectorAll(".vote-btn.active").forEach(el => el.classList.remove("active"));
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
-                        radioInput.closest(".vote-btn").classList.add("active");
+                        const voteButton = radioInput.closest(".vote-btn");
+                        voteButton.classList.add("active");
+                        clearChoiceError(voteButton);
                     });
 
                     sisyphus.saveAllData();
@@ -336,11 +344,7 @@
 
             // remove error highlighting when an answer was selected
             document.querySelectorAll(".vote-btn.choice-error").forEach(voteButton => {
-                voteButton.addEventListener("click", () => {
-                    voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
-                        highlightedElement.classList.remove("choice-error");
-                    });
-                });
+                voteButton.addEventListener("click", () => clearChoiceError(voteButton));
             });
 
             document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {

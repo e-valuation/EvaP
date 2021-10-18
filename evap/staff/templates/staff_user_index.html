@@ -100,11 +100,11 @@
 {% block additional_javascript %}
     <script type="module">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
-        new TableGrid().init({
+        new TableGrid({
             storageKey: "user-index-data-grid",
-            table: $(".user-table"),
-            searchInput: $("input[name=search]"),
-            resetSearch: $("[data-reset=search]"),
-        });
+            table: document.querySelector(".user-table"),
+            searchInput: document.querySelector("input[name=search]"),
+            resetSearch: document.querySelector("[data-reset=search]"),
+        }).init();
     </script>
 {% endblock %}
