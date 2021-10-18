@@ -248,7 +248,7 @@
                             <col style="width: 12em" />
                             <col style="width: 10.5em" />
                         </colgroup>
-                        <thead {% if num_evaluations is 0 %} hidden {% endif %}>
+                        <thead{% if num_evaluations == 0 %} hidden{% endif %}>
                             <tr>
                                 <th></th>
                                 <th class="col-order" data-col="state-approval"></th>
