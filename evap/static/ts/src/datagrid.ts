@@ -113,7 +113,10 @@ abstract class DataGrid {
     private fetchRowOrderValues(row: HTMLElement): Map<string, string> {
         let orderValues = new Map();
         for (const column of this.sortableHeaders.keys()) {
-            const cell = row.querySelector<HTMLElement>(`[data-col=${column}]`)!;
+            const cell = row.querySelector<HTMLElement>(`[data-col=${column}]`);
+            if (!cell) {
+                continue;
+            }
             if (cell.matches("[data-order]")) {
                 orderValues.set(column, cell.dataset.order);
             } else {
