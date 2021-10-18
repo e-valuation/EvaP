@@ -385,6 +385,28 @@ class TestEnrollmentImporter(TestCase):
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
+    def test_existing_course_is_not_created(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
+
+        baker.make(UserProfile, email="responsible@institution.example.com")
+        course = baker.make(Course, name_de="Scheinen", name_en="Shine", semester=self.semester, type=CourseType.objects.get(name_de="Vorlesung"), degrees=[Degree.objects.get(name_de="Bachelor")], responsibles=[UserProfile.objects.get(email="responsible@institution.example.com")])
+        baker.make(Evaluation, course=course)
+        __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        self.assertIn("The course Shine already exists with identical attributes. Course is not created and users are put into the evaluation of that course.", "".join(warnings[ImporterWarning.DUPL]))
+        self.assertContains("lucilia.manilium@institution.example.com", )
+
+    def test_existing_course_degree_is_added(self):
+        pass
+
+    def test_existing_course_users_added_to_evaluation(self):
+        pass
+
+    def test_existing_course_equal_except_evaluations(self):
+        pass
+
+    def test_existing_course_not_fully_equal(self):
+        pass
+
 
 class TestPersonImporter(TestCase):
     @classmethod

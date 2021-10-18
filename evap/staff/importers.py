@@ -8,6 +8,7 @@ import openpyxl
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -83,6 +84,7 @@ class EvaluationData:
     is_graded: bool
     responsible_email: str
     errors: Dict
+    existing_course: Course
 
     def equals_except_for_degrees(self, other):
         return (
@@ -98,28 +100,52 @@ class EvaluationData:
         assert not self.errors
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        course = Course(
-            name_de=self.name_de,
-            name_en=self.name_en,
-            type=self.course_type,
-            semester=semester,
-        )
-        course.save()
-        course.responsibles.set([responsible_dbobj])
-        course.degrees.set(self.degrees)
-        evaluation = Evaluation(
-            vote_start_datetime=vote_start_datetime,
-            vote_end_date=vote_end_date,
-            course=course,
-            wait_for_grade_upload_before_publishing=self.is_graded,
-        )
-        evaluation.save()
-        evaluation.contributions.create(
-            evaluation=evaluation,
-            contributor=responsible_dbobj,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
+        if self.existing_course is not None:
+            self.existing_course.degrees.add(*self.degrees)
+        else:
+            course = Course(
+                name_de=self.name_de,
+                name_en=self.name_en,
+                type=self.course_type,
+                semester=semester,
+            )
+            course.save()
+            course.responsibles.set([responsible_dbobj])
+            course.degrees.set(self.degrees)
+            evaluation = Evaluation(
+                vote_start_datetime=vote_start_datetime,
+                vote_end_date=vote_end_date,
+                course=course,
+                wait_for_grade_upload_before_publishing=self.is_graded,
+            )
+            evaluation.save()
+            evaluation.contributions.create(
+                evaluation=evaluation,
+                contributor=responsible_dbobj,
+                role=Contribution.Role.EDITOR,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            )
+
+    def find_identical_course(self, semester, importer):
+        courses = Course.objects.filter(Q(semester=semester) & Q(Q(name_en=self.name_en) | Q(name_de=self.name_de)))
+        if courses.exists():
+            courses = courses.filter(semester=semester, name_en=self.name_en, name_de=self.name_de, type=self.course_type, responsibles__email=self.responsible_email)
+            if courses.exists():
+                course = courses.first()
+                evaluations = Evaluation.objects.filter(course=course)
+                if len(evaluations) == 1:
+                    if evaluations.filter(wait_for_grade_upload_before_publishing=self.is_graded).exists():
+                        return course
+                    else:
+                        importer.errors[ImporterError.COURSE].append(
+                            _("Identical course \"{}\" does already exist in this semester but the only evaluation is {}graded.").format(self.name_en, "not " if self.is_graded else ""))
+                else:
+                    importer.errors[ImporterError.COURSE].append(
+                        _("Identical course \"{}\" does already exist in this semester but has {} evaluations instead of 1.").format(self.name_en, len(evaluations)))
+            else:
+                importer.errors[ImporterError.COURSE].append(
+                    _("A Course with the name {}({}) does already exist in this semester.").format(self.name_en, self.name_de))
+        return None
 
 
 class ImporterError(Enum):
@@ -183,6 +209,7 @@ class EvaluationDataFactory:
             is_graded=is_graded,
             responsible_email=responsible_email,
             errors=errors,
+            existing_course=None,
         )
 
     def get_degree_or_add_error(self, degree_name, errors):
@@ -438,14 +465,10 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
-                self.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(evaluation_data.name_en)
-                )
-            if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
-                self.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(evaluation_data.name_de)
-                )
+            evaluation_data.existing_course = evaluation_data.find_identical_course(semester, self)
+            if evaluation_data.existing_course is not None:
+                self.warnings[ImporterWarning.DUPL].append(
+                    _('The course {} already exists with identical attributes. Course is not created and users are put into the evaluation of that course.').format(evaluation_data.name_en))
 
             assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
 
