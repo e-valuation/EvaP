@@ -498,26 +498,19 @@ class EnrollmentImporter(ExcelImporter):
             for evaluation, participants in participants_per_evaluation.items():
                 evaluation.participants.add(*participants)
 
-            msg = format_html(
-                ngettext('Successfully created one course/evaluation,', 'Successfully created {evaluation} courses/evaluations,', len(self.evaluations),).format(evaluation = len(self.evaluations))
-            )
-            if len(students_created) == 0 and len(responsibles_created) == 0:
-                msg += format_html(_(" no students and no contributors."))
-            else:
-                if len(students_created) == 0:
-                    msg += format_html(_(" no students"))
-                else:
-                    msg += format_html(
-                        ngettext(' one student', ' {users} students', len(students_created),).format(users = len(students_created))
-                    )
-                    if len(responsibles_created) == 0:
-                        msg += format_html(_(" and no contributors:"))
-                    else:
-                        msg += format_html(
-                            ngettext(' and one contributor:', ' and {users} contributors:', len(responsibles_created),).format(users = len(responsibles_created))
-                        )
-                msg += create_user_list_html_string_for_message(students_created + responsibles_created)
-        self.success_messages.append(msg)
+            student_count = len(students_created)
+            student_word = pgettext(student_count, "no") if student_count == 0 else str(student_count)
+            responsible_count = len(responsibles_created)
+            responsible_word = pgettext(student_count, "no") if responsible_count == 0 else str(responsible_count)
+
+            student_phrase = ngettext("{count} student", "{count} students", student_count).format(count=student_word)
+            responsible_phrase = ngettext("{count} responsible", "{count} responsibles", responsible_count).format(count=responsible_word)
+
+            message = ngettext(
+                'Successfully created one course/evaluation, {student_phrase} and {reponsible_phrase}',
+                'Successfully created {evaluation} courses/evaluations, {student_phrase} and {reponsible_phrase}'
+            ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase)
+        self.success_messages.append(message)
 
     def create_test_success_messages(self):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
@@ -715,9 +708,9 @@ class PersonImporter:
 
         if len(users_to_add) == 0:
             if not test_run:
-                msg = format_html(_("Zero participants added to the evaluation {}"), evaluation.full_name)
+                msg = format_html(_("No participants added to the evaluation {}"), evaluation.full_name)
             else:
-                msg = format_html(_("Zero participants would be added to the evaluation {}"), evaluation.full_name)
+                msg = format_html(_("No participants would be added to the evaluation {}"), evaluation.full_name)
 
         else:
             if not test_run:
