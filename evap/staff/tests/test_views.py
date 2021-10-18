@@ -2262,6 +2262,13 @@ class TestEvaluationTextAnswerView(WebTest):
             with self.assertNumQueries(FuzzyInt(0, self.num_questions)):
                 self.app.get(self.url, user=self.manager)
 
+    def test_published(self):
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
+        self.evaluation.publish()
+        self.evaluation.save()
+        self.app.get(self.url, user=self.manager, status=403)
+
 
 class TestEvaluationTextAnswerEditView(WebTest):
     @classmethod
@@ -2319,6 +2326,13 @@ class TestEvaluationTextAnswerEditView(WebTest):
 
             self.text_answer.refresh_from_db()
             self.assertEqual(self.text_answer.answer, "edited answer text")
+
+    def test_published(self):
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
+        self.evaluation.publish()
+        self.evaluation.save()
+        self.app.get(self.url, user=self.manager, status=403)
 
 
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
@@ -2698,6 +2712,13 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         results = get_results(self.evaluation)
 
         self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
+
+    def test_published(self):
+        self.evaluation.end_evaluation()
+        self.evaluation.end_review()
+        self.evaluation.publish()
+        self.evaluation.save()
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "publish", expect_errors=True)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
