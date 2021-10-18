@@ -1,5 +1,4 @@
 import logging
-import operator
 import secrets
 import uuid
 from collections import defaultdict, namedtuple
