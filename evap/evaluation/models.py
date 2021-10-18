@@ -1813,7 +1813,7 @@ class EmailTemplate(models.Model):
             evaluations_with_date = sorted(evaluations_with_date.items(), key=operator.itemgetter(0))
             body_params = {
                 "user": user,
-                "evaluations": user_evaluations,
+                "evaluations": evaluations_with_date,
                 "due_evaluations": user.get_sorted_due_evaluations(),
             }
             self.send_to_user(user, subject_params, body_params, use_cc=use_cc, request=request)
