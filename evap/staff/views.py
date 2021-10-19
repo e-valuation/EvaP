@@ -1421,10 +1421,12 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 @reviewer_required
 def evaluation_textanswers(request, semester_id, evaluation_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_manager:
+    if semester.results_are_archived:
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
@@ -1476,7 +1478,9 @@ def evaluation_textanswers_update_publish(request):
     evaluation_id = request.POST["evaluation_id"]
 
     evaluation = Evaluation.objects.get(pk=evaluation_id)
-    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
+    if evaluation.course.semester.results_are_archived:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
@@ -1508,10 +1512,12 @@ def evaluation_textanswers_update_publish(request):
 @reviewer_required
 def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
-    if semester.results_are_archived and not request.user.is_manager:
+    if semester.results_are_archived:
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
+    if evaluation.state == Evaluation.State.PUBLISHED:
+        raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
 
