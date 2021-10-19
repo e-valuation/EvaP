@@ -2264,12 +2264,16 @@ class TestEvaluationTextAnswerView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=200)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=200)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=403)
@@ -2333,12 +2337,16 @@ class TestEvaluationTextAnswerEditView(WebTest):
             self.assertEqual(self.text_answer.answer, "edited answer text")
 
         # archive and it shouldn't work anymore
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=200)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=403)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=False)
 
         # publish and it shouldn't work anymore
+        with run_in_staff_mode(self):
+            self.app.get(self.url, user=self.manager, status=200)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=403)
@@ -2724,11 +2732,13 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
 
