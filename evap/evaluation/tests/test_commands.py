@@ -193,7 +193,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss")
 
         mock_subprocess_run.assert_called_once_with(
-            ["sass", self.scss_path, self.css_path],
+            ["npx", "sass", self.scss_path, self.css_path],
             check=True,
         )
 
@@ -204,7 +204,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss", "--watch")
 
         mock_subprocess_run.assert_called_once_with(
-            ["sass", self.scss_path, self.css_path, "--watch", "--poll"],
+            ["npx", "sass", self.scss_path, self.css_path, "--watch", "--poll"],
             check=True,
         )
 
@@ -213,7 +213,7 @@ class TestScssCommand(TestCase):
         management.call_command("scss", "--production")
 
         mock_subprocess_run.assert_called_once_with(
-            ["sass", self.scss_path, self.css_path, "--style", "compressed", "--no-source-map"],
+            ["npx", "sass", self.scss_path, self.css_path, "--style", "compressed", "--no-source-map"],
             check=True,
         )
 

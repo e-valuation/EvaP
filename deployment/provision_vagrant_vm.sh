@@ -36,9 +36,6 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 # link the mounted evap folder from the home directory
 ln -s /evap $REPO_FOLDER
 
-# install sass
-$REPO_FOLDER/deployment/install_dart_sass.sh
-
 sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
 sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
