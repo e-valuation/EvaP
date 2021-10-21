@@ -112,6 +112,11 @@ $alert-colors: (
     color: shade-color($evap-dark-blue, 50%);
 }
 
+// fix checkbox positions
+.form-check:not(li) {
+    padding-top: 0.25rem;
+}
+
 
 // select2 adjustments
 .select2-container--default .select2-selection--single {
