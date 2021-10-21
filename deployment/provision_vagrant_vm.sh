@@ -61,6 +61,7 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2
 
+cp /etc/skel/.bashrc /home/$USER/
 # auto cd into /$USER on login and activate venv
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
