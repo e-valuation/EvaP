@@ -64,7 +64,10 @@ export function pageHandler(fileName: string, fn: (page: Page) => void): (done?:
             await fn(page);
             await finish();
         } catch (error) {
-            await finish(error);
+            if (error instanceof Error)
+                await finish(error);
+            else
+                throw error;
         }
     };
 }
