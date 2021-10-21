@@ -85,7 +85,7 @@ wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbos
 # setup evap
 cd /$USER
 git submodule update --init
-sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install node; npm ci"
+sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
