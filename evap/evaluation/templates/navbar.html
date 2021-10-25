@@ -93,7 +93,7 @@
         </ul>
         <ul class="navbar-nav justify-content-end">
             <li class="nav-item"><a class="nav-link" href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a></li>
-            <li class="nav-item btn-switch-navbar my-auto">
+            <li class="nav-item btn-switch-navbar my-auto ps-2 pb-3 {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}pb-xl-0{% else %}pb-lg-0{% endif %}">
                 <div class="btn-group">
                     {% for language_code, language_name in languages %}
                         <form class="d-flex" method="post" action="{% url 'evaluation:set_lang' %}">
