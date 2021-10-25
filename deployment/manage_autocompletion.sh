@@ -1,5 +1,44 @@
 #!/usr/bin/env bash
 
-complete -W "changepassword createsuperuser mtime_cache remove_stale_contenttypes check compilemessages createcachetable dbshell diffsettings dumpdata flush inspectdb loaddata makemessages makemigrations migrate sendtestemail shell showmigrations sqlflush sqlmigrate sqlsequencereset squashmigrations startapp startproject test testserver admin_generator clean_pyc compile_pyc create_command create_jobs create_template_tags delete_squashed_migrations describe_form drop_test_database dumpscript export_emails find_template generate_password generate_secret_key graph_models mail_debug merge_model_instances notes passwd pipchecker print_settings print_user_for_session reset_db reset_schema runjob runjobs runprofileserver runscript runserver_plus set_default_site set_fake_emails set_fake_passwords shell_plus show_template_tags show_templatetags show_urls sqlcreate sqldiff sqldsn sync_s3 syncdata unreferenced_files update_permissions validate_templates anonymize dump_testdata refresh_results_cache reload_testdata run scss send_reminders tools update_evaluation_states clearsessions collectstatic findstatic runserver manage.py" python3
-complete -W "changepassword createsuperuser mtime_cache remove_stale_contenttypes check compilemessages createcachetable dbshell diffsettings dumpdata flush inspectdb loaddata makemessages makemigrations migrate sendtestemail shell showmigrations sqlflush sqlmigrate sqlsequencereset squashmigrations startapp startproject test testserver admin_generator clean_pyc compile_pyc create_command create_jobs create_template_tags delete_squashed_migrations describe_form drop_test_database dumpscript export_emails find_template generate_password generate_secret_key graph_models mail_debug merge_model_instances notes passwd pipchecker print_settings print_user_for_session reset_db reset_schema runjob runjobs runprofileserver runscript runserver_plus set_default_site set_fake_emails set_fake_passwords shell_plus show_template_tags show_templatetags show_urls sqlcreate sqldiff sqldsn sync_s3 syncdata unreferenced_files update_permissions validate_templates anonymize dump_testdata refresh_results_cache reload_testdata run scss send_reminders tools update_evaluation_states clearsessions collectstatic findstatic runserver manage.py" python
-complete -W "changepassword createsuperuser mtime_cache remove_stale_contenttypes check compilemessages createcachetable dbshell diffsettings dumpdata flush inspectdb loaddata makemessages makemigrations migrate sendtestemail shell showmigrations sqlflush sqlmigrate sqlsequencereset squashmigrations startapp startproject test testserver admin_generator clean_pyc compile_pyc create_command create_jobs create_template_tags delete_squashed_migrations describe_form drop_test_database dumpscript export_emails find_template generate_password generate_secret_key graph_models mail_debug merge_model_instances notes passwd pipchecker print_settings print_user_for_session reset_db reset_schema runjob runjobs runprofileserver runscript runserver_plus set_default_site set_fake_emails set_fake_passwords shell_plus show_template_tags show_templatetags show_urls sqlcreate sqldiff sqldsn sync_s3 syncdata unreferenced_files update_permissions validate_templates anonymize dump_testdata refresh_results_cache reload_testdata run scss send_reminders tools update_evaluation_states clearsessions collectstatic findstatic runserver" manage.py
+# generated using
+# ./manage.py | grep -v -E "^\[|^$" | tail -n +3 | sort | xargs
+COMMANDS="admin_generator anonymize changepassword check clean_pyc clear_cache clearsessions collectstatic compile_pyc compilemessages create_command create_jobs create_template_tags createcachetable createsuperuser dbshell delete_squashed_migrations describe_form diffsettings drop_test_database dump_testdata dumpdata dumpscript export_emails find_template findstatic flush format generate_password generate_secret_key graph_models inspectdb lint list_model_info list_signals loaddata mail_debug makemessages makemigrations merge_model_instances migrate notes pipchecker precommit print_settings print_user_for_session refresh_results_cache reload_testdata remove_stale_contenttypes reset_db reset_schema run runjob runjobs runprofileserver runscript runserver runserver_plus scss send_reminders sendtestemail set_default_site set_fake_emails set_fake_passwords shell shell_plus show_template_tags show_urls showmigrations sqlcreate sqldiff sqldsn sqlflush sqlmigrate sqlsequencereset squashmigrations startapp startproject sync_s3 syncdata test testserver tools ts unreferenced_files update_evaluation_states update_permissions validate_templates"
+TS_COMMANDS="compile test render_pages"
+
+_managepy_complete()
+{
+    local cur prev
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    if [ "${COMP_CWORD}" -eq 1 ]; then
+        COMPREPLY=($(compgen -W "${COMMANDS}" -- "${cur}"))
+    fi
+
+    if [ "${COMP_CWORD}" -eq 2 ] && [ "${prev}" == "ts" ]; then
+        COMPREPLY=($(compgen -W "${TS_COMMANDS}" -- "${cur}"))
+    fi
+}
+
+_python_complete()
+{
+    local cur prev
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    if [ "${COMP_CWORD}" -eq 1 ]; then
+        COMPREPLY=($(compgen -f -o filenames -X '!*.py' -- "${cur}"))
+    fi
+
+    if [ "${COMP_CWORD}" -eq 2 ] && [[ "${prev}" == *manage.py ]]; then
+        COMPREPLY=($(compgen -W "${COMMANDS}" -- "${cur}"))
+    fi
+
+    if [ "${COMP_CWORD}" -eq 3 ] && [ "${prev}" == "ts" ]; then
+        COMPREPLY=($(compgen -W "${TS_COMMANDS}" -- "${cur}"))
+    fi
+}
+
+complete -F _managepy_complete manage.py
+complete -F _python_complete python3
+complete -F _python_complete python

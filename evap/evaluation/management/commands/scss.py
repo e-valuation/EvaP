@@ -22,6 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         static_directory = settings.STATICFILES_DIRS[0]
         command = [
+            "npx",
             "sass",
             os.path.join(static_directory, "scss", "evap.scss"),
             os.path.join(static_directory, "css", "evap.css"),

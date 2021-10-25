@@ -143,10 +143,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Install dart-sass
-        run: deployment/install_dart_sass.sh
+      - name: Setup Node
+        uses: actions/setup-node@v2
+      - name: Install Node dependencies
+        run: npm ci
       - name: Compile Scss
-        run: sass evap/static/scss/evap.scss evap/static/css/evap.css
+        run: npx sass evap/static/scss/evap.scss evap/static/css/evap.css
       - name: Store Css
         uses: actions/upload-artifact@v2
         with:
