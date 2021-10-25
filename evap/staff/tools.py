@@ -341,6 +341,7 @@ def find_unreviewed_evaluations(semester, excluded):
         .exclude(vote_end_date__gte=exclude_date)
         .exclude(can_publish_text_results=False)
         .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
+        .filter(contributions__textanswer_set__is_flagged=False)
         .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
         .order_by("vote_end_date", "-num_unreviewed_textanswers")
         .all()
