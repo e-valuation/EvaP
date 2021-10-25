@@ -229,10 +229,10 @@ class TestEnrollmentImporter(TestCase):
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created 23 courses/evaluations, 6 participants and 17 contributors:",
+            "Successfully created 23 courses/evaluations, 6 students and 17 responsibles",
             "".join(success_messages),
         )
-        self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
+        self.assertIn("Torquate Metrodorus (torquate.metrodorus@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
@@ -261,7 +261,7 @@ class TestEnrollmentImporter(TestCase):
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created one course/evaluation, 2 students and one contributor", "".join(success_messages)
+            "Successfully created one course/evaluation, 2 students and one responsible", "".join(success_messages)
         )
         self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
@@ -279,7 +279,7 @@ class TestEnrollmentImporter(TestCase):
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created 2 courses/evaluations, 4 participants and 2 contributors:", "".join(success_messages)
+            "Successfully created 2 courses/evaluations, 4 students and 2 responsibles", "".join(success_messages)
         )
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
@@ -408,7 +408,7 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn('The import run will create 23 courses/evaluations and 23 users:', success_messages[4])
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn('Successfully created 23 courses/evaluations, 6 students and 17 contributors:', success_messages[3])
+        self.assertIn('Successfully created 23 courses/evaluations, 6 students and 17 responsibles', success_messages[3])
 
         excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
@@ -423,7 +423,7 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn('The import run will create one course/evaluation and no users.', success_messages)
         success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
-        self.assertIn('Successfully created one course/evaluation, no students and no contributors.', success_messages)
+        self.assertIn('Successfully created one course/evaluation, no students and no responsibles', success_messages)
 
 class TestPersonImporter(TestCase):
     @classmethod

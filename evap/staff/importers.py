@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.html import format_html
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext, pgettext
 from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
@@ -503,14 +503,18 @@ class EnrollmentImporter(ExcelImporter):
             responsible_count = len(responsibles_created)
             responsible_word = pgettext(student_count, "no") if responsible_count == 0 else str(responsible_count)
 
-            student_phrase = ngettext("{count} student", "{count} students", student_count).format(count=student_word)
-            responsible_phrase = ngettext("{count} responsible", "{count} responsibles", responsible_count).format(count=responsible_word)
+            student_phrase = ngettext("one student", "{count} students", student_count).format(count=student_word)
+            responsible_phrase = ngettext("one responsible", "{count} responsibles", responsible_count).format(count=responsible_word)
 
             message = ngettext(
-                'Successfully created one course/evaluation, {student_phrase} and {reponsible_phrase}',
-                'Successfully created {evaluation} courses/evaluations, {student_phrase} and {reponsible_phrase}'
-            ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase)
-        self.success_messages.append(message)
+                'Successfully created one course/evaluation, {student_phrase} and {responsible_phrase}',
+                'Successfully created {evaluation} courses/evaluations, {student_phrase} and {responsible_phrase}',
+                len(self.evaluations)
+            ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase, evaluation=len(self.evaluations))
+            if student_word!="no" or responsible_word!="no":
+                message += ":"
+            message += create_user_list_html_string_for_message(students_created)
+            self.success_messages.append(message)
 
     def create_test_success_messages(self):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
