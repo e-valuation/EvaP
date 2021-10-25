@@ -29,13 +29,13 @@
                 </div>
             </div>
         </div>
-        <div class="input-group col-3">
-            <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-            <div class="input-group-append">
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear search filter' %}">
+        <div class="col-3">
+            <div class="input-group">
+                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
                     <span class="fas fa-backspace"></span>
                 </button>
-              </div>
+            </div>
         </div>
     </div>
 
@@ -63,8 +63,8 @@
                                     <span class="fas fa-trash"></span
                                 ></button>
                             {% else %}
-                                <button type="button" disabled class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="left"
-                                    title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations 
+                                <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
+                                    title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations
                                     haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
                                     <span class="fas fa-trash"></span>
                                 </button>

@@ -88,9 +88,9 @@
                     {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
-                                <div class="mr-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %} bg-transparent" data-toggle="collapse"
-                                        data-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
+                                <div class="me-auto">
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                        data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="font-italic">{{ label }}</span>{% endif %}
                                     </button>
@@ -150,7 +150,7 @@
                     {% else %}
                         <div class="pb-3 text-secondary">
                             <span id="last-saved"></span>
-                            <span class="fas fa-info-circle" data-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                            <span class="fas fa-info-circle" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
@@ -185,10 +185,6 @@
                 autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
-                    // update vote button states
-                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
-                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
-
                     // restore publish confirmation state
                     if (textResultsPublishConfirmation.bottomCard) {
                         updateTextResultsPublishConfirmation();
@@ -309,22 +305,20 @@
 
             document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
                 const contributorId = button.dataset.markNoAnswersFor;
-                const voteArea = document.querySelector(`#vote-area-${contributorId}`);
+                const voteArea = document.getElementById(`vote-area-${contributorId}`);
                 const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
 
                 button.addEventListener("click", () => {
-                    voteArea.querySelectorAll(".vote-btn.active").forEach(el => el.classList.remove("active"));
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
-                        const voteButton = radioInput.closest(".vote-btn");
-                        voteButton.classList.add("active");
-                        clearChoiceError(voteButton);
+                        clearChoiceError(radioInput);
                     });
 
                     sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
-                    $(voteArea).collapse("hide");
+                    var voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
+                    voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
 
                     // Disable this button, until user changes a value
@@ -334,7 +328,7 @@
 
                 voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
                     .forEach(radioInput => {
-                        radioInput.labels[0].addEventListener("click", () => {
+                        radioInput.addEventListener("click", () => {
                             collapseToggle.classList.remove("tab-selectable");
                             button.classList.add("tab-selectable");
                             button.disabled = false;
@@ -348,7 +342,7 @@
             });
 
             document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
-                const textfieldClass = textanswerButton.dataset.target;
+                const textfieldClass = textanswerButton.dataset.bsTarget;
                 const textfield = textanswerButton.closest(".row").querySelector(textfieldClass + " textarea");
                 textanswerButton.addEventListener("click", () => {
                     // focus textarea when opening the collapsed area
@@ -358,7 +352,7 @@
                     }
                 });
                 textfield.addEventListener("input", () => {
-                    if (textfield.value.length !== 0)
+                    if (textfield.value.trim().length !== 0)
                         textanswerButton.classList.add("has-contents");
                     else
                         textanswerButton.classList.remove("has-contents");
@@ -390,22 +384,18 @@
             }
 
             function selectByNumberKey(row, num) {
+                let index = 2 * num - 1;
                 if (num === 0) {
                     // Select "No answer"
-                    num = row.children.length;
+                    index = row.children.length - 1;
                 }
-                const index = num - 1;
 
                 if (!(0 <= index && index < row.children.length)) {
                     return;
                 }
 
-                const maybeNextElement = row
-                    .children[index]
-                    .getElementsByClassName("num-selectable");
-                if (maybeNextElement.length === 1) {
-                    maybeNextElement[0].click();
-                }
+                const nextElement = row.children[index];
+                nextElement.click();
             }
 
             const studentForm = document.getElementById("student-vote-form");
@@ -459,7 +449,7 @@
                             return;
 
                         e.preventDefault();
-                        const textAnswerButton = wholeRow.querySelector("[data-toggle=\"collapse\"]");
+                        const textAnswerButton = wholeRow.querySelector("[data-bs-toggle=\"collapse\"]");
                         const textField = wholeRow.querySelector("textarea.tab-selectable");
                         if (textAnswerButton !== null && textField !== null) {
                             if (isInvisible(textField))
@@ -500,7 +490,7 @@
 
                 e.preventDefault();
                 let nextElement;
-                const alreadySelectedElement = nextRow.querySelector(".active .tab-selectable");
+                const alreadySelectedElement = nextRow.querySelector(".tab-selectable:checked");
 
                 if (alreadySelectedElement) {
                     nextElement = alreadySelectedElement;

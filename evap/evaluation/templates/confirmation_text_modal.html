@@ -5,21 +5,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="fas fa-times"></span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ question|safe }}
                     <br /><br />
-                    <div class="form-group">
+                    <div class="mb-3">
                         <input type="text" class="form-control" id="{{ modal_id }}ConfirmationText" oninput="{{ modal_id }}CheckValue();" />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }}" data-dismiss="modal" disabled>{{ action_text }}</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="button" id="{{ modal_id }}ActionButton" class="btn btn-{{ btn_type }}" data-bs-dismiss="modal" disabled>{{ action_text }}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
                 </div>
             </form>
         </div>
@@ -31,13 +29,14 @@
         // call the modal's action function when action button was pressed and give dataId as parameter
         $('#{{ modal_id }} #{{ modal_id }}ActionButton').unbind().click(function(){ {{ modal_id }}Action(dataId); });
         // put the dataLabel text in the right place
-        $('#{{ modal_id }} #data-label').text(dataLabel);
+        $('#{{modal_id}} [data-label=""]').text(dataLabel);
         // show modal
-        $('#{{ modal_id }}').modal();
+        var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+        {{ modal_id }}.show();
     }
 
     function {{ modal_id }}CheckValue() {
-        if ($('input#{{ modal_id }}ConfirmationText').val() == $('#{{ modal_id }} #data-label').text()) {
+        if ($('input#{{ modal_id }}ConfirmationText').val() == $('#{{ modal_id }} [data-label=""]').text()) {
             $('#{{ modal_id }}ActionButton').prop('disabled', false);
         } else {
             $('#{{ modal_id }}ActionButton').prop('disabled', true);

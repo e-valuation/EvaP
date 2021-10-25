@@ -2,7 +2,7 @@
 
 <fieldset>
     <div class="d-flex mb-2">
-        <h5 class="card-title mr-auto">{% trans 'Contributors' %}</h5>
+        <h5 class="card-title me-auto">{% trans 'Contributors' %}</h5>
         {% if not manager %}
             <div>
                 <button type="button" class="btn btn-sm btn-light" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
@@ -38,7 +38,7 @@
                         {% endfor %}
                         {% include 'bootstrap_form_errors.html' with errors=form.contributor.errors %}
                         {{ form.contributor }}
-                        <div class="form-check mt-2" data-toggle="tooltip" data-placement="right" title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
+                        <div class="form-check mt-2" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}Select this option if no questions about this person shall be included in the evaluation. This can be used if the person does not visibly contribute and is solely added to receive permissions for editing the evaluation or viewing text answers.{% endblocktrans %}">
                             <input class="form-check-input" id="{{ form.does_not_contribute.id_for_label }}" name="{{ form.does_not_contribute.html_name }}"
                                 type="checkbox"{% if form.does_not_contribute.value %} checked{% endif %}
                                 {% if form.does_not_contribute.field.disabled %} disabled{% endif %} />
@@ -57,7 +57,7 @@
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
                         <br /><br />
                         <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}:
-                            <span data-toggle="tooltip" data-placement="right" class="fas fa-info-circle"
+                            <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-info-circle"
                                 title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
                             </span>
                         </span>
@@ -67,7 +67,7 @@
                     </td>
                     <td>
                     {% if editable %}
-                        {{ form.DELETE }}
+                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                     {% endif %}
                     </td>
                 </tr>

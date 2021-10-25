@@ -27,23 +27,23 @@
             </div>
         {% endif %}
         <div class="d-flex">
-            <h3 class="mr-auto">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
+            <h3 class="me-auto">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
 
             <div class="btn-switch btn-switch-light my-auto d-print-none">
                 <div class="btn-switch-label">{% trans 'View' %}</div>
                 <div class="btn-switch btn-group">
                     {% if user.is_staff and view == 'export' or is_contributor %}
-                        <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        <a href="{% if is_contributor %}{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=export{% endif %}" role="button" class="btn btn-sm btn-light{% if view == 'export' %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom"
                         title="{% blocktrans %}Shows filtered view meant for personal export. Other contributors' results and private answers are hidden.{% endblocktrans %}">
                         {% trans 'Export' context 'view mode' %}
                         </a>
                     {% endif %}
-                    <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                    <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom"
                     title="{% trans 'Shows all results available for you.' %}">
                     {% trans 'Full' %}
                     </a>
                     {% if not evaluation.can_publish_rating_results %}
-                        <button type="button" disabled class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="bottom"
+                        <button type="button" disabled class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             title="{% blocktrans %}The results of this evaluation have not been published because it didn't get enough votes.{% endblocktrans %}">
                             {% if evaluation.course.is_private %}
                                 {% trans 'Participant' %}
@@ -52,7 +52,7 @@
                             {% endif %}
                         </button>
                     {% else %}
-                        <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-toggle="tooltip" data-placement="bottom"
+                        <a href="{% url 'results:evaluation_detail' evaluation.course.semester.id evaluation.id %}?view=public" role="button" class="btn btn-sm btn-light{% if view == 'public' %} active{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom"
                            title="
                         {% if evaluation.course.is_private %}
                             {% trans 'Shows results available for the participants.' %}">
@@ -72,17 +72,17 @@
 
     <div class="card card-outline-primary mb-3">
         <div class="card-header d-flex">
-            <div class="mr-auto">{% trans 'Overview' %}</div>
+            <div class="me-auto">{% trans 'Overview' %}</div>
             {% if can_export_text_answers %}
                 <a class="btn btn-sm btn-light d-print-none" href="{% url 'results:evaluation_text_answers_export' evaluation.id %}?view={{ view }}{% if contributor_id is not None %}&contributor_id={{ contributor_id }}{% endif %}" type="button">
                     {% trans 'Export text answers' %}
                 </a>
             {% endif %}
             {% if evaluation.course.grade_documents.count == 1 and can_download_grades %}
-                <a class="btn btn-sm btn-light d-print-none ml-2" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
+                <a class="btn btn-sm btn-light d-print-none ms-2" href="{% url 'grades:download_grades' evaluation.course.grade_documents.first.id %}">{{ evaluation.course.grade_documents.first.description }}</a>
             {% elif evaluation.course.grade_documents.count > 1 and can_download_grades %}
-                <div class="btn-group d-print-none ml-2" role="group">
-                    <button type="button" id="btnDownload" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
+                <div class="btn-group d-print-none ms-2" role="group">
+                    <button type="button" id="btnDownload" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Grades' %}</button>
                     <div class="dropdown-menu" aria-labelledby="btnDownload">
                         {% for grade_document in evaluation.course.grade_documents.all %}
                             <a class="dropdown-item" href="{% url 'grades:download_grades' grade_document.id %}">{{ grade_document.description }}</a>
@@ -140,9 +140,9 @@
                 {% for contribution_result in contributor_contribution_results %}
                     <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                         <div class="card-header d-flex">
-                            <div class="mr-auto">
+                            <div class="me-auto">
                                 <a class="collapse-toggle{% if not contribution_result.has_answers %} collapsed{% endif %}"
-                                        data-toggle="collapse" href="#contributor-{{ contribution_result.contributor.id }}"
+                                        data-bs-toggle="collapse" href="#contributor-{{ contribution_result.contributor.id }}"
                                         aria-controls="contributor-{{ contribution_result.contributor.id }}">
                                     {{ contribution_result.contributor.full_name }}
                                     {% if contribution_result.label %}

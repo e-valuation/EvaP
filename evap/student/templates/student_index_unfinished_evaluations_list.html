@@ -8,14 +8,14 @@
                 {% else %} class="deactivate"{% endif %}>
                 <td style="width: 65%">
                     <div>
-                        <span class="evaluation-name font-weight-bold {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for %} text-primary{% endif %}">
+                        <span class="evaluation-name fw-bold {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for %} text-primary{% endif %}">
                             {{ evaluation.full_name }}
                         </span>
                         {% if not evaluation.course.semester.is_active %}({{ evaluation.course.semester.name }}){% endif %}
                     </div>
-                    <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
-                    {% if evaluation.is_midterm_evaluation %}<span class="badge badge-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
-                    <span class="badge badge-secondary-outline" data-toggle="tooltip" data-placement="right" title="{% trans 'Number of participants' %}">
+                    <span class="badge bg-secondary">{{ evaluation.course.type }}</span>
+                    {% if evaluation.is_midterm_evaluation %}<span class="badge bg-dark">{% trans 'Midterm evaluation' %}</span>{% endif %}
+                    <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Number of participants' %}">
                         <span class="fas fa-user"></span> {{ evaluation.num_participants }}
                     </span>
                     <i class="small">{{ evaluation.course.responsibles_names }}</i>
@@ -23,7 +23,7 @@
                 <td style="width: 25%">
                     {% include 'student_index_evaluation_period.html' %}
                 </td>
-                <td style="width: 10%" class="text-right">
+                <td style="width: 10%" class="text-end">
                     {% if evaluation.state == evaluation.State.IN_EVALUATION and not evaluation.voted_for and evaluation.is_in_evaluation_period  %}
                         <a class="btn btn-sm btn-primary btn-row-hover" href="{% url 'student:vote' evaluation.id %}">{% trans 'Evaluate' %}</a>
                     {% endif %}

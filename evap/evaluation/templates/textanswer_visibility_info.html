@@ -1,4 +1,4 @@
-<span class="far fa-eye ml-1 icon-gray" data-toggle="tooltip" data-placement="left" title="
+<span class="far fa-eye ms-1 icon-gray" data-bs-toggle="tooltip" data-bs-placement="left" title="
     {{ intro_text }}<br />
     {% for contributor in visible_by_contribution %}
         {{ contributor.full_name }}{% if contributor.is_proxy_user %} ({% blocktrans count delegate_count=contributor.delegates.count %}{{ delegate_count }} person{% plural %}{{ delegate_count }} people{% endblocktrans %}){% endif %}{% if not forloop.last or visible_by_delegation_count > 0 %}, {% endif %}

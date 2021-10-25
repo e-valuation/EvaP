@@ -10,16 +10,16 @@
     {% if not start_only %}
         {% if state < evaluation.State.IN_EVALUATION  %}
             {% if evaluation.days_until_evaluation < 0 %}
-                <div class="badge badge-danger">
+                <div class="badge bg-danger">
                     {% trans 'Overdue' %}
                 </div>
             {% else %}
-                <div class="badge {% if evaluation.days_until_evaluation <= 7 %}badge-warning{% else %}badge-light{% endif %}">
+                <div class="badge {% if evaluation.days_until_evaluation <= 7 %}bg-warning{% else %}bg-light{% endif %}">
                     {% trans 'Begins in' %} {{ evaluation.vote_start_datetime|timeuntil }}
                 </div>
             {% endif %}
         {% elif state == evaluation.State.IN_EVALUATION %}
-            <div class="badge {% if evaluation.days_left_for_evaluation <= 3 %}badge-dark{% else %}badge-light{% endif %}">
+            <div class="badge {% if evaluation.days_left_for_evaluation <= 3 %}bg-dark{% else %}bg-light{% endif %}">
                 {% trans 'Ends in' %} {{ evaluation.vote_end_datetime|timeuntil }}
             </div>
         {% endif %}

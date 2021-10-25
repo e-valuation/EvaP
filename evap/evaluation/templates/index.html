@@ -3,7 +3,7 @@
 {% block content %}
     {{ block.super }}
 
-    <div class="jumbotron jumbotron-evap">
+    <div class="jumbotron-evap">
         <h1 class="display-4">{% trans 'Welcome to the evaluation platform!' %}</h1>
         <hr class="my-4" />
         <div class="card-deck-login">
@@ -51,7 +51,7 @@
                     {% include 'bootstrap_form_field.html' with field=new_key_form.email wide=True %}
                     <div class="d-flex justify-content-center">
                         <button type="submit" class="btn btn-dark login-button">{% trans 'Request login URL' %}</button>
-                        <button type="button" class="btn btn-light ml-1" data-toggle="modal" data-target="#loginProblemsModal">
+                        <button type="button" class="btn btn-light ms-1" data-bs-toggle="modal" data-bs-target="#loginProblemsModal">
                             {% trans 'Help' %}
                         </button>
                     </div>
@@ -68,15 +68,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="loginProblemsModalLabel">{% trans 'Login problems' %}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="fas fa-times"></span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 {% trans 'You should have received an evaluation invitation via email that included a URL to login on this platform. You can also request a new login URL on this page. If you encounter any problems with your login, please let us know by answering to the evaluation email you received.' %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Close' %}</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
             </div>
         </div>
     </div>

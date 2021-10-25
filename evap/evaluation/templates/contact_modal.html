@@ -16,29 +16,27 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="fas fa-times"></span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ teaser }}
                     <br /><br />
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}SenderName" class="control-label">{% trans 'Sender' %}:</label>
                         <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}" />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}Subject" class="control-label">{% trans 'Subject' %}:</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}" />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="{{ modal_id }}MessageText" class="control-label">{% trans 'Message' %}:</label>
                         <textarea class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
                     <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
                 </div>
             </form>
@@ -47,9 +45,12 @@
 </div>
 
 <script type="text/javascript">
+    var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
+    var successMessageModal_{{ modal_id }} = new bootstrap.Modal(document.getElementById('successMessageModal_{{ modal_id }}'));
+
     function {{ modal_id }}Show() {
         $('#{{ modal_id }}ActionButton').unbind().click(function(event){ {{ modal_id }}Action(event); });
-        $('#{{ modal_id }}').modal();
+        {{ modal_id }}.show();
     }
     function {{ modal_id }}Action(event) {
         var actionButton = $('#{{ modal_id }}ActionButton');
@@ -59,7 +60,7 @@
         message = $('#{{ modal_id }}MessageText').val();
 
         if (message.trim() == "") {
-            $('#{{ modal_id }}').modal('hide');
+            {{ modal_id }}.hide();
             actionButton.prop('disabled', false);
             return;
         }
@@ -71,11 +72,11 @@
             type : "POST",
             data : { message: message, title: "{{ title|escapejs }}" },
             success : function(json) {
-                $('#{{ modal_id }}').modal('hide');
-                $('#successMessageModal_{{ modal_id }}').modal('show');
+                {{ modal_id }}.hide();
+                successMessageModal_{{ modal_id }}.show();
                 $('#{{ modal_id }}MessageText').val("");
                 setTimeout(function(){
-                    $('#successMessageModal_{{ modal_id }}').modal('hide');
+                    successMessageModal_{{ modal_id }}.hide();
                     actionButton.prop('disabled', false);
                 }, 3000);
             },

@@ -40,7 +40,7 @@
                                 {% if form.instance.id %}
                                     <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                                 {% endif %}
-                                {% include 'bootstrap_form_field_widget.html' with class="d-none" field=form.DELETE %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                             </td>
                         </tr>
                     {% endfor %}

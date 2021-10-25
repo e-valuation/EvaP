@@ -61,8 +61,8 @@ a.no-underline:hover {
 .bg-debug {
     background: repeating-linear-gradient(
         118deg,
-        lighten($darker-gray, 6%),
-        lighten($darker-gray, 6%) 3.5em,
+        tint-color($darker-gray, 12%),
+        tint-color($darker-gray, 12%) 3.5em,
         $darker-gray 3.5em,
         $darker-gray 7em
     );

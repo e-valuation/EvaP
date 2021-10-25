@@ -1,5 +1,5 @@
 .container-striped .row:nth-child(odd) {
-    background-color: $table-accent-bg;
+    background-color: $table-striped-bg;
 }
 
 .lcr-left {
@@ -16,6 +16,7 @@
 
 
 .col-question {
+    position: relative;
     padding: 0.5rem 0.75rem 0;
     word-wrap: break-word;
 
@@ -154,7 +155,7 @@
 }
 
 th.col-order {
-    padding-left: 1.25em;
+    padding-left: 1.4em;
 
     &:empty {
         padding-right: 0;
@@ -162,7 +163,7 @@ th.col-order {
 
     &::before, &::after {
         margin-left: 0.2em;
-        bottom: 0.75em;
+        bottom: 0.5em;
     }
 }
 

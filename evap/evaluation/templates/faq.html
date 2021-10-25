@@ -3,20 +3,20 @@
 {% block title %}{% trans 'FAQ' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
-    <h3 class="mb-4">{% trans 'These are the Frequently Asked Questions (FAQs)' %}</h3>
+    <h2 class="mb-4">{% trans 'Frequently Asked Questions (FAQs)' %}</h2>
 
-    <div id="accordion" role="tablist">
+    <div class="accordion accordion-flush pb-4" id="accordionFAQ">
         {% for section in sections %}
-            <h4 id="{{ section.id }}-s">{{ section.title }}</h4>
+            <h4 id="faq-{{ section.id }}-s">{{ section.title }}</h4>
             {% for question in section.questions.all %}
-                <div id="{{ question.id }}-card" class="card collapsible{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
-                    <div class="card-header d-flex" role="tab" id="{{ question.id }}-q">
-                        <a class="collapse-toggle collapsed" data-toggle="collapse" href="#{{ question.id }}-a" aria-expanded="false" aria-controls="collapse-{{ question.id }}">
+                <div id="faq-{{ question.id }}-card" class="accordion-item{% if not forloop.last %} mb-1{% else %} mb-4{% endif %}">
+                    <h2 id="faq-{{ question.id }}-q" class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-{{ question.id }}-a" aria-expanded="false" aria-controls="faq-{{ question.id }}-a">
                             {{ question.question }}
-                        </a>
-                    </div>
-                    <div id="{{ question.id }}-a" class="collapse" role="tabpanel" aria-labelledby="{{ question.id }}-q" data-parent="#accordion">
-                        <div class="card-body">
+                        </button>
+                    </h2>
+                    <div id="faq-{{ question.id }}-a" class="accordion-collapse collapse" aria-labelledby="faq-{{ question.id }}-q" data-bs-parent="#accordionFAQ">
+                        <div class="accordion-body">
                             {{ question.answer|safe }}
                         </div>
                     </div>
@@ -29,25 +29,23 @@
 {% block additional_javascript %}
     <script type="text/javascript">
         const anchor = window.location.hash.replace("#", "").split('-');
-        const id = anchor[0];
-        const type = anchor[1];
+        const id = anchor[1];
+        const type = anchor[2];
 
         if(type == "q"){
-			// open collapsed answer and scroll into center
-            const answer_div = $("#"+id+"-a");
-            window.history.pushState('', id, '/faq#' + id + '-q');
-            answer_div.collapse('show');
-            answer_div.on('shown.bs.collapse', function () {
-                $("#"+id+"-card")[0].scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-            });
-		} else if(type == "s") {
-			// scroll section heading below navbar
-			setTimeout(function(){
-				window.scrollBy(0, -50);
-			}, 0);
-		}
+            // open collapsed answer and scroll into center
+            const answer_div = $("#faq-"+id+"-a");
+            window.history.pushState('', id, '/faq#faq-' + id + '-q');
+            var answerCard = document.getElementById("faq-"+id+"-a");
+            var answerCardCollapse = bootstrap.Collapse.getOrCreateInstance(answerCard);
+            answerCardCollapse.show();
+            answerCard.scrollIntoView();
+        }
+        if(type == "q" || type == "s") {
+            // scroll section heading below navbar
+            setTimeout(function(){
+                window.scrollBy(0, -50);
+            }, 0);
+        }
     </script>
 {% endblock %}

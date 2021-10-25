@@ -54,7 +54,7 @@ test("checking bottom confirm checkbox check top but keeps bottom visible", page
 test("resolving submit errors clears warning", pageHandler(
     "student/vote/1/submit_errors.html",
     async page => {
-        const checkbox = (await page.$(".choice-error input[type=radio][value='3']"))!;
+        const checkbox = (await page.$(".choice-error + input[type=radio][value='3']"))!;
         await checkbox.click();
         const row = await queryClosest(checkbox, ".row");
         expect(await row.$$(".choice-error")).toHaveLength(0);
@@ -64,16 +64,14 @@ test("resolving submit errors clears warning", pageHandler(
 test("skip contributor", pageHandler(
     "student/vote/1/normal.html",
     async page => {
-        const voteArea = (await page.$(".card .collapse"))!;
-        const button = (await queryClosest(voteArea, ".card").then(card => card.$("button")))!;
+        const button = (await page.$("[data-mark-no-answers-for]"))!;
+        const voteArea = (await queryClosest(button, ".card").then(card => card.$(".collapse")))!
         await button.click();
         for (const checkbox of await voteArea.$$("input[type=radio]:not([value='6'])")) {
             await expect(checkbox).not.toBeChecked();
-            await expect(await queryParent(checkbox)).not.toHaveClass("active");
         }
         for (const checkbox of await voteArea.$$("input[type=radio][value='6']")) {
             await expect(checkbox).toBeChecked();
-            await expect(await queryParent(checkbox)).toHaveClass("active");
         }
         await expect(voteArea).toHaveClass("collapsing");
     },
@@ -82,8 +80,8 @@ test("skip contributor", pageHandler(
 test("skipping contributor clears warning", pageHandler(
     "student/vote/1/submit_errors.html",
     async page => {
-        const voteArea = (await page.$(".card .collapse"))!;
-        const button = (await queryClosest(voteArea, ".card").then(card => card.$("button")))!;
+        const button = (await page.$("[data-mark-no-answers-for]"))!;
+        const voteArea = (await queryClosest(button, ".card").then(card => card.$(".collapse")))!;
         await button.click();
         await expect(await voteArea.$$(".choice-error")).toHaveLength(0);
     },

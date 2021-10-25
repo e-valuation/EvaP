@@ -8,9 +8,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="hotkeys-modal-title">Hotkeys</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <table class="modal-body table table-striped table-vertically-aligned">
                     <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>{% trans 'Navigate through answers' %}</td></tr>
@@ -24,7 +22,7 @@
                     <tr><td><kbd>M</kbd></td><td>{% trans 'Show unreviewed' %}</td></tr>
                 </table>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -33,15 +31,15 @@
     <div class="card card-outline-primary slider">
         <div class="card-header">
             {% trans 'Text answers' %}
-            <span class="hotkey-btn" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="{% trans 'Hotkeys' %}">
-                <span class="far fa-keyboard" data-toggle="modal" data-target="#hotkeys-modal"></span>
+            <span class="hotkey-btn" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Hotkeys' %}">
+                <span class="far fa-keyboard" data-bs-toggle="modal" data-bs-target="#hotkeys-modal"></span>
             </span>
         </div>
         <div class="card-body slider-inner px-0">
             <div class="slider-side slider-side-left">
-                <span class="badge badge-pill badge-primary" data-counter="reviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
+                <span class="badge rounded-pill bg-primary" data-counter="reviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
                 <span class="fas fa-angle-left" data-slide="left"></span>
-                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-left" data-toggle="tooltip" data-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
+                <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
             <div class="slider-items">
                 {% for questionnaire, contributor, label, is_responsible, results in sections %}
@@ -85,9 +83,9 @@
                 </div>
             </div>
             <div class="slider-side slider-side-right">
-                <span class="badge badge-pill badge-primary" data-counter="reviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
+                <span class="badge rounded-pill bg-primary" data-counter="reviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
                 <span class="fas fa-angle-right" data-slide="right" title=""></span>
-                <span class="badge badge-pill badge-secondary" data-counter="unreviewed-right" data-toggle="tooltip" data-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
+                <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
         </div>
         <div class="card-footer d-flex">
@@ -97,7 +95,7 @@
                     {% trans 'yes' %}
                 </button>
                 <button data-action="make_private" class="btn btn-sm btn-outline-secondary" disabled=""
-                    title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-toggle="tooltip">
+                    title="{% blocktrans %}This answer is for a general question and can't be made private.{% endblocktrans %}" data-bs-toggle="tooltip">
                     {% trans 'private' %}
                 </button>
                 <button data-action="hide" class="btn btn-sm btn-outline-secondary">

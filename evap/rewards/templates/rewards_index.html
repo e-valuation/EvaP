@@ -28,7 +28,7 @@
                                     <th style="width: 20%">{% trans 'Date' %}</th>
                                     <th style="width: 40%">{% trans 'Event' %}</th>
                                     <th style="width: 20%">{% trans 'Available until' %}</th>
-                                    <th style="width: 20%" class="text-right">{% trans 'Redeem points' %}</th>
+                                    <th style="width: 20%" class="text-end">{% trans 'Redeem points' %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,8 +37,8 @@
                                         <td>{{ event.date }}</td>
                                         <td>{{ event.name }}</td>
                                         <td>{{ event.redeem_end_date }}</td>
-                                        <td class="text-right">
-                                            <select class="form-control pull-right" id="id_points-{{ event.id }}" name="points-{{ event.id }}" style="width:5em">
+                                        <td class="text-end">
+                                            <select class="form-control" id="id_points-{{ event.id }}" name="points-{{ event.id }}" style="width:5em">
                                                 {% for p in point_selection %}
                                                     <option value="{{ p }}">{{ p }}</option>
                                                 {% endfor %}
@@ -48,7 +48,9 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <button type="submit" class="btn btn-primary pull-right">{% trans 'Redeem' %}</button>
+                        <span class="d-flex">
+                            <button type="submit" class="btn btn-primary ms-auto">{% trans 'Redeem' %}</button>
+                        </span>
                     </form>
                 {% else %}
                     <p class="font-italic">{% blocktrans %}Currently there are no events available for which you can redeem points. We'll send you a message when this changes.{% endblocktrans %}</p>
@@ -70,8 +72,8 @@
                         <tr>
                             <th style="width: 20%">{% trans 'Date' %}</th>
                             <th style="width: 40%">{% trans 'Action' %}</th>
-                            <th style="width: 20%" class="text-right">{% trans 'Granted points' %}</th>
-                            <th style="width: 20%" class="text-right">{% trans 'Redeemed points' %}</th>
+                            <th style="width: 20%" class="text-end">{% trans 'Granted points' %}</th>
+                            <th style="width: 20%" class="text-end">{% trans 'Redeemed points' %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,8 +81,8 @@
                             <tr>
                                 <td>{{ action_time }}</td>
                                 <td>{{ event_name }}</td>
-                                <td class="text-right">{{ granting_value }}</td>
-                                <td class="text-right">{{ redemption_value }}</td>
+                                <td class="text-end">{{ granting_value }}</td>
+                                <td class="text-end">{{ redemption_value }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

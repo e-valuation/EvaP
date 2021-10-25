@@ -12,7 +12,7 @@
 
     {% if responsible_list %}
         <div class="d-flex mb-3">
-            <div class="mr-auto">
+            <div class="me-auto">
                 <button type="button" id="remindAllButton" onClick="remindAllModalShow()" class="btn btn-sm btn-light">{% trans 'Remind all' %}</button>
             </div>
         </div>
@@ -21,7 +21,7 @@
     {% for responsible, evaluations, delegates in responsible_list %}
         <div class="card{% if not forloop.last %} mb-3{% endif %}">
             <div class="card-header d-flex">
-                <span class="pl-1 mr-auto">
+                <span class="ps-1 me-auto">
                     <a href="{% url 'staff:user_edit' responsible.id %}">{{ responsible.full_name }}</a>, {% trans 'Delegates' %}:
                     {% for delegate in delegates %}
                         <a href="{% url 'staff:user_edit' delegate.id %}">{{ delegate.full_name }}</a>{% if not forloop.last %},{% endif %}
@@ -47,7 +47,7 @@
                             <tr{% if evaluation.state != evaluation.State.PREPARED %} class="deactivate"{% endif %}>
                                 <th scope="row">
                                     {% with approval_state_values=evaluation.state|approval_state_values %}
-                                        <span class="{{ approval_state_values.icon }}" data-toggle="tooltip" data-placement="top" title="{{ approval_state_values.description }}"></span>
+                                        <span class="{{ approval_state_values.icon }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ approval_state_values.description }}"></span>
                                     {% endwith %}
                                     <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a><br />
                                     {% include 'evaluation_badges.html' with mode='manager' %}

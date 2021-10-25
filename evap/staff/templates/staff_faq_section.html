@@ -41,7 +41,7 @@
                                 {% include 'bootstrap_form_field_widget.html' with field=form.question_en %}
                                 {% include 'bootstrap_form_field_widget.html' with field=form.answer_en %}
                             </td>
-                            <td>{{ form.DELETE }}</td>
+                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

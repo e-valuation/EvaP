@@ -1,5 +1,5 @@
 {% for degree in course.degrees.all %}
-    <span class="badge badge-primary">{{ degree }}</span>
+    <span class="badge bg-primary">{{ degree }}</span>
 {% endfor %}
-<span class="badge badge-secondary">{{ course.type }}</span>
-{% if course.is_private %}<span class="badge badge-dark">{% trans 'private' %}</span>{% endif %}
+<span class="badge bg-secondary">{{ course.type }}</span>
+{% if course.is_private %}<span class="badge bg-dark">{% trans 'private' %}</span>{% endif %}

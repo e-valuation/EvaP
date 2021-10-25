@@ -14,7 +14,7 @@
     {% if evaluation_form.instance.id %}
         <div class="mb-2">
             {% with approval_state_values=evaluation.state|approval_state_values %}
-                <span class="badge badge-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
+                <span class="badge bg-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
             {% endwith %}
             {% include 'course_badges.html' with course=evaluation.course %}
         </div>

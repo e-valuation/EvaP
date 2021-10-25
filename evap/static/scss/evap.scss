@@ -1,3 +1,4 @@
+@import "../bootstrap/scss/functions";
 @import "variables";
 @import "mixins";
 @import "font-awesome";
@@ -94,7 +95,7 @@ body {
     }
 }
 
-.card-body .form-group:last-of-type {
+.card-body .mb-3:last-of-type {
     margin-bottom: 0;
 }
 
