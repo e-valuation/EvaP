@@ -495,6 +495,7 @@ class ContributionForm(forms.ModelForm):
 
         if self.instance.contributor:
             self.fields["contributor"].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
+            self.fields["contributor"].initial = self.instance.contributor
 
         self.fields["questionnaires"].queryset = (
             Questionnaire.objects.contributor_questionnaires()
@@ -653,6 +654,17 @@ class ContributionFormSet(BaseInlineFormSet):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
+
+    def add_fields(self, form, index):
+        super().add_fields(form, index)
+        contribution = Contribution.objects.filter(
+            contributor=form.fields["contributor"].initial, evaluation=form.fields["evaluation"].initial
+        ).first()
+        form.fields["is_deletable"] = forms.BooleanField(
+            widget=forms.HiddenInput(),
+            disabled=True,
+            initial=contribution.can_be_deleted if contribution else True,
+        )
 
     def handle_deleted_and_added_contributions(self):
         """

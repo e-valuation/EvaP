@@ -1045,6 +1045,13 @@ class Contribution(LoggedModel):
         return self.contributor_id is None
 
     @property
+    def can_be_deleted(self):
+        return (
+            not RatingAnswerCounter.objects.filter(contribution=self).exists()
+            and not TextAnswer.objects.filter(contribution=self).exists()
+        )
+
+    @property
     def object_to_attach_logentries_to(self):
         return Evaluation, self.evaluation_id
 
