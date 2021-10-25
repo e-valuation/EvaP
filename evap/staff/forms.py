@@ -657,9 +657,13 @@ class ContributionFormSet(BaseInlineFormSet):
 
     def add_fields(self, form, index):
         super().add_fields(form, index)
-        contribution = Contribution.objects.filter(
-            contributor=form.fields["contributor"].initial, evaluation=form.fields["evaluation"].initial
-        ).first()
+        contribution = (
+            Contribution.objects.get(
+                contributor=form.fields["contributor"].initial, evaluation=form.fields["evaluation"].initial
+            )
+            if form.fields["contributor"].initial
+            else None
+        )
         form.fields["is_deletable"] = forms.BooleanField(
             widget=forms.HiddenInput(),
             disabled=True,
