@@ -507,6 +507,8 @@ class ContributionForm(forms.ModelForm):
             .distinct()
         )
 
+        self.can_be_deleted = self.instance.can_be_deleted and not self.instance.is_general
+
         if self.instance.pk:
             self.fields["does_not_contribute"].initial = not self.instance.questionnaires.exists()
 
@@ -654,21 +656,6 @@ class ContributionFormSet(BaseInlineFormSet):
         data = self.handle_moved_contributors(data, **kwargs)
         super().__init__(data, **kwargs)
         self.queryset = self.instance.contributions.exclude(contributor=None)
-
-    def add_fields(self, form, index):
-        super().add_fields(form, index)
-        contribution = (
-            Contribution.objects.get(
-                contributor=form.fields["contributor"].initial, evaluation=form.fields["evaluation"].initial
-            )
-            if form.fields["contributor"].initial
-            else None
-        )
-        form.fields["is_deletable"] = forms.BooleanField(
-            widget=forms.HiddenInput(),
-            disabled=True,
-            initial=contribution.can_be_deleted if contribution else True,
-        )
 
     def handle_deleted_and_added_contributions(self):
         """
