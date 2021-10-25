@@ -1662,13 +1662,13 @@ class TestCourseCopyView(WebTestStaffMode):
         cls.semester = baker.make(Semester, pk=1)
         cls.other_semester = baker.make(Semester, pk=2)
         degree = baker.make(Degree)
-        responsible = baker.make(UserProfile)
+        cls.responsibles = [baker.make(UserProfile), baker.make(UserProfile, is_active=False)]
         cls.course = baker.make(
             Course,
             name_en="Some name",
             semester=cls.semester,
             degrees=[degree],
-            responsibles=[responsible],
+            responsibles=cls.responsibles,
             pk=1,
         )
         cls.evaluation = baker.make(
@@ -1680,12 +1680,12 @@ class TestCourseCopyView(WebTestStaffMode):
         )
         cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
-        for __ in range(3):
-            baker.make(
-                Contribution,
-                evaluation=cls.evaluation,
-                contributor=baker.make(UserProfile),
-            )
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            _quantity=3,
+            _fill_optional=["contributor"],
+        )
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
@@ -1702,6 +1702,8 @@ class TestCourseCopyView(WebTestStaffMode):
         self.assertEqual(Course.objects.count(), 2)
         copied_course = Course.objects.exclude(pk=self.course.pk).get()
         self.assertEqual(copied_course.evaluations.count(), 1)
+        self.assertEqual(set(copied_course.responsibles.all()), set(self.responsibles))
+
         copied_evaluation = copied_course.evaluations.get()
         self.assertEqual(copied_evaluation.weight, self.evaluation.weight)
         self.assertEqual(

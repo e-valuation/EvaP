@@ -216,12 +216,11 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseFormMixin:
-    def _set_responsibles_queryset(self):
-        self.fields["responsibles"].queryset = UserProfile.objects.exclude(is_active=False)
-        if self.instance.pk:
-            self.fields["responsibles"].queryset |= UserProfile.objects.filter(
-                pk__in=[user.pk for user in self.instance.responsibles.all()]
-            )
+    def _set_responsibles_queryset(self, existing_course=None):
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if existing_course:
+            queryset = (queryset | existing_course.responsibles.all()).distinct()
+        self.fields["responsibles"].queryset = queryset
 
     def validate_unique(self):
         super().validate_unique()
@@ -256,7 +255,7 @@ class CourseForm(CourseFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._set_responsibles_queryset()
+        self._set_responsibles_queryset(self.instance if self.instance.pk else None)
         if not self.instance.can_be_edited_by_manager:
             disable_all_fields(self)
 
@@ -276,7 +275,7 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):
         opts = self._meta
         initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
         super().__init__(data=data, initial=initial)
-        self._set_responsibles_queryset()
+        self._set_responsibles_queryset(instance)
 
     # To ensure we don't forget about copying a relevant field, we explicitly list copied and ignored fields and test against that
     EVALUATION_COPIED_FIELDS = {
