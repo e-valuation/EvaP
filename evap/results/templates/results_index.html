@@ -81,13 +81,13 @@
                 <div data-col="result" class="col-order">{% trans 'Distribution and average grade' %}</div>
             </div>
             <div class="d-flex d-lg-none">
-                <div class="me-2 btn-switch btn-group btn-group-toggle icon-buttons" data-bs-toggle="buttons">
-                    <label class="btn btn-light btn-lg active">
-                        <input type="radio" name="result-sort-order" value="asc" />
+                <div class="me-2 btn-group icon-buttons" data-bs-toggle="buttons">
+                    <input id="sort-order-asc" class="btn-check" type="radio" name="result-sort-order" value="asc" checked />
+                    <label class="btn btn-outline-primary btn-lg" for="sort-order-asc">
                         <span class="fas fa-sort-alpha-down"></span>
                     </label>
-                    <label class="btn btn-light btn-lg">
-                        <input type="radio" name="result-sort-order" value="desc" />
+                    <input id="sort-order-desc" class="btn-check" type="radio" name="result-sort-order" value="desc" />
+                    <label class="btn btn-outline-primary btn-lg" for="sort-order-desc">
                         <span class="fas fa-sort-alpha-up-alt"></span>
                     </label>
                 </div>
