@@ -190,7 +190,9 @@ class TestResultsView(WebTest):
         page = self.app.get(self.url, user=student).body.decode()
         self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
 
-        page = self.app.get(self.url, user=student, extra_environ={"HTTP_ACCEPT_LANGUAGE": "de"}).body.decode()
+        student.language = "de"
+        student.save()
+        page = self.app.get(self.url, user=student).body.decode()
         self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
