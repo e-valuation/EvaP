@@ -21,7 +21,7 @@ $(document).ready(() => {
         startOver($(event.target).data("startover"));
     });
     slider.on("click", "[data-toggle-flag]", event => {
-        toggleFlag()
+        toggleFlag();
     })
 
     $(document).keydown(event => {

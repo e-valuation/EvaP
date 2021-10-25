@@ -43,7 +43,7 @@
                                         type="button" 
                                         id="{{ answer.id }}-toggle_flag"
                                         {% if answer.is_flagged %} data-is-flagged{% endif %}
-                                        class="btn btn-sm {% if answer.is_flagged %} btn-warning{% else %} btn-outline-warning{% endif%}"
+                                        class="btn btn-sm {% if answer.is_flagged %}btn-warning{% else %}btn-outline-warning{% endif %}"
                                         onclick="toggle_flag('{{ answer.id }}');">
                                         <span class="fas fa-flag"></span>
                                     </button>

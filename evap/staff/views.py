@@ -1513,7 +1513,7 @@ def evaluation_textanswers_toggle_flag(request):
     evaluation_id = request.POST["evaluation_id"]
 
     evaluation = Evaluation.objects.get(pk=evaluation_id)
-    if evaluation.course.semester.results_are_archived and not request.user.is_manager:
+    if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
