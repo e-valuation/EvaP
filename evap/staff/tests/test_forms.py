@@ -13,6 +13,7 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    RatingAnswerCounter,
     Semester,
     UserProfile,
 )
@@ -553,6 +554,29 @@ class ContributionFormsetTests(TestCase):
         course = baker.make(Course, semester=baker.make(Semester))
         form = CourseForm(instance=course)
         self.assertIn(proxy_user, form.fields["responsibles"].queryset)
+
+    def test_prevent_contribution_deletion_with_answers(self):
+        """
+        When answers for a contribution already exist, it should not be possible to remove that contribution.
+        """
+        evaluation = baker.make(Evaluation)
+        user1 = baker.make(UserProfile)
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
+        contribution1 = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            contributor=user1,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            questionnaires=[questionnaire],
+        )
+        baker.make(RatingAnswerCounter, contribution=contribution1)
+
+        contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        )
+        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        self.assertFalse(formset.forms[0].can_be_deleted)
 
 
 class ContributionFormset775RegressionTests(TestCase):
