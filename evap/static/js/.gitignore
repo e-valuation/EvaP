@@ -1,0 +1,3 @@
+# ignore the typescript output, but still track the libraries
+*.js
+!*.min.js
