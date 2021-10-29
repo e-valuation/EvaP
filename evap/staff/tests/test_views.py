@@ -1710,6 +1710,7 @@ class TestCourseCopyView(WebTestStaffMode):
             set(copied_evaluation.general_contribution.questionnaires.all()),
             set(self.evaluation.general_contribution.questionnaires.all()),
         )
+        assert not copied_course.responsibles.filter(is_active=False).exists()
 
 
 class TestCourseEditView(WebTestStaffMode):
