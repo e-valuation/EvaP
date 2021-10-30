@@ -342,7 +342,6 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):
                 new_contribution.save()
                 new_contribution.questionnaires.set(old_contribution.questionnaires.all())
 
-        new_course.responsibles.filter(is_active=False).update(is_active=True)
         return new_course
 
 

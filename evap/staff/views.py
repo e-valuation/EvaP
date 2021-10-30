@@ -960,6 +960,17 @@ def course_copy(request, semester_id, course_id):
     if course_form.is_valid():
         copied_course = course_form.save()
         messages.success(request, _("Successfully copied course."))
+
+        inactive_users = copied_course.responsibles.filter(is_active=False)
+        if inactive_users:
+            messages.warning(
+                request,
+                _("Accounts of some responsibles were reactivated: {accounts}.").format(
+                    accounts=", ".join(user.full_name for user in inactive_users)
+                ),
+            )
+            inactive_users.update(is_active=True)
+
         return redirect("staff:semester_view", copied_course.semester_id)
 
     evaluations = sorted(course.evaluations.exclude(is_single_result=True), key=lambda cr: cr.full_name)

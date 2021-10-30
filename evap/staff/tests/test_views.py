@@ -1662,7 +1662,10 @@ class TestCourseCopyView(WebTestStaffMode):
         cls.semester = baker.make(Semester, pk=1)
         cls.other_semester = baker.make(Semester, pk=2)
         degree = baker.make(Degree)
-        cls.responsibles = [baker.make(UserProfile), baker.make(UserProfile, is_active=False)]
+        cls.responsibles = [
+            baker.make(UserProfile, last_name="Muller"),
+            baker.make(UserProfile, is_active=False, last_name="Wolf"),
+        ]
         cls.course = baker.make(
             Course,
             name_en="Some name",
@@ -1697,7 +1700,11 @@ class TestCourseCopyView(WebTestStaffMode):
         form["semester"] = self.other_semester.pk
         form["vote_start_datetime"] = datetime.datetime(2099, 1, 1, 0, 0)
         form["vote_end_date"] = datetime.date(2099, 12, 31)
-        form.submit()
+
+        # check that the user activation is mentioned
+        assert not self.responsibles[1].is_active
+        response = form.submit().follow()
+        assert self.responsibles[1].full_name in str(response)
 
         self.assertEqual(Course.objects.count(), 2)
         copied_course = Course.objects.exclude(pk=self.course.pk).get()
