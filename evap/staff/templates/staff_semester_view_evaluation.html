@@ -87,7 +87,7 @@
         {{ evaluation.full_name }}
     {% endif %}
     </div>
-    <div class="font-italic">
+    <div class="fst-italic">
         {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state >= evaluation.State.IN_EVALUATION %}
             <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Number of contributors' %}">

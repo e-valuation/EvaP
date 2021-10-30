@@ -44,7 +44,7 @@
             <div class="slider-items">
                 {% for questionnaire, contributor, label, is_responsible, results in sections %}
                     <div class="slider-item card-header" data-layer="0">
-                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="font-italic">{{ label }}</span>{% endif %}{% endif %}
+                        {{ questionnaire.public_name }}{% if contributor %}: {{ contributor.full_name }}{% if is_responsible %} ({% trans 'responsible' %}){% endif %}{% if label %} &ndash;&nbsp;<span class="fst-italic">{{ label }}</span>{% endif %}{% endif %}
                     </div>
                     {% for result in results %}
                         <div class="slider-item card-body" data-layer="1">
