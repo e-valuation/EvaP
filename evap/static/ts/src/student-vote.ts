@@ -44,6 +44,10 @@ selectables[0].addEventListener("focus", () => {
 });
 
 studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
+    if (e.ctrlKey || e.altKey) {
+        return;
+    }
+
     const current = document.activeElement as HTMLElement;
     if (!current.matches("input, label, span, textarea, button")) {
         return;
