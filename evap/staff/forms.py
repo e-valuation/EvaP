@@ -495,7 +495,6 @@ class ContributionForm(forms.ModelForm):
 
         if self.instance.contributor:
             self.fields["contributor"].queryset |= UserProfile.objects.filter(pk=self.instance.contributor.pk)
-            self.fields["contributor"].initial = self.instance.contributor
 
         self.fields["questionnaires"].queryset = (
             Questionnaire.objects.contributor_questionnaires()
@@ -506,8 +505,6 @@ class ContributionForm(forms.ModelForm):
             )
             .distinct()
         )
-
-        self.can_be_deleted = self.instance.can_be_deleted and not self.instance.is_general
 
         if self.instance.pk:
             self.fields["does_not_contribute"].initial = not self.instance.questionnaires.exists()
