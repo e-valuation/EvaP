@@ -21,17 +21,23 @@ The easiest setup using [Vagrant](https://www.vagrantup.com) and [VirtualBox](ht
 
 1. Fork the Evap repository (using the Fork-button in the upper right corner on GitHub)
 
-2. If you're using Windows, you want to change git's autocrlf setting to "input" so git will not change line endings when checking out files, using this command:
+2. Windows users only (might not apply for the linux subsystem):
+   * Line endings: git's [`core.autocrlf` setting](https://git-scm.com/book/en/v2/Customizing-Git-Git-Configuration#_core_autocrlf) has to be `false` or `input` so git does not convert line endings on checkout, because the code will be used in a linux VM. We suggest using this command in Git Bash:
 
-        git config --global core.autocrlf input
+     ```bash
+     git config --global core.autocrlf input
+     ```
+
+   * Symlink Privileges: Our setup script for the VM creates symlinks in the repository folder. This requires either [explicitly allowing your user account to create symlinks](https://superuser.com/a/105381) or simply running the commands in step 3 as administrator. Thus, we suggest doing step 3 in a Git Bash that was started using "Run as administrator". Generally, this is only required for the first time executing `vagrant up`.
 
 3. Run the following commands on the command line to clone the repository, create the Vagrant VM and run the Django development server:
-
-        git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
-        cd EvaP
-        vagrant up
-        vagrant ssh
-        ./manage.py run
+```bash
+git clone --recurse-submodules https://github.com/<your_github_username>/EvaP.git
+cd EvaP
+vagrant up
+vagrant ssh
+./manage.py run
+```
 
 4. Open your browser at http://localhost:8000/ and login with email ``evap@institution.example.com`` and password ``evap``
 
