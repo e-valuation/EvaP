@@ -50,6 +50,7 @@ from evap.results.views import update_template_cache_of_published_evaluations_in
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff import staff_mode
+
 from evap.staff.forms import (
     AtLeastOneFormSet,
     ContributionCopyForm,
@@ -96,6 +97,22 @@ from evap.staff.tools import (
     merge_users,
     save_import_file,
 )
+
+from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
+                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
+                              CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
+                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
+                              FaqQuestionForm,
+                              FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
+                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, TextAnswerWarningForm,
+                              UserBulkUpdateForm,
+                              UserForm, UserImportForm, UserMergeSelectionForm, UserEditSelectionForm)
+from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
+from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
+                              forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
+                              save_import_file, find_next_unreviewed_evaluation, ImportType)
+from evap.student.models import TextAnswerWarning
+
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -1893,6 +1910,16 @@ def text_answer_warnings_index(request):
 
 @manager_required
 def user_index(request):
+    form = UserEditSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        user = form.cleaned_data['user']
+        return redirect('staff:user_edit', user.id, request.path)
+
+    return render(request, "staff_user_index.html", dict(form=form))
+
+@manager_required
+def user_list(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
@@ -1925,7 +1952,7 @@ def user_index(request):
         .order_by("last_name", "first_name", "email")
     )
 
-    return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
+    return render(request, "staff_user_list.html", dict(users=users, filter_users=filter_users))
 
 
 @manager_required
@@ -1987,7 +2014,7 @@ def user_import(request):
 
 
 @manager_required
-def user_edit(request, user_id):
+def user_edit(request, user_id, next):
     # See comment in helper_evaluation_edit
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
@@ -2017,7 +2044,7 @@ def user_edit(request, user_id):
         messages.success(request, _("Successfully updated user."))
         for message in form.remove_messages:
             messages.warning(request, message)
-        return redirect("staff:user_index")
+        return redirect(next)
 
     return render(
         request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to)

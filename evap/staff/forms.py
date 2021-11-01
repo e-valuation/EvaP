@@ -913,6 +913,8 @@ class UserMergeSelectionForm(forms.Form):
     main_user = UserModelChoiceField(UserProfile.objects.all())
     other_user = UserModelChoiceField(UserProfile.objects.all())
 
+class UserEditSelectionForm(forms.Form):
+    user = UserModelChoiceField(UserProfile.objects.all())
 
 class EmailTemplateForm(forms.ModelForm):
     class Meta:
