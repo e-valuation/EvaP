@@ -153,16 +153,16 @@
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
                 <div class="row align-items-center mb-3">
-                    <div class="col-9">
-                        {% if request.user.is_manager %}
-                        <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
-                            {% trans 'Create evaluation' %}
-                        </a>
-                        <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
-                            {% trans 'Create single result' %}
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% if request.user.is_manager %}
+                        <div class="col-9">
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                                {% trans 'Create evaluation' %}
+                            </a>
+                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
+                                {% trans 'Create single result' %}
+                            </a>
+                        </div>
+                    {% endif %}
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
@@ -334,13 +334,13 @@
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
-                    <div class="col-9">
-                        {% if request.user.is_manager %}
-                        <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
-                            {% trans 'Create course' %}
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% if request.user.is_manager %}
+                        <div class="col-9">
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
+                                {% trans 'Create course' %}
+                            </a>
+                        </div>
+                    {% endif %}
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
@@ -390,17 +390,17 @@
                                 </td>
                                 <td class="icon-buttons">
                                     {% if request.user.is_manager %}
-                                    <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                        href="{% url 'staff:evaluation_create' semester.id course.id %}"
-                                        title="{% trans "Create evaluation for this course" %}">
-                                        <span class="fas fa-clipboard-check"></span>
-                                    </a>
-                                    <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                        href="{% url 'staff:single_result_create' semester.id course.id %}"
-                                        title="{% trans "Create single result for this course" %}">
-                                        <span class="fas fa-poll"></span>
-                                    </a>
-                                    {% endif %}
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                            href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                            title="{% trans "Create evaluation for this course" %}">
+                                            <span class="fas fa-clipboard-check"></span>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                            href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                            title="{% trans "Create single result for this course" %}">
+                                            <span class="fas fa-poll"></span>
+                                        </a>
+                                {% endif %}
                                     {% if course.can_be_deleted_by_manager %}
                                         <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                             <span class="fas fa-trash" aria-hidden="true"></span>
