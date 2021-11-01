@@ -153,16 +153,16 @@
         <div class="card-body tab-content">
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
                 <div class="row align-items-center mb-3">
-                    {% if request.user.is_manager %}
                     <div class="col-9">
+                        {% if request.user.is_manager %}
                         <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
                             {% trans 'Create evaluation' %}
                         </a>
                         <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
                             {% trans 'Create single result' %}
                         </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
@@ -334,13 +334,13 @@
             </div>
             <div class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
-                    {% if request.user.is_manager %}
                     <div class="col-9">
+                        {% if request.user.is_manager %}
                         <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
                             {% trans 'Create course' %}
                         </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
