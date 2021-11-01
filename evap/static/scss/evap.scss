@@ -1,6 +1,5 @@
 @import "../bootstrap/scss/functions";
 @import "variables";
-@debug $table-striped-bg;
 @import "mixins";
 @import "font-awesome";
 @import "bootstrap";
@@ -11,14 +10,18 @@
 html {
     position: relative;
     min-height: 100%;
-    filter: invert(100%);
+    @if $dark-mode {
+        filter: invert(100%);
+    }
 }
 
 body {
     overflow-y: scroll !important;
     margin-bottom: 60px; // keep space for footer
     background-image: url("../images/triangles_gray.svg");
-    filter: invert(100%);
+    @if $dark-mode {
+        filter: invert(100%);
+    }
     background-size: cover;
     background-attachment: fixed;
 }

@@ -81,7 +81,7 @@ $link-color: get-link-color();
   @if $dark-mode {
     @return $darker-gray;
   }
-  @return $while;
+  @return $white;
 }
 $input-bg: get-input-bg();
 
