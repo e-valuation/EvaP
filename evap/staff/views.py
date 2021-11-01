@@ -155,6 +155,23 @@ def get_evaluations_with_prefetched_data(semester):
     return evaluations
 
 
+def get_evaluations_with_flagged_textanswers_only(semester):
+    evaluations = semester.evaluations.filter(contribution__textanswer_set__is_flagged=True).prefetch_related(
+        Prefetch(
+            "contributions",
+            queryset=Contribution.objects.filter(textanswer_set__is_flagged=True),
+            to_attr="contributions_with_flagged_textanswers",
+        ),
+        Prefetch(
+            "contributions_with_flagged_textanswers__textanswer_set",
+            queryset=TextAnswer.objects.filter(is_flagged=True),
+            to_attr="flagged_textanswers",
+        ),
+    )
+
+    return evaluations
+
+
 @reviewer_required
 def semester_view(request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
@@ -219,6 +236,22 @@ def semester_view(request, semester_id):
         ],
     )
     return render(request, "staff_semester_view.html", template_data)
+
+
+@reviewer_required
+def semester_textanswers_flagged_view(request, semester_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    if semester.results_are_archived and not request.user.is_manager:
+        raise PermissionDenied
+
+    evaluations = get_evaluations_with_flagged_textanswers_only(semester)
+    evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
+
+    template_data = dict(
+        semester=semester,
+        evaluations=evaluations,
+    )
+    return render(request, "staff_semester_textanswers_flagged.html", template_data)
 
 
 class EvaluationOperation:
