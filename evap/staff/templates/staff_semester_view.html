@@ -400,7 +400,7 @@
                                             title="{% trans "Create single result for this course" %}">
                                             <span class="fas fa-poll"></span>
                                         </a>
-                                {% endif %}
+                                    {% endif %}
                                     {% if course.can_be_deleted_by_manager %}
                                         <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                             <span class="fas fa-trash" aria-hidden="true"></span>
