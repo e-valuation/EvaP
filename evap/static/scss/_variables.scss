@@ -30,7 +30,12 @@ $border-color: $medium-gray;
 $headings-margin-bottom: 1rem;
 
 $table-accent-bg: transparent;
-$table-striped-bg: tint-color($light-gray, 50%);
+@if $dark-mode {
+  $table-striped-bg: $darker-gray;
+
+} @else {
+  $table-striped-bg: tint-color($light-gray, 50%);
+}
 $table-border-color: $light-gray;
 $table-group-separator-color: $medium-gray;
 
@@ -76,3 +81,4 @@ $link-decoration: none;
 $link-hover-decoration: underline;
 
 $small-font-size: 0.8rem;
+

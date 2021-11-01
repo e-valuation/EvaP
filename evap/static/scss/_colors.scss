@@ -1,3 +1,5 @@
+$dark-mode: true;
+
 $evap-green:        #88bf4a;
 $evap-lime:         #bbd154;
 $evap-yellow:       #efe258;
@@ -25,6 +27,7 @@ $light-gray:        #dee2e6;
 $medium-gray:       #adb5bd;
 $dark-gray:         #868e96;
 $darker-gray:       #495057;
+$darkest-gray:      #212529;
 $black:             #000000;
 
 $primary: $evap-dark-blue;
@@ -46,3 +49,54 @@ $vote-colors: (
 );
 
 $code-color: $darker-gray;
+
+@function get-body-color() {
+  @if $dark-mode {
+    @return $light-gray;
+  }
+  @return $darkest-gray;
+}
+
+$body-color: get-body-color();
+
+@function get-card-bg() {
+  @if $dark-mode {
+    @return $darkest-gray;
+  }
+  @return $white;
+}
+
+$card-bg: get-card-bg();
+
+@function get-link-color() {
+  @if $dark-mode {
+    @return lighten($primary, 10%);
+  }
+  @return $primary;
+}
+
+$link-color: get-link-color();
+
+@function get-input-bg() {
+  @if $dark-mode {
+    @return $darker-gray;
+  }
+  @return $while;
+}
+$input-bg: get-input-bg();
+
+@function get-input-border-color() {
+  @if $dark-mode {
+    @return $dark-gray;
+  }
+  @return $light-gray;
+}
+$input-border-color: get-input-border-color();
+
+@function get-table-striped-bg() {
+  @if $dark-mode {
+    @return $darker-gray;
+  }
+  @return #eff1f3;
+}
+$table-striped-bg: get-table-striped-bg();

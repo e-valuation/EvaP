@@ -1,12 +1,19 @@
 .card-header {
     font-weight: bold;
+    @if $dark-mode {
+        background-color: $darker-gray;
+    }
 }
 
 .card-outline-primary {
     border-color: rgba($evap-dark-blue, 0.5);
 
     > .card-header {
-        background-color: $evap-light-blue;
+        @if $dark-mode {
+            background-color: $evap-dark-blue;
+        } @else {
+            background-color: $evap-light-blue;
+        }
     }
 }
 
@@ -49,7 +56,11 @@
 }
 
 .card-submit-area {
-    background-color: $lighter-gray;
+    @if $dark-mode {
+        background-color: $darkest-gray;
+    } @else {
+        background-color: $lighter-gray;
+    }
     border-color: rgba($evap-dark-blue, 0.5);
     min-height: 65px;
 }

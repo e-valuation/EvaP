@@ -36,9 +36,15 @@
 }
 
 .callout-info {
-    background-color: $evap-light-blue;
+    @if $dark-mode {
+        background-color: $darkest-gray;
+        color: $lighter-gray;
+    } @else {
+        background-color: $evap-light-blue;
+        color: shade-color($evap-dark-blue, 60%);
+    }
+
     border-color: $evap-dark-blue;
-    color: shade-color($evap-dark-blue, 60%);
 
     .callout-header {
         color: $evap-dark-blue;

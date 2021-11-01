@@ -1,3 +1,4 @@
+@debug $table-striped-bg;
 .container-striped .row:nth-child(odd) {
     background-color: $table-striped-bg;
 }

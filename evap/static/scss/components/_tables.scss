@@ -42,7 +42,7 @@ $table-colors: (
     overflow: hidden;
 
     a:not(.btn) {
-        color: $black;
+        color: $body-color;
         text-decoration: none;
         display: block; // -1-
         margin: -10em;  // -1-
@@ -55,11 +55,19 @@ $table-colors: (
     transition: background-color 0.15s ease-in-out;
 
     &:hover {
-        background-color: rgba(0, 0, 0, 0.075);
+        @if $dark-mode {
+            background-color: $darker-gray;
+        } @else {
+            background-color: rgba(0, 0, 0, 0.075);
+        }
         cursor: pointer;
 
         &.hover-row-info {
-            background-color: $evap-light-blue;
+            @if $dark-mode {
+                background-color: $darker-gray;
+            } @else {
+                background-color: $evap-light-blue;
+            }
 
             .btn-primary {
                 box-shadow: 0 0 0 3px rgba($evap-dark-blue, .5);
