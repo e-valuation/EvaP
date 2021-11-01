@@ -1,0 +1,37 @@
+<script type="text/javascript">
+    function toggle_flag(id) {
+        const parameters = {"id": id, "action": "toggle_flag", "evaluation_id": {{ evaluation.id }}};
+        $.ajax({
+            type: "POST",
+            url: "{% url 'staff:evaluation_textanswers_toggle_flag' %}",
+            data: parameters,
+            error: () => window.alert("{% trans 'The server is not responding.' %}"),
+        });
+        
+        const flag_button = $("#"+id+"-toggle_flag")
+        const isFlagged = flag_button.is("[data-is-flagged]");
+        
+        flag_button.attr("data-is-flagged", isFlagged ? null : "");
+        flag_button.toggleClass("btn-warning", !isFlagged);
+        flag_button.toggleClass("btn-outline-warning", isFlagged);
+    }
+
+    function press(id, action) {
+        if($("#"+id+"-"+action).hasClass("active")) {
+            action = "unreview";
+        }
+        updateState(id, action);
+        const parameters = {"id": id, "action": action, "evaluation_id": {{ evaluation.id }}};
+        $.ajax({
+            type: "POST",
+            url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
+            data: parameters,
+            error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
+        });
+    }
+
+    function updateState(id, action) {
+        $("#"+id+"-buttons").children().removeClass("active");
+        $("#"+id+"-"+action).addClass("active");
+    }
+</script>
