@@ -29,7 +29,7 @@
                                 <td>
                                     <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
-                                        {% if "final" in grade_document.get_type_display%}
+                                        {% if "final" in grade_document.get_type_display %}
                                             <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}?final=true" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
                                         {% else %}
                                             <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
