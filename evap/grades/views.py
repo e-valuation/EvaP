@@ -165,7 +165,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
-    final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
+    final_grades = grade_document.type == GradeDocument.Type.FINAL_GRADES  # if parameter is not given, assume midterm grades
 
     if form.is_valid():
         form.save(modifying_user=request.user)
