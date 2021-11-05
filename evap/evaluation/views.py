@@ -75,6 +75,12 @@ def index(request):
             # clean up our test cookie
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
+
+            # check for redirect variable
+            redirect_to = request.GET.get("next", None)
+            if redirect_to is not None:
+                return redirect(redirect_to)
+
             return redirect("evaluation:index")
 
     # if not logged in by now, render form
