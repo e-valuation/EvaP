@@ -77,7 +77,7 @@
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
     "created_at": "2014-06-02",
-    "is_active": null
+    "is_active": true
   }
 },
 {
