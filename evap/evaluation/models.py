@@ -1046,9 +1046,10 @@ class Contribution(LoggedModel):
 
     @property
     def can_be_deleted(self):
-        return (
+        return (self.pk is None and self.is_general) or (
             not RatingAnswerCounter.objects.filter(contribution=self).exists()
             and not TextAnswer.objects.filter(contribution=self).exists()
+            and not self.is_general
         )
 
     @property
