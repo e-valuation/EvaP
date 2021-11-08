@@ -53,7 +53,11 @@
     align-items: center;
 
     @at-root a#{&} {
-        color: $black;
+        @if ($dark-mode) {
+            color: $body-color;
+        } @else {
+            color: $black;
+        }
         text-decoration: none;
     }
 
