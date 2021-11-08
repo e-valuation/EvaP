@@ -213,11 +213,16 @@ a.collapse-toggle {
 
 @each $name, $color in $vote-colors {
     .vote-btn-#{$name} {
-        background-color: $lighter-gray;
-        color: shade-color($color, 40%);
-
+        @if ($dark-mode) {
+            background-color: $darkest-gray;
+            color: $color;
+        } @else {
+            background-color: $lighter-gray;
+            color: shade-color($color, 40%);
+        }
         &:hover {
             background-color: change-color($color, $lightness: 85%);
+            color: black;
         }
     }
 
@@ -245,11 +250,19 @@ a.collapse-toggle {
 .btn-textanswer {
     width: 2.5rem;
     height: 2.5rem;
-    background-color: $lighter-gray;
+    @if ($dark-mode) {
+        background-color: $darker-gray;
+    } @else {
+        background-color: $lighter-gray;
+    }
     border-color: $medium-gray;
 
     & > .fa-comment {
-        color: $darker-gray;
+        @if ($dark-mode) {
+            color: $lighter-gray;
+        } @else {
+            color: $darker-gray;
+        }
     }
 
     &.has-contents > .fa-comment {
@@ -259,7 +272,11 @@ a.collapse-toggle {
     box-shadow: inset 0 0 10px $dark-gray;
 
     &:focus {
-        box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
+        @if ($dark-mode) {
+            box-shadow: $btn-focus-box-shadow, inset 0 0 10px $medium-gray;
+        } @else {
+            box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
+        }
     }
 
     &.collapsed {
