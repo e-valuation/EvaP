@@ -26,6 +26,34 @@ body {
     background-attachment: fixed;
 }
 
+@if ($dark-mode) {
+    .select2-container--default .select2-results__option {
+        background-color: $darkest-gray;
+        &[aria-selected=true] {
+            background-color: $darker-gray;
+            &.select2-results__option--highlighted {
+                background-color: #5897fb;
+            }
+        }
+    }
+
+    .select2-container--default .select2-selection {
+        color: $body-color;
+        background-color: $darker-gray;
+        border: 1px solid $darker-gray;
+        &.select2-container--focus {
+            border: 1px solid $dark-gray;
+        }
+    }
+}
+
+@if ($dark-mode) {
+    input, textarea {
+        color: $body-color;
+        background-color: $body-bg;
+    }
+}
+
 .footer {
     position: absolute;
     bottom: 0;

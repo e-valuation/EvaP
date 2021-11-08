@@ -49,6 +49,16 @@ $vote-colors: (
 );
 
 $code-color: $darker-gray;
+$dark: $dark-gray;
+
+@function get-body-bg() {
+  @if $dark-mode {
+    @return $darkest-gray;
+  }
+  @return $white;
+}
+
+$body-bg: get-body-bg();
 
 @function get-body-color() {
   @if $dark-mode {

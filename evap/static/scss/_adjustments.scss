@@ -72,6 +72,10 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
         background-size: $accordion-icon-width;
         @include transition($accordion-icon-transition);
     }
+
+    @if ($dark-mode) {
+        background-color: $darkest-gray;
+    }
 }
 
 // make buttons in btn-groups usable in forms

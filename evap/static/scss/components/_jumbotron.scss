@@ -4,7 +4,17 @@
     padding: 4rem 2rem;
     border-radius: .3rem;
 
+    h1 {
+        @if ($dark-mode) {
+            color: $darkest-gray;
+        }
+    }
+
     .card {
-        background-color: $lighter-gray;
+        @if ($dark-mode) {
+            background-color: $darkest-gray;
+        } @else {
+            background-color: $lighter-gray;
+        }
     }
 }
