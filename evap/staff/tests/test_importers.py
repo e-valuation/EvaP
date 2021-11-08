@@ -174,7 +174,7 @@ class TestUserImporter(TestCase):
         )
 
     def test_user_success_messages(self):
-        user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=True)
+        success_messages= UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertIn('The import run will create 2 users:', success_messages[3])
         self.assertIn('lucilia.manilium@institution.example.com', success_messages[3])
         self.assertIn('bastius.quid@external.example.com', success_messages[3])
@@ -434,22 +434,21 @@ class TestEnrollmentImporter(TestCase):
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create one course/evaluation and 3 users:", "".join(success_messages))
 
-    def test_existing_course_is_not_recreated(self):
         existing_course, existing_course_evaluation = self.create_existing_course()
 
         excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn('The import run will create one course/evaluation and one user:', success_messages[3])
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn('Successfully created one course/evaluation, no students', success_messages[2])
 
         old_evaluation_count = Evaluation.objects.all().count()
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
         self.assertEqual(Evaluation.objects.all().count(), old_evaluation_count-1)
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn('The import run will create one course/evaluation and no users.', success_messages)
-        success_messages, warnings, errors = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
+        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False)
         self.assertIn('Successfully created one course/evaluation, no students and no responsibles', success_messages)
 
         __, warnings, __ = EnrollmentImporter.process(
@@ -566,7 +565,7 @@ class TestPersonImporter(TestCase):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
-        self.assertIn("Zero contributors would be added to the evaluation", "".join(success_messages))
+        self.assertIn("No contributors would be added to the evaluation", "".join(success_messages))
         self.assertIn(
             "The following user is already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
         )
@@ -574,7 +573,7 @@ class TestPersonImporter(TestCase):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation1
         )
-        self.assertIn("Zero contributors added to the evaluation", "".join(success_messages))
+        self.assertIn("No contributors added to the evaluation", "".join(success_messages))
         self.assertIn(
             "The following user is already contributing to evaluation", warnings[ImporterWarning.GENERAL][0]
         )
@@ -611,7 +610,7 @@ class TestPersonImporter(TestCase):
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation1
         )
-        self.assertIn("Zero participants would be added to the evaluation", "".join(success_messages))
+        self.assertIn("No participants would be added to the evaluation", "".join(success_messages))
         self.assertIn(
             "The following user is already participant in evaluation", warnings[ImporterWarning.GENERAL][0]
         )
@@ -643,7 +642,7 @@ class TestPersonImporter(TestCase):
         self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
 
     def test_person_success_messages(self):
-        success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation3)
+        success_messages, __, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation3)
         self.assertIn("2 participants would be added to the evaluation", "".join(success_messages))
         success_messages, warnings, __ = PersonImporter.process_source_evaluation(ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation3)
         self.assertIn("2 participants added to the evaluation", "".join(success_messages))
