@@ -1046,14 +1046,13 @@ class Contribution(LoggedModel):
 
     @property
     def can_be_deleted(self):
-        if self.is_general:
-            # The pk is used to distinct the general contribution of an evaluation from a new contribution in a ContributionFormset.
-            return self.pk is None
-        else:
-            return (
-                not RatingAnswerCounter.objects.filter(contribution=self).exists()
-                and not TextAnswer.objects.filter(contribution=self).exists()
-            )
+        if self.pk is None:
+            return True  # not stored in the DB. Required so temporary instances in the formset can be deleted.
+
+        if not self.ratinganswercounter_set.exists() and not self.textanswer_set.exists():
+            return True
+
+        return False
 
     @property
     def object_to_attach_logentries_to(self):
