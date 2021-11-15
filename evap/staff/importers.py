@@ -591,7 +591,7 @@ class EnrollmentImporter(ExcelImporter):
             len(self.evaluations),
         ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase, evaluation=len(self.evaluations))
         if student_word != "no" or responsible_word != "no":
-            message += ": "
+            message += ":"
             message += create_user_list_html_string_for_message(students_created)
         self.success_messages.append(message)
 
