@@ -1,0 +1,23 @@
+{% extends 'staff_semester_base.html' %}
+
+{% block breadcrumb %}
+    {{ block.super }}
+    <li class="breadcrumb-item">{% trans 'Flagged textanswers' %}</li>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+
+    {% for answer_section in answer_sections %}
+    <tr id="evaluation-row-{{ answer_section.evaluation.id }}"><td>
+        <div class="card-header">
+            {{ answer_section.evaluation }}
+        </div>
+        <div class="card-body">
+            {% include 'staff_evaluation_textanswers_list.html' with semester=semester evaluation=answer_section.evaluation evaluation_sections=answer_section.evaluation_sections contributor_section=answer_section.contributor_sections info_only=False %}
+        </div>
+    </td></tr>
+    {% empty %}
+        <tr><td><i>{% trans 'There are no flagged textanswers in this semester.' %}</i><td></tr>
+    {% endfor %}
+{% endblock %}
