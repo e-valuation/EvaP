@@ -9,35 +9,36 @@
 
 {% block content %}
     {{ block.super }}
-    <div class="row justify-content-between mb-3">
-    <div class="card px-3">
-        <div class="card-body">
-            <h4 class="card-title">{% trans 'Benutzeraktionen' %}</h4>
-            <div class="row">
-            <ul class="">
-                <li class=""><a href="{% url 'staff:user_list' %}" class="">{% trans 'User list' %}</a></li>
-                <li class=""><a href="{% url 'staff:user_import' %}" class="">{% trans 'Import users' %}</a></li>
-                <li class=""><a href="{% url 'staff:user_merge_selection' %}" class="">{% trans 'Merge users' %}</a></li>
-            </ul>
-            <ul class="">
-                <li class=""><a href="{% url 'staff:user_bulk_update' %}" class="">{% trans 'Bulk update users' %}</a></li>
-                <li class=""><a href="{% url 'staff:user_create' %}" class="">{% trans 'Create new user' %}</a></li>
-            </ul>   
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h4 class="card-title">{% trans 'User actions' %}</h4>
+                    <ul>
+                        <li class=""><a href="{% url 'staff:user_list' %}" class="">{% trans 'User list' %}</a></li>
+                        <li class=""><a href="{% url 'staff:user_import' %}" class="">{% trans 'Import users' %}</a></li>
+                        <li class=""><a href="{% url 'staff:user_merge_selection' %}" class="">{% trans 'Merge users' %}</a></li>
+                        <li class=""><a href="{% url 'staff:user_bulk_update' %}" class="">{% trans 'Bulk update users' %}</a></li>
+                        <li class=""><a href="{% url 'staff:user_create' %}" class="">{% trans 'Create new user' %}</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="card px-2 align-self-start">
-        <div class="card-body">
-            <form method="POST" class="form-horizontal">
-                {% csrf_token %}
-                    <h4 class="card-title text-center">{% trans 'Search for Users' %}</h4>
-                        {% include 'bootstrap_form.html' with form=form wide=False %}
-                        <div class="text-center">                    
-                            <button type="submit" class="btn btn-md btn-primary">{% trans 'Edit user' %}</button>
-                        </div>
-            </form>    
-        </div>        
-    </div>   
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <form method="POST" class="form-horizontal">
+                        {% csrf_token %}
+                            <h4 class="card-title text-center">{% trans 'Search user' %}</h4>
+                                {% include 'bootstrap_form.html' with form=form wide=False %}
+                                <div class="text-center">                    
+                                    <button type="submit" class="btn btn-md btn-primary">{% trans 'Edit user' %}</button>
+                                </div>
+                    </form>    
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- <div class="card mb-3">

@@ -83,6 +83,7 @@ from evap.staff.forms import (
     UserForm,
     UserImportForm,
     UserMergeSelectionForm,
+    UserEditSelectionForm,
 )
 from evap.staff.importers import EnrollmentImporter, PersonImporter, UserImporter, sorted_messages
 from evap.staff.tools import (
@@ -98,20 +99,7 @@ from evap.staff.tools import (
     save_import_file,
 )
 
-from evap.staff.forms import (AtLeastOneFormSet, ContributionForm, ContributionCopyForm, ContributionFormSet,
-                              ContributionCopyFormSet, CourseForm, CourseTypeForm,
-                              CourseTypeMergeSelectionForm, DegreeForm, EmailTemplateForm, EvaluationEmailForm,
-                              EvaluationForm, EvaluationCopyForm, EvaluationParticipantCopyForm, ExportSheetForm,
-                              FaqQuestionForm,
-                              FaqSectionForm, ModelWithImportNamesFormSet, ImportForm, QuestionForm, QuestionnaireForm, QuestionnairesAssignForm,
-                              RemindResponsibleForm, SemesterForm, SingleResultForm, TextAnswerForm, TextAnswerWarningForm,
-                              UserBulkUpdateForm,
-                              UserForm, UserImportForm, UserMergeSelectionForm, UserEditSelectionForm)
-from evap.staff.importers import EnrollmentImporter, UserImporter, PersonImporter, sorted_messages
-from evap.staff.tools import (bulk_update_users, delete_import_file, delete_navbar_cache_for_users,
-                              forward_messages, get_import_file_content_or_raise, import_file_exists, merge_users,
-                              save_import_file, find_next_unreviewed_evaluation, ImportType)
-from evap.student.models import TextAnswerWarning
+
 
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
