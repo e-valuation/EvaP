@@ -576,17 +576,17 @@ class EnrollmentImporter(ExcelImporter):
 
     def create_success_messages(self, students_created, responsibles_created):
         student_count = len(students_created)
-        student_word = pgettext(student_count, "no") if student_count == 0 else str(student_count)
+        student_word = pgettext("student count", "no") if student_count == 0 else str(student_count)
         responsible_count = len(responsibles_created)
-        responsible_word = pgettext(student_count, "no") if responsible_count == 0 else str(responsible_count)
+        responsible_word = pgettext("responsible count", "no") if responsible_count == 0 else str(responsible_count)
 
-        student_phrase = ngettext("one student", "{count} students", student_count).format(count=student_word)
-        responsible_phrase = ngettext("one responsible", "{count} responsibles", responsible_count).format(
+        student_phrase = ngettext("1 student", "{count} students", student_count).format(count=student_word)
+        responsible_phrase = ngettext("1 responsible", "{count} responsibles", responsible_count).format(
             count=responsible_word
         )
 
         message = ngettext(
-            "Successfully created one course/evaluation, {student_phrase} and {responsible_phrase}",
+            "Successfully created 1 course/evaluation, {student_phrase} and {responsible_phrase}",
             "Successfully created {evaluation} courses/evaluations, {student_phrase} and {responsible_phrase}",
             len(self.evaluations),
         ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase, evaluation=len(self.evaluations))
@@ -601,7 +601,7 @@ class EnrollmentImporter(ExcelImporter):
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
         msg = format_html(
             ngettext(
-                "The import run will create one course/evaluation",
+                "The import run will create 1 course/evaluation",
                 "The import run will create {evaluation} courses/evaluations",
                 len(self.evaluations),
             ).format(evaluation=len(self.evaluations))
@@ -611,7 +611,7 @@ class EnrollmentImporter(ExcelImporter):
         else:
             msg += format_html(
                 ngettext(
-                    " and one user:",
+                    " and 1 user:",
                     " and {users} users:",
                     len(filtered_users),
                 ).format(users=len(filtered_users))
@@ -715,7 +715,7 @@ class UserImporter(ExcelImporter):
         else:
             msg = format_html(
                 ngettext(
-                    "Successfully created one user:",
+                    "Successfully created 1 user:",
                     "Successfully created {users} users:",
                     len(created_users),
                 ).format(users=len(created_users))
@@ -743,7 +743,7 @@ class UserImporter(ExcelImporter):
         else:
             msg = format_html(
                 ngettext(
-                    "The import run will create one user:",
+                    "The import run will create 1 user:",
                     "The import run will create {users} users:",
                     len(filtered_users),
                 ).format(users=len(filtered_users))
@@ -826,7 +826,7 @@ class PersonImporter:
                 evaluation.participants.add(*users_to_add)
                 msg = format_html(
                     ngettext(
-                        "One participant added to the evaluation {name}:",
+                        "1 participant added to the evaluation {name}:",
                         "{users} participants added to the evaluation {name}:",
                         len(users_to_add),
                     ).format(name=evaluation.full_name, users=len(users_to_add))
@@ -834,7 +834,7 @@ class PersonImporter:
             else:
                 msg = format_html(
                     ngettext(
-                        "One participant would be added to the evaluation {name}:",
+                        "1 participant would be added to the evaluation {name}:",
                         "{users} participants would be added to the evaluation {name}:",
                         len(users_to_add),
                     ).format(name=evaluation.full_name, users=len(users_to_add))
@@ -873,7 +873,7 @@ class PersonImporter:
                     Contribution.objects.create(evaluation=evaluation, contributor=user, order=order)
                 msg = format_html(
                     ngettext(
-                        "One contributor added to the evaluation {name}:",
+                        "1 contributor added to the evaluation {name}:",
                         "{user} contributors added to the evaluation {name}:",
                         len(users_to_add),
                     ).format(user=len(users_to_add), name=evaluation.full_name)
@@ -881,7 +881,7 @@ class PersonImporter:
             else:
                 msg = format_html(
                     ngettext(
-                        "One contributor would be added to the evaluation {name}:",
+                        "1 contributor would be added to the evaluation {name}:",
                         "{user} contributors would be added to the evaluation {name}:",
                         len(users_to_add),
                     ).format(user=len(users_to_add), name=evaluation.full_name)
