@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: EvaP\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-11-08 21:26+0100\n"
-"PO-Revision-Date: 2021-11-08 21:38+0100\n"
+"PO-Revision-Date: 2021-11-15 17:59+0100\n"
 "Last-Translator: Johannes Wolf <johannes-wolf@posteo.de>\n"
 "Language-Team: Johannes Wolf (janno42)\n"
 "Language: de\n"
@@ -3952,7 +3952,7 @@ msgstr "Fragetext (Englisch)"
 
 #: evap/staff/templates/staff_questionnaire_form.html:33
 msgid "Question type"
-msgstr "Fragen-Typ"
+msgstr "Fragetyp"
 
 #: evap/staff/templates/staff_questionnaire_form.html:73
 msgid "Save questionnaire"
