@@ -70,6 +70,7 @@
 
         <script type="module" src="{% static 'js/csrf-utils.js' %}"></script>
 
+        <script type="module" src="{% static 'js/base_template.js' %}"></script>
         <script type="text/javascript">
             activateTooltips = function(selector = "") {
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll(selector + ' [data-bs-toggle="tooltip"]'))
@@ -139,14 +140,6 @@
             document.addEventListener('change', function(e){
                $(e.target).removeClass("invalid")
             }, true);
-
-            // Fix autofocus on bootstrap modals -> Focus the first element with `autofocus` attribute
-            $(document).on('shown.bs.modal', function (e) {
-                var autofocusTarget = $('[autofocus]', e.target);
-                if(autofocusTarget.length > 0) {
-                    autofocusTarget[0].focus();
-                }
-            });
 
             // activate clickable hover tables
             $(".table-seamless-links [data-url]").each(function() {
