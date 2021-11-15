@@ -186,10 +186,10 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), old_user_count - 1)
 
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
-        self.assertIn("The import run will create one user:", success_messages[3])
+        self.assertIn("The import run will create 1 user:", success_messages[3])
         self.assertIn("lucilia.manilium@institution.example.com", success_messages[3])
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("Successfully created one user:", success_messages[2])
+        self.assertIn("Successfully created 1 user:", success_messages[2])
         self.assertIn("lucilia.manilium@institution.example.com", success_messages[2])
 
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
@@ -247,7 +247,7 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings_test, errors = EnrollmentImporter.process(
             excel_content, self.semester, None, None, test_run=True
         )
-        self.assertIn("The import run will create one course/evaluation and 3 users:", "".join(success_messages))
+        self.assertIn("The import run will create 1 course/evaluation and 3 users:", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(
             warnings_test[ImporterWarning.DEGREE],
@@ -262,7 +262,7 @@ class TestEnrollmentImporter(TestCase):
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created one course/evaluation, 2 students and one responsible", "".join(success_messages)
+            "Successfully created 1 course/evaluation, 2 students and 1 responsible", "".join(success_messages)
         )
         self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
@@ -402,7 +402,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn("The import run will create one course/evaluation and 3 users:", "".join(success_messages))
+        self.assertIn("The import run will create 1 course/evaluation and 3 users:", "".join(success_messages))
 
     def test_enrollment_success_messages(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
@@ -417,22 +417,22 @@ class TestEnrollmentImporter(TestCase):
 
         excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn("The import run will create one course/evaluation and one user:", success_messages[3])
+        self.assertIn("The import run will create 1 course/evaluation and 1 user:", success_messages[3])
         success_messages, __, __ = EnrollmentImporter.process(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Successfully created one course/evaluation, no students", success_messages[2])
+        self.assertIn("Successfully created 1 course/evaluation, no students", success_messages[2])
 
         old_evaluation_count = Evaluation.objects.all().count()
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
         self.assertEqual(Evaluation.objects.all().count(), old_evaluation_count - 1)
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn("The import run will create one course/evaluation and no users.", success_messages)
+        self.assertIn("The import run will create 1 course/evaluation and no users.", success_messages)
         success_messages, __, __ = EnrollmentImporter.process(
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
-        self.assertIn("Successfully created one course/evaluation, no students and no responsibles", success_messages)
+        self.assertIn("Successfully created 1 course/evaluation, no students and no responsibles", success_messages)
 
 
 class TestPersonImporter(TestCase):
@@ -479,7 +479,7 @@ class TestPersonImporter(TestCase):
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
-        self.assertIn("One contributor would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
@@ -487,7 +487,7 @@ class TestPersonImporter(TestCase):
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
-        self.assertIn("One contributor added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
@@ -516,13 +516,13 @@ class TestPersonImporter(TestCase):
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
-        self.assertIn("One participant would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant would be added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
-        self.assertIn("One participant added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant added to the evaluation", "".join(success_messages))
         self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
@@ -540,11 +540,11 @@ class TestPersonImporter(TestCase):
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation2, test_run=True, source_evaluation=self.evaluation3
         )
-        self.assertIn("One participant would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant would be added to the evaluation", "".join(success_messages))
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation2, test_run=False, source_evaluation=self.evaluation3
         )
-        self.assertIn("One participant added to the evaluation", "".join(success_messages))
+        self.assertIn("1 participant added to the evaluation", "".join(success_messages))
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation2, test_run=True, source_evaluation=self.evaluation3
         )
@@ -557,11 +557,11 @@ class TestPersonImporter(TestCase):
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation2, test_run=True, source_evaluation=self.evaluation3
         )
-        self.assertIn("One contributor would be added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation2, test_run=False, source_evaluation=self.evaluation3
         )
-        self.assertIn("One contributor added to the evaluation", "".join(success_messages))
+        self.assertIn("1 contributor added to the evaluation", "".join(success_messages))
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
