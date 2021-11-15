@@ -71,7 +71,7 @@ class TestUserImporter(TestCase):
 
         # Checks that the success_message after we import the same two users again, says that no users will be imported
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("No users were created", success_messages)
+        self.assertIn("No users were created.", success_messages)
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
 
     def test_duplicate_warning(self):
@@ -196,7 +196,7 @@ class TestUserImporter(TestCase):
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertIn("The import run will create no users", success_messages[3])
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        self.assertIn("No users were created", success_messages[2])
+        self.assertIn("No users were created.", success_messages[2])
 
 
 class TestEnrollmentImporter(TestCase):

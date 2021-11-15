@@ -591,8 +591,8 @@ class EnrollmentImporter(ExcelImporter):
             len(self.evaluations),
         ).format(responsible_phrase=responsible_phrase, student_phrase=student_phrase, evaluation=len(self.evaluations))
         if student_word != "no" or responsible_word != "no":
-            message += ":"
-        message += create_user_list_html_string_for_message(students_created)
+            message += ": "
+            message += create_user_list_html_string_for_message(students_created)
         self.success_messages.append(message)
 
     def create_test_success_messages(self):
@@ -711,7 +711,7 @@ class UserImporter(ExcelImporter):
                     )
                     raise
         if len(created_users) == 0:
-            msg = format_html(_("No users were created"))
+            msg = format_html(_("No users were created."))
         else:
             msg = format_html(
                 ngettext(
@@ -739,7 +739,7 @@ class UserImporter(ExcelImporter):
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
         if len(filtered_users) == 0:
-            msg = format_html(_("The import run will create no users"))
+            msg = format_html(_("The import run will create no users."))
         else:
             msg = format_html(
                 ngettext(
@@ -863,9 +863,9 @@ class PersonImporter:
 
         if len(users_to_add) == 0:
             if not test_run:
-                msg = format_html(_("No contributors added to the evaluation {}"), evaluation.full_name)
+                msg = format_html(_("No contributors added to the evaluation {}."), evaluation.full_name)
             else:
-                msg = format_html(_("No contributors would be added to the evaluation {}"), evaluation.full_name)
+                msg = format_html(_("No contributors would be added to the evaluation {}."), evaluation.full_name)
         else:
             if not test_run:
                 for user in users_to_add:
