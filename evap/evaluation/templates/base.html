@@ -140,6 +140,11 @@
                $(e.target).removeClass("invalid")
             }, true);
 
+            // Fix autofocus on bootstrap modals
+            $(document).on('shown.bs.modal', function (e) {
+                $(e.target, '[autofocus]').focus()
+            });
+
             // activate clickable hover tables
             $(".table-seamless-links [data-url]").each(function() {
                 const row = $(this);
