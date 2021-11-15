@@ -157,7 +157,7 @@ def get_evaluations_with_prefetched_data(semester):
 
 
 def get_evaluations_with_flagged_textanswers_only(semester):
-    evaluations = semester.evaluations.filter(contributions__textanswer_set__is_flagged=True).prefetch_related(
+    evaluations = semester.evaluations.filter(contributions__textanswer_set__is_flagged=True).distinct().prefetch_related(
         Prefetch(
             "contributions",
             queryset=Contribution.objects.filter(textanswer_set__is_flagged=True),

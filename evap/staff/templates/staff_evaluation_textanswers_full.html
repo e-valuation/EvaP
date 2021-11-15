@@ -3,7 +3,7 @@
 {% block content %}
     {{ block.super }}
 
-    {% include 'staff_evaluation_textanswers_list.html' %}
+    {% include 'staff_evaluation_textanswers_list.html' with skip_empty=False %}
 {% endblock %}
 
 {% block additional_javascript %}

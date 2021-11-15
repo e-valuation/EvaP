@@ -13,17 +13,26 @@
     </div>
 </div>
 
-<div class="card card-outline-primary">
-    <div class="card-header">
-        {% trans 'Text answers about the contributors' %}
-    </div>
-    <div class="card-body">
-        {% if contributor_sections %}
+{% if contributor_sections %}
+    <div class="card card-outline-primary"></div>
+        <div class="card-header">
+            {% trans 'Text answers about the contributors' %}
+        </div>
+        <div class="card-body">
             {% with contributor_sections as sections %}
                 {% include 'staff_evaluation_textanswers_section.html' %}
             {% endwith %}
-        {% else %}
-            <span class="font-italic">{% trans 'No text answers' %}</span>
-        {% endif %}
+        </div>
     </div>
-</div>
+{% else %}
+    {% if not skip_empty %}
+        <div class="card card-outline-primary">
+            <div class="card-header">
+                {% trans 'Text answers about the contributors' %}
+            </div>
+            <div class="card-body">
+                <span class="font-italic">{% trans 'No text answers' %}</span>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

@@ -2,19 +2,25 @@
 
 {% block breadcrumb %}
     {{ block.super }}
-    <li class="breadcrumb-item">{% trans 'Flagged textanswers' %}</li>
+    <li class="breadcrumb-item">{% trans 'Flagged Textanswers' %}</li>
 {% endblock %}
 
 {% block content %}
     {{ block.super }}
 
+    <h3>
+        {% trans 'Flagged Textanswers' %} ({{ semester.name }})
+    </h3>
+
     {% for answer_section in answer_sections %}
     <tr id="evaluation-row-{{ answer_section.evaluation.id }}"><td>
-        <div class="card-header">
-            {{ answer_section.evaluation }}
-        </div>
-        <div class="card-body">
-            {% include 'staff_evaluation_textanswers_list.html' with semester=semester evaluation=answer_section.evaluation evaluation_sections=answer_section.evaluation_sections contributor_section=answer_section.contributor_sections info_only=False %}
+        <div class="card card-outline-primary mb-4">
+            <div class="card-header">
+                {{ answer_section.evaluation }}
+            </div>
+            <div class="card-body">
+                {% include 'staff_evaluation_textanswers_list.html' with semester=semester evaluation=answer_section.evaluation evaluation_sections=answer_section.evaluation_sections contributor_section=answer_section.contributor_sections info_only=False skip_empty=True %}
+            </div>
         </div>
     </td></tr>
     {% empty %}
