@@ -42,9 +42,16 @@ body {
             &.select2-container--focus {
                 border: 1px solid $dark-gray;
             }
-            & .select2-selection__rendered {
+            .select2-selection__rendered {
                 color: inherit;
             }
+            .select2-selection__choice {
+                background-color: $darkest-gray;
+                .select2-selection__choice__remove:hover {
+                    color: $light-gray;
+                }
+            }
+
         }
         &.select2-container--disabled .select2-selection {
             background-color: $dark-gray;
