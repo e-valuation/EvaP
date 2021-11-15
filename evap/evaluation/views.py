@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
+from django.urls import reverse
 
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
@@ -76,10 +77,10 @@ def index(request):
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
 
-            # check for redirect variable
+            # redirect to self needed to call middleware again to set corrtect permission
             redirect_to = request.GET.get("next", None)
             if redirect_to is not None:
-                return redirect(redirect_to)
+                return redirect(reverse("evaluation:index") + "?next=" + redirect_to)
 
             return redirect("evaluation:index")
 
