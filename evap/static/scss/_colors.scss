@@ -30,13 +30,20 @@ $darker-gray:       #495057;
 $darkest-gray:      #212529;
 $black:             #000000;
 
+@function get-light() {
+  @if ($dark-mode) {
+    @return $darker-gray;
+  }
+  @return $lighter-gray;
+}
+
 $primary: $evap-dark-blue;
 $secondary: $dark-gray;
 $success: $evap-green;
 $info: $evap-light-blue;
 $warning: $evap-yellow;
 $danger: $evap-red;
-$light: $lighter-gray;
+$light: get-light();
 $dark: $darker-gray;
 
 $vote-colors: (
@@ -48,8 +55,23 @@ $vote-colors: (
     "gray": $medium-gray
 );
 
-$code-color: $darker-gray;
-$dark: $dark-gray;
+@function get-code-color() {
+  @if ($dark-mode) {
+    @return $light-gray;
+  }
+  @return $darker-gray;
+}
+
+$code-color: get-code-color();
+
+@function get-dark() {
+  @if $dark-mode {
+    @return $darker-gray;
+  }
+  @return $dark-gray;
+}
+
+$dark: get-dark();
 
 @function get-body-bg() {
   @if $dark-mode {
@@ -110,3 +132,21 @@ $input-border-color: get-input-border-color();
   @return #eff1f3;
 }
 $table-striped-bg: get-table-striped-bg();
+
+@function get-modal-content-bg() {
+  @if $dark-mode {
+    @return $darkest-gray;
+  }
+  @return $white;
+}
+
+$modal-content-bg: get-modal-content-bg();
+
+@function get-input-disabled-color() {
+  @if $dark-mode {
+    @return $dark-gray;
+  }
+  @return #e9ecef;
+}
+
+$input-disabled-bg: get-input-disabled-color();

@@ -23,7 +23,11 @@ $table-colors: (
 
 .table-total-stats {
     font-weight: bold;
-    background-color: $lighter-gray;
+    @if ($dark-mode) {
+        background-color: $darker-gray;
+    } @else {
+        background-color: $lighter-gray;
+    }
 }
 
 .table-vertically-aligned td {

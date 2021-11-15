@@ -1,5 +1,9 @@
 .collapse-toggle {
-    color: $darker-gray;
+    @if ($dark-mode) {
+        color: $light-gray;
+    } @else {
+        color: $darker-gray;
+    }
     border: none;
     font-weight: bold;
 

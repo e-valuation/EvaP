@@ -21,7 +21,7 @@
                 <div class="col-3">
                     <p>{% trans 'The following variables are available for this email template:' %}</p>
                     {% for variable in available_variables %}
-                        <button type="button" class="btn btn-sm btn-link text-dark pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
+                        <button type="button" class="btn btn-sm btn-link text-code pe-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy to clipboard' %}" onClick="copyToClipboard('{{ variable }}')">
                             <span class="far fa-clipboard"></span>
                         </button>
                         <code>{{ variable }}</code>

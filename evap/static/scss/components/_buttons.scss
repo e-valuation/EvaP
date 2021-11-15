@@ -15,7 +15,11 @@
 .btn-light.active,
 .btn-light:active {
     border-color: $dark-gray;
-    background-color: $light-gray;
+    @if ($dark-mode) {
+        background-color: $medium-gray;
+    } @else {
+        background-color: $light-gray;
+    }
     box-shadow: inset 0 0 5px $dark-gray;
 }
 .btn-light:hover {
@@ -54,7 +58,11 @@ a:not([href]):not(.disabled) {
 
 .btn-switch {
     display: inline-flex;
-    background-color: tint-color($light-gray, 4%);
+    @if ($dark-mode) {
+        background-color: tint-color($dark-gray, 4%);
+    } @else {
+        background-color: tint-color($light-gray, 4%);
+    }
     border-radius: 0.2rem;
 
     .btn-toolbar {
@@ -62,7 +70,11 @@ a:not([href]):not(.disabled) {
     }
 
     .btn-group {
-        background: tint-color($light-gray, 4%);
+        @if ($dark-mode) {
+            background-color: tint-color($dark-gray, 4%);
+        } @else {
+            background-color: tint-color($light-gray, 4%);
+        }
 
         &::before {
             width: 0.5rem;
@@ -71,18 +83,31 @@ a:not([href]):not(.disabled) {
     }
 }
 .btn-switch-light {
-    background-color: $lighter-gray;
+    @if ($dark-mode) {
+        background-color: $dark-gray;
 
-    .btn-group {
-        background: $lighter-gray;
+        .btn-group {
+            background: $dark-gray;
+        }
+    } @else {
+        background-color: $lighter-gray;
+
+        .btn-group {
+            background: $lighter-gray;
+        }
     }
+
 }
 .btn-switch-label {
     display: inline-block;
     font-weight: normal;
     white-space: nowrap;
     vertical-align: middle;
-    color: $darker-gray;
+    @if ($dark-mode) {
+        color: $lighter-gray;
+    } @else {
+        color: $darker-gray;
+    }
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     font-size: 0.875rem;
 }

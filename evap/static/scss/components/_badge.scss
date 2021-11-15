@@ -55,8 +55,13 @@
 }
 
 .badge-disabled {
-    background-color: $light-gray;
-    color: tint-color($medium-gray, 10%);
+    @if ($dark-mode) {
+        background-color: $dark-gray;
+        color: tint-color($light-gray, 10%);
+    } @else {
+        background-color: $light-gray;
+        color: tint-color($medium-gray, 10%);
+    }
     text-shadow: none;
 }
 

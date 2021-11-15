@@ -46,7 +46,11 @@
 }
 
 .progress-label {
-    color: $black;
+    @if ($dark-mode) {
+        color: $white;
+    } @else {
+        color: $black;
+    }
     text-align: right;
     min-width: 31px;
 }

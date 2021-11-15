@@ -10,39 +10,44 @@
 html {
     position: relative;
     min-height: 100%;
-    @if $dark-mode {
-        filter: invert(100%);
-    }
 }
 
 body {
     overflow-y: scroll !important;
     margin-bottom: 60px; // keep space for footer
-    background-image: url("../images/triangles_gray.svg");
     @if $dark-mode {
-        filter: invert(100%);
+        background-image: url("../images/triangles_dark_gray.svg")
+    } @else {
+        background-image: url("../images/triangles_gray.svg");
     }
     background-size: cover;
     background-attachment: fixed;
 }
 
 @if ($dark-mode) {
-    .select2-container--default .select2-results__option {
-        background-color: $darkest-gray;
-        &[aria-selected=true] {
-            background-color: $darker-gray;
-            &.select2-results__option--highlighted {
-                background-color: #5897fb;
+    .select2-container--default {
+        .select2-results__option {
+            background-color: $darkest-gray;
+            &[aria-selected=true] {
+                background-color: $darker-gray;
+                &.select2-results__option--highlighted {
+                    background-color: #5897fb;
+                }
             }
         }
-    }
-
-    .select2-container--default .select2-selection {
-        color: $body-color;
-        background-color: $dark-gray;
-        border: 1px solid $darker-gray;
-        &.select2-container--focus {
+        .select2-selection {
+            color: $body-color;
+            background-color: $darker-gray;
             border: 1px solid $dark-gray;
+            &.select2-container--focus {
+                border: 1px solid $dark-gray;
+            }
+            & .select2-selection__rendered {
+                color: inherit;
+            }
+        }
+        &.select2-container--disabled .select2-selection {
+            background-color: $dark-gray;
         }
     }
 }
@@ -52,6 +57,10 @@ body {
         color: $body-color;
         background-color: $body-bg;
     }
+}
+
+.text-code {
+    color: $code-color;
 }
 
 .footer {
@@ -95,7 +104,11 @@ body {
 }
 
 .textanswer-link {
-    color: $black;
+    @if ($dark-mode) {
+        color: $white;
+    } @else {
+        color: $black;
+    }
 }
 .textanswer-original {
     color: $medium-gray;
