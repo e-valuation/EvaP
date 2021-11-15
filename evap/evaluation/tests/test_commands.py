@@ -352,11 +352,12 @@ class TestFormatCommand(TestCase):
     @patch("subprocess.run")
     def test_formatters_called(self, mock_subprocess_run):
         management.call_command("format")
-        self.assertEqual(len(mock_subprocess_run.mock_calls), 2)
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
                 call(["black", "evap"], check=False),
                 call(["isort", "."], check=False),
+                call(["npx", "prettier", "--write", "evap/static/ts/src"], check=False),
             ]
         )
 
