@@ -1,3 +1,4 @@
+import pdb
 import csv
 from dataclasses import dataclass
 from datetime import datetime, date
@@ -7,6 +8,7 @@ from xlrd import open_workbook
 from xlutils.copy import copy as copy_workbook
 
 from django.conf import settings
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.dispatch import receiver
@@ -156,7 +158,7 @@ def get_evaluations_with_prefetched_data(semester):
 
 
 def get_evaluations_with_flagged_textanswers_only(semester):
-    evaluations = semester.evaluations.filter(contribution__textanswer_set__is_flagged=True).prefetch_related(
+    evaluations = semester.evaluations.filter(contributions__textanswer_set__is_flagged=True).prefetch_related(
         Prefetch(
             "contributions",
             queryset=Contribution.objects.filter(textanswer_set__is_flagged=True),
@@ -247,10 +249,20 @@ def semester_textanswers_flagged_view(request, semester_id):
     evaluations = get_evaluations_with_flagged_textanswers_only(semester)
     evaluations = sorted(evaluations, key=lambda cr: cr.full_name)
 
-    template_data = dict(
-        semester=semester,
-        evaluations=evaluations,
-    )
+    answer_sections = []
+    for evaluation in evaluations:
+        evaluation_sections, contributor_sections = get_evaluation_and_contributor_textanswer_sections(
+            evaluation, TextAnswerFilter.FLAGGED
+        )
+        answer_sections.append(
+            dict(
+                evaluation=evaluation,
+                evaluation_sections=evaluation_sections,
+                contributor_sections=contributor_sections,
+            )
+        )
+
+    template_data = dict(semester=semester, answer_sections=answer_sections)
     return render(request, "staff_semester_textanswers_flagged.html", template_data)
 
 
