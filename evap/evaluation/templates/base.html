@@ -140,9 +140,12 @@
                $(e.target).removeClass("invalid")
             }, true);
 
-            // Fix autofocus on bootstrap modals
+            // Fix autofocus on bootstrap modals -> Focus the first element with `autofocus` attribute
             $(document).on('shown.bs.modal', function (e) {
-                $(e.target, '[autofocus]').focus()
+                var autofocusTarget = $('[autofocus]', e.target);
+                if(autofocusTarget.length > 0) {
+                    autofocusTarget[0].focus();
+                }
             });
 
             // activate clickable hover tables
