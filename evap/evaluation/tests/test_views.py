@@ -41,7 +41,7 @@ class TestIndexView(WebTest):
         response = password_form.submit()
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
         self.assertRedirects(response.follow(), "/results/")
-    
+
     def test_password_respects_redirect_parameter(self):
         """Regression test for #1658: redirect after login"""
         internal_email = (

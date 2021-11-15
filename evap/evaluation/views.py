@@ -7,11 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language
-from django.urls import reverse
 
 from evap.evaluation.forms import DelegatesForm, LoginEmailForm, NewKeyForm
 from evap.evaluation.models import EmailTemplate, FaqSection, Semester
