@@ -77,7 +77,7 @@ def index(request):
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
 
-            # redirect to self needed to call middleware again to set corrtect permission
+            # redirect to self needed to call middleware again to set correct permission
             redirect_to = request.GET.get("next", None)
             if redirect_to:
                 return redirect(reverse("evaluation:index") + "?next=" + redirect_to)
