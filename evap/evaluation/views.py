@@ -77,7 +77,8 @@ def index(request):
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
 
-            # redirect to self needed to call middleware again to set correct permission
+            # redirect to self needed to call middleware again then midware sets correct permission for user
+            # if that not happens the user will not be in staff mode and not will not have the expected permissions
             redirect_to = request.GET.get("next", None)
             if redirect_to:
                 return redirect(reverse("evaluation:index") + "?next=" + redirect_to)
