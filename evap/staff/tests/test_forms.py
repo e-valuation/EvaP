@@ -561,7 +561,11 @@ class ContributionFormsetTests(TestCase):
         """
         When answers for a contribution already exist, it should not be possible to remove that contribution.
         """
-        self.assertEqual(set(Answer.__subclasses__()), {RatingAnswerCounter, TextAnswer}, "This requires an update if a new answer type is added")
+        self.assertEqual(
+            set(Answer.__subclasses__()),
+            {RatingAnswerCounter, TextAnswer},
+            "This requires an update if a new answer type is added",
+        )
         evaluation = baker.make(Evaluation)
         user1 = baker.make(UserProfile)
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -573,7 +577,7 @@ class ContributionFormsetTests(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             questionnaires=[questionnaire],
         )
-        
+
         contribution_formset = inlineformset_factory(
             Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
         )
