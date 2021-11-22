@@ -6,6 +6,7 @@ from model_bakery import baker
 
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     Degree,
@@ -13,10 +14,9 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
-    Answer,
     RatingAnswerCounter,
-    TextAnswer,
     Semester,
+    TextAnswer,
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
