@@ -33,6 +33,9 @@ class EvaluationForm(forms.ModelForm):
         field_classes = {
             "participants": UserModelMultipleChoiceField,
         }
+        widgets = {
+            "participants": forms.SelectMultiple(attrs={"data-selection-css-class": "participants_multi_select"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,8 +45,8 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires()
-            .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
-            .distinct()
+                .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
+                .distinct()
         )
 
         self.fields["vote_start_datetime"].localize = True
@@ -78,9 +81,6 @@ class EvaluationForm(forms.ModelForm):
             raise forms.ValidationError(_("The last day of evaluation must be in the future."))
 
         return vote_end_date
-
-    def clean_participants(self):
-        return self.cleaned_data.get("participants")
 
     def clean_general_questionnaires(self):
         # Ensure all locked questionnaires still have the same status (included or not)
