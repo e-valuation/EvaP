@@ -132,6 +132,23 @@ class GradeUploadTest(WebTest):
         evaluation.publish()
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
+    
+    def test_grades_headlines(self):
+        # check midterm headline
+        self.assertEqual(self.course.midterm_grade_documents.count(), 0)
+        semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
+        baker.make(Evaluation, course=baker.make(Course, pk=1, semester=semester), state=Evaluation.State.PREPARED)
+        response = self.app.get("/grades/semester/1/course/1/upload", user=self.grade_publisher)
+        self.assertContains(response, "Upload midterm grades")
+        self.assertNotContains(response, "Upload final grades")
+
+        # check final headline
+        self.assertEqual(self.course.final_grade_documents.count(), 0)
+        semester = baker.make(Semester, pk=2, grade_documents_are_deleted=False)
+        baker.make(Evaluation, course=baker.make(Course, pk=2, semester=semester), state=Evaluation.State.PREPARED)
+        response = self.app.get("/grades/semester/1/course/1/upload?final=true", user=self.grade_publisher)
+        self.assertContains(response, "Upload final grades")
+        self.assertNotContains(response, "Upload midterm grades")
 
     def test_toggle_no_grades(self):
         evaluation = self.evaluation
