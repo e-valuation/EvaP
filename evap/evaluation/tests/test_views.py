@@ -44,7 +44,6 @@ class TestIndexView(WebTest):
 
     def test_login_view_respects_redirect_parameter(self):
         """Regression test for #1658: redirect after login"""
-        # external users don't necessarily have a proper redirect page
         internal_email = "manager@institution.example.com"
         baker.make(
             UserProfile,
