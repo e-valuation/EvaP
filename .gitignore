@@ -42,6 +42,7 @@ htmlcov
 
 # pip puts editable packages here
 src
+!evap/static/ts/.prettierrc.json
 !evap/static/ts/src
 
 # node modules
