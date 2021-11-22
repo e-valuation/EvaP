@@ -77,19 +77,19 @@
         "name semester responsible participants result"
         / auto    6rem       12rem         7rem  11rem;
 
-    @include media-breakpoint-down(md) {
+    @include media-breakpoint-down(lg) {
         grid:
             "name semester  responsible responsible"
             "name semester participants      result"
             / auto    3rem         7rem       10rem;
     }
 
-    @include media-breakpoint-down(sm) {
+    @include media-breakpoint-down(md) {
         grid:
             "        name        name    semester"
             " responsible responsible responsible"
             "participants      result      result"
-            /         1fr         1fr        3rem;
+            /         1fr         1fr        6rem;
     }
 
     &:not(.grid-header) [data-col=responsible] {
