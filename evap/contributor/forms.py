@@ -45,8 +45,8 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["general_questionnaires"].queryset = (
             Questionnaire.objects.general_questionnaires()
-                .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
-                .distinct()
+            .filter(Q(visibility=Questionnaire.Visibility.EDITORS) | Q(contributions__evaluation=self.instance))
+            .distinct()
         )
 
         self.fields["vote_start_datetime"].localize = True
