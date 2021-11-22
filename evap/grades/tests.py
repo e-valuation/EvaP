@@ -132,7 +132,7 @@ class GradeUploadTest(WebTest):
         evaluation.publish()
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
-    
+
     def test_grades_headlines(self):
         # check midterm headline
         self.assertEqual(self.course.midterm_grade_documents.count(), 0)
