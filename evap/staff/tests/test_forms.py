@@ -582,13 +582,13 @@ class ContributionFormsetTests(TestCase):
             Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
         )
         formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
-        self.assertTrue(formset.forms[0].instance.can_be_deleted)
-        self.assertTrue(formset.forms[1].instance.can_be_deleted)
+        self.assertTrue(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
 
         baker.make(RatingAnswerCounter, contribution=contribution1)
 
-        self.assertFalse(formset.forms[0].instance.can_be_deleted)
-        self.assertTrue(formset.forms[1].instance.can_be_deleted)
+        self.assertFalse(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
 
 
 class ContributionFormset775RegressionTests(TestCase):

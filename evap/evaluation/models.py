@@ -1045,16 +1045,6 @@ class Contribution(LoggedModel):
         return self.contributor_id is None
 
     @property
-    def can_be_deleted(self):
-        if self.pk is None:
-            return True  # not stored in the DB. Required so temporary instances in the formset can be deleted.
-
-        if not self.ratinganswercounter_set.exists() and not self.textanswer_set.exists():
-            return True
-
-        return False
-
-    @property
     def object_to_attach_logentries_to(self):
         return Evaluation, self.evaluation_id
 
