@@ -50,7 +50,6 @@ class TestIndexView(WebTest):
             UserProfile,
             email=internal_email,
             password=make_password("evap"),
-            groups=[Group.objects.get(name="Manager")],
         )
 
         response = self.app.get(self.url + "?next=/test42/")
