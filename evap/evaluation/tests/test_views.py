@@ -42,6 +42,22 @@ class TestIndexView(WebTest):
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
         self.assertRedirects(response.follow(), "/results/")
 
+    def test_login_view_respects_redirect_parameter(self):
+        """Regression test for #1658: redirect after login"""
+        internal_email = "manager@institution.example.com"
+        baker.make(
+            UserProfile,
+            email=internal_email,
+            password=make_password("evap"),
+        )
+
+        response = self.app.get(self.url + "?next=/test42/")
+        password_form = response.forms["email-login-form"]
+        password_form["email"] = internal_email
+        password_form["password"] = "evap"
+        response = password_form.submit()
+        self.assertRedirects(response.follow(), "/test42/", fetch_redirect_response=False)
+
     def test_send_new_login_key(self):
         """Tests whether requesting a new login key is only possible for existing users,
         shows the expected success message and sends only one email to the requesting
