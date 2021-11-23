@@ -285,9 +285,9 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <table>
+                        <table class="table table-striped table-narrow table-vertically-aligned">
                             <tbody>
-                                <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i><td></tr>
+                                <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i></td></tr>
                             </tbody>
                         </table>
                     {% endif %}
@@ -422,7 +422,7 @@
                 {% else %}
                     <table class="table table-striped table-narrow table-vertically-aligned">
                         <tbody>
-                            <tr><td><i>{% trans 'There are no courses in this semester.' %}</i><td></tr>
+                            <tr><td><i>{% trans 'There are no courses in this semester.' %}</i></td></tr>
                         </tbody>
                     </table>
                 {% endif %}
@@ -611,7 +611,7 @@
         if (evaluationTable) {
             new EvaluationGrid({
                 storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-                table: document.querySelector("#evaluation-table"),
+                table: evaluationTable,
                 searchInput: document.querySelector("input[name=search-evaluation]"),
                 filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
                 resetSearch: document.querySelector("[data-reset=search-evaluation]"),
@@ -621,7 +621,7 @@
         if (courseTable) {
             new TableGrid({
                 storageKey: "course-semester-{{ semester.id }}-data-grid",
-                table: document.querySelector("#course-table"),
+                table: courseTable,
                 searchInput: document.querySelector("input[name=search-course]"),
                 resetSearch: document.querySelector("[data-reset=search-course]"),
             }).init();
