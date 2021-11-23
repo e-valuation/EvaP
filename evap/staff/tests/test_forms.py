@@ -572,7 +572,7 @@ class ContributionFormsetTests(TestCase):
             evaluation=evaluation,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            _fill_optional=['contributor']
+            _fill_optional=["contributor"],
         )
 
         contribution_formset = inlineformset_factory(
