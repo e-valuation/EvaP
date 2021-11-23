@@ -567,15 +567,12 @@ class ContributionFormsetTests(TestCase):
             "This requires an update if a new answer type is added",
         )
         evaluation = baker.make(Evaluation)
-        user1 = baker.make(UserProfile)
-        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
-        contribution1 = baker.make(
+        contribution = baker.make(
             Contribution,
             evaluation=evaluation,
-            contributor=user1,
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            questionnaires=[questionnaire],
+            _fill_optional=['contributor']
         )
 
         contribution_formset = inlineformset_factory(
@@ -585,7 +582,7 @@ class ContributionFormsetTests(TestCase):
         self.assertTrue(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
-        baker.make(RatingAnswerCounter, contribution=contribution1)
+        baker.make(RatingAnswerCounter, contribution=contribution)
 
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
