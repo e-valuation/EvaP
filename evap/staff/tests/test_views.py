@@ -1654,13 +1654,11 @@ class TestEvaluationCopyView(WebTestStaffMode):
 
 
 class TestCourseCopyView(WebTestStaffMode):
-    url = "/staff/semester/1/course/1/copy"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, pk=1)
-        cls.other_semester = baker.make(Semester, pk=2)
+        cls.semester = baker.make(Semester)
+        cls.other_semester = baker.make(Semester)
         degree = baker.make(Degree)
         cls.responsibles = [
             baker.make(UserProfile, last_name="Muller"),
@@ -1672,11 +1670,9 @@ class TestCourseCopyView(WebTestStaffMode):
             semester=cls.semester,
             degrees=[degree],
             responsibles=cls.responsibles,
-            pk=1,
         )
         cls.evaluation = baker.make(
             Evaluation,
-            pk=1,
             course=cls.course,
             name_de="Das Original",
             name_en="The Original",
@@ -1689,6 +1685,7 @@ class TestCourseCopyView(WebTestStaffMode):
             _quantity=3,
             _fill_optional=["contributor"],
         )
+        cls.url = f"/staff/semester/{cls.semester.id}/course/{cls.course.id}/copy"
 
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)

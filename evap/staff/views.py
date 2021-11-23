@@ -961,13 +961,15 @@ def course_copy(request, semester_id, course_id):
         copied_course = course_form.save()
         messages.success(request, _("Successfully copied course."))
 
-        inactive_users = copied_course.responsibles.filter(is_active=False)
+        inactive_users = UserProfile.objects.filter(
+            Q(contributions__evaluation__course__in=[copied_course], is_active=False)
+            | Q(courses_responsible_for__in=[copied_course], is_active=False)
+        ).distinct()
         if inactive_users:
             messages.warning(
                 request,
-                _("Accounts of some responsibles were reactivated: {accounts}.").format(
-                    accounts=", ".join(user.full_name for user in inactive_users)
-                ),
+                _("The accounts of the following contributors were reactivated:")
+                + " {accounts}".format(accounts=", ".join(user.full_name for user in inactive_users)),
             )
             inactive_users.update(is_active=True)
 
