@@ -6,6 +6,7 @@ from model_bakery import baker
 
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     Degree,
@@ -13,7 +14,9 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    RatingAnswerCounter,
     Semester,
+    TextAnswer,
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
@@ -553,6 +556,36 @@ class ContributionFormsetTests(TestCase):
         course = baker.make(Course, semester=baker.make(Semester))
         form = CourseForm(instance=course)
         self.assertIn(proxy_user, form.fields["responsibles"].queryset)
+
+    def test_prevent_contribution_deletion_with_answers(self):
+        """
+        When answers for a contribution already exist, it should not be possible to remove that contribution.
+        """
+        self.assertEqual(
+            set(Answer.__subclasses__()),
+            {RatingAnswerCounter, TextAnswer},
+            "This requires an update if a new answer type is added",
+        )
+        evaluation = baker.make(Evaluation)
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _fill_optional=["contributor"],
+        )
+
+        contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        )
+        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        self.assertTrue(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
+
+        baker.make(RatingAnswerCounter, contribution=contribution)
+
+        self.assertFalse(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
 
 
 class ContributionFormset775RegressionTests(TestCase):

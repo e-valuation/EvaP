@@ -517,6 +517,16 @@ class ContributionForm(forms.ModelForm):
         if not self.cleaned_data.get("does_not_contribute") and not self.cleaned_data.get("questionnaires"):
             self.add_error("does_not_contribute", _("Select either this option or at least one questionnaire!"))
 
+    @property
+    def show_delete_button(self):
+        if self.instance.pk is None:
+            return True  # not stored in the DB. Required so temporary instances in the formset can be deleted.
+
+        if not self.instance.ratinganswercounter_set.exists() and not self.instance.textanswer_set.exists():
+            return True
+
+        return False
+
 
 class ContributionCopyForm(ContributionForm):
     def __init__(self, data=None, instance=None, evaluation=None, **kwargs):

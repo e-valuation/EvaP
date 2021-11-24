@@ -66,9 +66,9 @@
                         {% include 'bootstrap_form_errors.html' with errors=form.label.errors %}
                     </td>
                     <td>
-                    {% if editable %}
-                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
-                    {% endif %}
+                        {% if editable and form.show_delete_button %}
+                            {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
