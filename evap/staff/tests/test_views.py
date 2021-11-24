@@ -1699,9 +1699,9 @@ class TestCourseCopyView(WebTestStaffMode):
         form["vote_end_date"] = datetime.date(2099, 12, 31)
 
         # check that the user activation is mentioned
-        assert not self.responsibles[1].is_active
+        self.assertFalse(self.responsibles[1].is_active)
         response = form.submit().follow()
-        assert self.responsibles[1].full_name in str(response)
+        self.assertIn(self.responsibles[1].full_name, response)
 
         self.assertEqual(Course.objects.count(), 2)
         copied_course = Course.objects.exclude(pk=self.course.pk).get()
@@ -1714,7 +1714,7 @@ class TestCourseCopyView(WebTestStaffMode):
             set(copied_evaluation.general_contribution.questionnaires.all()),
             set(self.evaluation.general_contribution.questionnaires.all()),
         )
-        assert not copied_course.responsibles.filter(is_active=False).exists()
+        self.assertFalse(copied_course.responsibles.filter(is_active=False).exists())
 
 
 class TestCourseEditView(WebTestStaffMode):
