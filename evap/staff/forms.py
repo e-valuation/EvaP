@@ -216,6 +216,21 @@ class CourseTypeMergeSelectionForm(forms.Form):
 
 
 class CourseFormMixin:
+    class Meta:
+        model = Course
+        fields = (
+            "name_de",
+            "name_en",
+            "type",
+            "degrees",
+            "responsibles",
+            "is_private",
+            "semester",
+        )
+        field_classes = {
+            "responsibles": UserModelMultipleChoiceField,
+        }
+
     def _set_responsibles_queryset(self, existing_course=None):
         queryset = UserProfile.objects.exclude(is_active=False)
         if existing_course:
@@ -238,21 +253,6 @@ class CourseFormMixin:
 class CourseForm(CourseFormMixin, forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
-    class Meta:
-        model = Course
-        fields = (
-            "name_de",
-            "name_en",
-            "type",
-            "degrees",
-            "responsibles",
-            "is_private",
-            "semester",
-        )
-        field_classes = {
-            "responsibles": UserModelMultipleChoiceField,
-        }
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._set_responsibles_queryset(self.instance if self.instance.pk else None)
@@ -264,9 +264,6 @@ class CourseCopyForm(CourseFormMixin, forms.ModelForm):
     semester = forms.ModelChoiceField(Semester.objects.all())
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
-
-    class Meta(CourseForm.Meta):
-        pass
 
     field_order = ["semester"]
 
