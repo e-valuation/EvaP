@@ -39,7 +39,7 @@ from evap.evaluation.tests.tools import (
 )
 from evap.results.tools import cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
-from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, EvaluationCopyForm
+from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
     WebTestStaffMode,
     WebTestStaffModeWith200Check,
@@ -1651,6 +1651,70 @@ class TestEvaluationCopyView(WebTestStaffMode):
         self.assertEqual(Evaluation.objects.count(), 2)
         copied_evaluation = Evaluation.objects.exclude(pk=self.evaluation.pk).get()
         self.assertEqual(copied_evaluation.contributions.count(), 4)
+
+
+class TestCourseCopyView(WebTestStaffMode):
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.semester = baker.make(Semester)
+        cls.other_semester = baker.make(Semester)
+        degree = baker.make(Degree)
+        cls.responsibles = [
+            baker.make(UserProfile, last_name="Muller"),
+            baker.make(UserProfile, is_active=False, last_name="Wolf"),
+        ]
+        cls.course = baker.make(
+            Course,
+            name_en="Some name",
+            semester=cls.semester,
+            degrees=[degree],
+            responsibles=cls.responsibles,
+        )
+        cls.evaluation = baker.make(
+            Evaluation,
+            course=cls.course,
+            name_de="Das Original",
+            name_en="The Original",
+        )
+        cls.general_questionnaires = baker.make(Questionnaire, _quantity=5)
+        cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
+        baker.make(
+            Contribution,
+            evaluation=cls.evaluation,
+            _quantity=3,
+            _fill_optional=["contributor"],
+        )
+        cls.url = f"/staff/semester/{cls.semester.id}/course/{cls.course.id}/copy"
+
+    def test_copy_forms_are_used(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        self.assertIsInstance(response.context["course_form"], CourseCopyForm)
+
+    def test_course_copy(self):
+        response = self.app.get(self.url, user=self.manager, status=200)
+        form = response.forms["course-form"]
+        form["semester"] = self.other_semester.pk
+        form["vote_start_datetime"] = datetime.datetime(2099, 1, 1, 0, 0)
+        form["vote_end_date"] = datetime.date(2099, 12, 31)
+
+        # check that the user activation is mentioned
+        self.assertFalse(self.responsibles[1].is_active)
+        response = form.submit().follow()
+        self.assertIn(self.responsibles[1].full_name, response)
+
+        self.assertEqual(Course.objects.count(), 2)
+        copied_course = Course.objects.exclude(pk=self.course.pk).get()
+        self.assertEqual(copied_course.evaluations.count(), 1)
+        self.assertEqual(set(copied_course.responsibles.all()), set(self.responsibles))
+
+        copied_evaluation = copied_course.evaluations.get()
+        self.assertEqual(copied_evaluation.weight, self.evaluation.weight)
+        self.assertEqual(
+            set(copied_evaluation.general_contribution.questionnaires.all()),
+            set(self.evaluation.general_contribution.questionnaires.all()),
+        )
+        self.assertFalse(copied_course.responsibles.filter(is_active=False).exists())
 
 
 class TestCourseEditView(WebTestStaffMode):

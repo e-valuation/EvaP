@@ -29,6 +29,7 @@ from evap.staff.forms import (
     ContributionCopyForm,
     ContributionForm,
     ContributionFormSet,
+    CourseCopyForm,
     CourseForm,
     EvaluationCopyForm,
     EvaluationEmailForm,
@@ -709,6 +710,22 @@ class ContributionFormset775RegressionTests(TestCase):
         )
         formset.save()
         self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
+
+
+class CourseCopyFormTests(TestCase):
+    @staticmethod
+    def test_all_evaluation_attributes_covered():
+        for field in Evaluation._meta.get_fields():
+            assert field.name in (
+                CourseCopyForm.EVALUATION_COPIED_FIELDS | CourseCopyForm.EVALUATION_EXCLUDED_FIELDS
+            ), "evaluation field {} is not considered by CourseCopyForm".format(field.name)
+
+    @staticmethod
+    def test_all_contribution_attributes_covered():
+        for field in Contribution._meta.get_fields():
+            assert field.name in (
+                CourseCopyForm.CONTRIBUTION_COPIED_FIELDS | CourseCopyForm.CONTRIBUTION_EXCLUDED_FIELDS
+            ), "contribution field {} is not considered by CourseCopyForm".format(field.name)
 
 
 class CourseFormTests(TestCase):

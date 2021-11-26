@@ -392,13 +392,18 @@
                                     {% if request.user.is_manager %}
                                         <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                             href="{% url 'staff:evaluation_create' semester.id course.id %}"
-                                            title="{% trans "Create evaluation for this course" %}">
+                                            title="{% trans 'Create evaluation for this course' %}">
                                             <span class="fas fa-clipboard-check"></span>
                                         </a>
                                         <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                             href="{% url 'staff:single_result_create' semester.id course.id %}"
-                                            title="{% trans "Create single result for this course" %}">
+                                            title="{% trans 'Create single result for this course' %}">
                                             <span class="fas fa-poll"></span>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark" data-toggle="tooltip"
+                                            href="{% url 'staff:course_copy' semester.id course.id %}"
+                                            title="{% trans 'Copy course' %}">
+                                            <span class="fas fa-copy"></span>
                                         </a>
                                     {% endif %}
                                     {% if course.can_be_deleted_by_manager %}

@@ -56,6 +56,7 @@ from evap.staff.forms import (
     ContributionCopyFormSet,
     ContributionForm,
     ContributionFormSet,
+    CourseCopyForm,
     CourseForm,
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
@@ -948,6 +949,45 @@ def course_create(request, semester_id):
         return redirect("staff:semester_view", semester_id)
 
     return render(request, "staff_course_form.html", dict(semester=semester, course_form=course_form, editable=True))
+
+
+@manager_required
+def course_copy(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    course_form = CourseCopyForm(request.POST or None, instance=course)
+
+    if course_form.is_valid():
+        copied_course = course_form.save()
+        messages.success(request, _("Successfully copied course."))
+
+        inactive_users = UserProfile.objects.filter(
+            Q(contributions__evaluation__course=copied_course, is_active=False)
+            | Q(courses_responsible_for=copied_course, is_active=False)
+        ).distinct()
+        if inactive_users:
+            messages.warning(
+                request,
+                _("The accounts of the following contributors were reactivated:")
+                + " {accounts}".format(accounts=", ".join(user.full_name for user in inactive_users)),
+            )
+            inactive_users.update(is_active=True)
+
+        return redirect("staff:semester_view", copied_course.semester_id)
+
+    evaluations = sorted(course.evaluations.exclude(is_single_result=True), key=lambda cr: cr.full_name)
+    return render(
+        request,
+        "staff_course_copyform.html",
+        dict(
+            course=course,
+            evaluations=evaluations,
+            semester=semester,
+            course_form=course_form,
+            editable=True,
+            disable_breadcrumb_course=True,
+        ),
+    )
 
 
 @manager_required
