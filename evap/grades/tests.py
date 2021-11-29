@@ -5,7 +5,8 @@ from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import Choices, Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.grades.models import GradeDocument
 
 
 class GradeUploadTest(WebTest):
@@ -137,8 +138,9 @@ class GradeUploadTest(WebTest):
         # check midterm headline
         self.assertEqual(self.course.midterm_grade_documents.count(), 0)
         evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
+        grade_document = baker.make(GradeDocument, course=evaluation.course)
         response = self.app.get(
-            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/upload",
+            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/edit/{grade_document.pk}",
             user=self.grade_publisher,
         )
         self.assertContains(response, "Upload midterm grades")
@@ -147,8 +149,9 @@ class GradeUploadTest(WebTest):
         # check final headline
         self.assertEqual(self.course.final_grade_documents.count(), 0)
         evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
+        grade_document = baker.make(GradeDocument, type=GradeDocument.Type.FINAL_GRADES, course=evaluation.course)
         response = self.app.get(
-            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/upload?final=true",
+            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/edit/{grade_document.pk}",
             user=self.grade_publisher,
         )
         self.assertContains(response, "Upload final grades")
