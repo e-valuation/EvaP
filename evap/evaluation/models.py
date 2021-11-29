@@ -1,5 +1,4 @@
 import logging
-import operator
 import secrets
 import uuid
 from collections import defaultdict, namedtuple
@@ -1711,15 +1710,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.evaluations_voted_for.order_by("course__semester__created_at", "name_de")
 
     def get_sorted_due_evaluations(self):
-        due_evaluations = dict()
-        for evaluation in Evaluation.objects.filter(participants=self, state=Evaluation.State.IN_EVALUATION).exclude(
-            voters=self
-        ):
-            due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
-
-        # Sort evaluations by number of days left for evaluation and bring them to following format:
-        # [(evaluation, due_in_days), ...]
-        return sorted(due_evaluations.items(), key=operator.itemgetter(1))
+        evaluations_and_days_left = (
+            (evaluation, evaluation.days_left_for_evaluation)
+            for evaluation in Evaluation.objects.filter(
+                participants=self, state=Evaluation.State.IN_EVALUATION
+            ).exclude(voters=self)
+        )
+        return sorted(evaluations_and_days_left, key=lambda tup: (tup[1], tup[0].full_name))
 
 
 def validate_template(value):
