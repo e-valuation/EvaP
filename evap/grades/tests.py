@@ -242,7 +242,6 @@ class GradeCourseViewTest(WebTest):
 
 
 class GradeEditTest(WebTest):
-
     def test_grades_headlines(self):
         # check midterm headline
         grade_publisher = baker.make(
