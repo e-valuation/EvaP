@@ -5,7 +5,7 @@ from django.core import mail
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import Choices, Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
 from evap.grades.models import GradeDocument
 
 
@@ -134,29 +134,6 @@ class GradeUploadTest(WebTest):
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
-    def test_grades_headlines(self):
-        # check midterm headline
-        self.assertEqual(self.course.midterm_grade_documents.count(), 0)
-        evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
-        grade_document = baker.make(GradeDocument, course=evaluation.course)
-        response = self.app.get(
-            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/edit/{grade_document.pk}",
-            user=self.grade_publisher,
-        )
-        self.assertContains(response, "Upload midterm grades")
-        self.assertNotContains(response, "Upload final grades")
-
-        # check final headline
-        self.assertEqual(self.course.final_grade_documents.count(), 0)
-        evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
-        grade_document = baker.make(GradeDocument, type=GradeDocument.Type.FINAL_GRADES, course=evaluation.course)
-        response = self.app.get(
-            f"/grades/semester/{evaluation.course.semester.pk}/course/{evaluation.course.pk}/edit/{grade_document.pk}",
-            user=self.grade_publisher,
-        )
-        self.assertContains(response, "Upload final grades")
-        self.assertNotContains(response, "Upload midterm grades")
-
     def test_toggle_no_grades(self):
         evaluation = self.evaluation
         evaluation.manager_approve()
@@ -262,3 +239,31 @@ class GradeCourseViewTest(WebTest):
             Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state=Evaluation.State.PREPARED
         )
         self.app.get("/grades/semester/1/course/1", user=self.grade_publisher, status=403)
+
+
+class GradeEditTest(WebTest):
+
+    def test_grades_headlines(self):
+        # check midterm headline
+        grade_publisher = baker.make(
+            UserProfile,
+            email="grade_publisher@institution.example.com",
+            groups=[Group.objects.get(name="Grade publisher")],
+        )
+        grade_document = baker.make(GradeDocument)
+        response = self.app.get(
+            f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}",
+            user=grade_publisher,
+        )
+        self.assertContains(response, "Upload midterm grades")
+        self.assertNotContains(response, "Upload final grades")
+
+        # check final headline
+        grade_document.type = GradeDocument.Type.FINAL_GRADES
+        grade_document.save()
+        response = self.app.get(
+            f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}",
+            user=grade_publisher,
+        )
+        self.assertContains(response, "Upload final grades")
+        self.assertNotContains(response, "Upload midterm grades")
