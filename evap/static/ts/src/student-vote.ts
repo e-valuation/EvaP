@@ -1,6 +1,7 @@
 function isInvisible(el: Element): boolean {
-    if (getComputedStyle(el).display === "none")
+    if (getComputedStyle(el).display === "none") {
         return true;
+    }
     return el.parentElement !== null && isInvisible(el.parentElement);
 }
 
@@ -22,7 +23,7 @@ function selectByNumberKey(row: HTMLElement, num: number) {
 const studentForm = document.getElementById("student-vote-form") as HTMLElement;
 const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-selectable");
 const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as Array<HTMLElement>;
-const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü\.\*\+\-]$");
+const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");
 
 // Sometimes we just want the browser to do it's thing.
 let disableFocusHandler = false;
@@ -90,15 +91,17 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
     if (e.key !== "Tab") {
         if (current.tagName !== "TEXTAREA" && letterRegex.test(e.key)) {
             const wholeRow = currentRow.closest("div.row");
-            if (wholeRow === null)
+            if (wholeRow === null) {
                 return;
+            }
 
             e.preventDefault();
-            const textAnswerButton: HTMLElement | null = wholeRow.querySelector("[data-bs-toggle=\"collapse\"]");
+            const textAnswerButton: HTMLElement | null = wholeRow.querySelector('[data-bs-toggle="collapse"]');
             const textField: HTMLTextAreaElement | null = wholeRow.querySelector("textarea.tab-selectable");
             if (textAnswerButton !== null && textField !== null) {
-                if (isInvisible(textField))
+                if (isInvisible(textField)) {
                     textAnswerButton.click();
+                }
                 fancyFocus(textField);
                 textField.value += e.key;
                 textField.dispatchEvent(new Event("input"));
