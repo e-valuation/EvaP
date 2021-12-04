@@ -1,4 +1,4 @@
-<div class="btn-group btn-group-toggle" data-toggle="buttons">
+<div class="btn-group">
     {% for choice in form.textanswer_visibility %}
         {% if choice.data.value == 'GENERAL' %}
             {% trans 'Will see own and general text answers.' as tooltip %}

@@ -1,15 +1,21 @@
 {% load static %}
 {% load evaluation_filters %}
 
-<nav class="navbar navbar-dark {% if debug %}bg-debug{% else %}bg-dark{% endif %} {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} pl-0">
-    <a class="d-block {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-none{% else %}d-lg-none{% endif %}" href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" /></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-dark {% if debug %}bg-debug{% else %}bg-dark{% endif %} {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}navbar-expand-xl{% else %}navbar-expand-lg{% endif %} ps-0">
+    <a class="d-block
+        {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}
+            d-xl-none
+        {% else %}
+            d-lg-none
+        {% endif %}"
+        href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" alt=""/></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbarNavDropdown">
-        <ul class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
-            <a href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" /></a>
-        </ul>
+        <span class="d-none {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}d-xl-block{% else %}d-lg-block{% endif %} navbar-nav justify-content-start">
+            <a href="{% url 'evaluation:index' %}"><img class="brand-image" src="{% static 'images/evap.png' %}" alt=""/></a>
+        </span>
         <ul class="navbar-nav justify-content-center">
             {% if user.is_authenticated %}
                 {% if user.is_participant %}
@@ -24,7 +30,7 @@
                 {% if user.is_manager %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'staff:index' %}">{% trans 'Overview' %}</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarSemestersDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Semesters' %}</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarSemestersDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Semesters' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarSemestersDropdownMenuLink">
                             {% for semester in result_semesters %}
                                 <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
@@ -33,7 +39,7 @@
                     </li>
                 {% elif user.is_reviewer %}
                     <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarReviewDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Review' %}</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarReviewDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Review' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarReviewDropdownMenuLink">
                             {% for semester in result_semesters %}
                                 <a class="dropdown-item" href="{% url 'staff:semester_view' semester.id %}">{{ semester.name }}</a>
@@ -46,7 +52,7 @@
                 {% endif %}
                 {%  if user.is_manager %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Users' %}</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Users' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarUsersDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans 'User list' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:user_create' %}">{% trans 'Create' %}</a>
@@ -59,7 +65,7 @@
                 {% endif %}
                 {% if user.is_grade_publisher %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Publish grades' %}</a>
+                        <a class="nav-link dropdown-toggle" href="{% url 'grades:index' %}" id="navbarPublishDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Publish grades' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarPublishDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'grades:index' %}">{% trans 'Semesters' %}</a>
                             {% for semester in grade_document_semesters %}
@@ -70,7 +76,7 @@
                 {% endif %}
                 {% if user.is_manager %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarStaffDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'More' %}</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarStaffDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'More' %}</a>
                         <div class="dropdown-menu" aria-labelledby="navbarStaffDropdownMenuLink">
                             <a class="dropdown-item" href="{% url 'staff:course_type_index' %}">{% trans 'Course types' %}</a>
                             <a class="dropdown-item" href="{% url 'staff:degree_index' %}">{% trans 'Degrees' %}</a>
@@ -87,41 +93,43 @@
         </ul>
         <ul class="navbar-nav justify-content-end">
             <li class="nav-item"><a class="nav-link" href="{% url 'evaluation:faq' %}">{% trans 'FAQ' %}</a></li>
-            <div class="nav-item btn-switch-navbar my-auto">
+            <li class="nav-item btn-switch-navbar my-auto ps-2 pb-3 {% if user.is_participant and user.is_responsible_or_contributor_or_delegate or user.is_reviewer %}pb-xl-0{% else %}pb-lg-0{% endif %}">
                 <div class="btn-group">
                     {% for language_code, language_name in languages %}
-                        <button type="button"{% if current_language == language_code %} disabled{% endif %} onclick="setLanguage('{{ language_code }}');"
-                            class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
-                            {{ language_code|upper }}
-                        </button>
+                        <form class="d-flex" method="post" action="{% url 'evaluation:set_lang' %}">
+                            {% csrf_token %}
+                            <input name="language" type="hidden" value="{{ language_code }}">
+                            <button type="submit"{% if current_language == language_code %} disabled{% endif %} onclick="setSpinnerIcon('span-set-language-{{ language_code }}')"
+                                class="btn btn-sm btn-navbar{% if current_language == language_code %} active{% endif %}" title="{{ language_name }}">
+                                <span id="span-set-language-{{ language_code }}">{{ language_code|upper }}</span>
+                            </button>
+                        </form>
                     {% endfor %}
                 </div>
-            </div>
+            </li>
             {% if user.is_authenticated %}
                 {% if user.has_staff_permission %}
-                    <div class="nav-item btn-switch-navbar my-auto pl-2">
+                    <li class="nav-item btn-switch-navbar my-auto ps-2">
                         <div class="btn-group">
-                            <form class="form-inline" method="post" action="{% url 'staff:exit_staff_mode' %}">
+                            <form class="d-flex" method="post" action="{% url 'staff:exit_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Regular mode' %}" onclick="setSpinnerIcon('span-exit-staff-mode')">
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar"{% else %}class="btn btn-sm btn-navbar active" disabled{% endif %} data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Regular mode' %}" onclick="setSpinnerIcon('span-exit-staff-mode')">
                                     <span id="span-exit-staff-mode" class="fas fa-user"></span>
                                 </button>
                             </form>
-                            <form id="enter-staff-mode-form" class="form-inline" method="post" action="{% url 'staff:enter_staff_mode' %}">
+                            <form id="enter-staff-mode-form" class="d-flex" method="post" action="{% url 'staff:enter_staff_mode' %}">
                                 {% csrf_token %}
-                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-toggle="tooltip" data-placement="bottom" title="{% trans 'Staff mode' %}" onclick="setSpinnerIcon('span-enter-staff-mode')">
+                                <button type="submit" {% if user.is_staff %}class="btn btn-sm btn-navbar active" disabled{% else %}class="btn btn-sm btn-navbar"{% endif %} data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans 'Staff mode' %}" onclick="setSpinnerIcon('span-enter-staff-mode')">
                                     <span id="span-enter-staff-mode" class="fas fa-briefcase"></span>
                                 </button>
                             </form>
                         </div>
-                    </div>
+                    </li>
                 {% endif %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">
-                        {% if user.is_editor %}
-                            <a class="dropdown-item" href="{% url 'contributor:settings_edit' %}">{% trans 'Settings' %}</a>
-                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'evaluation:profile_edit' %}">{% trans 'Profile' %}</a>
                         <a class="dropdown-item" href="{% url 'django-auth-logout' %}">{% trans 'Logout' %}</a>
                     </div>
                 </li>

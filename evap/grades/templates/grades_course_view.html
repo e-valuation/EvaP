@@ -27,10 +27,10 @@
                                 <td>{{ grade_document.get_type_display }}</td>
                                 <td>{{ grade_document.last_modified_time }}, {% trans 'by' %} {{ grade_document.last_modified_user }}</td>
                                 <td>
-                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
+                                    <a href="{% url 'grades:download_grades' grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Download' %}"><span class="fas fa-download"></span></a>
                                     {% if user.is_grade_publisher %}
-                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
-                                        <button type="button" {{ disable_if_archived }} onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="{% trans 'Delete' %}">
+                                        <a href="{% url 'grades:edit_grades' semester.id course.id grade_document.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit' %}"><span class="fas fa-pencil-alt"></span></a>
+                                        <button type="button" {{ disable_if_archived }} onclick="deleteGradedocumentModalShow({{ grade_document.id }}, '{{ grade_document.description|escapejs }}');" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
                                             <span class="fas fa-trash"></span>
                                         </button>
                                     {% endif %}
@@ -40,7 +40,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <span class="font-italic">{% trans 'No grade documents have been uploaded yet' %}</span>
+                <span class="fst-italic">{% trans 'No grade documents have been uploaded yet' %}</span>
             {% endif %}
         </div>
     </div>
@@ -53,7 +53,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete grade document' as title %}
-    {% trans 'Do you really want to delete the grade document <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the grade document <strong data-label=""></strong>?' as question %}
     {% trans 'Delete grade document' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteGradedocumentModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">

@@ -1,33 +1,38 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext as _
-from django.utils.translation import get_language
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
 from django.core.exceptions import SuspiciousOperation
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
-from evap.evaluation.auth import reward_user_required, manager_required
+from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
 from evap.evaluation.tools import FileResponse
-
-from evap.staff.views import semester_view
-
-from evap.rewards.models import RewardPointGranting, RewardPointRedemption, RewardPointRedemptionEvent, \
-                                SemesterActivation, NoPointsSelected, NotEnoughPoints, RedemptionEventExpired
-from evap.rewards.tools import grant_eligible_reward_points_for_semester, save_redemptions, reward_points_of_user
-from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.exporters import RewardsExporter
+from evap.rewards.forms import RewardPointRedemptionEventForm
+from evap.rewards.models import (
+    NoPointsSelected,
+    NotEnoughPoints,
+    RedemptionEventExpired,
+    RewardPointGranting,
+    RewardPointRedemption,
+    RewardPointRedemptionEvent,
+    SemesterActivation,
+)
+from evap.rewards.tools import grant_eligible_reward_points_for_semester, reward_points_of_user, save_redemptions
+from evap.staff.views import semester_view
 
 
 @reward_user_required
 def index(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         redemptions = {}
         for key, value in request.POST.items():
-            if key.startswith('points-'):
-                event_id = int(key.rpartition('-')[2])
+            if key.startswith("points-"):
+                event_id = int(key.rpartition("-")[2])
                 redemptions[event_id] = int(value)
 
         try:
@@ -39,28 +44,31 @@ def index(request):
     total_points_available = reward_points_of_user(request.user)
     reward_point_grantings = RewardPointGranting.objects.filter(user_profile=request.user)
     reward_point_redemptions = RewardPointRedemption.objects.filter(user_profile=request.user)
-    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
+    events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
 
     reward_point_actions = []
     for granting in reward_point_grantings:
-        reward_point_actions.append((granting.granting_time, _('Reward for') + ' ' + granting.semester.name, granting.value, ''))
+        reward_point_actions.append(
+            (granting.granting_time, _("Reward for") + " " + granting.semester.name, granting.value, "")
+        )
     for redemption in reward_point_redemptions:
-        reward_point_actions.append((redemption.redemption_time, redemption.event.name, '', redemption.value))
+        reward_point_actions.append((redemption.redemption_time, redemption.event.name, "", redemption.value))
 
     reward_point_actions.sort(key=lambda action: action[0], reverse=True)
 
     template_data = dict(
-            reward_point_actions=reward_point_actions,
-            total_points_available=total_points_available,
-            events=events,
-            point_selection=range(0, total_points_available + 1))
+        reward_point_actions=reward_point_actions,
+        total_points_available=total_points_available,
+        events=events,
+        point_selection=range(0, total_points_available + 1),
+    )
     return render(request, "rewards_index.html", template_data)
 
 
 @manager_required
 def reward_point_redemption_events(request):
-    upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by('date')
-    past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by('-date')
+    upcoming_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__gte=datetime.now()).order_by("date")
+    past_events = RewardPointRedemptionEvent.objects.filter(redeem_end_date__lt=datetime.now()).order_by("-date")
     template_data = dict(upcoming_events=upcoming_events, past_events=past_events)
     return render(request, "rewards_reward_point_redemption_events.html", template_data)
 
@@ -73,7 +81,7 @@ def reward_point_redemption_event_create(request):
     if form.is_valid():
         form.save()
         messages.success(request, _("Successfully created event."))
-        return redirect('rewards:reward_point_redemption_events')
+        return redirect("rewards:reward_point_redemption_events")
 
     return render(request, "rewards_reward_point_redemption_event_form.html", dict(form=form))
 
@@ -87,7 +95,7 @@ def reward_point_redemption_event_edit(request, event_id):
         event = form.save()
 
         messages.success(request, _("Successfully updated event."))
-        return redirect('rewards:reward_point_redemption_events')
+        return redirect("rewards:reward_point_redemption_events")
 
     return render(request, "rewards_reward_point_redemption_event_form.html", dict(event=event, form=form))
 
@@ -119,9 +127,9 @@ def reward_point_redemption_event_export(request, event_id):
 @manager_required
 def semester_activation(request, semester_id, active):
     semester = get_object_or_404(Semester, id=semester_id)
-    active = active == 'on'
+    active = active == "on"
 
-    SemesterActivation.objects.update_or_create(semester=semester, defaults={'is_active': active})
+    SemesterActivation.objects.update_or_create(semester=semester, defaults={"is_active": active})
     if active:
         grant_eligible_reward_points_for_semester(request, semester)
 

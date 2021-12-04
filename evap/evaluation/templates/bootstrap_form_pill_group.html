@@ -1,0 +1,18 @@
+<div class="mb-3 d-md-flex">
+    <div class="col-md-2 pe-4 form-label">
+        <div class="nav flex-column nav-pills btn-switch" role="tablist">
+            {% for field in fields %}
+                <button class="nav-link fw-bold text-end{% if forloop.first %} active{% endif %}" data-bs-toggle="pill" data-bs-target="#tab-{{ field.id_for_label }}" type="button" role="tab">
+                    {{ field.label }}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="tab-content col-md-10">
+        {% for field in fields %}
+            <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="tab-{{ field.id_for_label }}" role="tabpanel">
+                {% include 'bootstrap_form_field_widget.html' with field=field %}
+            </div>
+        {% endfor %}
+    </div>
+</div>

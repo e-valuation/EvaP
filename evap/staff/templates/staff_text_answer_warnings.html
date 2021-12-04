@@ -37,13 +37,13 @@
                     <tbody>
                         {% for form in formset %}
                             <tr class="select2tr sortable">
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
                                 <td class="movable">
                                     <span class="movable-icon fas fa-arrows-alt-v"></span>
                                 </td>
                                 <td>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
                                     {% include 'bootstrap_form_field_widget.html' with field=form.trigger_strings %}
                                 </td>
                                 <td>
@@ -52,8 +52,8 @@
                                 <td>
                                     {% include 'bootstrap_form_field_widget.html' with field=form.warning_text_en %}
                                 </td>
-                                <td class="align-right">
-                                    {% include 'bootstrap_form_field_widget.html' with class="d-none" field=form.DELETE %}
+                                <td class="align-end">
+                                    {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                 </td>
                             </tr>
                         {% endfor %}
@@ -100,7 +100,7 @@
     <script type="module">
         import {initTextAnswerWarnings} from "{% static 'js/text-answer-warnings.js' %}";
 
-        initTextAnswerWarnings($("#preview-textarea"), JSON.parse($("#text-answer-warnings").text()));
+        initTextAnswerWarnings([document.querySelector("#preview-textarea")], JSON.parse($("#text-answer-warnings").text()));
 
         const rowChanged = function(row) {
             const triggerStrings = row.find("select[id$=-trigger_strings]").val();

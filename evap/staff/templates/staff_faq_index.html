@@ -26,19 +26,21 @@
                     <tbody>
                     {% for form in formset %}
                         <tr class="sortable">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
                             <td class="movable">
                                 <span class="movable-icon fas fa-arrows-alt-v"></span>
                             </td>
-                            <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_de %}</td>
+                            <td>
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.title_de %}
+                            </td>
                             <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_en %}</td>
                             <td>
                                 {% if form.instance.id %}
                                     <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                                 {% endif %}
-                                {% include 'bootstrap_form_field_widget.html' with class="d-none" field=form.DELETE %}
+                                {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                             </td>
                         </tr>
                     {% endfor %}

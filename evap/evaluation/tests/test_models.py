@@ -1,83 +1,119 @@
-from datetime import datetime, timedelta, date
-from unittest.mock import patch, Mock, call
+from datetime import date, datetime, timedelta
+from unittest.mock import Mock, call, patch
 
 from django.contrib.auth.models import Group
+from django.core import mail
+from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from django.core.cache import caches
-from django.core import mail
-
 from django_webtest import WebTest
 from model_bakery import baker
 
-from evap.evaluation.models import (Contribution, Course, CourseType, EmailTemplate, Evaluation, NotArchiveable,
-                                    Question, Questionnaire, RatingAnswerCounter, Semester, TextAnswer, UserProfile)
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    CourseType,
+    EmailTemplate,
+    Evaluation,
+    NotArchiveable,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    Semester,
+    TextAnswer,
+    UserProfile,
+)
+from evap.evaluation.tests.tools import (
+    let_user_vote_for_evaluation,
+    make_contributor,
+    make_editor,
+    make_rating_answer_counters,
+)
 from evap.grades.models import GradeDocument
-from evap.evaluation.tests.tools import let_user_vote_for_evaluation, make_contributor, make_editor
-from evap.results.tools import calculate_average_distribution, cache_results
+from evap.results.tools import cache_results, calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):
-        evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now())
+        evaluation = baker.make(Evaluation, state=Evaluation.State.APPROVED, vote_start_datetime=datetime.now())
 
-        with patch('evap.evaluation.models.EmailTemplate') as mock:
+        with patch("evap.evaluation.models.EmailTemplate") as mock:
             mock.EVALUATION_STARTED = EmailTemplate.EVALUATION_STARTED
             mock.Recipients.ALL_PARTICIPANTS = EmailTemplate.Recipients.ALL_PARTICIPANTS
             mock.objects.get.return_value = mock
             Evaluation.update_evaluations()
 
-        self.assertEqual(mock.objects.get.call_args_list[0][1]['name'], EmailTemplate.EVALUATION_STARTED)
+        self.assertEqual(mock.objects.get.call_args_list[0][1]["name"], EmailTemplate.EVALUATION_STARTED)
         mock.send_to_users_in_evaluations.assert_called_once_with(
             [evaluation], [EmailTemplate.Recipients.ALL_PARTICIPANTS], use_cc=False, request=None
         )
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(evaluation.state, 'in_evaluation')
+        self.assertEqual(evaluation.state, Evaluation.State.IN_EVALUATION)
 
     def test_in_evaluation_to_evaluated(self):
-        evaluation = baker.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1))
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() - timedelta(days=1),
+        )
 
-        with patch('evap.evaluation.models.Evaluation.is_fully_reviewed') as mock:
+        with patch("evap.evaluation.models.Evaluation.is_fully_reviewed") as mock:
             mock.__get__ = Mock(return_value=False)
             Evaluation.update_evaluations()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(evaluation.state, 'evaluated')
+        self.assertEqual(evaluation.state, Evaluation.State.EVALUATED)
 
     def test_in_evaluation_to_reviewed(self):
         # Evaluation is "fully reviewed" as no open text answers are present by default.
-        evaluation = baker.make(Evaluation, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1))
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() - timedelta(days=1),
+        )
 
         Evaluation.update_evaluations()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(evaluation.state, 'reviewed')
+        self.assertEqual(evaluation.state, Evaluation.State.REVIEWED)
 
     def test_in_evaluation_to_published(self):
         # Evaluation is "fully reviewed" and not graded, thus gets published immediately.
         course = baker.make(Course)
-        evaluation = baker.make(Evaluation, course=course, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
+        evaluation = baker.make(
+            Evaluation,
+            course=course,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() - timedelta(days=1),
+            wait_for_grade_upload_before_publishing=False,
+        )
 
-        with patch('evap.evaluation.models.EmailTemplate.send_participant_publish_notifications') as participant_mock,\
-                patch('evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications') as contributor_mock:
+        with patch(
+            "evap.evaluation.models.EmailTemplate.send_participant_publish_notifications"
+        ) as participant_mock, patch(
+            "evap.evaluation.models.EmailTemplate.send_contributor_publish_notifications"
+        ) as contributor_mock:
             Evaluation.update_evaluations()
 
         participant_mock.assert_called_once_with([evaluation])
         contributor_mock.assert_called_once_with([evaluation])
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
-        self.assertEqual(evaluation.state, 'published')
+        self.assertEqual(evaluation.state, Evaluation.State.PUBLISHED)
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24)
     def test_ends_soon(self):
-        evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today() + timedelta(hours=24))
+        evaluation = baker.make(
+            Evaluation,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() + timedelta(hours=24),
+        )
 
         self.assertFalse(evaluation.ends_soon)
 
@@ -89,8 +125,9 @@ class TestEvaluations(WebTest):
 
     @override_settings(EVALUATION_END_WARNING_PERIOD=24, EVALUATION_END_OFFSET_HOURS=24)
     def test_ends_soon_with_offset(self):
-        evaluation = baker.make(Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2),
-                            vote_end_date=date.today())
+        evaluation = baker.make(
+            Evaluation, vote_start_datetime=datetime.now() - timedelta(days=2), vote_end_date=date.today()
+        )
 
         self.assertFalse(evaluation.ends_soon)
 
@@ -104,27 +141,41 @@ class TestEvaluations(WebTest):
         # Evaluation is out of evaluation period.
         course_1 = baker.make(Course)
         course_2 = baker.make(Course)
-        baker.make(Evaluation, course=course_1, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today() - timedelta(days=1), wait_for_grade_upload_before_publishing=False)
+        baker.make(
+            Evaluation,
+            course=course_1,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today() - timedelta(days=1),
+            wait_for_grade_upload_before_publishing=False,
+        )
         # This evaluation is not.
-        baker.make(Evaluation, course=course_2, state='in_evaluation', vote_start_datetime=datetime.now() - timedelta(days=2),
-                   vote_end_date=date.today(), wait_for_grade_upload_before_publishing=False)
+        baker.make(
+            Evaluation,
+            course=course_2,
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.now() - timedelta(days=2),
+            vote_end_date=date.today(),
+            wait_for_grade_upload_before_publishing=False,
+        )
 
-        with patch('evap.evaluation.models.Evaluation.end_evaluation') as mock:
+        with patch("evap.evaluation.models.Evaluation.end_evaluation") as mock:
             Evaluation.update_evaluations()
 
         self.assertEqual(mock.call_count, 1)
 
     def test_approved_to_in_evaluation_sends_emails(self):
-        """ Regression test for #945 """
-        participant = baker.make(UserProfile, email='foo@example.com')
-        evaluation = baker.make(Evaluation, state='approved', vote_start_datetime=datetime.now(), participants=[participant])
+        """Regression test for #945"""
+        participant = baker.make(UserProfile, email="foo@example.com")
+        evaluation = baker.make(
+            Evaluation, state=Evaluation.State.APPROVED, vote_start_datetime=datetime.now(), participants=[participant]
+        )
 
         Evaluation.update_evaluations()
 
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(evaluation.state, 'in_evaluation')
+        self.assertEqual(evaluation.state, Evaluation.State.IN_EVALUATION)
 
     def test_has_enough_questionnaires(self):
         # manually circumvent Evaluation's save() method to have a Evaluation without a general contribution
@@ -172,7 +223,7 @@ class TestEvaluations(WebTest):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
+        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
         evaluation.skip_review_single_result()
         evaluation.publish()
         evaluation.save()
@@ -189,7 +240,7 @@ class TestEvaluations(WebTest):
 
     @staticmethod
     def test_single_result_can_be_published():
-        """ Regression test for #1238 """
+        """Regression test for #1238"""
         responsible = baker.make(UserProfile)
         single_result = baker.make(Evaluation, is_single_result=True, _participant_count=5, _voter_count=5)
         contribution = baker.make(
@@ -200,7 +251,7 @@ class TestEvaluations(WebTest):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(RatingAnswerCounter, answer=1, count=1, question=Questionnaire.single_result_questionnaire().questions.first(), contribution=contribution)
+        make_rating_answer_counters(Questionnaire.single_result_questionnaire().questions.first(), contribution)
 
         single_result.skip_review_single_result()
         single_result.publish()  # used to crash
@@ -208,7 +259,9 @@ class TestEvaluations(WebTest):
     def test_second_vote_sets_can_publish_text_results_to_true(self):
         student1 = baker.make(UserProfile, email="student1@institution.example.com")
         student2 = baker.make(UserProfile, email="student2@example.com")
-        evaluation = baker.make(Evaluation, participants=[student1, student2], voters=[student1], state="in_evaluation")
+        evaluation = baker.make(
+            Evaluation, participants=[student1, student2], voters=[student1], state=Evaluation.State.IN_EVALUATION
+        )
         evaluation.save()
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         baker.make(Question, questionnaire=top_general_questionnaire, type=Question.LIKERT)
@@ -223,7 +276,13 @@ class TestEvaluations(WebTest):
 
     def test_textanswers_get_deleted_if_they_cannot_be_published(self):
         student = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=False)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            participants=[student],
+            voters=[student],
+            can_publish_text_results=False,
+        )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
@@ -236,7 +295,13 @@ class TestEvaluations(WebTest):
     def test_textanswers_do_not_get_deleted_if_they_can_be_published(self):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            participants=[student, student2],
+            voters=[student, student2],
+            can_publish_text_results=True,
+        )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
@@ -249,13 +314,37 @@ class TestEvaluations(WebTest):
     def test_hidden_textanswers_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            participants=[student, student2],
+            voters=[student, student2],
+            can_publish_text_results=True,
+        )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="hidden", state=TextAnswer.State.HIDDEN)
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published", state=TextAnswer.State.PUBLISHED)
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="private", state=TextAnswer.State.PRIVATE)
+        baker.make(
+            TextAnswer,
+            question=question,
+            contribution=evaluation.general_contribution,
+            answer="hidden",
+            state=TextAnswer.State.HIDDEN,
+        )
+        baker.make(
+            TextAnswer,
+            question=question,
+            contribution=evaluation.general_contribution,
+            answer="published",
+            state=TextAnswer.State.PUBLISHED,
+        )
+        baker.make(
+            TextAnswer,
+            question=question,
+            contribution=evaluation.general_contribution,
+            answer="private",
+            state=TextAnswer.State.PRIVATE,
+        )
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
         evaluation.publish()
@@ -265,11 +354,24 @@ class TestEvaluations(WebTest):
     def test_original_textanswers_get_deleted_on_publish(self):
         student = baker.make(UserProfile)
         student2 = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state='reviewed', participants=[student, student2], voters=[student, student2], can_publish_text_results=True)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            participants=[student, student2],
+            voters=[student, student2],
+            can_publish_text_results=True,
+        )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         question = baker.make(Question, type=Question.TEXT, questionnaire=questionnaire)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        baker.make(TextAnswer, question=question, contribution=evaluation.general_contribution, answer="published answer", original_answer="original answer", state=TextAnswer.State.PUBLISHED)
+        baker.make(
+            TextAnswer,
+            question=question,
+            contribution=evaluation.general_contribution,
+            answer="published answer",
+            original_answer="original answer",
+            state=TextAnswer.State.PUBLISHED,
+        )
 
         self.assertEqual(evaluation.textanswer_set.count(), 1)
         self.assertFalse(TextAnswer.objects.get().original_answer is None)
@@ -279,37 +381,68 @@ class TestEvaluations(WebTest):
 
     def test_publishing_and_unpublishing_effect_on_template_cache(self):
         student = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state='reviewed', participants=[student], voters=[student], can_publish_text_results=True)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            participants=[student],
+            voters=[student],
+            can_publish_text_results=True,
+        )
 
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
+        )
 
         evaluation.publish()
         evaluation.save()
 
-        self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
-        self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
-        self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True)))
-        self.assertIsNotNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
+        self.assertIsNotNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True))
+        )
+        self.assertIsNotNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False))
+        )
+        self.assertIsNotNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True))
+        )
+        self.assertIsNotNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
+        )
 
         evaluation.unpublish()
         evaluation.save()
 
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True)))
-        self.assertIsNone(caches['results'].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False)))
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True))
+        )
+        self.assertIsNone(
+            caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
+        )
 
     # pylint: disable=invalid-name
     def assert_textanswer_review_state(
-            self,
-            evaluation,
-            expected_default_value,
-            expected_value_with_gets_no_grade_documents,
-            expected_value_with_wait_for_grade_upload_before_publishing,
-            expected_value_after_grade_upload):
+        self,
+        evaluation,
+        expected_default_value,
+        expected_value_with_gets_no_grade_documents,
+        expected_value_with_wait_for_grade_upload_before_publishing,
+        expected_value_after_grade_upload,
+    ):
 
         self.assertEqual(evaluation.textanswer_review_state, expected_default_value)
 
@@ -318,7 +451,9 @@ class TestEvaluations(WebTest):
         evaluation.course.gets_no_grade_documents = False
 
         evaluation.wait_for_grade_upload_before_publishing = True
-        self.assertEqual(evaluation.textanswer_review_state, expected_value_with_wait_for_grade_upload_before_publishing)
+        self.assertEqual(
+            evaluation.textanswer_review_state, expected_value_with_wait_for_grade_upload_before_publishing
+        )
 
         grade_document = baker.make(GradeDocument, type=GradeDocument.Type.FINAL_GRADES, course=evaluation.course)
         self.assertEqual(evaluation.textanswer_review_state, expected_value_after_grade_upload)
@@ -329,9 +464,9 @@ class TestEvaluations(WebTest):
     def test_textanswer_review_state(self):
         evaluation = baker.make(
             Evaluation,
-            state="in_evaluation",
+            state=Evaluation.State.IN_EVALUATION,
             can_publish_text_results=True,
-            wait_for_grade_upload_before_publishing=False
+            wait_for_grade_upload_before_publishing=False,
         )
 
         self.assert_textanswer_review_state(
@@ -345,13 +480,13 @@ class TestEvaluations(WebTest):
         textanswer = baker.make(TextAnswer, contribution=evaluation.general_contribution)
         del evaluation.num_textanswers  # reset cached_property cache
 
-        # text_answer_review_state should be REVIEW_NEEDED as long as we are still in_evaluation
+        # text_answer_review_state should be NO_REVIEW_NEEDED as long as we are still in_evaluation
         self.assert_textanswer_review_state(
             evaluation,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
-            evaluation.TextAnswerReviewState.REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
+            evaluation.TextAnswerReviewState.NO_REVIEW_NEEDED,
         )
 
         evaluation.end_evaluation()
@@ -413,7 +548,9 @@ class TestUserProfile(TestCase):
         evaluation_contributed_to = baker.make(Evaluation, course=course_contributed_to)
         evaluation_participated_in = baker.make(Evaluation, course=course_participated_in)
         contribution = baker.make(Contribution, evaluation=evaluation_contributed_to)
-        user = baker.make(UserProfile, contributions=[contribution], evaluations_participating_in=[evaluation_participated_in])
+        user = baker.make(
+            UserProfile, contributions=[contribution], evaluations_participating_in=[evaluation_participated_in]
+        )
 
         self.assertTrue(user.is_student)
 
@@ -433,11 +570,11 @@ class TestUserProfile(TestCase):
 
     def test_can_be_deleted_by_manager(self):
         user = baker.make(UserProfile)
-        baker.make(Evaluation, participants=[user], state="new")
+        baker.make(Evaluation, participants=[user], state=Evaluation.State.NEW)
         self.assertFalse(user.can_be_deleted_by_manager)
 
         user2 = baker.make(UserProfile)
-        baker.make(Evaluation, participants=[user2], state="in_evaluation")
+        baker.make(Evaluation, participants=[user2], state=Evaluation.State.IN_EVALUATION)
         self.assertFalse(user2.can_be_deleted_by_manager)
 
         contributor = baker.make(UserProfile)
@@ -463,7 +600,7 @@ class TestUserProfile(TestCase):
 
     def test_can_be_marked_inactive_by_manager(self):
         user = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state="new")
+        evaluation = baker.make(Evaluation, state=Evaluation.State.NEW)
         self.assertTrue(user.can_be_marked_inactive_by_manager)
         evaluation.participants.set([user])
         evaluation.save()
@@ -490,29 +627,60 @@ class TestUserProfile(TestCase):
         user = baker.make(UserProfile, email="test@example.com")
         self.assertEqual(user.email, "test@institution.com")
 
+    def test_get_sorted_due_evaluations(self):
+        student = baker.make(UserProfile, email="student@example.com")
+        course = baker.make(Course)
+        evaluation1 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="C",
+            name_de="C",
+            vote_end_date=date.today(),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        evaluation2 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="B",
+            name_de="B",
+            vote_end_date=date.today(),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        evaluation3 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="A",
+            name_de="A",
+            vote_end_date=date.today() + timedelta(days=1),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        sorted_evaluations = student.get_sorted_due_evaluations()
+        self.assertEqual(sorted_evaluations, [(evaluation2, 0), (evaluation1, 0), (evaluation3, 1)])
+
 
 class ParticipationArchivingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.semester = baker.make(Semester)
-        cls.evaluation = baker.make(Evaluation, state="published", course=baker.make(Course, semester=cls.semester))
+        cls.evaluation = baker.make(
+            Evaluation, state=Evaluation.State.PUBLISHED, course=baker.make(Course, semester=cls.semester)
+        )
         cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-        users = baker.make(UserProfile, _quantity=3)
+        users = baker.make(UserProfile, _bulk_create=True, _quantity=3)
         cls.evaluation.participants.set(users)
         cls.evaluation.voters.set(users[:2])
 
     def refresh_evaluation(self):
-        """ refresh_from_db does not work with evaluations"""
+        """refresh_from_db does not work with evaluations"""
         self.evaluation = self.semester.evaluations.first()
-
-    def setUp(self):
-        self.semester.refresh_from_db()
-        self.refresh_evaluation()
 
     def test_counts_dont_change(self):
         """
-            Asserts that evaluation.num_voters evaluation.num_participants don't change after archiving.
+        Asserts that evaluation.num_voters evaluation.num_participants don't change after archiving.
         """
         voter_count = self.evaluation.num_voters
         participant_count = self.evaluation.num_participants
@@ -525,7 +693,7 @@ class ParticipationArchivingTests(TestCase):
 
     def test_participants_do_not_loose_evaluations(self):
         """
-            Asserts that participants still participate in their evaluations after the participations get archived.
+        Asserts that participants still participate in their evaluations after the participations get archived.
         """
         some_participant = self.evaluation.participants.first()
 
@@ -535,7 +703,7 @@ class ParticipationArchivingTests(TestCase):
 
     def test_participations_are_archived(self):
         """
-            Tests whether participations_are_archived returns True on semesters and evaluations with archived participations.
+        Tests whether participations_are_archived returns True on semesters and evaluations with archived participations.
         """
         self.assertFalse(self.evaluation.participations_are_archived)
 
@@ -550,7 +718,7 @@ class ParticipationArchivingTests(TestCase):
 
         self.semester.archive()
         self.refresh_evaluation()
-        caches['results'].clear()
+        caches["results"].clear()
 
         cache_results(self.evaluation)
         new_distribution = calculate_average_distribution(self.evaluation)
@@ -564,13 +732,15 @@ class ParticipationArchivingTests(TestCase):
             self.semester.courses.first().evaluations.first()._archive()
 
     def test_evaluation_participations_are_not_archived_if_participant_count_is_set(self):
-        evaluation = baker.make(Evaluation, state="published", _participant_count=1, _voter_count=1)
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, _participant_count=1, _voter_count=1)
         self.assertFalse(evaluation.participations_are_archived)
         self.assertTrue(evaluation.participations_can_be_archived)
 
     def test_archiving_participations_doesnt_change_single_results_participant_count(self):
         responsible = baker.make(UserProfile)
-        evaluation = baker.make(Evaluation, state="published", is_single_result=True, _participant_count=5, _voter_count=5)
+        evaluation = baker.make(
+            Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True, _participant_count=5, _voter_count=5
+        )
         contribution = baker.make(
             Contribution,
             evaluation=evaluation,
@@ -602,14 +772,16 @@ class TestLoginUrlEmail(TestCase):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-        cls.template = baker.make(EmailTemplate, body="{{ login_url }}")
+        cls.template = baker.make(EmailTemplate, plain_content="{{ login_url }}")
 
-        EmailTemplate.objects.filter(name="Login Key Created").update(body="{{ user.login_url }}")
+        EmailTemplate.objects.filter(name="Login Key Created").update(plain_content="{{ user.login_url }}")
 
     @override_settings(PAGE_URL="https://example.com")
     def test_no_login_url_when_delegates_in_cc(self):
         self.user.delegates.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], EmailTemplate.Recipients.CONTRIBUTORS, use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations(
+            [self.evaluation], EmailTemplate.Recipients.CONTRIBUTORS, use_cc=True, request=None
+        )
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -618,7 +790,9 @@ class TestLoginUrlEmail(TestCase):
 
     def test_no_login_url_when_cc_users_in_cc(self):
         self.user.cc_users.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations(
+            [self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None
+        )
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].body, "")  # message does not contain the login url
         self.assertEqual(mail.outbox[1].body, self.user.login_url)  # separate email with login url was sent
@@ -627,14 +801,18 @@ class TestLoginUrlEmail(TestCase):
 
     def test_login_url_when_nobody_in_cc(self):
         # message is not sent to others in cc
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None)
+        self.template.send_to_users_in_evaluations(
+            [self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=True, request=None
+        )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
     def test_login_url_when_use_cc_is_false(self):
         # message is not sent to others in cc
         self.user.delegates.add(self.other_user)
-        self.template.send_to_users_in_evaluations([self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=False, request=None)
+        self.template.send_to_users_in_evaluations(
+            [self.evaluation], [EmailTemplate.Recipients.CONTRIBUTORS], use_cc=False, request=None
+        )
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].body, self.user.login_url)  # message does contain the login url
 
@@ -643,8 +821,8 @@ class TestLoginUrlEmail(TestCase):
 class TestEmailTemplate(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = baker.make(UserProfile, email='user@example.com')
-        cls.additional_cc = baker.make(UserProfile, email='additional@example.com')
+        cls.user = baker.make(UserProfile, email="user@example.com")
+        cls.additional_cc = baker.make(UserProfile, email="additional@example.com")
         cls.template = EmailTemplate.objects.get(name=EmailTemplate.EDITOR_REVIEW_NOTICE)
 
     @staticmethod
@@ -657,9 +835,39 @@ class TestEmailTemplate(TestCase):
         template = EmailTemplate.objects.get(name=EmailTemplate.STUDENT_REMINDER)
         template.send_to_user(user, {}, {}, False, None)
 
+    def test_send_multi_alternatives_email(self):
+        template = EmailTemplate(
+            subject="Example", plain_content="Example plain content", html_content="<p>Example html content</p>"
+        )
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(isinstance(mail.outbox[0], mail.message.EmailMultiAlternatives))
+        self.assertEqual(mail.outbox[0].body, "Example plain content")
+        self.assertEqual(len(mail.outbox[0].alternatives), 1)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], "text/html")
+        self.assertIn("<p>Example html content</p>", mail.outbox[0].alternatives[0][0])
+
+    def test_copy_plain_content_on_empty_html_content(self):
+        template = EmailTemplate(
+            subject="Example", plain_content="Example plain content\nWith newline", html_content=""
+        )
+        template.send_to_user(self.user, {}, {}, False)
+        self.assertEqual(mail.outbox[0].body, "Example plain content\nWith newline")
+        self.assertIn("Example plain content<br />With newline", mail.outbox[0].alternatives[0][0])
+
+    def test_escape_special_characters_in_html_email(self):
+        template = EmailTemplate(
+            subject="<h1>Special Email</h1>",
+            plain_content="Example plain content",
+            html_content="Special Content: {{special_content}}",
+        )
+        template.send_to_user(self.user, {}, {"special_content": "0 < 1"}, False)
+        self.assertIn("&lt;h1&gt;Special Email&lt;/h1&gt;", mail.outbox[0].alternatives[0][0])
+        self.assertIn("Special Content: 0 &lt; 1", mail.outbox[0].alternatives[0][0])
+
     def test_put_delegates_in_cc(self):
-        delegate_a = baker.make(UserProfile, email='delegate-a@example.com')
-        delegate_b = baker.make(UserProfile, email='delegate-b@example.com')
+        delegate_a = baker.make(UserProfile, email="delegate-a@example.com")
+        delegate_b = baker.make(UserProfile, email="delegate-b@example.com")
         self.user.delegates.add(delegate_a, delegate_b)
         self.template.send_to_user(self.user, {}, {}, use_cc=True)
 
@@ -667,8 +875,8 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(set(mail.outbox[0].cc), {delegate_a.email, delegate_b.email})
 
     def test_put_cc_users_in_cc(self):
-        cc_a = baker.make(UserProfile, email='cc-a@example.com')
-        cc_b = baker.make(UserProfile, email='cc-b@example.com')
+        cc_a = baker.make(UserProfile, email="cc-a@example.com")
+        cc_b = baker.make(UserProfile, email="cc-b@example.com")
         self.user.cc_users.add(cc_a, cc_b)
         self.template.send_to_user(self.user, {}, {}, use_cc=True)
 
@@ -676,27 +884,29 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(set(mail.outbox[0].cc), {cc_a.email, cc_b.email})
 
     def test_put_additional_cc_users_in_cc(self):
-        additional_cc_b = baker.make(UserProfile, email='additional-b@example.com')
-        self.template.send_to_user(self.user, {}, {}, use_cc=True,
-                                   additional_cc_users=[self.additional_cc, additional_cc_b])
+        additional_cc_b = baker.make(UserProfile, email="additional-b@example.com")
+        self.template.send_to_user(
+            self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc, additional_cc_b]
+        )
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, additional_cc_b.email})
 
     def test_put_delegates_of_additional_cc_user_in_cc(self):
-        additional_delegate_a = baker.make(UserProfile, email='additional-delegate-a@example.com')
-        additional_delegate_b = baker.make(UserProfile, email='additional-delegate-b@example.com')
+        additional_delegate_a = baker.make(UserProfile, email="additional-delegate-a@example.com")
+        additional_delegate_b = baker.make(UserProfile, email="additional-delegate-b@example.com")
         self.additional_cc.delegates.add(additional_delegate_a, additional_delegate_b)
         self.template.send_to_user(self.user, {}, {}, use_cc=True, additional_cc_users=[self.additional_cc])
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(set(mail.outbox[0].cc),
-            {self.additional_cc.email, additional_delegate_a.email, additional_delegate_b.email})
+        self.assertEqual(
+            set(mail.outbox[0].cc), {self.additional_cc.email, additional_delegate_a.email, additional_delegate_b.email}
+        )
 
     def test_cc_does_not_contain_duplicates(self):
-        user_a = baker.make(UserProfile, email='a@example.com')
-        user_b = baker.make(UserProfile, email='b@example.com')
-        user_c = baker.make(UserProfile, email='c@example.com')
+        user_a = baker.make(UserProfile, email="a@example.com")
+        user_b = baker.make(UserProfile, email="b@example.com")
+        user_c = baker.make(UserProfile, email="c@example.com")
         self.user.delegates.add(user_a)
         self.user.cc_users.add(self.additional_cc, user_b)
         self.additional_cc.delegates.add(user_b, user_c)
@@ -708,8 +918,8 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(set(mail.outbox[0].cc), {self.additional_cc.email, user_a.email, user_b.email, user_c.email})
 
     def test_disable_cc(self):
-        delegate = baker.make(UserProfile, email='delegate@example.com')
-        cc_user = baker.make(UserProfile, email='cc@example.com')
+        delegate = baker.make(UserProfile, email="delegate@example.com")
+        cc_user = baker.make(UserProfile, email="cc@example.com")
         self.user.delegates.add(delegate)
         self.user.cc_users.add(cc_user)
         self.additional_cc.delegates.add(delegate)
@@ -750,25 +960,27 @@ class TestEmailTemplate(TestCase):
 
         expected_calls = [
             # these 4 are included since they are contributors for evaluation1 which can publish the average grade
-            call(responsible1, {}, {'user': responsible1, 'evaluations': [evaluation1]}, use_cc=True),
-            call(editor1, {}, {'user': editor1, 'evaluations': [evaluation1]}, use_cc=True),
-            call(contributor1, {}, {'user': contributor1, 'evaluations': [evaluation1]}, use_cc=True),
-            call(contributor_both, {}, {'user': contributor_both, 'evaluations': [evaluation1, evaluation2]}, use_cc=True),
+            call(responsible1, {}, {"user": responsible1, "evaluations": {evaluation1}}, use_cc=True),
+            call(editor1, {}, {"user": editor1, "evaluations": {evaluation1}}, use_cc=True),
+            call(contributor1, {}, {"user": contributor1, "evaluations": {evaluation1}}, use_cc=True),
+            call(
+                contributor_both, {}, {"user": contributor_both, "evaluations": {evaluation1, evaluation2}}, use_cc=True
+            ),
             # contributor2 has textanswers, so they are notified
-            call(contributor2, {}, {'user': contributor2, 'evaluations': [evaluation2]}, use_cc=True),
+            call(contributor2, {}, {"user": contributor2, "evaluations": {evaluation2}}, use_cc=True),
         ]
 
-        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
-            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+        with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications({evaluation1, evaluation2})
             # Assert that all expected publish notifications are sent to contributors.
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
         # if general textanswers for an evaluation exist, all responsibles should also be notified
         baker.make(TextAnswer, contribution=evaluation2.general_contribution)
-        expected_calls.append(call(responsible2, {}, {'user': responsible2, 'evaluations': [evaluation2]}, use_cc=True))
+        expected_calls.append(call(responsible2, {}, {"user": responsible2, "evaluations": {evaluation2}}, use_cc=True))
 
-        with patch('evap.evaluation.models.EmailTemplate.send_to_user') as send_to_user_mock:
-            EmailTemplate.send_contributor_publish_notifications([evaluation1, evaluation2])
+        with patch("evap.evaluation.models.EmailTemplate.send_to_user") as send_to_user_mock:
+            EmailTemplate.send_contributor_publish_notifications({evaluation1, evaluation2})
             send_to_user_mock.assert_has_calls(expected_calls, any_order=True)
 
 
@@ -789,19 +1001,29 @@ class TestEmailRecipientList(TestCase):
         recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [], filter_users_in_cc=False)
         self.assertCountEqual(recipient_list, [])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.RESPONSIBLE], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.RESPONSIBLE], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [responsible])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.EDITORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.EDITORS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [responsible, editor])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [responsible, editor, contributor])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.ALL_PARTICIPANTS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.ALL_PARTICIPANTS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [participant1, participant2])
 
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.DUE_PARTICIPANTS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.DUE_PARTICIPANTS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [participant2])
 
     def test_recipient_list_filtering(self):
@@ -814,23 +1036,31 @@ class TestEmailRecipientList(TestCase):
         baker.make(Contribution, evaluation=evaluation, contributor=contributor2)
 
         # no-one should get filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [contributor1, contributor2])
 
         # contributor1 is in cc of contributor2 and gets filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
+        )
         self.assertCountEqual(recipient_list, [contributor2])
 
         contributor3 = baker.make(UserProfile, delegates=[contributor2])
         baker.make(Contribution, evaluation=evaluation, contributor=contributor3)
 
         # again, no-one should get filtered.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=False
+        )
         self.assertCountEqual(recipient_list, [contributor1, contributor2, contributor3])
 
         # contributor1 is in cc of contributor2 and gets filtered.
         # contributor2 is in cc of contributor3 but is not filtered since contributor1 wouldn't get an email at all then.
-        recipient_list = EmailTemplate.recipient_list_for_evaluation(evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True)
+        recipient_list = EmailTemplate.recipient_list_for_evaluation(
+            evaluation, [EmailTemplate.Recipients.CONTRIBUTORS], filter_users_in_cc=True
+        )
         self.assertCountEqual(recipient_list, [contributor2, contributor3])
 
 

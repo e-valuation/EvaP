@@ -3,15 +3,23 @@ from math import ceil, modf
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Q, Sum, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q, Sum
 
-from evap.evaluation.models import CHOICES, NO_ANSWER, Contribution, Question,\
-        Questionnaire, RatingAnswerCounter, TextAnswer, UserProfile, Course, \
-        Evaluation
+from evap.evaluation.models import (
+    CHOICES,
+    NO_ANSWER,
+    Contribution,
+    Course,
+    Evaluation,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    TextAnswer,
+    UserProfile,
+)
 
-
-STATES_WITH_RESULTS_CACHING = {'evaluated', 'reviewed', 'published'}
-STATES_WITH_RESULT_TEMPLATE_CACHING = {'published'}
+STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
+STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
 
 
 GRADE_COLORS = {
@@ -29,7 +37,11 @@ class EvaluationResult:
 
     @property
     def questionnaire_results(self):
-        return [questionnaire_result for contribution_result in self.contribution_results for questionnaire_result in contribution_result.questionnaire_results]
+        return [
+            questionnaire_result
+            for contribution_result in self.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+        ]
 
 
 class ContributionResult:
@@ -114,8 +126,8 @@ class TextResult:
         self.answers_visible_to = answers_visible_to
 
 
-HeadingResult = namedtuple('HeadingResult', ('question'))
-TextAnswerVisibility = namedtuple('TextAnswerVisibility', ('visible_by_contribution', 'visible_by_delegation_count'))
+HeadingResult = namedtuple("HeadingResult", ("question"))
+TextAnswerVisibility = namedtuple("TextAnswerVisibility", ("visible_by_contribution", "visible_by_delegation_count"))
 
 
 def get_single_result_rating_result(evaluation):
@@ -129,23 +141,23 @@ def get_single_result_rating_result(evaluation):
 
 
 def get_results_cache_key(evaluation):
-    return 'evap.staff.results.tools.get_results-{:d}'.format(evaluation.id)
+    return "evap.staff.results.tools.get_results-{:d}".format(evaluation.id)
 
 
 def cache_results(evaluation):
     assert evaluation.state in STATES_WITH_RESULTS_CACHING
     cache_key = get_results_cache_key(evaluation)
-    caches['results'].set(cache_key, _get_results_impl(evaluation))
+    caches["results"].set(cache_key, _get_results_impl(evaluation))
 
 
 def get_results(evaluation):
-    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {'in_evaluation'}
+    assert evaluation.state in STATES_WITH_RESULTS_CACHING | {Evaluation.State.IN_EVALUATION}
 
-    if evaluation.state == 'in_evaluation':
+    if evaluation.state == Evaluation.State.IN_EVALUATION:
         return _get_results_impl(evaluation)
 
     cache_key = get_results_cache_key(evaluation)
-    result = caches['results'].get(cache_key)
+    result = caches["results"].get(cache_key)
     assert result is not None
     return result
 
@@ -162,22 +174,28 @@ def _get_results_impl(evaluation):
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = TextAnswer.objects.filter(contribution=contribution, question=question, state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED])
-                    text_result = TextResult(
+                    answers = TextAnswer.objects.filter(
+                        contribution=contribution,
                         question=question,
-                        answers=answers,
-                        answers_visible_to=textanswers_visible_to(contribution)
+                        state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED],
+                    )
+                    text_result = TextResult(
+                        question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = RatingAnswerCounter.objects.filter(contribution=contribution, question=question)
+                        answer_counters = RatingAnswerCounter.objects.filter(
+                            contribution=contribution, question=question
+                        )
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
                 elif question.is_text_question and evaluation.can_publish_text_results:
                     results.append(text_result)
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
-        contributor_contribution_results.append(ContributionResult(contribution.contributor, contribution.label, questionnaire_results))
+        contributor_contribution_results.append(
+            ContributionResult(contribution.contributor, contribution.label, questionnaire_results)
+        )
     return EvaluationResult(contributor_contribution_results)
 
 
@@ -234,48 +252,57 @@ def avg_distribution(weighted_distributions):
 
 def average_grade_questions_distribution(results):
     return avg_distribution(
-        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_grade_question]
+        [
+            (unipolarized_distribution(result), result.count_sum)
+            for result in results
+            if result.question.is_grade_question
+        ]
     )
 
 
 def average_non_grade_rating_questions_distribution(results):
     return avg_distribution(
-        [(unipolarized_distribution(result), result.count_sum) for result in results if result.question.is_non_grade_rating_question]
+        [
+            (unipolarized_distribution(result), result.count_sum)
+            for result in results
+            if result.question.is_non_grade_rating_question
+        ]
     )
 
 
 def calculate_average_course_distribution(course, check_for_unpublished_evaluations=True):
-    if check_for_unpublished_evaluations and course.evaluations.exclude(state="published").exists():
+    if check_for_unpublished_evaluations and course.evaluations.exclude(state=Evaluation.State.PUBLISHED).exists():
         return None
 
-    return avg_distribution([
-        (
-            (calculate_average_distribution(evaluation)
-                if not evaluation.is_single_result
-                else normalized_distribution(get_single_result_rating_result(evaluation).counts)),
-            evaluation.weight
-        )
-        for evaluation in course.evaluations.all()
-    ])
+    return avg_distribution(
+        [
+            (
+                (
+                    calculate_average_distribution(evaluation)
+                    if not evaluation.is_single_result
+                    else normalized_distribution(get_single_result_rating_result(evaluation).counts)
+                ),
+                evaluation.weight,
+            )
+            for evaluation in course.evaluations.all()
+        ]
+    )
 
 
 def get_evaluations_with_course_result_attributes(evaluations):
-    courses_with_unpublished_evaluations = (Course.objects
-        .filter(evaluations__in=evaluations)
-        .filter(Exists(Evaluation.objects.filter(course=OuterRef('pk')).exclude(state="published")))
-        .values_list('id', flat=True)
+    courses_with_unpublished_evaluations = (
+        Course.objects.filter(evaluations__in=evaluations)
+        .filter(Exists(Evaluation.objects.filter(course=OuterRef("pk")).exclude(state=Evaluation.State.PUBLISHED)))
+        .values_list("id", flat=True)
     )
 
-    course_id_evaluation_weight_sum_pairs = (Course.objects
-        .filter(evaluations__in=evaluations)
-        .annotate(Sum('evaluations__weight'))
-        .values_list('id', 'evaluations__weight__sum')
+    course_id_evaluation_weight_sum_pairs = (
+        Course.objects.filter(evaluations__in=evaluations)
+        .annotate(Sum("evaluations__weight"))
+        .values_list("id", "evaluations__weight__sum")
     )
 
-    evaluation_weight_sum_per_course_id = {
-        entry[0]: entry[1]
-        for entry in course_id_evaluation_weight_sum_pairs
-    }
+    evaluation_weight_sum_per_course_id = {entry[0]: entry[1] for entry in course_id_evaluation_weight_sum_pairs}
 
     for evaluation in evaluations:
         if evaluation.course.id in courses_with_unpublished_evaluations:
@@ -292,7 +319,7 @@ def get_evaluations_with_course_result_attributes(evaluations):
 
 
 def calculate_average_distribution(evaluation):
-    assert evaluation.state in {'in_evaluation', 'evaluated', 'reviewed', 'published'}
+    assert evaluation.state >= Evaluation.State.IN_EVALUATION
 
     if not evaluation.can_staff_see_average_grade or not evaluation.can_publish_average_grade:
         return None
@@ -305,22 +332,40 @@ def calculate_average_distribution(evaluation):
 
     evaluation_results = grouped_results.pop(None, [])
 
-    average_contributor_distribution = avg_distribution([
-        (
-            avg_distribution([
-                (average_grade_questions_distribution(contributor_results), settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT),
-                (average_non_grade_rating_questions_distribution(contributor_results), settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT)
-            ]),
-            max((result.count_sum for result in contributor_results if result.question.is_rating_question), default=0)
-        )
-        for contributor_results in grouped_results.values()
-    ])
+    average_contributor_distribution = avg_distribution(
+        [
+            (
+                avg_distribution(
+                    [
+                        (
+                            average_grade_questions_distribution(contributor_results),
+                            settings.CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT,
+                        ),
+                        (
+                            average_non_grade_rating_questions_distribution(contributor_results),
+                            settings.CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT,
+                        ),
+                    ]
+                ),
+                max(
+                    (result.count_sum for result in contributor_results if result.question.is_rating_question),
+                    default=0,
+                ),
+            )
+            for contributor_results in grouped_results.values()
+        ]
+    )
 
-    return avg_distribution([
-        (average_grade_questions_distribution(evaluation_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
-        (average_non_grade_rating_questions_distribution(evaluation_results), settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT),
-        (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT)
-    ])
+    return avg_distribution(
+        [
+            (average_grade_questions_distribution(evaluation_results), settings.GENERAL_GRADE_QUESTIONS_WEIGHT),
+            (
+                average_non_grade_rating_questions_distribution(evaluation_results),
+                settings.GENERAL_NON_GRADE_QUESTIONS_WEIGHT,
+            ),
+            (average_contributor_distribution, settings.CONTRIBUTIONS_WEIGHT),
+        ]
+    )
 
 
 def distribution_to_grade(distribution):
@@ -330,9 +375,7 @@ def distribution_to_grade(distribution):
 
 
 def color_mix(color1, color2, fraction):
-    return tuple(
-        int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3)
-    )
+    return tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
 
 
 def get_grade_color(grade):
@@ -347,14 +390,23 @@ def get_grade_color(grade):
 
 def textanswers_visible_to(contribution):
     if contribution.is_general:
-        contributors = UserProfile.objects.filter(
-            Q(contributions__evaluation=contribution.evaluation, contributions__textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS) |
-            Q(courses_responsible_for__in=[contribution.evaluation.course])
-        ).distinct().order_by('last_name', 'first_name')
+        contributors = (
+            UserProfile.objects.filter(
+                Q(
+                    contributions__evaluation=contribution.evaluation,
+                    contributions__textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                )
+                | Q(courses_responsible_for__in=[contribution.evaluation.course])
+            )
+            .distinct()
+            .order_by("last_name", "first_name")
+        )
     else:
         contributors = [contribution.contributor]
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
-    num_delegates = len(set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors))
+    num_delegates = len(
+        set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors)
+    )
     return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
 
 
@@ -363,10 +415,10 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
     assert textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
     contributor = textanswer.contribution.contributor
 
-    if view == 'public':
+    if view == "public":
         return False
 
-    if view == 'export':
+    if view == "export":
         if textanswer.is_private:
             return False
         if not textanswer.contribution.is_general and contributor != user:
@@ -385,11 +437,18 @@ def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
             return True
         # users can see text answers from general contributions if one of their represented users has text answer
         # visibility GENERAL_TEXTANSWERS for the evaluation
-        if textanswer.contribution.is_general and textanswer.contribution.evaluation.contributions.filter(
-                contributor__in=represented_users, textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS).exists():
+        if (
+            textanswer.contribution.is_general
+            and textanswer.contribution.evaluation.contributions.filter(
+                contributor__in=represented_users,
+                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            ).exists()
+        ):
             return True
         # the people responsible for a course can see all general text answers for all its evaluations
-        if textanswer.contribution.is_general and any(user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()):
+        if textanswer.contribution.is_general and any(
+            user in represented_users for user in textanswer.contribution.evaluation.course.responsibles.all()
+        ):
             return True
 
     return False

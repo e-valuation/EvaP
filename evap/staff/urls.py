@@ -3,7 +3,6 @@ from django.views.generic import RedirectView
 
 from evap.staff import views
 
-
 app_name = "staff"
 
 urlpatterns = [
@@ -22,6 +21,7 @@ urlpatterns = [
     path("semester/<int:semester_id>/grade_reminder", views.semester_grade_reminder, name="semester_grade_reminder"),
     path("semester/<int:semester_id>/course/create", views.course_create, name="course_create"),
     path("semester/<int:semester_id>/course/<int:course_id>/edit", views.course_edit, name="course_edit"),
+    path("semester/<int:semester_id>/course/<int:course_id>/copy", views.course_copy, name="course_copy"),
     path("semester/<int:semester_id>/evaluation/create", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/create/<int:course_id>", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/edit", views.evaluation_edit, name="evaluation_edit"),

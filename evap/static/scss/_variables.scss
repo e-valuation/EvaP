@@ -2,12 +2,15 @@
 
 $fa-font-path: "../font-awesome/webfonts";
 
+$enable-smooth-scroll: false;
+
 $grid-breakpoints: (
     xs: 0,
     sm: 576px,
     md: 768px,
     lg: 1008px,
-    xl: 1200px
+    xl: 1200px,
+    xxl: 1400px
 );
 
 $print-breakpoint: lg;
@@ -18,14 +21,34 @@ $container-max-widths: (
     sm: 540px,
     md: 720px,
     lg: 1000px,
-    xl: 1140px
+    xl: 1140px,
+    xxl: 1320px
 );
 
 $border-color: $medium-gray;
 
 $headings-margin-bottom: 1rem;
 
-$table-accent-bg: darken($lighter-gray, 3%);
+$table-accent-bg: transparent;
+$table-striped-bg: tint-color($light-gray, 50%);
+$table-border-color: $light-gray;
+$table-group-separator-color: $medium-gray;
+
+$card-cap-bg: $table-striped-bg;
+
+$accordion-border-width: 0;
+$accordion-button-active-bg: $evap-light-blue;
+$accordion-button-active-color: $evap-dark-blue;
+$accordion-icon-transform: rotate(90deg);
+$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$dark-gray}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
+$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-button-active-color}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
+
+$accordion-border-width: 0;
+$accordion-button-active-bg: $evap-light-blue;
+$accordion-button-active-color: $evap-dark-blue;
+$accordion-icon-transform: rotate(90deg);
+$accordion-button-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$dark-gray}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
+$accordion-button-active-icon: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='#{$accordion-button-active-color}'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/></svg>");
 
 $btn-disabled-opacity: 0.45;
 
@@ -45,6 +68,11 @@ $tooltip-opacity: 1;
 
 $breadcrumb-padding-y: 3px;
 $breadcrumb-padding-x: 0.5rem;
-$breadcrumb-item-padding: 0.3rem;
+$breadcrumb-item-padding-x: 0.3rem;
 $breadcrumb-margin-bottom: 0;
 $breadcrumb-bg: $darker-gray;
+
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$small-font-size: 0.8rem;

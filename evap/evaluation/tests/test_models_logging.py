@@ -4,30 +4,31 @@ from django.test import TestCase
 from django.utils.formats import localize
 from model_bakery import baker
 
-from evap.evaluation.models import Evaluation, Course, Contribution, Questionnaire
+from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.models_logging import FieldAction
 
 
 class TestLoggedModel(TestCase):
-    def setUp(self):
-        self.old_start_date = datetime.now()
-        self.new_start_date = self.old_start_date + timedelta(days=10)
+    @classmethod
+    def setUpTestData(cls):
+        cls.old_start_date = datetime.now()
+        cls.new_start_date = cls.old_start_date + timedelta(days=10)
 
-        self.course = baker.make(Course)
+        cls.course = baker.make(Course)
 
-        self.evaluation = baker.make(
+        cls.evaluation = baker.make(
             Evaluation,
-            course=self.course,
-            state="prepared",
-            vote_start_datetime=self.old_start_date,
+            course=cls.course,
+            state=Evaluation.State.PREPARED,
+            vote_start_datetime=cls.old_start_date,
             vote_end_date=date.today() + timedelta(days=20),
         )
-        self.evaluation.save()  # first logentry
+        cls.evaluation.save()  # first logentry
 
-        self.evaluation.vote_start_datetime = self.new_start_date
-        self.evaluation.save()  # second logentry
+        cls.evaluation.vote_start_datetime = cls.new_start_date
+        cls.evaluation.save()  # second logentry
 
-        self.logentry = self.evaluation.related_logentries()[1]
+        cls.logentry = cls.evaluation.related_logentries()[1]
 
     def test_voters_not_in_evaluation_data(self):
         self.assertFalse(any("voters" in entry.data for entry in self.evaluation.related_logentries()))
@@ -51,7 +52,7 @@ class TestLoggedModel(TestCase):
         )
 
     def test_deletion_data(self):
-        self.assertEqual(self.evaluation._get_change_data(action_type="delete")['course']['delete'][0], self.course.id)
+        self.assertEqual(self.evaluation._get_change_data(action_type="delete")["course"]["delete"][0], self.course.id)
         self.evaluation.delete()
         self.assertEqual(self.evaluation.related_logentries().count(), 0)
 
@@ -71,7 +72,9 @@ class TestLoggedModel(TestCase):
         contribution = self.evaluation.contributions.get(contributor__isnull=True)
         contribution.questionnaires.add(questionnaire)
         self.assertEqual(self.evaluation.related_logentries().count(), 3)
-        self.assertEqual(self.evaluation.related_logentries().order_by("id").last().data['questionnaires']['add'], [questionnaire.id])
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data["questionnaires"]["add"], [questionnaire.id]
+        )
 
     def test_none_value_not_included(self):
         baker.make(Contribution, evaluation=self.evaluation, label="testlabel")
@@ -79,3 +82,18 @@ class TestLoggedModel(TestCase):
 
         baker.make(Contribution, evaluation=self.evaluation, label=None)
         self.assertNotIn("label", self.evaluation.related_logentries().order_by("id").last().data)
+
+    def test_simultaneous_add_and_remove(self):
+        # Regression test for https://github.com/e-valuation/EvaP/issues/1594
+        participant1 = baker.make(UserProfile)
+        participant2 = baker.make(UserProfile)
+        self.evaluation.participants.add(participant1)
+        # Refresh reference to evaluation, to force new log entry
+        self.evaluation = Evaluation.objects.get(pk=self.evaluation.pk)
+
+        self.evaluation.participants.remove(participant1)
+        self.evaluation.participants.add(participant2)
+        self.assertEqual(
+            self.evaluation.related_logentries().order_by("id").last().data,
+            {"participants": {"add": [participant2.id], "remove": [participant1.id]}},
+        )

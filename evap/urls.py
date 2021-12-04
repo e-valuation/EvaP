@@ -1,7 +1,6 @@
+import django.contrib.auth.views
 from django.conf import settings
 from django.urls import include, path, re_path
-import django.contrib.auth.views
-
 
 urlpatterns = [
     path("", include('evap.evaluation.urls')),

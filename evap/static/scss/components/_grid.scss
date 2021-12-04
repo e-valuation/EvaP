@@ -1,5 +1,5 @@
 .container-striped .row:nth-child(odd) {
-    background-color: $table-accent-bg;
+    background-color: $table-striped-bg;
 }
 
 .lcr-left {
@@ -16,6 +16,7 @@
 
 
 .col-question {
+    position: relative;
     padding: 0.5rem 0.75rem 0;
     word-wrap: break-word;
 
@@ -76,19 +77,19 @@
         "name semester responsible participants result"
         / auto    6rem       12rem         7rem  11rem;
 
-    @include media-breakpoint-down(md) {
+    @include media-breakpoint-down(lg) {
         grid:
             "name semester  responsible responsible"
             "name semester participants      result"
             / auto    3rem         7rem       10rem;
     }
 
-    @include media-breakpoint-down(sm) {
+    @include media-breakpoint-down(md) {
         grid:
             "        name        name    semester"
             " responsible responsible responsible"
             "participants      result      result"
-            /         1fr         1fr        3rem;
+            /         1fr         1fr        6rem;
     }
 
     &:not(.grid-header) [data-col=responsible] {
@@ -154,7 +155,7 @@
 }
 
 th.col-order {
-    padding-left: 1.25em;
+    padding-left: 1.4em;
 
     &:empty {
         padding-right: 0;
@@ -162,7 +163,7 @@ th.col-order {
 
     &::before, &::after {
         margin-left: 0.2em;
-        bottom: 0.75em;
+        bottom: 0.5em;
     }
 }
 

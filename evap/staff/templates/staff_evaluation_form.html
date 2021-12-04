@@ -14,7 +14,7 @@
     {% if evaluation_form.instance.id %}
         <div class="mb-2">
             {% with approval_state_values=evaluation.state|approval_state_values %}
-                <span class="badge badge-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
+                <span class="badge bg-light"><span class="{{ approval_state_values.icon }}"></span> {{ approval_state_values.description }}</span>
             {% endwith %}
             {% include 'course_badges.html' with course=evaluation.course %}
         </div>
@@ -34,19 +34,19 @@
         </div>
 
         {% if editable %}
-        <div class="card card-submit-area{% if state == 'new' or state == 'prepared' or state == 'editor_approved' %} card-submit-area-2{% endif %} text-center mb-3">
+        <div class="card card-submit-area{% if state <= evaluation.State.EDITOR_APPROVED %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
-                {% if state == 'in_evaluation' %}
-                    <div class="alert alert-warning">{% trans 'You are editing an evaluation, which is already running. Please note that only the students who did not evaluate yet will see your changes.' %}</div>
+                {% if state == evaluation.State.IN_EVALUATION %}
+                    <div class="alert alert-warning">{% trans 'You are editing an evaluation, which is already running. Please note that only the participants who did not evaluate yet will see your changes.' %}</div>
                 {% endif %}
-                {% if state == 'evaluated' or state == 'reviewed' %}
+                {% if state == evaluation.State.EVALUATED or state == evaluation.State.REVIEWED %}
                     <div class="alert alert-warning">{% trans 'You are editing an evaluation, for which the evaluation already finished. Please be careful to not destroy any results.' %}</div>
                 {% endif %}
-                {% if state == 'new' or state == 'prepared' %}
+                {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED %}
                     <div class="alert alert-warning">{% trans 'You are editing an evaluation which has not been approved by the editor yet.' %}</div>
                 {% endif %}
                 <button name="operation" value="save" type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
-                {% if state == 'new' or state == 'prepared' or state == 'editor_approved' %}
+                {% if state == evaluation.State.NEW or state == evaluation.State.PREPARED or state == evaluation.State.EDITOR_APPROVED %}
                     <button name="operation" value="approve" type="submit" class="btn btn-success">{% trans 'Save and approve' %}</button>
                 {% endif %}
             </div>

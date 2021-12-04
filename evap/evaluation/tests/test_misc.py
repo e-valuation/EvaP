@@ -6,10 +6,9 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-
 from model_bakery import baker
 
-from evap.evaluation.models import Semester, UserProfile, CourseType, Degree
+from evap.evaluation.models import CourseType, Degree, Semester, UserProfile
 from evap.evaluation.tests.tools import make_manager
 from evap.staff.tests.utils import WebTestStaffMode
 
@@ -60,6 +59,6 @@ class TestMissingMigrations(TestCase):
     def test_for_missing_migrations(self):
         output = StringIO()
         try:
-            call_command('makemigrations', dry_run=True, check=True, stdout=output)
+            call_command("makemigrations", dry_run=True, check=True, stdout=output)
         except SystemExit:
             self.fail("There are model changes not reflected in migrations, please run makemigrations.")

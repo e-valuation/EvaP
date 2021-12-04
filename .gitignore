@@ -5,6 +5,7 @@
 *.swp
 TAGS
 .*
+!.gitignore
 *.kpf
 *.komodoproject
 
@@ -23,6 +24,7 @@ thumbs.db
 evap/localsettings.py
 evap/static/css/evap.css
 evap/static/css/evap.css.map
+evap/static/ts/rendered
 evap/static_collected
 evap/media
 evap/database.sqlite3
@@ -37,6 +39,18 @@ htmlcov
 
 # pip puts editable packages here
 src
+!evap/static/ts/.prettierrc.json
+!evap/static/ts/src
+
+node_modules
 
 # python env subdir
 env/
+venv/
+
+# notes to self
+todo.txt
+todo
+
+# flake8 configuration
+setup.cfg

@@ -31,13 +31,13 @@
                     <tbody>
                         {% for form in formset %}
                             <tr class="select2tr sortable">
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
                                 <td class="movable">
                                     <span class="movable-icon fas fa-arrows-alt-v"></span>
                                 </td>
                                 <td>
+                                    {% for hidden in form.hidden_fields %}
+                                        {{ hidden }}
+                                    {% endfor %}
                                     {% include 'bootstrap_form_field_widget.html' with field=form.name_de %}
                                 </td>
                                 <td>
@@ -48,9 +48,9 @@
                                 </td>
                                 <td>
                                     {% if form.instance.can_be_deleted_by_manager %}
-                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE %}
+                                        {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                                     {% else %}
-                                        <button type="button" disabled class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="left"
+                                        <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
                                             title="{% trans 'This course type cannot be deleted because it is used for at least one course.' %}">
                                             <span class="fas fa-trash"></span>
                                         </button>

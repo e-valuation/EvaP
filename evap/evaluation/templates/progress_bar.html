@@ -1,6 +1,6 @@
 {% load evaluation_filters %}
 
-<div class="progress-container{% if warning %} progress-container-warning{% endif %} d-flex">
+<span class="progress-container{% if warning %} progress-container-warning{% endif %} d-flex">
     {% spaceless %}
         <span class="progress">
             <span class="progress-bar" style="width: {% widthratio done total 100 %}%;"></span>
@@ -13,4 +13,4 @@
         </span>
     {% endspaceless %}
     <span class="progress-label">{{ done|percentage:total|default:'0%' }}</span>
-</div>
+</span>

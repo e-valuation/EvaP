@@ -20,7 +20,7 @@
         {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
-                <div class="ml-auto col-sm-9 mb-3">
+                <div class="ms-auto col-sm-9 mb-3">
                     {% include 'staff_user_badges.html' with user=form.instance %}
                 </div>
                 {% include 'bootstrap_form.html' with form=form %}
@@ -44,7 +44,7 @@
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="d-flex">
-                            <h5 class="card-title mr-auto">{% trans 'Export evaluation results' %}</h5>
+                            <h5 class="card-title me-auto">{% trans 'Export evaluation results' %}</h5>
                             <div>
                                 <a href="{% url 'staff:export_contributor_results' form.instance.id %}" class="btn btn-sm btn-light">{% trans 'Export all results' %}</a>
                             </div>

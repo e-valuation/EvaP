@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def confirm_harmful_operation(output):
-    """ Usage: Abort if it does not return true """
+    """Usage: Abort if it does not return true"""
 
     if input("Are you sure you want to continue? (yes/no) ") != "yes":
         output.write("Aborting...")
@@ -30,6 +30,7 @@ def log_exceptions(cls):
     Any exceptions raised in the command's handle method will be logged and re-raised.
     Can be replaced if https://code.djangoproject.com/ticket/27877 gets implemented.
     """
+
     class NewClass(cls):
         def handle(self, *args, **options):
             try:
@@ -37,4 +38,5 @@ def log_exceptions(cls):
             except Exception:
                 logger.exception("Management command '{}' failed. Traceback follows: ".format(sys.argv[1]))
                 raise
+
     return NewClass

@@ -1,12 +1,11 @@
-from unittest.mock import patch
 import urllib
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
-
 from model_bakery import baker
 
 from evap.evaluation import auth
@@ -23,7 +22,7 @@ class LoginTests(WebTest):
         cls.external_user.ensure_valid_login_key()
         cls.inactive_external_user = baker.make(UserProfile, email="inactive@extern.com", is_active=False)
         cls.inactive_external_user.ensure_valid_login_key()
-        evaluation = baker.make(Evaluation, state='published')
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
         baker.make(
             Contribution,
             evaluation=evaluation,
@@ -39,13 +38,13 @@ class LoginTests(WebTest):
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-    @override_settings(PAGE_URL='https://example.com')
+    @override_settings(PAGE_URL="https://example.com")
     def test_login_url_generation(self):
         generated_url = self.external_user.login_url
-        self.assertEqual(generated_url, 'https://example.com/key/{}'.format(self.external_user.login_key))
+        self.assertEqual(generated_url, "https://example.com/key/{}".format(self.external_user.login_key))
 
-        reversed_url = reverse('evaluation:login_key_authentication', args=[self.external_user.login_key])
-        self.assertEqual(reversed_url, '/key/{}'.format(self.external_user.login_key))
+        reversed_url = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
+        self.assertEqual(reversed_url, "/key/{}".format(self.external_user.login_key))
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
@@ -57,11 +56,11 @@ class LoginTests(WebTest):
         self.external_user.refresh_from_db()
         self.assertEqual(old_login_key, self.external_user.login_key)
         self.assertEqual(old_login_key_valid_until, self.external_user.login_key_valid_until)
-        self.assertContains(page, 'Login')
+        self.assertContains(page, "Login")
         self.assertContains(page, self.external_user.full_name)
 
         page = self.app.post(url_with_key).follow().follow()
-        self.assertContains(page, 'Logout')
+        self.assertContains(page, "Logout")
         self.assertContains(page, self.external_user.full_name)
 
     def test_login_key_valid_only_once(self):
@@ -70,13 +69,13 @@ class LoginTests(WebTest):
 
         url_with_key = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
         page = self.app.post(url_with_key).follow().follow()
-        self.assertContains(page, 'Logout')
+        self.assertContains(page, "Logout")
 
         page = self.app.get(reverse("django-auth-logout")).follow()
-        self.assertNotContains(page, 'Logout')
+        self.assertNotContains(page, "Logout")
 
         page = self.app.get(url_with_key).follow()
-        self.assertContains(page, 'The login URL is not valid anymore.')
+        self.assertContains(page, "The login URL is not valid anymore.")
         self.assertEqual(len(mail.outbox), 1)  # a new login key was sent
 
         new_key = UserProfile.objects.get(id=self.external_user.id).login_key
@@ -84,7 +83,9 @@ class LoginTests(WebTest):
         self.assertContains(page, self.external_user.full_name)
 
     def test_inactive_external_users_can_not_login(self):
-        page = self.app.get(reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])).follow()
+        page = self.app.get(
+            reverse("evaluation:login_key_authentication", args=[self.inactive_external_user.login_key])
+        ).follow()
         self.assertContains(page, "Inactive users are not allowed to login")
         self.assertNotContains(page, "Logout")
 
@@ -98,7 +99,7 @@ class LoginTests(WebTest):
         self.assertContains(page, "We sent you an email with a one-time login URL. Please check your inbox.")
 
     @override_settings(
-        OIDC_OP_AUTHORIZATION_ENDPOINT='https://oidc.example.com/auth',
+        OIDC_OP_AUTHORIZATION_ENDPOINT="https://oidc.example.com/auth",
         ACTIVATE_OPEN_ID_LOGIN=True,
     )
     def test_oidc_login(self):
@@ -106,7 +107,7 @@ class LoginTests(WebTest):
         page = self.app.get("/").click("Login")
 
         # which should then redirect them to OIDC_OP_AUTHORIZTATION_ENDPOINT
-        location = page.headers['location']
+        location = page.headers["location"]
         self.assertIn(settings.OIDC_OP_AUTHORIZATION_ENDPOINT, location)
 
         parse_result = urllib.parse.urlparse(location)
@@ -119,13 +120,13 @@ class LoginTests(WebTest):
 
         user = baker.make(UserProfile)
         # usually, the browser would now open that page and login. Then, they'd be redirected to /oidc/callback
-        with patch.object(auth.OIDCAuthenticationBackend, 'authenticate', return_value=user, __name__='authenticate'):
+        with patch.object(auth.OIDCAuthenticationBackend, "authenticate", return_value=user, __name__="authenticate"):
             page = self.app.get(f"/oidc/callback/?code=secret-code&state={state}")
             # The oidc module will now send a request to the oidc provider, asking whether the code is valid.
             # We've mocked the method that does that and will just return a UserProfile.
 
         # Thus, at this point, the user should be logged in and be redirected back to the start page.
-        location = page.headers['location']
+        location = page.headers["location"]
         parse_result = urllib.parse.urlparse(location)
         self.assertEqual(parse_result.path, "/")
 
@@ -135,47 +136,45 @@ class LoginTests(WebTest):
         page = page.follow(expect_errors=True)
 
         # user should see the Logout button then.
-        self.assertIn('Logout', page.body.decode())
+        self.assertIn("Logout", page.body.decode())
 
 
 class LoginTestsWithCSRF(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.staff_user = baker.make(
-            UserProfile,
-            email='staff@institution.example.com',
-            groups=[Group.objects.get(name='Manager')]
+            UserProfile, email="staff@institution.example.com", groups=[Group.objects.get(name="Manager")]
         )
-        cls.staff_user_password = 'staff'
+        cls.staff_user_password = "staff"
         cls.staff_user.set_password(cls.staff_user_password)
         cls.staff_user.save()
 
     def test_entering_staff_mode_after_logout_and_login(self):
         """
-            Asserts that managers can enter the staff mode after logging out and logging in again.
-            Regression test for #1530.
+        Asserts that managers can enter the staff mode after logging out and logging in again.
+        Regression test for #1530.
         """
-        page = self.app.get(reverse('evaluation:index'))
-        form = page.forms['email-login-form']
-        form['email'] = self.staff_user.email
-        form['password'] = self.staff_user_password
+        page = self.app.get(reverse("evaluation:index"))
+        form = page.forms["email-login-form"]
+        form["email"] = self.staff_user.email
+        form["password"] = self.staff_user_password
         page = form.submit().follow().follow()
 
         # staff user should now be logged in and see the logout button
-        self.assertContains(page, 'Logout')
+        self.assertContains(page, "Logout")
 
         # log out user
-        page = self.app.get(reverse('django-auth-logout')).follow()
-        self.assertNotContains(page, 'Logout')
+        page = self.app.get(reverse("django-auth-logout")).follow()
+        self.assertNotContains(page, "Logout")
 
         # log user in again
-        page = self.app.get(reverse('evaluation:index'))
-        form = page.forms['email-login-form']
-        form['email'] = self.staff_user.email
-        form['password'] = self.staff_user_password
+        page = self.app.get(reverse("evaluation:index"))
+        form = page.forms["email-login-form"]
+        form["email"] = self.staff_user.email
+        form["password"] = self.staff_user_password
         page = form.submit().follow().follow()
 
         # enter staff mode
-        page = page.forms['enter-staff-mode-form'].submit().follow().follow()
-        self.assertTrue('staff_mode_start_time' in self.app.session)
-        self.assertContains(page, 'Users')
+        page = page.forms["enter-staff-mode-form"].submit().follow().follow()
+        self.assertTrue("staff_mode_start_time" in self.app.session)
+        self.assertContains(page, "Users")

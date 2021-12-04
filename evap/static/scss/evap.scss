@@ -1,3 +1,4 @@
+@import "../bootstrap/scss/functions";
 @import "variables";
 @import "mixins";
 @import "font-awesome";
@@ -85,7 +86,7 @@ body {
 .sortable .movable span.movable-icon {
     font-size: 16px;
     top: 8px;
-    cursor:move;
+    cursor: move;
 }
 
 .break-word {
@@ -94,7 +95,7 @@ body {
     }
 }
 
-.card-body .form-group:last-of-type {
+.card-body .mb-3:last-of-type {
     margin-bottom: 0;
 }
 
@@ -136,6 +137,10 @@ td.icon {
     max-height: 170px;
     overflow-y: auto;
     padding-left: 4px;
+}
+
+.space-normal {
+    white-space: normal;
 }
 
 @media print {

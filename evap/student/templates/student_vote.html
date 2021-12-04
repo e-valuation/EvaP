@@ -29,12 +29,12 @@
         </div>
     {% endif %}
     {% if preview and not for_rendering_in_modal %}
-        <small>
         <div class="callout callout-info">
-            <b>{% trans 'Questionnaire Preview' %}</b><br />
-            {% blocktrans %}This is a preview of the questionnaire for the evaluation. Students will see the questions below when participating in the evaluation.{% endblocktrans %}
+            <small>
+                <b>{% trans 'Questionnaire Preview' %}</b><br />
+                {% blocktrans %}This is a preview of the questionnaire for the evaluation. Participants will see the questions below.{% endblocktrans %}
+            </small>
         </div>
-    </small>
     {% endif %}
     <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
@@ -45,14 +45,14 @@
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
-                <div class="card-body">
+                <div class="card-body tab-row">
                     {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
                     {% if evaluation.num_voters == 0 %}
                         <br />
                         {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                         <div class="form-check mt-3">
-                            <input class="form-check-input" id="text_results_publish_confirmation_top" type="checkbox"
+                            <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_top" type="checkbox"
                                 name="text_results_publish_confirmation_top" />
                             <label class="form-check-label" for="text_results_publish_confirmation_top">
                                 {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
@@ -87,16 +87,16 @@
 
                     {% for contributor, label, form_group, contributor_has_errors, textanswers_visible_to in contributor_form_groups %}
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
-                            <div class="card-header d-flex">
-                                <div class="mr-auto">
-                                    <a class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %}" data-toggle="collapse"
-                                        href="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}">
+                            <div class="card-header d-flex tab-row">
+                                <div class="me-auto">
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                        data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
-                                        {% if label %} &ndash; <span class="font-italic">{{ label }}</span>{% endif %}
-                                    </a>
+                                        {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
+                                    </button>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-light btn-sm"
+                                    <button type="button" class="btn btn-light btn-sm{% if not preview %} tab-selectable{% endif %}"
                                         data-mark-no-answers-for="{{ contributor.id }}"
                                         {% if preview %}disabled{% endif %}
                                     >
@@ -129,11 +129,11 @@
                 <div class="card-header">
                     <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
                 </div>
-                <div class="card-body">
+                <div class="card-body tab-row">
                     {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
 
                     <div class="form-check mt-3">
-                        <input class="form-check-input" id="text_results_publish_confirmation_bottom" type="checkbox"
+                        <input class="form-check-input tab-selectable" id="text_results_publish_confirmation_bottom" type="checkbox"
                             name="text_results_publish_confirmation_bottom" />
                         <label class="form-check-label" for="text_results_publish_confirmation_bottom">
                             {% trans 'Show my text answers to the contributors even if I remain the only person who takes part in this evaluation.' %}
@@ -144,15 +144,15 @@
         {% endif %}
         {% if not for_rendering_in_modal %}
             <div class="card card-submit-area{% if not preview %} card-submit-area-2{% endif %} text-center">
-                <div class="card-body">
+                <div class="card-body tab-row">
                     {% if preview %}
                         <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans 'Back' %}</a>
                     {% else %}
                         <div class="pb-3 text-secondary">
                             <span id="last-saved"></span>
-                            <span class="fas fa-info-circle" data-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                            <span class="fas fa-info-circle" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
-                        <button id="vote-submit-btn" type="submit" class="btn btn-success">{% trans 'Submit questionnaire' %}</button>
+                        <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
                             <span class="fas fa-exclamation-triangle"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
@@ -185,19 +185,15 @@
                 autoRelease: false, // don't automatically release the data on submit, because the server might not receive the data
                 customKeySuffix: "[user={{ request.user.id }}]", // don't load data for other users
                 onRestore: function () {
-                    // update vote button states
-                    $("div.vote-inputs input[type=radio]:not(:checked)").parent().removeClass("active");
-                    $("div.vote-inputs input[type=radio]:checked").parent().addClass("active");
-
                     // restore publish confirmation state
                     if (textResultsPublishConfirmation.bottomCard) {
                         updateTextResultsPublishConfirmation();
                     }
 
                     // show all non-empty additional text answer fields
-                    $(".collapse textarea").each(function(index) {
-                        if($(this).val()){
-                            $($(this).closest(".row")).find(".btn-textanswer").click()
+                    document.querySelectorAll(".row-question .collapse textarea").forEach(el => {
+                        if (el.value.length !== 0) {
+                            el.closest(".row").getElementsByClassName("btn-textanswer")[0].click();
                         }
                     });
                 },
@@ -208,33 +204,33 @@
             });
 
             function updateLastSavedLabel() {
-                    const timeNow = new Date();
-                    const lastSavedLabel = $('#last-saved');
-                    if (localStorage.getItem(lastSavedStorageKey) !== null) {
-                        const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
-                        const delta = Math.round((timeNow - lastSavedDate) / 1000)
-                        const languageCode = "{{ LANGUAGE_CODE }}"
-                        const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
-                        let timeStamp = "{% trans 'unknown' %}"
-                        if (delta < 3) {
-                            timeStamp = "{% trans 'just now' %}";
-                        } else if (delta < 60) {
-                            timeStamp = relativeTimeFormat.format(-delta, 'seconds');
-                        } else if (delta < 60 * 30) {
-                            timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
-                        } else if (delta < 60 * 60 * 12) {
-                            timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
-                        } else {
-                            timeStamp = lastSavedDate.getFullYear() + "-"
-                            + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
-                            + padWithLeadingZeros(lastSavedDate.getDate()) + " "
-                            + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
-                            + padWithLeadingZeros(lastSavedDate.getMinutes());
-                        }
-                        lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
+                const timeNow = new Date();
+                const lastSavedLabel = $('#last-saved');
+                if (localStorage.getItem(lastSavedStorageKey) !== null) {
+                    const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
+                    const delta = Math.round((timeNow - lastSavedDate) / 1000)
+                    const languageCode = "{{ LANGUAGE_CODE }}"
+                    const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
+                    let timeStamp = "{% trans 'unknown' %}"
+                    if (delta < 3) {
+                        timeStamp = "{% trans 'just now' %}";
+                    } else if (delta < 60) {
+                        timeStamp = relativeTimeFormat.format(-delta, 'seconds');
+                    } else if (delta < 60 * 30) {
+                        timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
+                    } else if (delta < 60 * 60 * 12) {
+                        timeStamp = padWithLeadingZeros(lastSavedDate.getHours()) + ":" + padWithLeadingZeros(lastSavedDate.getMinutes());
                     } else {
-                        lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
+                        timeStamp = lastSavedDate.getFullYear() + "-"
+                        + padWithLeadingZeros(lastSavedDate.getMonth() + 1) + "-"
+                        + padWithLeadingZeros(lastSavedDate.getDate()) + " "
+                        + padWithLeadingZeros(lastSavedDate.getHours()) + ":"
+                        + padWithLeadingZeros(lastSavedDate.getMinutes());
                     }
+                    lastSavedLabel.text("{% trans 'Last saved locally' %}: " + timeStamp);
+                } else {
+                    lastSavedLabel.text("{% trans 'Could not save your information locally' %}");
+                }
             }
 
             function padWithLeadingZeros(number){
@@ -249,7 +245,7 @@
             updateLastSavedLabel()
             setInterval(updateLastSavedLabel, 1000);
 
-            initTextAnswerWarnings($("textarea"), JSON.parse($("#text-answer-warnings").text()));
+            initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
 
             var form = $('#student-vote-form');
 
@@ -279,16 +275,9 @@
                             sisyphus.manuallyReleaseData();
                             window.location.replace("{{ success_redirect_url }}");
                         } else {
-                            window.scrollTo({
-                                top: 0,
-                                behavior: "auto",
-                            });
-                            // Manually perform the page load: first replace content
-                            document.open();
-                            document.write(data);
-                            document.close();
-                            // then set URL (e.g. logout redirect)
-                            window.history.pushState('', '', xhr.responseURL);
+                            // resubmit without this handler to show the site with the form errors
+                            form.unbind("submit");
+                            form.submit();
                         }
                     },
                     error: function(data) {
@@ -301,33 +290,76 @@
                 return false;
             });
 
-            document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
-                button.addEventListener("click", () => {
-                    const contributorId = button.dataset.markNoAnswersFor;
-                    const voteArea = document.querySelector(`#vote-area-${contributorId}`);
+            function clearChoiceError(voteButton) {
+                voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
+                    highlightedElement.classList.remove("choice-error");
+                });
+            }
 
-                    voteArea.querySelectorAll(".vote-btn.active").forEach(el => el.classList.remove("active"));
+            document.querySelectorAll("[data-mark-no-answers-for]").forEach(button => {
+                const contributorId = button.dataset.markNoAnswersFor;
+                const voteArea = document.getElementById(`vote-area-${contributorId}`);
+                const collapseToggle = voteArea.closest(".collapsible").querySelector(".collapse-toggle");
+
+                button.addEventListener("click", () => {
                     voteArea.querySelectorAll(".vote-inputs [type=radio][value='6']").forEach(radioInput => {
                         radioInput.checked = true;
-                        radioInput.closest(".vote-btn").classList.add("active");
+                        clearChoiceError(radioInput);
                     });
 
                     sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
-                    $(voteArea).collapse("hide");
+                    const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
+                    voteAreaCollapse.hide();
+                    collapseToggle.classList.add("tab-selectable");
+
+                    // Disable this button, until user changes a value
+                    button.classList.remove("tab-selectable");
+                    button.disabled = true;
+                });
+
+                voteArea.querySelectorAll(".vote-inputs [type=radio]:not([value='6'])")
+                    .forEach(radioInput => {
+                        radioInput.addEventListener("click", () => {
+                            collapseToggle.classList.remove("tab-selectable");
+                            button.classList.add("tab-selectable");
+                            button.disabled = false;
+                        });
+                    });
+
+                collapseToggle.addEventListener("click", () => {
+                    if (button.classList.contains("tab-selectable")) {
+                        collapseToggle.classList.remove("tab-selectable");
+                    }
                 });
             });
 
             // remove error highlighting when an answer was selected
             document.querySelectorAll(".vote-btn.choice-error").forEach(voteButton => {
-                voteButton.addEventListener("click", () => {
-                    voteButton.closest(".row").querySelectorAll(".choice-error").forEach(highlightedElement => {
-                        highlightedElement.classList.remove("choice-error");
-                    });
-                });
+                voteButton.addEventListener("click", () => clearChoiceError(voteButton));
+                const actualInput = document.getElementById(voteButton.attributes["for"].value);
+                actualInput.addEventListener("click", () => clearChoiceError(voteButton));
             });
 
+            document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
+                const textfieldClass = textanswerButton.dataset.bsTarget;
+                const textfield = textanswerButton.closest(".row").querySelector(textfieldClass + " textarea");
+                textanswerButton.addEventListener("click", () => {
+                    // focus textarea when opening the collapsed area
+                    const isOpening = textanswerButton.classList.contains("collapsed");
+                    if (isOpening) {
+                        requestAnimationFrame(() => textfield.focus());
+                    }
+                });
+                textfield.addEventListener("input", () => {
+                    if (textfield.value.trim().length !== 0)
+                        textanswerButton.classList.add("has-contents");
+                    else
+                        textanswerButton.classList.remove("has-contents");
+                });
+                textfield.dispatchEvent(new Event("input"));
+            });
 
             // handle text_results_publish_confirmation checkbox changes
             function updateTextResultsPublishConfirmation() {
@@ -346,5 +378,6 @@
                 });
             }
         </script>
+        <script type="module" src="{% static 'js/student-vote.js' %}"></script>
     {% endif %}
 {% endblock %}

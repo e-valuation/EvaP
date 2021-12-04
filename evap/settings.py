@@ -8,9 +8,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+import logging
 import os
 import sys
-import logging
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -36,12 +36,17 @@ SMALL_COURSE_SIZE = 5  # up to which number of participants the evaluation gets 
 RESULTS_WARNING_COUNT = 4
 RESULTS_WARNING_PERCENTAGE = 0.5
 
-# percentages for calculating an evaluation's total average grade
-CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4  # grade questions are weighted this much for each contributor's average grade
-CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6  # non-grade questions are weighted this much for each contributor's average grade
-CONTRIBUTIONS_WEIGHT = 1  # the average contribution grade is weighted this much for the evaluation's average grade
-GENERAL_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general grade questions is weighted this much for the evaluation's average grade
-GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1  # the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
+## percentages for calculating an evaluation's total average grade
+# grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_GRADE_QUESTIONS_WEIGHT = 4
+# non-grade questions are weighted this much for each contributor's average grade
+CONTRIBUTOR_NON_GRADE_RATING_QUESTIONS_WEIGHT = 6
+# the average contribution grade is weighted this much for the evaluation's average grade
+CONTRIBUTIONS_WEIGHT = 1
+# the average grade of all general grade questions is weighted this much for the evaluation's average grade
+GENERAL_GRADE_QUESTIONS_WEIGHT = 1
+# the average grade of all general non-grade questions is weighted this much for the evaluation's average grade
+GENERAL_NON_GRADE_QUESTIONS_WEIGHT = 1
 
 # number of reward points a student should have for a semester after evaluating the given fraction of evaluations.
 REWARD_POINTS = [
@@ -93,42 +98,42 @@ ADMINS = [
 PAGE_URL = "localhost:8000"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'evap',                             # Or path to database file if using sqlite3.
-        'USER': 'postgres',                         # Not used with sqlite3.
-        'PASSWORD': '',                             # Not used with sqlite3.
-        'HOST': '',                                 # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                                 # Set to empty string for default. Not used with sqlite3.
-        'CONN_MAX_AGE': 600,
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "evap",
+        "USER": "postgres",
+        "PASSWORD": "",
+        "HOST": "",  # Set to empty string for localhost.
+        "PORT": "",  # Set to empty string for default.
+        "CONN_MAX_AGE": 600,
     }
 }
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/0',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 5000
-        }
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 5000,
+        },
     },
-    'results': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'TIMEOUT': None,  # is always invalidated manually
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 100000
-        }
+    "results": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "TIMEOUT": None,  # is always invalidated manually
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 100000,
+        },
     },
-    'sessions': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/2',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'MAX_ENTRIES': 5000
-        }
+    "sessions": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "MAX_ENTRIES": 5000,
+        },
     },
 }
 
@@ -138,50 +143,50 @@ CONTACT_EMAIL = "webmaster@localhost"
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
 REPLY_TO_EMAIL = DEFAULT_FROM_EMAIL
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'default': {
-            'format': '[%(asctime)s] %(levelname)s: %(message)s',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[%(asctime)s] %(levelname)s: %(message)s",
         },
     },
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR + '/logs/evap.log',
-            'maxBytes': 1024 * 1024 * 10,
-            'backupCount': 5,
-            'formatter': 'default',
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR + "/logs/evap.log",
+            "maxBytes": 1024 * 1024 * 10,
+            "backupCount": 5,
+            "formatter": "default",
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
         },
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'default',
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file', 'mail_admins'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file", "mail_admins"],
+            "level": "INFO",
+            "propagate": True,
         },
-        'evap': {
-            'handlers': ['console', 'file', 'mail_admins'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "evap": {
+            "handlers": ["console", "file", "mail_admins"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        'mozilla_django_oidc': {
-            'handlers': ['console', 'file', 'mail_admins'],
-            'level': 'DEBUG',
-            'propagate': True,
+        "mozilla_django_oidc": {
+            "handlers": ["console", "file", "mail_admins"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
@@ -189,49 +194,49 @@ LOGGING = {
 
 ### Application definition
 
-AUTH_USER_MODEL = 'evaluation.UserProfile'
+AUTH_USER_MODEL = "evaluation.UserProfile"
 
 INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_extensions',
-    'evap.evaluation',
-    'evap.staff',
-    'evap.results',
-    'evap.student',
-    'evap.contributor',
-    'evap.rewards',
-    'evap.grades',
-    'django.forms',
-    'mozilla_django_oidc',
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django_extensions",
+    "evap.evaluation",
+    "evap.staff",
+    "evap.results",
+    "evap.student",
+    "evap.contributor",
+    "evap.rewards",
+    "evap.grades",
+    "django.forms",
+    "mozilla_django_oidc",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     # LocaleMiddleware should be here according to https://docs.djangoproject.com/en/2.2/topics/i18n/translation/#how-django-discovers-language-preference
-    # Furthermore, set_or_get_language (happens on login) uses the active language, so LocaleMiddleware should be before AuthenticationMiddleware
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'mozilla_django_oidc.middleware.SessionRefresh',
-    'evap.middleware.RequireLoginMiddleware',
-    'evap.staff.staff_mode.staff_mode_middleware',
-    'evap.evaluation.middleware.LoggingRequestMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "mozilla_django_oidc.middleware.SessionRefresh",
+    "evap.middleware.RequireLoginMiddleware",
+    "evap.middleware.user_language_middleware",
+    "evap.staff.staff_mode.staff_mode_middleware",
+    "evap.evaluation.middleware.LoggingRequestMiddleware",
 ]
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
@@ -241,28 +246,30 @@ TEMPLATES = [
                 "evap.context_processors.slogan",
                 "evap.context_processors.debug",
             ],
-            'builtins': ['django.templatetags.i18n'],
+            "builtins": ["django.templatetags.i18n"],
         },
     },
 ]
 
 # This allows to redefine form widget templates used by Django when generating forms.
 # The templates are located in evaluation/templates/django/forms/widgets and add the "form-control" class for correct bootstrap styling.
-FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 AUTHENTICATION_BACKENDS = [
-    'evap.evaluation.auth.RequestAuthUserBackend',
-    'evap.evaluation.auth.OpenIDAuthenticationBackend',
-    'evap.evaluation.auth.EmailAuthenticationBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "evap.evaluation.auth.RequestAuthUserBackend",
+    "evap.evaluation.auth.OpenIDAuthenticationBackend",
+    "evap.evaluation.auth.EmailAuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
-ROOT_URLCONF = 'evap.urls'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-WSGI_APPLICATION = 'evap.wsgi.application'
+ROOT_URLCONF = "evap.urls"
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+WSGI_APPLICATION = "evap.wsgi.application"
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 LOGIN_URL = "/"
 
@@ -277,9 +284,9 @@ STAFF_MODE_INFO_TIMEOUT = 3 * 60 * 60  # three hours
 
 ### Internationalization
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = "en"
 
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = "Europe/Berlin"
 
 USE_I18N = True
 
@@ -287,27 +294,27 @@ USE_L10N = True
 
 USE_TZ = False
 
-LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
-FORMAT_MODULE_PATH = ['evap.locale']
+FORMAT_MODULE_PATH = ["evap.locale"]
 
 LANGUAGES = [
-    ('en', "English"),
-    ('de', "Deutsch"),
+    ("en", "English"),
+    ("de", "Deutsch"),
 ]
 
 
 ### Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 # Additional locations of static files
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 # Absolute path to the directory static files should be collected to.
 STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")
@@ -320,7 +327,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "upload")
 
 # the backend used for downloading attachments
 # see https://github.com/moggers87/django-sendfile2 for further information
-SENDFILE_BACKEND = 'django_sendfile.backends.simple'
+SENDFILE_BACKEND = "django_sendfile.backends.simple"
 SENDFILE_ROOT = MEDIA_ROOT
 
 
@@ -355,15 +362,15 @@ SLOGANS_EN = [
 # replace 'example.com', OIDC_RP_CLIENT_ID and OIDC_RP_CLIENT_SECRET with real values in localsettings when activating
 ACTIVATE_OPEN_ID_LOGIN = False
 OIDC_RENEW_ID_TOKEN_EXPIRY_SECONDS = 60 * 60 * 24 * 7  # one week
-OIDC_RP_SIGN_ALGO = 'RS256'
-OIDC_USERNAME_ALGO = ''
-OIDC_RP_SCOPES = 'openid email profile'
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_USERNAME_ALGO = ""
+OIDC_RP_SCOPES = "openid email profile"
 
-OIDC_RP_CLIENT_ID = 'evap'
-OIDC_RP_CLIENT_SECRET = 'evap-secret'
+OIDC_RP_CLIENT_ID = "evap"
+OIDC_RP_CLIENT_SECRET = "evap-secret"  # nosec
 
 OIDC_OP_AUTHORIZATION_ENDPOINT = "https://example.com/auth"
-OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"
+OIDC_OP_TOKEN_ENDPOINT = "https://example.com/token"  # nosec
 OIDC_OP_USER_ENDPOINT = "https://example.com/me"
 OIDC_OP_JWKS_ENDPOINT = "https://example.com/certs"
 
@@ -379,47 +386,48 @@ try:
 except ImportError:
     pass
 
-TESTING = 'test' in sys.argv
+TESTING = "test" in sys.argv
 
 # speed up tests
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'testing_cache_default',
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "testing_cache_default",
         },
-        'results': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'testing_cache_results',
+        "results": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "testing_cache_results",
         },
-        'sessions': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'testing_cache_sessions',
+        "sessions": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "testing_cache_sessions",
         },
     }
-    # give random char field values a reasonable length
     from model_bakery import random_gen
-    BAKER_CUSTOM_FIELDS_GEN = {'django.db.models.CharField': lambda: random_gen.gen_string(20)}
+
+    # give random char field values a reasonable length
+    BAKER_CUSTOM_FIELDS_GEN = {"django.db.models.CharField": lambda: random_gen.gen_string(20)}
 
 
 # Development helpers
 if DEBUG:
-    INSTALLED_APPS += ['evap.development']
+    INSTALLED_APPS += ["evap.development"]
 
     # Django debug toolbar settings
     if not TESTING and ENABLE_DEBUG_TOOLBAR:
-        INSTALLED_APPS += ['debug_toolbar']
-        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+        INSTALLED_APPS += ["debug_toolbar"]
+        MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + MIDDLEWARE
 
         def show_toolbar(request):
             return True
 
         DEBUG_TOOLBAR_CONFIG = {
-            'SHOW_TOOLBAR_CALLBACK': 'evap.settings.show_toolbar',
-            'JQUERY_URL': '',
+            "SHOW_TOOLBAR_CALLBACK": "evap.settings.show_toolbar",
+            "JQUERY_URL": "",
         }

@@ -2,53 +2,23 @@
     margin-bottom: 0;
 }
 
-.table-primary,
-.table-primary > th,
-.table-primary > td {
-    background-color: $evap-dark-blue;
-    color: $white;
-}
-.table-secondary,
-.table-secondary > th,
-.table-secondary > td {
-    background-color: $medium-gray;
-    color: $black;
-}
-.table-success,
-.table-success > th,
-.table-success > td {
-    background-color: $evap-green;
-    color: $black;
-}
-.table-info,
-.table-info > th,
-.table-info > td {
-    background-color: $evap-light-blue;
-    color: $black;
-}
-.table-warning,
-.table-warning > th,
-.table-warning > td {
-    background-color: $evap-yellow;
-    color: $black;
-}
-.table-danger,
-.table-danger > th,
-.table-danger > td {
-    background-color: $evap-red;
-    color: $white;
-}
-.table-light,
-.table-light > th,
-.table-light > td {
-    background-color: $light-gray;
-    color: $black;
-}
-.table-dark,
-.table-dark > th,
-.table-dark > td {
-    background-color: $darker-gray;
-    color: $white;
+$table-colors: (
+    "primary" $evap-dark-blue $white,
+    "secondary" $medium-gray $black,
+    "success" $evap-green $black,
+    "info" $evap-light-blue $black,
+    "warning" $evap-yellow $black,
+    "danger" $evap-red $white $black,
+    "light" $light-gray $black,
+    "dark" $darker-gray $white
+);
+@each $name, $bg-color, $color in $table-colors {
+    .table-#{$name},
+    .table-#{$name} > th,
+    .table-#{$name} > td {
+        background-color: $bg-color !important;
+        color: $color;
+    }
 }
 
 .table-total-stats {
@@ -112,6 +82,13 @@
     height: 2.5rem;
 }
 
+tr.heading-row td {
+    border-bottom: none;
+}
+tr.heading-row:not(:first-child) td {
+    border-top: 1px solid $light-gray;
+}
+
 tr.heading-row.course-row {
     td {
         padding-bottom: 0.2rem;
@@ -144,7 +121,7 @@ tr.evaluation-row:not(.heading-row) {
 
 .current-row-follows + .results-grid-row {
     border-radius: 0.2rem;
-    box-shadow: inset 0px 0px 6px $evap-dark-blue;
+    box-shadow: inset 0 0 6px $evap-dark-blue;
 }
 
 .heading-row {
@@ -154,6 +131,6 @@ tr.evaluation-row:not(.heading-row) {
     }
 }
 
-.table-headerless tr:first-child td {
-    border-top-width: 0;
+.table-headerless tr:last-child td {
+    border-bottom-width: 0;
 }

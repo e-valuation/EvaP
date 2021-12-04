@@ -12,9 +12,9 @@
     <div data-col="name" data-order="{{ course.name|lower }}">
         <div>
             {% for degree in course.degrees.all %}
-                <span class="badge badge-primary badge-degree">{{ degree }}</span>
+                <span class="badge bg-primary badge-degree">{{ degree }}</span>
             {% endfor %}
-            <span class="badge badge-secondary badge-course-type">{{ course.type }}</span>
+            <span class="badge bg-secondary badge-course-type">{{ course.type }}</span>
         </div>
         <span class="evaluation-name">{{ course.name }}</span>
     </div>
@@ -26,7 +26,7 @@
     </div>
     <div data-col="result" data-order="{{ course.avg_grade|default:7 }}">
         {% if course.not_all_evaluations_are_published %}
-            <div class="d-flex" data-toggle="tooltip" data-placement="left" title="{% trans 'Course result is not yet available.' %}">
+            <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Course result is not yet available.' %}">
                 {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
             </div>
         {% else %}

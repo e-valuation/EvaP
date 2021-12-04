@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
+from django.utils import translation
 
 
 class RequireLoginMiddleware:
@@ -26,3 +28,23 @@ class RequireLoginMiddleware:
 def no_login_required(func):
     func.no_login_required = True
     return func
+
+
+def user_language_middleware(get_response):
+    def middleware(request):
+        if not (request.user and request.user.is_authenticated):
+            return get_response(request)
+        if request.user.language == translation.get_language():
+            return get_response(request)
+
+        if request.user.language:
+            translation.activate(request.user.language)
+        else:
+            request.user.language = translation.get_language()
+            request.user.save()
+        lang = request.user.language
+        response = get_response(request)
+        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+        return response
+
+    return middleware

@@ -77,7 +77,7 @@
 
 .card-deck-login {
     display: grid;
-    grid-gap: $card-deck-margin;
+    grid-gap: 1rem;
 
     @include media-breakpoint-up(lg) {
         grid-template-columns: 1fr 1fr;
@@ -89,7 +89,7 @@
     .card {
         width: 100%;
     }
-    
+
     @include media-breakpoint-up(lg) {
         .card {
             width: 50%;

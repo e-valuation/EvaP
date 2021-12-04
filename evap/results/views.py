@@ -2,30 +2,42 @@ from collections import defaultdict
 from statistics import median
 
 from django.conf import settings
-from django.db.models import Count, QuerySet
+from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
-from django.contrib.auth.decorators import login_required
 from django.utils import translation
 
-from evap.evaluation.models import Semester, Degree, Evaluation, CourseType, UserProfile, Course
 from evap.evaluation.auth import internal_required
+from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.evaluation.tools import FileResponse
 from evap.results.exporters import TextAnswerExporter
-from evap.results.tools import (annotate_distributions_and_grades, get_results, calculate_average_distribution, distribution_to_grade,
-                                get_evaluations_with_course_result_attributes, get_single_result_rating_result,
-                                HeadingResult, TextResult, RatingResult, can_textanswer_be_seen_by, STATES_WITH_RESULT_TEMPLATE_CACHING)
+from evap.results.tools import (
+    STATES_WITH_RESULT_TEMPLATE_CACHING,
+    HeadingResult,
+    RatingResult,
+    TextResult,
+    annotate_distributions_and_grades,
+    calculate_average_distribution,
+    can_textanswer_be_seen_by,
+    distribution_to_grade,
+    get_evaluations_with_course_result_attributes,
+    get_results,
+    get_single_result_rating_result,
+)
 
 
 def get_course_result_template_fragment_cache_key(course_id, language):
-    return make_template_fragment_key('course_result_template_fragment', [course_id, language])
+    return make_template_fragment_key("course_result_template_fragment", [course_id, language])
 
 
 def get_evaluation_result_template_fragment_cache_key(evaluation_id, language, links_to_results_page):
-    return make_template_fragment_key('evaluation_result_template_fragment', [evaluation_id, language, links_to_results_page])
+    return make_template_fragment_key(
+        "evaluation_result_template_fragment", [evaluation_id, language, links_to_results_page]
+    )
 
 
 def delete_template_cache(evaluation):
@@ -39,15 +51,15 @@ def _delete_template_cache_impl(evaluation):
 
 
 def _delete_evaluation_template_cache_impl(evaluation):
-    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True))
-    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False))
-    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True))
-    caches['results'].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', False))
+    caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True))
+    caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False))
+    caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True))
+    caches["results"].delete(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
 
 
 def _delete_course_template_cache_impl(course):
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'en'))
-    caches['results'].delete(get_course_result_template_fragment_cache_key(course.id, 'de'))
+    caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "en"))
+    caches["results"].delete(get_course_result_template_fragment_cache_key(course.id, "de"))
 
 
 def warm_up_template_cache(evaluations):
@@ -56,25 +68,33 @@ def warm_up_template_cache(evaluations):
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
     try:
         for course in courses_to_render:
-            translation.activate('en')
-            get_template('results_index_course.html').render(dict(course=course))
-            translation.activate('de')
-            get_template('results_index_course.html').render(dict(course=course))
-            assert get_course_result_template_fragment_cache_key(course.id, 'en') in caches['results']
-            assert get_course_result_template_fragment_cache_key(course.id, 'de') in caches['results']
+            translation.activate("en")
+            get_template("results_index_course.html").render(dict(course=course))
+            translation.activate("de")
+            get_template("results_index_course.html").render(dict(course=course))
+            assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
+            assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
         for evaluation in evaluations:
             assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
             is_subentry = evaluation.course.evaluation_count > 1
-            translation.activate('en')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry))
-            translation.activate('de')
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry))
-            get_template('results_index_evaluation.html').render(dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry))
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', True) in caches['results']
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'en', False) in caches['results']
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', True) in caches['results']
-            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, 'de', False) in caches['results']
+            translation.activate("en")
+            get_template("results_index_evaluation.html").render(
+                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
+            )
+            get_template("results_index_evaluation.html").render(
+                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
+            )
+            translation.activate("de")
+            get_template("results_index_evaluation.html").render(
+                dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
+            )
+            get_template("results_index_evaluation.html").render(
+                dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
+            )
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]
+            assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False) in caches["results"]
     finally:
         translation.activate(current_language)  # reset to previously set language to prevent unwanted side effects
 
@@ -96,13 +116,10 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 def get_evaluations_with_prefetched_data(evaluations):
     if isinstance(evaluations, QuerySet):
-        evaluations = (evaluations
-            .select_related("course__type")
-            .prefetch_related(
-                "course__degrees",
-                "course__semester",
-                "course__responsibles",
-            )
+        evaluations = evaluations.select_related("course__type").prefetch_related(
+            "course__degrees",
+            "course__semester",
+            "course__responsibles",
         )
         evaluations = Evaluation.annotate_with_participant_and_voter_counts(evaluations)
 
@@ -114,15 +131,15 @@ def get_evaluations_with_prefetched_data(evaluations):
 @internal_required
 def index(request):
     semesters = Semester.get_all_with_published_unarchived_results()
-    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state='published')
-    evaluations = evaluations.select_related('course', 'course__semester')
+    evaluations = Evaluation.objects.filter(course__semester__in=semesters, state=Evaluation.State.PUBLISHED)
+    evaluations = evaluations.select_related("course", "course__semester")
     evaluations = [evaluation for evaluation in evaluations if evaluation.can_be_seen_by(request.user)]
 
     if request.user.is_reviewer:
         additional_evaluations = get_evaluations_with_prefetched_data(
             Evaluation.objects.filter(
                 course__semester__in=semesters,
-                state__in=['in_evaluation', 'evaluated', 'reviewed']
+                state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED],
             )
         )
         additional_evaluations = get_evaluations_with_course_result_attributes(additional_evaluations)
@@ -140,7 +157,9 @@ def index(request):
     course_pks = [course.pk for course in courses_and_evaluations.keys()]
 
     # annotate each course in courses with num_evaluations
-    annotated_courses = Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count('evaluations')).order_by('pk').defer()
+    annotated_courses = (
+        Course.objects.filter(pk__in=course_pks).annotate(num_evaluations=Count("evaluations")).order_by("pk").defer()
+    )
     for course, annotated_course in zip(courses_and_evaluations.keys(), annotated_courses):
         course.num_evaluations = annotated_course.num_evaluations
 
@@ -177,7 +196,7 @@ def evaluation_detail(request, semester_id, evaluation_id):
     course_evaluations.sort(key=lambda evaluation: evaluation.name)
 
     contributors_with_omitted_results = []
-    if view == 'export':
+    if view == "export":
         contributors_with_omitted_results = [
             contribution_result.contributor
             for contribution_result in evaluation_result.contribution_results
@@ -187,7 +206,8 @@ def evaluation_detail(request, semester_id, evaluation_id):
     # if the results are not cached, we need to attach distribution
     # information for rendering the distribution bar
     if evaluation.state not in STATES_WITH_RESULT_TEMPLATE_CACHING:
-        evaluation = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data([evaluation]))[0]
+        prefetched = get_evaluations_with_prefetched_data([evaluation])
+        evaluation = get_evaluations_with_course_result_attributes(prefetched)[0]
 
     is_responsible_or_contributor_or_delegate = evaluation.is_user_responsible_or_contributor_or_delegate(view_as_user)
 
@@ -202,7 +222,9 @@ def evaluation_detail(request, semester_id, evaluation_id):
         is_contributor=evaluation.is_user_contributor(view_as_user),
         is_responsible_or_contributor_or_delegate=is_responsible_or_contributor_or_delegate,
         can_download_grades=view_as_user.can_download_grades,
-        can_export_text_answers=(view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)),
+        can_export_text_answers=(
+            view in ("export", "full") and (view_as_user.is_reviewer or is_responsible_or_contributor_or_delegate)
+        ),
         view=view,
         view_as_user=view_as_user,
         contributors_with_omitted_results=contributors_with_omitted_results,
@@ -216,12 +238,14 @@ def remove_textanswers_that_the_user_must_not_see(evaluation_result, user, repre
         for question_result in questionnaire_result.question_results:
             if isinstance(question_result, TextResult):
                 question_result.answers = [
-                    answer for answer in question_result.answers
+                    answer
+                    for answer in question_result.answers
                     if can_textanswer_be_seen_by(user, represented_users, answer, view)
                 ]
             if isinstance(question_result, RatingResult) and question_result.additional_text_result:
                 question_result.additional_text_result.answers = [
-                    answer for answer in question_result.additional_text_result.answers
+                    answer
+                    for answer in question_result.additional_text_result.answers
                     if can_textanswer_be_seen_by(user, represented_users, answer, view)
                 ]
         # remove empty TextResults
@@ -256,7 +280,9 @@ def exclude_empty_headings(evaluation_result):
         for i, question_result in enumerate(questionnaire_result.question_results):
             # filter out if there are no more questions or the next question is also a heading question
             if isinstance(question_result, HeadingResult):
-                if i == len(questionnaire_result.question_results) - 1 or isinstance(questionnaire_result.question_results[i + 1], HeadingResult):
+                if i == len(questionnaire_result.question_results) - 1 or isinstance(
+                    questionnaire_result.question_results[i + 1], HeadingResult
+                ):
                     continue
             filtered_question_results.append(question_result)
         questionnaire_result.question_results = filtered_question_results
@@ -288,7 +314,7 @@ def split_evaluation_result_into_top_bottom_and_contributor(evaluation_result, v
                     bottom_results.append(questionnaire_result)
                 else:
                     top_results.append(questionnaire_result)
-        elif view != 'export' or view_as_user.id == contribution_result.contributor.id:
+        elif view != "export" or view_as_user.id == contribution_result.contributor.id:
             contributor_results.append(contribution_result)
 
     if not contributor_results:
@@ -302,9 +328,15 @@ def get_evaluations_of_course(course, request):
     course_evaluations = []
 
     if course.evaluations.count() > 1:
-        course_evaluations = [evaluation for evaluation in course.evaluations.filter(state="published") if evaluation.can_be_seen_by(request.user)]
+        course_evaluations = [
+            evaluation
+            for evaluation in course.evaluations.filter(state=Evaluation.State.PUBLISHED)
+            if evaluation.can_be_seen_by(request.user)
+        ]
         if request.user.is_reviewer:
-            course_evaluations += course.evaluations.filter(state__in=['in_evaluation', 'evaluated', 'reviewed'])
+            course_evaluations += course.evaluations.filter(
+                state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
+            )
 
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
 
@@ -325,20 +357,39 @@ def add_warnings(evaluation, evaluation_result):
     # calculate the median values of how many people answered a questionnaire across all contributions
     questionnaire_max_answers = defaultdict(list)
     for questionnaire_result in evaluation_result.questionnaire_results:
-        max_answers = max((question_result.count_sum for question_result in questionnaire_result.question_results if question_result.question.is_rating_question), default=0)
+        max_answers = max(
+            (
+                question_result.count_sum
+                for question_result in questionnaire_result.question_results
+                if question_result.question.is_rating_question
+            ),
+            default=0,
+        )
         questionnaire_max_answers[questionnaire_result.questionnaire].append(max_answers)
 
     questionnaire_warning_thresholds = {}
     for questionnaire, max_answers_list in questionnaire_max_answers.items():
-        questionnaire_warning_thresholds[questionnaire] = max(settings.RESULTS_WARNING_PERCENTAGE * median(max_answers_list), settings.RESULTS_WARNING_COUNT)
+        questionnaire_warning_thresholds[questionnaire] = max(
+            settings.RESULTS_WARNING_PERCENTAGE * median(max_answers_list), settings.RESULTS_WARNING_COUNT
+        )
 
     for questionnaire_result in evaluation_result.questionnaire_results:
-        rating_results = [question_result for question_result in questionnaire_result.question_results if question_result.question.is_rating_question]
+        rating_results = [
+            question_result
+            for question_result in questionnaire_result.question_results
+            if question_result.question.is_rating_question
+        ]
         max_answers = max((rating_result.count_sum for rating_result in rating_results), default=0)
-        questionnaire_result.warning = 0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+        questionnaire_result.warning = (
+            0 < max_answers < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+        )
 
         for rating_result in rating_results:
-            rating_result.warning = questionnaire_result.warning or rating_result.has_answers and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+            rating_result.warning = (
+                questionnaire_result.warning
+                or rating_result.has_answers
+                and rating_result.count_sum < questionnaire_warning_thresholds[questionnaire_result.questionnaire]
+            )
 
 
 def evaluation_detail_parse_get_parameters(request, evaluation):
@@ -346,24 +397,24 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
         raise PermissionDenied
 
     if request.user.is_reviewer:
-        view = request.GET.get('view', 'public')  # if parameter is not given, show public view.
+        view = request.GET.get("view", "public")  # if parameter is not given, show public view.
     else:
-        view = request.GET.get('view', 'full')  # if parameter is not given, show own view.
-    if view not in ['public', 'full', 'export']:
-        view = 'public'
+        view = request.GET.get("view", "full")  # if parameter is not given, show own view.
+    if view not in ["public", "full", "export"]:
+        view = "public"
 
     view_as_user = request.user
-    contributor_id = int(request.GET.get('contributor_id', request.user.id))
-    if view == 'export' and request.user.is_staff:
+    contributor_id = int(request.GET.get("contributor_id", request.user.id))
+    if view == "export" and request.user.is_staff:
         view_as_user = UserProfile.objects.get(id=contributor_id)
     contributor_id = contributor_id if contributor_id != request.user.id else None
 
     represented_users = [view_as_user]
-    if view != 'export':
+    if view != "export":
         represented_users += list(view_as_user.represented_users.all())
     # redirect to non-public view if there is none because the results have not been published
-    if not evaluation.can_publish_rating_results and view == 'public':
-        view = 'full'
+    if not evaluation.can_publish_rating_results and view == "public":
+        view = "full"
 
     return view, view_as_user, represented_users, contributor_id
 
@@ -389,14 +440,17 @@ def evaluation_text_answers_export(request, evaluation_id):
     contributor_name = UserProfile.objects.get(id=contributor_id).full_name if contributor_id is not None else None
 
     filename = "Evaluation-Text-Answers-{}-{}-{}.xls".format(
-        evaluation.course.semester.short_name,
-        evaluation.full_name,
-        translation.get_language()
+        evaluation.course.semester.short_name, evaluation.full_name, translation.get_language()
     )
 
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
-    TextAnswerExporter(evaluation.full_name, evaluation.course.semester.name,
-                            evaluation.course.responsibles_names, results, contributor_name).export(response)
+    TextAnswerExporter(
+        evaluation.full_name,
+        evaluation.course.semester.name,
+        evaluation.course.responsibles_names,
+        results,
+        contributor_name,
+    ).export(response)
 
     return response

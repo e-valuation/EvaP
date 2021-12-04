@@ -13,10 +13,10 @@
         <div class="card-body">
             <h5 class="card-title">
                 {% trans 'Filter' %}
-                <div class="reset-button float-right" data-reset="filter">
+                <span class="reset-button float-end" data-reset="filter">
                     <span class="fas fa-eraser"></span>
                     {% trans 'Clear all filters' %}
-                </div>
+                </span>
             </h5>
             <div class="row">
                 <div class="col-12 col-lg">
@@ -40,7 +40,7 @@
                     <div id="course-type-select" class="result-filter-list">
                         {% for course_type in course_types %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}"  data-filter="{{ course_type.name }}"name="courseType" id="courseType-{{ course_type.id }}" />
+                                <input class="form-check-input" type="checkbox" value="{{ course_type.id }}" data-filter="{{ course_type.name }}" name="courseType" id="courseType-{{ course_type.id }}" />
                                 <label class="form-check-label w-100" for="courseType-{{ course_type.id }}">
                                     {{ course_type.name }}
                                 </label>
@@ -68,10 +68,10 @@
         <div class="card-body pb-lg-0">
             <h5 class="card-title mb-lg-0">
                 {% trans 'Order' %}
-                <div class="reset-button float-right d-none d-lg-block" data-reset="order">
+                <span class="reset-button float-end d-none d-lg-block" data-reset="order">
                     <span class="fas fa-sort-amount-down"></span>
                     {% trans 'Order by evaluation and semester' %}
-                </div>
+                </span>
             </h5>
             <div class="grid-header results-grid-row d-none d-lg-grid">
                 <div data-col="name" class="col-order">{% trans 'Evaluation' %}</div>
@@ -81,17 +81,17 @@
                 <div data-col="result" class="col-order">{% trans 'Distribution and average grade' %}</div>
             </div>
             <div class="d-flex d-lg-none">
-                <div class="mr-2 btn-switch btn-group btn-group-toggle icon-buttons" data-toggle="buttons">
-                    <label class="btn btn-light btn-lg active">
-                        <input type="radio" name="result-sort-order" value="asc" />
+                <div class="me-2 btn-group icon-buttons" data-bs-toggle="buttons">
+                    <input id="sort-order-asc" class="btn-check" type="radio" name="result-sort-order" value="asc" checked />
+                    <label class="btn btn-outline-primary btn-lg" for="sort-order-asc">
                         <span class="fas fa-sort-alpha-down"></span>
                     </label>
-                    <label class="btn btn-light btn-lg">
-                        <input type="radio" name="result-sort-order" value="desc" />
+                    <input id="sort-order-desc" class="btn-check" type="radio" name="result-sort-order" value="desc" />
+                    <label class="btn btn-outline-primary btn-lg" for="sort-order-desc">
                         <span class="fas fa-sort-alpha-up-alt"></span>
                     </label>
                 </div>
-                <select name="result-sort-column" class="form-control no-select2">
+                <select name="result-sort-column" class="form-select no-select2">
                     <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
                     <option value="name">{% trans 'Evaluation' %}</option>
                     <option value="semester">{% trans 'Semester' %}</option>
@@ -130,31 +130,29 @@
     <script type="module">
         import {ResultGrid} from "{% static 'js/datagrid.js' %}";
 
-        $(document).ready(() => {
-            new ResultGrid().init({
-                storageKey: "results-data-grid",
-                head: $(".grid-header"),
-                container: $("#results-grid"),
-                searchInput: $("input[name=search]"),
-                filterCheckboxes: {
-                    semester: {
-                        checkboxes: $("input[name=semester]"),
-                        selector: "[data-col=semester]",
-                    },
-                    degree: {
-                        checkboxes: $("input[name=degree]"),
-                        selector: ".badge-degree",
-                    },
-                    courseType: {
-                        checkboxes: $("input[name=courseType"),
-                        selector: ".badge-course-type",
-                    },
-                },
-                sortColumnSelect: $("[name=result-sort-column]"),
-                sortOrderCheckboxes: $("[name=result-sort-order]"),
-                resetFilter: $("[data-reset=filter]"),
-                resetOrder: $("[data-reset=order]"),
-            });
-        });
+        new ResultGrid({
+            storageKey: "results-data-grid",
+            head: document.querySelector(".grid-header"),
+            container: document.querySelector("#results-grid"),
+            searchInput: document.querySelector("input[name=search]"),
+            filterCheckboxes: new Map([
+                ["semester", {
+                    checkboxes: [...document.querySelectorAll("input[name=semester]")],
+                    selector: "[data-col=semester]",
+                }],
+                ["degree", {
+                    checkboxes: [...document.querySelectorAll("input[name=degree]")],
+                    selector: ".badge-degree",
+                }],
+                ["courseType", {
+                    checkboxes: [...document.querySelectorAll("input[name=courseType]")],
+                    selector: ".badge-course-type",
+                }],
+            ]),
+            sortColumnSelect: document.querySelector("[name=result-sort-column]"),
+            sortOrderCheckboxes: [...document.querySelectorAll("[name=result-sort-order]")],
+            resetFilter: document.querySelector("[data-reset=filter]"),
+            resetOrder: document.querySelector("[data-reset=order]"),
+        }).init();
     </script>
 {% endblock %}

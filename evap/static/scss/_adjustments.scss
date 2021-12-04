@@ -22,7 +22,101 @@ body, .fixed-top, .fixed-bottom, .is-fixed, .sticky-top {
 .btn-link {
     padding: 0;
     border: none;
+    background-color: transparent;
 }
+
+// change btn text colors for better contrast
+.btn-secondary {
+    @include button-variant($secondary, $secondary, $color: $white, $hover-color: $white, $disabled-color: $white);
+}
+.btn-outline-secondary {
+    @include button-outline-variant($secondary, $color-hover: $white);
+}
+.btn-danger {
+    @include button-variant($danger, $danger, $color: $white, $hover-color: $white, $disabled-color: $white);
+}
+.btn-outline-danger {
+    @include button-outline-variant($danger, $color-hover: $white);
+}
+
+// accordion adjustments
+.accordion-flush .accordion-item {
+    border: 1px solid $dark-gray;
+
+    &:last-child {
+        border: 1px solid $dark-gray;
+    }
+}
+.accordion-body ul {
+    margin-bottom: 0;
+}
+
+// move accordion icon to the left
+.accordion-button {
+    &:not(.collapsed) {
+        &::before {
+            background-image: escape-svg($accordion-button-active-icon);
+            transform: $accordion-icon-transform;
+        }
+    }
+
+    &::after { display: none; }
+    &::before {
+        flex-shrink: 0;
+        width: $accordion-icon-width;
+        height: $accordion-icon-width;
+        margin-right: 1rem;
+        content: "";
+        background-image: escape-svg($accordion-button-icon);
+        background-repeat: no-repeat;
+        background-size: $accordion-icon-width;
+        @include transition($accordion-icon-transition);
+    }
+}
+
+// make buttons in btn-groups usable in forms
+.btn-switch-navbar .btn-group > :not(:last-child) > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.btn-switch-navbar .btn-group > :not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+// remove horizontal line after "add another" in formsets
+.dynamic-form-add td {
+    border-bottom: none;
+}
+
+// explicitely set alert colors
+$alert-colors: (
+    "secondary" $light-gray $medium-gray,
+    "success" $evap-light-green $evap-green,
+    "info" $evap-light-blue $evap-dark-blue,
+    "warning" $evap-light-yellow $evap-yellow,
+    "danger" $evap-light-red $evap-red,
+    "light" $lighter-gray $light-gray,
+    "dark" $dark-gray $darker-gray
+);
+@each $name, $bg-color, $border-color in $alert-colors {
+    .alert-#{$name} {
+        background-color: $bg-color;
+        border-color: $border-color;
+        color: shade-color($border-color, 60%);
+    }
+}
+.alert-primary {
+    background-color: tint-color($evap-dark-blue, 50%);
+    border-color: $evap-dark-blue;
+    color: shade-color($evap-dark-blue, 50%);
+}
+
+// fix checkbox positions
+.form-check:not(li) {
+    padding-top: 0.25rem;
+}
+
 
 // select2 adjustments
 .select2-container--default .select2-selection--single {

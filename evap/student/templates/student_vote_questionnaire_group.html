@@ -16,16 +16,16 @@
             {% else %}
                 {% with related_answer_field_id=field.field.widget.attrs.related_answer_field_id allows_textanswer=field.field.widget.attrs.allows_textanswer%}
                     {% if not related_answer_field_id %}
-                        <div class="row">
+                        <div class="row row-question">
                     {% endif %}
                         {% if field|is_choice_field %}
-                            <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between {% if field.errors %} choice-error{% endif %}">
-                                <span class="mr-1">
+                            <div class="col-question col-lg-4 col-xl-5 d-flex justify-content-between{% if field.errors %} choice-error{% endif %}">
+                                <span class="me-1">
                                     {{ field.label }}
                                 </span>
                                 {% if allows_textanswer %}
-                                    <span class="my-auto" data-toggle="tooltip" title="{% trans 'Add a text answer to this question' %}">
-                                        <button type="button" class="btn btn-textanswer collapsed" data-toggle="collapse" data-target=".collapse-{{ field.name }}">
+                                    <span class="my-auto" data-bs-toggle="tooltip" data-container=".col-question" title="{% trans 'Add a text answer to this question' %}">
+                                        <button type="button" class="btn btn-textanswer collapsed" data-bs-toggle="collapse" data-bs-target=".collapse-{{ field.name }}" tabindex="-1">
                                             <span class="far fa-comment"></span>
                                         </button>
                                     </span>
@@ -43,10 +43,10 @@
                         {% endif %}
                         {% if field|is_choice_field %}
                             <div class="col-answer col-lg-8 col-xl-7 my-auto d-flex">
-                                <div class="vote-inputs {{ field.field.widget.attrs.choices.cssClass }} btn-group btn-group-toggle" data-toggle="buttons"{% if preview %} disabled{% endif %}>
+                                <div class="vote-inputs tab-row {{ field.field.widget.attrs.choices.cssClass }} btn-group" data-bs-toggle="buttons">
                                 {% for choice, color in field|zip:field.field.widget.attrs.choices.colors %}
-                                    <label class="btn btn-sm vote-btn vote-btn-{{ color }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}">
-                                        <input id="{{ choice.id_for_label }}" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off"{% if field.value == choice.data.value %} checked{% endif %} />
+                                    <input id="{{ choice.id_for_label }}" class="tab-selectable num-selectable btn-check" name="{{ choice.data.name }}" type="radio" value="{{ choice.data.value }}" autocomplete="off"{% if field.value == choice.data.value %} checked{% endif %}{% if preview %} disabled{% endif %}/>
+                                    <label for="{{ choice.id_for_label }}" class="btn btn-sm vote-btn vote-btn-{{ color }} d-flex{% if field.value == choice.data.value %} active{% endif %}{% if field.errors %} choice-error{% endif %}">
                                         <span class="m-auto vote-btn-text">{{ choice.choice_label|linebreaksbr }} {{ choice.id }}</span>
                                     </label>
                                 {% endfor %}
@@ -55,9 +55,9 @@
                         {% else %}
                             <div class="{% if related_answer_field_id %}collapse collapse-{{ related_answer_field_id }} {% endif %}col-lg-8 col-xl-7 p-0">
                                 <div class="col-answer d-flex">
-                                    <div class="vote-inputs{% if preview %} preview{% endif %}">
+                                    <div class="vote-inputs tab-row {% if preview %} preview{% endif %}">
                                         {{ field.errors }}
-                                        <textarea id="{{ field.id_for_label }}" name="{{ field.name }}">{{ field.value|default_if_none:"" }}</textarea>
+                                        <textarea id="{{ field.id_for_label }}" class="tab-selectable" name="{{ field.name }}"{% if preview %} disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                                     </div>
                                     <div>
                                         {% blocktrans asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktrans %}

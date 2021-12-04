@@ -1,6 +1,5 @@
 import os
 import time
-
 from contextlib import contextmanager
 
 from django_webtest import WebTest
@@ -12,22 +11,22 @@ from evap.staff.tools import ImportType, generate_import_filename
 def helper_enter_staff_mode(webtest):
     # This is a bit complicated in WebTest
     # See https://github.com/django-webtest/django-webtest/issues/68#issuecomment-350244293
-    webtest.app.set_cookie('sessionid', 'initial')
+    webtest.app.set_cookie("sessionid", "initial")
     session = webtest.app.session
-    session['staff_mode_start_time'] = time.time()
+    session["staff_mode_start_time"] = time.time()
     session.save()
-    webtest.app.set_cookie('sessionid', session.session_key)
+    webtest.app.set_cookie("sessionid", session.session_key)
 
 
 def helper_exit_staff_mode(webtest):
     # This is a bit complicated in WebTest
     # See https://github.com/django-webtest/django-webtest/issues/68#issuecomment-350244293
-    webtest.app.set_cookie('sessionid', 'initial')
+    webtest.app.set_cookie("sessionid", "initial")
     session = webtest.app.session
-    if 'staff_mode_start_time' in session:
-        del session['staff_mode_start_time']
+    if "staff_mode_start_time" in session:
+        del session["staff_mode_start_time"]
     session.save()
-    webtest.app.set_cookie('sessionid', session.session_key)
+    webtest.app.set_cookie("sessionid", session.session_key)
 
 
 @contextmanager

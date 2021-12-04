@@ -32,29 +32,29 @@
             <div class="card-body">
                 <h5 class="card-title">{% trans 'Course data' %}</h5>
                 <div class="d-flex">
-                    <label class="col-md-3 form-label">{% trans 'Name (German)' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% trans 'Name (German)' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.name_de }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 form-label">{% trans 'Name (English)' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% trans 'Name (English)' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.name_en }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 form-label">{% trans 'Responsibles' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% trans 'Responsibles' %}</label>
                     <div class="col-md-7 form-static-text">{{ evaluation.course.responsibles_names }}</div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 form-label">{% trans 'Degrees' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% trans 'Degrees' %}</label>
                     <div class="col-md-7 form-static-text">
                         {% for degree in evaluation.course.degrees.all %}
-                            <span class="badge badge-primary">{{ degree }}</span>
+                            <span class="badge bg-primary">{{ degree }}</span>
                         {% endfor %}
                     </div>
                 </div>
                 <div class="d-flex">
-                    <label class="col-md-3 form-label">{% trans 'Course type' %}</label>
+                    <label class="col-md-3 pe-4 form-label">{% trans 'Course type' %}</label>
                     <div class="col-md-7 form-static-text">
-                        <span class="badge badge-secondary">{{ evaluation.course.type }}</span>
+                        <span class="badge bg-secondary">{{ evaluation.course.type }}</span>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
         <div class="card mb-3">
             <div class="card-body">
                 <div class="d-flex">
-                    <h5 class="card-title mr-auto">{% trans 'Evaluation data' %}</h5>
+                    <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if not evaluation.allow_editors_to_edit %}
                         <div>
                             <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationRequestModalButton">
@@ -84,7 +84,7 @@
             <div class="card-body">
                 <fieldset>
                     <div class="d-flex">
-                        <h5 class="card-title mr-auto">{% trans 'Students' %}</h5>
+                        <h5 class="card-title me-auto">{% trans 'Participants' %}</h5>
                         <div>
                             <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
                                 {% trans 'Request changes' %}
@@ -120,13 +120,13 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="previewModalLabel">{% trans 'Preview' %}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="fas fa-times"></span></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         {{ preview_html|safe }}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-dismiss="modal">{% trans 'Close' %}</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Close' %}</button>
                     </div>
                 </div>
             </div>
@@ -165,7 +165,8 @@
 
     {% if preview_html %}
         <script type="text/javascript">
-            $('#previewModal').modal();
+            var previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewModal.show();
         </script>
     {% endif %}
 {% endblock %}

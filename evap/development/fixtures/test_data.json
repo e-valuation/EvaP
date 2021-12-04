@@ -77,7 +77,7 @@
     "grade_documents_are_deleted": false,
     "results_are_archived": false,
     "created_at": "2014-06-02",
-    "is_active": null
+    "is_active": true
   }
 },
 {
@@ -128309,7 +128309,8 @@
   "fields": {
     "name": "Editor Review Notice",
     "subject": "[EvaP] Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New courses ready for approval",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen innerhalb der nächsten Woche Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n{% if user.needs_login_key and login_url %}\r\nMit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird Ihnen per E-Mail zugesendet.\r\n{% endif %}\r\nWir möchten Sie bitten, für Ihre Evaluierungen innerhalb der nächsten Woche Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n{% if user.needs_login_key and login_url %}\r\nWith the following one-time URL you can login to the evaluation platform: {{ login_url }}\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.\r\n{% endif %}\r\nTo prepare your evaluations we would like to ask you for the following within a week:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "{% load evaluation_filters %}\r\n<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,<br /><br />\r\n\r\nvielen Dank, dass Sie in diesem Semester Veranstaltungen anbieten. Um die Evaluierung dieser Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.<br /><br />\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.<br /><br />\r\n\r\n{% if user.needs_login_key and login_url %}\r\nMit diesem Link können Sie sich einmalig bei der Platform anmelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird Ihnen per E-Mail zugesendet.<br /><br />\r\n{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen innerhalb der nächsten Woche Folgendes zu überprüfen:\r\n<ul>\r\n<li>Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).</li>\r\n<li>Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.</li>\r\n<li>Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.</li>\r\n</ul><br />\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:<br />\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_de\" %}\r\n<li>{{ evaluation.full_name_de }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nVielen Dank im Voraus für Ihre Mühe!<br />\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nFreundliche Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear lecturer,<br /><br />\r\n\r\nThank you very much for teaching during this semester. We need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}.<br /><br />\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.<br /><br />\r\n\r\n{% if user.needs_login_key and login_url %}\r\nWith the following one-time URL you can login to the evaluation platform: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.<br /><br />\r\n{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following within a week:\r\n<ul>\r\n<li>Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.</li>\r\n<li>Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.</li>\r\n<li>Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.</li>\r\n</ul><br />\r\n\r\nThese evaluations need your approval:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_en\" %}\r\n<li>{{ evaluation.full_name_en }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nThank you very much in advance for your efforts!<br />\r\nIf you have any questions or feedback, please contact the evaluation team (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nKind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128318,7 +128319,8 @@
   "fields": {
     "name": "Student Reminder",
     "subject": "[EvaP] Die Evaluierung endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} / The evaluation is about to end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}",
-    "body": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, wir würden uns über deine Stimme freuen :)\r\nBei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can give your opinion on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. We’re looking forward to receive your feedback :)\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, wir würden uns über deine Stimme freuen :)\r\nBei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n{% if user.needs_login_key %}\r\nKlicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif%}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.\r\n\r\nYou did not yet participate in the following evaluations:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can give your opinion on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. We’re looking forward to receive your feedback :)\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n{% if user.needs_login_key %}\r\nClick here to login: {{ login_url }}\r\n{% endif%}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nHallo {{ user.first_name }},<br /><br />\r\n\r\nfür eine deiner Evaluierungen endet {% if first_due_in_days == 0 %}heute{% elif first_due_in_days == 1 %}morgen{% else %}in {{ first_due_in_days }} Tagen{% endif %} die Evaluierungsfrist.<br /><br />\r\n\r\nAn folgenden Evaluierungen hast du noch nicht teilgenommen:\r\n<ul>{% for evaluation, due_in_days in due_evaluations %}\r\n<li>{{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})</li>\r\n{% endfor %}</ul><br />\r\n\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} abgeben, wir würden uns über deine Stimme freuen :)<br />\r\nBei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\n{% if user.needs_login_key %}\r\nKlicke hier, um dich anzumelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% endif%}\r\n\r\nVielen Dank für deine Mühe und viele Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear {{ user.first_name }},<br /><br />\r\n\r\nThe evaluation period for one of your evaluations will end {% if first_due_in_days == 0 %}today{% elif first_due_in_days == 1 %}tomorrow{% else %}in {{ first_due_in_days }} days{% endif %}.<br /><br />\r\n\r\nYou did not yet participate in the following evaluations:\r\n<ul>{% for evaluation, due_in_days in due_evaluations %}\r\n<li>{{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})</li>\r\n{% endfor %}</ul><br />\r\n\r\nYou can give your opinion on EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}. We’re looking forward to receive your feedback :)<br />\r\nIf you have any questions or feedback, please let us know (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\n{% if user.needs_login_key %}\r\nClick here to login: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% endif%}\r\n\r\nThank you very much for your efforts and kind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128327,7 +128329,8 @@
   "fields": {
     "name": "Publishing Notice Contributor",
     "subject": "[EvaP] Evaluierungsergebnisse veröffentlicht / Evaluation results published",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "{% load evaluation_filters %}\r\n<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,<br /><br />\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_de\" %}\r\n<li>{{ evaluation.full_name_de }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} eingesehen werden.<br />\r\n{% if user.needs_login_key and login_url %}\r\nHier klicken zum Anmelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br />\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird per E-Mail zugesendet.<br />\r\n{% endif %}<br />\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nFreundliche Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\n\r\nDear lecturer,<br /><br />\r\n\r\nthe results of the following evaluations have just been published:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_en\" %}\r\n<li>{{ evaluation.full_name_en }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}.<br />\r\n{% if user.needs_login_key and login_url %}\r\nClick here to login: <a href=\"{{ login_url }}\">{{ login_url }}</a><br />\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.<br />\r\n{% endif %}<br />\r\n\r\nIf you have any questions or feedback, please let us know (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nKind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128336,7 +128339,8 @@
   "fields": {
     "name": "Login Key Created",
     "subject": "[EvaP] Ihr Anmeldelink / Your login URL",
-    "body": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link können Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:\r\nWith the following one-time URL you can login to the evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\nIf you have any questions or feedback, please contact the Evaluation Team ({{ contact_email }})."
+    "plain_content": "BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD\r\n\r\nMit dem folgenden Link können Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:\r\nWith the following one-time URL you can login to the evaluation platform as an external user:\r\n\r\n{{ login_url }}\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\nIf you have any questions or feedback, please contact the Evaluation Team ({{ contact_email }}).",
+    "html_content": "<strong>BITTE NICHT WEITERLEITEN / PLEASE DO NOT FORWARD</strong><br /><br />\r\n\r\nMit dem folgenden Link können Sie sich einmalig als externer Nutzer bei der Evaluierungsplattform anmelden:<br />\r\nWith the following one-time URL you can login to the evaluation platform as an external user:<br /><br />\r\n\r\n<a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br />\r\nIf you have any questions or feedback, please contact the Evaluation Team (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>)."
   }
 },
 {
@@ -128345,7 +128349,8 @@
   "fields": {
     "name": "Evaluation Started",
     "subject": "[EvaP] Evaluierung hat begonnen / Evaluation started",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} abgeben, die Dozenten und wir freuen uns über deine Bewertung. Bei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}. The lecturers and we are looking forward to receive your feedback. If you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\nfür die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n{% for evaluation, due_in_days in evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %} abgeben, die Dozenten und wir freuen uns über deine Bewertung. Bei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden (evaluierung@hpi.de).\r\n\r\n{% if user.needs_login_key %}Klicke hier, um dich anzumelden: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}Diese Evaluierungen warten auf deine Bewertung:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}{% endif %}\r\nVielen Dank für deine Mühe und viele Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\nDear {{ user.first_name }},\r\n\r\nThe evaluation period for the following evaluations just started:\r\n{% for evaluation, due_in_days in evaluations%}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (https://evap.hpi.de){% endif %}. The lecturers and we are looking forward to receive your feedback. If you have any questions or feedback, please let us know (evaluierung@hpi.de).\r\n\r\n{% if user.needs_login_key %}Click here to login: {{ login_url }}\r\n{% endif %}{% if due_evaluations|length > 1%}These evaluations are waiting for your feedback:\r\n{% for evaluation, due_in_days in due_evaluations %}    - {{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}{% endif %}\r\nThank you very much for your efforts and kind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "{% load evaluation_filters %}\r\n<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nHallo {{ user.first_name }},<br /><br />\r\n\r\nfür die folgenden Evaluierungen hat die Evaluierungsphase begonnen:\r\n<ul>{% for evaluation, due_in_days in evaluations %} \r\n<li>{{ evaluation.full_name_de }}</li>\r\n(endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})\r\n{% endfor %}</ul><br />\r\n\r\nDu kannst dein Feedback auf EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} abgeben, die Dozenten und wir freuen uns über deine Bewertung. Bei Fragen und Rückmeldungen kannst du dich jederzeit an uns wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\n{% if user.needs_login_key %}\r\nKlicke hier, um dich anzumelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% endif %}\r\n\r\n{% if due_evaluations|length > 1%}\r\nDiese Evaluierungen warten auf deine Bewertung:\r\n<ul>{% for evaluation, due_in_days in due_evaluations %}\r\n<li>{{ evaluation.full_name_de }} (endet {% if due_in_days == 0 %}heute{% elif due_in_days == 1 %}morgen{% else %}in {{ due_in_days }} Tagen{% endif %})</li>\r\n{% endfor %}</ul><br />\r\n{% endif %}\r\n\r\nVielen Dank für deine Mühe und viele Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear {{ user.first_name }},<br /><br />\r\n\r\nThe evaluation period for the following evaluations just started:\r\n<ul>{{% for evaluation, due_in_days in evaluations%}\r\n<li>{{ evaluation.full_name_en }}</li>\r\n(ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})\r\n{% endfor %}</ul><br />\r\n\r\nYou can evaluate them on EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}. The lecturers and we are looking forward to receive your feedback. If you have any questions or feedback, please let us know (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\n{% if user.needs_login_key %}\r\nClick here to login: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% endif %}\r\n{% if due_evaluations|length > 1%}\r\nThese evaluations are waiting for your feedback:\r\n<ul>{% for evaluation, due_in_days in due_evaluations %}\r\n<li>{{ evaluation.full_name_en }} (ends {% if due_in_days == 0 %}today{% elif due_in_days == 1 %}tomorrow{% else %}in {{ due_in_days }} days{% endif %})</li>\r\n{% endfor %}</ul><br />\r\n{% endif %}\r\n\r\nThank you very much for your efforts and kind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128354,7 +128359,8 @@
   "fields": {
     "name": "Editor Review Reminder",
     "subject": "[EvaP] Reminder: Neue Lehrveranstaltungen stehen zur Überprüfung bereit / New Evaluation ready for approval",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n\r\n{% if user.needs_login_key and login_url %}Mit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}{% elif user.needs_login_key %}Ein Link zum Anmelden wird Ihnen per E-Mail zugesendet.{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen sobald wie möglich Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n\r\n{% if user.needs_login_key and login_url %}With the following one-time URL you can login to the evaluation platform: {{ login_url }}{% elif user.needs_login_key %}We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.\r\n{% if user.needs_login_key and login_url %}\r\nMit diesem Link können Sie sich einmalig bei der Platform anmelden: {{ login_url }}\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird Ihnen per E-Mail zugesendet.\r\n{% endif %}\r\nWir möchten Sie bitten, für Ihre Evaluierungen sobald wie möglich Folgendes zu überprüfen:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %}    - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear lecturer,\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.\r\n{% if user.needs_login_key and login_url %}\r\nWith the following one-time URL you can login to the evaluation platform: {{ login_url }}\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.\r\n{% endif %}\r\nTo prepare your evaluations we would like to ask you for the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThese evaluations need your approval:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %}    - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "{% load evaluation_filters %}\r\n<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nSehr geehrte Dozentin, sehr geehrter Dozent,<br /><br />\r\n\r\num die Evaluierung Ihrer Veranstaltungen auf unserer Plattform EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} durchführen zu können, benötigen wir Ihre Mithilfe.<br /><br />\r\n\r\nSie können die folgenden Aufgaben auch an Ihre Mitarbeitenden delegieren. Unter \"Einstellungen\" können Sie Stellvertretende hinzufügen, die damit Bearbeitungsrechte für alle Ihre Veranstaltungen erhalten. Beim Bearbeiten einzelner Evaluierungen können Sie ebenfalls Bearbeitungsrechte vergeben, die sich auf diese Evaluierung beschränken.<br /><br />\r\n\r\n{% if user.needs_login_key and login_url %}\r\nMit diesem Link können Sie sich einmalig bei der Platform anmelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird Ihnen per E-Mail zugesendet.<br /><br />\r\n{% endif %}\r\n\r\nWir möchten Sie bitten, für Ihre Evaluierungen sobald wie möglich Folgendes zu überprüfen:\r\n<ul>\r\n<li>Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).</li>\r\n<li>Wurden die für die Evaluierung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.</li>\r\n<li>Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.</li>\r\n</ul><br />\r\n\r\nFolgende Evaluierungen benötigen Ihre Freigabe:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_de\" %}\r\n<li>{{ evaluation.full_name_de }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nVielen Dank im Voraus für Ihre Mühe!<br />\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nFreundliche Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear lecturer,<br /><br />\r\n\r\nwe need your help so we can evaluate all courses on our platform EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}.<br /><br />\r\n\r\nYou can delegate the following tasks to your staff. Under \"Settings\" you can assign your delegates, which thereby will gain editing rights for all your courses. On the details page of a single evaluation you can also add persons and assign edit rights for this evaluation to them.<br /><br />\r\n\r\n{% if user.needs_login_key and login_url %}\r\nWith the following one-time URL you can login to the evaluation platform: <a href=\"{{ login_url }}\">{{ login_url }}</a><br /><br />\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.<br /><br />\r\n{% endif %}\r\n\r\nTo prepare your evaluations we would like to ask you for the following as soon as possible:\r\n<ul>\r\n<li>Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.</li>\r\n<li>Are the selected questionnaires adequate for the evaluation? Please adapt the selection if necessary.</li>\r\n<li>Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.</li>\r\n</ul><br />\r\n\r\nThese evaluations need your approval:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_en\" %}\r\n<li>{{ evaluation.full_name_en }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nThank you very much in advance for your efforts!<br />\r\nIf you have any questions or feedback, please contact the evaluation team (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nKind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128363,7 +128369,8 @@
   "fields": {
     "name": "Direct Delegation",
     "subject": "[EvaP] Bitte Evaluierung vorbereiten / Please prepare evaluation",
-    "body": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung für \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP ({{ page_url }}) vorzubereiten.\r\n\r\nBitte überprüfen Sie möglichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Veranstaltung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP ({{ page_url }}).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "(English version below)\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung für \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP ({{ page_url }}) vorzubereiten.\r\n\r\nBitte überprüfen Sie möglichst bald die folgenden Dinge:\r\n    - Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).\r\n    - Wurden die für die Veranstaltung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.\r\n    - Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.\r\n\r\nVielen Dank im Voraus für Ihre Mühe!\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ delegate_user.full_name }},\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP ({{ page_url }}).\r\n\r\nPlease check the following as soon as possible:\r\n    - Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.\r\n    - Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.\r\n    - Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.\r\n\r\nThank you very much in advance for your efforts!\r\nIf you have any questions or feedback, please contact the evaluation team ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nLiebe/r {{ delegate_user.full_name }},<br /><br />\r\n\r\nSie werden von {{ user.full_name }} darum gebeten, die Evaluierung für \"{{ evaluation.full_name_de }}\" auf der Plattform EvaP (<a href=\"{{ page_url }}\">{{ page_url }}</a>) vorzubereiten.<br /><br />\r\n\r\nBitte überprüfen Sie möglichst bald die folgenden Dinge:\r\n<ul>\r\n<li>Ist der Evaluierungszeitraum angemessen? Bitte legen Sie das Ende der Evaluierung vor die finale Prüfungsleistung (Klausur, Prüfung, Ausarbeitung etc.).</li>\r\n<li>Wurden die für die Veranstaltung geeigneten Fragebögen ausgewählt? Bitte passen Sie die Auswahl gegebenenfalls an.</li>\r\n<li>Werden alle beteiligten Dozenten, Übungsleiter, Projektleiter, Seminarbetreuer etc. evaluiert? Fügen Sie bitte alle weiteren Personen mit den passenden Fragebögen hinzu.</li>\r\n</ul><br />\r\n\r\nVielen Dank im Voraus für Ihre Mühe!<br />\r\nBei Fragen und Rückmeldungen können Sie sich jederzeit gerne an das Evaluierungsteam wenden (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nFreundliche Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear {{ delegate_user.full_name }},<br /><br />\r\n\r\n{{ user.full_name }} asks you to prepare the evaluation for \"{{ evaluation.full_name_en }}\" on the platform EvaP (<a href=\"{{ page_url }}\">{{ page_url }}</a>).<br /><br />\r\n\r\nPlease check the following as soon as possible:\r\n<ul>\r\n<li>Is the evaluation period appropriate? Please let the evaluation end before the final exam (written or oral examination, final assignment, etc.) of your course.</li>\r\n<li>Are the selected questionnaires adequate for the course? Please adapt the selection if necessary.</li>\r\n<li>Are all contributors (lecturers, teaching assistants, etc.) included in the evaluation? Please add all additional persons with their appropriate questionnaires.</li>\r\n</ul><br />\r\n\r\nThank you very much in advance for your efforts!<br />\r\nIf you have any questions or feedback, please contact the evaluation team (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nKind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -128372,7 +128379,8 @@
   "fields": {
     "name": "Publishing Notice Participant",
     "subject": "[EvaP] Evaluierungsergebnisse veröffentlicht / Evaluation results published",
-    "body": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %} - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %} - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)"
+    "plain_content": "{% load evaluation_filters %}(English version below)\r\n\r\n\r\nHallo {{ user.first_name }},\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n{% for evaluation in evaluations|order_by:\"full_name_de\" %} - {{ evaluation.full_name_de }}\r\n{% endfor %}\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %} eingesehen werden.{% if user.needs_login_key and login_url %} Hier klicken zum Anmelden: {{ login_url }}{% elif user.needs_login_key %} Ein Link zum Anmelden wird per E-Mail zugesendet.{% endif %}\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung ({{ contact_email }}).\r\n\r\nFreundliche Grüße,\r\ndas Evaluierungsteam\r\n\r\n(Dies ist eine automatisch versendete E-Mail.)\r\n\r\n\r\n--\r\n\r\n\r\nDear {{ user.first_name }},\r\n\r\nthe results of the following evaluations have just been published:\r\n{% for evaluation in evaluations|order_by:\"full_name_en\" %} - {{ evaluation.full_name_en }}\r\n{% endfor %}\r\nYou can view the results on EvaP{% if not user.needs_login_key %} ({{ page_url }}){% endif %}.{% if user.needs_login_key and login_url %} Click here to login: {{ login_url }}{% elif user.needs_login_key %} We will send you a one-time login URL in a separate email.{% endif %}\r\n\r\nIf you have any questions or feedback, please let us know ({{ contact_email }}).\r\n\r\nKind regards,\r\nthe Evaluation Team\r\n\r\n(This is an automated message.)",
+    "html_content": "{% load evaluation_filters %}\r\n<i>(English version below)</i><br /><br /><br />\r\n\r\n\r\nHallo {{ user.first_name }},<br /><br />\r\n\r\ndie folgenden Evaluierungsergebnisse wurden soeben veröffentlicht:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_de\" %}\r\n<li>{{ evaluation.full_name_de }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nDie Ergebnisse können auf EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %} eingesehen werden.<br />\r\n{% if user.needs_login_key and login_url %}\r\nHier klicken zum Anmelden: <a href=\"{{ login_url }}\">{{ login_url }}</a><br />\r\n{% elif user.needs_login_key %}\r\nEin Link zum Anmelden wird per E-Mail zugesendet.<br />\r\n{% endif %}<br />\r\n\r\nBei Fragen und Rückmeldungen stehen wir gerne zur Verfügung (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nFreundliche Grüße,<br />\r\ndas Evaluierungsteam<br /><br />\r\n\r\n<i>(Dies ist eine automatisch versendete E-Mail.)</i><br /><br />\r\n\r\n<hr><br /><br />\r\n\r\nDear {{ user.first_name }},<br /><br />\r\n\r\nthe results of the following evaluations have just been published:\r\n<ul>{% for evaluation in evaluations|order_by:\"full_name_en\" %}\r\n<li>{{ evaluation.full_name_en }}</li>\r\n{% endfor %}</ul><br />\r\n\r\nYou can view the results on EvaP{% if not user.needs_login_key %} (<a href=\"{{ page_url }}\">{{ page_url }}</a>){% endif %}.<br />\r\n{% if user.needs_login_key and login_url %}\r\nClick here to login: <a href=\"{{ login_url }}\">{{ login_url }}</a><br />\r\n{% elif user.needs_login_key %}\r\nWe will send you a one-time login URL in a separate email.<br />\r\n{% endif %}<br />\r\n\r\nIf you have any questions or feedback, please let us know (<a href=\"mailto:{{ contact_email }}\">{{ contact_email }}</a>).<br /><br />\r\n\r\nKind regards,<br />\r\nthe Evaluation Team<br /><br />\r\n\r\n<i>(This is an automated message.)</i>"
   }
 },
 {
@@ -139876,7 +139884,7 @@
   "model": "evaluation.evaluation",
   "pk": 34,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 4,
     "name_de": "",
     "name_en": "",
@@ -139937,7 +139945,7 @@
   "model": "evaluation.evaluation",
   "pk": 310,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 87,
     "name_de": "",
     "name_en": "",
@@ -140004,7 +140012,7 @@
   "model": "evaluation.evaluation",
   "pk": 311,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 116,
     "name_de": "",
     "name_en": "",
@@ -140053,7 +140061,7 @@
   "model": "evaluation.evaluation",
   "pk": 318,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 53,
     "name_de": "",
     "name_en": "",
@@ -140135,7 +140143,7 @@
   "model": "evaluation.evaluation",
   "pk": 327,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 76,
     "name_de": "",
     "name_en": "",
@@ -140244,7 +140252,7 @@
   "model": "evaluation.evaluation",
   "pk": 329,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 128,
     "name_de": "",
     "name_en": "",
@@ -140317,7 +140325,7 @@
   "model": "evaluation.evaluation",
   "pk": 332,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 100,
     "name_de": "",
     "name_en": "",
@@ -140387,7 +140395,7 @@
   "model": "evaluation.evaluation",
   "pk": 333,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 83,
     "name_de": "",
     "name_en": "",
@@ -140426,7 +140434,7 @@
   "model": "evaluation.evaluation",
   "pk": 334,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 113,
     "name_de": "",
     "name_en": "",
@@ -140664,7 +140672,7 @@
   "model": "evaluation.evaluation",
   "pk": 336,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 134,
     "name_de": "",
     "name_en": "",
@@ -140734,7 +140742,7 @@
   "model": "evaluation.evaluation",
   "pk": 345,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 60,
     "name_de": "",
     "name_en": "",
@@ -140843,7 +140851,7 @@
   "model": "evaluation.evaluation",
   "pk": 347,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 34,
     "name_de": "",
     "name_en": "",
@@ -140931,7 +140939,7 @@
   "model": "evaluation.evaluation",
   "pk": 348,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 1,
     "name_de": "Softwarearchitektur",
     "name_en": "Software Architecture",
@@ -141007,7 +141015,7 @@
   "model": "evaluation.evaluation",
   "pk": 350,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 126,
     "name_de": "",
     "name_en": "",
@@ -141074,7 +141082,7 @@
   "model": "evaluation.evaluation",
   "pk": 356,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 141,
     "name_de": "",
     "name_en": "",
@@ -141387,7 +141395,7 @@
   "model": "evaluation.evaluation",
   "pk": 358,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 69,
     "name_de": "",
     "name_en": "",
@@ -141754,7 +141762,7 @@
   "model": "evaluation.evaluation",
   "pk": 359,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 5,
     "name_de": "",
     "name_en": "",
@@ -141929,7 +141937,7 @@
   "model": "evaluation.evaluation",
   "pk": 363,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 37,
     "name_de": "",
     "name_en": "",
@@ -141990,7 +141998,7 @@
   "model": "evaluation.evaluation",
   "pk": 370,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 26,
     "name_de": "",
     "name_en": "",
@@ -142375,7 +142383,7 @@
   "model": "evaluation.evaluation",
   "pk": 372,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 26,
     "name_de": "C³: Konsistente Fahrzeug Gruppierung",
     "name_en": "C³: Consistent Car Clustering",
@@ -142784,7 +142792,7 @@
   "model": "evaluation.evaluation",
   "pk": 375,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 50,
     "name_de": "",
     "name_en": "",
@@ -142887,7 +142895,7 @@
   "model": "evaluation.evaluation",
   "pk": 478,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 38,
     "name_de": "",
     "name_en": "",
@@ -142944,7 +142952,7 @@
   "model": "evaluation.evaluation",
   "pk": 482,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 44,
     "name_de": "",
     "name_en": "",
@@ -143323,7 +143331,7 @@
   "model": "evaluation.evaluation",
   "pk": 641,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 16,
     "name_de": "",
     "name_en": "",
@@ -143651,7 +143659,7 @@
   "model": "evaluation.evaluation",
   "pk": 643,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 12,
     "name_de": "",
     "name_en": "",
@@ -144018,7 +144026,7 @@
   "model": "evaluation.evaluation",
   "pk": 648,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 2,
     "name_de": "",
     "name_en": "",
@@ -144463,7 +144471,7 @@
   "model": "evaluation.evaluation",
   "pk": 652,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 82,
     "name_de": "",
     "name_en": "",
@@ -144818,7 +144826,7 @@
   "model": "evaluation.evaluation",
   "pk": 654,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 59,
     "name_de": "",
     "name_en": "",
@@ -144951,7 +144959,7 @@
   "model": "evaluation.evaluation",
   "pk": 655,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 52,
     "name_de": "",
     "name_en": "",
@@ -145036,7 +145044,7 @@
   "model": "evaluation.evaluation",
   "pk": 657,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 130,
     "name_de": "",
     "name_en": "",
@@ -145103,7 +145111,7 @@
   "model": "evaluation.evaluation",
   "pk": 663,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 94,
     "name_de": "",
     "name_en": "",
@@ -145221,7 +145229,7 @@
   "model": "evaluation.evaluation",
   "pk": 664,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 115,
     "name_de": "",
     "name_en": "",
@@ -145369,7 +145377,7 @@
   "model": "evaluation.evaluation",
   "pk": 665,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 103,
     "name_de": "",
     "name_en": "",
@@ -145460,7 +145468,7 @@
   "model": "evaluation.evaluation",
   "pk": 666,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 35,
     "name_de": "",
     "name_en": "",
@@ -145569,7 +145577,7 @@
   "model": "evaluation.evaluation",
   "pk": 669,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 51,
     "name_de": "",
     "name_en": "",
@@ -145708,7 +145716,7 @@
   "model": "evaluation.evaluation",
   "pk": 675,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 86,
     "name_de": "",
     "name_en": "",
@@ -145763,7 +145771,7 @@
   "model": "evaluation.evaluation",
   "pk": 682,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 90,
     "name_de": "",
     "name_en": "",
@@ -145842,7 +145850,7 @@
   "model": "evaluation.evaluation",
   "pk": 686,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 73,
     "name_de": "",
     "name_en": "",
@@ -145957,7 +145965,7 @@
   "model": "evaluation.evaluation",
   "pk": 690,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 121,
     "name_de": "",
     "name_en": "",
@@ -146024,7 +146032,7 @@
   "model": "evaluation.evaluation",
   "pk": 695,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 118,
     "name_de": "",
     "name_en": "",
@@ -146057,7 +146065,7 @@
   "model": "evaluation.evaluation",
   "pk": 697,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 18,
     "name_de": "",
     "name_en": "",
@@ -146118,7 +146126,7 @@
   "model": "evaluation.evaluation",
   "pk": 698,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 75,
     "name_de": "",
     "name_en": "",
@@ -146161,7 +146169,7 @@
   "model": "evaluation.evaluation",
   "pk": 702,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 24,
     "name_de": "",
     "name_en": "",
@@ -146219,7 +146227,7 @@
   "model": "evaluation.evaluation",
   "pk": 709,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 55,
     "name_de": "",
     "name_en": "",
@@ -146271,7 +146279,7 @@
   "model": "evaluation.evaluation",
   "pk": 730,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 61,
     "name_de": "",
     "name_en": "",
@@ -146353,7 +146361,7 @@
   "model": "evaluation.evaluation",
   "pk": 1454,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 109,
     "name_de": "",
     "name_en": "",
@@ -146663,7 +146671,7 @@
   "model": "evaluation.evaluation",
   "pk": 1460,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 21,
     "name_de": "",
     "name_en": "",
@@ -146697,7 +146705,7 @@
   "model": "evaluation.evaluation",
   "pk": 1463,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 17,
     "name_de": "",
     "name_en": "",
@@ -146785,7 +146793,7 @@
   "model": "evaluation.evaluation",
   "pk": 1468,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 3,
     "name_de": "",
     "name_en": "",
@@ -146831,7 +146839,7 @@
   "model": "evaluation.evaluation",
   "pk": 1472,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 131,
     "name_de": "",
     "name_en": "",
@@ -147111,7 +147119,7 @@
   "model": "evaluation.evaluation",
   "pk": 1474,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 97,
     "name_de": "",
     "name_en": "",
@@ -147163,7 +147171,7 @@
   "model": "evaluation.evaluation",
   "pk": 1479,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 30,
     "name_de": "",
     "name_en": "",
@@ -147299,7 +147307,7 @@
   "model": "evaluation.evaluation",
   "pk": 1480,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 82,
     "name_de": "Automated Analysis of Formal Models",
     "name_en": "Automated Analysis of Formal Models",
@@ -147408,7 +147416,7 @@
   "model": "evaluation.evaluation",
   "pk": 1485,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 28,
     "name_de": "",
     "name_en": "",
@@ -147490,7 +147498,7 @@
   "model": "evaluation.evaluation",
   "pk": 1488,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 14,
     "name_de": "",
     "name_en": "",
@@ -147836,7 +147844,7 @@
   "model": "evaluation.evaluation",
   "pk": 1494,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 29,
     "name_de": "",
     "name_en": "",
@@ -148221,7 +148229,7 @@
   "model": "evaluation.evaluation",
   "pk": 1497,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 122,
     "name_de": "",
     "name_en": "",
@@ -148324,7 +148332,7 @@
   "model": "evaluation.evaluation",
   "pk": 1498,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 46,
     "name_de": "",
     "name_en": "",
@@ -148372,7 +148380,7 @@
   "model": "evaluation.evaluation",
   "pk": 1499,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 1,
     "name_de": "",
     "name_en": "",
@@ -148420,7 +148428,7 @@
   "model": "evaluation.evaluation",
   "pk": 1500,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 65,
     "name_de": "",
     "name_en": "",
@@ -148477,7 +148485,7 @@
   "model": "evaluation.evaluation",
   "pk": 1502,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 84,
     "name_de": "",
     "name_en": "",
@@ -148553,7 +148561,7 @@
   "model": "evaluation.evaluation",
   "pk": 1503,
   "fields": {
-    "state": "evaluated",
+    "state": 60,
     "course": 98,
     "name_de": "",
     "name_en": "",
@@ -148596,7 +148604,7 @@
   "model": "evaluation.evaluation",
   "pk": 1504,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 78,
     "name_de": "",
     "name_en": "",
@@ -148669,7 +148677,7 @@
   "model": "evaluation.evaluation",
   "pk": 1506,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 102,
     "name_de": "",
     "name_en": "",
@@ -148705,7 +148713,7 @@
   "model": "evaluation.evaluation",
   "pk": 1507,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 63,
     "name_de": "",
     "name_en": "",
@@ -148747,7 +148755,7 @@
   "model": "evaluation.evaluation",
   "pk": 1508,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 27,
     "name_de": "",
     "name_en": "",
@@ -148877,7 +148885,7 @@
   "model": "evaluation.evaluation",
   "pk": 1510,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 70,
     "name_de": "",
     "name_en": "",
@@ -148944,7 +148952,7 @@
   "model": "evaluation.evaluation",
   "pk": 1513,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 119,
     "name_de": "",
     "name_en": "",
@@ -149074,7 +149082,7 @@
   "model": "evaluation.evaluation",
   "pk": 1514,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 120,
     "name_de": "",
     "name_en": "",
@@ -149339,7 +149347,7 @@
   "model": "evaluation.evaluation",
   "pk": 1518,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 132,
     "name_de": "",
     "name_en": "",
@@ -149427,7 +149435,7 @@
   "model": "evaluation.evaluation",
   "pk": 1520,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 7,
     "name_de": "",
     "name_en": "",
@@ -149617,7 +149625,7 @@
   "model": "evaluation.evaluation",
   "pk": 1525,
   "fields": {
-    "state": "approved",
+    "state": 40,
     "course": 23,
     "name_de": "",
     "name_en": "",
@@ -149656,7 +149664,7 @@
   "model": "evaluation.evaluation",
   "pk": 1531,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 49,
     "name_de": "",
     "name_en": "",
@@ -149795,7 +149803,7 @@
   "model": "evaluation.evaluation",
   "pk": 1534,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 33,
     "name_de": "",
     "name_en": "",
@@ -149958,7 +149966,7 @@
   "model": "evaluation.evaluation",
   "pk": 1540,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 114,
     "name_de": "",
     "name_en": "",
@@ -150070,7 +150078,7 @@
   "model": "evaluation.evaluation",
   "pk": 1544,
   "fields": {
-    "state": "editor_approved",
+    "state": 30,
     "course": 72,
     "name_de": "",
     "name_en": "",
@@ -150130,7 +150138,7 @@
   "model": "evaluation.evaluation",
   "pk": 1545,
   "fields": {
-    "state": "editor_approved",
+    "state": 30,
     "course": 89,
     "name_de": "IT-Recht",
     "name_en": "Legal Aspects of Information Technology",
@@ -150190,7 +150198,7 @@
   "model": "evaluation.evaluation",
   "pk": 1547,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 58,
     "name_de": "",
     "name_en": "",
@@ -150575,7 +150583,7 @@
   "model": "evaluation.evaluation",
   "pk": 1548,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 117,
     "name_de": "",
     "name_en": "",
@@ -150621,7 +150629,7 @@
   "model": "evaluation.evaluation",
   "pk": 1549,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 22,
     "name_de": "",
     "name_en": "",
@@ -150718,7 +150726,7 @@
   "model": "evaluation.evaluation",
   "pk": 1550,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 112,
     "name_de": "",
     "name_en": "",
@@ -150797,7 +150805,7 @@
   "model": "evaluation.evaluation",
   "pk": 1554,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 80,
     "name_de": "",
     "name_en": "",
@@ -150834,7 +150842,7 @@
   "model": "evaluation.evaluation",
   "pk": 1559,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 54,
     "name_de": "",
     "name_en": "",
@@ -150970,7 +150978,7 @@
   "model": "evaluation.evaluation",
   "pk": 1563,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 127,
     "name_de": "",
     "name_en": "",
@@ -151022,7 +151030,7 @@
   "model": "evaluation.evaluation",
   "pk": 1564,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 88,
     "name_de": "",
     "name_en": "",
@@ -151058,7 +151066,7 @@
   "model": "evaluation.evaluation",
   "pk": 1568,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 64,
     "name_de": "",
     "name_en": "",
@@ -151482,7 +151490,7 @@
   "model": "evaluation.evaluation",
   "pk": 1569,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 125,
     "name_de": "",
     "name_en": "",
@@ -151570,7 +151578,7 @@
   "model": "evaluation.evaluation",
   "pk": 1570,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 43,
     "name_de": "",
     "name_en": "",
@@ -151928,7 +151936,7 @@
   "model": "evaluation.evaluation",
   "pk": 1571,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 60,
     "name_de": "Business Process Compliance",
     "name_en": "Business Process Compliance",
@@ -152067,7 +152075,7 @@
   "model": "evaluation.evaluation",
   "pk": 1575,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 77,
     "name_de": "",
     "name_en": "",
@@ -152131,7 +152139,7 @@
   "model": "evaluation.evaluation",
   "pk": 1577,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 9,
     "name_de": "",
     "name_en": "",
@@ -152261,7 +152269,7 @@
   "model": "evaluation.evaluation",
   "pk": 1580,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 91,
     "name_de": "",
     "name_en": "",
@@ -152331,7 +152339,7 @@
   "model": "evaluation.evaluation",
   "pk": 1583,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 41,
     "name_de": "",
     "name_en": "",
@@ -152389,7 +152397,7 @@
   "model": "evaluation.evaluation",
   "pk": 1585,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 99,
     "name_de": "",
     "name_en": "",
@@ -152429,7 +152437,7 @@
   "model": "evaluation.evaluation",
   "pk": 1586,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 67,
     "name_de": "",
     "name_en": "",
@@ -152465,7 +152473,7 @@
   "model": "evaluation.evaluation",
   "pk": 1587,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 11,
     "name_de": "",
     "name_en": "",
@@ -152523,7 +152531,7 @@
   "model": "evaluation.evaluation",
   "pk": 1595,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 96,
     "name_de": "",
     "name_en": "",
@@ -152584,7 +152592,7 @@
   "model": "evaluation.evaluation",
   "pk": 1598,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 138,
     "name_de": "",
     "name_en": "",
@@ -152633,7 +152641,7 @@
   "model": "evaluation.evaluation",
   "pk": 1600,
   "fields": {
-    "state": "evaluated",
+    "state": 60,
     "course": 40,
     "name_de": "",
     "name_en": "",
@@ -152697,7 +152705,7 @@
   "model": "evaluation.evaluation",
   "pk": 1603,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 57,
     "name_de": "",
     "name_en": "",
@@ -152724,7 +152732,7 @@
   "model": "evaluation.evaluation",
   "pk": 1605,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 39,
     "name_de": "",
     "name_en": "",
@@ -152776,7 +152784,7 @@
   "model": "evaluation.evaluation",
   "pk": 1610,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 81,
     "name_de": "",
     "name_en": "",
@@ -152869,7 +152877,7 @@
   "model": "evaluation.evaluation",
   "pk": 1613,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 93,
     "name_de": "",
     "name_en": "",
@@ -152899,7 +152907,7 @@
   "model": "evaluation.evaluation",
   "pk": 1614,
   "fields": {
-    "state": "approved",
+    "state": 40,
     "course": 47,
     "name_de": "",
     "name_en": "",
@@ -152929,7 +152937,7 @@
   "model": "evaluation.evaluation",
   "pk": 1618,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 105,
     "name_de": "",
     "name_en": "",
@@ -152993,7 +153001,7 @@
   "model": "evaluation.evaluation",
   "pk": 1624,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 104,
     "name_de": "",
     "name_en": "",
@@ -153033,7 +153041,7 @@
   "model": "evaluation.evaluation",
   "pk": 1625,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 122,
     "name_de": "Piggyback Profiling: Metadata for Query Results",
     "name_en": "Piggyback Profiling: Metadata for Query Results",
@@ -153073,7 +153081,7 @@
   "model": "evaluation.evaluation",
   "pk": 1629,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 129,
     "name_de": "",
     "name_en": "",
@@ -153116,7 +153124,7 @@
   "model": "evaluation.evaluation",
   "pk": 1634,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 8,
     "name_de": "",
     "name_en": "",
@@ -153149,7 +153157,7 @@
   "model": "evaluation.evaluation",
   "pk": 1638,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 139,
     "name_de": "",
     "name_en": "",
@@ -153225,7 +153233,7 @@
   "model": "evaluation.evaluation",
   "pk": 1641,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 107,
     "name_de": "",
     "name_en": "",
@@ -153277,7 +153285,7 @@
   "model": "evaluation.evaluation",
   "pk": 1646,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 142,
     "name_de": "",
     "name_en": "",
@@ -153313,7 +153321,7 @@
   "model": "evaluation.evaluation",
   "pk": 1647,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 48,
     "name_de": "",
     "name_en": "",
@@ -153365,7 +153373,7 @@
   "model": "evaluation.evaluation",
   "pk": 1648,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 19,
     "name_de": "",
     "name_en": "",
@@ -153423,7 +153431,7 @@
   "model": "evaluation.evaluation",
   "pk": 1649,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 135,
     "name_de": "",
     "name_en": "",
@@ -153460,7 +153468,7 @@
   "model": "evaluation.evaluation",
   "pk": 1651,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 137,
     "name_de": "",
     "name_en": "",
@@ -153650,7 +153658,7 @@
   "model": "evaluation.evaluation",
   "pk": 1653,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 71,
     "name_de": "",
     "name_en": "",
@@ -153686,7 +153694,7 @@
   "model": "evaluation.evaluation",
   "pk": 1655,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 79,
     "name_de": "",
     "name_en": "",
@@ -153726,7 +153734,7 @@
   "model": "evaluation.evaluation",
   "pk": 1656,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 74,
     "name_de": "",
     "name_en": "",
@@ -153778,7 +153786,7 @@
   "model": "evaluation.evaluation",
   "pk": 1657,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 108,
     "name_de": "",
     "name_en": "",
@@ -153836,7 +153844,7 @@
   "model": "evaluation.evaluation",
   "pk": 1660,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 85,
     "name_de": "",
     "name_en": "",
@@ -153954,7 +153962,7 @@
   "model": "evaluation.evaluation",
   "pk": 1663,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 66,
     "name_de": "",
     "name_en": "",
@@ -154072,7 +154080,7 @@
   "model": "evaluation.evaluation",
   "pk": 1668,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 56,
     "name_de": "",
     "name_en": "",
@@ -154114,7 +154122,7 @@
   "model": "evaluation.evaluation",
   "pk": 1673,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 140,
     "name_de": "",
     "name_en": "",
@@ -154175,7 +154183,7 @@
   "model": "evaluation.evaluation",
   "pk": 1679,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 32,
     "name_de": "",
     "name_en": "",
@@ -154605,7 +154613,7 @@
   "model": "evaluation.evaluation",
   "pk": 1682,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 111,
     "name_de": "",
     "name_en": "",
@@ -154651,7 +154659,7 @@
   "model": "evaluation.evaluation",
   "pk": 1683,
   "fields": {
-    "state": "new",
+    "state": 10,
     "course": 124,
     "name_de": "",
     "name_en": "",
@@ -154690,7 +154698,7 @@
   "model": "evaluation.evaluation",
   "pk": 1684,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 68,
     "name_de": "",
     "name_en": "",
@@ -154802,7 +154810,7 @@
   "model": "evaluation.evaluation",
   "pk": 1687,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 42,
     "name_de": "",
     "name_en": "",
@@ -155154,7 +155162,7 @@
   "model": "evaluation.evaluation",
   "pk": 1693,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 92,
     "name_de": "",
     "name_en": "",
@@ -155199,7 +155207,7 @@
   "model": "evaluation.evaluation",
   "pk": 1694,
   "fields": {
-    "state": "in_evaluation",
+    "state": 50,
     "course": 89,
     "name_de": "",
     "name_en": "",
@@ -155239,7 +155247,7 @@
   "model": "evaluation.evaluation",
   "pk": 1695,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 106,
     "name_de": "",
     "name_en": "",
@@ -155459,7 +155467,7 @@
   "model": "evaluation.evaluation",
   "pk": 1696,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 110,
     "name_de": "",
     "name_en": "",
@@ -155562,7 +155570,7 @@
   "model": "evaluation.evaluation",
   "pk": 1697,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 36,
     "name_de": "",
     "name_en": "",
@@ -155911,7 +155919,7 @@
   "model": "evaluation.evaluation",
   "pk": 1698,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 101,
     "name_de": "",
     "name_en": "",
@@ -155987,7 +155995,7 @@
   "model": "evaluation.evaluation",
   "pk": 1701,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 10,
     "name_de": "",
     "name_en": "",
@@ -156144,7 +156152,7 @@
   "model": "evaluation.evaluation",
   "pk": 1706,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 25,
     "name_de": "",
     "name_en": "",
@@ -156529,7 +156537,7 @@
   "model": "evaluation.evaluation",
   "pk": 1707,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 15,
     "name_de": "",
     "name_en": "",
@@ -156725,7 +156733,7 @@
   "model": "evaluation.evaluation",
   "pk": 1710,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 133,
     "name_de": "",
     "name_en": "",
@@ -157116,7 +157124,7 @@
   "model": "evaluation.evaluation",
   "pk": 1712,
   "fields": {
-    "state": "prepared",
+    "state": 20,
     "course": 45,
     "name_de": "",
     "name_en": "",
@@ -157161,7 +157169,7 @@
   "model": "evaluation.evaluation",
   "pk": 1713,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 136,
     "name_de": "",
     "name_en": "",
@@ -157184,7 +157192,7 @@
   "model": "evaluation.evaluation",
   "pk": 1714,
   "fields": {
-    "state": "reviewed",
+    "state": 70,
     "course": 31,
     "name_de": "",
     "name_en": "",
@@ -157207,7 +157215,7 @@
   "model": "evaluation.evaluation",
   "pk": 1715,
   "fields": {
-    "state": "published",
+    "state": 80,
     "course": 1,
     "name_de": "CG quick",
     "name_en": "CG quick",

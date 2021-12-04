@@ -4,74 +4,92 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q, F
+from django.db.models import Exists, F, OuterRef, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from evap.evaluation.auth import participant_required
-from evap.evaluation.models import Evaluation, NO_ANSWER, Semester, RatingAnswerCounter, TextAnswer
-
-from evap.student.models import TextAnswerWarning
+from evap.evaluation.models import NO_ANSWER, Evaluation, RatingAnswerCounter, Semester, TextAnswer
+from evap.results.tools import (
+    annotate_distributions_and_grades,
+    get_evaluations_with_course_result_attributes,
+    textanswers_visible_to,
+)
 from evap.student.forms import QuestionnaireVotingForm
+from evap.student.models import TextAnswerWarning
 from evap.student.tools import answer_field_id
 
-from evap.results.tools import (annotate_distributions_and_grades, get_evaluations_with_course_result_attributes,
-                                textanswers_visible_to)
-
-SUCCESS_MAGIC_STRING = 'vote submitted successfully'
+SUCCESS_MAGIC_STRING = "vote submitted successfully"
 
 
 @participant_required
 def index(request):
-    query = (Evaluation.objects
-        .annotate(participates_in=Exists(Evaluation.objects.filter(id=OuterRef('id'), participants=request.user)))
-        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef('id'), voters=request.user)))
-
-        .filter(~Q(state="new"), course__evaluations__participants=request.user)
-        .exclude(state="new")
+    query = (
+        Evaluation.objects.annotate(
+            participates_in=Exists(Evaluation.objects.filter(id=OuterRef("id"), participants=request.user))
+        )
+        .annotate(voted_for=Exists(Evaluation.objects.filter(id=OuterRef("id"), voters=request.user)))
+        .filter(~Q(state=Evaluation.State.NEW), course__evaluations__participants=request.user)
+        .exclude(state=Evaluation.State.NEW)
         .prefetch_related(
-            'course', 'course__semester', 'course__grade_documents', 'course__type',
-            'course__evaluations', 'course__responsibles', 'course__degrees',
+            "course",
+            "course__semester",
+            "course__grade_documents",
+            "course__type",
+            "course__evaluations",
+            "course__responsibles",
+            "course__degrees",
         )
         .distinct()
     )
     query = Evaluation.annotate_with_participant_and_voter_counts(query)
     evaluations = [evaluation for evaluation in query if evaluation.can_be_seen_by(request.user)]
 
-    inner_evaluation_ids = [inner_evaluation.id for evaluation in evaluations for inner_evaluation in evaluation.course.evaluations.all()]
+    inner_evaluation_ids = [
+        inner_evaluation.id for evaluation in evaluations for inner_evaluation in evaluation.course.evaluations.all()
+    ]
     inner_evaluation_query = Evaluation.objects.filter(pk__in=inner_evaluation_ids)
     inner_evaluation_query = Evaluation.annotate_with_participant_and_voter_counts(inner_evaluation_query)
 
-    evaluations_by_id = {evaluation['id']: evaluation for evaluation in inner_evaluation_query.values()}
+    evaluations_by_id = {evaluation["id"]: evaluation for evaluation in inner_evaluation_query.values()}
 
     for evaluation in evaluations:
         for inner_evaluation in evaluation.course.evaluations.all():
-            inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]['num_voters']
-            inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]['num_participants']
+            inner_evaluation.num_voters = evaluations_by_id[inner_evaluation.id]["num_voters"]
+            inner_evaluation.num_participants = evaluations_by_id[inner_evaluation.id]["num_participants"]
 
-    annotate_distributions_and_grades(e for e in evaluations if e.state == "published")
-
+    annotate_distributions_and_grades(e for e in evaluations if e.state == Evaluation.State.PUBLISHED)
     evaluations = get_evaluations_with_course_result_attributes(evaluations)
 
     # evaluations must be sorted for regrouping them in the template
     evaluations.sort(key=lambda evaluation: (evaluation.course.name, evaluation.name))
 
     semesters = Semester.objects.all()
-    semester_list = [dict(
-        semester_name=semester.name,
-        id=semester.id,
-        results_are_archived=semester.results_are_archived,
-        grade_documents_are_deleted=semester.grade_documents_are_deleted,
-        evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id]
-    ) for semester in semesters]
+    semester_list = [
+        dict(
+            semester_name=semester.name,
+            id=semester.id,
+            results_are_archived=semester.results_are_archived,
+            grade_documents_are_deleted=semester.grade_documents_are_deleted,
+            evaluations=[evaluation for evaluation in evaluations if evaluation.course.semester_id == semester.id],
+        )
+        for semester in semesters
+    ]
 
     unfinished_evaluations_query = (
-        Evaluation.objects
-        .filter(participants=request.user, state__in=['prepared', 'editor_approved', 'approved', 'in_evaluation'])
+        Evaluation.objects.filter(
+            participants=request.user,
+            state__in=[
+                Evaluation.State.PREPARED,
+                Evaluation.State.EDITOR_APPROVED,
+                Evaluation.State.APPROVED,
+                Evaluation.State.IN_EVALUATION,
+            ],
+        )
         .exclude(voters=request.user)
-        .prefetch_related('course__responsibles', 'course__type', 'course__semester')
+        .prefetch_related("course__responsibles", "course__type", "course__semester")
     )
 
     unfinished_evaluations_query = Evaluation.annotate_with_participant_and_voter_counts(unfinished_evaluations_query)
@@ -81,10 +99,11 @@ def index(request):
     # evaluations in other (visible) states follow by name
     def sorter(evaluation):
         return (
-            evaluation.state != 'in_evaluation',
-            evaluation.vote_end_date if evaluation.state == 'in_evaluation' else None,
-            evaluation.full_name
+            evaluation.state != Evaluation.State.IN_EVALUATION,
+            evaluation.vote_end_date if evaluation.state == Evaluation.State.IN_EVALUATION else None,
+            evaluation.full_name,
         )
+
     unfinished_evaluations.sort(key=sorter)
 
     template_data = dict(
@@ -108,7 +127,10 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         questionnaires = contribution.questionnaires.all()
         if not questionnaires.exists():
             continue
-        form_groups[contribution] = [QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire) for questionnaire in questionnaires]
+        form_groups[contribution] = [
+            QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
+            for questionnaire in questionnaires
+        ]
 
     if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
         assert not preview
@@ -116,15 +138,31 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
 
     evaluation_form_group = form_groups.pop(evaluation.general_contribution)
 
-    contributor_form_groups = [(contribution.contributor, contribution.label, form_group, any(form.errors for form in form_group), textanswers_visible_to(contribution)) for contribution, form_group in form_groups.items()]
-    evaluation_form_group_top = [questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors]
-    evaluation_form_group_bottom = [questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors]
+    contributor_form_groups = [
+        (
+            contribution.contributor,
+            contribution.label,
+            form_group,
+            any(form.errors for form in form_group),
+            textanswers_visible_to(contribution),
+        )
+        for contribution, form_group in form_groups.items()
+    ]
+    evaluation_form_group_top = [
+        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_above_contributors
+    ]
+    evaluation_form_group_bottom = [
+        questions_form for questions_form in evaluation_form_group if questions_form.questionnaire.is_below_contributors
+    ]
     if not contributor_form_groups:
         evaluation_form_group_top += evaluation_form_group_bottom
         evaluation_form_group_bottom = []
 
     template_data = dict(
-        errors_exist=any(any(form.errors for form in form_group) for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]),
+        errors_exist=any(
+            any(form.errors for form in form_group)
+            for form_group in [*(form_groups.values()), evaluation_form_group_top, evaluation_form_group_bottom]
+        ),
         evaluation_form_group_top=evaluation_form_group_top,
         evaluation_form_group_bottom=evaluation_form_group_bottom,
         contributor_form_groups=contributor_form_groups,
@@ -132,7 +170,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         small_evaluation_size_warning=evaluation.num_participants <= settings.SMALL_COURSE_SIZE,
         preview=preview,
         success_magic_string=SUCCESS_MAGIC_STRING,
-        success_redirect_url=reverse('student:index'),
+        success_redirect_url=reverse("student:index"),
         for_rendering_in_modal=for_rendering_in_modal,
         general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
         text_answer_warnings=TextAnswerWarning.objects.all(),
@@ -169,28 +207,38 @@ def vote(request, evaluation_id):
 
                     if question.is_text_question:
                         if value:
-                            question.answer_class.objects.create(contribution=contribution, question=question, answer=value)
+                            question.answer_class.objects.create(
+                                contribution=contribution, question=question, answer=value
+                            )
                     else:
                         if value != NO_ANSWER:
-                            answer_counter, __ = question.answer_class.objects.get_or_create(contribution=contribution, question=question, answer=value)
+                            answer_counter, __ = question.answer_class.objects.get_or_create(
+                                contribution=contribution, question=question, answer=value
+                            )
                             answer_counter.count += 1
                             answer_counter.save()
                         if question.allows_additional_textanswers:
-                            textanswer_identifier = answer_field_id(contribution, questionnaire, question, additional_textanswer=True)
+                            textanswer_identifier = answer_field_id(
+                                contribution, questionnaire, question, additional_textanswer=True
+                            )
                             textanswer_value = questionnaire_form.cleaned_data.get(textanswer_identifier)
                             if textanswer_value:
-                                TextAnswer.objects.create(contribution=contribution, question=question, answer=textanswer_value)
+                                TextAnswer.objects.create(
+                                    contribution=contribution, question=question, answer=textanswer_value
+                                )
 
         # Update all answer rows to make sure no system columns give away which one was last modified
         # see https://github.com/e-valuation/EvaP/issues/1384
-        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).update(id=F('id'))
-        TextAnswer.objects.filter(contribution__evaluation=evaluation).update(id=F('id'))
+        RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
+        TextAnswer.objects.filter(contribution__evaluation=evaluation).update(id=F("id"))
 
         if not evaluation.can_publish_text_results:
             # enable text result publishing if first user confirmed that publishing is okay or second user voted
-            if (request.POST.get('text_results_publish_confirmation_top') == 'on'
-                    or request.POST.get('text_results_publish_confirmation_bottom') == 'on'
-                    or evaluation.voters.count() >= 2):
+            if (
+                request.POST.get("text_results_publish_confirmation_top") == "on"
+                or request.POST.get("text_results_publish_confirmation_bottom") == "on"
+                or evaluation.voters.count() >= 2
+            ):
                 evaluation.can_publish_text_results = True
                 evaluation.save()
 

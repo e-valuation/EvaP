@@ -21,13 +21,13 @@
                 </div>
             </div>
         </div>
-        <div class="input-group col-3">
-            <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
-            <div class="input-group-append">
-                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-toggle="tooltip" data-placement="top" title="{% trans 'Clear filter' %}">
+        <div class="col-3">
+            <div class="input-group">
+                <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
+                <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear filter' %}">
                     <span class="fas fa-backspace"></span>
                 </button>
-              </div>
+            </div>
         </div>
     </div>
 
@@ -48,7 +48,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete questionnaire' as title %}
-    {% trans 'Do you really want to delete the questionnaire <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the questionnaire <strong data-label=""></strong>?' as question %}
     {% trans 'Delete questionnaire' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteQuestionnaireModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">
@@ -67,15 +67,14 @@
 {% block additional_javascript %}
     <script type="module">
         import {QuestionnaireGrid} from "{% static 'js/datagrid.js' %}";
-        const tables = $(".questionnaire-table");
-        tables.each((index, table) => {
-            new QuestionnaireGrid().init({
+        document.querySelectorAll(".questionnaire-table").forEach(table => {
+            new QuestionnaireGrid({
                 storageKey: "questionnaires-data-grid",
                 updateUrl: "{% url 'staff:questionnaire_update_indices' %}",
-                table: $(table),
-                searchInput: $("input[name=search]"),
-                resetSearch: $("[data-reset=search]"),
-            });
+                table,
+                searchInput: document.querySelector("input[name=search]"),
+                resetSearch: document.querySelector("[data-reset=search]"),
+            }).init();
         });
     </script>
 

@@ -4,12 +4,12 @@
 # This script will import the backup made by update_production.
 
 set -e # abort on error
-cd $(dirname $0)/.. # change to root directory
+cd "$(dirname "$0")/.." # change to root directory
 
 USERNAME="evap"
 ENVDIR="/opt/evap/env"
-ADDITIONAL_ARGUMENTS=""
-[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR=/usr/local && ADDITIONAL_ARGUMENTS=" --noinput"
+CONDITIONAL_NOINPUT=""
+[[ ! -z "$GITHUB_WORKFLOW" ]] && echo "Detected GitHub" && USERNAME="root" && ENVDIR=/usr/local && CONDITIONAL_NOINPUT="--noinput"
 
 COMMIT_HASH="$(git rev-parse --short HEAD)"
 
@@ -43,22 +43,22 @@ fi
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
 
-sudo -H -u $USERNAME $ENVDIR/bin/pip install -r requirements.txt
+sudo -H -u "$USERNAME" "$ENVDIR/bin/pip" install -r requirements.txt
 
 # sometimes, this fails for some random i18n test translation files.
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py compilemessages || true
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py scss --production
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py collectstatic --noinput
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py compilemessages || true
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py reset_db $ADDITIONAL_ARGUMENTS
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py migrate
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py flush $ADDITIONAL_ARGUMENTS
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py loaddata $1
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py reset_db "$CONDITIONAL_NOINPUT"
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py flush "$CONDITIONAL_NOINPUT"
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata "$1"
 
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py refresh_results_cache
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
 
-sudo -H -u $USERNAME $ENVDIR/bin/python manage.py clear_cache --cache=sessions
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --cache=sessions
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
 

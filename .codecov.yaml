@@ -8,6 +8,9 @@ coverage:
         target: auto
         threshold: 0.05%
         base: auto
+codecov:
+  notify:
+    after_n_builds: 2
 comment: false
 ignore:
   - "evap/development/views.py"

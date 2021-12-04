@@ -1,8 +1,8 @@
+import itertools
+import threading
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, time
 from enum import Enum
-import itertools
-import threading
 from json import JSONEncoder
 
 from django.conf import settings
@@ -88,13 +88,16 @@ class LogEntry(models.Model):
     data = models.JSONField(default=dict, encoder=LogJSONEncoder)
 
     class Meta:
-        ordering = ("-datetime", "-id")
+        ordering = ["-datetime", "-id"]
 
     @property
     def field_context_data(self):
         model = self.content_type.model_class()
         return {
-            field_name: list(_field_actions_for_field(model._meta.get_field(field_name), actions))
+            field_name: [
+                getattr(model, "transform_log_action", LoggedModel.transform_log_action)(field_action)
+                for field_action in _field_actions_for_field(model._meta.get_field(field_name), actions)
+            ]
             for field_name, actions in self.data.items()
         }
 
@@ -128,6 +131,7 @@ class LoggedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._logentry = None
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """
@@ -136,9 +140,9 @@ class LoggedModel(models.Model):
         that don't name m2m fields.
         """
         fields = [
-            field.name for field in type(self)._meta.get_fields() if
-            field.name not in self.unlogged_fields
-            and not field.many_to_many
+            field.name
+            for field in type(self)._meta.get_fields()
+            if field.name not in self.unlogged_fields and not field.many_to_many
         ]
         return model_to_dict(self, fields)
 
@@ -169,7 +173,9 @@ class LoggedModel(models.Model):
                 if deleted_value is not None
             }
             # as the instance is being deleted, we also need to pull out all m2m values
-            m2m_field_names = [field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields]
+            m2m_field_names = [
+                field.name for field in type(self)._meta.many_to_many if field.name not in self.unlogged_fields
+            ]
             for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
                 changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}
         else:
@@ -177,8 +183,12 @@ class LoggedModel(models.Model):
 
         return changes
 
-    def log_m2m_change(self, changes):
-        self._update_log(changes, InstanceActionType.CHANGE)
+    def log_m2m_change(self, field_name, action_type: FieldActionType, change_list):
+        # This might be called multiple times with cumulating changes
+        # But this is fine, since the old changes will be included in the latest log update
+        # See https://github.com/e-valuation/EvaP/issues/1594
+        self._m2m_changes[field_name][action_type] += change_list
+        self._update_log(self._m2m_changes, InstanceActionType.CHANGE)
 
     def log_instance_create(self):
         changes = self._get_change_data(InstanceActionType.CREATE)
@@ -242,7 +252,8 @@ class LoggedModel(models.Model):
         Return a queryset with all logentries that should be shown with this model.
         """
         return LogEntry.objects.filter(
-            attached_to_object_type=ContentType.objects.get_for_model(type(self)), attached_to_object_id=self.pk,
+            attached_to_object_type=ContentType.objects.get_for_model(type(self)),
+            attached_to_object_id=self.pk,
         )
 
     def grouped_logentries(self):
@@ -250,10 +261,13 @@ class LoggedModel(models.Model):
         Returns a list of lists of logentries for display. The order is not changed.
         Logentries are grouped if they have a matching request_id.
         """
-        yield from (list(group) for key, group in itertools.groupby(
-            self.related_logentries().select_related("user"),
-            lambda entry: entry.request_id or entry.pk,
-        ))
+        yield from (
+            list(group)
+            for key, group in itertools.groupby(
+                self.related_logentries().select_related("user"),
+                lambda entry: entry.request_id or entry.pk,
+            )
+        )
 
     @property
     def object_to_attach_logentries_to(self):
@@ -269,7 +283,11 @@ class LoggedModel(models.Model):
     @property
     def unlogged_fields(self):
         """Specify a list of field names so that these fields don't get logged."""
-        return ['id', 'order']
+        return ["id", "order"]
+
+    @staticmethod
+    def transform_log_action(field_action):
+        return field_action
 
 
 @receiver(m2m_changed)
@@ -279,19 +297,21 @@ def _m2m_changed(sender, instance, action, reverse, model, pk_set, **kwargs):  #
     if not isinstance(instance, LoggedModel):
         return
 
-    field_name = next((field.name for field in type(instance)._meta.many_to_many
-                       if getattr(type(instance), field.name).through == sender), None)
+    field_name = next(
+        (
+            field.name
+            for field in type(instance)._meta.many_to_many
+            if getattr(type(instance), field.name).through == sender
+        ),
+        None,
+    )
 
     if field_name in instance.unlogged_fields:
         return
 
-    m2m_changes = defaultdict(lambda: defaultdict(list))
-    if action == 'pre_remove':
-        m2m_changes[field_name][FieldActionType.M2M_REMOVE] += list(pk_set)
-    elif action == 'pre_add':
-        m2m_changes[field_name][FieldActionType.M2M_ADD] += list(pk_set)
-    elif action == 'pre_clear':
-        m2m_changes[field_name][FieldActionType.M2M_CLEAR] = []
-
-    if m2m_changes:
-        instance.log_m2m_change(m2m_changes)
+    if action == "pre_remove":
+        instance.log_m2m_change(field_name, FieldActionType.M2M_REMOVE, list(pk_set))
+    elif action == "pre_add":
+        instance.log_m2m_change(field_name, FieldActionType.M2M_ADD, list(pk_set))
+    elif action == "pre_clear":
+        instance.log_m2m_change(field_name, FieldActionType.M2M_CLEAR, [])

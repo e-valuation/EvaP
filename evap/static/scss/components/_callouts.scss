@@ -4,7 +4,7 @@
     margin: 0 0 20px;
     padding: 15px 30px 15px 15px;
     border-left: 5px solid $dark-gray;
-    @include border-right-radius($alert-border-radius);
+    @include border-end-radius($alert-border-radius);
 }
 
 .callout-header {
@@ -17,9 +17,8 @@
 }
 
 .callout-content {
-    font-size: 80%;
     max-height: 500px;
-    max-width: 1200px;
+    max-width: 1300px;
     padding-top: 20px;
     overflow: hidden;
 }
@@ -27,16 +26,19 @@
 .callout-warning {
     background-color: $evap-light-yellow;
     border-color: $evap-yellow;
+    color: shade-color($evap-yellow, 60%);
 }
 
 .callout-danger {
     background-color: $evap-light-red;
     border-color: $evap-red;
+    color: shade-color($evap-red, 60%);
 }
 
 .callout-info {
     background-color: $evap-light-blue;
     border-color: $evap-dark-blue;
+    color: shade-color($evap-dark-blue, 60%);
 
     .callout-header {
         color: $evap-dark-blue;
@@ -44,7 +46,7 @@
 
     &.closed:hover,
     &.closed:active {
-        background-color: darken($evap-light-blue, 10%);
+        background-color: shade-color($evap-light-blue, 20%);
     }
 }
 

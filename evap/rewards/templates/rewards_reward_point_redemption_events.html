@@ -26,7 +26,7 @@
 {% block modals %}
     {{ block.super }}
     {% trans 'Delete event' as title %}
-    {% trans 'Do you really want to delete the event <strong id="data-label"></strong>?' as question %}
+    {% trans 'Do you really want to delete the event <strong data-label=""></strong>?' as question %}
     {% trans 'Delete event' as action_text %}
     {% include 'confirmation_modal.html' with modal_id='deleteEventModal' title=title question=question action_text=action_text btn_type='danger' %}
     <script type="text/javascript">

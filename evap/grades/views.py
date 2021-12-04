@@ -1,17 +1,20 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.core.exceptions import PermissionDenied
-from django.contrib import messages
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.views.decorators.http import require_POST, require_GET
-
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
+from django.views.decorators.http import require_GET, require_POST
 from django_sendfile import sendfile
 
-from evap.evaluation.auth import grade_publisher_required, grade_downloader_required, grade_publisher_or_manager_required
-from evap.evaluation.models import Course, Semester, EmailTemplate
-from evap.grades.models import GradeDocument
+from evap.evaluation.auth import (
+    grade_downloader_required,
+    grade_publisher_or_manager_required,
+    grade_publisher_required,
+)
+from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
 from evap.grades.forms import GradeDocumentForm
+from evap.grades.models import GradeDocument
 
 
 @grade_publisher_required
@@ -28,11 +31,7 @@ def prefetch_data(courses):
 
     course_data = []
     for course in courses:
-        course_data.append((
-            course,
-            course.midterm_grade_documents.count(),
-            course.final_grade_documents.count()
-        ))
+        course_data.append((course, course.midterm_grade_documents.count(), course.final_grade_documents.count()))
 
     return course_data
 
@@ -43,10 +42,11 @@ def semester_view(request, semester_id):
     if semester.grade_documents_are_deleted:
         raise PermissionDenied
 
-    courses = (semester.courses
-        .filter(evaluations__wait_for_grade_upload_before_publishing=True)
-        .exclude(evaluations__state='new')
-        .distinct())
+    courses = (
+        semester.courses.filter(evaluations__wait_for_grade_upload_before_publishing=True)
+        .exclude(evaluations__state=Evaluation.State.NEW)
+        .distinct()
+    )
     courses = prefetch_data(courses)
 
     template_data = dict(
@@ -77,7 +77,7 @@ def course_view(request, semester_id, course_id):
 
 def on_grading_process_finished(course):
     evaluations = course.evaluations.all()
-    if all(evaluation.state == 'reviewed' for evaluation in evaluations):
+    if all(evaluation.state == Evaluation.State.REVIEWED for evaluation in evaluations):
         for evaluation in evaluations:
             assert evaluation.grading_process_is_finished
         for evaluation in evaluations:
@@ -95,7 +95,7 @@ def upload_grades(request, semester_id, course_id):
         raise PermissionDenied
     course = get_object_or_404(Course, id=course_id, semester=semester)
 
-    final_grades = request.GET.get('final') == 'true'  # if parameter is not given, assume midterm grades
+    final_grades = request.GET.get("final") == "true"  # if parameter is not given, assume midterm grades
 
     grade_document = GradeDocument(course=course)
     if final_grades:
@@ -116,7 +116,7 @@ def upload_grades(request, semester_id, course_id):
             on_grading_process_finished(course)
 
         messages.success(request, _("Successfully uploaded grades."))
-        return redirect('grades:course_view', semester.id, course.id)
+        return redirect("grades:course_view", semester.id, course.id)
 
     template_data = dict(
         semester=semester,
@@ -168,7 +168,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
     if form.is_valid():
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
-        return redirect('grades:course_view', semester.id, course.id)
+        return redirect("grades:course_view", semester.id, course.id)
 
     template_data = dict(
         semester=semester,

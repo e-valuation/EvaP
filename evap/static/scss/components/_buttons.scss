@@ -10,7 +10,7 @@
 }
 .btn-light:focus,
 .btn-light.focus {
-    box-shadow: 0 0 0 3px rgba($light-gray, 0.5);
+    box-shadow: 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
 }
 .btn-light.active,
 .btn-light:active {
@@ -31,7 +31,7 @@
     border-color: $dark-gray;
 
     &:focus {
-        box-shadow: $btn-active-box-shadow, 0 0 0 $btn-focus-width rgba($dark-gray, .5);
+        box-shadow: inset 0 0 5px $dark-gray, 0 0 0 $btn-focus-width rgba($dark-gray, 0.5);
     }
 }
 
@@ -45,16 +45,16 @@ a:not([href]):not(.disabled) {
 
 @include button-disabled-variant(".btn-primary", $evap-dark-blue, $evap-light-blue);
 @include button-disabled-variant(".btn-secondary", $dark-gray, $light-gray);
-@include button-disabled-variant(".btn-success", $evap-green, $evap-light-green);
+@include button-disabled-variant(".btn-success", shade-color($evap-green, 25%), $evap-light-green);
 @include button-disabled-variant(".btn-danger", $evap-red, $evap-light-red);
-@include button-disabled-variant(".btn-warning", $evap-dark-yellow, $evap-light-yellow);
-@include button-disabled-variant(".btn-info", darken($evap-light-blue, 20%), lighten($evap-light-blue, 5%));
+@include button-disabled-variant(".btn-warning", shade-color($evap-dark-yellow, 25%), $evap-light-yellow);
+@include button-disabled-variant(".btn-info", shade-color($evap-light-blue, 40%), tint-color($evap-light-blue, 10%));
 @include button-disabled-variant(".btn-light", $medium-gray, $lighter-gray);
 @include button-disabled-variant(".btn-dark", $white, $dark-gray, $darker-gray);
 
 .btn-switch {
     display: inline-flex;
-    background-color: lighten($light-gray, 2%);
+    background-color: tint-color($light-gray, 4%);
     border-radius: 0.2rem;
 
     .btn-toolbar {
@@ -62,7 +62,7 @@ a:not([href]):not(.disabled) {
     }
 
     .btn-group {
-        background: lighten($light-gray, 2%);
+        background: tint-color($light-gray, 4%);
 
         &::before {
             width: 0.5rem;
@@ -110,7 +110,7 @@ a:not([href]):not(.disabled) {
 
         .btn-navbar {
             padding: 0 0.25rem;
-            background-color: lighten($darker-gray, 5%);
+            background-color: tint-color($darker-gray, 10%);
             border-width: 0;
             color: $light-gray;
             transition: none;
@@ -118,7 +118,7 @@ a:not([href]):not(.disabled) {
             margin-left: 0;
 
             &:hover {
-                background-color: lighten($darker-gray, 10%);
+                background-color: tint-color($darker-gray, 20%);
                 color: $white;
             }
 
@@ -127,10 +127,10 @@ a:not([href]):not(.disabled) {
             }
 
             &.active {
-                background-color: lighten($darker-gray, 5%);
+                background-color: tint-color($darker-gray, 10%);
                 color: $medium-gray;
                 border-width: 0;
-                box-shadow: inset 0 0 10px darken($darker-gray, 20%);
+                box-shadow: inset 0 0 10px shade-color($darker-gray, 40%);
                 opacity: 1;
             }
         }
@@ -159,25 +159,6 @@ a:not([href]):not(.disabled) {
     max-width: 16em;
 }
 
-.btn-option {
-    background-color: $white;
-    border-color: $light-gray;
-    color: $black;
-}
-.btn-option.active {
-    background-color: $evap-dark-blue;
-    color: $white;
-}
-.btn-option.disabled {
-    opacity: 0.6;
-}
-.btn-option:hover:not(.disabled) {
-    background-color: $light-gray;
-}
-.btn-option.active:hover:not(.disabled) {
-    background-color: darken($evap-dark-blue, 10%);
-}
-
 .vote-btn {
     width: 6rem;
     height: 2.5rem;
@@ -191,9 +172,25 @@ a:not([href]):not(.disabled) {
         width: 3.5rem;
     }
 
+    &.focus,
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
+    }
+
     .vote-type-bipolar &:not(:last-child) {
         width: 5rem;
         font-size: 0.8rem;
+    }
+}
+
+textarea,
+button,
+a.collapse-toggle {
+    &.tab-selectable.focus,
+    &.tab-selectable:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba($evap-dark-blue, 0.5);
     }
 }
 
@@ -217,17 +214,21 @@ a:not([href]):not(.disabled) {
 @each $name, $color in $vote-colors {
     .vote-btn-#{$name} {
         background-color: $lighter-gray;
-        color: darken($color, 20%);
+        color: shade-color($color, 40%);
 
         &:hover {
             background-color: change-color($color, $lightness: 85%);
         }
-
-        &.active {
-            background-color: $color;
-            color: change-color($color, $lightness: 30%);
-        }
     }
+
+    .btn-check:checked + .vote-btn-#{$name} {
+        background-color: $color;
+        color: change-color($color, $lightness: 30%);
+    }
+}
+
+.btn-group > .vote-btn {
+    flex: 0 1 auto;
 }
 
 .btn-area {
@@ -238,7 +239,7 @@ a:not([href]):not(.disabled) {
 }
 
 .btn-grade-download {
-    align-self: flex-start;
+    align-self: flex-left;
 }
 
 .btn-textanswer {
@@ -246,4 +247,22 @@ a:not([href]):not(.disabled) {
     height: 2.5rem;
     background-color: $lighter-gray;
     border-color: $medium-gray;
+
+    & > .fa-comment {
+        color: $darker-gray;
+    }
+
+    &.has-contents > .fa-comment {
+        font-weight: 900;
+    }
+
+    box-shadow: inset 0 0 10px $dark-gray;
+
+    &:focus {
+        box-shadow: $btn-focus-box-shadow, inset 0 0 10px $dark-gray;
+    }
+
+    &.collapsed {
+        box-shadow: none;
+    }
 }
