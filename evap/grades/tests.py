@@ -243,25 +243,27 @@ class GradeCourseViewTest(WebTest):
 
 class GradeEditTest(WebTest):
     def test_grades_headlines(self):
-        # check midterm headline
+
         grade_publisher = baker.make(
             UserProfile,
             email="grade_publisher@institution.example.com",
             groups=[Group.objects.get(name="Grade publisher")],
         )
         grade_document = baker.make(GradeDocument)
+
+        url = f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}"
+
         response = self.app.get(
-            f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}",
+            url,
             user=grade_publisher,
         )
         self.assertContains(response, "Upload midterm grades")
         self.assertNotContains(response, "Upload final grades")
 
-        # check final headline
         grade_document.type = GradeDocument.Type.FINAL_GRADES
         grade_document.save()
         response = self.app.get(
-            f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}",
+            url,
             user=grade_publisher,
         )
         self.assertContains(response, "Upload final grades")
