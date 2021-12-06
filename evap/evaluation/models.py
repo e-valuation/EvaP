@@ -1,9 +1,11 @@
 import logging
 import secrets
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
+from numbers import Number
+from typing import Dict, List, NamedTuple, Tuple, Union
 
 from django.conf import settings
 from django.contrib import messages
@@ -17,7 +19,7 @@ from django.db.models import Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
-from django.template.base import TemplateSyntaxError
+from django.template.exceptions import TemplateSyntaxError
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -1178,8 +1180,30 @@ class Question(models.Model):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
 
-Choices = namedtuple("Choices", ("cssClass", "values", "colors", "grades", "names"))
-BipolarChoices = namedtuple("BipolarChoices", Choices._fields + ("plus_name", "minus_name"))
+# Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
+Choices = NamedTuple(
+    "Choices",
+    [
+        ("cssClass", str),
+        ("values", Tuple[Number]),
+        ("colors", Tuple[str]),
+        ("grades", Tuple[Number]),
+        ("names", List[str]),
+    ],
+)
+BipolarChoices = NamedTuple(
+    "BipolarChoices",
+    [
+        ("cssClass", str),
+        ("values", Tuple[Number]),
+        ("colors", Tuple[str]),
+        ("grades", Tuple[Number]),
+        ("names", List[str]),
+        ("plus_name", str),
+        ("minus_name", str),
+    ],
+)
+
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
@@ -1203,7 +1227,7 @@ BASE_YES_NO_CHOICES = {
     "grades": (1, 5),
 }
 
-CHOICES = {
+CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
     Question.LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
@@ -1213,7 +1237,7 @@ CHOICES = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
-        **BASE_UNIPOLAR_CHOICES,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     Question.GRADE: Choices(
         names=[
@@ -1224,7 +1248,7 @@ CHOICES = {
             "5",
             _("No answer"),
         ],
-        **BASE_UNIPOLAR_CHOICES,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     Question.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
@@ -1239,7 +1263,7 @@ CHOICES = {
             _("Way too\ndifficult"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
@@ -1254,7 +1278,7 @@ CHOICES = {
             _("Way too\nmany"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
@@ -1269,7 +1293,7 @@ CHOICES = {
             _("Way too\nmuch"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
@@ -1284,7 +1308,7 @@ CHOICES = {
             _("Way too\nlarge"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
@@ -1299,7 +1323,7 @@ CHOICES = {
             _("Way too\nfast"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
@@ -1314,7 +1338,7 @@ CHOICES = {
             _("Way too\nlong"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.POSITIVE_YES_NO: Choices(
         names=[
@@ -1322,7 +1346,7 @@ CHOICES = {
             _("No"),
             _("No answer"),
         ],
-        **BASE_YES_NO_CHOICES,
+        **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     Question.NEGATIVE_YES_NO: Choices(
         names=[
@@ -1330,7 +1354,7 @@ CHOICES = {
             _("Yes"),
             _("No answer"),
         ],
-        **BASE_YES_NO_CHOICES,
+        **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
 
@@ -1517,7 +1541,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: List[str] = []
 
     objects = UserProfileManager()
 

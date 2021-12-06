@@ -8,12 +8,16 @@ extend-exclude = """\
     .*/migrations/.*\
 """
 
+##############################################
+
 [tool.isort]
 profile = "black"
 src_paths = ["evap"]
 line_length = 120
 skip_gitignore = true
 extend_skip_glob = ["**/migrations/*"]
+
+##############################################
 
 [tool.pylint.master]
 jobs = 0
@@ -58,7 +62,7 @@ disable = [
     "duplicate-code",                 # Can not be suppressed for the 4 false positives we have: https://github.com/PyCQA/pylint/issues/214
 ]
 
-
+##############################################
 
 [tool.coverage.run]
 branch = true
@@ -67,3 +71,28 @@ source = ["evap"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
+
+##############################################
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+exclude = 'evap/.*/migrations/.*\.py$'
+
+[tool.django-stubs]
+django_settings_module = "evap.settings"
+
+[[tool.mypy.overrides]]
+module = [
+    "django_fsm.*",
+    "django_sendfile.*",
+    "django_webtest.*",
+    "debug_toolbar.*",
+    "mozilla_django_oidc.*",
+    "model_bakery.*",
+    "xlrd.*",
+    "xlwt.*",
+    "xlutils.*",
+
+    "evap.staff.fixtures.*",
+]
+ignore_missing_imports = true

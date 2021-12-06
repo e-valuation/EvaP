@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict
+from typing import Any, Container, Dict, Optional
 
 from django.conf import settings
 from django.contrib import messages
@@ -226,10 +226,10 @@ def semester_view(request, semester_id):
 
 
 class EvaluationOperation:
-    email_template_name = None
-    email_template_contributor_name = None
-    email_template_participant_name = None
-    confirmation_message = None
+    email_template_name: Optional[str] = None
+    email_template_contributor_name: Optional[str] = None
+    email_template_participant_name: Optional[str] = None
+    confirmation_message: Optional[str] = None
 
     @staticmethod
     def applicable_to(evaluation):
