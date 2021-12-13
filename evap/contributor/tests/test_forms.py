@@ -36,7 +36,7 @@ class EvaluationFormTests(TestCase):
 
         form_data["participants"].append(student.pk)
         EvaluationForm(form_data, instance=evaluation).save()
-        del evaluation.num_participants  # discard cashed property
+        del evaluation.num_participants  # discard cached property
         self.assertEqual(evaluation.num_participants, 1)
 
 
