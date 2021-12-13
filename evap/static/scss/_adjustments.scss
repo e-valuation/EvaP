@@ -142,10 +142,10 @@ $alert-colors: (
 
 .user-multi-select {
     padding-right: 36px !important;
-}
 
-.user-multi-select li {
-    width: 100%;
+    li {
+        width: 100%;
+    }
 }
 
 .select2-container:not(.select2-container--disabled) .user-multi-select.select2-selection--multiple .select2-selection__choice {
