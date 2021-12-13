@@ -1743,6 +1743,7 @@ class EmailTemplate(models.Model):
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
     DIRECT_DELEGATION = "Direct Delegation"
+    TEXT_ANSWER_REVIEW_REMINDER = "Text Answer Review Reminder"
 
     class Recipients(models.TextChoices):
         ALL_PARTICIPANTS = "all_participants", _("all participants")
@@ -1952,5 +1953,19 @@ class EmailTemplate(models.Model):
                     evaluations_per_participant[participant].add(evaluation)
 
         for participant, evaluation_set in evaluations_per_participant.items():
-            body_params = {"user": participant, "evaluations": list(evaluation_set)}
+            body_params = {"user": participant, "evaluations": evaluation_set}
             template.send_to_user(participant, {}, body_params, use_cc=True)
+
+    @classmethod
+    def send_textanswer_reminder(cls):
+        template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
+        evaluations = [
+            evaluation
+            for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
+            if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
+        ]
+        evaluations = sorted(evaluations, key=lambda evaluation: evaluation.full_name)
+        managers = Group.objects.get(name="Manager").user_set.all()
+        for manager in managers:
+            body_params = {"user": manager, "evaluations": evaluations}
+            template.send_to_user(manager, {}, body_params, use_cc=False)
