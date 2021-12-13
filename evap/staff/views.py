@@ -2169,10 +2169,11 @@ def template_edit(request, template_id):
     if template.name == EmailTemplate.STUDENT_REMINDER:
         available_variables += ["first_due_in_days", "due_evaluations"]
     elif template.name in [
-        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
-        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
         EmailTemplate.EDITOR_REVIEW_NOTICE,
         EmailTemplate.EDITOR_REVIEW_REMINDER,
+        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
+        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
+        EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER,
     ]:
         available_variables += ["evaluations"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:

@@ -58,6 +58,10 @@ REWARD_POINTS = [
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
 
+# days of the week on which managers are reminded to handle urgent text answer reviews
+# where Monday is 0 and Sunday is 6
+TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
+
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
 INSTITUTION_EMAIL_DOMAINS = ["institution.example.com"]
