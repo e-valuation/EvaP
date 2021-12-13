@@ -135,7 +135,7 @@ $alert-colors: (
     width: 1px;
 }
 
-.select2-container .select2-selection--multiple .select2-selection__rendered {
+.select2-container .select2-selection--multiple .select2-selection__rendered{
     // When displaying long items, they should be wrapped into multiple lines instead of cutting them of
     white-space: normal;
 }
@@ -146,6 +146,12 @@ $alert-colors: (
 
 .user-multi-select li {
     width: 100%;
+}
+
+.select2-container:not(.select2-container--disabled) .user-multi-select.select2-selection--multiple .select2-selection__choice{
+
+    background-color: $lighter-gray;
+
 }
 
 .select2-container .select2-search--inline {
