@@ -34,7 +34,7 @@ sudo -H -u $USERNAME git fetch
 # Note that apache should not be running during most of the upgrade,
 # since then e.g. the backup might be incomplete or the code does not
 # match the database layout, or https://github.com/e-valuation/EvaP/issues/1237.
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 stop
+[[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/enable_maintenance_mode.sh
 
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py dumpdata --natural-foreign --natural-primary --all -e contenttypes -e auth.Permission --indent 2 --output "$FILENAME"
 
@@ -51,7 +51,7 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
 
-[[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
+[[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/disable_maintenance_mode.sh
 
 { set +x; } 2>/dev/null # don't print the echo command, and don't print the 'set +x' itself
 
