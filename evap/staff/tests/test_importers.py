@@ -388,18 +388,64 @@ class TestEnrollmentImporter(TestCase):
     def test_existing_course_is_not_created(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        baker.make(UserProfile, email="responsible@institution.example.com")
-        course = baker.make(Course, name_de="Scheinen", name_en="Shine", semester=self.semester, type=CourseType.objects.get(name_de="Vorlesung"), degrees=[Degree.objects.get(name_de="Bachelor")], responsibles=[UserProfile.objects.get(email="responsible@institution.example.com")])
-        baker.make(Evaluation, course=course)
-        __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        self.assertIn("The course Shine already exists with identical attributes. Course is not created and users are put into the evaluation of that course.", "".join(warnings[ImporterWarning.DUPL]))
-        self.assertContains("lucilia.manilium@institution.example.com", )
+        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+        course = baker.make(
+            Course,
+            name_de="Scheinen",
+            name_en="Shine",
+            semester=self.semester,
+            type=CourseType.objects.get(name_de="Vorlesung"),
+            degrees=[Degree.objects.get(name_de="Bachelor")],
+            responsibles=[responsible],
+        )
+        evaluation = baker.make(Evaluation, course=course)
+        __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        self.assertIn(
+            "Course Shine(Scheinen) already exists with identical attributes. Course is not created and users are put into the evaluation of that course.",
+            "".join(warnings[ImporterWarning.DUPL]),
+        )
+        self.assertEqual(
+            len(Course.objects.filter(semester=self.semester, name_de=course.name_de, name_en=course.name_en)), 1
+        )
+        self.assertIn(
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), evaluation.participants.all()
+        )
 
     def test_existing_course_degree_is_added(self):
-        pass
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
+
+        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+        course = baker.make(
+            Course,
+            name_de="Scheinen",
+            name_en="Shine",
+            semester=self.semester,
+            type=CourseType.objects.get(name_de="Vorlesung"),
+            degrees=[Degree.objects.get(name_de="Master")],
+            responsibles=[responsible],
+        )
+        baker.make(Evaluation, course=course)
+        EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_existing_course_users_added_to_evaluation(self):
-        pass
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
+
+        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+        course = baker.make(
+            Course,
+            name_de="Scheinen",
+            name_en="Shine",
+            semester=self.semester,
+            type=CourseType.objects.get(name_de="Vorlesung"),
+            degrees=[Degree.objects.get(name_de="Bachelor")],
+            responsibles=[responsible],
+        )
+        evaluation = baker.make(Evaluation, course=course)
+        EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        self.assertIn(
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), evaluation.participants.all()
+        )
 
     def test_existing_course_equal_except_evaluations(self):
         pass
