@@ -126,25 +126,38 @@ class EvaluationData:
                 textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             )
 
-    def find_identical_course(self, semester, importer):
-        courses = Course.objects.filter(Q(semester=semester) & Q(Q(name_en=self.name_en) | Q(name_de=self.name_de)))
+    def has_name_collisions(self, semester):
+        return Course.objects.filter(
+            Q(semester=semester) & Q(Q(name_en=self.name_en) | Q(name_de=self.name_de))
+        ).exists()
+
+    def find_and_set_existing_course(self, semester, importer):
+        courses = Course.objects.filter(
+            semester=semester,
+            name_en=self.name_en,
+            name_de=self.name_de,
+            type=self.course_type,
+            responsibles__email=self.responsible_email,
+        )
         if courses.exists():
-            courses = courses.filter(semester=semester, name_en=self.name_en, name_de=self.name_de, type=self.course_type, responsibles__email=self.responsible_email)
-            if courses.exists():
-                course = courses.first()
-                evaluations = Evaluation.objects.filter(course=course)
-                if len(evaluations) == 1:
-                    if evaluations.filter(wait_for_grade_upload_before_publishing=self.is_graded).exists():
-                        return course
-                    else:
-                        importer.errors[ImporterError.COURSE].append(
-                            _("Identical course \"{}\" does already exist in this semester but the only evaluation is {}graded.").format(self.name_en, "not " if self.is_graded else ""))
+            course = courses.first()
+            evaluations = Evaluation.objects.filter(course=course)
+            if len(evaluations) == 1:
+                if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
+                    self.existing_course = course
+                    return course
                 else:
                     importer.errors[ImporterError.COURSE].append(
-                        _("Identical course \"{}\" does already exist in this semester but has {} evaluations instead of 1.").format(self.name_en, len(evaluations)))
+                        _(
+                            "Course {}({}) does already exist in this semester but the only evaluation is {}graded."
+                        ).format(self.name_en, self.name_de, "not " if self.is_graded else "")
+                    )
             else:
                 importer.errors[ImporterError.COURSE].append(
-                    _("A Course with the name {}({}) does already exist in this semester.").format(self.name_en, self.name_de))
+                    _(
+                        "Course {}({}) does already exist in this semester and is identical but has {} evaluations instead of 1."
+                    ).format(self.name_en, self.name_de, len(evaluations))
+                )
         return None
 
 
@@ -465,10 +478,19 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            evaluation_data.existing_course = evaluation_data.find_identical_course(semester, self)
-            if evaluation_data.existing_course is not None:
-                self.warnings[ImporterWarning.DUPL].append(
-                    _('The course {} already exists with identical attributes. Course is not created and users are put into the evaluation of that course.').format(evaluation_data.name_en))
+            if evaluation_data.has_name_collisions(semester):
+                if evaluation_data.find_and_set_existing_course(semester, self):
+                    self.warnings[ImporterWarning.DUPL].append(
+                        _(
+                            "Course {}({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
+                        ).format(evaluation_data.name_en, evaluation_data.name_de)
+                    )
+                else:
+                    self.errors[ImporterError.COURSE].append(
+                        _("Course {}({}) does already exist in this semester.").format(
+                            evaluation_data.name_en, evaluation_data.name_de
+                        )
+                    )
 
             assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
 
