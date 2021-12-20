@@ -1184,7 +1184,7 @@ class Question(models.Model):
 Choices = NamedTuple(
     "Choices",
     [
-        ("cssClass", str),
+        ("css_class", str),
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
@@ -1194,7 +1194,7 @@ Choices = NamedTuple(
 BipolarChoices = NamedTuple(
     "BipolarChoices",
     [
-        ("cssClass", str),
+        ("css_class", str),
         ("values", Tuple[Number]),
         ("colors", Tuple[str]),
         ("grades", Tuple[Number]),
@@ -1207,21 +1207,21 @@ BipolarChoices = NamedTuple(
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
-    "cssClass": "vote-type-unipolar",
+    "css_class": "vote-type-unipolar",
     "values": (1, 2, 3, 4, 5, NO_ANSWER),
     "colors": ("green", "lime", "yellow", "orange", "red", "gray"),
     "grades": (1, 2, 3, 4, 5),
 }
 
 BASE_BIPOLAR_CHOICES = {
-    "cssClass": "vote-type-bipolar",
+    "css_class": "vote-type-bipolar",
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
 }
 
 BASE_YES_NO_CHOICES = {
-    "cssClass": "vote-type-yes-no",
+    "css_class": "vote-type-yes-no",
     "values": (1, 5, NO_ANSWER),
     "colors": ("green", "red", "gray"),
     "grades": (1, 5),

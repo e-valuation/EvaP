@@ -2,7 +2,7 @@
 {% load evaluation_filters %}
 
 <div class="distribution-bar-container{% if question_result.warning %} participants-warning{% endif %}">
-    <div class="distribution-bar {{ question_result.choices.cssClass }}"
+    <div class="distribution-bar {{ question_result.choices.css_class }}"
         {% if question_result.question.is_bipolar_likert_question %} style="left: {{ question_result.minus_balance_count|percentage_one_decimal:question_result.count_sum }}"{% endif %}
     >
         {% with colors=question_result.choices|to_colors %}
