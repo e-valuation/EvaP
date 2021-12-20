@@ -1535,6 +1535,9 @@ def evaluation_textanswers_update_publish(request):
         answer.hide()
     elif action == "unreview":
         answer.unreview()
+    elif action == "textanswer_link":
+        url = reverse("staff:evaluation_textanswer_edit", args = [evaluation.course.semester.id, evaluation_id, textanswer_id])
+        return HttpResponse(url)
     else:
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
