@@ -126,7 +126,7 @@ class EvaluationData:
                 textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             )
 
-    def has_name_collisions(self, semester):
+    def has_name_collisions_with_evaluations_in_semester(self, semester):
         return Course.objects.filter(
             Q(semester=semester) & Q(Q(name_en=self.name_en) | Q(name_de=self.name_de))
         ).exists()
@@ -478,7 +478,7 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            if evaluation_data.has_name_collisions(semester):
+            if evaluation_data.has_name_collisions_with_evaluations_in_semester(semester):
                 if evaluation_data.find_and_set_existing_course(semester, self):
                     self.warnings[ImporterWarning.DUPL].append(
                         _(
