@@ -249,6 +249,7 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
+                "evap.context_processors.set_csrf_cookie",
                 "evap.context_processors.slogan",
                 "evap.context_processors.debug",
             ],
@@ -392,7 +393,7 @@ try:
 except ImportError:
     pass
 
-TESTING = "test" in sys.argv
+TESTING = "test" in sys.argv or "render_pages" in sys.argv
 
 # speed up tests
 if TESTING:

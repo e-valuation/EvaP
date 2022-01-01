@@ -28,6 +28,15 @@ $.ajaxSetup({
     },
 });
 
+const inputElement = document.createElement("input");
+inputElement.setAttribute("type", "hidden");
+inputElement.setAttribute("name", "csrfmiddlewaretoken");
+inputElement.setAttribute("value", csrftoken);
+
+for (const form of document.forms) {
+    form.insertAdjacentElement("afterbegin", inputElement.cloneNode() as Element);
+}
+
 export const testable = {
     getCookie,
     isMethodCsrfSafe,

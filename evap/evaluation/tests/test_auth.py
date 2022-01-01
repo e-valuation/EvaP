@@ -2,7 +2,6 @@ import urllib
 from unittest.mock import patch
 
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
@@ -137,44 +136,3 @@ class LoginTests(WebTest):
 
         # user should see the Logout button then.
         self.assertIn("Logout", page.body.decode())
-
-
-class LoginTestsWithCSRF(WebTest):
-    @classmethod
-    def setUpTestData(cls):
-        cls.staff_user = baker.make(
-            UserProfile, email="staff@institution.example.com", groups=[Group.objects.get(name="Manager")]
-        )
-        cls.staff_user_password = "staff"
-        cls.staff_user.set_password(cls.staff_user_password)
-        cls.staff_user.save()
-
-    def test_entering_staff_mode_after_logout_and_login(self):
-        """
-        Asserts that managers can enter the staff mode after logging out and logging in again.
-        Regression test for #1530.
-        """
-        page = self.app.get(reverse("evaluation:index"))
-        form = page.forms["email-login-form"]
-        form["email"] = self.staff_user.email
-        form["password"] = self.staff_user_password
-        page = form.submit().follow().follow()
-
-        # staff user should now be logged in and see the logout button
-        self.assertContains(page, "Logout")
-
-        # log out user
-        page = self.app.get(reverse("django-auth-logout")).follow()
-        self.assertNotContains(page, "Logout")
-
-        # log user in again
-        page = self.app.get(reverse("evaluation:index"))
-        form = page.forms["email-login-form"]
-        form["email"] = self.staff_user.email
-        form["password"] = self.staff_user_password
-        page = form.submit().follow().follow()
-
-        # enter staff mode
-        page = page.forms["enter-staff-mode-form"].submit().follow().follow()
-        self.assertTrue("staff_mode_start_time" in self.app.session)
-        self.assertContains(page, "Users")
