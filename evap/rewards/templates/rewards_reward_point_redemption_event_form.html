@@ -9,7 +9,6 @@
 {% block content %}
     {{ block.super }}
     <form id="reward-point-redemption-event-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'bootstrap_form.html' with form=form %}

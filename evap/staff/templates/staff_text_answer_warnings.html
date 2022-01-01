@@ -12,7 +12,6 @@
     {{ block.super }}
 
     <form id="text-answer-warnings-form" method="POST" class="form-horizontal select2form">
-        {% csrf_token %}
         {{ formset.management_form }}
 
         <div class="card mb-3">

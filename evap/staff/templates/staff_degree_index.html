@@ -9,7 +9,6 @@
     {{ block.super }}
 
     <form id="degree-form" method="POST" enctype="multipart/form-data" class="form-horizontal select2form">
-        {% csrf_token %}
         {{ formset.management_form }}
 
         <div class="card mb-3">

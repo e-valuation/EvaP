@@ -11,7 +11,6 @@
     <h3>{% trans 'Bulk update users' %}</h3>
 
     <form id="user-bulk-update-form" enctype="multipart/form-data" method="POST" class="form-horizontal">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 <p>{% blocktrans %}Upload a text file containing one user per line formatted as "username,email". Users in this file will be updated or created. All users that are not in this file will be deleted if possible. If they can't be deleted they will be marked inactive.{% endblocktrans %}</p>

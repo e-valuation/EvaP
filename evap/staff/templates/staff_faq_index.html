@@ -9,7 +9,6 @@
     {{ block.super }}
 
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
-        {% csrf_token %}
         {{ formset.management_form }}
 
         <div class="card mb-3">

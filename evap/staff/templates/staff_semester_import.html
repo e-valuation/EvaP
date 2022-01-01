@@ -23,7 +23,6 @@
                         {% trans 'Copy headers to clipboard' %}</button>).
                     {% trans 'This will create all containing participants, contributors and courses and connect them. It will also set the entered values as default for all evaluations.' %}
                 </p>
-                {% csrf_token %}
                 {% include 'bootstrap_form.html' with form=excel_form %}
             </div>
         </div>

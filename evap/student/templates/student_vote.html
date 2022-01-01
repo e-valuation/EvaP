@@ -38,7 +38,6 @@
     {% endif %}
     <h3 class="mb-3">{{ evaluation.full_name }} ({{ evaluation.course.semester.name }})</h3>
     <form id="student-vote-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
 
         {% if small_evaluation_size_warning and not preview %}
             <div class="card card-outline-warning mb-3">

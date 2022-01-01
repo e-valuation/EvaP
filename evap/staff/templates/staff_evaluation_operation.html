@@ -4,7 +4,6 @@
     {{ block.super }}
 
     <form id="evaluation-operation-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
         {% for evaluation in evaluations %}
             <input type="hidden" name="evaluation" value="{{ evaluation.id }}" />
         {% endfor %}

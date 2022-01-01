@@ -15,7 +15,6 @@
     {% include 'staff_message_rendering_template.html' with errors=errors warnings=warnings success_messages=success_messages %}
 
     <form id="user-import-form" method="POST" enctype="multipart/form-data" class="form-horizontal">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 <p>

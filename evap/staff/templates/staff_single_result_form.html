@@ -10,7 +10,6 @@
         {% endif %}
     </h3>
     <form id="single-result-form" method="POST" class="form-horizontal multiselect-form">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'bootstrap_form.html' with form=form %}

@@ -8,7 +8,6 @@
         <div class="alert alert-danger" role="alert">{% blocktrans %}Please fill out all required fields and select at least one recipient group.{% endblocktrans %}</div>
     {% endif %}
     <form id="evaluation-email-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 <fieldset>

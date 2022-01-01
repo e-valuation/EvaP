@@ -23,7 +23,6 @@
         {% endif %}
     </h3>
     <form method="POST" class="form-horizontal" enctype="multipart/form-data">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'bootstrap_form.html' with form=form %}

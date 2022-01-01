@@ -16,7 +16,6 @@
                     {% trans 'By clicking this button, you will be logged in and your login link will be invalidated.' %}
                 </p>
                 <form class="d-flex flex-column" role="form" method="POST">
-                    {% csrf_token %}
                     <div class="d-flex justify-content-center">
                         <button type="submit" class="btn btn-primary login-button">{% blocktrans %}Login as {{ username }}{% endblocktrans %}</button>
                     </div>

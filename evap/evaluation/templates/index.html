@@ -25,7 +25,6 @@
                         </p>
                         <form id="email-login-form" class="d-flex flex-column" role="form"
                             action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                            {% csrf_token %}
                             <input type="hidden" name="submit_type" value="login_email" />
                             {% for field in login_email_form %}
                                 {% include 'bootstrap_form_field.html' with field=field wide=True %}
@@ -40,7 +39,6 @@
             <div class="card border-dark">
                 <form id="request-login-form" class="card-body d-flex flex-column"
                     action="{% url 'evaluation:index' %}{% if 'next' in request.GET %}?next={{ request.GET.next }}{% endif %}" method="POST">
-                    {% csrf_token %}
                     <input type="hidden" name="submit_type" value="new_key" />
                     <h4 class="card-title text-dark">
                         {% trans 'External and D-School users' %}

@@ -10,7 +10,6 @@
     {{ block.super }}
     <h3>{% trans 'Text answer' %}</h3>
     <form id="textanswer-edit-form" method="POST" class="form-horizontal">
-        {% csrf_token %}
         <div class="card mb-3">
             <div class="card-body">
                 {% include 'bootstrap_form.html' with form=form %}

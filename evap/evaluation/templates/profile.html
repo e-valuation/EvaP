@@ -58,7 +58,6 @@
         {% if user.is_editor %}
             <div class="col-6">
                 <form id="settings-form" method="POST" class="form-horizontal multiselect-form settings-form" enctype="multipart/form-data">
-                    {% csrf_token %}
                     {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                     <div class="card">
                         <div class="card-body">
