@@ -1,12 +1,11 @@
 import argparse
 import os
 import subprocess  # nosec
-import sys
 import unittest
 
 from django.conf import settings
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.test.runner import DiscoverRunner
 
 
@@ -59,8 +58,8 @@ class Command(BaseCommand):
             print(f"Could not find {command[0]} command", file=self.stderr)
         except KeyboardInterrupt:
             pass
-        except subprocess.CalledProcessError as error:
-            sys.exit(error.returncode)
+        except subprocess.CalledProcessError as e:
+            raise CommandError("Error during command execution", returncode=e.returncode) from e
 
     def compile(self, watch=False, fresh=False, **_options):
         static_directory = settings.STATICFILES_DIRS[0]
@@ -93,4 +92,6 @@ class Command(BaseCommand):
         # Enable debug mode as otherwise a collectstatic beforehand would be necessary,
         # as missing static files would result into an error.
         test_runner = RenderPagesRunner(debug_mode=True)
-        test_runner.run_tests([])
+        failed_tests = test_runner.run_tests([])
+        if failed_tests > 0:
+            raise CommandError("Failures during render_pages")
