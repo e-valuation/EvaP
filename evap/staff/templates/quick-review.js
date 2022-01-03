@@ -32,7 +32,7 @@ $(document).ready(() => {
             "k":            "[data-action=make_private]",
             "l":            "[data-action=hide]",
             "backspace":    "[data-action=unreview]",
-            "e":            "[data-action=textanswer_link]",
+            "e":            "[data-action=textanswer_edit]",
             "enter":        `[data-url=next-evaluation][data-next-evaluation-index=${nextEvaluationIndex}]`,
             "m":            "[data-startover=unreviewed]",
             "n":            "[data-startover=all]",
@@ -168,7 +168,7 @@ $(document).ready(() => {
             type: "POST",
             url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
             data: parameters,
-            success: function(data) { if(action == "textanswer_link" && data) window.location = data; },
+            success: function(data) { if(action == "textanswer_edit" && data) window.location = data; },
             error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
         });
 
