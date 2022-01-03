@@ -2776,7 +2776,9 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
@@ -2809,13 +2811,17 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
         self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
