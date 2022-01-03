@@ -383,6 +383,14 @@ class TestFormatCommand(TestCase):
         )
 
 
+class TestTypecheckCommand(TestCase):
+    @patch("subprocess.run")
+    def test_mypy_called(self, mock_subprocess_run):
+        management.call_command("typecheck")
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
+        mock_subprocess_run.assert_has_calls([call(["mypy", "-p", "evap"], check=True)])
+
+
 class TestPrecommitCommand(TestCase):
     @patch("subprocess.run")
     @patch("evap.evaluation.management.commands.precommit.call_command")
@@ -391,6 +399,7 @@ class TestPrecommitCommand(TestCase):
 
         mock_subprocess_run.assert_called_with(["./manage.py", "test"], check=False)
 
-        self.assertEqual(mock_call_command.call_count, 2)
+        self.assertEqual(mock_call_command.call_count, 3)
+        mock_call_command.assert_any_call("typecheck")
         mock_call_command.assert_any_call("lint")
         mock_call_command.assert_any_call("format")

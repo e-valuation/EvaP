@@ -16,6 +16,8 @@ class Command(BaseCommand):
             print("Please call me from the evap root directory (where manage.py resides)")
             sys.exit(1)
 
+        call_command("typecheck")
+
         # subprocess call so our sys.argv check in settings.py works
         subprocess.run(["./manage.py", "test"], check=False)  # nosec
 
