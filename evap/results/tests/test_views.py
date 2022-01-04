@@ -475,15 +475,17 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
     def test_unpublished_single_results_show_results(self):
         """Regression test for #1621"""
         # make regular evaluation with some answers
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         evaluation = baker.make(
-            Evaluation, state=Evaluation.State.REVIEWED, course=baker.make(Course, semester=self.semester)
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            course=baker.make(Course, semester=self.semester),
+            participants=participants,
+            voters=participants,
         )
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
         evaluation.general_contribution.questionnaires.set([questionnaire])
-        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
-        evaluation.participants.set(participants)
-        evaluation.voters.set(participants)
         make_rating_answer_counters(likert_question, evaluation.general_contribution)
 
         # make single result
@@ -494,10 +496,10 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             is_single_result=True,
             name_de="foo",
             name_en="foo",
+            participants=participants,
+            voters=participants,
         )
         evaluation2.general_contribution.questionnaires.set([questionnaire])
-        evaluation2.participants.set(participants)
-        evaluation2.voters.set(participants)
         make_rating_answer_counters(likert_question, evaluation2.general_contribution)
 
         cache_results(evaluation)
