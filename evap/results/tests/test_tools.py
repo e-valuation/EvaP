@@ -297,7 +297,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_get_single_result_rating_result(self):
         single_result_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True)
-        questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
+        questionnaire = Questionnaire.single_result_questionnaire()
         contribution = baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
