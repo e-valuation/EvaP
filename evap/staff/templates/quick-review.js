@@ -180,7 +180,7 @@ $(document).ready(() => {
             updateButtonActive();
         }
 
-        if(["unreview", "textanswer_edit"].includes(action)) {
+        if(!["unreview", "textanswer_edit"].includes(action)) {
             slideTo(index + 1);
             slider.find("[data-action=" + action + "]").focus();
         }
