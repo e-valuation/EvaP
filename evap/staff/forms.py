@@ -101,7 +101,11 @@ class ImportForm(forms.Form):
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
     vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
-    excel_file = forms.FileField(label=_("Excel file"), required=False)
+    excel_file = forms.FileField(
+        label=_("Excel file"),
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "application/vnd.ms-excel"}),
+    )
 
 
 class UserImportForm(forms.Form):
