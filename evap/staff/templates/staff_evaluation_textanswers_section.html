@@ -20,12 +20,10 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
+                                    {{ answer.answer|linebreaksbr }}
                                     {% if answer.original_answer %}
-                                        {{ answer.answer }}
                                         <br />
                                         <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
-                                    {% else %}
-                                        {{ answer.answer }}
                                     {% endif %}
                                 </td>
                                 <td>
