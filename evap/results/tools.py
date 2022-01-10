@@ -297,8 +297,8 @@ def get_evaluations_with_course_result_attributes(evaluations):
     )
 
     course_id_evaluation_weight_sum_pairs = (
-        Course.objects.filter(evaluations__in=evaluations)
-        .annotate(Sum("evaluations__weight"))
+        Course.objects.annotate(Sum("evaluations__weight"))
+        .filter(pk__in=Course.objects.filter(evaluations__in=evaluations))  # is needed, see #1691
         .values_list("id", "evaluations__weight__sum")
     )
 
