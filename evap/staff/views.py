@@ -1554,7 +1554,7 @@ def evaluation_textanswers_update_publish(request):
     return HttpResponse()  # 200 OK
 
 
-@reviewer_required
+@manager_required
 def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived:
