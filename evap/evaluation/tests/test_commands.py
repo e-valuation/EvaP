@@ -24,8 +24,10 @@ from evap.evaluation.models import (
     Questionnaire,
     RatingAnswerCounter,
     Semester,
+    TextAnswer,
     UserProfile,
 )
+from evap.evaluation.tests.tools import make_manager
 
 
 class TestAnonymizeCommand(TestCase):
@@ -339,6 +341,25 @@ class TestSendRemindersCommand(TestCase):
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_settings(TEXTANSWER_REVIEW_REMINDER_WEEKDAYS=list(range(0, 8)))
+    def test_send_text_answer_review_reminder(self):
+        make_manager()
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.EVALUATED,
+            can_publish_text_results=True,
+            wait_for_grade_upload_before_publishing=False,
+        )
+        baker.make(
+            TextAnswer,
+            contribution=evaluation.general_contribution,
+        )
+
+        with patch("evap.evaluation.models.EmailTemplate.send_to_user") as mock:
+            management.call_command("send_reminders")
+
+        self.assertEqual(mock.call_count, 1)
+
 
 class TestLintCommand(TestCase):
     @staticmethod
@@ -352,11 +373,12 @@ class TestFormatCommand(TestCase):
     @patch("subprocess.run")
     def test_formatters_called(self, mock_subprocess_run):
         management.call_command("format")
-        self.assertEqual(len(mock_subprocess_run.mock_calls), 2)
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 3)
         mock_subprocess_run.assert_has_calls(
             [
                 call(["black", "evap"], check=False),
                 call(["isort", "."], check=False),
+                call(["npx", "prettier", "--write", "evap/static/ts/src"], check=False),
             ]
         )
 

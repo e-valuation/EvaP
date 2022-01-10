@@ -1,5 +1,4 @@
 import logging
-import operator
 import secrets
 import uuid
 from collections import defaultdict, namedtuple
@@ -1711,15 +1710,13 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.evaluations_voted_for.order_by("course__semester__created_at", "name_de")
 
     def get_sorted_due_evaluations(self):
-        due_evaluations = dict()
-        for evaluation in Evaluation.objects.filter(participants=self, state=Evaluation.State.IN_EVALUATION).exclude(
-            voters=self
-        ):
-            due_evaluations[evaluation] = (evaluation.vote_end_date - date.today()).days
-
-        # Sort evaluations by number of days left for evaluation and bring them to following format:
-        # [(evaluation, due_in_days), ...]
-        return sorted(due_evaluations.items(), key=operator.itemgetter(1))
+        evaluations_and_days_left = (
+            (evaluation, evaluation.days_left_for_evaluation)
+            for evaluation in Evaluation.objects.filter(
+                participants=self, state=Evaluation.State.IN_EVALUATION
+            ).exclude(voters=self)
+        )
+        return sorted(evaluations_and_days_left, key=lambda tup: (tup[1], tup[0].full_name))
 
 
 def validate_template(value):
@@ -1746,6 +1743,7 @@ class EmailTemplate(models.Model):
     LOGIN_KEY_CREATED = "Login Key Created"
     EVALUATION_STARTED = "Evaluation Started"
     DIRECT_DELEGATION = "Direct Delegation"
+    TEXT_ANSWER_REVIEW_REMINDER = "Text Answer Review Reminder"
 
     class Recipients(models.TextChoices):
         ALL_PARTICIPANTS = "all_participants", _("all participants")
@@ -1955,5 +1953,19 @@ class EmailTemplate(models.Model):
                     evaluations_per_participant[participant].add(evaluation)
 
         for participant, evaluation_set in evaluations_per_participant.items():
-            body_params = {"user": participant, "evaluations": list(evaluation_set)}
+            body_params = {"user": participant, "evaluations": evaluation_set}
             template.send_to_user(participant, {}, body_params, use_cc=True)
+
+    @classmethod
+    def send_textanswer_reminder(cls):
+        template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
+        evaluations = [
+            evaluation
+            for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
+            if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
+        ]
+        evaluations = sorted(evaluations, key=lambda evaluation: evaluation.full_name)
+        managers = Group.objects.get(name="Manager").user_set.all()
+        for manager in managers:
+            body_params = {"user": manager, "evaluations": evaluations}
+            template.send_to_user(manager, {}, body_params, use_cc=False)

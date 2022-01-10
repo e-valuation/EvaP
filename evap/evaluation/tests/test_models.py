@@ -627,6 +627,39 @@ class TestUserProfile(TestCase):
         user = baker.make(UserProfile, email="test@example.com")
         self.assertEqual(user.email, "test@institution.com")
 
+    def test_get_sorted_due_evaluations(self):
+        student = baker.make(UserProfile, email="student@example.com")
+        course = baker.make(Course)
+        evaluation1 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="C",
+            name_de="C",
+            vote_end_date=date.today(),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        evaluation2 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="B",
+            name_de="B",
+            vote_end_date=date.today(),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        evaluation3 = baker.make(
+            Evaluation,
+            course=course,
+            name_en="A",
+            name_de="A",
+            vote_end_date=date.today() + timedelta(days=1),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+        )
+        sorted_evaluations = student.get_sorted_due_evaluations()
+        self.assertEqual(sorted_evaluations, [(evaluation2, 0), (evaluation1, 0), (evaluation3, 1)])
+
 
 class ParticipationArchivingTests(TestCase):
     @classmethod

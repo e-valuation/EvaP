@@ -293,7 +293,7 @@ class TestResultsViewContributionWarning(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, id=3)
+        cls.semester = baker.make(Semester)
         contributor = baker.make(UserProfile)
 
         # Set up an evaluation with one question but no answers
@@ -301,7 +301,6 @@ class TestResultsViewContributionWarning(WebTest):
         student2 = baker.make(UserProfile)
         cls.evaluation = baker.make(
             Evaluation,
-            id=21,
             state=Evaluation.State.PUBLISHED,
             course=baker.make(Course, semester=cls.semester),
             participants=[student1, student2],
@@ -337,12 +336,10 @@ class TestResultsViewContributionWarning(WebTest):
 
 
 class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
-    url = "/results/semester/2/evaluation/21"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, id=2)
+        cls.semester = baker.make(Semester)
 
         contributor = baker.make(UserProfile, email="contributor@institution.example.com")
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
@@ -351,7 +348,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 
         # Normal evaluation with responsible and contributor.
         cls.evaluation = baker.make(
-            Evaluation, id=21, state=Evaluation.State.PUBLISHED, course=baker.make(Course, semester=cls.semester)
+            Evaluation, state=Evaluation.State.PUBLISHED, course=baker.make(Course, semester=cls.semester)
         )
 
         baker.make(
@@ -367,6 +364,8 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             contributor=contributor,
             role=Contribution.Role.EDITOR,
         )
+
+        cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
 
     def test_questionnaire_ordering(self):
         top_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -472,6 +471,48 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
 
         url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
         self.app.get(url, user=self.manager)
+
+    def test_unpublished_single_results_show_results(self):
+        """Regression test for #1621"""
+        # make regular evaluation with some answers
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
+        evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            course=baker.make(Course, semester=self.semester),
+            participants=participants,
+            voters=participants,
+        )
+        questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
+        likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=1)
+        evaluation.general_contribution.questionnaires.set([questionnaire])
+        make_rating_answer_counters(likert_question, evaluation.general_contribution)
+
+        # make single result
+        evaluation2: Evaluation = baker.make(
+            Evaluation,
+            state=Evaluation.State.REVIEWED,
+            course=evaluation.course,
+            is_single_result=True,
+            name_de="foo",
+            name_en="foo",
+            participants=participants,
+            voters=participants,
+        )
+        evaluation2.general_contribution.questionnaires.set([questionnaire])
+        make_rating_answer_counters(likert_question, evaluation2.general_contribution)
+
+        cache_results(evaluation)
+
+        url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
+        response = self.app.get(url, user=self.manager)
+
+        # this one is the course result. The two evaluations shouldn't use this
+        self.assertTemplateUsed(response, "distribution_with_grade_disabled.html", count=1)
+        # Both evaluations should use this
+        self.assertTemplateUsed(response, "evaluation_result_widget.html", count=2)
+        # Both evaluations should use this, plus one for the questionnaire
+        self.assertTemplateUsed(response, "distribution_with_grade.html", count=3)
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
@@ -823,7 +864,6 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.evaluation = baker.make(
             Evaluation,
-            id=21,
             state=Evaluation.State.PUBLISHED,
             course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
         )

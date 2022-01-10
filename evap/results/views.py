@@ -21,12 +21,9 @@ from evap.results.tools import (
     RatingResult,
     TextResult,
     annotate_distributions_and_grades,
-    calculate_average_distribution,
     can_textanswer_be_seen_by,
-    distribution_to_grade,
     get_evaluations_with_course_result_attributes,
     get_results,
-    get_single_result_rating_result,
 )
 
 
@@ -337,15 +334,8 @@ def get_evaluations_of_course(course, request):
             course_evaluations += course.evaluations.filter(
                 state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
             )
-
+        annotate_distributions_and_grades(course_evaluations)
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
-
-        for course_evaluation in course_evaluations:
-            if course_evaluation.is_single_result:
-                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
-            else:
-                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
-                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
 
     return course_evaluations
 
