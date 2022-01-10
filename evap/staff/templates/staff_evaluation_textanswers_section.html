@@ -21,9 +21,9 @@
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
                                     {% if answer.original_answer %}
-                                        <span class="textanswer-original">{{ answer.original_answer|linebreaksbr }}</span>
-                                        <br>
-                                        {{ answer.original_answer }}
+                                        {{ answer.answer }}
+                                        <br />
+                                        <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                                     {% else %}
                                         {{ answer.answer }}
                                     {% endif %}
