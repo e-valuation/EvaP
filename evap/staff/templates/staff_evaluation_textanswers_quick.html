@@ -56,7 +56,7 @@
                                 {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}>
                                 {{ answer.answer|linebreaksbr }}
                                 {% if answer.original_answer %}
-                                    <span class="textanswer-original">({{ answer.original_answer }})</span>
+                                    <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
                                 {% endif %}
                             </div>
                         {% endfor %}
