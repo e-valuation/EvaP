@@ -158,7 +158,7 @@ $(document).ready(() => {
     }
 
     function reviewAction(action) {
-        if(!action || index === items.length || action === "make_private" && !items.eq(index).data("contribution")) {
+        if(index === items.length || action === "make_private" && !items.eq(index).data("contribution")) {
             return;
         }
 
