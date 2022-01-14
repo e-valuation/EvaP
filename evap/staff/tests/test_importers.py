@@ -181,6 +181,9 @@ class TestEnrollmentImporter(TestCase):
         baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
+
+    @classmethod
+    def create_existing_course(cls):
         cls.existing_course = baker.make(
             Course,
             name_de="Existierender Kurs",
@@ -375,8 +378,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Stehlen does already exist in this semester.",
-                "Course Shine does already exist in this semester.",
+                "Course Steal(Stehlen) does already exist in this semester.",
+                "Course Shine(Scheinen) does already exist in this semester.",
             },
         )
 
@@ -396,6 +399,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
     def test_existing_course_is_not_recreated(self):
+        self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
         self.assertEqual(
@@ -403,7 +407,7 @@ class TestEnrollmentImporter(TestCase):
         )
         __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
-            "Course Shine(Scheinen) already exists with identical attributes. Course is not created and users are put into the evaluation of that course.",
+            "Course Existing Course(Existierender Kurs) already exists with identical attributes. Course is not created and users are put into the evaluation of that course.",
             "".join(warnings[ImporterWarning.DUPL]),
         )
         self.assertEqual(
@@ -411,30 +415,34 @@ class TestEnrollmentImporter(TestCase):
         )
 
     def test_existing_course_degree_is_added(self):
+        self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        self.existing_course.degrees = [Degree.objects.get(name_de="Master")]
+        self.existing_course.degrees.set([Degree.objects.get(name_de="Master")])
         EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertSetEqual(set(self.existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_existing_course_users_added_to_evaluation(self):
+        self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        self.assertNotIn(
-            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), self.existing_course.evaluations[0].participants.all()
+        self.assertEqual(
+            0, len(self.existing_course.evaluations.all()[0].participants.all())
         )
         EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        UserProfile.objects.get(email="lucilia.manilium@institution.example.com")
         self.assertIn(
-            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), self.existing_course.evaluations[0].participants.all()
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), self.existing_course.evaluations.all()[0].participants.all()
         )
 
     def test_existing_course_equal_except_evaluations(self):
+        self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        baker.make(Evaluation, course=self.existing_course)
+        baker.make(Evaluation, course=self.existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
-            "Course Shine(Scheinen) does already exist in this semester and is identical but has 2 evaluations instead of 1.",
+            "Course Existing Course(Existierender Kurs) does already exist in this semester and is identical but has 2 evaluations instead of 1.",
             "".join(errors[ImporterError.COURSE]),
         )
         self.assertEqual(
@@ -442,13 +450,16 @@ class TestEnrollmentImporter(TestCase):
         )
 
     def test_existing_course_different_grading(self):
+        self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        Evaluation.objects.get(course=self.existing_course).wait_for_grade_upload_before_publishing = False
+        evaluation = Evaluation.objects.get(course=self.existing_course)
+        evaluation.wait_for_grade_upload_before_publishing = False
+        evaluation.save()
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
-            "Course Shine(Scheinen) does already exist in this semester but the only evaluation is graded.",
-            "".join(errors[ImporterError.COURSE]),
+            "Course Existing Course(Existierender Kurs) does already exist in this semester but the only evaluation is not graded.",
+            " ".join(errors[ImporterError.COURSE]),
         )
         self.assertEqual(
             len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1

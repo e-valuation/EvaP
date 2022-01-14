@@ -154,7 +154,7 @@ test_unknown_degree_error_filedata = {
 test_enrollment_data_existing_course = {
     'BA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
-        ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'yes', 'Scheinen', 'Shine', 'Prof. Dr.', 'Responsible', 'Responsible', 'responsible@institution.example.com']
+        ['Bachelor', 'Manilium', 'Lucilia', 'lucilia.manilium@institution.example.com', 'Vorlesung', 'yes', 'Existierender Kurs', 'Existing Course', 'Prof. Dr.', 'Responsible', 'Responsible', 'responsible@institution.example.com']
     ]
 }
 
