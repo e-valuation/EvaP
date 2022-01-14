@@ -8,7 +8,6 @@ import openpyxl
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Q
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -72,7 +71,7 @@ class UserData(CommonEqualityMixin):
 
 
 @dataclass
-class EvaluationData:
+class EvaluationData:  # pylint: disable=too-many-instance-attributes
     """
     Holds information about an evaluation, retrieved from the Excel file.
     """
@@ -132,17 +131,16 @@ class EvaluationData:
             # Only if there are name collisions, it is worth to check for an existing course
             if self.find_and_set_existing_course(semester, importer):
                 return True
+            if name_collision == "both":
+                importer.errors[ImporterError.COURSE].append(
+                    _("Course {}({}) does already exist in this semester.").format(self.name_en, self.name_de)
+                )
             else:
-                if name_collision == "both":
-                    importer.errors[ImporterError.COURSE].append(
-                        _("Course {}({}) does already exist in this semester.").format(self.name_en, self.name_de)
+                importer.errors[ImporterError.COURSE].append(
+                    _("Course {} does already exist in this semester.").format(
+                        self.name_en if name_collision == "name_en" else self.name_de
                     )
-                else:
-                    importer.errors[ImporterError.COURSE].append(
-                        _("Course {} does already exist in this semester.").format(
-                            self.name_en if name_collision == "name_en" else self.name_de
-                        )
-                    )
+                )
         return False
 
     def check_name_collision(self, semester):
@@ -168,12 +166,11 @@ class EvaluationData:
                 if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
                     self.existing_course = course
                     return course
-                else:
-                    importer.errors[ImporterError.COURSE].append(
-                        _(
-                            "Course {}({}) does already exist in this semester but the only evaluation is {}graded."
-                        ).format(self.name_en, self.name_de, "not " if self.is_graded else "")
+                importer.errors[ImporterError.COURSE].append(
+                    _("Course {}({}) does already exist in this semester but the only evaluation is {}graded.").format(
+                        self.name_en, self.name_de, "not " if self.is_graded else ""
                     )
+                )
             else:
                 importer.errors[ImporterError.COURSE].append(
                     _(

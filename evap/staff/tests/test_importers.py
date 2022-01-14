@@ -403,7 +403,12 @@ class TestEnrollmentImporter(TestCase):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
         self.assertEqual(
-            len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1
+            len(
+                Course.objects.filter(
+                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+                )
+            ),
+            1,
         )
         __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
@@ -411,7 +416,12 @@ class TestEnrollmentImporter(TestCase):
             "".join(warnings[ImporterWarning.DUPL]),
         )
         self.assertEqual(
-            len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1
+            len(
+                Course.objects.filter(
+                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+                )
+            ),
+            1,
         )
 
     def test_existing_course_degree_is_added(self):
@@ -420,19 +430,20 @@ class TestEnrollmentImporter(TestCase):
 
         self.existing_course.degrees.set([Degree.objects.get(name_de="Master")])
         EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
-        self.assertSetEqual(set(self.existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
+        self.assertSetEqual(
+            set(self.existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
+        )
 
     def test_existing_course_users_added_to_evaluation(self):
         self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        self.assertEqual(
-            0, len(self.existing_course.evaluations.all()[0].participants.all())
-        )
+        self.assertEqual(0, len(self.existing_course.evaluations.all()[0].participants.all()))
         EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         UserProfile.objects.get(email="lucilia.manilium@institution.example.com")
         self.assertIn(
-            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"), self.existing_course.evaluations.all()[0].participants.all()
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
+            self.existing_course.evaluations.all()[0].participants.all(),
         )
 
     def test_existing_course_equal_except_evaluations(self):
@@ -446,7 +457,12 @@ class TestEnrollmentImporter(TestCase):
             "".join(errors[ImporterError.COURSE]),
         )
         self.assertEqual(
-            len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1
+            len(
+                Course.objects.filter(
+                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+                )
+            ),
+            1,
         )
 
     def test_existing_course_different_grading(self):
@@ -462,7 +478,12 @@ class TestEnrollmentImporter(TestCase):
             "".join(errors[ImporterError.COURSE]),
         )
         self.assertEqual(
-            len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1
+            len(
+                Course.objects.filter(
+                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+                )
+            ),
+            1,
         )
 
 
