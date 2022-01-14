@@ -378,8 +378,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Steal(Stehlen) does already exist in this semester.",
-                "Course Shine(Scheinen) does already exist in this semester.",
+                "Course Stehlen does already exist in this semester.",
+                "Course Shine does already exist in this semester.",
             },
         )
 
@@ -459,7 +459,7 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
             "Course Existing Course(Existierender Kurs) does already exist in this semester but the only evaluation is not graded.",
-            " ".join(errors[ImporterError.COURSE]),
+            "".join(errors[ImporterError.COURSE]),
         )
         self.assertEqual(
             len(Course.objects.filter(semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en)), 1

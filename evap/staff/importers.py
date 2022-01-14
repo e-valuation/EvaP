@@ -100,7 +100,7 @@ class EvaluationData:
         assert not self.errors
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
-        if self.existing_course is not None:
+        if self.existing_course:
             self.existing_course.degrees.add(*self.degrees)
         else:
             course = Course(
@@ -126,10 +126,32 @@ class EvaluationData:
                 textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
             )
 
-    def has_name_collisions_with_evaluations_in_semester(self, semester):
-        return Course.objects.filter(
-            Q(semester=semester) & Q(Q(name_en=self.name_en) | Q(name_de=self.name_de))
-        ).exists()
+    def check_existing_course(self, semester, importer):
+        name_collision = self.check_name_collision(semester)
+        if name_collision:
+            # Only if there are name collisions, it is worth to check for an existing course
+            if self.find_and_set_existing_course(semester, importer):
+                return True
+            else:
+                if name_collision == "both":
+                    importer.errors[ImporterError.COURSE].append(
+                        _("Course {}({}) does already exist in this semester.").format(self.name_en, self.name_de)
+                    )
+                else:
+                    importer.errors[ImporterError.COURSE].append(
+                        _("Course {} does already exist in this semester.").format(
+                            self.name_en if name_collision == "name_en" else self.name_de
+                        )
+                    )
+        return False
+
+    def check_name_collision(self, semester):
+        name_collision = None
+        if Course.objects.filter(semester=semester, name_en=self.name_en).exists():
+            name_collision = "name_en"
+        if Course.objects.filter(semester=semester, name_de=self.name_de).exists():
+            name_collision = "name_de" if not name_collision else "both"
+        return name_collision
 
     def find_and_set_existing_course(self, semester, importer):
         courses = Course.objects.filter(
@@ -478,19 +500,12 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            if evaluation_data.has_name_collisions_with_evaluations_in_semester(semester):
-                if evaluation_data.find_and_set_existing_course(semester, self):
-                    self.warnings[ImporterWarning.DUPL].append(
-                        _(
-                            "Course {}({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
-                        ).format(evaluation_data.name_en, evaluation_data.name_de)
-                    )
-                else:
-                    self.errors[ImporterError.COURSE].append(
-                        _("Course {}({}) does already exist in this semester.").format(
-                            evaluation_data.name_en, evaluation_data.name_de
-                        )
-                    )
+            if evaluation_data.check_existing_course(semester, self):
+                self.warnings[ImporterWarning.DUPL].append(
+                    _(
+                        "Course {}({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
+                    ).format(evaluation_data.name_en, evaluation_data.name_de)
+                )
 
             assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
 
