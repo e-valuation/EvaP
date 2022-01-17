@@ -104,7 +104,8 @@ class ImportForm(forms.Form):
     excel_file = forms.FileField(
         label=_("Excel file"),
         required=False,
-        widget=forms.FileInput(attrs={"accept": "application/vnd.ms-excel"}),
+        #widget=forms.FileInput(attrs={"accept": "application/vnd.ms-excel"}),
+        widget=forms.FileInput(attrs={"accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
     )
 
 

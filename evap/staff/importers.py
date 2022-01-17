@@ -1,9 +1,12 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from enum import Enum
+from io import BytesIO
 from typing import Dict, Set
 
 import xlrd
+import openpyxl
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -225,18 +228,20 @@ class ExcelImporter:
 
     def read_book(self, file_content):
         try:
-            self.book = xlrd.open_workbook(file_contents=file_content)
-        except xlrd.XLRDError as e:
+            bytesio_for_openpyxl = BytesIO(file_content)
+            self.book = openpyxl.load_workbook(bytesio_for_openpyxl)
+
+        except IOError as e:
             self.errors[ImporterError.SCHEMA].append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
-        for sheet in self.book.sheets():
-            if sheet.nrows <= self.skip_first_n_rows:
+        for sheet in self.book:
+            if sheet.max_row <= self.skip_first_n_rows:
                 continue
-            if sheet.ncols != expected_column_count:
+            if sheet.max_column != expected_column_count:
                 self.errors[ImporterError.SCHEMA].append(
                     _("Wrong number of columns in sheet '{}'. Expected: {}, actual: {}").format(
-                        sheet.name, expected_column_count, sheet.ncols
+                        sheet.title, expected_column_count, sheet.max_column
                     )
                 )
 
@@ -536,21 +541,21 @@ class EnrollmentImporter(ExcelImporter):
                 importer.errors[ImporterError.GENERAL].append(_("The input data is malformed. No data was imported."))
                 return importer.success_messages, importer.warnings, importer.errors
 
-            importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
-            importer.consolidate_enrollment_data()
-            importer.check_user_data_correctness()
-            importer.check_evaluation_data_correctness(semester)
-            importer.check_enrollment_data_sanity()
-            importer.check_user_data_sanity(test_run)
+            # importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
+            # importer.consolidate_enrollment_data()
+            # importer.check_user_data_correctness()
+            # importer.check_evaluation_data_correctness(semester)
+            # importer.check_enrollment_data_sanity()
+            # importer.check_user_data_sanity(test_run)
 
-            if importer.errors:
-                importer.errors[ImporterError.GENERAL].append(
-                    _("Errors occurred while parsing the input data. No data was imported.")
-                )
-            elif test_run:
-                importer.create_test_success_messages()
-            else:
-                importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
+            # if importer.errors:
+            #     importer.errors[ImporterError.GENERAL].append(
+            #         _("Errors occurred while parsing the input data. No data was imported.")
+            #     )
+            # elif test_run:
+            #     importer.create_test_success_messages()
+            # else:
+            #     importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
             importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
