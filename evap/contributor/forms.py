@@ -52,7 +52,8 @@ class EvaluationForm(forms.ModelForm):
         self.fields["vote_start_datetime"].localize = True
         self.fields["vote_end_date"].localize = True
 
-        self.fields["participants"].queryset = UserProfile.objects.exclude(is_active=False)
+        self.fields["participants"].queryset = (
+                UserProfile.objects.exclude(is_active=False) | self.instance.participants.all()).distinct()
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
