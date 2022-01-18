@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.http.request import QueryDict
 from django.utils import timezone
-from django_webtest import WebTest
+from django_webtest import WebTest as OriginalWebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -81,6 +81,10 @@ def render_pages(test_item):
                 html_file.write(content)
 
     return decorator
+
+
+class WebTest(OriginalWebTest):
+    csrf_checks = False
 
 
 class WebTestWith200Check(WebTest):

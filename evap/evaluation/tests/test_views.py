@@ -1,11 +1,10 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
+from evap.evaluation.tests.tools import WebTest, WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
 class TestIndexView(WebTest):
@@ -86,8 +85,6 @@ class TestFAQView(WebTestWith200Check):
 
 
 class TestContactEmail(WebTest):
-    csrf_checks = False
-
     def test_sends_mail(self):
         user = baker.make(UserProfile, email="user@institution.example.com")
         self.app.post(
@@ -101,7 +98,6 @@ class TestContactEmail(WebTest):
 
 class TestChangeLanguageView(WebTest):
     url = "/set_lang"
-    csrf_checks = False
 
     def test_changes_language(self):
         user = baker.make(UserProfile, email="tester@institution.example.com", language="de")

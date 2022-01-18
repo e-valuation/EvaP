@@ -13,8 +13,6 @@ from evap.evaluation.tests.tools import WebTest
 
 
 class LoginTests(WebTest):
-    csrf_checks = False
-
     @classmethod
     def setUpTestData(cls):
         cls.external_user = baker.make(UserProfile, email="extern@extern.com")

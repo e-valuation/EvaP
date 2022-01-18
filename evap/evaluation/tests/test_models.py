@@ -6,7 +6,6 @@ from django.core import mail
 from django.core.cache import caches
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -24,6 +23,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
+    WebTest,
     let_user_vote_for_evaluation,
     make_contributor,
     make_editor,

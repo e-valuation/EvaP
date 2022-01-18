@@ -2,11 +2,10 @@ from datetime import date, timedelta
 
 from django.test import override_settings
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Course, Evaluation, Semester, UserProfile
-from evap.evaluation.tests.tools import make_manager
+from evap.evaluation.tests.tools import WebTest, make_manager
 from evap.rewards.models import (
     RewardPointGranting,
     RewardPointRedemption,
@@ -19,7 +18,6 @@ from evap.staff.tests.utils import WebTestStaffMode, WebTestStaffModeWith200Chec
 
 class TestEventDeleteView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_delete")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -43,7 +41,6 @@ class TestEventDeleteView(WebTestStaffMode):
 
 class TestIndexView(WebTest):
     url = reverse("rewards:index")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -96,7 +93,6 @@ class TestEventsView(WebTestStaffModeWith200Check):
 
 class TestEventCreateView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_create")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -119,7 +115,6 @@ class TestEventCreateView(WebTestStaffMode):
 
 class TestEventEditView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_edit", args=[1])
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -158,7 +153,6 @@ class TestExportView(WebTestStaffModeWith200Check):
 )
 class TestSemesterActivationView(WebTestStaffMode):
     url = "/rewards/reward_semester_activation/1/"
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):

@@ -131,8 +131,6 @@ class ContributionFormsetTests(TestCase):
 
 
 class ContributionFormsetWebTests(WebTest):
-    csrf_checks = False
-
     def test_form_ordering(self):
         """
         Asserts that the contribution formset is correctly sorted,

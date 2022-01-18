@@ -1,16 +1,13 @@
 from django.core import mail
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, UserProfile
-from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
+from evap.evaluation.tests.tools import WebTest, WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 TESTING_EVALUATION_ID = 2
 
 
 class TestContributorDirectDelegationView(WebTest):
-    csrf_checks = False
-
     @classmethod
     def setUpTestData(cls):
         cls.evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)

@@ -2,9 +2,7 @@ import os
 import time
 from contextlib import contextmanager
 
-from django_webtest import WebTest
-
-from evap.evaluation.tests.tools import WebTestWith200Check
+from evap.evaluation.tests.tools import WebTest, WebTestWith200Check
 from evap.staff.tools import ImportType, generate_import_filename
 
 

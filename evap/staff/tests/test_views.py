@@ -9,7 +9,6 @@ from django.core import mail
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
-from django_webtest import WebTest
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -31,6 +30,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tests.tools import (
     FuzzyInt,
+    WebTest,
     create_evaluation_with_responsible_and_editor,
     let_user_vote_for_evaluation,
     make_manager,
@@ -685,7 +685,6 @@ class TestSemesterEditView(WebTestStaffMode):
 
 class TestSemesterDeleteView(WebTestStaffMode):
     url = "/staff/semester/delete"
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -794,7 +793,6 @@ class TestSemesterAssignView(WebTestStaffMode):
 
 class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
     url = "/staff/semester/1/preparation_reminder"
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -2605,7 +2603,6 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
 
 class TestQuestionnaireDeletionView(WebTestStaffMode):
     url = "/staff/questionnaire/delete"
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -2729,7 +2726,6 @@ class TestCourseTypeMergeView(WebTestStaffMode):
 
 class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     url = reverse("staff:evaluation_textanswers_update_publish")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -2825,8 +2821,6 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
-    csrf_checks = False
-
     def test_skip(self):
         manager = make_manager()
         evaluation = baker.make(
@@ -3028,7 +3022,6 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
 
 class TestSemesterActiveStateBehaviour(WebTestStaffMode):
     url = "/staff/semester/make_active"
-    csrf_checks = False
 
     def test_make_other_semester_active(self):
         manager = make_manager()
@@ -3059,8 +3052,6 @@ class TestStaffMode(WebTest):
     url_exit = "/staff/exit_staff_mode"
 
     some_staff_url = "/staff/degrees/"
-
-    csrf_checks = False
 
     def test_staff_mode(self):
         manager = make_manager()

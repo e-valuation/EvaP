@@ -9,7 +9,6 @@ from django.db import connection
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import (
@@ -24,6 +23,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
+    WebTest,
     let_user_vote_for_evaluation,
     make_manager,
     make_rating_answer_counters,

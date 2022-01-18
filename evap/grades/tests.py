@@ -2,16 +2,14 @@ from datetime import date, datetime, timedelta
 
 from django.contrib.auth.models import Group
 from django.core import mail
-from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.tests.tools import WebTest
 from evap.grades.models import GradeDocument
 
 
 class GradeUploadTest(WebTest):
-    csrf_checks = False
-
     @classmethod
     def setUpTestData(cls):
         cls.grade_publisher = baker.make(
