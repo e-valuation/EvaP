@@ -960,7 +960,7 @@ class EvaluationFormTests(TestCase):
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation)
-        self.assertEqual(len(form["participants"].initial), 1)
+        self.assertEqual(len(form["participants"]), 1)
 
     def test_inactive_participants_not_in_queryset(self):
         evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)])

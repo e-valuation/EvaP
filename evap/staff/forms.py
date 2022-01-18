@@ -389,8 +389,12 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
         )
 
+        if self.instance.pk is None:
+            prior_participants = UserProfile.objects.filter(pk=None)
+        else:
+            prior_participants = self.instance.participants.all()
         self.fields["participants"].queryset = (
-                UserProfile.objects.exclude(is_active=False) | self.instance.participants.all()).distinct()
+                UserProfile.objects.exclude(is_active=False) | prior_participants).distinct()
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -405,11 +409,6 @@ class EvaluationForm(forms.ModelForm):
 
         if self.instance.pk:
             self.instance.old_course = self.instance.course
-
-    def _set_participant_queryset(self):
-        queryset = UserProfile.objects.exclude(is_active=False)
-        queryset = (queryset | self.instance.participants.all()).distinct()
-        self.fields["responsibles"].queryset = queryset
 
     def validate_unique(self):
         super().validate_unique()
