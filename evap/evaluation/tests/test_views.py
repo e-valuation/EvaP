@@ -108,6 +108,17 @@ class TestChangeLanguageView(WebTest):
         self.assertEqual(user.language, "en")
 
 
+class TestCsrfVerification(WebTest):
+    url = "/set_lang"
+    csrf_checks = True
+
+    def test_post_fails(self):
+        user = baker.make(UserProfile, email="tester@institution.example.com", language="en")
+
+        response = self.app.post(self.url, params={"language": "en"}, user=user, status=403)
+        self.assertIn("CSRF verification failed", response.body.decode())
+
+
 class TestProfileView(WebTest):
     url = "/profile"
 
