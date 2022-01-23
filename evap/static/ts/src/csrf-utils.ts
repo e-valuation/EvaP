@@ -15,7 +15,11 @@ const csrftoken = getCookie("csrftoken")!;
 
 function isMethodCsrfSafe(method: string): boolean {
     // these HTTP methods do not require CSRF protection
-    return ["GET", "HEAD", "OPTIONS", "TRACE"].includes(method);
+    return ["GET", "HEAD", "OPTIONS", "TRACE"].includes(method.toUpperCase());
+}
+
+function isUrlCrossDomain(url: string): boolean {
+    return new URL(document.baseURI).origin !== new URL(url, document.baseURI).origin;
 }
 
 // setup ajax sending csrf token
@@ -28,13 +32,25 @@ $.ajaxSetup({
     },
 });
 
-const inputElement = document.createElement("input");
-inputElement.setAttribute("type", "hidden");
-inputElement.setAttribute("name", "csrfmiddlewaretoken");
-inputElement.setAttribute("value", csrftoken);
+function addCsrfToken(this: HTMLFormElement, ev: Event) {
+    const inputElement = document.createElement("input");
+    inputElement.setAttribute("type", "hidden");
+    inputElement.setAttribute("name", "csrfmiddlewaretoken");
+    inputElement.setAttribute("value", csrftoken);
 
+    const { submitter } = ev as SubmitEvent;
+    const action = (submitter && submitter.getAttribute("formaction")) || this.getAttribute("action");
+    const method = (submitter && submitter.getAttribute("formmethod")) || this.getAttribute("method");
+
+    if (method && !isMethodCsrfSafe(method) && action && !isUrlCrossDomain(action)) {
+        this.insertAdjacentElement("afterbegin", inputElement.cloneNode() as Element);
+    }
+}
+
+// Add CSRF token to regular forms on submit.
+// This reduces boilerplate code in the templates and makes the form's HTML cacheable.
 for (const form of document.forms) {
-    form.insertAdjacentElement("afterbegin", inputElement.cloneNode() as Element);
+    form.addEventListener("submit", addCsrfToken);
 }
 
 export const testable = {
