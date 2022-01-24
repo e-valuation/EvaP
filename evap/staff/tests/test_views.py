@@ -1,7 +1,9 @@
 import datetime
 import os
+from io import BytesIO
 from unittest.mock import PropertyMock, patch
 
+import openpyxl
 import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -51,8 +53,8 @@ from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
 
 
-class TestDownloadSampleXlsView(WebTestStaffMode):
-    url = "/staff/download_sample_xls/sample.xls"
+class TestDownloadSampleXlsxView(WebTestStaffMode):
+    url = "/staff/download_sample_xlsx/sample.xlsx"
     email_placeholder = "institution.com"
 
     @classmethod
@@ -63,13 +65,17 @@ class TestDownloadSampleXlsView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         found_institution_domains = 0
-        book = xlrd.open_workbook(file_contents=page.body)
-        for sheet in book.sheets():
-            for row in sheet.get_rows():
+        book = openpyxl.load_workbook(BytesIO(page.body))
+        for sheet in book:
+            for row in sheet.iter_rows(values_only=True):
                 for cell in row:
-                    value = cell.value
-                    self.assertNotIn(self.email_placeholder, value)
-                    if "@" + settings.INSTITUTION_EMAIL_DOMAINS[0] in value:
+                    # catch None case for empty cells
+                    if not cell:
+                        continue
+
+                    self.assertNotIn(self.email_placeholder, cell)
+
+                    if "@" + settings.INSTITUTION_EMAIL_DOMAINS[0] in cell:
                         found_institution_domains += 1
 
         self.assertEqual(found_institution_domains, 2)

@@ -1,6 +1,6 @@
 import io
 
-import xlwt
+import openpyxl
 
 duplicate_user_import_filedata = {
     'Users': [
@@ -155,11 +155,12 @@ valid_user_courses_import_filedata = {
 
 def create_memory_excel_file(data):
     memory_excel_file = io.BytesIO()
-    workbook = xlwt.Workbook()
+    workbook = openpyxl.Workbook()
     for sheet_name, sheet_data in data.items():
-        sheet = workbook.add_sheet(sheet_name)
+        sheet = workbook.create_sheet(sheet_name)
         for (row_num, row_data) in enumerate(sheet_data):
             for (column_num, cell_data) in enumerate(row_data):
-                sheet.write(row_num, column_num, cell_data)
+                # openpyxl rows start at 1
+                sheet.cell(row=row_num+1, column=column_num+1).value = cell_data
     workbook.save(memory_excel_file)
     return memory_excel_file.getvalue()

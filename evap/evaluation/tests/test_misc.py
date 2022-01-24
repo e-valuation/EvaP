@@ -14,7 +14,7 @@ from evap.staff.tests.utils import WebTestStaffMode
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
-class SampleXlsTests(WebTestStaffMode):
+class SampleXlsxTests(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
@@ -24,13 +24,13 @@ class SampleXlsTests(WebTestStaffMode):
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
-    def test_sample_xls(self):
+    def test_sample_xlsx(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user=self.manager)
 
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["semester-import-form"]
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xls"),)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample.xlsx"),)
         page = form.submit(name="operation", value="test")
 
         form = page.forms["semester-import-form"]
@@ -40,13 +40,13 @@ class SampleXlsTests(WebTestStaffMode):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
 
-    def test_sample_user_xls(self):
+    def test_sample_user_xlsx(self):
         page = self.app.get("/staff/user/import", user=self.manager)
 
         original_user_count = UserProfile.objects.count()
 
         form = page.forms["user-import-form"]
-        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xls"),)
+        form["excel_file"] = (os.path.join(settings.BASE_DIR, "static", "sample_user.xlsx"),)
         page = form.submit(name="operation", value="test")
 
         form = page.forms["user-import-form"]

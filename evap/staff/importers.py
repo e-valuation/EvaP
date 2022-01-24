@@ -4,9 +4,7 @@ from enum import Enum
 from io import BytesIO
 from typing import Dict, Set
 
-import xlrd
 import openpyxl
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -246,15 +244,19 @@ class ExcelImporter:
                 )
 
     def for_each_row_in_excel_file_do(self, row_function):
-        for sheet in self.book.sheets():
+        for sheet in self.book:
             try:
-                for row in range(self.skip_first_n_rows, sheet.nrows):
+                for rowIdx, row in enumerate(sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True)):
                     # see https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
-                    row_function([" ".join(cell.split()) for cell in sheet.row_values(row)], sheet, row)
-                self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.name)
+                    row_function(
+                        [" ".join(cell.split()) if cell is not None else "" for cell in row],
+                        sheet,
+                        rowIdx + self.skip_first_n_rows,
+                    )
+                self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.title)
             except Exception:
                 self.warnings[ImporterWarning.GENERAL].append(
-                    _("A problem occured while reading sheet {}.").format(sheet.name)
+                    _("A problem occured while reading sheet {}.").format(sheet.title)
                 )
                 raise
         self.success_messages.append(_("Successfully read Excel file."))
@@ -355,14 +357,14 @@ class ExcelImporter:
         """
         Checks that all cells after the skipped rows contain string values (not floats or integers).
         """
-        for sheet in self.book.sheets():
-            for row in range(self.skip_first_n_rows, sheet.nrows):
-                if not all(isinstance(cell, str) for cell in sheet.row_values(row)):
+        for sheet in self.book:
+            for row in sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True):
+                if not all(isinstance(cell, str) or cell == None for cell in row):
                     self.errors[ImporterError.SCHEMA].append(
                         _(
                             "Wrong data type in sheet '{}' in row {}."
                             " Please make sure all cells are string types, not numerical."
-                        ).format(sheet.name, row + 1)
+                        ).format(sheet.title, row + 1)
                     )
 
 
@@ -388,15 +390,15 @@ class EnrollmentImporter(ExcelImporter):
             is_graded=data[5],
             responsible_email=responsible_data.email,
         )
-        self.associations[(sheet.name, row)] = (student_data, responsible_data, evaluation_data)
+        self.associations[(sheet.title, row)] = (student_data, responsible_data, evaluation_data)
 
-    def process_evaluation(self, evaluation_data, sheet, row):
+    def process_evaluation(self, evaluation_data, sheetname, row):
         evaluation_id = evaluation_data.name_en
         if evaluation_id not in self.evaluations:
             if evaluation_data.name_de in self.names_de:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The German name for course "{}" already exists for another course.').format(
-                        sheet, row + 1, evaluation_data.name_en
+                        sheetname, row + 1, evaluation_data.name_en
                     )
                 )
             else:
@@ -408,7 +410,7 @@ class EnrollmentImporter(ExcelImporter):
                     _(
                         'Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row.'
                         " Both degrees have been set for the course."
-                    ).format(sheet, row + 1, evaluation_data.name_en)
+                    ).format(sheetname, row + 1, evaluation_data.name_en)
                 )
                 self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
                 self.evaluations[evaluation_id].errors = merge_dictionaries_of_sets(
@@ -417,7 +419,7 @@ class EnrollmentImporter(ExcelImporter):
             elif evaluation_data != self.evaluations[evaluation_id]:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(
-                        sheet, row + 1, evaluation_data.name_en
+                        sheetname, row + 1, evaluation_data.name_en
                     )
                 )
 
@@ -541,21 +543,21 @@ class EnrollmentImporter(ExcelImporter):
                 importer.errors[ImporterError.GENERAL].append(_("The input data is malformed. No data was imported."))
                 return importer.success_messages, importer.warnings, importer.errors
 
-            # importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
-            # importer.consolidate_enrollment_data()
-            # importer.check_user_data_correctness()
-            # importer.check_evaluation_data_correctness(semester)
-            # importer.check_enrollment_data_sanity()
-            # importer.check_user_data_sanity(test_run)
+            importer.for_each_row_in_excel_file_do(importer.read_one_enrollment)
+            importer.consolidate_enrollment_data()
+            importer.check_user_data_correctness()
+            importer.check_evaluation_data_correctness(semester)
+            importer.check_enrollment_data_sanity()
+            importer.check_user_data_sanity(test_run)
 
-            # if importer.errors:
-            #     importer.errors[ImporterError.GENERAL].append(
-            #         _("Errors occurred while parsing the input data. No data was imported.")
-            #     )
-            # elif test_run:
-            #     importer.create_test_success_messages()
-            # else:
-            #     importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
+            if importer.errors:
+                importer.errors[ImporterError.GENERAL].append(
+                    _("Errors occurred while parsing the input data. No data was imported.")
+                )
+            elif test_run:
+                importer.create_test_success_messages()
+            else:
+                importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
             importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
@@ -573,15 +575,15 @@ class UserImporter(ExcelImporter):
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
-        self.associations[(sheet.name, row)] = user_data
+        self.associations[(sheet.title, row)] = user_data
         if user_data not in self._read_user_data:
-            self._read_user_data[user_data] = (sheet.name, row)
+            self._read_user_data[user_data] = (sheet.title, row)
         else:
             orig_sheet, orig_row = self._read_user_data[user_data]
             warningstring = _(
                 "The duplicated row {row} in sheet '{sheet}' was ignored. It was first found in sheet '{orig_sheet}' on row {orig_row}."
             ).format(
-                sheet=sheet.name,
+                sheet=sheet.title,
                 row=row + 1,
                 orig_sheet=orig_sheet,
                 orig_row=orig_row + 1,
