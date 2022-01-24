@@ -264,6 +264,48 @@ class TestResultsView(WebTest):
         caches["sessions"].clear()
         caches["results"].clear()
 
+    def test_evaluation_weight_sums(self):
+        """
+        ensures that the sum of evaluation weights add up to 100%, 
+        even if some evaluations are not shown to the user
+        """
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=200)
+        student = baker.make(UserProfile, email="student@institution.example.com")
+        course = baker.make(Course)
+        page=self.app.get(self.url,user=student)
+        evaluationA=baker.make(
+                Evaluation,
+                course=course,
+                name_en=f"evaluation1",
+                name_de=f"evaluation1",
+                state=Evaluation.State.PUBLISHED,
+                _voter_count=200,
+                _participant_count=200,
+                is_single_result=True,
+                weight=1,
+                participants=participants,
+                voters=participants
+            )
+        evaluationB=baker.make(
+                Evaluation,
+                course=course,
+                name_en=f"evaluation2",
+                name_de=f"evaluation2",
+                state=Evaluation.State.PUBLISHED,
+                _voter_count=200,
+                _participant_count=200,
+                is_single_result=True,
+                weight=2,
+                participants=participants,
+                voters=participants
+            )
+        cache_results(evaluationA)
+        cache_results(evaluationB)
+        page=self.app.get(self.url,user=student)
+        self.assertContains(page,"33")
+
+
+
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
     def test_returns_correct_participant_count(self):
