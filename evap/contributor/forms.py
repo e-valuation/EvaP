@@ -57,7 +57,8 @@ class EvaluationForm(forms.ModelForm):
         else:
             prior_participants = self.instance.participants.all()
         self.fields["participants"].queryset = (
-                UserProfile.objects.exclude(is_active=False) | prior_participants).distinct()
+            UserProfile.objects.exclude(is_active=False) | prior_participants
+        ).distinct()
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
