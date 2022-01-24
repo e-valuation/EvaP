@@ -2,7 +2,7 @@ from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
-from typing import Dict, Set
+from typing import Dict, Optional, Set
 
 import openpyxl
 from django.conf import settings
@@ -83,7 +83,7 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
     is_graded: bool
     responsible_email: str
     errors: Dict
-    existing_course: Course
+    existing_course: Optional[Course]
 
     def equals_except_for_degrees(self, other):
         return (
@@ -133,7 +133,7 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
                 return True
             if name_collision == "both":
                 importer.errors[ImporterError.COURSE].append(
-                    _("Course {}({}) does already exist in this semester.").format(self.name_en, self.name_de)
+                    _("Course {} ({}) does already exist in this semester.").format(self.name_en, self.name_de)
                 )
             else:
                 importer.errors[ImporterError.COURSE].append(
@@ -156,26 +156,39 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             semester=semester,
             name_en=self.name_en,
             name_de=self.name_de,
-            type=self.course_type,
-            responsibles__email=self.responsible_email,
         )
         if courses.exists():
             course = courses.first()
-            evaluations = Evaluation.objects.filter(course=course)
-            if len(evaluations) == 1:
-                if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
-                    self.existing_course = course
-                    return course
-                importer.errors[ImporterError.COURSE].append(
-                    _("Course {}({}) does already exist in this semester but the only evaluation is {}graded.").format(
-                        self.name_en, self.name_de, "not " if self.is_graded else ""
+            differing_attributes = []
+            if course.type != self.course_type:
+                differing_attributes.append("course type")
+            if len(course.responsibles.all()) != 1 or course.responsibles.first().email != self.responsible_email:
+                differing_attributes.append("responsible person")
+            if not differing_attributes:
+                evaluations = Evaluation.objects.filter(course=course)
+                if len(evaluations) == 1:
+                    if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
+                        self.existing_course = course
+                        return course
+                    importer.errors[ImporterError.COURSE].append(
+                        _(
+                            "Course {} ({}) does already exist in this semester but the grading of the evaluation does not match."
+                        ).format(self.name_en, self.name_de)
                     )
-                )
+                else:
+                    importer.errors[ImporterError.COURSE].append(
+                        _(
+                            "Course {} ({}) does already exist in this semester and is identical but must have only one evaluation."
+                        ).format(self.name_en, self.name_de)
+                    )
             else:
                 importer.errors[ImporterError.COURSE].append(
-                    _(
-                        "Course {}({}) does already exist in this semester and is identical but has {} evaluations instead of 1."
-                    ).format(self.name_en, self.name_de, len(evaluations))
+                    _("Course {} ({}) does already exist in this semester but the {} {} not match.").format(
+                        self.name_en,
+                        self.name_de,
+                        " and ".join(differing_attributes),
+                        "does" if len(differing_attributes) == 1 else "do",
+                    )
                 )
         return None
 
@@ -500,7 +513,7 @@ class EnrollmentImporter(ExcelImporter):
             if evaluation_data.check_existing_course(semester, self):
                 self.warnings[ImporterWarning.DUPL].append(
                     _(
-                        "Course {}({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
+                        "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
                     ).format(evaluation_data.name_en, evaluation_data.name_de)
                 )
 
