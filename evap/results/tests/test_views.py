@@ -10,7 +10,9 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_webtest import WebTest
+from evap import contributor
 from model_bakery import baker
+
 
 from evap.evaluation.models import (
     Contribution,
@@ -22,6 +24,7 @@ from evap.evaluation.models import (
     Questionnaire,
     Semester,
     UserProfile,
+    RatingAnswerCounter
 )
 from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
@@ -31,7 +34,7 @@ from evap.evaluation.tests.tools import (
 )
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
-from evap.results.views import get_evaluations_with_prefetched_data
+from evap.results.views import get_evaluations_with_prefetched_data, warm_up_template_cache
 from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
 
@@ -269,7 +272,7 @@ class TestResultsView(WebTest):
         ensures that the sum of evaluation weights add up to 100%, 
         even if some evaluations are not shown to the user
         """
-        participants = baker.make(UserProfile, _bulk_create=True, _quantity=200)
+        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course)
         page=self.app.get(self.url,user=student)
@@ -279,10 +282,10 @@ class TestResultsView(WebTest):
                 name_en=f"evaluation1",
                 name_de=f"evaluation1",
                 state=Evaluation.State.PUBLISHED,
-                _voter_count=200,
-                _participant_count=200,
+                _voter_count=1000,
+                _participant_count=1000,
                 is_single_result=True,
-                weight=1,
+                weight=2,
                 participants=participants,
                 voters=participants
             )
@@ -292,17 +295,23 @@ class TestResultsView(WebTest):
                 name_en=f"evaluation2",
                 name_de=f"evaluation2",
                 state=Evaluation.State.PUBLISHED,
-                _voter_count=200,
-                _participant_count=200,
+                _voter_count=1000,
+                _participant_count=1000,
                 is_single_result=True,
-                weight=2,
+                weight=1,
                 participants=participants,
                 voters=participants
             )
-        cache_results(evaluationA)
-        cache_results(evaluationB)
+        baker.make(RatingAnswerCounter, contribution=baker.make(Contribution, contributor=student,evaluation=evaluationA))
+        baker.make(RatingAnswerCounter, contribution=baker.make(Contribution, contributor=student,evaluation=evaluationB))
+        #call_command("refresh_results_cache", stdout=StringIO())
+        warm_up_template_cache([evaluationA,evaluationB])
         page=self.app.get(self.url,user=student)
+        import pdb
+        pdb.set_trace()
+        self.assertContains(page,50)
         self.assertContains(page,"33")
+        self.assertContains(page,"16")
 
 
 
