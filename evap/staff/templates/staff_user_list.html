@@ -54,7 +54,7 @@
                             <td>{% if user.email %}{{ user.email }}{% endif %}</td>
                             <td>{% include 'staff_user_badges.html' with user=user %}</td>
                             <td>
-                                <a href="{% url 'staff:user_edit' user.id request.path %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
+                                <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
                             </td>
                         </tr>
                     {% endfor %}

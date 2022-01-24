@@ -1902,7 +1902,7 @@ def user_index(request):
 
     if form.is_valid():
         user = form.cleaned_data['user']
-        return redirect('staff:user_edit', user.id, request.path)
+        return redirect('staff:user_edit', user.id)
 
     return render(request, "staff_user_index.html", dict(form=form))
 
@@ -2002,7 +2002,7 @@ def user_import(request):
 
 
 @manager_required
-def user_edit(request, user_id, next):
+def user_edit(request, user_id):
     # See comment in helper_evaluation_edit
     @receiver(RewardPointGranting.granted_by_removal, weak=True)
     def notify_reward_points(grantings, **_kwargs):
@@ -2032,7 +2032,7 @@ def user_edit(request, user_id, next):
         messages.success(request, _("Successfully updated user."))
         for message in form.remove_messages:
             messages.warning(request, message)
-        return redirect(next)
+        return redirect("staff:user_index")
 
     return render(
         request, "staff_user_form.html", dict(form=form, evaluations_contributing_to=evaluations_contributing_to)
