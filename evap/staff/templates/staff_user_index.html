@@ -30,74 +30,17 @@
                 <div class="card-body">
                     <form method="POST" class="form-horizontal">
                         {% csrf_token %}
-                            <h4 class="card-title text-center">{% trans 'Search user' %}</h4>
-                                {% include 'bootstrap_form.html' with form=form wide=False %}
-                                <div class="text-center">                    
-                                    <button type="submit" class="btn btn-md btn-primary">{% trans 'Edit user' %}</button>
-                                </div>
+                        <h4 class="card-title">{% trans 'Search user' %}</h4>
+                        {% include 'bootstrap_form.html' with form=form wide=False %}
+                        <div class="text-center">                    
+                            <button type="submit" class="btn btn-md btn-primary">{% trans 'Edit user' %}</button>
+                        </div>
                     </form>    
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- <div class="card mb-3">
-        <div class="card-body">
-            <table class="table table-striped table-vertically-aligned user-table">
-                <thead>
-                    <tr>
-                        <th style="width: 25%">{% trans 'Name' %}</th>
-                        <th style="width: 35%">{% trans 'Email' %}</th>
-                        <th style="width: 30%">{% trans 'Information' %}</th>
-                        <th style="width: 10%">{% trans 'Actions' %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for user in users %}
-                    <tr id="user-row-{{ user.id }}">
-                        <td>{{ user.full_name }}</td>
-                        <td>{% if user.email %}{{ user.email }}{% endif %}</td>
-                        <td>{% include 'staff_user_badges.html' with user=user %}</td>
-                        <td>
-                            <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
-                            {% if user.can_be_deleted_by_manager %}
-                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');">
-                                    <span class="fas fa-trash"></span
-                                ></button>
-                            {% else %}
-                                <button type="button" disabled class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="left"
-                                    title="{% blocktrans %}This user contributes to an evaluation, participates in an evaluation whose participations
-                                    haven't been archived yet or has special rights and as such cannot be deleted.{% endblocktrans %}">
-                                    <span class="fas fa-trash"></span>
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div> -->
 {% endblock %}
-
-<!-- {% block modals %}
-    {{ block.super }}
-    {% trans 'Delete user' as title %}
-    {% trans 'Do you really want to delete the user <strong data-label=""></strong>?<br/>This person will also be removed from every other user having this person as a delegated or CC-user.' as question %}
-    {% trans 'Delete user' as action_text %}
-    {% include 'confirmation_modal.html' with modal_id='deleteModal' title=title question=question action_text=action_text btn_type='danger' %}
-    <script type="text/javascript">
-        function deleteModalAction(dataId) {
-            $.ajax({
-                type: "POST",
-                url: "{% url 'staff:user_delete' %}",
-                data: {"user_id": dataId},
-                success: function(){ $('#user-row-'+dataId).hide('slow', function(){ $('#user-row-'+dataId).remove(); }); },
-                error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
-            });
-        };
-    </script>
-{% endblock %}-->
 
 {% block additional_javascript %}
     <script type="module">
@@ -109,4 +52,4 @@
             resetSearch: document.querySelector("[data-reset=search]"),
         }).init();
     </script>
-{% endblock %} -->
+{% endblock %}
