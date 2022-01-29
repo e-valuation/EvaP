@@ -13,9 +13,9 @@ function getCookie(name: string): string | null {
 }
 const csrftoken = getCookie("csrftoken")!;
 
-function isMethodCsrfSafe(method: string): boolean {
+function doesMethodRequireCsrfToken(method: string): boolean {
     // these HTTP methods do not require CSRF protection
-    return ["GET", "HEAD", "OPTIONS", "TRACE"].includes(method.toUpperCase());
+    return ["POST", "PUT", "DELETE", "PATCH"].includes(method.toUpperCase());
 }
 
 function isUrlCrossDomain(url: string): boolean {
@@ -25,35 +25,38 @@ function isUrlCrossDomain(url: string): boolean {
 // setup ajax sending csrf token
 $.ajaxSetup({
     beforeSend: function (xhr: JQuery.jqXHR, settings: JQuery.AjaxSettings) {
-        const isMethodSafe = settings.method && isMethodCsrfSafe(settings.method);
-        if (!isMethodSafe && !this.crossDomain) {
+        const methodRequiresCsrfToken = settings.type && doesMethodRequireCsrfToken(settings.type);
+        if (methodRequiresCsrfToken && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
     },
 });
 
-function addCsrfToken(this: HTMLFormElement, ev: Event) {
-    const inputElement = document.createElement("input");
-    inputElement.setAttribute("type", "hidden");
-    inputElement.setAttribute("name", "csrfmiddlewaretoken");
-    inputElement.setAttribute("value", csrftoken);
-
-    const { submitter } = ev as SubmitEvent;
-    const action = (submitter && submitter.getAttribute("formaction")) || this.getAttribute("action");
-    const method = (submitter && submitter.getAttribute("formmethod")) || this.getAttribute("method");
-
-    if (method && !isMethodCsrfSafe(method) && action && !isUrlCrossDomain(action)) {
-        this.insertAdjacentElement("afterbegin", inputElement.cloneNode() as Element);
-    }
-}
-
 // Add CSRF token to regular forms on submit.
 // This reduces boilerplate code in the templates and makes the form's HTML cacheable.
 for (const form of document.forms) {
-    form.addEventListener("submit", addCsrfToken);
+    form.addEventListener("submit", (ev: Event) => {
+        // in case a form gets submitted twice
+        if (form.querySelectorAll("input[name=csrfmiddlewaretoken]").length > 0) {
+            return;
+        }
+
+        const { submitter } = ev as SubmitEvent;
+        const action = submitter?.getAttribute("formaction") ?? form.getAttribute("action");
+        const method = submitter?.getAttribute("formmethod") ?? form.getAttribute("method");
+
+        if (method && doesMethodRequireCsrfToken(method) && action && !isUrlCrossDomain(action)) {
+            const inputElement = document.createElement("input");
+            inputElement.setAttribute("type", "hidden");
+            inputElement.setAttribute("name", "csrfmiddlewaretoken");
+            inputElement.setAttribute("value", csrftoken);
+
+            form.insertAdjacentElement("afterbegin", inputElement);
+        }
+    });
 }
 
 export const testable = {
     getCookie,
-    isMethodCsrfSafe,
+    doesMethodRequireCsrfToken,
 };

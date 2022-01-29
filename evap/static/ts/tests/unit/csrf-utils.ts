@@ -15,7 +15,7 @@ window.$ = require("../../../js/jquery-2.1.3.min");
 
 import { testable } from "src/csrf-utils";
 
-const { getCookie, isMethodCsrfSafe } = testable;
+const { getCookie, doesMethodRequireCsrfToken } = testable;
 
 test("parse cookie", () => {
     expect(getCookie("foo")).toBe("F00");
@@ -30,16 +30,17 @@ test.each([
     "HEAD",
     "OPTIONS",
     "TRACE",
-])("method %s is considered safe", method => {
-    expect(isMethodCsrfSafe(method)).toBe(true);
+])("method %s does not require CSRF token", method => {
+    expect(doesMethodRequireCsrfToken(method)).toBe(false);
 });
 
 test.each([
     "POST",
     "PUT",
     "DELETE",
-])("method %s is considered unsafe", method => {
-    expect(isMethodCsrfSafe(method)).toBe(false);
+    "PATCH",
+])("method %s does require CSRF token", method => {
+    expect(doesMethodRequireCsrfToken(method)).toBe(true);
 })
 
 test("send csrf token in request", () => {
