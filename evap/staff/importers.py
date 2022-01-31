@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
 from typing import Dict, Set
-from zipfile import BadZipFile
 
 import openpyxl
 from django.conf import settings
@@ -230,7 +229,7 @@ class ExcelImporter:
             bytesio_for_openpyxl = BytesIO(file_content)
             self.book = openpyxl.load_workbook(bytesio_for_openpyxl)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.errors[ImporterError.SCHEMA].append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):

@@ -22,8 +22,6 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
-from xlrd import open_workbook
-from xlutils.copy import copy as copy_workbook
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
