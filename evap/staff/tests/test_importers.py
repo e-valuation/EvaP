@@ -13,8 +13,8 @@ from evap.staff.tools import ImportType
 
 
 class TestUserImporter(TestCase):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     # valid user import tested in tests/test_views.py, TestUserImportView
@@ -104,7 +104,7 @@ class TestUserImporter(TestCase):
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(
             errors_test[ImporterError.SCHEMA],
-            ["Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"],
+            ["Couldn't read the file. Error: File is not a zip file"],
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
@@ -298,7 +298,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(
             errors_test[ImporterError.SCHEMA],
-            ["Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"],
+            ["Couldn't read the file. Error: File is not a zip file"],
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 

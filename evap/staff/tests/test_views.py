@@ -419,8 +419,8 @@ class TestUserBulkUpdateView(WebTestStaffMode):
 
 class TestUserImportView(WebTestStaffMode):
     url = "/staff/user/import"
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod
@@ -1931,8 +1931,8 @@ class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
 class TestEvaluationImportPersonsView(WebTestStaffMode):
     url = "/staff/semester/1/evaluation/1/person_management"
     url2 = "/staff/semester/1/evaluation/2/person_management"
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     @classmethod

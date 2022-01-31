@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
 from typing import Dict, Set
+from zipfile import BadZipFile
 
 import openpyxl
 from django.conf import settings
@@ -229,12 +230,12 @@ class ExcelImporter:
             bytesio_for_openpyxl = BytesIO(file_content)
             self.book = openpyxl.load_workbook(bytesio_for_openpyxl)
 
-        except IOError as e:
+        except Exception as e:
             self.errors[ImporterError.SCHEMA].append(_("Couldn't read the file. Error: {}").format(e))
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book:
-            if sheet.max_row <= self.skip_first_n_rows:
+            if sheet.max_row >= self.skip_first_n_rows:
                 continue
             if sheet.max_column != expected_column_count:
                 self.errors[ImporterError.SCHEMA].append(
@@ -358,14 +359,15 @@ class ExcelImporter:
         Checks that all cells after the skipped rows contain string values (not floats or integers).
         """
         for sheet in self.book:
-            for row in sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True):
-                if not all(isinstance(cell, str) or cell == None for cell in row):
-                    self.errors[ImporterError.SCHEMA].append(
-                        _(
-                            "Wrong data type in sheet '{}' in row {}."
-                            " Please make sure all cells are string types, not numerical."
-                        ).format(sheet.title, row + 1)
-                    )
+            for row_idx, row in enumerate(sheet.iter_rows(values_only=True)):
+                for cell in row:
+                    if cell and not isinstance(cell, str):
+                        self.errors[ImporterError.SCHEMA].append(
+                            _(
+                                "Wrong data type in sheet '{}' in row {}."
+                                " Please make sure all cells are string types, not numerical."
+                            ).format(sheet.title, row_idx + 1)
+                        )
 
 
 class EnrollmentImporter(ExcelImporter):
