@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy, ngettext
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
@@ -127,21 +127,21 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
 
     def check_existing_course(self, semester, importer):
         name_collision = self.check_name_collision(semester)
-        if name_collision:
-            # Only if there are name collisions, it is worth to check for an existing course
-            if self.find_and_set_existing_course(semester, importer):
-                return True
+        if not name_collision:
+            return False
+
+        self.find_and_set_existing_course(semester, importer)
+        if self.existing_course is None:
             if name_collision == "both":
                 importer.errors[ImporterError.COURSE].append(
                     _("Course {} ({}) does already exist in this semester.").format(self.name_en, self.name_de)
                 )
             else:
                 importer.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(
-                        self.name_en if name_collision == "name_en" else self.name_de
-                    )
+                    _("Course {} does already exist in this semester.").format(getattr(self, name_collision))
                 )
-        return False
+
+        return self.existing_course is not None
 
     def check_name_collision(self, semester):
         name_collision = None
@@ -157,40 +157,41 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             name_en=self.name_en,
             name_de=self.name_de,
         )
-        if courses.exists():
-            course = courses.first()
-            differing_attributes = []
-            if course.type != self.course_type:
-                differing_attributes.append("course type")
-            if len(course.responsibles.all()) != 1 or course.responsibles.first().email != self.responsible_email:
-                differing_attributes.append("responsible person")
-            if not differing_attributes:
-                evaluations = Evaluation.objects.filter(course=course)
-                if len(evaluations) == 1:
-                    if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
-                        self.existing_course = course
-                        return course
+        course = courses.first()
+        if course is None:
+            return
+
+        differing_attributes = []
+        if course.type != self.course_type:
+            differing_attributes.append("course type")
+        if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
+            differing_attributes.append("responsible person")
+        if not differing_attributes:
+            evaluations = Evaluation.objects.filter(course=course)
+            if len(evaluations) == 1:
+                if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
+                    self.existing_course = course
+                else:
                     importer.errors[ImporterError.COURSE].append(
                         _(
                             "Course {} ({}) does already exist in this semester but the grading of the evaluation does not match."
                         ).format(self.name_en, self.name_de)
                     )
-                else:
-                    importer.errors[ImporterError.COURSE].append(
-                        _(
-                            "Course {} ({}) does already exist in this semester and is identical but must have only one evaluation."
-                        ).format(self.name_en, self.name_de)
-                    )
             else:
                 importer.errors[ImporterError.COURSE].append(
-                    _("Course {} ({}) does already exist in this semester but the {} {} not match.").format(
-                        self.name_en,
-                        self.name_de,
-                        " and ".join(differing_attributes),
-                        "does" if len(differing_attributes) == 1 else "do",
-                    )
+                    _(
+                        "Course {} ({}) does already exist in this semester and is identical but must have exactly one evaluation."
+                    ).format(self.name_en, self.name_de)
                 )
-        return None
+        else:
+            importer.errors[ImporterError.COURSE].append(
+                _("Course {} ({}) does already exist in this semester but the {} {} not match.").format(
+                    self.name_en,
+                    self.name_de,
+                    " and ".join(differing_attributes),
+                    ngettext("does", "do", len(differing_attributes)),
+                )
+            )
 
 
 class ImporterError(Enum):
