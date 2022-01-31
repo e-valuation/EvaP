@@ -2754,7 +2754,17 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
-    def helper(self, old_state, expected_new_state, action, expect_errors=False):
+    def helper_check_follow(self, action):
+        with run_in_staff_mode(self):
+            textanswer = baker.make(TextAnswer)
+            response = self.app.post(
+                self.url,
+                params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
+                user=self.manager,
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def helper_check_state(self, old_state, expected_new_state, action, expect_errors=False):
         with run_in_staff_mode(self):
             textanswer = baker.make(TextAnswer, state=old_state)
             response = self.app.post(
@@ -2772,15 +2782,18 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
 
         # now reviewing should work
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
-        self.helper(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
+        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
+        self.helper_check_state(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+        self.helper_check_follow("textanswer_edit")
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
@@ -2802,15 +2815,19 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.helper(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True)
+        self.helper_check_state(
+            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
+        )
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
