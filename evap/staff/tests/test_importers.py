@@ -403,24 +403,20 @@ class TestEnrollmentImporter(TestCase):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
         self.assertEqual(
-            len(
-                Course.objects.filter(
-                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
-                )
-            ),
+            Course.objects.filter(
+                semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+            ).count(),
             1,
         )
         __, warnings, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
             "Course Existing Course (Existierender Kurs) already exists with identical attributes. Course is not created and users are put into the evaluation of that course.",
-            "".join(warnings[ImporterWarning.DUPL]),
+            warnings[ImporterWarning.DUPL],
         )
         self.assertEqual(
-            len(
-                Course.objects.filter(
-                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
-                )
-            ),
+            Course.objects.filter(
+                semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+            ).count(),
             1,
         )
 
@@ -438,7 +434,7 @@ class TestEnrollmentImporter(TestCase):
         self.create_existing_course()
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_existing_course)
 
-        self.assertEqual(0, len(self.existing_course.evaluations.all()[0].participants.all()))
+        self.assertFalse(self.existing_course.evaluations.get().participants.exists())
         EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         UserProfile.objects.get(email="lucilia.manilium@institution.example.com")
         self.assertIn(
@@ -458,14 +454,12 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
             "Course Existing Course (Existierender Kurs) does already exist in this semester but the course type and responsible person do not match.",
-            "".join(errors[ImporterError.COURSE]),
+            errors[ImporterError.COURSE],
         )
         self.assertEqual(
-            len(
-                Course.objects.filter(
-                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
-                )
-            ),
+            Course.objects.filter(
+                semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+            ).count(),
             1,
         )
 
@@ -477,14 +471,12 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
             "Course Existing Course (Existierender Kurs) does already exist in this semester and is identical but must have only one evaluation.",
-            "".join(errors[ImporterError.COURSE]),
+            errors[ImporterError.COURSE],
         )
         self.assertEqual(
-            len(
-                Course.objects.filter(
-                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
-                )
-            ),
+            Course.objects.filter(
+                semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+            ).count(),
             1,
         )
 
@@ -498,14 +490,12 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
         self.assertIn(
             "Course Existing Course (Existierender Kurs) does already exist in this semester but the grading of the evaluation does not match.",
-            "".join(errors[ImporterError.COURSE]),
+            errors[ImporterError.COURSE],
         )
         self.assertEqual(
-            len(
-                Course.objects.filter(
-                    semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
-                )
-            ),
+            Course.objects.filter(
+                semester=self.semester, name_de=self.existing_course.name_de, name_en=self.existing_course.name_en
+            ).count(),
             1,
         )
 
