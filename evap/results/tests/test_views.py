@@ -10,9 +10,7 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
 from django_webtest import WebTest
-from evap import contributor
 from model_bakery import baker
-
 
 from evap.evaluation.models import (
     Contribution,
@@ -22,9 +20,9 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    RatingAnswerCounter,
     Semester,
     UserProfile,
-    RatingAnswerCounter
 )
 from evap.evaluation.tests.tools import (
     let_user_vote_for_evaluation,
@@ -269,51 +267,35 @@ class TestResultsView(WebTest):
 
     def test_evaluation_weight_sums(self):
         """
-        ensures that the sum of evaluation weights add up to 100%, 
+        ensures that the sum of evaluation weights add up to 100%,
         even if some evaluations are not shown to the user
         """
-        participants = baker.make(UserProfile, _bulk_create=True, _quantity=20)
         student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course)
-        page=self.app.get(self.url,user=student)
-        evaluationA=baker.make(
-                Evaluation,
-                course=course,
-                name_en=f"evaluation1",
-                name_de=f"evaluation1",
-                state=Evaluation.State.PUBLISHED,
-                _voter_count=1000,
-                _participant_count=1000,
-                is_single_result=True,
-                weight=2,
-                participants=participants,
-                voters=participants
+        evaluations = [
+            (
+                baker.make(
+                    Evaluation,
+                    course=course,
+                    name_en=f"evaluation{i}",
+                    name_de=f"evaluation{i}",
+                    state=Evaluation.State.PUBLISHED,
+                    weight=5 - i,  # weights 1 to 5
+                    is_single_result=True,
+                )
             )
-        evaluationB=baker.make(
-                Evaluation,
-                course=course,
-                name_en=f"evaluation2",
-                name_de=f"evaluation2",
-                state=Evaluation.State.PUBLISHED,
-                _voter_count=1000,
-                _participant_count=1000,
-                is_single_result=True,
-                weight=1,
-                participants=participants,
-                voters=participants
-            )
-        baker.make(RatingAnswerCounter, contribution=baker.make(Contribution, contributor=student,evaluation=evaluationA))
-        baker.make(RatingAnswerCounter, contribution=baker.make(Contribution, contributor=student,evaluation=evaluationB))
-        #call_command("refresh_results_cache", stdout=StringIO())
-        warm_up_template_cache([evaluationA,evaluationB])
-        page=self.app.get(self.url,user=student)
-        import pdb
-        pdb.set_trace()
-        self.assertContains(page,50)
-        self.assertContains(page,"33")
-        self.assertContains(page,"16")
-
-
+            for i in range(0, 5)
+        ]
+        for evaluation in evaluations:
+            baker.make(RatingAnswerCounter, contribution=evaluation.general_contribution, answer=2, count=2)
+        warm_up_template_cache(evaluations)
+        page = self.app.get(self.url, user=student).body.decode()
+        percentages = [6, 13, 20, 26, 33]
+        # percentage are floored, see evaluation/templatetags/evaluation_filters.py:100
+        prev_index = 0
+        for i in range(0, 5):
+            next_index = page.index(str(percentages[i]) + "%", prev_index)
+            self.assertTrue(next_index > prev_index)
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
