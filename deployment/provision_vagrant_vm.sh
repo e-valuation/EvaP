@@ -36,9 +36,6 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 # link the mounted evap folder from the home directory
 ln -s /evap $REPO_FOLDER
 
-# install sass
-$REPO_FOLDER/deployment/install_dart_sass.sh
-
 sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
 sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
@@ -61,6 +58,7 @@ a2dissite 000-default.conf
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
 systemctl reload apache2
 
+cp /etc/skel/.bashrc /home/$USER/
 # auto cd into /$USER on login and activate venv
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
@@ -76,7 +74,7 @@ sed -i -e "s/\${SECRET_KEY}/$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 cp $REPO_FOLDER/deployment/manage_autocompletion.sh /etc/bash_completion.d/
 
 # install libraries for puppeteer
-apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1
+apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-xcb1 libxss1 libxshmfence-dev
 
 # install nvm
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
@@ -84,7 +82,7 @@ wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbos
 # setup evap
 cd /$USER
 git submodule update --init
-sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install node; npm ci"
+sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
