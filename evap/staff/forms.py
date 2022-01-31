@@ -254,7 +254,7 @@ class CourseFormMixin:
                     self.add_error(name_field, e)
 
 
-class CourseForm(CourseFormMixin, forms.ModelForm):
+class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
     semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
@@ -264,17 +264,17 @@ class CourseForm(CourseFormMixin, forms.ModelForm):
             disable_all_fields(self)
 
 
-class CourseCopyForm(CourseFormMixin, forms.ModelForm):
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
     semester = forms.ModelChoiceField(Semester.objects.all())
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
     vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
 
     field_order = ["semester"]
 
-    def __init__(self, data=None, instance: Course = None):
+    def __init__(self, data=None, *, instance: Course):
         self.old_course = instance
-        opts = self._meta
-        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)
+        opts = self._meta  # type: ignore
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)  # type: ignore
         super().__init__(data=data, initial=initial)
         self._set_responsibles_queryset(instance)
 
