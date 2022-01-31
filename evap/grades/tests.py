@@ -134,26 +134,6 @@ class GradeUploadTest(WebTest):
         evaluation.save()
         self.helper_check_final_grade_upload(course, 0)
 
-    def test_grades_headlines(self):
-        # check midterm headline
-        self.assertEqual(self.course.midterm_grade_documents.count(), 0)
-        ev = baker.make(Evaluation, state=Evaluation.State.PREPARED)
-        response = self.app.get(
-            f"/grades/semester/{ev.course.semester.pk}/course/{ev.course.pk}/upload", user=self.grade_publisher
-        )
-        self.assertContains(response, "Upload midterm grades")
-        self.assertNotContains(response, "Upload final grades")
-
-        # check final headline
-        self.assertEqual(self.course.final_grade_documents.count(), 0)
-        ev = baker.make(Evaluation, state=Evaluation.State.PREPARED)
-        response = self.app.get(
-            f"/grades/semester/{ev.course.semester.pk}/course/{ev.course.pk}/upload?final=true",
-            user=self.grade_publisher,
-        )
-        self.assertContains(response, "Upload final grades")
-        self.assertNotContains(response, "Upload midterm grades")
-
     def test_toggle_no_grades(self):
         evaluation = self.evaluation
         evaluation.manager_approve()
