@@ -161,6 +161,6 @@ def create_memory_excel_file(data):
         for (row_num, row_data) in enumerate(sheet_data):
             for (column_num, cell_data) in enumerate(row_data):
                 # openpyxl rows start at 1
-                sheet.cell(row=row_num+1, column=column_num+1).value = cell_data
+                sheet.cell(row = row_num + 1, column=column_num + 1).value = cell_data
     workbook.save(memory_excel_file)
     return memory_excel_file.getvalue()
