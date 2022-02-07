@@ -258,3 +258,11 @@ class TestContributorEvaluationEditView(WebTest):
             "Please review the evaluation's details below, add all contributors and select suitable questionnaires. "
             "Once everything is okay, please approve the evaluation on the bottom of the page.",
         )
+
+    def test_display_request_buttons(self):
+        self.evaluation.name_en = "Adam & Eve"
+        self.evaluation.allow_editors_to_edit = False
+        self.evaluation.save()
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertIn("Request changes", page)
+        self.assertNotIn("Request creation of new account", page)
