@@ -1,5 +1,6 @@
 from collections import OrderedDict, defaultdict, namedtuple
 from math import ceil, modf
+from typing import Tuple, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -375,7 +376,9 @@ def distribution_to_grade(distribution):
 
 
 def color_mix(color1, color2, fraction):
-    return tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    return cast(
+        Tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    )
 
 
 def get_grade_color(grade):

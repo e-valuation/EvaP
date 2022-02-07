@@ -112,7 +112,7 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 
 def get_evaluations_with_prefetched_data(evaluations):
-    if isinstance(evaluations, QuerySet):
+    if isinstance(evaluations, QuerySet):  # type: ignore
         evaluations = evaluations.select_related("course__type").prefetch_related(
             "course__degrees",
             "course__semester",

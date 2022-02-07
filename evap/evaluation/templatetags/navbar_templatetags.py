@@ -1,7 +1,7 @@
 from django.template import Library
 
 from evap.evaluation.models import Semester
-from evap.settings import DEBUG, LANGUAGES
+from evap.settings import DEBUG, LANGUAGES  # type: ignore
 
 register = Library()
 

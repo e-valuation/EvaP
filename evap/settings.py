@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 Django settings for EvaP project.
 
