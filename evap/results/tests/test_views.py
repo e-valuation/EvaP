@@ -272,42 +272,47 @@ class TestResultsView(WebTest):
         """
         student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course)
+        names = [f"evaluation{i}" for i in range(5)]
+        shown_names = names[2:]
+
         # hide some evaluations
-        for i in range(1, 3):
-            baker.make(
-                Evaluation,
-                course=course,
-                name_en=f"evaluation{i}",
-                name_de=f"evaluation{i}",
-                state=Evaluation.State.NEW,
-                weight=i,  # weights 1 and 2
-                is_single_result=True,
-            )
-        published = [
-            (
-                baker.make(
-                    Evaluation,
-                    course=course,
-                    name_en=f"evaluation{i}",
-                    name_de=f"evaluation{i}",
-                    state=Evaluation.State.PUBLISHED,
-                    weight=i,  # weights 3 to 5
-                    is_single_result=True,
-                )
-            )
-            for i in range(3, 6)
-        ]
-        for evaluation in published:
-            baker.make(RatingAnswerCounter, contribution=evaluation.general_contribution, answer=2, count=2)
+        baker.make(
+            Evaluation,
+            course=course,
+            name_en=iter(names),
+            name_de=iter(names),
+            state=Evaluation.State.NEW,
+            weight=iter(range(1, 3)),
+            is_single_result=True,
+            _quantity=2,
+        )
+        published = baker.make(
+            Evaluation,
+            course=course,
+            name_en=iter(shown_names),
+            name_de=iter(shown_names),
+            state=Evaluation.State.PUBLISHED,
+            weight=iter(range(3, 6)),
+            is_single_result=True,
+            _quantity=3,
+        )
+
+        contributions = [e.general_contribution for e in published]
+        baker.make(RatingAnswerCounter, contribution=iter(contributions), answer=2, count=2, _quantity=len(published))
         warm_up_template_cache(published)
+
         page = self.app.get(self.url, user=student)
         decoded = page.body.decode()
-        percentages = [20, 26, 33]
-        # percentages are floored, see evaluation/templatetags/evaluation_filters.py:100
-        prev_index = 0
-        for percentage in percentages:
-            next_index = decoded.index(" {}% ".format(percentage), prev_index)
-            self.assertTrue(next_index > prev_index)
+
+        self.assertTrue(
+            decoded.index("evaluation2")
+            < decoded.index(" 20% ")
+            < decoded.index("evaluation3")
+            < decoded.index(" 26% ")
+            < decoded.index("evaluation4")
+            < decoded.index(" 33% ")
+        )
+
         self.assertNotContains(page, " 6% ")
         self.assertNotContains(page, " 13% ")
 
