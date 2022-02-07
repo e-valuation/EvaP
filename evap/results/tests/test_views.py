@@ -272,7 +272,18 @@ class TestResultsView(WebTest):
         """
         student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course)
-        evaluations = [
+        # hide some evaluations
+        for i in range(1, 3):
+            baker.make(
+                Evaluation,
+                course=course,
+                name_en=f"evaluation{i}",
+                name_de=f"evaluation{i}",
+                state=Evaluation.State.NEW,
+                weight=i,  # weights 1 and 2
+                is_single_result=True,
+            )
+        published = [
             (
                 baker.make(
                     Evaluation,
@@ -280,22 +291,25 @@ class TestResultsView(WebTest):
                     name_en=f"evaluation{i}",
                     name_de=f"evaluation{i}",
                     state=Evaluation.State.PUBLISHED,
-                    weight=5 - i,  # weights 1 to 5
+                    weight=i,  # weights 3 to 5
                     is_single_result=True,
                 )
             )
-            for i in range(0, 5)
+            for i in range(3, 6)
         ]
-        for evaluation in evaluations:
+        for evaluation in published:
             baker.make(RatingAnswerCounter, contribution=evaluation.general_contribution, answer=2, count=2)
-        warm_up_template_cache(evaluations)
-        page = self.app.get(self.url, user=student).body.decode()
-        percentages = [6, 13, 20, 26, 33]
-        # percentage are floored, see evaluation/templatetags/evaluation_filters.py:100
+        warm_up_template_cache(published)
+        page = self.app.get(self.url, user=student)
+        decoded = page.body.decode()
+        percentages = [20, 26, 33]
+        # percentages are floored, see evaluation/templatetags/evaluation_filters.py:100
         prev_index = 0
-        for i in range(0, 5):
-            next_index = page.index(str(percentages[i]) + "%", prev_index)
+        for percentage in percentages:
+            next_index = decoded.index(" {}% ".format(percentage), prev_index)
             self.assertTrue(next_index > prev_index)
+        self.assertNotContains(page, " 6% ")
+        self.assertNotContains(page, " 13% ")
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
