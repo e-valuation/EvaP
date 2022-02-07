@@ -54,7 +54,7 @@ from evap.student.models import TextAnswerWarning
 
 
 class TestDownloadSampleXlsxView(WebTestStaffMode):
-    url = "/staff/download_sample_xlsx/sample.xlsx"
+    url = "/staff/download_sample_file/sample.xlsx"
     email_placeholder = "institution.com"
 
     @classmethod

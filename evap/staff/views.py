@@ -2228,7 +2228,7 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def download_sample_xlsx(_request, filename):
+def download_sample_file(_request, filename):
     email_placeholder = "institution.com"
 
     if filename not in ["sample.xlsx", "sample_user.xlsx"]:
