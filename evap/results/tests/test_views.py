@@ -266,10 +266,7 @@ class TestResultsView(WebTest):
         caches["results"].clear()
 
     def test_evaluation_weight_sums(self):
-        """
-        ensures that the sum of evaluation weights add up to 100%,
-        even if some evaluations are not shown to the user
-        """
+        """Regression test for #1691"""
         student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course)
 
@@ -278,7 +275,6 @@ class TestResultsView(WebTest):
             course=course,
             name_en=iter(["ev1", "ev2", "ev3"]),
             name_de=iter(["ev1", "ev2", "ev3"]),
-            # hide some evaluations
             state=iter([Evaluation.State.NEW, Evaluation.State.PUBLISHED, Evaluation.State.PUBLISHED]),
             weight=iter([8, 3, 4]),
             is_single_result=True,
