@@ -359,14 +359,13 @@ class ExcelImporter:
         """
         for sheet in self.book:
             for row_idx, row in enumerate(sheet.iter_rows(values_only=True)):
-                for cell in row:
-                    if cell and not isinstance(cell, str):
-                        self.errors[ImporterError.SCHEMA].append(
-                            _(
-                                "Wrong data type in sheet '{}' in row {}."
-                                " Please make sure all cells are string types, not numerical."
-                            ).format(sheet.title, row_idx + 1)
-                        )
+                if not all(isinstance(cell, str) or cell is None for cell in row):
+                    self.errors[ImporterError.SCHEMA].append(
+                        _(
+                            "Wrong data type in sheet '{}' in row {}."
+                            " Please make sure all cells are string types, not numerical."
+                        ).format(sheet.title, row_idx + 1)
+                    )
 
 
 class EnrollmentImporter(ExcelImporter):

@@ -244,7 +244,6 @@ class TestEnrollmentImporter(TestCase):
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
-        ## bugt
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
         success_messages, warnings, errors = EnrollmentImporter.process(

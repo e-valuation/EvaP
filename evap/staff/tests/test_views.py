@@ -70,7 +70,7 @@ class TestDownloadSampleXlsxView(WebTestStaffMode):
             for row in sheet.iter_rows(values_only=True):
                 for cell in row:
                     # catch None case for empty cells
-                    if not cell:
+                    if cell is None:
                         continue
 
                     self.assertNotIn(self.email_placeholder, cell)
