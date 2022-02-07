@@ -152,12 +152,11 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         return name_collision
 
     def find_and_set_existing_course(self, semester, importer):
-        courses = Course.objects.filter(
+        course = Course.objects.filter(
             semester=semester,
             name_en=self.name_en,
             name_de=self.name_de,
-        )
-        course = courses.first()
+        ).first()
         if course is None:
             return
 
@@ -166,24 +165,7 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             differing_attributes.append("course type")
         if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
             differing_attributes.append("responsible person")
-        if not differing_attributes:
-            evaluations = Evaluation.objects.filter(course=course)
-            if len(evaluations) == 1:
-                if evaluations.first().wait_for_grade_upload_before_publishing == self.is_graded:
-                    self.existing_course = course
-                else:
-                    importer.errors[ImporterError.COURSE].append(
-                        _(
-                            "Course {} ({}) does already exist in this semester but the grading of the evaluation does not match."
-                        ).format(self.name_en, self.name_de)
-                    )
-            else:
-                importer.errors[ImporterError.COURSE].append(
-                    _(
-                        "Course {} ({}) does already exist in this semester and is identical but must have exactly one evaluation."
-                    ).format(self.name_en, self.name_de)
-                )
-        else:
+        if differing_attributes:
             importer.errors[ImporterError.COURSE].append(
                 _("Course {} ({}) does already exist in this semester but the {} {} not match.").format(
                     self.name_en,
@@ -192,6 +174,23 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
                     ngettext("does", "do", len(differing_attributes)),
                 )
             )
+            return
+        evaluations = Evaluation.objects.filter(course=course)
+        if len(evaluations) != 1:
+            importer.errors[ImporterError.COURSE].append(
+                _(
+                    "Course {} ({}) does already exist in this semester and is identical but must have exactly one evaluation."
+                ).format(self.name_en, self.name_de)
+            )
+            return
+        if evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
+            importer.errors[ImporterError.COURSE].append(
+                _(
+                    "Course {} ({}) does already exist in this semester but the grading of the evaluation does not match."
+                ).format(self.name_en, self.name_de)
+            )
+            return
+        self.existing_course = course
 
 
 class ImporterError(Enum):
@@ -224,10 +223,11 @@ class ImporterWarning(Enum):
     NAME = ("name", gettext_lazy("Name mismatches"), 1)
     INACTIVE = ("inactive", gettext_lazy("Inactive users"), 2)
     DUPL = ("duplicate", gettext_lazy("Possible duplicates"), 3)
-    IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 4)
+    MODIF = ("modification", gettext_lazy("Possible modifications"), 4)
+    IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 5)
 
-    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 5)
-    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 6)
+    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 6)
+    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 7)
 
 
 class EvaluationDataFactory:
