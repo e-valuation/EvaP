@@ -2,7 +2,7 @@ import io
 
 import openpyxl
 
-# fmt off
+# fmt: off
 
 duplicate_user_import_filedata = {
     'Users': [
@@ -154,7 +154,8 @@ valid_user_courses_import_filedata = {
     ]
 }
 
-# fmt on
+# fmt: on
+
 
 def create_memory_excel_file(data):
     memory_excel_file = io.BytesIO()
