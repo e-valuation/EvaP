@@ -35,25 +35,18 @@ $.ajaxSetup({
 // Add CSRF token to regular forms on submit.
 // This reduces boilerplate code in the templates and makes the form's HTML cacheable.
 for (const form of document.forms) {
+    let submitter: HTMLElement | null;
     form.addEventListener("submit", (ev: Event) => {
-        // in case a form gets submitted twice
-        if (form.querySelectorAll("input[name=csrfmiddlewaretoken]").length > 0) {
-            return;
-        }
-
-        const { submitter } = ev as SubmitEvent;
-        const action = submitter?.getAttribute("formaction") ?? form.getAttribute("action");
-        const method = submitter?.getAttribute("formmethod") ?? form.getAttribute("method");
+        submitter = (ev as SubmitEvent).submitter;
+    });
+    form.addEventListener("formdata", (ev: Event) => {
+        const action = submitter?.getAttribute("formaction") ?? form.action;
+        const method = submitter?.getAttribute("formmethod") ?? form.method;
 
         if (method && doesMethodRequireCsrfToken(method) && action && !isUrlCrossDomain(action)) {
-            const inputElement = document.createElement("input");
-            inputElement.setAttribute("type", "hidden");
-            inputElement.setAttribute("name", "csrfmiddlewaretoken");
-            inputElement.setAttribute("value", csrftoken);
-
-            form.insertAdjacentElement("afterbegin", inputElement);
+            (ev as FormDataEvent).formData.set("csrfmiddlewaretoken", csrftoken);
         }
-    });
+    })
 }
 
 export const testable = {
