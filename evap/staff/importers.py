@@ -1,6 +1,6 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, Flag, auto
 from io import BytesIO
 from typing import Dict, Optional, Set
 
@@ -70,6 +70,13 @@ class UserData(CommonEqualityMixin):
         user.clean_fields()
 
 
+class NameCollision(Flag):
+    NONE = 0
+    NAME_DE = auto()
+    NAME_EN = auto()
+    BOTH = NAME_DE | NAME_EN
+
+
 @dataclass
 class EvaluationData:  # pylint: disable=too-many-instance-attributes
     """
@@ -132,24 +139,28 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
 
         self.find_and_set_existing_course(semester, importer)
         if self.existing_course is None:
-            if name_collision == "both":
+            if name_collision == NameCollision.BOTH:
                 importer.errors[ImporterError.COURSE].append(
                     _("Course {} ({}) does already exist in this semester.").format(self.name_en, self.name_de)
                 )
             else:
                 importer.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(getattr(self, name_collision))
+                    _("Course {} does already exist in this semester.").format(
+                        self.name_en if name_collision == NameCollision.NAME_EN else self.name_de
+                    )
                 )
 
         return self.existing_course is not None
 
     def check_name_collision(self, semester):
-        name_collision = None
-        if Course.objects.filter(semester=semester, name_en=self.name_en).exists():
-            name_collision = "name_en"
-        if Course.objects.filter(semester=semester, name_de=self.name_de).exists():
-            name_collision = "name_de" if not name_collision else "both"
-        return name_collision
+        flag = NameCollision.NONE
+        flag |= NameCollision(
+            Course.objects.filter(semester=semester, name_en=self.name_en).exists() and NameCollision.NAME_EN
+        )
+        flag |= NameCollision(
+            Course.objects.filter(semester=semester, name_de=self.name_de).exists() and NameCollision.NAME_DE
+        )
+        return flag
 
     def find_and_set_existing_course(self, semester, importer):
         course = Course.objects.filter(
