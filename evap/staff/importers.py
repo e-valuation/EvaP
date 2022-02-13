@@ -141,7 +141,7 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             importer.errors[ImporterError.COURSE].append(
                 _("Course {} ({}) does already exist in this semester.").format(
                     self.name_en if name_collision == NameCollision.NAME_EN else self.name_de,
-                    "EN" if name_collision == NameCollision.NAME_EN else "DE"
+                    "EN" if name_collision == NameCollision.NAME_EN else "DE",
                 )
             )
             return False
@@ -155,9 +155,11 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         if course is None:
             # This can only happen if the name collisions happened in different courses
             importer.errors[ImporterError.COURSE].append(
-                _("Course {} (EN) and Course {} (DE) do already exist separately in this semester.").format(self.name_en, self.name_de)
+                _("Course {} (EN) and Course {} (DE) do already exist separately in this semester.").format(
+                    self.name_en, self.name_de
+                )
             )
-            return
+            return False
 
         mismatches, has_wrong_evaluation_count = self.check_existing_course_attributes(course)
 
