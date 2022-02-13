@@ -3,8 +3,8 @@ from datetime import date, datetime
 from unittest.mock import patch
 
 from django.conf import settings
-from django.test import TestCase, override_settings
 from django.forms.models import model_to_dict
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
@@ -473,7 +473,7 @@ class TestEnrollmentImporter(TestCase):
         __, __, errors = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
 
         self.assertIn(
-            "Course Existing Course (Existierender Kurs) does already exist in this semester and is identical but must have exactly one evaluation.",
+            "Course Existing Course (Existierender Kurs) does already exist in this semester but the course must have exactly one evaluation.",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)

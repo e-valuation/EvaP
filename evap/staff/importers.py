@@ -137,18 +137,50 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         if not name_collision:
             return False
 
-        self.find_and_set_existing_course(semester, importer)
-        if self.existing_course is None:
-            if name_collision == NameCollision.BOTH:
-                importer.errors[ImporterError.COURSE].append(
-                    _("Course {} ({}) does already exist in this semester.").format(self.name_en, self.name_de)
+        if name_collision != NameCollision.BOTH:
+            importer.errors[ImporterError.COURSE].append(
+                _("Course {} does already exist in this semester.").format(
+                    self.name_en if name_collision == NameCollision.NAME_EN else self.name_de
                 )
-            else:
-                importer.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(
-                        self.name_en if name_collision == NameCollision.NAME_EN else self.name_de
+            )
+            return False
+
+        course = Course.objects.filter(
+            semester=semester,
+            name_en=self.name_en,
+            name_de=self.name_de,
+        ).first()
+
+        if course is None:
+            # This can only happen if the name collisions happened in different courses
+            importer.errors[ImporterError.COURSE].append(
+                _("Course {} and Course {} do already exist in this semester.").format(self.name_en, self.name_de)
+            )
+            return
+
+        mismatches, has_wrong_evaluation_count = self.check_existing_course_attributes(course)
+
+        if mismatches or has_wrong_evaluation_count:
+            messages = (
+                [
+                    "the {} {} not match".format(
+                        " and ".join(mismatches),
+                        ngettext("does", "do", len(mismatches)),
                     )
+                ]
+                if mismatches
+                else []
+            )
+            messages += ["the course must have exactly one evaluation"] if has_wrong_evaluation_count else []
+            importer.errors[ImporterError.COURSE].append(
+                _("Course {} ({}) does already exist in this semester but {}.").format(
+                    self.name_en,
+                    self.name_de,
+                    " and ".join(messages),
                 )
+            )
+        else:
+            self.existing_course = course
 
         return self.existing_course is not None
 
@@ -162,46 +194,20 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         )
         return flag
 
-    def find_and_set_existing_course(self, semester, importer):
-        course = Course.objects.filter(
-            semester=semester,
-            name_en=self.name_en,
-            name_de=self.name_de,
-        ).first()
-        if course is None:
-            return
-
-        differing_attributes = []
+    def check_existing_course_attributes(self, course):
+        mismatches = []
+        has_wrong_evaluation_count = False
         if course.type != self.course_type:
-            differing_attributes.append("course type")
+            mismatches.append("course type")
         if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
-            differing_attributes.append("responsible person")
-        if differing_attributes:
-            importer.errors[ImporterError.COURSE].append(
-                _("Course {} ({}) does already exist in this semester but the {} {} not match.").format(
-                    self.name_en,
-                    self.name_de,
-                    " and ".join(differing_attributes),
-                    ngettext("does", "do", len(differing_attributes)),
-                )
-            )
-            return
+            mismatches.append("responsible person")
         evaluations = Evaluation.objects.filter(course=course)
         if len(evaluations) != 1:
-            importer.errors[ImporterError.COURSE].append(
-                _(
-                    "Course {} ({}) does already exist in this semester and is identical but must have exactly one evaluation."
-                ).format(self.name_en, self.name_de)
-            )
-            return
+            has_wrong_evaluation_count = True
+            return mismatches, has_wrong_evaluation_count
         if evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
-            importer.errors[ImporterError.COURSE].append(
-                _(
-                    "Course {} ({}) does already exist in this semester but the grading of the evaluation does not match."
-                ).format(self.name_en, self.name_de)
-            )
-            return
-        self.existing_course = course
+            mismatches.append("grading of the evaluation")
+        return mismatches, has_wrong_evaluation_count
 
 
 class ImporterError(Enum):
