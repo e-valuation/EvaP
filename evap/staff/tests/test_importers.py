@@ -378,8 +378,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Stehlen does already exist in this semester.",
-                "Course Shine does already exist in this semester.",
+                "Course Stehlen (DE) does already exist in this semester.",
+                "Course Shine (EN) does already exist in this semester.",
             },
         )
 
