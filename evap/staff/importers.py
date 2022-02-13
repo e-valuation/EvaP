@@ -163,9 +163,9 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         if mismatches or has_wrong_evaluation_count:
             messages = (
                 [
-                    "the {} {} not match".format(
+                    "the {} {}".format(
                         " and ".join(mismatches),
-                        ngettext("does", "do", len(mismatches)),
+                        ngettext("does not match", "do not match", len(mismatches)),
                     )
                 ]
                 if mismatches
