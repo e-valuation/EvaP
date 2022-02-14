@@ -227,7 +227,6 @@ class ExcelImporter:
     def read_book(self, file_content):
         try:
             self.book = openpyxl.load_workbook(BytesIO(file_content))
-
         except Exception as e:  # pylint: disable=broad-except
             self.errors[ImporterError.SCHEMA].append(_("Couldn't read the file. Error: {}").format(e))
 
