@@ -2236,7 +2236,7 @@ def download_sample_file(_request, filename):
 
     book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
     for sheet in book:
-        for row in sheet.iter_rows(min_row=1):
+        for row in sheet:
             for cell in row:
                 if cell.value is not None:
                     cell.value = cell.value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0])
