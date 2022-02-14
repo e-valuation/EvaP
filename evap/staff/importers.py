@@ -359,7 +359,7 @@ class ExcelImporter:
         Checks that all cells after the skipped rows contain string values (not floats or integers).
         """
         for sheet in self.book:
-            for row_idx, row in enumerate(sheet.iter_rows(values_only=True), 1):
+            for row_idx, row in enumerate(sheet.values, 1):
                 if not all(isinstance(cell, str) or cell is None for cell in row):
                     self.errors[ImporterError.SCHEMA].append(
                         _(
