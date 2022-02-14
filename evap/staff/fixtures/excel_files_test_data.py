@@ -162,8 +162,8 @@ def create_memory_excel_file(data):
     workbook = openpyxl.Workbook()
     for sheet_name, sheet_data in data.items():
         sheet = workbook.create_sheet(sheet_name)
-        for (row_num, row_data) in enumerate(sheet_data, 1):
-            for (column_num, cell_data) in enumerate(row_data, 1):
+        for row_num, row_data in enumerate(sheet_data, 1):
+            for column_num, cell_data in enumerate(row_data, 1):
                 # openpyxl rows start at 1
                 sheet.cell(row=row_num, column=column_num).value = cell_data
     workbook.save(memory_excel_file)
