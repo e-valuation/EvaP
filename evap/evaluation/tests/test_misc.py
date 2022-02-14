@@ -14,7 +14,7 @@ from evap.staff.tests.utils import WebTestStaffMode
 
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["institution.com", "student.institution.com"])
-class SampleUserTableImport(WebTestStaffMode):
+class SampleTableImport(WebTestStaffMode):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
