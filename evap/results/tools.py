@@ -1,5 +1,6 @@
 from collections import OrderedDict, defaultdict, namedtuple
 from math import ceil, modf
+from typing import Tuple, cast
 
 from django.conf import settings
 from django.core.cache import caches
@@ -297,8 +298,8 @@ def get_evaluations_with_course_result_attributes(evaluations):
     )
 
     course_id_evaluation_weight_sum_pairs = (
-        Course.objects.filter(evaluations__in=evaluations)
-        .annotate(Sum("evaluations__weight"))
+        Course.objects.annotate(Sum("evaluations__weight"))
+        .filter(pk__in=Course.objects.filter(evaluations__in=evaluations))  # is needed, see #1691
         .values_list("id", "evaluations__weight__sum")
     )
 
@@ -375,7 +376,9 @@ def distribution_to_grade(distribution):
 
 
 def color_mix(color1, color2, fraction):
-    return tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    return cast(
+        Tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    )
 
 
 def get_grade_color(grade):

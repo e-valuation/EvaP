@@ -20,6 +20,7 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    RatingAnswerCounter,
     Semester,
     UserProfile,
 )
@@ -31,7 +32,7 @@ from evap.evaluation.tests.tools import (
 )
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import cache_results
-from evap.results.views import get_evaluations_with_prefetched_data
+from evap.results.views import get_evaluations_with_prefetched_data, warm_up_template_cache
 from evap.staff.tests.utils import WebTestStaffMode, helper_exit_staff_mode, run_in_staff_mode
 
 
@@ -263,6 +264,32 @@ class TestResultsView(WebTest):
         caches["default"].clear()
         caches["sessions"].clear()
         caches["results"].clear()
+
+    def test_evaluation_weight_sums(self):
+        """Regression test for #1691"""
+        student = baker.make(UserProfile, email="student@institution.example.com")
+        course = baker.make(Course)
+
+        published = baker.make(
+            Evaluation,
+            course=course,
+            name_en=iter(["ev1", "ev2", "ev3"]),
+            name_de=iter(["ev1", "ev2", "ev3"]),
+            state=iter([Evaluation.State.NEW, Evaluation.State.PUBLISHED, Evaluation.State.PUBLISHED]),
+            weight=iter([8, 3, 4]),
+            is_single_result=True,
+            _quantity=3,
+        )[1:]
+
+        contributions = [e.general_contribution for e in published]
+        baker.make(RatingAnswerCounter, contribution=iter(contributions), answer=2, count=2, _quantity=len(published))
+        warm_up_template_cache(published)
+
+        page = self.app.get(self.url, user=student)
+        decoded = page.body.decode()
+
+        self.assertTrue(decoded.index("ev2") < decoded.index(" 20% ") < decoded.index("ev3") < decoded.index(" 26% "))
+        self.assertNotContains(page, " 53% ")
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):

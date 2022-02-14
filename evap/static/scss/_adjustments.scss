@@ -147,6 +147,12 @@ $alert-colors: (
     }
 }
 
+.select2-container .select2-search--inline .select2-search__field {
+    // The font in inline selections should not be overwritten and the placeholder should not be cropped at the bottom
+    font-family: inherit;
+    height: 1.5rem;
+}
+
 
 // datetimepicker adjustments
 .bootstrap-datetimepicker-widget.dropdown-menu.timepicker-sbs {

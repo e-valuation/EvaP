@@ -1,5 +1,6 @@
 import datetime
 from abc import ABC, abstractmethod
+from typing import Optional
 from urllib.parse import quote
 
 import xlwt
@@ -96,7 +97,7 @@ class ExcelExporter(ABC):
 
     # Derived classes can set this to
     # have a sheet added at initialization.
-    default_sheet_name = None
+    default_sheet_name: Optional[str] = None
 
     def __init__(self):
         self.workbook = xlwt.Workbook()

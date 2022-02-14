@@ -3,7 +3,7 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict
+from typing import Any, Container, Dict, Optional
 
 from django.conf import settings
 from django.contrib import messages
@@ -226,10 +226,10 @@ def semester_view(request, semester_id):
 
 
 class EvaluationOperation:
-    email_template_name = None
-    email_template_contributor_name = None
-    email_template_participant_name = None
-    confirmation_message = None
+    email_template_name: Optional[str] = None
+    email_template_contributor_name: Optional[str] = None
+    email_template_participant_name: Optional[str] = None
+    confirmation_message: Optional[str] = None
 
     @staticmethod
     def applicable_to(evaluation):
@@ -1535,6 +1535,11 @@ def evaluation_textanswers_update_publish(request):
         answer.hide()
     elif action == "unreview":
         answer.unreview()
+    elif action == "textanswer_edit":
+        url = reverse(
+            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation_id, textanswer_id]
+        )
+        return HttpResponse(url)
     else:
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
@@ -1549,7 +1554,7 @@ def evaluation_textanswers_update_publish(request):
     return HttpResponse()  # 200 OK
 
 
-@reviewer_required
+@manager_required
 def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived:
