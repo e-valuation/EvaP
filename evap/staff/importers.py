@@ -245,12 +245,12 @@ class ExcelImporter:
     def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book:
             try:
-                for rowIdx, row in enumerate(sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True)):
+                for rowIdx, row in enumerate(sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), self.skip_first_n_rows):
                     # see https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
                     row_function(
                         [" ".join(cell.split()) if cell is not None else "" for cell in row],
                         sheet,
-                        rowIdx + self.skip_first_n_rows,
+                        rowIdx,
                     )
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.title)
             except Exception:
@@ -357,13 +357,13 @@ class ExcelImporter:
         Checks that all cells after the skipped rows contain string values (not floats or integers).
         """
         for sheet in self.book:
-            for row_idx, row in enumerate(sheet.iter_rows(values_only=True)):
+            for row_idx, row in enumerate(sheet.iter_rows(values_only=True), 1):
                 if not all(isinstance(cell, str) or cell is None for cell in row):
                     self.errors[ImporterError.SCHEMA].append(
                         _(
                             "Wrong data type in sheet '{}' in row {}."
                             " Please make sure all cells are string types, not numerical."
-                        ).format(sheet.title, row_idx + 1)
+                        ).format(sheet.title, row_idx)
                     )
 
 

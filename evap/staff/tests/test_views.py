@@ -53,7 +53,7 @@ from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
 
 
-class TestDownloadSampleXlsxView(WebTestStaffMode):
+class TestDownloadSampleFileView(WebTestStaffMode):
     url = "/staff/download_sample_file/sample.xlsx"
     email_placeholder = "institution.com"
 

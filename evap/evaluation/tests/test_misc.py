@@ -24,7 +24,7 @@ class SampleUserTableImport(WebTestStaffMode):
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
 
-    def test_sample_xlsx(self):
+    def test_sample_semester_file(self):
         page = self.app.get(reverse("staff:semester_import", args=[self.semester.pk]), user=self.manager)
 
         original_user_count = UserProfile.objects.count()
@@ -40,7 +40,7 @@ class SampleUserTableImport(WebTestStaffMode):
 
         self.assertEqual(UserProfile.objects.count(), original_user_count + 4)
 
-    def test_sample_user_xlsx(self):
+    def test_sample_user_file(self):
         page = self.app.get("/staff/user/import", user=self.manager)
 
         original_user_count = UserProfile.objects.count()
