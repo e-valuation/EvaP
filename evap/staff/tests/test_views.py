@@ -69,7 +69,6 @@ class TestDownloadSampleFileView(WebTestStaffMode):
         for sheet in book:
             for row in sheet.iter_rows(values_only=True):
                 for cell in row:
-                    # catch None case for empty cells
                     if cell is None:
                         continue
 
