@@ -233,7 +233,7 @@ class ExcelImporter:
 
     def check_column_count(self, expected_column_count):
         for sheet in self.book:
-            if sheet.max_row >= self.skip_first_n_rows:
+            if sheet.max_row <= self.skip_first_n_rows:
                 continue
             if sheet.max_column != expected_column_count:
                 self.errors[ImporterError.SCHEMA].append(
@@ -245,7 +245,9 @@ class ExcelImporter:
     def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book:
             try:
-                for rowIdx, row in enumerate(sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), self.skip_first_n_rows):
+                for rowIdx, row in enumerate(
+                    sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), self.skip_first_n_rows
+                ):
                     # see https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
                     row_function(
                         [" ".join(cell.split()) if cell is not None else "" for cell in row],
