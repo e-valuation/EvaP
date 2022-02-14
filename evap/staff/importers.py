@@ -224,7 +224,7 @@ class ExcelImporter:
         # (otherwise, testing is a pain)
         self.users = OrderedDict()
 
-    def read_book(self, file_content):
+    def read_book(self, file_content: bytes):
         try:
             self.book = openpyxl.load_workbook(BytesIO(file_content))
         except Exception as e:  # pylint: disable=broad-except
@@ -244,15 +244,12 @@ class ExcelImporter:
     def for_each_row_in_excel_file_do(self, row_function):
         for sheet in self.book:
             try:
-                for rowIdx, row in enumerate(
-                    sheet.iter_rows(min_row=self.skip_first_n_rows + 1, values_only=True), self.skip_first_n_rows
-                ):
-                    # see https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
-                    row_function(
-                        [" ".join(cell.split()) if cell is not None else "" for cell in row],
-                        sheet,
-                        rowIdx,
-                    )
+                for row_index in range(self.skip_first_n_rows, sheet.max_row):
+                    values = [cell.value if cell.value is not None else "" for cell in sheet[row_index + 1]]
+                    # see https://stackoverflow.com/questions/2077898/substitute-multiple-whitespace-with-single-whitespace-in-python
+                    cleaned_values = [" ".join(value.split()) for value in values]
+                    row_function(cleaned_values, sheet, row_index)
+
                 self.success_messages.append(_("Successfully read sheet '%s'.") % sheet.title)
             except Exception:
                 self.warnings[ImporterWarning.GENERAL].append(

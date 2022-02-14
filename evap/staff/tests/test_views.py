@@ -67,7 +67,7 @@ class TestDownloadSampleFileView(WebTestStaffMode):
         found_institution_domains = 0
         book = openpyxl.load_workbook(BytesIO(page.body))
         for sheet in book:
-            for row in sheet.iter_rows(values_only=True):
+            for row in sheet.values:
                 for cell in row:
                     if cell is None:
                         continue
