@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Container, Dict, Optional
 
+import openpyxl
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
@@ -21,8 +22,6 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
-from xlrd import open_workbook
-from xlutils.copy import copy as copy_workbook
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -2229,25 +2228,21 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def download_sample_xls(_request, filename):
+def download_sample_file(_request, filename):
     email_placeholder = "institution.com"
 
-    if filename not in ["sample.xls", "sample_user.xls"]:
+    if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    read_book = open_workbook(settings.STATICFILES_DIRS[0] + "/" + filename, formatting_info=True)
-    write_book = copy_workbook(read_book)
-    for sheet_index in range(read_book.nsheets):
-        read_sheet = read_book.sheet_by_index(sheet_index)
-        write_sheet = write_book.get_sheet(sheet_index)
-        for row in range(read_sheet.nrows):
-            for col in range(read_sheet.ncols):
-                value = read_sheet.cell(row, col).value
-                if email_placeholder in value:
-                    write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
+    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
+    for sheet in book:
+        for row in sheet:
+            for cell in row:
+                if cell.value is not None:
+                    cell.value = cell.value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0])
 
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
-    write_book.save(response)
+    response = FileResponse(filename, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    book.save(response)
     return response
 
 
