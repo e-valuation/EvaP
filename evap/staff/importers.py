@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import ImportType, create_user_list_html_string_for_message, merge_dictionaries_of_sets
+from evap.staff.tools import ImportType, create_user_list_html_string_for_message
 
 
 def sorted_messages(messages):
