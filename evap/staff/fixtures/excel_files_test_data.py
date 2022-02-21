@@ -122,6 +122,14 @@ test_enrollment_data_degree_merge_filedata = {
     ]
 }
 
+test_enrollment_data_error_merge_filedata = {
+    'MA Belegungen': [
+        ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
+        ['Grandmaster', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+        ['Beginner,Bachelor', 'Lorem', 'Ipsum', 'ipsum.lorem@institution.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+    ],
+}
+
 test_enrollment_data_import_names_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],

@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
-from evap.staff.tools import ImportType, create_user_list_html_string_for_message, merge_dictionaries_of_sets
+from evap.staff.tools import ImportType, create_user_list_html_string_for_message
 
 
 def sorted_messages(messages):
@@ -402,18 +402,25 @@ class EnrollmentImporter(ExcelImporter):
                 self.evaluations[evaluation_id] = evaluation_data
                 self.names_de.add(evaluation_data.name_de)
         else:
-            if evaluation_data.equals_except_for_degrees(self.evaluations[evaluation_id]):
+            known_data = self.evaluations[evaluation_id]
+            if evaluation_data.equals_except_for_degrees(known_data):
                 self.warnings[ImporterWarning.DEGREE].append(
                     _(
                         'Sheet "{}", row {}: The course\'s "{}" degree differs from it\'s degree in a previous row.'
                         " Both degrees have been set for the course."
                     ).format(sheetname, row + 1, evaluation_data.name_en)
                 )
-                self.evaluations[evaluation_id].degrees |= evaluation_data.degrees
-                self.evaluations[evaluation_id].errors = merge_dictionaries_of_sets(
-                    self.evaluations[evaluation_id].errors, evaluation_data.errors
-                )
-            elif evaluation_data != self.evaluations[evaluation_id]:
+
+                known_data.degrees |= evaluation_data.degrees
+
+                assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
+                assert known_data.errors.get("course_type") == evaluation_data.errors.get("course_type")
+                assert known_data.errors.get("is_graded") == evaluation_data.errors.get("is_graded")
+
+                degree_errors = known_data.errors.get("degrees", set()) | evaluation_data.errors.get("degrees", set())
+                if len(degree_errors) > 0:
+                    known_data.errors["degrees"] = degree_errors
+            elif evaluation_data != known_data:
                 self.errors[ImporterError.COURSE].append(
                     _('Sheet "{}", row {}: The course\'s "{}" data differs from it\'s data in a previous row.').format(
                         sheetname, row + 1, evaluation_data.name_en
@@ -439,6 +446,9 @@ class EnrollmentImporter(ExcelImporter):
                 self.errors[ImporterError.COURSE].append(
                     _("Course {} does already exist in this semester.").format(evaluation_data.name_de)
                 )
+
+            assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
+
             if "degrees" in evaluation_data.errors:
                 missing_degree_names |= evaluation_data.errors["degrees"]
             if "course_type" in evaluation_data.errors:
