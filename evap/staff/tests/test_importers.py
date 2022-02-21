@@ -243,6 +243,17 @@ class TestEnrollmentImporter(TestCase):
         course = Course.objects.get(name_de="Bauen")
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
+    def test_errors_are_merged(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_error_merge_filedata)
+        __, warnings, errors = EnrollmentImporter.process(
+            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        self.assertIn("Both degrees have been set for the course", "".join(warnings[ImporterWarning.DEGREE]))
+        self.assertIn("is probably not, but must be", "".join(errors[ImporterError.IS_GRADED]))
+        self.assertIn("jaminar", "".join(errors[ImporterError.COURSE_TYPE_MISSING]))
+        self.assertIn("Beginner", "".join(errors[ImporterError.DEGREE_MISSING]))
+        self.assertIn("Grandmaster", "".join(errors[ImporterError.DEGREE_MISSING]))
+
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
