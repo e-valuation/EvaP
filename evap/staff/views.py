@@ -1206,6 +1206,15 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         return redirect("staff:semester_view", semester.id)
 
+    questionnaires_with_answers_per_contributor = {}
+    for contribution in evaluation.contributions.all():
+        questionnaires = Questionnaire.objects.filter(
+            Q(questions__textanswer__contribution=contribution)
+            | Q(questions__ratinganswercounter__contribution=contribution)
+        ).distinct()
+        if questionnaires.count() > 0:
+            questionnaires_with_answers_per_contributor[contribution.contributor] = questionnaires
+
     if evaluation_form.errors or formset.errors:
         messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
     sort_formset(request, formset)
@@ -1217,6 +1226,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         manager=True,
         state=evaluation.state,
         editable=editable,
+        questionnaires_with_answers_per_contributor=questionnaires_with_answers_per_contributor,
     )
     return render(request, "staff_evaluation_form.html", template_data)
 

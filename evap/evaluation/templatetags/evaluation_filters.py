@@ -216,3 +216,10 @@ def has_nonresponsible_editor(evaluation):
 @register.filter
 def order_by(iterable, attribute):
     return sorted(iterable, key=lambda item: getattr(item, attribute))
+
+
+@register.filter
+def value_at(dictionary, key):
+    if dictionary and key in dictionary:
+        return dictionary[key]
+    return None

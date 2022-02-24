@@ -36,6 +36,11 @@
         {% if editable %}
         <div class="card card-submit-area{% if state <= evaluation.State.EDITOR_APPROVED %} card-submit-area-2{% endif %} text-center mb-3">
             <div class="card-body">
+                {% if state >= evaluation.State.IN_EVALUATION %}
+                    {% if questionnaires_with_answers_per_contributor %}
+                        <div class="alert alert-danger">{% trans 'You are editing an evaluation, for which answers have already been received. If you remove any of the questionnaires highlighted in red above, all related answers will be permanently deleted.' %}</div>
+                    {% endif %}
+                {% endif %}
                 {% if state == evaluation.State.IN_EVALUATION %}
                     <div class="alert alert-warning">{% trans 'You are editing an evaluation, which is already running. Please note that only the participants who did not evaluate yet will see your changes.' %}</div>
                 {% endif %}

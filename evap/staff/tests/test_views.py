@@ -1813,8 +1813,16 @@ class TestEvaluationEditView(WebTestStaffMode):
             vote_end_date=datetime.date(2099, 12, 31),
         )
         baker.make(Questionnaire, questions=[baker.make(Question)])
-        cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
-        baker.make(
+        cls.general_question = baker.make(Question)
+        cls.general_questionnaire = baker.make(Questionnaire, questions=[cls.general_question])
+        cls.evaluation.general_contribution.questionnaires.set([cls.general_questionnaire])
+        cls.contributor_question = baker.make(Question)
+        cls.contributor_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.CONTRIBUTOR,
+            questions=[cls.contributor_question],
+        )
+        cls.contribution1 = baker.make(
             Contribution,
             evaluation=cls.evaluation,
             contributor=responsible,
@@ -1822,13 +1830,15 @@ class TestEvaluationEditView(WebTestStaffMode):
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
-        baker.make(
+        cls.contribution2 = baker.make(
             Contribution,
             evaluation=cls.evaluation,
             contributor=cls.editor,
             order=1,
             role=Contribution.Role.EDITOR,
         )
+        cls.contribution1.questionnaires.set([cls.contributor_questionnaire])
+        cls.contribution2.questionnaires.set([cls.contributor_questionnaire])
 
     def test_edit_evaluation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1936,6 +1946,46 @@ class TestEvaluationEditView(WebTestStaffMode):
             page,
         )
         self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
+
+    def test_questionnaire_with_answers_warning(self):
+        page = self.app.get(self.url, user=self.manager)
+        self.assertIn(
+            '<label class="form-check-label" for="id_general_questionnaires_3">',
+            page,
+        )
+        self.assertIn(
+            '<label class="form-check-label" for="id_contributions-0-questionnaires_0">',
+            page,
+        )
+        self.assertIn(
+            '<label class="form-check-label" for="id_contributions-1-questionnaires_0">',
+            page,
+        )
+
+        baker.make(TextAnswer, contribution=self.evaluation.general_contribution, question=self.general_question)
+        baker.make(RatingAnswerCounter, contribution=self.contribution1, question=self.contributor_question)
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertIn(
+            '<label class="form-check-label badge bg-danger" for="id_general_questionnaires_3">',
+            page,
+        )
+        self.assertIn(
+            '<label class="form-check-label badge bg-danger" for="id_contributions-0-questionnaires_0">',
+            page,
+        )
+        self.assertNotIn(
+            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">',
+            page,
+        )
+
+        baker.make(RatingAnswerCounter, contribution=self.contribution2, question=self.contributor_question)
+
+        page = self.app.get(self.url, user=self.manager)
+        self.assertIn(
+            '<label class="form-check-label badge bg-danger" for="id_contributions-1-questionnaires_0">',
+            page,
+        )
 
 
 class TestEvaluationDeleteView(WebTestStaffMode):
