@@ -426,6 +426,7 @@ class TestEnrollmentImporter(TestCase):
     def test_existing_course_degree_is_added(self):
         self.create_existing_course()
 
+        # The existing course exactly matches one course in the import data by default. To create a conflict, the degrees are changed
         self.existing_course.degrees.set([Degree.objects.get(name_de="Master")])
 
         EnrollmentImporter.process(
