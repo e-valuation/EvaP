@@ -108,29 +108,30 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
         if self.existing_course:
             self.existing_course.degrees.add(*self.degrees)
-        else:
-            course = Course(
-                name_de=self.name_de,
-                name_en=self.name_en,
-                type=self.course_type,
-                semester=semester,
-            )
-            course.save()
-            course.responsibles.set([responsible_dbobj])
-            course.degrees.set(self.degrees)
-            evaluation = Evaluation(
-                vote_start_datetime=vote_start_datetime,
-                vote_end_date=vote_end_date,
-                course=course,
-                wait_for_grade_upload_before_publishing=self.is_graded,
-            )
-            evaluation.save()
-            evaluation.contributions.create(
-                evaluation=evaluation,
-                contributor=responsible_dbobj,
-                role=Contribution.Role.EDITOR,
-                textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-            )
+            return
+
+        course = Course(
+            name_de=self.name_de,
+            name_en=self.name_en,
+            type=self.course_type,
+            semester=semester,
+        )
+        course.save()
+        course.responsibles.set([responsible_dbobj])
+        course.degrees.set(self.degrees)
+        evaluation = Evaluation(
+            vote_start_datetime=vote_start_datetime,
+            vote_end_date=vote_end_date,
+            course=course,
+            wait_for_grade_upload_before_publishing=self.is_graded,
+        )
+        evaluation.save()
+        evaluation.contributions.create(
+            evaluation=evaluation,
+            contributor=responsible_dbobj,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+        )
 
     def check_existing_course(self, semester, importer):
         name_collision = self.check_name_collision(semester)
@@ -161,25 +162,18 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             )
             return False
 
-        mismatches, has_wrong_evaluation_count = self.check_existing_course_attributes(course)
+        mismatches = self.check_existing_course_attributes(course)
 
-        if mismatches or has_wrong_evaluation_count:
-            messages = (
-                [
-                    "the {} {}".format(
-                        " and ".join(mismatches),
-                        ngettext("does not match", "do not match", len(mismatches)),
-                    )
-                ]
-                if mismatches
-                else []
-            )
-            messages += ["the course must have exactly one evaluation"] if has_wrong_evaluation_count else []
+        if mismatches:
             importer.errors[ImporterError.COURSE].append(
-                _("Course {} ({}) does already exist in this semester but {}.").format(
-                    self.name_en,
-                    self.name_de,
-                    " and ".join(messages),
+                format_html(
+                    _(
+                        "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - {}."
+                    ).format(
+                        self.name_en,
+                        self.name_de,
+                        "<br /> - ".join(mismatches),
+                    )
                 )
             )
         else:
@@ -199,18 +193,18 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
 
     def check_existing_course_attributes(self, course):
         mismatches = []
-        has_wrong_evaluation_count = False
         if course.type != self.course_type:
-            mismatches.append("course type")
+            mismatches.append(_("the course type does not match"))
         if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
-            mismatches.append("responsible person")
+            mismatches.append(_("the responsibles of the course do not match"))
+
         evaluations = Evaluation.objects.filter(course=course)
         if len(evaluations) != 1:
-            has_wrong_evaluation_count = True
-            return mismatches, has_wrong_evaluation_count
-        if evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
-            mismatches.append("grading of the evaluation")
-        return mismatches, has_wrong_evaluation_count
+            mismatches.append(_("the existing course does not have exactly one evaluation"))
+        elif evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
+            mismatches.append(_("the evaluation of the existing course has a mismatching grading specification"))
+
+        return mismatches
 
 
 class ImporterError(Enum):

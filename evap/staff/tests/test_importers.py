@@ -416,7 +416,7 @@ class TestEnrollmentImporter(TestCase):
 
         self.assertIn(
             "Course Shake (Schütteln) already exists with identical attributes. Course is not created and users are put into the evaluation of that course.",
-            warnings[ImporterWarning.DUPL],
+            warnings[ImporterWarning.EXISTS],
         )
         expected_course_count = old_course_count + 22
         self.assertEqual(Course.objects.count(), expected_course_count)
@@ -466,7 +466,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester but the course type and responsible person do not match.",
+            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the course type does not match<br /> - the responsibles of the course do not match.",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
@@ -485,7 +485,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester but the course must have exactly one evaluation.",
+            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the existing course does not have exactly one evaluation.",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
@@ -505,7 +505,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester but the grading of the evaluation does not match.",
+            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the evaluation of the existing course has a mismatching grading specification.",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
