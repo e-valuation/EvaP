@@ -245,9 +245,10 @@ class ImporterWarning(Enum):
     DUPL = ("duplicate", gettext_lazy("Possible duplicates"), 3)
     MODIF = ("modification", gettext_lazy("Possible modifications"), 4)
     IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 5)
+    EXISTS = ("existing", gettext_lazy("Existing courses"), 6)
 
-    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 6)
-    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 7)
+    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 7)
+    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 8)
 
 
 class EvaluationDataFactory:
@@ -532,7 +533,7 @@ class EnrollmentImporter(ExcelImporter):
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
             if evaluation_data.check_existing_course(semester, self):
-                self.warnings[ImporterWarning.DUPL].append(
+                self.warnings[ImporterWarning.EXISTS].append(
                     _(
                         "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
                     ).format(evaluation_data.name_en, evaluation_data.name_de)
