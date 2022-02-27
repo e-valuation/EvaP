@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy, ngettext
+from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email
@@ -133,78 +133,53 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-    def check_existing_course(self, semester, importer):
-        name_collision = self.check_name_collision(semester)
-        if not name_collision:
-            return False
-
-        if name_collision != NameCollision.BOTH:
-            importer.errors[ImporterError.COURSE].append(
-                _("Course {} ({}) does already exist in this semester.").format(
-                    self.name_en if name_collision == NameCollision.NAME_EN else self.name_de,
-                    "EN" if name_collision == NameCollision.NAME_EN else "DE",
-                )
-            )
-            return False
-
+    def check_for_existing_course(self, semester):
         course = Course.objects.filter(
             semester=semester,
             name_en=self.name_en,
             name_de=self.name_de,
         ).first()
 
-        if course is None:
-            # This can only happen if the name collisions happened in different courses
-            importer.errors[ImporterError.COURSE].append(
-                _("Course {} (EN) and Course {} (DE) do already exist separately in this semester.").format(
-                    self.name_en, self.name_de
-                )
-            )
-            return False
-
-        mismatches = self.check_existing_course_attributes(course)
-
-        if mismatches:
-            importer.errors[ImporterError.COURSE].append(
-                format_html(
-                    _(
-                        "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - {}."
-                    ).format(
-                        self.name_en,
-                        self.name_de,
-                        "<br /> - ".join(mismatches),
-                    )
-                )
-            )
-        else:
+        if course:
+            merge_hindraces = self.course_merge_hindraces(course)
+            if merge_hindraces:
+                return merge_hindraces
             self.existing_course = course
+            return set()
 
-        return self.existing_course is not None
+        name_collision = self.check_name_collision(semester)
+        if name_collision == NameCollision.NONE:
+            return set()
+        if name_collision == NameCollision.NAME_DE:
+            return set([_("the german course name does not match")])
+        if name_collision == NameCollision.NAME_EN:
+            return set([_("the english course name does not match")])
+        if name_collision == NameCollision.BOTH:
+            # The collisions must have occured with two different courses because otherwise the course would not have been None previously
+            return set([_("two separate courses exist with the german and english name")])
 
     def check_name_collision(self, semester):
         flag = NameCollision.NONE
-        flag |= NameCollision(
-            Course.objects.filter(semester=semester, name_en=self.name_en).exists() and NameCollision.NAME_EN
-        )
-        flag |= NameCollision(
-            Course.objects.filter(semester=semester, name_de=self.name_de).exists() and NameCollision.NAME_DE
-        )
+        if Course.objects.filter(semester=semester, name_en=self.name_en).exists():
+            flag |= NameCollision.NAME_EN
+        if Course.objects.filter(semester=semester, name_de=self.name_de).exists():
+            flag |= NameCollision.NAME_DE
         return flag
 
-    def check_existing_course_attributes(self, course):
-        mismatches = []
+    def course_merge_hindraces(self, course):
+        hindraces = set()
         if course.type != self.course_type:
-            mismatches.append(_("the course type does not match"))
+            hindraces.add(_("the course type does not match"))
         if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
-            mismatches.append(_("the responsibles of the course do not match"))
+            hindraces.add(_("the responsibles of the course do not match"))
 
         evaluations = Evaluation.objects.filter(course=course)
         if len(evaluations) != 1:
-            mismatches.append(_("the existing course does not have exactly one evaluation"))
+            hindraces.add(_("the existing course does not have exactly one evaluation"))
         elif evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
-            mismatches.append(_("the evaluation of the existing course has a mismatching grading specification"))
+            hindraces.add(_("the evaluation of the existing course has a mismatching grading specification"))
 
-        return mismatches
+        return hindraces
 
 
 class ImporterError(Enum):
@@ -526,7 +501,20 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            if evaluation_data.check_existing_course(semester, self):
+            merge_hindraces = evaluation_data.check_for_existing_course(semester)
+            if merge_hindraces:
+                self.errors[ImporterError.COURSE].append(
+                    format_html(
+                        _(
+                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - {}."
+                        ).format(
+                            evaluation_data.name_en,
+                            evaluation_data.name_de,
+                            "<br /> - ".join(merge_hindraces),
+                        )
+                    )
+                )
+            elif evaluation_data.existing_course:
                 self.warnings[ImporterWarning.EXISTS].append(
                     _(
                         "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."

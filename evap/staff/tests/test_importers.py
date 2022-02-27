@@ -384,8 +384,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Stehlen (DE) does already exist in this semester.",
-                "Course Shine (EN) does already exist in this semester.",
+                "Course Shine (Scheinen) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the english course name does not match.",
+                "Course Steal (Stehlen) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the german course name does not match.",
             },
         )
 
@@ -465,10 +465,8 @@ class TestEnrollmentImporter(TestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
-        self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the course type does not match<br /> - the responsibles of the course do not match.",
-            errors[ImporterError.COURSE],
-        )
+        self.assertIn("the course type does not match", errors[ImporterError.COURSE][0])
+        self.assertIn("the responsibles of the course do not match", errors[ImporterError.COURSE][0])
         self.assertEqual(Course.objects.count(), old_course_count)
         self.existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(self.existing_course))
