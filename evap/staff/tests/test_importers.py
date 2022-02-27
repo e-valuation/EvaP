@@ -183,7 +183,6 @@ class TestEnrollmentImporter(TestCase):
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
-        cls.create_existing_course(cls)
 
     def create_existing_course(self):
         self.existing_course = baker.make(
@@ -209,11 +208,11 @@ class TestEnrollmentImporter(TestCase):
         success_messages, warnings, errors = EnrollmentImporter.process(
             self.default_excel_content, self.semester, None, None, test_run=True
         )
-        self.assertIn("The import run will create 23 courses/evaluations and 22 users:", "".join(success_messages))
+        self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
-        self.assertNotEqual(warnings, {})
+        self.assertEqual(warnings, {})
 
         old_user_count = UserProfile.objects.all().count()
 
@@ -221,15 +220,15 @@ class TestEnrollmentImporter(TestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created 23 courses/evaluations, 6 participants and 16 contributors:",
+            "Successfully created 23 courses/evaluations, 6 participants and 17 contributors:",
             "".join(success_messages),
         )
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
-        self.assertNotEqual(warnings, {})
+        self.assertEqual(warnings, {})
 
         self.assertEqual(Evaluation.objects.all().count(), 23)
-        expected_user_count = old_user_count + 22
+        expected_user_count = old_user_count + 23
         self.assertEqual(UserProfile.objects.all().count(), expected_user_count)
 
     def test_degrees_are_merged(self):
@@ -258,8 +257,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(errors, {})
         self.assertEqual(warnings_no_test, warnings_test)
 
-        self.assertEqual(Course.objects.all().count(), 2)
-        self.assertEqual(Evaluation.objects.all().count(), 2)
+        self.assertEqual(Course.objects.all().count(), 1)
+        self.assertEqual(Evaluation.objects.all().count(), 1)
 
         course = Course.objects.get(name_de="Bauen")
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
@@ -282,12 +281,12 @@ class TestEnrollmentImporter(TestCase):
             excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
-            "Successfully created 2 courses/evaluations, 4 participants and 1 contributors:", "".join(success_messages)
+            "Successfully created 2 courses/evaluations, 4 participants and 2 contributors:", "".join(success_messages)
         )
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
-        self.assertEqual(Course.objects.all().count(), 3)
+        self.assertEqual(Course.objects.all().count(), 2)
         course_spelling = Course.objects.get(name_en="Spelling")
         self.assertEqual(course_spelling.type.name_de, "Vorlesung")
         self.assertEqual(list(course_spelling.degrees.values_list("name_en", flat=True)), ["Bachelor"])
@@ -297,6 +296,7 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
+
         __, warnings_test, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, None, None, test_run=True
         )
@@ -405,6 +405,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
     def test_existing_course_is_not_recreated(self):
+        self.create_existing_course()
+
         old_course_count = Course.objects.count()
         old_dict = model_to_dict(self.existing_course)
 
@@ -422,6 +424,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(old_dict, model_to_dict(self.existing_course))
 
     def test_existing_course_degree_is_added(self):
+        self.create_existing_course()
+
         self.existing_course.degrees.set([Degree.objects.get(name_de="Master")])
 
         EnrollmentImporter.process(
@@ -433,6 +437,8 @@ class TestEnrollmentImporter(TestCase):
         )
 
     def test_existing_course_users_added_to_evaluation(self):
+        self.create_existing_course()
+
         self.assertFalse(self.existing_course_evaluation.participants.exists())
 
         EnrollmentImporter.process(
@@ -445,6 +451,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
     def test_existing_course_different_attributes(self):
+        self.create_existing_course()
         self.existing_course.type = CourseType.objects.get(name_de="Seminar")
         self.existing_course.responsibles.set(
             [baker.make(UserProfile, email="responsible_person@institution.example.com")]
@@ -467,6 +474,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(old_dict, model_to_dict(self.existing_course))
 
     def test_existing_course_equal_except_evaluations(self):
+        self.create_existing_course()
         baker.make(Evaluation, course=self.existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
 
         old_course_count = Course.objects.count()
@@ -485,6 +493,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(old_dict, model_to_dict(self.existing_course))
 
     def test_existing_course_different_grading(self):
+        self.create_existing_course()
         self.existing_course_evaluation.wait_for_grade_upload_before_publishing = False
         self.existing_course_evaluation.save()
 
