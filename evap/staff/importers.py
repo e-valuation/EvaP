@@ -157,6 +157,7 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         if name_collision == NameCollision.BOTH:
             # The collisions must have occured with two different courses because otherwise the course would not have been None previously
             return set([_("two separate courses exist with the german and english name")])
+        return set()
 
     def check_name_collision(self, semester):
         flag = NameCollision.NONE
@@ -506,11 +507,11 @@ class EnrollmentImporter(ExcelImporter):
                 self.errors[ImporterError.COURSE].append(
                     format_html(
                         _(
-                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - {}."
+                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:{}."
                         ).format(
                             evaluation_data.name_en,
                             evaluation_data.name_de,
-                            "<br /> - ".join(merge_hindrances),
+                            "".join(f"<br /> - {msg}" for msg in merge_hindrances),
                         )
                     )
                 )

@@ -466,8 +466,8 @@ class TestEnrollmentImporter(TestCase):
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
-        self.assertIn("the course type does not match", errors[ImporterError.COURSE][0])
-        self.assertIn("the responsibles of the course do not match", errors[ImporterError.COURSE][0])
+        self.assertIn("the course type does not match", "".join(errors[ImporterError.COURSE]))
+        self.assertIn("the responsibles of the course do not match", "".join(errors[ImporterError.COURSE]))
         self.assertEqual(Course.objects.count(), old_course_count)
         self.existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(self.existing_course))
