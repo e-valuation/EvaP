@@ -213,12 +213,11 @@ class ImporterWarning(Enum):
     NAME = ("name", gettext_lazy("Name mismatches"), 1)
     INACTIVE = ("inactive", gettext_lazy("Inactive users"), 2)
     DUPL = ("duplicate", gettext_lazy("Possible duplicates"), 3)
-    MODIF = ("modification", gettext_lazy("Possible modifications"), 4)
+    EXISTS = ("existing", gettext_lazy("Existing courses"), 4)
     IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 5)
-    EXISTS = ("existing", gettext_lazy("Existing courses"), 6)
 
-    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 7)
-    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 8)
+    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 6)
+    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 7)
 
 
 class EvaluationDataFactory:
