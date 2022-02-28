@@ -3,7 +3,7 @@ function normalize(text: string) {
 }
 
 function isTextMeaningless(text: string): boolean {
-    return text.length > 0 && ["", "ka", "na"].includes(text.replace(/\W/g, ""));
+    return text.length > 0 && ["", "ka", "na", "none", "keine", "keines", "keiner"].includes(text.replace(/\W/g, ""));
 }
 
 function doesTextContainTriggerString(text: string, triggerStrings: string[]): boolean {
