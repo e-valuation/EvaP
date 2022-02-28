@@ -141,9 +141,9 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
         ).first()
 
         if course:
-            merge_hindraces = self.course_merge_hindraces(course)
-            if merge_hindraces:
-                return merge_hindraces
+            merge_hindrances = self.course_merge_hindrances(course)
+            if merge_hindrances:
+                return merge_hindrances
             self.existing_course = course
             return set()
 
@@ -166,20 +166,20 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             flag |= NameCollision.NAME_DE
         return flag
 
-    def course_merge_hindraces(self, course):
-        hindraces = set()
+    def course_merge_hindrances(self, course):
+        hindrances = set()
         if course.type != self.course_type:
-            hindraces.add(_("the course type does not match"))
+            hindrances.add(_("the course type does not match"))
         if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
-            hindraces.add(_("the responsibles of the course do not match"))
+            hindrances.add(_("the responsibles of the course do not match"))
 
         evaluations = Evaluation.objects.filter(course=course)
         if len(evaluations) != 1:
-            hindraces.add(_("the existing course does not have exactly one evaluation"))
+            hindrances.add(_("the existing course does not have exactly one evaluation"))
         elif evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
-            hindraces.add(_("the evaluation of the existing course has a mismatching grading specification"))
+            hindrances.add(_("the evaluation of the existing course has a mismatching grading specification"))
 
-        return hindraces
+        return hindrances
 
 
 class ImporterError(Enum):
@@ -501,8 +501,8 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            merge_hindraces = evaluation_data.check_for_existing_course(semester)
-            if merge_hindraces:
+            merge_hindrances = evaluation_data.check_for_existing_course(semester)
+            if merge_hindrances:
                 self.errors[ImporterError.COURSE].append(
                     format_html(
                         _(
@@ -510,7 +510,7 @@ class EnrollmentImporter(ExcelImporter):
                         ).format(
                             evaluation_data.name_en,
                             evaluation_data.name_de,
-                            "<br /> - ".join(merge_hindraces),
+                            "<br /> - ".join(merge_hindrances),
                         )
                     )
                 )
