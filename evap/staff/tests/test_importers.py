@@ -185,7 +185,7 @@ class TestEnrollmentImporter(TestCase):
         cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
     def create_existing_course(self):
-        self.existing_course = baker.make(
+        existing_course = baker.make(
             Course,
             name_de="Schütteln",
             name_en="Shake",
@@ -202,7 +202,8 @@ class TestEnrollmentImporter(TestCase):
                 )
             ],
         )
-        self.existing_course_evaluation = baker.make(Evaluation, course=self.existing_course)
+        existing_course_evaluation = baker.make(Evaluation, course=existing_course)
+        return existing_course, existing_course_evaluation
 
     def test_valid_file_import(self):
         success_messages, warnings, errors = EnrollmentImporter.process(
@@ -405,10 +406,10 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
     def test_existing_course_is_not_recreated(self):
-        self.create_existing_course()
+        existing_course, __ = self.create_existing_course()
 
         old_course_count = Course.objects.count()
-        old_dict = model_to_dict(self.existing_course)
+        old_dict = model_to_dict(existing_course)
 
         __, warnings, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -420,27 +421,27 @@ class TestEnrollmentImporter(TestCase):
         )
         expected_course_count = old_course_count + 22
         self.assertEqual(Course.objects.count(), expected_course_count)
-        self.existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(self.existing_course))
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
 
     def test_existing_course_degree_is_added(self):
-        self.create_existing_course()
+        existing_course, __ = self.create_existing_course()
 
         # The existing course exactly matches one course in the import data by default. To create a conflict, the degrees are changed
-        self.existing_course.degrees.set([Degree.objects.get(name_de="Master")])
+        existing_course.degrees.set([Degree.objects.get(name_de="Master")])
 
         EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
         self.assertSetEqual(
-            set(self.existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
+            set(existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
         )
 
     def test_existing_course_users_added_to_evaluation(self):
-        self.create_existing_course()
+        __, existing_course_evaluation = self.create_existing_course()
 
-        self.assertFalse(self.existing_course_evaluation.participants.exists())
+        self.assertFalse(existing_course_evaluation.participants.exists())
 
         EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -448,19 +449,17 @@ class TestEnrollmentImporter(TestCase):
 
         self.assertIn(
             UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
-            self.existing_course_evaluation.participants.all(),
+            existing_course_evaluation.participants.all(),
         )
 
     def test_existing_course_different_attributes(self):
-        self.create_existing_course()
-        self.existing_course.type = CourseType.objects.get(name_de="Seminar")
-        self.existing_course.responsibles.set(
-            [baker.make(UserProfile, email="responsible_person@institution.example.com")]
-        )
-        self.existing_course.save()
+        existing_course, __ = self.create_existing_course()
+        existing_course.type = CourseType.objects.get(name_de="Seminar")
+        existing_course.responsibles.set([baker.make(UserProfile, email="responsible_person@institution.example.com")])
+        existing_course.save()
 
         old_course_count = Course.objects.count()
-        old_dict = model_to_dict(self.existing_course)
+        old_dict = model_to_dict(existing_course)
 
         __, __, errors = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -469,15 +468,15 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("the course type does not match", "".join(errors[ImporterError.COURSE]))
         self.assertIn("the responsibles of the course do not match", "".join(errors[ImporterError.COURSE]))
         self.assertEqual(Course.objects.count(), old_course_count)
-        self.existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(self.existing_course))
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
 
     def test_existing_course_equal_except_evaluations(self):
-        self.create_existing_course()
-        baker.make(Evaluation, course=self.existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
+        existing_course, __ = self.create_existing_course()
+        baker.make(Evaluation, course=existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
 
         old_course_count = Course.objects.count()
-        old_dict = model_to_dict(self.existing_course)
+        old_dict = model_to_dict(existing_course)
 
         __, __, errors = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -488,16 +487,16 @@ class TestEnrollmentImporter(TestCase):
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
-        self.existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(self.existing_course))
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
 
     def test_existing_course_different_grading(self):
-        self.create_existing_course()
-        self.existing_course_evaluation.wait_for_grade_upload_before_publishing = False
-        self.existing_course_evaluation.save()
+        existing_course, existing_course_evaluation = self.create_existing_course()
+        existing_course_evaluation.wait_for_grade_upload_before_publishing = False
+        existing_course_evaluation.save()
 
         old_course_count = Course.objects.count()
-        old_dict = model_to_dict(self.existing_course)
+        old_dict = model_to_dict(existing_course)
 
         __, __, errors = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -508,8 +507,8 @@ class TestEnrollmentImporter(TestCase):
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
-        self.existing_course.refresh_from_db()
-        self.assertEqual(old_dict, model_to_dict(self.existing_course))
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
 
 
 class TestPersonImporter(TestCase):
