@@ -25,7 +25,7 @@ const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-
 const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as Array<HTMLElement>;
 const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");
 
-// Sometimes we just want the browser to do it's thing.
+// Sometimes we just want the browser to do its thing.
 let disableFocusHandler = false;
 
 selectables[0].addEventListener("focus", () => {
@@ -130,7 +130,7 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
             selectables[selectables.length - 1].focus({ preventScroll: true });
             return;
         }
-    } while (isInvisible(rows[nextRowIndex]));
+    } while (isInvisible(rows[nextRowIndex]) || rows[nextRowIndex].querySelector(".tab-selectable") == null);
 
     e.preventDefault();
     fancyFocus(findCorrectInputInRow(rows[nextRowIndex]));

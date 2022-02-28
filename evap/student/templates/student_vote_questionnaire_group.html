@@ -2,7 +2,7 @@
 <div class="d-flex">
     <h4 class="me-auto">{{ questionnaire_group.0.questionnaire.public_name }}</h4>
     {% if contributor %}
-        <div>
+        <div class="tab-row">
             <button type="button" class="btn btn-light btn-sm btn-sm-narrow{% if not preview %} tab-selectable{% endif %}"
                 data-mark-no-answers-for="{{ contributor.id }}"
                 {% if preview %}disabled{% endif %}
