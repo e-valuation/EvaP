@@ -1,6 +1,6 @@
 from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
-from enum import Enum, Flag, auto
+from enum import Enum
 from io import BytesIO
 from typing import Dict, Optional, Set
 
@@ -70,13 +70,6 @@ class UserData(CommonEqualityMixin):
         user.clean_fields()
 
 
-class NameCollision(Flag):
-    NONE = 0
-    NAME_DE = auto()
-    NAME_EN = auto()
-    BOTH = NAME_DE | NAME_EN
-
-
 @dataclass
 class EvaluationData:  # pylint: disable=too-many-instance-attributes
     """
@@ -133,48 +126,17 @@ class EvaluationData:  # pylint: disable=too-many-instance-attributes
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
 
-    def check_for_existing_course(self, semester):
-        course = Course.objects.filter(
-            semester=semester,
-            name_en=self.name_en,
-            name_de=self.name_de,
-        ).first()
-
-        if course:
-            merge_hindrances = self.course_merge_hindrances(course)
-            if merge_hindrances:
-                return merge_hindrances
-            self.existing_course = course
-            return set()
-
-        name_collision = self.check_name_collision(semester)
-        if name_collision == NameCollision.NONE:
-            return set()
-        if name_collision == NameCollision.NAME_DE:
-            return set([_("the german course name does not match")])
-        if name_collision == NameCollision.NAME_EN:
-            return set([_("the english course name does not match")])
-        if name_collision == NameCollision.BOTH:
-            # The collisions must have occured with two different courses because otherwise the course would not have been None previously
-            return set([_("two separate courses exist with the german and english name")])
-        return set()
-
-    def check_name_collision(self, semester):
-        flag = NameCollision.NONE
-        if Course.objects.filter(semester=semester, name_en=self.name_en).exists():
-            flag |= NameCollision.NAME_EN
-        if Course.objects.filter(semester=semester, name_de=self.name_de).exists():
-            flag |= NameCollision.NAME_DE
-        return flag
-
-    def course_merge_hindrances(self, course):
+    def get_course_merge_hindrances(self, merge_candidate):
         hindrances = set()
-        if course.type != self.course_type:
+        if merge_candidate.type != self.course_type:
             hindrances.add(_("the course type does not match"))
-        if course.responsibles.count() != 1 or course.responsibles.first().email != self.responsible_email:
+        if (
+            merge_candidate.responsibles.count() != 1
+            or merge_candidate.responsibles.first().email != self.responsible_email
+        ):
             hindrances.add(_("the responsibles of the course do not match"))
 
-        evaluations = Evaluation.objects.filter(course=course)
+        evaluations = Evaluation.objects.filter(course=merge_candidate)
         if len(evaluations) != 1:
             hindrances.add(_("the existing course does not have exactly one evaluation"))
         elif evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
@@ -501,25 +463,9 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            merge_hindrances = evaluation_data.check_for_existing_course(semester)
-            if merge_hindrances:
-                self.errors[ImporterError.COURSE].append(
-                    format_html(
-                        _(
-                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:{}."
-                        ).format(
-                            evaluation_data.name_en,
-                            evaluation_data.name_de,
-                            "".join(f"<br /> - {msg}" for msg in merge_hindrances),
-                        )
-                    )
-                )
-            elif evaluation_data.existing_course:
-                self.warnings[ImporterWarning.EXISTS].append(
-                    _(
-                        "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
-                    ).format(evaluation_data.name_en, evaluation_data.name_de)
-                )
+            found_merge_candidate = self.set_existing_course_to_merge_or_add_errors(semester, evaluation_data)
+            if not found_merge_candidate:
+                self.add_errors_for_course_name_collisions(semester, evaluation_data)
 
             assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
 
@@ -548,6 +494,47 @@ class EnrollmentImporter(ExcelImporter):
                 _(
                     'Error: No course type is associated with the import name "{}". Please manually create it first.'
                 ).format(course_type_name)
+            )
+
+    def set_existing_course_to_merge_or_add_errors(self, semester, evaluation_data):
+        merge_candidate = Course.objects.filter(
+            semester=semester, name_de=evaluation_data.name_de, name_en=evaluation_data.name_en
+        ).first()
+        if merge_candidate:
+            merge_hindrances = evaluation_data.get_course_merge_hindrances(merge_candidate)
+            if merge_hindrances:
+                self.errors[ImporterError.COURSE].append(
+                    format_html(
+                        _(
+                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:{}."
+                        ).format(
+                            evaluation_data.name_en,
+                            evaluation_data.name_de,
+                            "".join(f"<br /> - {msg}" for msg in merge_hindrances),
+                        )
+                    )
+                )
+            else:
+                evaluation_data.existing_course = merge_candidate
+                self.warnings[ImporterWarning.EXISTS].append(
+                    _(
+                        "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
+                    ).format(evaluation_data.name_en, evaluation_data.name_de)
+                )
+        return merge_candidate is not None
+
+    def add_errors_for_course_name_collisions(self, semester, evaluation_data):
+        if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
+            self.errors[ImporterError.COURSE].append(
+                _("Course {} (EN) already exists in this semester with different german name.").format(
+                    evaluation_data.name_en
+                )
+            )
+        if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
+            self.errors[ImporterError.COURSE].append(
+                _("Course {} (DE) already exists in this semester with different english name.").format(
+                    evaluation_data.name_de
+                )
             )
 
     def check_enrollment_data_sanity(self):

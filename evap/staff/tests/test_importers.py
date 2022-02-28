@@ -384,8 +384,8 @@ class TestEnrollmentImporter(TestCase):
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Shine (Scheinen) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the english course name does not match.",
-                "Course Steal (Stehlen) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the german course name does not match.",
+                "Course Shine (EN) already exists in this semester with different german name.",
+                "Course Stehlen (DE) already exists in this semester with different english name.",
             },
         )
 
