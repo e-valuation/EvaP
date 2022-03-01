@@ -130,7 +130,7 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
             selectables[selectables.length - 1].focus({ preventScroll: true });
             return;
         }
-    } while (isInvisible(rows[nextRowIndex]) || rows[nextRowIndex].querySelector(".tab-selectable") == null);
+    } while (isInvisible(rows[nextRowIndex]) || rows[nextRowIndex].querySelector(".tab-selectable") === null);
 
     e.preventDefault();
     fancyFocus(findCorrectInputInRow(rows[nextRowIndex]));
