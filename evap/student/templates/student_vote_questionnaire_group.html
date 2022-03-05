@@ -69,7 +69,7 @@
                                 <div class="col-answer d-flex">
                                     <div class="vote-inputs tab-row {% if preview %} preview{% endif %}">
                                         {{ field.errors }}
-                                        <textarea id="{{ field.id_for_label }}" class="tab-selectable" name="{{ field.name }}"{% if preview %} disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
+                                        <textarea id="{{ field.id_for_label }}" class="form-control tab-selectable" name="{{ field.name }}"{% if preview %} disabled{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
                                     </div>
                                     <div>
                                         {% blocktrans asvar intro_text %}After publishing, this text answer can be seen by:{% endblocktrans %}

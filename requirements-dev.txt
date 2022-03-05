@@ -6,5 +6,7 @@ pylint==2.9.5
 pylint-django==2.4.4
 black==21.12b0
 isort==5.10.1
+openpyxl-stubs==0.1.21
+xlrd == 2.0.1
 mypy
 django-stubs

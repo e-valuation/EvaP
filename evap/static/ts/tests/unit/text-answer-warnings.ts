@@ -25,6 +25,7 @@ test.each([
     "n/A",
     "k.A.",
     "-/-",
+    "none."
 ])("detect as meaningless: %j", text => {
     const normalized = testable.normalize(text);
     expect(testable.isTextMeaningless(normalized)).toBe(true);
@@ -34,6 +35,7 @@ test.each([
     "",
     "c",
     "word",
+    "Kanone",
     "I didn't understand the definition of n/A",
     "The abbreviation k.A. is known to me, but maybe not to all"
 ])("do not detect as meaningless: %j", text => {

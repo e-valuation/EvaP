@@ -13,8 +13,8 @@ from evap.staff.tools import ImportType
 
 
 class TestUserImporter(TestCase):
-    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xls")
-    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xls")
+    filename_valid = os.path.join(settings.BASE_DIR, "staff/fixtures/valid_user_import.xlsx")
+    filename_invalid = os.path.join(settings.BASE_DIR, "staff/fixtures/invalid_user_import.xlsx")
     filename_random = os.path.join(settings.BASE_DIR, "staff/fixtures/random.random")
 
     # valid user import tested in tests/test_views.py, TestUserImportView
@@ -104,7 +104,7 @@ class TestUserImporter(TestCase):
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(
             errors_test[ImporterError.SCHEMA],
-            ["Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"],
+            ["Couldn't read the file. Error: File is not a zip file"],
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
@@ -243,6 +243,17 @@ class TestEnrollmentImporter(TestCase):
         course = Course.objects.get(name_de="Bauen")
         self.assertSetEqual(set(course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"])))
 
+    def test_errors_are_merged(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_error_merge_filedata)
+        __, warnings, errors = EnrollmentImporter.process(
+            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+        self.assertIn("Both degrees have been set for the course", "".join(warnings[ImporterWarning.DEGREE]))
+        self.assertIn("is probably not, but must be", "".join(errors[ImporterError.IS_GRADED]))
+        self.assertIn("jaminar", "".join(errors[ImporterError.COURSE_TYPE_MISSING]))
+        self.assertIn("Beginner", "".join(errors[ImporterError.DEGREE_MISSING]))
+        self.assertIn("Grandmaster", "".join(errors[ImporterError.DEGREE_MISSING]))
+
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
 
@@ -297,7 +308,7 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(
             errors_test[ImporterError.SCHEMA],
-            ["Couldn't read the file. Error: Unsupported format, or corrupt file: Expected BOF record; found b'42\\n'"],
+            ["Couldn't read the file. Error: File is not a zip file"],
         )
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
