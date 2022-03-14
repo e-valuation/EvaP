@@ -20,7 +20,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import (
-    FileResponse,
+    AttachmentResponse,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -279,7 +279,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 def export_contributor_results(contributor):
     filename = f"Evaluation_{contributor.full_name}.xls"
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
+    response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
     ResultsExporter().export(
         response,
         Semester.objects.all(),

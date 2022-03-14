@@ -43,7 +43,7 @@ from evap.evaluation.models import (
     UserProfile,
 )
 from evap.evaluation.tools import (
-    FileResponse,
+    AttachmentResponse,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -682,7 +682,7 @@ def semester_export(request, semester_id):
             selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
 
         filename = f"Evaluation-{semester.name}-{get_language()}.xls"
-        response = FileResponse(filename, content_type="application/vnd.ms-excel")
+        response = AttachmentResponse(filename, content_type="application/vnd.ms-excel")
 
         ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
         return response
@@ -695,7 +695,7 @@ def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
     filename = f"Evaluation-{semester.name}-{get_language()}_raw.csv"
-    response = FileResponse(filename, content_type="text/csv")
+    response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow(
@@ -743,7 +743,7 @@ def semester_participation_export(_request, semester_id):
     )
 
     filename = f"Evaluation-{semester.name}-{get_language()}_participation.csv"
-    response = FileResponse(filename, content_type="text/csv")
+    response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow(
@@ -1417,7 +1417,7 @@ def evaluation_login_key_export(_request, semester_id, evaluation_id):
     evaluation = get_object_or_404(Evaluation, course__semester=semester, id=evaluation_id)
 
     filename = f"Login_keys-{evaluation.full_name}-{semester.short_name}.csv"
-    response = FileResponse(filename, content_type="text/csv")
+    response = AttachmentResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
     writer.writerow([_("Last name"), _("First name"), _("Email"), _("Login key")])
@@ -2282,7 +2282,9 @@ def download_sample_file(_request, filename):
                 if cell.value is not None:
                     cell.value = cell.value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0])
 
-    response = FileResponse(filename, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response = AttachmentResponse(
+        filename, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
     book.save(response)
     return response
 

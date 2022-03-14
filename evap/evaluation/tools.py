@@ -123,7 +123,16 @@ def ilen(iterable):
     return sum(1 for _ in iterable)
 
 
-class FileResponse(HttpResponse):
+class AttachmentResponse(HttpResponse):
+    """
+    Helper class that sets the correct Content-Disposition header for a given
+    filename.
+
+    In contrast to `django.http.FileResponse`, this class does not read (and
+    stream) the content from a filelike object. The content should be written
+    _to the response instance_ as if it was a writable file.
+    """
+
     def __init__(self, filename, content_type=None, **kwargs):
         super().__init__(content_type=content_type, **kwargs)
         self.set_content_disposition(filename)
