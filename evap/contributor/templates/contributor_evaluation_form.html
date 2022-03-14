@@ -64,14 +64,14 @@
                 <div class="d-flex">
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if evaluation.allow_editors_to_edit %}
-                            <div>
-                                <button type="button" class="btn btn-sm btn-light mb-3" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButton">
-                                    {% trans 'Request creation of new account' %}
-                                </button>
-                            </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-light mb-3" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButtonInEvaluationForm">
+                                {% trans 'Request creation of new account' %}
+                            </button>
+                        </div>
                     {% else %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationRequestModalButton">
+                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationDataRequestModalButton">
                                 {% trans 'Request changes' %}
                             </button>
                         </div>

@@ -967,16 +967,15 @@ class EvaluationFormTests(TestCase):
 
         form_data = get_form_data_from_instance(EvaluationForm, evaluation)
         form = EvaluationForm(form_data, instance=evaluation)
-        self.assertEqual(len(set(form.fields["participants"].queryset)), 0)
+        self.assertEqual(form.fields["participants"].queryset.count(), 0)
 
         baker.make(UserProfile, is_active=True)
         form = EvaluationForm(form_data, instance=evaluation)
-        self.assertEqual(len(set(form.fields["participants"].queryset)), 1)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
 
         baker.make(UserProfile, is_active=False)
         form = EvaluationForm(form_data, instance=evaluation)
-        self.assertEqual(len(set(form.fields["participants"].queryset)), 1)
-
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
 
 class EvaluationCopyFormTests(TestCase):
     @classmethod

@@ -260,9 +260,10 @@ class TestContributorEvaluationEditView(WebTest):
         )
 
     def test_display_request_buttons(self):
-        self.evaluation.name_en = "Adam & Eve"
         self.evaluation.allow_editors_to_edit = False
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible)
-        self.assertIn("Request changes", page)
-        self.assertNotIn("Request creation of new account", page)
+        expected_request_changes_count = page.body.decode().count("Request changes")
+        expected_request_account_count = page.body.decode().count("Request creation of new account")
+        self.assertEqual(page.body.decode().count("Request changes"), expected_request_changes_count + 1)
+        self.assertEqual(page.body.decode().count("Request creation of new account"), expected_request_account_count)

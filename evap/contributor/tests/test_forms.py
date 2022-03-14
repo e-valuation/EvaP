@@ -21,7 +21,7 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(instance=evaluation)
         self.assertTrue(all(form.fields[field].disabled for field in form.fields))
 
-    def test_edit_participants_in_form(self):
+    def test_edit_participants(self):
         student = baker.make(UserProfile)
         evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
         evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])

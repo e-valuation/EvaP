@@ -33,9 +33,9 @@ class EvaluationForm(forms.ModelForm):
         field_classes = {
             "participants": UserModelMultipleChoiceField,
         }
-        widgets = {
-            "participants": forms.SelectMultiple(attrs={"data-selection-css-class": "user-multi-select"}),
-        }
+        #widgets = {
+         #   "participants": forms.SelectMultiple(attrs={"data-selection-css-class": "user-multi-select"}),
+        #}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
