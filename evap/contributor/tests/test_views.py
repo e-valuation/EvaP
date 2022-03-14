@@ -270,4 +270,6 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible)
         self.assertEqual(page.body.decode().count("Request changes"), expected_request_changes_count - 1)
-        self.assertEqual(page.body.decode().count("Request creation of new account"), expected_request_account_count + 1)
+        self.assertEqual(
+            page.body.decode().count("Request creation of new account"), expected_request_account_count + 1
+        )

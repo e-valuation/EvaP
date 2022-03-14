@@ -977,6 +977,7 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(form_data, instance=evaluation)
         self.assertEqual(form.fields["participants"].queryset.count(), 1)
 
+
 class EvaluationCopyFormTests(TestCase):
     @classmethod
     def setUpTestData(cls):
