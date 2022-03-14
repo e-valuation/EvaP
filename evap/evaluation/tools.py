@@ -136,6 +136,27 @@ class FileResponse(HttpResponse):
             self["Content-Disposition"] = f"attachment; filename*=utf-8''{quote(filename)}"
 
 
+class HttpResponseNoContent(HttpResponse):
+    """
+    HTTP 204 No Content
+    Analogous to the built-in `HttpResponseNotModified`.
+
+    Browsers will not reload the page when this status code is returned from a form submission.
+    """
+
+    status_code = 204
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self["content-type"]
+
+    @HttpResponse.content.setter  # type: ignore
+    def content(self, value):
+        if value:
+            raise AttributeError("You cannot set content to a 204 (No Content) response")
+        self._container = []
+
+
 class ExcelExporter(ABC):
     styles = {
         "default": xlwt.Style.default_style,
