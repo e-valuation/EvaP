@@ -29,8 +29,6 @@ jobs:
         include:
           - name: Coverage
             command: coverage run manage.py test && codecov -X gcov
-          - name: Debug mode
-            command: python manage.py test --debug-mode
           - name: Reverse order
             command: python manage.py test --reverse
 
