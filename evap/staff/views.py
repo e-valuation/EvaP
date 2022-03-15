@@ -14,7 +14,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
@@ -41,7 +41,12 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import FileResponse, get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import (
+    FileResponse,
+    get_object_from_dict_pk_entry_or_logged_40x,
+    get_parameter_from_url_or_session,
+    sort_formset,
+)
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
@@ -462,11 +467,10 @@ def semester_evaluation_operation(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
 
-    raw_target_state = request.GET.get("target_state")
     try:
-        target_state = int(raw_target_state)
-    except ValueError as err:
-        raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state)) from err
+        target_state = int(request.GET["target_state"])
+    except (KeyError, ValueError, TypeError) as err:
+        raise SuspiciousOperation("Could not parse target_state") from err
 
     if target_state not in EVALUATION_OPERATIONS:
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
@@ -559,11 +563,9 @@ def semester_create(request):
 @manager_required
 @transaction.atomic
 def semester_make_active(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     Semester.objects.update(is_active=None)
-
     semester.is_active = True
     semester.save()
 
@@ -586,8 +588,7 @@ def semester_edit(request, semester_id):
 @require_POST
 @manager_required
 def semester_delete(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
@@ -888,8 +889,7 @@ def send_reminder(request, semester_id, responsible_id):
 @require_POST
 @manager_required
 def semester_archive_participations(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.participations_can_be_archived:
         raise SuspiciousOperation("Archiving participations for this semester is not allowed")
@@ -900,8 +900,7 @@ def semester_archive_participations(request):
 @require_POST
 @manager_required
 def semester_delete_grade_documents(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.grade_documents_can_be_deleted:
         raise SuspiciousOperation("Deleting grade documents for this semester is not allowed")
@@ -1031,8 +1030,7 @@ def course_edit(request, semester_id, course_id):
 @require_POST
 @manager_required
 def course_delete(request):
-    course_id = request.POST.get("course_id")
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
     if not course.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting course not allowed")
     course.delete()
@@ -1047,7 +1045,7 @@ def evaluation_create(request, semester_id, course_id=None):
 
     evaluation = Evaluation()
     if course_id:
-        evaluation.course = Course.objects.get(id=course_id)
+        evaluation.course = get_object_or_404(Course, id=course_id)
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
     )
@@ -1116,7 +1114,7 @@ def single_result_create(request, semester_id, course_id=None):
 
     evaluation = Evaluation()
     if course_id:
-        evaluation.course = Course.objects.get(id=course_id)
+        evaluation.course = get_object_or_404(Course, id=course_id)
 
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
@@ -1244,8 +1242,7 @@ def helper_single_result_edit(request, semester, evaluation):
 @require_POST
 @manager_required
 def evaluation_delete(request):
-    evaluation_id = request.POST.get("evaluation_id")
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
 
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
@@ -1500,9 +1497,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
 
 @reviewer_required
 def evaluation_textanswers_skip(request):
-    evaluation_id = request.POST["evaluation_id"]
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
-
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     visited = request.session.get("review-skipped", set())
     visited.add(evaluation.pk)
     request.session["review-skipped"] = visited
@@ -1512,19 +1507,16 @@ def evaluation_textanswers_skip(request):
 @require_POST
 @reviewer_required
 def evaluation_textanswers_update_publish(request):
-    textanswer_id = request.POST["id"]
-    action = request.POST["action"]
-    evaluation_id = request.POST["evaluation_id"]
+    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "id")
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    action = request.POST.get("action", None)
 
-    evaluation = Evaluation.objects.get(pk=evaluation_id)
     if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
     if evaluation.course.semester.results_are_archived:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
-
-    answer = TextAnswer.objects.get(pk=textanswer_id)
 
     if action == "publish":
         answer.publish()
@@ -1536,11 +1528,12 @@ def evaluation_textanswers_update_publish(request):
         answer.unreview()
     elif action == "textanswer_edit":
         url = reverse(
-            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation_id, textanswer_id]
+            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation.pk, answer.pk]
         )
         return HttpResponse(url)
     else:
-        return HttpResponse(status=400)  # 400 Bad Request
+        raise SuspiciousOperation
+
     answer.save()
 
     if evaluation.state == Evaluation.State.EVALUATED and evaluation.is_fully_reviewed:
@@ -1800,8 +1793,7 @@ def questionnaire_new_version(request, questionnaire_id):
 @require_POST
 @manager_required
 def questionnaire_delete(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
 
     if not questionnaire.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting questionnaire not allowed")
@@ -1812,22 +1804,34 @@ def questionnaire_delete(request):
 @require_POST
 @manager_required
 def questionnaire_update_indices(request):
-    updated_indices = request.POST
-    for questionnaire_id, new_order in updated_indices.items():
-        questionnaire = Questionnaire.objects.get(pk=questionnaire_id)
-        questionnaire.order = new_order
-        questionnaire.save()
+    try:
+        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items()}
+    except (TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
+    questionnaires = list(Questionnaire.objects.filter(pk__in=order_by_questionnaire.keys()))
+    if len(questionnaires) != len(order_by_questionnaire):
+        raise Http404("Questionnaire not found.")
+
+    for questionnaire in questionnaires:
+        questionnaire.order = order_by_questionnaire[questionnaire.pk]
+
+    Questionnaire.objects.bulk_update(questionnaires, ["order"])
     return HttpResponse()
 
 
 @require_POST
 @manager_required
 def questionnaire_visibility(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    visibility = int(request.POST.get("visibility"))
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        visibility = int(request.POST["visibility"])
+    except (KeyError, TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
     if visibility not in Questionnaire.Visibility.values:
         raise SuspiciousOperation("Invalid visibility choice")
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
     questionnaire.visibility = visibility
     questionnaire.save()
     return HttpResponse()
@@ -1836,9 +1840,12 @@ def questionnaire_visibility(request):
 @require_POST
 @manager_required
 def questionnaire_set_locked(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    is_locked = bool(int(request.POST.get("is_locked")))
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        is_locked = bool(int(request.POST["is_locked"]))
+    except (KeyError, TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
     questionnaire.is_locked = is_locked
     questionnaire.save()
     return HttpResponse()
@@ -2071,8 +2078,7 @@ def user_edit(request, user_id):
 @require_POST
 @manager_required
 def user_delete(request):
-    user_id = request.POST.get("user_id")
-    user = get_object_or_404(UserProfile, id=user_id)
+    user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
 
     if not user.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting user not allowed")
