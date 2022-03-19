@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.urls import reverse
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -9,16 +10,20 @@ from evap.evaluation.models import Contribution, Course, Evaluation, Questionnai
 from evap.grades.models import GradeDocument
 
 
+def make_grade_publisher():
+    return baker.make(
+        UserProfile,
+        email="grade_publisher@institution.example.com",
+        groups=[Group.objects.get(name="Grade publisher")],
+    )
+
+
 class GradeUploadTest(WebTest):
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
-        cls.grade_publisher = baker.make(
-            UserProfile,
-            email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")],
-        )
+        cls.grade_publisher = make_grade_publisher()
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@institution.example.com")
         cls.student3 = baker.make(UserProfile, email="student3@institution.example.com")
@@ -179,11 +184,7 @@ class GradeDocumentIndexTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.grade_publisher = baker.make(
-            UserProfile,
-            email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")],
-        )
+        cls.grade_publisher = make_grade_publisher()
         cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
         cls.archived_semester = baker.make(Semester, grade_documents_are_deleted=True)
 
@@ -198,11 +199,7 @@ class GradeSemesterViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.grade_publisher = baker.make(
-            UserProfile,
-            email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")],
-        )
+        cls.grade_publisher = make_grade_publisher()
 
     def test_does_not_crash(self):
         semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
@@ -221,11 +218,7 @@ class GradeCourseViewTest(WebTest):
 
     @classmethod
     def setUpTestData(cls):
-        cls.grade_publisher = baker.make(
-            UserProfile,
-            email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")],
-        )
+        cls.grade_publisher = make_grade_publisher()
 
     def test_does_not_crash(self):
         semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
@@ -242,28 +235,31 @@ class GradeCourseViewTest(WebTest):
 
 class GradeEditTest(WebTest):
     def test_grades_headlines(self):
-
-        grade_publisher = baker.make(
-            UserProfile,
-            email="grade_publisher@institution.example.com",
-            groups=[Group.objects.get(name="Grade publisher")],
-        )
+        grade_publisher = make_grade_publisher()
         grade_document = baker.make(GradeDocument)
 
         url = f"/grades/semester/{grade_document.course.semester.pk}/course/{grade_document.course.pk}/edit/{grade_document.pk}"
 
-        response = self.app.get(
-            url,
-            user=grade_publisher,
-        )
+        response = self.app.get(url, user=grade_publisher)
         self.assertContains(response, "Upload midterm grades")
         self.assertNotContains(response, "Upload final grades")
 
         grade_document.type = GradeDocument.Type.FINAL_GRADES
         grade_document.save()
-        response = self.app.get(
-            url,
-            user=grade_publisher,
-        )
+        response = self.app.get(url, user=grade_publisher)
         self.assertContains(response, "Upload final grades")
         self.assertNotContains(response, "Upload midterm grades")
+
+
+class GradeDeleteTest(WebTest):
+    url = reverse("grades:delete_grades")
+    csrf_checks = False
+
+    def test_delete_grades(self):
+        grade_publisher = make_grade_publisher()
+        grade_document = baker.make(GradeDocument)
+
+        post_params = {"grade_document_id": grade_document.id}
+        self.app.post(self.url, user=grade_publisher, params=post_params, status=200)
+
+        self.assertFalse(GradeDocument.objects.filter(pk=grade_document.pk).exists())
