@@ -329,14 +329,13 @@ class TestResultsViewContributionWarning(WebTest):
         contributor = baker.make(UserProfile)
 
         # Set up an evaluation with one question but no answers
-        student1 = baker.make(UserProfile)
-        student2 = baker.make(UserProfile)
+        students = list(baker.make(UserProfile, _quantity=2, _bulk_create=True))
         cls.evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
             course=baker.make(Course, semester=cls.semester),
-            participants=[student1, student2],
-            voters=[student1, student2],
+            participants=students,
+            voters=students,
         )
         questionnaire = baker.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])

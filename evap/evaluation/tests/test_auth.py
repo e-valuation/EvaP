@@ -27,16 +27,11 @@ class LoginTests(WebTest):
         baker.make(
             Contribution,
             evaluation=evaluation,
-            contributor=cls.external_user,
+            contributor=iter([cls.external_user, cls.inactive_external_user]),
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=cls.inactive_external_user,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _quantity=2,
+            _bulk_create=True,
         )
 
     @override_settings(PAGE_URL="https://example.com")

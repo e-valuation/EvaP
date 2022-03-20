@@ -39,7 +39,7 @@ from evap.evaluation.tests.tools import (
     make_rating_answer_counters,
     render_pages,
 )
-from evap.results.tools import cache_results, get_results, TextResult
+from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
@@ -523,13 +523,13 @@ class TestSemesterView(WebTestStaffMode):
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.semester = baker.make(Semester, pk=1)
-        cls.evaluation1 = baker.make(
+        baker.make(
             Evaluation,
             name_de="Evaluation 1",
             name_en="Evaluation 1",
             course=baker.make(Course, name_de="A", name_en="B", semester=cls.semester),
         )
-        cls.evaluation2 = baker.make(
+        baker.make(
             Evaluation,
             name_de="Evaluation 2",
             name_en="Evaluation 2",
@@ -748,21 +748,16 @@ class TestSemesterAssignView(WebTestStaffMode):
         cls.questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
 
         evaluation1 = baker.make(Evaluation, course__type=seminar_type, course__semester=cls.semester)
-        baker.make(
-            Contribution,
-            contributor=baker.make(UserProfile),
-            evaluation=evaluation1,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
         evaluation2 = baker.make(Evaluation, course__type=lecture_type, course__semester=cls.semester)
-
         baker.make(
             Contribution,
             contributor=baker.make(UserProfile),
-            evaluation=evaluation2,
+            evaluation=iter([evaluation1, evaluation2]),
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _fill_optional=["contributor"],
+            _quantity=2,
+            _bulk_create=True,
         )
 
     def test_assign_questionnaires(self):
@@ -1601,12 +1596,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
         )
         cls.general_questionnaires = baker.make(Questionnaire, _bulk_create=True, _quantity=5)
         cls.evaluation.general_contribution.questionnaires.set(cls.general_questionnaires)
-        for __ in range(3):
-            baker.make(
-                Contribution,
-                evaluation=cls.evaluation,
-                contributor=baker.make(UserProfile),
-            )
+        baker.make(Contribution, evaluation=cls.evaluation, _fill_optional=["contributor"], _quantity=3)
         cls.url = f"/staff/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}/copy"
 
     def test_copy_forms_are_used(self):
@@ -1805,13 +1795,13 @@ class TestEvaluationEditView(WebTestStaffMode):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         student = baker.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
-        for name in ["a", "b", "c", "d", "e"]:
-            baker.make(
-                UserProfile,
-                email="{}@institution.example.com".format(name),
-                evaluations_participating_in=[self.evaluation, already_evaluated],
-                evaluations_voted_for=[already_evaluated],
-            )
+        baker.make(
+            UserProfile,
+            email=iter("{}@institution.example.com".format(name) for name in ["a", "b", "c", "d", "e"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=5,
+        )
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -1835,16 +1825,21 @@ class TestEvaluationEditView(WebTestStaffMode):
         SemesterActivation.objects.create(semester=self.evaluation.course.semester, is_active=True)
         student = baker.make(UserProfile, evaluations_participating_in=[self.evaluation])
 
-        for name, points_granted in [("a", 0), ("b", 1), ("c", 2), ("d", 3)]:
-            user = baker.make(
-                UserProfile,
-                email="{}@institution.example.com".format(name),
-                evaluations_participating_in=[self.evaluation, already_evaluated],
-                evaluations_voted_for=[already_evaluated],
-            )
-            RewardPointGranting.objects.create(
-                user_profile=user, semester=self.evaluation.course.semester, value=points_granted
-            )
+        users = baker.make(
+            UserProfile,
+            email=iter("{}@institution.example.com".format(name) for name in ["a", "b", "c", "d"]),
+            evaluations_participating_in=[self.evaluation, already_evaluated],
+            evaluations_voted_for=[already_evaluated],
+            _quantity=4,
+        )
+        baker.make(
+            RewardPointGranting,
+            user_profile=iter(users),
+            semester=self.evaluation.course.semester,
+            value=iter([0, 1, 2, 3]),
+            _quantity=4,
+            _bulk_create=True,
+        )
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -2246,8 +2241,7 @@ class TestEvaluationTextAnswerView(WebTest):
         )
 
         cls.num_questions = 100
-        for _ in range(cls.num_questions):
-            baker.make(TextAnswer, question__questionnaire=questionnaire, answer="yeet")
+        baker.make(TextAnswer, question__questionnaire=questionnaire, _quantity=cls.num_questions, _bulk_create=True)
 
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
@@ -2538,9 +2532,13 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
         cls.test_users = [make_manager()]
 
         questionnaire = baker.make(Questionnaire, id=2)
-        baker.make(Question, questionnaire=questionnaire, type=Question.TEXT)
-        baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
-        baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
+        baker.make(
+            Question,
+            questionnaire=questionnaire,
+            type=iter([Question.TEXT, Question.GRADE, Question.LIKERT]),
+            _quantity=3,
+            _bulk_create=True,
+        )
 
 
 class TestQuestionnaireCopyView(WebTestStaffMode):

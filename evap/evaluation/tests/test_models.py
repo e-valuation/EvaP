@@ -328,22 +328,10 @@ class TestEvaluations(WebTest):
             TextAnswer,
             question=question,
             contribution=evaluation.general_contribution,
-            answer="hidden",
-            state=TextAnswer.State.HIDDEN,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="published",
-            state=TextAnswer.State.PUBLISHED,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="private",
-            state=TextAnswer.State.PRIVATE,
+            answer=iter(["hidden", "published", "private"]),
+            state=iter([TextAnswer.State.HIDDEN, TextAnswer.State.PUBLISHED, TextAnswer.State.PRIVATE]),
+            _quantity=3,
+            _bulk_create=True,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
@@ -630,35 +618,20 @@ class TestUserProfile(TestCase):
     def test_get_sorted_due_evaluations(self):
         student = baker.make(UserProfile, email="student@example.com")
         course = baker.make(Course)
-        evaluation1 = baker.make(
+
+        evaluations = baker.make(
             Evaluation,
             course=course,
-            name_en="C",
-            name_de="C",
-            vote_end_date=date.today(),
+            name_en=iter(["C", "B", "A"]),
+            name_de=iter(["C", "B", "A"]),
+            vote_end_date=iter([date.today(), date.today(), date.today() + timedelta(days=1)]),
             state=Evaluation.State.IN_EVALUATION,
             participants=[student],
+            _quantity=3,
         )
-        evaluation2 = baker.make(
-            Evaluation,
-            course=course,
-            name_en="B",
-            name_de="B",
-            vote_end_date=date.today(),
-            state=Evaluation.State.IN_EVALUATION,
-            participants=[student],
-        )
-        evaluation3 = baker.make(
-            Evaluation,
-            course=course,
-            name_en="A",
-            name_de="A",
-            vote_end_date=date.today() + timedelta(days=1),
-            state=Evaluation.State.IN_EVALUATION,
-            participants=[student],
-        )
+
         sorted_evaluations = student.get_sorted_due_evaluations()
-        self.assertEqual(sorted_evaluations, [(evaluation2, 0), (evaluation1, 0), (evaluation3, 1)])
+        self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
 
 
 class ParticipationArchivingTests(TestCase):

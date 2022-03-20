@@ -1,7 +1,7 @@
 import functools
 import os
 from datetime import timedelta
-from typing import List, Union
+from typing import List, Optional, Sequence, Union
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -16,6 +16,7 @@ from evap.evaluation.models import (
     Course,
     Degree,
     Evaluation,
+    Question,
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
@@ -178,7 +179,12 @@ def make_editor(user, evaluation):
     )
 
 
-def make_rating_answer_counters(question, contribution, answer_counts=None):
+def make_rating_answer_counters(
+    question: Question,
+    contribution: Contribution,
+    answer_counts: Optional[Sequence[int]] = None,
+    store_in_db: bool = True,
+):
     """
     Create RatingAnswerCounters for a question for a contribution.
     Examples:
@@ -194,12 +200,16 @@ def make_rating_answer_counters(question, contribution, answer_counts=None):
 
     assert len(answer_counts) == expected_counts
 
-    return baker.make(
+    counters = baker.prepare(
         RatingAnswerCounter,
         question=question,
         contribution=contribution,
-        _bulk_create=True,
         _quantity=len(answer_counts),
         answer=iter(CHOICES[question.type].values),
         count=iter(answer_counts),
     )
+
+    if store_in_db:
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+    return counters
