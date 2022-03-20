@@ -13,6 +13,7 @@ from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class LoginTests(WebTest):
     csrf_checks = False
 
@@ -139,6 +140,7 @@ class LoginTests(WebTest):
         self.assertIn("Logout", page.body.decode())
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class LoginTestsWithCSRF(WebTest):
     @classmethod
     def setUpTestData(cls):

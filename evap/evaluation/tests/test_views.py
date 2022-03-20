@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.test import override_settings
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -8,6 +9,7 @@ from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class TestIndexView(WebTest):
     url = "/"
 
