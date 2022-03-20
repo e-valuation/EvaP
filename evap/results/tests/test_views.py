@@ -273,12 +273,12 @@ class TestResultsView(WebTest):
         published = baker.make(
             Evaluation,
             course=course,
-            name_en=iter(["ev1", "ev2", "ev3"]),
-            name_de=iter(["ev1", "ev2", "ev3"]),
+            name_en=iter(["evaluation_1", "evaluation_2", "evaluation_3"]),
             state=iter([Evaluation.State.NEW, Evaluation.State.PUBLISHED, Evaluation.State.PUBLISHED]),
             weight=iter([8, 3, 4]),
             is_single_result=True,
             _quantity=3,
+            _fill_optional=["name_de"],
         )[1:]
 
         contributions = [e.general_contribution for e in published]
@@ -288,8 +288,13 @@ class TestResultsView(WebTest):
         page = self.app.get(self.url, user=student)
         decoded = page.body.decode()
 
-        self.assertTrue(decoded.index("ev2") < decoded.index(" 20% ") < decoded.index("ev3") < decoded.index(" 26% "))
-        self.assertNotContains(page, " 53% ")
+        self.assertTrue(
+            decoded.index("evaluation_2")
+            < decoded.index("contributes 20% to")
+            < decoded.index("evaluation_3")
+            < decoded.index("contributes 26% to")
+        )
+        self.assertNotContains(page, "contributes 53% to")
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
