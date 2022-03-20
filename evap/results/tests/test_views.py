@@ -596,7 +596,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
     def test_answer_visibility_one_voter(self):
-        let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
+        let_user_vote_for_evaluation(self.student1, self.evaluation)
         self.evaluation.end_evaluation()
         self.evaluation.end_review()
         self.evaluation.publish()
@@ -609,8 +609,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.helper_test_answer_visibility_one_voter("student@institution.example.com", expect_page_not_visible=True)
 
     def test_answer_visibility_two_voters(self):
-        let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student1, self.evaluation, create_answers=True)
+        let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
         self.evaluation.end_evaluation()
         self.evaluation.end_review()
         self.evaluation.publish()

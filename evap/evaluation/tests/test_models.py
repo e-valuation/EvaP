@@ -269,7 +269,7 @@ class TestEvaluations(WebTest):
 
         self.assertFalse(evaluation.can_publish_text_results)
 
-        let_user_vote_for_evaluation(self.app, student2, evaluation)
+        let_user_vote_for_evaluation(student2, evaluation)
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.can_publish_text_results)

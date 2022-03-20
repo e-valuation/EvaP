@@ -2255,20 +2255,20 @@ class TestEvaluationTextAnswerView(WebTest):
             self.app.get(self.url, user=self.manager, status=403)
 
         # add additional voter
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now it should work
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=200)
 
     def test_textanswers_quick_view(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
             self.assertContains(page, self.answer)
 
     def test_textanswers_full_view(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url + "?view=full", user=self.manager, status=200)
             self.assertContains(page, self.answer)
@@ -2276,7 +2276,7 @@ class TestEvaluationTextAnswerView(WebTest):
     # use offset of more than 25 hours to make sure the test doesn't fail even on combined time zone change and leap second
     @override_settings(EVALUATION_END_OFFSET_HOURS=26)
     def test_exclude_unfinished_evaluations(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             page = self.app.get(self.url, user=self.manager, status=200)
             # evaluation2 is finished and should show up
@@ -2290,13 +2290,13 @@ class TestEvaluationTextAnswerView(WebTest):
             self.assertNotContains(page, self.evaluation2.full_name)
 
     def test_num_queries_is_constant(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             with self.assertNumQueries(FuzzyInt(0, self.num_questions)):
                 self.app.get(self.url, user=self.manager)
 
     def test_published(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=200)
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
@@ -2304,7 +2304,7 @@ class TestEvaluationTextAnswerView(WebTest):
             self.app.get(self.url, user=self.manager, status=403)
 
     def test_archived(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         with run_in_staff_mode(self):
             self.app.get(self.url, user=self.manager, status=200)
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
@@ -2355,7 +2355,7 @@ class TestEvaluationTextAnswerEditView(WebTest):
             self.app.get(self.url, user=self.manager, status=403)
 
         # add additional voter
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now it should work
         with run_in_staff_mode(self):
@@ -2736,7 +2736,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
             TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
         )
 
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
         self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
@@ -2746,7 +2746,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.helper_check_follow("textanswer_edit")
 
     def test_finishing_review_updates_results(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
         self.evaluation.end_evaluation()
         self.evaluation.can_publish_text_results = True
         self.evaluation.save()
@@ -2764,7 +2764,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
 
     def test_published(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
         self.helper_check_state(
@@ -2772,7 +2772,7 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         )
 
     def test_archived(self):
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
         self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
         self.helper_check_state(
