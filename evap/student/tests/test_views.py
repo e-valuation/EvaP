@@ -201,8 +201,7 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1.email, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_general_complete=False)
-        response = form.submit()
-        self.assertEqual(response.status_code, 200)
+        response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
 
         form = page.forms["student-vote-form"]
@@ -239,8 +238,7 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_contributors_complete=False)
-        response = form.submit()
-        self.assertEqual(response.status_code, 200)
+        response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
 
         form = page.forms["student-vote-form"]
@@ -386,8 +384,7 @@ class TestVoteView(WebTest):
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1, status=302)
-        response = form.submit()
-        self.assertEqual(response.status_code, 302)
+        response = form.submit(status=302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
 
     def test_midterm_evaluation_warning(self):

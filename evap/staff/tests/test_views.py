@@ -279,9 +279,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         baker.make(UserProfile, is_active=False)
         users_before = set(UserProfile.objects.all())
 
-        reply = form.submit(name="operation", value="test")
-
-        self.assertEqual(reply.status_code, 200)
+        form.submit(name="operation", value="test", status=200)
         # No user got deleted.
         self.assertEqual(users_before, set(UserProfile.objects.all()))
 
@@ -401,8 +399,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
         form = page.forms["user-bulk-update-form"]
         form["user_file"] = (self.filename_random,)
-        reply = form.submit(name="operation", value="test")
-        self.assertEqual(reply.status_code, 200)
+        reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
 
         page = self.app.get(self.url, user=self.manager)
@@ -411,8 +408,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
             "test_enrollment_data.xls",
             excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata),
         )
-        reply = form.submit(name="operation", value="test")
-        self.assertEqual(reply.status_code, 200)
+        reply = form.submit(name="operation", value="test", status=200)
         self.assertIn("An error happened when processing the file", reply)
 
 
@@ -501,10 +497,7 @@ class TestUserImportView(WebTestStaffMode):
         form = page.forms["user-import-form"]
         form["excel_file"] = (self.filename_valid,)
 
-        # Should throw SuspiciousOperation Exception.
-        reply = form.submit(name="operation", value="hackit", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="hackit", status=400)
 
     def test_invalid_upload_operation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -519,9 +512,7 @@ class TestUserImportView(WebTestStaffMode):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["user-import-form"]
-        reply = form.submit(name="operation", value="import", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="import", status=400)
 
 
 # Staff - Semester Views
@@ -706,15 +697,13 @@ class TestSemesterDeleteView(WebTestStaffMode):
         )
         self.assertFalse(semester.can_be_deleted_by_manager)
 
-        response = self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, expect_errors=True)
-        self.assertEqual(response.status_code, 400)
+        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=400)
         self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
 
     def test_success_if_no_courses(self):
         semester = baker.make(Semester)
         self.assertTrue(semester.can_be_deleted_by_manager)
-        response = self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager)
-        self.assertEqual(response.status_code, 302)
+        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
 
     def test_success_if_archived(self):
@@ -733,8 +722,7 @@ class TestSemesterDeleteView(WebTestStaffMode):
         semester.archive_results()
 
         self.assertTrue(semester.can_be_deleted_by_manager)
-        response = self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager)
-        self.assertEqual(response.status_code, 302)
+        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
         self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
         self.assertFalse(Course.objects.filter(pk=course.pk).exists())
         self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
@@ -745,15 +733,7 @@ class TestSemesterDeleteView(WebTestStaffMode):
 
     def test_failure_if_active(self):
         semester = baker.make(Semester, is_active=True)
-        response = self.app.post(
-            self.url,
-            user=self.manager,
-            expect_errors=True,
-            params={
-                "semester_id": semester.id,
-            },
-        )
-        self.assertEqual(response.status_code, 400)
+        self.app.post(self.url, user=self.manager, status=400, params={"semester_id": semester.id})
 
 
 class TestSemesterAssignView(WebTestStaffMode):
@@ -841,8 +821,7 @@ class TestSemesterPreparationReminderView(WebTestStaffModeWith200Check):
         email_template_mock.objects.get.return_value = email_template_mock
         email_template_mock.EDITOR_REVIEW_REMINDER = EmailTemplate.EDITOR_REVIEW_REMINDER
 
-        response = self.app.post(self.url, user=self.manager)
-        self.assertEqual(response.status_code, 200)
+        self.app.post(self.url, user=self.manager, status=200)
 
         subject_params = {}
         body_params = {"user": user, "evaluations": [evaluation]}
@@ -1021,10 +1000,7 @@ class TestSemesterImportView(WebTestStaffMode):
             excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata),
         )
 
-        # Should throw SuspiciousOperation Exception.
-        reply = form.submit(name="operation", value="hackit", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="hackit", status=400)
 
     def test_invalid_upload_operation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1040,9 +1016,7 @@ class TestSemesterImportView(WebTestStaffMode):
 
         form = page.forms["semester-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
-        reply = form.submit(name="operation", value="import", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="import", status=400)
 
     def test_missing_evaluation_period(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1359,9 +1333,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         evaluation = baker.make(Evaluation, state=Evaluation.State.APPROVED, course=self.course)
         urloptions = "?evaluation={}&target_state={}".format(evaluation.pk, Evaluation.State.IN_EVALUATION)
 
-        response = self.app.get(self.url + urloptions, user=self.manager)
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
-
+        response = self.app.get(self.url + urloptions, user=self.manager, status=200)
         form = response.forms["evaluation-operation-form"]
         form.submit()
 
@@ -1372,8 +1344,7 @@ class TestEvaluationOperationView(WebTestStaffMode):
         evaluation = baker.make(Evaluation, state=Evaluation.State.NEW, course=self.course)
         urloptions = "?evaluation={}&target_state={}".format(evaluation.pk, Evaluation.State.PREPARED)
 
-        response = self.app.get(self.url + urloptions, user=self.manager)
-        self.assertEqual(response.status_code, 200, 'url "{}" failed with user "manager"'.format(self.url))
+        response = self.app.get(self.url + urloptions, user=self.manager, status=200)
         form = response.forms["evaluation-operation-form"]
         form.submit()
 
@@ -2158,10 +2129,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         form = page.forms["participant-import-form"]
         form["pe-excel_file"] = (self.filename_valid,)
 
-        # Should throw SuspiciousOperation Exception.
-        reply = form.submit(name="operation", value="hackit", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="hackit", status=400)
 
     def test_invalid_contributor_upload_operation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -2186,18 +2154,14 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
 
         form = page.forms["contributor-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
-        reply = form.submit(name="operation", value="import-contributors", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="import-contributors", status=400)
 
     def test_invalid_participant_import_operation(self):
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
         # invalid because no file has been uploaded previously (and the button doesn't even exist)
-        reply = form.submit(name="operation", value="import-participants", expect_errors=True)
-
-        self.assertEqual(reply.status_code, 400)
+        form.submit(name="operation", value="import-participants", status=400)
 
 
 class TestEvaluationEmailView(WebTestStaffMode):
@@ -2453,10 +2417,11 @@ class TestQuestionnaireNewVersionView(WebTestStaffMode):
 
         # Second try.
         new_questionnaire = Questionnaire.objects.get(name_de=self.name_de_orig)
-        page = self.app.get(url=f"/staff/questionnaire/{new_questionnaire.id}/new_version", user=self.manager)
+        page = self.app.get(
+            url=f"/staff/questionnaire/{new_questionnaire.id}/new_version", user=self.manager, status=302
+        )
 
         # We should get redirected back to the questionnaire index.
-        self.assertEqual(page.status_code, 302)
         self.assertEqual(page.location, "/staff/questionnaire/")
 
 
@@ -2742,12 +2707,12 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
     def helper_check_follow(self, action):
         with run_in_staff_mode(self):
             textanswer = baker.make(TextAnswer)
-            response = self.app.post(
+            self.app.post(
                 self.url,
                 params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
                 user=self.manager,
+                status=200,
             )
-            self.assertEqual(response.status_code, 200)
 
     def helper_check_state(self, old_state, expected_new_state, action, expect_errors=False):
         with run_in_staff_mode(self):

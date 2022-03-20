@@ -133,7 +133,7 @@ class LoginTests(WebTest):
         page = self.app.get(location)
         # A GET here should then redirect to the users real start page.
         # This should be a 403 since the user is external and has no course participation
-        page = page.follow(expect_errors=True)
+        page = page.follow(status=403)
 
         # user should see the Logout button then.
         self.assertIn("Logout", page.body.decode())
