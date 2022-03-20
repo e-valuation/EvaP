@@ -39,7 +39,7 @@ from evap.evaluation.tests.tools import (
     make_rating_answer_counters,
     render_pages,
 )
-from evap.results.tools import cache_results, get_results
+from evap.results.tools import cache_results, get_results, TextResult
 from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
@@ -2752,7 +2752,10 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.evaluation.save()
         results = get_results(self.evaluation)
 
-        self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 0)
+        textresult = next(
+            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+        )
+        self.assertEqual(len(textresult.answers), 0)
 
         textanswer = self.evaluation.unreviewed_textanswer_set[0]
         textanswer.state = TextAnswer.State.PUBLISHED
@@ -2761,7 +2764,10 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         self.evaluation.save()
         results = get_results(self.evaluation)
 
-        self.assertEqual(len(results.questionnaire_results[0].question_results[1].answers), 1)
+        textresult = next(
+            (result for result in results.questionnaire_results[0].question_results if isinstance(result, TextResult))
+        )
+        self.assertEqual(len(textresult.answers), 1)
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
