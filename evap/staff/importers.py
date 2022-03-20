@@ -518,7 +518,7 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation_data.existing_course = merge_candidate
                 self.warnings[ImporterWarning.EXISTS].append(
                     _(
-                        "Course {} ({}) already exists with identical attributes. Course is not created and users are put into the evaluation of that course."
+                        "Course {} ({}) already exists with matching attributes except degrees. Course is not created, users are put into the evaluation of that course and the degrees are merged."
                     ).format(evaluation_data.name_en, evaluation_data.name_de)
                 )
         return merge_candidate is not None
