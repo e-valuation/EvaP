@@ -43,7 +43,6 @@ class TestEventDeleteView(WebTestStaffMode):
 
 class TestIndexView(WebTest):
     url = reverse("rewards:index")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -96,7 +95,6 @@ class TestEventsView(WebTestStaffModeWith200Check):
 
 class TestEventCreateView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_create")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -119,7 +117,6 @@ class TestEventCreateView(WebTestStaffMode):
 
 class TestEventEditView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_edit", args=[1])
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
