@@ -2620,27 +2620,13 @@ class TestQuestionnaireDeletionView(WebTestStaffMode):
         baker.make(Contribution, questionnaires=[cls.q1])
 
     def test_questionnaire_deletion(self):
-        """
-        Tries to delete two questionnaires via the respective post request,
-        only the second attempt should succeed.
-        """
         self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_be_deleted_by_manager)
-        response = self.app.post(
-            "/staff/questionnaire/delete",
-            params={"questionnaire_id": self.q1.pk},
-            user=self.manager,
-            expect_errors=True,
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
-
         self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_be_deleted_by_manager)
-        response = self.app.post(
-            "/staff/questionnaire/delete",
-            params={"questionnaire_id": self.q2.pk},
-            user=self.manager,
-        )
-        self.assertEqual(response.status_code, 200)
+
+        self.app.post(self.url, params={"questionnaire_id": self.q1.pk}, user=self.manager, status=400)
+        self.app.post(self.url, params={"questionnaire_id": self.q2.pk}, user=self.manager, status=200)
+
+        self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
         self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
 
 
@@ -2834,23 +2820,10 @@ class TestEvaluationTextAnswersSkip(WebTestStaffMode):
 
     def test_skip(self):
         manager = make_manager()
-        evaluation = baker.make(
-            Evaluation,
-            participants=[],
-            voters=[],
-            state=Evaluation.State.IN_EVALUATION,
-            can_publish_text_results=True,
-        )
+        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, can_publish_text_results=True)
 
         skip_url = "/staff/textanswers/skip"
-        response = self.app.post(
-            skip_url,
-            user=manager,
-            status=200,
-            params={
-                "evaluation_id": evaluation.id,
-            },
-        )
+        response = self.app.post(skip_url, user=manager, status=200, params={"evaluation_id": evaluation.id})
         self.assertEqual(response.client.session["review-skipped"], {evaluation.id})
 
 
@@ -3037,20 +3010,10 @@ class TestSemesterActiveStateBehaviour(WebTestStaffMode):
 
     def test_make_other_semester_active(self):
         manager = make_manager()
-
         semester1 = baker.make(Semester, is_active=True)
-        semester2 = baker.make(Semester)
+        semester2 = baker.make(Semester, is_active=False)
 
-        self.assertFalse(semester2.is_active)
-
-        self.app.post(
-            self.url,
-            user=manager,
-            status=200,
-            params={
-                "semester_id": semester2.id,
-            },
-        )
+        self.app.post(self.url, user=manager, status=200, params={"semester_id": semester2.id})
 
         semester1.refresh_from_db()
         semester2.refresh_from_db()
