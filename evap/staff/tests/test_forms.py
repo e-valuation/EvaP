@@ -759,7 +759,6 @@ class CourseFormTests(TestCase):
             responsibles=[baker.make(UserProfile)],
             degrees=[baker.make(Degree)],
             _quantity=2,
-            _bulk_create=True,
         )
 
         form_data = get_form_data_from_instance(CourseForm, courses[1])

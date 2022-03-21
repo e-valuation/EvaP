@@ -130,7 +130,9 @@ class TestUserIndexView(WebTestStaffMode):
             _participant_count=1,
             _voter_count=1,
         )
-        baker.make(UserProfile, _bulk_create=True, _quantity=num_users, evaluations_participating_in=[evaluation])
+        users = baker.make(UserProfile, _bulk_create=True, _quantity=num_users)
+        participations = [Evaluation.participants.through(evaluation=evaluation, userprofile=user) for user in users]
+        Evaluation.participants.through.objects.bulk_create(participations)
 
         with self.assertNumQueries(FuzzyInt(0, num_users - 1)):
             self.app.get(self.url, user=self.manager)

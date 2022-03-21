@@ -37,14 +37,15 @@ class TestStudentIndexView(WebTestWith200Check):
         semester2 = baker.make(Semester, participations_are_archived=True)
 
         for semester in [semester1, semester2]:
-            baker.make(
+            evaluations = baker.make(
                 Evaluation,
                 course__semester=semester,
                 state=Evaluation.State.PUBLISHED,
-                participants=[self.user],
                 _quantity=100,
                 _bulk_create=True,
             )
+            participations = [Evaluation.participants.through(evaluation=e, userprofile=self.user) for e in evaluations]
+            Evaluation.participants.through.objects.bulk_create(participations)
 
         with self.assertNumQueries(FuzzyInt(0, 100)):
             self.app.get(self.url, user=self.user)
