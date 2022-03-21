@@ -95,3 +95,14 @@ module = [
     "evap.staff.fixtures.*",
 ]
 ignore_missing_imports = true
+
+##############################################
+
+[tool.pytest.ini_options]
+# We don't officially use pytest, but last time we wanted to, this worked for us with pytest-django
+# pytest-xdist worked for parallelizing tests.
+DJANGO_SETTINGS_MODULE = "evap.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["evap"]
+norecursedirs=["locale", "logs", "static", "static_collected", "upload"]
+addopts = "--reuse-db"
