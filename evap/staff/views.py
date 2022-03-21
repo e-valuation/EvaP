@@ -2048,6 +2048,7 @@ def user_delete(request):
     if not user.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
+    messages.success(request, _("Successfully deleted user."))
     return HttpResponse()  # 200 OK
 
 

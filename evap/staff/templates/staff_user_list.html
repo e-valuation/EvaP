@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-3 ms-auto">
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <div class="input-group-append">
@@ -38,23 +38,23 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <table class="table table-striped table-vertically-aligned user-table">
+            <table class="table table-vertically-aligned table-seamless-links user-table">
                 <thead>
                     <tr>
                         <th style="width: 25%">{% trans 'Name' %}</th>
                         <th style="width: 35%">{% trans 'Email' %}</th>
                         <th style="width: 30%">{% trans 'Information' %}</th>
-                        <th style="width: 10%">{% trans 'Actions' %}</th>
+                        <th style="width: 10%"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in users %}
-                        <tr id="user-row-{{ user.id }}">
+                        <tr id="user-row-{{ user.id }}" class="hover-row hover-row-info" data-url="{% url 'staff:user_edit' user.id %}">
                             <td>{{ user.full_name }}</td>
                             <td>{% if user.email %}{{ user.email }}{% endif %}</td>
                             <td>{% include 'staff_user_badges.html' with user=user %}</td>
-                            <td>
-                                <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
+                            <td class="text-end">
+                                <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-primary btn-sm btn-row-hover"><span class="fas fa-pencil-alt"></span></a>
                             </td>
                         </tr>
                     {% endfor %}
