@@ -273,12 +273,12 @@ class TestResultsView(WebTest):
         published = baker.make(
             Evaluation,
             course=course,
-            name_en=iter(["ev1", "ev2", "ev3"]),
-            name_de=iter(["ev1", "ev2", "ev3"]),
+            name_en=iter(["evaluation_1", "evaluation_2", "evaluation_3"]),
             state=iter([Evaluation.State.NEW, Evaluation.State.PUBLISHED, Evaluation.State.PUBLISHED]),
             weight=iter([8, 3, 4]),
             is_single_result=True,
             _quantity=3,
+            _fill_optional=["name_de"],
         )[1:]
 
         contributions = [e.general_contribution for e in published]
@@ -288,8 +288,13 @@ class TestResultsView(WebTest):
         page = self.app.get(self.url, user=student)
         decoded = page.body.decode()
 
-        self.assertTrue(decoded.index("ev2") < decoded.index(" 20% ") < decoded.index("ev3") < decoded.index(" 26% "))
-        self.assertNotContains(page, " 53% ")
+        self.assertTrue(
+            decoded.index("evaluation_2")
+            < decoded.index("contributes 20% to")
+            < decoded.index("evaluation_3")
+            < decoded.index("contributes 26% to")
+        )
+        self.assertNotContains(page, "contributes 53% to")
 
 
 class TestGetEvaluationsWithPrefetchedData(TestCase):
@@ -324,14 +329,13 @@ class TestResultsViewContributionWarning(WebTest):
         contributor = baker.make(UserProfile)
 
         # Set up an evaluation with one question but no answers
-        student1 = baker.make(UserProfile)
-        student2 = baker.make(UserProfile)
+        students = list(baker.make(UserProfile, _quantity=2, _bulk_create=True))
         cls.evaluation = baker.make(
             Evaluation,
             state=Evaluation.State.PUBLISHED,
             course=baker.make(Course, semester=cls.semester),
-            participants=[student1, student2],
-            voters=[student1, student2],
+            participants=students,
+            voters=students,
         )
         questionnaire = baker.make(Questionnaire)
         cls.evaluation.general_contribution.questionnaires.set([questionnaire])
@@ -591,7 +595,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.assertEqual(number_of_disabled_grade_badges, 1)
 
     def test_answer_visibility_one_voter(self):
-        let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
+        let_user_vote_for_evaluation(self.student1, self.evaluation)
         self.evaluation.end_evaluation()
         self.evaluation.end_review()
         self.evaluation.publish()
@@ -604,8 +608,8 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         self.helper_test_answer_visibility_one_voter("student@institution.example.com", expect_page_not_visible=True)
 
     def test_answer_visibility_two_voters(self):
-        let_user_vote_for_evaluation(self.app, self.student1, self.evaluation)
-        let_user_vote_for_evaluation(self.app, self.student2, self.evaluation)
+        let_user_vote_for_evaluation(self.student1, self.evaluation, create_answers=True)
+        let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
         self.evaluation.end_evaluation()
         self.evaluation.end_review()
         self.evaluation.publish()

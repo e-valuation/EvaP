@@ -61,19 +61,17 @@ class GradeUploadTest(WebTest):
             user=self.grade_publisher,
             content_type="multipart/form-data",
             upload_files=upload_files,
-        ).follow()
+        ).follow(status=200)
         return response
 
     def helper_check_final_grade_upload(self, course, expected_number_of_emails):
         response = self.helper_upload_grades(course, final_grades=True)
-        self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        response = self.app.get(
-            "/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student
+        self.app.get(
+            "/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student, status=200
         )
-        self.assertEqual(response.status_code, 200)
 
         # tear down
         course.final_grade_documents.first().file.delete()
@@ -84,7 +82,6 @@ class GradeUploadTest(WebTest):
         self.assertEqual(self.course.midterm_grade_documents.count(), 0)
 
         response = self.helper_upload_grades(self.course, final_grades=False)
-        self.assertEqual(response.status_code, 200)
         self.assertIn("Successfully", response)
         self.assertEqual(self.course.midterm_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), 0)
@@ -144,10 +141,12 @@ class GradeUploadTest(WebTest):
 
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 
-        response = self.app.post(
-            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        self.app.post(
+            "/grades/toggle_no_grades",
+            params={"course_id": evaluation.course.id},
+            user=self.grade_publisher,
+            status=200,
         )
-        self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertTrue(evaluation.course.gets_no_grade_documents)
         # evaluation should get published here
@@ -156,10 +155,12 @@ class GradeUploadTest(WebTest):
             len(mail.outbox), evaluation.num_participants + evaluation.contributions.exclude(contributor=None).count()
         )
 
-        response = self.app.post(
-            "/grades/toggle_no_grades", params={"course_id": evaluation.course.id}, user=self.grade_publisher
+        self.app.post(
+            "/grades/toggle_no_grades",
+            params={"course_id": evaluation.course.id},
+            user=self.grade_publisher,
+            status=200,
         )
-        self.assertEqual(response.status_code, 200)
         evaluation = Evaluation.objects.get(id=evaluation.id)
         self.assertFalse(evaluation.course.gets_no_grade_documents)
 

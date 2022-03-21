@@ -186,8 +186,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.assertEqual(self.evaluation.state, Evaluation.State.EDITOR_APPROVED)
 
         # test what happens if the operation is not specified correctly
-        response = form.submit(expect_errors=True)
-        self.assertEqual(response.status_code, 403)
+        form.submit(status=403)
 
     def test_single_locked_questionnaire(self):
         locked_questionnaire = baker.make(

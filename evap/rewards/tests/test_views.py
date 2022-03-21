@@ -27,8 +27,7 @@ class TestEventDeleteView(WebTestStaffMode):
 
     def test_deletion_success(self):
         event = baker.make(RewardPointRedemptionEvent)
-        response = self.app.post(self.url, params={"event_id": event.pk}, user=self.manager)
-        self.assertEqual(response.status_code, 200)
+        self.app.post(self.url, params={"event_id": event.pk}, user=self.manager, status=200)
         self.assertFalse(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
     def test_deletion_failure(self):
@@ -36,14 +35,12 @@ class TestEventDeleteView(WebTestStaffMode):
         event = baker.make(RewardPointRedemptionEvent)
         baker.make(RewardPointRedemption, value=1, event=event)
 
-        response = self.app.post(self.url, params={"event_id": event.pk}, user=self.manager, expect_errors=True)
-        self.assertEqual(response.status_code, 400)
+        self.app.post(self.url, params={"event_id": event.pk}, user=self.manager, status=400)
         self.assertTrue(RewardPointRedemptionEvent.objects.filter(pk=event.pk).exists())
 
 
 class TestIndexView(WebTest):
     url = reverse("rewards:index")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -59,7 +56,6 @@ class TestIndexView(WebTest):
         form.set("points-1", 2)
         form.set("points-2", 3)
         response = form.submit()
-        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "You successfully redeemed your points.")
         self.assertEqual(0, reward_points_of_user(self.student))
 
@@ -96,7 +92,6 @@ class TestEventsView(WebTestStaffModeWith200Check):
 
 class TestEventCreateView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_create")
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
@@ -119,7 +114,6 @@ class TestEventCreateView(WebTestStaffMode):
 
 class TestEventEditView(WebTestStaffMode):
     url = reverse("rewards:reward_point_redemption_event_edit", args=[1])
-    csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):

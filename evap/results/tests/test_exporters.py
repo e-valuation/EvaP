@@ -44,7 +44,7 @@ class TestExporters(TestCase):
         degree = baker.make(Degree)
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[degree]),
+            course__degrees=[degree],
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
@@ -98,7 +98,7 @@ class TestExporters(TestCase):
         degree = baker.make(Degree)
         evaluation = baker.make(
             Evaluation,
-            course=baker.make(Course, degrees=[degree]),
+            course__degrees=[degree],
             state=Evaluation.State.PUBLISHED,
             _participant_count=2,
             _voter_count=2,
@@ -432,18 +432,16 @@ class TestExporters(TestCase):
     def test_course_grade(self):
         degree = baker.make(Degree)
         course = baker.make(Course, degrees=[degree])
-        evaluations = [
-            baker.make(
-                Evaluation,
-                course=course,
-                name_en=f"eval{i}",
-                name_de=f"eval{i}",
-                state=Evaluation.State.PUBLISHED,
-                _voter_count=5,
-                _participant_count=10,
-            )
-            for i in range(3)
-        ]
+        evaluations = baker.make(
+            Evaluation,
+            course=course,
+            name_en=iter(["eval0", "eval1", "eval2"]),
+            name_de=iter(["eval0", "eval1", "eval2"]),
+            state=Evaluation.State.PUBLISHED,
+            _voter_count=5,
+            _participant_count=10,
+            _quantity=3,
+        )
 
         grades_per_eval = [[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [1, 0, 1, 0, 0]]
         expected_average = 2.0
@@ -546,16 +544,22 @@ class TestExporters(TestCase):
 
     def test_text_answer_export(self):
         evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, can_publish_text_results=True)
-        questions = [baker.make(Question, questionnaire__type=t, type=Question.TEXT) for t in Questionnaire.Type.values]
+        questions = baker.make(
+            Question,
+            questionnaire__type=iter(Questionnaire.Type.values),
+            type=Question.TEXT,
+            _quantity=len(Questionnaire.Type.values),
+            _bulk_create=True,
+        )
 
-        for idx in [0, 1, 2, 2, 0]:
-            baker.make(
-                TextAnswer,
-                question=questions[idx],
-                contribution__evaluation=evaluation,
-                contribution__questionnaires=[questions[idx].questionnaire],
-                state=TextAnswer.State.PUBLISHED,
-            )
+        baker.make(
+            TextAnswer,
+            question=iter(questions[idx] for idx in [0, 1, 2, 2, 0]),
+            contribution__evaluation=evaluation,
+            contribution__questionnaires=iter(questions[idx].questionnaire for idx in [0, 1, 2, 2, 0]),
+            state=TextAnswer.State.PUBLISHED,
+            _quantity=5,
+        )
 
         cache_results(evaluation)
         evaluation_result = get_results(evaluation)

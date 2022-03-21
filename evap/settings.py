@@ -392,13 +392,15 @@ try:
 except ImportError:
     pass
 
-TESTING = "test" in sys.argv
+TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.
     CACHES = {
