@@ -406,10 +406,11 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
 
     def test_existing_course_is_not_recreated(self):
-        existing_course, __ = self.create_existing_course()
+        existing_course, existing_course_evaluation = self.create_existing_course()
 
         old_course_count = Course.objects.count()
         old_dict = model_to_dict(existing_course)
+        self.assertFalse(existing_course_evaluation.participants.exists())
 
         __, warnings, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
@@ -423,6 +424,10 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(Course.objects.count(), expected_course_count)
         existing_course.refresh_from_db()
         self.assertEqual(old_dict, model_to_dict(existing_course))
+        self.assertIn(
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
+            existing_course_evaluation.participants.all(),
+        )
 
     def test_existing_course_degree_is_added(self):
         existing_course, __ = self.create_existing_course()
@@ -436,20 +441,6 @@ class TestEnrollmentImporter(TestCase):
 
         self.assertSetEqual(
             set(existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
-        )
-
-    def test_existing_course_users_added_to_evaluation(self):
-        __, existing_course_evaluation = self.create_existing_course()
-
-        self.assertFalse(existing_course_evaluation.participants.exists())
-
-        EnrollmentImporter.process(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
-
-        self.assertIn(
-            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
-            existing_course_evaluation.participants.all(),
         )
 
     def test_existing_course_different_attributes(self):
