@@ -102,8 +102,8 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
         baker.make(FaqQuestion, section=section)
 
 
-class TestUserIndexView(WebTestStaffMode):
-    url = "/staff/user/"
+class TestUserListView(WebTestStaffMode):
+    url = "/staff/user/list"
 
     @classmethod
     def setUpTestData(cls):
