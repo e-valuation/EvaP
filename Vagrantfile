@@ -17,10 +17,18 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.provider :docker do |d|
+  config.vm.provider :docker do |d, override|
     d.image = "ubuntu:bionic"
     # Docker container really are supposed to be used differently. Hacky way to make it into a "VM".
     d.cmd = ["tail", "-f", "/dev/null"]
+
+    # Workaround for no SSH server as long as https://github.com/hashicorp/vagrant/issues/8145 is still open
+    override.trigger.before :provision do |trigger|
+      trigger.ruby do |env, machine| system("vagrant docker-exec -it -- /evap/deployment/provision_vagrant_vm.sh") end
+    end
+    override.trigger.before :ssh do |trigger|
+      trigger.ruby do |env, machine| system("vagrant docker-exec -it -- sudo -H -u evap bash") end
+    end
   end
 
   # port forwarding

@@ -48,9 +48,9 @@ That's it!
 ### Docker
 We provide experimental support to run the development setup in a docker container using
 ```bash
-vagrant up --provider docker  # to start the container
-vagrant docker-exec -it -- /evap/deployment/provision_vagrant_vm.sh   # to set up the environment
-vagrant docker-exec -it -- sudo -H -u evap bash  # to run an interactive shell
+vagrant up --provider docker
+vagrant provision
+vagrant ssh
 ```
 
 
