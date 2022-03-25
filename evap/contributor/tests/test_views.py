@@ -244,7 +244,7 @@ class TestContributorEvaluationEditView(WebTest):
         self.evaluation.save()
         page = self.app.get(self.url, user=self.responsible, status=200)
 
-        self.assertIn("changeParticipantRequestModalLabel", page)
+        self.assertIn("changeEvaluationRequestModalLabel", page)
 
         self.assertNotIn("Adam &amp;amp; Eve", page)
         self.assertIn("Adam &amp; Eve", page)
@@ -258,3 +258,16 @@ class TestContributorEvaluationEditView(WebTest):
             "Please review the evaluation's details below, add all contributors and select suitable questionnaires. "
             "Once everything is okay, please approve the evaluation on the bottom of the page.",
         )
+
+    def test_display_request_buttons(self):
+        self.evaluation.allow_editors_to_edit = False
+        self.evaluation.save()
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertEqual(page.body.decode().count("Request changes"), 1)
+        self.assertEqual(page.body.decode().count("Request creation of new account"), 1)
+
+        self.evaluation.allow_editors_to_edit = True
+        self.evaluation.save()
+        page = self.app.get(self.url, user=self.responsible)
+        self.assertEqual(page.body.decode().count("Request changes"), 0)
+        self.assertEqual(page.body.decode().count("Request creation of new account"), 2)

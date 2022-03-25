@@ -386,7 +386,10 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
         )
 
-        self.fields["participants"].queryset = UserProfile.objects.exclude(is_active=False)
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if self.instance.pk is not None:
+            queryset = (queryset | self.instance.participants.all()).distinct()
+        self.fields["participants"].queryset = queryset
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [

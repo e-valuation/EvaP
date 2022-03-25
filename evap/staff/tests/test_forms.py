@@ -954,6 +954,29 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
 
+    def test_inactive_participants_remain(self):
+        student = baker.make(UserProfile, is_active=False)
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(len(form["participants"]), 1)
+
+    def test_inactive_participants_not_in_queryset(self):
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 0)
+
+        baker.make(UserProfile, is_active=True)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
+
+        baker.make(UserProfile, is_active=False)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
+
 
 class EvaluationCopyFormTests(TestCase):
     @classmethod
