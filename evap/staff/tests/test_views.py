@@ -709,55 +709,40 @@ class TestSemesterDeleteView(WebTestStaffMode):
 
     @classmethod
     def setUpTestData(cls):
+        cls.semester = baker.make(Semester)
         cls.manager = make_manager()
+        cls.post_params = {"semester_id": cls.semester.pk}
 
-    def test_failure(self):
-        semester = baker.make(Semester)
-        baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester),
-            state=Evaluation.State.IN_EVALUATION,
-            voters=[baker.make(UserProfile)],
-        )
-        self.assertFalse(semester.can_be_deleted_by_manager)
+    @patch.object(Semester, "can_be_deleted_by_manager", False)
+    def test_invalid_deletion(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
+        self.assertTrue(Semester.objects.filter(pk=self.semester.pk).exists())
 
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=400)
-        self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
+    @patch.object(Semester, "can_be_deleted_by_manager", True)
+    def test_valid_deletion(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params)
+        self.assertFalse(Semester.objects.filter(pk=self.semester.pk).exists())
 
-    def test_success_if_no_courses(self):
-        semester = baker.make(Semester)
-        self.assertTrue(semester.can_be_deleted_by_manager)
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
-        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
+    def test_all_db_objects_removed(self):
+        evaluation = baker.make(Evaluation, course__semester=self.semester, state=Evaluation.State.PUBLISHED)
 
-    def test_success_if_archived(self):
-        semester = baker.make(Semester)
-        course = baker.make(Course, semester=semester)
-        evaluation = baker.make(Evaluation, course=course, state=Evaluation.State.PUBLISHED)
         general_contribution = evaluation.general_contribution
-        responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
-        textanswer = baker.make(TextAnswer, contribution=general_contribution, state="PU")
+        responsible_contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
+        textanswer = baker.make(TextAnswer, contribution=general_contribution, state=TextAnswer.State.PUBLISHED)
         ratinganswercounter = baker.make(RatingAnswerCounter, contribution=responsible_contribution)
 
-        self.assertFalse(semester.can_be_deleted_by_manager)
+        self.semester.archive()
+        self.semester.delete_grade_documents()
+        self.semester.archive_results()
+        self.app.post(self.url, params=self.post_params, user=self.manager)
 
-        semester.archive()
-        semester.delete_grade_documents()
-        semester.archive_results()
-
-        self.assertTrue(semester.can_be_deleted_by_manager)
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
-        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
-        self.assertFalse(Course.objects.filter(pk=course.pk).exists())
+        self.assertFalse(Semester.objects.filter(pk=self.semester.pk).exists())
+        self.assertFalse(Course.objects.filter(pk=evaluation.course.pk).exists())
         self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
         self.assertFalse(Contribution.objects.filter(pk=general_contribution.pk).exists())
         self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
         self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
         self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
-
-    def test_failure_if_active(self):
-        semester = baker.make(Semester, is_active=True)
-        self.app.post(self.url, user=self.manager, status=400, params={"semester_id": semester.id})
 
 
 class TestSemesterAssignView(WebTestStaffMode):
@@ -2699,26 +2684,25 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         self.assertEqual(questionnaire.questions.count(), 1)
 
 
-class TestQuestionnaireDeletionView(WebTestStaffMode):
-    url = "/staff/questionnaire/delete"
+class TestQuestionnaireDeleteView(WebTestStaffMode):
+    url = reverse("staff:questionnaire_delete")
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.q1 = baker.make(Questionnaire)
-        cls.q2 = baker.make(Questionnaire)
-        baker.make(Contribution, questionnaires=[cls.q1])
+        cls.questionnaire = baker.make(Questionnaire)
+        cls.post_params = {"questionnaire_id": cls.questionnaire.pk}
 
-    def test_questionnaire_deletion(self):
-        self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_be_deleted_by_manager)
-        self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_be_deleted_by_manager)
+    @patch.object(Questionnaire, "can_be_deleted_by_manager", False)
+    def test_invalid_deletion(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
+        self.assertTrue(Questionnaire.objects.filter(pk=self.questionnaire.pk).exists())
 
-        self.app.post(self.url, params={"questionnaire_id": self.q1.pk}, user=self.manager, status=400)
-        self.app.post(self.url, params={"questionnaire_id": self.q2.pk}, user=self.manager, status=200)
-
-        self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
-        self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
+    @patch.object(Questionnaire, "can_be_deleted_by_manager", True)
+    def test_valid_deletion(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params)
+        self.assertFalse(Questionnaire.objects.filter(pk=self.questionnaire.pk).exists())
 
 
 class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
