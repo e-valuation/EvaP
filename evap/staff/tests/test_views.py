@@ -1,6 +1,8 @@
 import datetime
 import os
+from abc import ABC, abstractmethod
 from io import BytesIO
+from typing import Tuple, Type
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -8,6 +10,7 @@ import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.db.models import Model
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
@@ -52,6 +55,36 @@ from evap.staff.tests.utils import (
 )
 from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
+
+
+class DeleteViewTestMixin(ABC):
+    csrf_checks = False
+
+    # To be set by derived classes
+    model_cls: Type[Model]
+    url: str
+    permission_method_to_patch: Tuple[Type, str]
+
+    @classmethod
+    @abstractmethod
+    def get_post_params(cls):
+        pass
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.instance = baker.make(cls.model_cls)
+        cls.user = make_manager()
+        cls.post_params = cls.get_post_params()
+
+    def test_valid_deletion(self):
+        with patch.object(*self.permission_method_to_patch, True):
+            self.app.post(self.url, user=self.user, params=self.post_params)
+        self.assertFalse(self.model_cls.objects.filter(pk=self.instance.pk).exists())
+
+    def test_invalid_deletion(self):
+        with patch.object(*self.permission_method_to_patch, False):
+            self.app.post(self.url, user=self.user, params=self.post_params, status=400)
+        self.assertTrue(self.model_cls.objects.filter(pk=self.instance.pk).exists())
 
 
 class TestDownloadSampleFileView(WebTestStaffMode):
@@ -218,25 +251,14 @@ class TestUserEditView(WebTestStaffMode):
         )
 
 
-class TestUserDeleteView(WebTestStaffMode):
-    csrf_checks = False
+class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     url = reverse("staff:user_delete")
+    model_cls = UserProfile
+    permission_method_to_patch = (UserProfile, "can_be_deleted_by_manager")
 
     @classmethod
-    def setUpTestData(cls):
-        cls.user = baker.make(UserProfile)
-        cls.manager = make_manager()
-        cls.post_params = {"user_id": cls.user.pk}
-
-    @patch.object(UserProfile, "can_be_deleted_by_manager", True)
-    def test_valid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params)
-        self.assertFalse(UserProfile.objects.filter(pk=self.user.pk).exists())
-
-    @patch.object(UserProfile, "can_be_deleted_by_manager", False)
-    def test_invalid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
-        self.assertTrue(UserProfile.objects.filter(pk=self.user.pk).exists())
+    def get_post_params(cls):
+        return {"user_id": cls.instance.pk}
 
 
 class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
@@ -703,46 +725,27 @@ class TestSemesterEditView(WebTestStaffMode):
         self.assertEqual(self.semester.name_en, new_name_en)
 
 
-class TestSemesterDeleteView(WebTestStaffMode):
-    url = "/staff/semester/delete"
-    csrf_checks = False
+class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:semester_delete")
+    model_cls = Semester
+    permission_method_to_patch = (Semester, "can_be_deleted_by_manager")
 
     @classmethod
-    def setUpTestData(cls):
-        cls.semester = baker.make(Semester)
-        cls.manager = make_manager()
-        cls.post_params = {"semester_id": cls.semester.pk}
+    def get_post_params(cls):
+        return {"semester_id": cls.instance.pk}
 
-    @patch.object(Semester, "can_be_deleted_by_manager", False)
-    def test_invalid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
-        self.assertTrue(Semester.objects.filter(pk=self.semester.pk).exists())
+    def test_success_with_data(self):
+        evaluation = baker.make(Evaluation, course__semester=self.instance, state=Evaluation.State.PUBLISHED)
+        responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        baker.make(RatingAnswerCounter, contribution=responsible_contribution)
+        baker.make(TextAnswer, contribution=evaluation.general_contribution, state=TextAnswer.State.PUBLISHED)
 
-    @patch.object(Semester, "can_be_deleted_by_manager", True)
-    def test_valid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params)
-        self.assertFalse(Semester.objects.filter(pk=self.semester.pk).exists())
+        self.instance.archive()
+        self.instance.delete_grade_documents()
+        self.instance.archive_results()
+        self.app.post(self.url, params=self.post_params, user=self.user)
 
-    def test_all_db_objects_removed(self):
-        evaluation = baker.make(Evaluation, course__semester=self.semester, state=Evaluation.State.PUBLISHED)
-
-        general_contribution = evaluation.general_contribution
-        responsible_contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
-        textanswer = baker.make(TextAnswer, contribution=general_contribution, state=TextAnswer.State.PUBLISHED)
-        ratinganswercounter = baker.make(RatingAnswerCounter, contribution=responsible_contribution)
-
-        self.semester.archive()
-        self.semester.delete_grade_documents()
-        self.semester.archive_results()
-        self.app.post(self.url, params=self.post_params, user=self.manager)
-
-        self.assertFalse(Semester.objects.filter(pk=self.semester.pk).exists())
-        self.assertFalse(Course.objects.filter(pk=evaluation.course.pk).exists())
-        self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
-        self.assertFalse(Contribution.objects.filter(pk=general_contribution.pk).exists())
-        self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
-        self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
-        self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
+        self.assertFalse(Semester.objects.filter(pk=self.instance.pk).exists())
 
 
 class TestSemesterAssignView(WebTestStaffMode):
@@ -883,26 +886,14 @@ class TestSemesterArchiveParticipationsView(WebTestStaffMode):
         archive_mock.assert_not_called()
 
 
-class TestSemesterDeleteGradeDocumentsView(WebTestStaffMode):
-    csrf_checks = False
+class TestSemesterDeleteGradeDocumentsView(DeleteViewTestMixin, WebTestStaffMode):
     url = reverse("staff:semester_delete_grade_documents")
+    model_cls = GradeDocument
+    permission_method_to_patch = (Semester, "grade_documents_can_be_deleted")
 
     @classmethod
-    def setUpTestData(cls):
-        semester = baker.make(Semester)
-        cls.grade_document = baker.make(GradeDocument, course__semester=semester)
-        cls.manager = make_manager()
-        cls.post_params = {"semester_id": semester.pk}
-
-    @patch.object(Semester, "grade_documents_can_be_deleted", True)
-    def test_valid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params)
-        self.assertFalse(GradeDocument.objects.filter(pk=self.grade_document.pk).exists())
-
-    @patch.object(Semester, "grade_documents_can_be_deleted", False)
-    def test_invalid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
-        self.assertTrue(GradeDocument.objects.filter(pk=self.grade_document.pk).exists())
+    def get_post_params(cls):
+        return {"semester_id": cls.instance.course.semester.pk}
 
 
 class TestSemesterImportView(WebTestStaffMode):
@@ -1771,25 +1762,14 @@ class TestCourseEditView(WebTestStaffMode):
         self.assertEqual(self.course.name_en, "A different name")
 
 
-class TestCourseDeleteView(WebTestStaffMode):
-    csrf_checks = False
+class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     url = reverse("staff:course_delete")
+    model_cls = Course
+    permission_method_to_patch = (Course, "can_be_deleted_by_manager")
 
     @classmethod
-    def setUpTestData(cls):
-        cls.course = baker.make(Course)
-        cls.manager = make_manager()
-        cls.post_params = {"course_id": cls.course.pk}
-
-    @patch.object(Course, "can_be_deleted_by_manager", True)
-    def test_valid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params)
-        self.assertFalse(Course.objects.filter(pk=self.course.pk).exists())
-
-    @patch.object(Course, "can_be_deleted_by_manager", False)
-    def test_invalid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
-        self.assertTrue(Course.objects.filter(pk=self.course.pk).exists())
+    def get_post_params(cls):
+        return {"course_id": cls.instance.pk}
 
 
 @override_settings(
@@ -2684,25 +2664,14 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         self.assertEqual(questionnaire.questions.count(), 1)
 
 
-class TestQuestionnaireDeleteView(WebTestStaffMode):
+class TestQuestionnaireDeleteView(DeleteViewTestMixin, WebTestStaffMode):
     url = reverse("staff:questionnaire_delete")
-    csrf_checks = False
+    model_cls = Questionnaire
+    permission_method_to_patch = (Questionnaire, "can_be_deleted_by_manager")
 
     @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
-        cls.questionnaire = baker.make(Questionnaire)
-        cls.post_params = {"questionnaire_id": cls.questionnaire.pk}
-
-    @patch.object(Questionnaire, "can_be_deleted_by_manager", False)
-    def test_invalid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
-        self.assertTrue(Questionnaire.objects.filter(pk=self.questionnaire.pk).exists())
-
-    @patch.object(Questionnaire, "can_be_deleted_by_manager", True)
-    def test_valid_deletion(self):
-        self.app.post(self.url, user=self.manager, params=self.post_params)
-        self.assertFalse(Questionnaire.objects.filter(pk=self.questionnaire.pk).exists())
+    def get_post_params(cls):
+        return {"questionnaire_id": cls.instance.pk}
 
 
 class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
