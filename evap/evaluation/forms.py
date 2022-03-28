@@ -120,4 +120,4 @@ class DelegatesForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        logger.info('User "{}" edited the settings.'.format(self.instance.email))
+        logger.info('User "%s" edited the settings.', self.instance.email)

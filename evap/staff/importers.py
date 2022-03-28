@@ -628,7 +628,7 @@ class EnrollmentImporter(ExcelImporter):
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
@@ -639,7 +639,7 @@ class EnrollmentImporter(ExcelImporter):
 class UserImporter(ExcelImporter):
     def __init__(self):
         super().__init__()
-        self._read_user_data = dict()
+        self._read_user_data = {}
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
@@ -744,7 +744,7 @@ class UserImporter(ExcelImporter):
             return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise

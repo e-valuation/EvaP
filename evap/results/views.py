@@ -429,9 +429,7 @@ def evaluation_text_answers_export(request, evaluation_id):
     results, contributor_id = extract_evaluation_answer_data(request, evaluation)
     contributor_name = UserProfile.objects.get(id=contributor_id).full_name if contributor_id is not None else None
 
-    filename = "Evaluation-Text-Answers-{}-{}-{}.xls".format(
-        evaluation.course.semester.short_name, evaluation.full_name, translation.get_language()
-    )
+    filename = f"Evaluation-Text-Answers-{evaluation.course.semester.short_name}-{evaluation.full_name}-{translation.get_language()}.xls"
 
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 

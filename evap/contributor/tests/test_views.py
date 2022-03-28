@@ -35,9 +35,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            "{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.".format(
-                str(self.non_editor), str(self.evaluation)
-            ),
+            f"{self.non_editor} was added as a contributor for evaluation &quot;{self.evaluation}&quot; and was sent an email with further information.",
         )
 
         contribution = Contribution.objects.get(contributor=self.non_editor)
@@ -63,9 +61,7 @@ class TestContributorDirectDelegationView(WebTest):
 
         self.assertContains(
             page,
-            "{} was added as a contributor for evaluation &quot;{}&quot; and was sent an email with further information.".format(
-                str(self.non_editor), str(self.evaluation)
-            ),
+            f"{self.non_editor} was added as a contributor for evaluation &quot;{self.evaluation}&quot; and was sent an email with further information.",
         )
 
         self.assertEqual(Contribution.objects.count(), old_contribution_count)
@@ -133,7 +129,7 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
 
 
 class TestContributorEvaluationEditView(WebTest):
-    url = "/contributor/evaluation/%s/edit" % TESTING_EVALUATION_ID
+    url = f"/contributor/evaluation/{TESTING_EVALUATION_ID}/edit"
 
     @classmethod
     def setUpTestData(cls):
@@ -147,7 +143,7 @@ class TestContributorEvaluationEditView(WebTest):
         Asserts that an unauthorized user gets redirected to the login page.
         """
         response = self.app.get(self.url)
-        self.assertRedirects(response, "/?next=/contributor/evaluation/%s/edit" % TESTING_EVALUATION_ID)
+        self.assertRedirects(response, f"/?next=/contributor/evaluation/{TESTING_EVALUATION_ID}/edit")
 
     def test_wrong_usergroup(self):
         """

@@ -37,10 +37,10 @@ class LoginTests(WebTest):
     @override_settings(PAGE_URL="https://example.com")
     def test_login_url_generation(self):
         generated_url = self.external_user.login_url
-        self.assertEqual(generated_url, "https://example.com/key/{}".format(self.external_user.login_key))
+        self.assertEqual(generated_url, f"https://example.com/key/{self.external_user.login_key}")
 
         reversed_url = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        self.assertEqual(reversed_url, "/key/{}".format(self.external_user.login_key))
+        self.assertEqual(reversed_url, f"/key/{self.external_user.login_key}")
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")

@@ -56,9 +56,7 @@ disable = [
     "protected-access",               # for us that means "be careful", not "don't do it"
     "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
-
-    # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
-    "duplicate-code",                 # Can not be suppressed for the 4 false positives we have: https://github.com/PyCQA/pylint/issues/214
+    "duplicate-code",                 # Mostly imports and test setup.
 ]
 
 ##############################################

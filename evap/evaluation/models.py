@@ -508,19 +508,19 @@ class Evaluation(LoggedModel):
     @property
     def full_name(self):
         if self.name:
-            return "{} – {}".format(self.course.name, self.name)
+            return f"{self.course.name} – {self.name}"
         return self.course.name
 
     @property
     def full_name_de(self):
         if self.name_de:
-            return "{} – {}".format(self.course.name_de, self.name_de)
+            return f"{self.course.name_de} – {self.name_de}"
         return self.course.name_de
 
     @property
     def full_name_en(self):
         if self.name_en:
-            return "{} – {}".format(self.course.name_en, self.name_en)
+            return f"{self.course.name_en} – {self.name_en}"
         return self.course.name_en
 
     @property
@@ -927,9 +927,7 @@ class Evaluation(LoggedModel):
                     evaluation.save()
             except Exception:  # pylint: disable=broad-except
                 logger.exception(
-                    'An error occured when updating the state of evaluation "{}" (id {}).'.format(
-                        evaluation, evaluation.id
-                    )
+                    'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
@@ -989,9 +987,12 @@ def evaluation_state_change(instance, source, **_kwargs):
 @receiver(post_transition, sender=Evaluation)
 def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info(
-        'Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(
-            instance, instance.pk, source, target, name
-        )
+        'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
+        instance,
+        instance.pk,
+        source,
+        target,
+        name,
     )
 
 
@@ -1121,7 +1122,7 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        raise Exception("Unknown answer type: %r" % self.type)
+        raise Exception(f"Unknown answer type: {self.type!r}")
 
     @property
     def is_likert_question(self):
@@ -1528,7 +1529,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2 ** 31 - 1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -1829,7 +1830,7 @@ class EmailTemplate(models.Model):
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
-            evaluations_with_date = dict()
+            evaluations_with_date = {}
             for evaluation in user_evaluations:
                 evaluations_with_date[evaluation] = (evaluation.vote_end_date - date.today()).days
             evaluations_with_date = sorted(evaluations_with_date.items(), key=lambda tup: tup[0].full_name)
@@ -1842,8 +1843,8 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
-            warning_message = "{} has no email address defined. Could not send email.".format(
-                user.full_name_with_additional_info
+            warning_message = (
+                f"{user.full_name_with_additional_info} has no email address defined. Could not send email."
             )
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
@@ -1879,14 +1880,14 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info(('Sent email "{}" to {}.').format(mail.subject, user.full_name_with_additional_info))
+            logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
             logger.exception(
-                'An exception occurred when sending the following email to user "{}":\n{}\n'.format(
-                    user.full_name_with_additional_info, mail.message()
-                )
+                'An exception occurred when sending the following email to user "%s":\n%s\n',
+                user.full_name_with_additional_info,
+                mail.message(),
             )
 
     def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
@@ -1928,7 +1929,7 @@ class EmailTemplate(models.Model):
         body_params = {"user": user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
-        logger.info(("Sent login url to {}.").format(user.email))
+        logger.info("Sent login url to %s.", user.email)
 
     @classmethod
     def send_contributor_publish_notifications(cls, evaluations, template=None):

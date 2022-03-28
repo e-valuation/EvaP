@@ -501,7 +501,7 @@ class SingleResultForm(forms.ModelForm):
 
         if self.instance.pk:
             for answer_counter in self.instance.ratinganswer_counters:
-                self.fields["answer_{}".format(answer_counter.answer)].initial = answer_counter.count
+                self.fields[f"answer_{answer_counter.answer}"].initial = answer_counter.count
             self.instance.old_course = self.instance.course
 
     def validate_unique(self):
@@ -720,7 +720,7 @@ class QuestionnaireForm(forms.ModelForm):
             "is_locked",
         )
 
-    def save(self, *args, commit=True, force_highest_order=False, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 

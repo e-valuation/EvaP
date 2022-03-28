@@ -524,18 +524,18 @@ class TestExporters(TestCase):
 
         self.assertEqual(
             workbook.sheets()[0].row_values(0)[1],
-            "{}\n{}\n{}".format(evaluation_1.full_name, evaluation_1.course.semester.name, contributor.full_name),
+            f"{evaluation_1.full_name}\n{evaluation_1.course.semester.name}\n{contributor.full_name}",
         )
         self.assertEqual(
             workbook.sheets()[0].row_values(0)[2],
-            "{}\n{}\n{}".format(evaluation_2.full_name, evaluation_2.course.semester.name, other_contributor.full_name),
+            f"{evaluation_2.full_name}\n{evaluation_2.course.semester.name}\n{other_contributor.full_name}",
         )
         self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
         self.assertEqual(
             workbook.sheets()[0].row_values(7)[0],
-            "{} ({})".format(contributor_questionnaire.name, contributor.full_name),
+            f"{contributor_questionnaire.name} ({contributor.full_name})",
         )
         self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)

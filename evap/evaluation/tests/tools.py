@@ -43,7 +43,7 @@ class FuzzyInt(int):
         return self.lowest <= other <= self.highest
 
     def __repr__(self):
-        return "[%d..%d]" % (self.lowest, self.highest)
+        return f"[{self.lowest}..{self.highest}]"
 
 
 def let_user_vote_for_evaluation(user, evaluation, create_answers=False):

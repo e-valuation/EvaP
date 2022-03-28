@@ -468,7 +468,7 @@ def semester_evaluation_operation(request, semester_id):
     except ValueError as err:
         raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state)) from err
 
-    if target_state not in EVALUATION_OPERATIONS.keys():
+    if target_state not in EVALUATION_OPERATIONS:
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == "GET" else request.POST).getlist("evaluation")
@@ -678,7 +678,7 @@ def semester_export(request, semester_id):
         for form in formset:
             selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
 
-        filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
+        filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
         ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
@@ -691,7 +691,7 @@ def semester_export(request, semester_id):
 def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_raw.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -714,7 +714,7 @@ def semester_raw_export(_request, semester_id):
         if evaluation.can_staff_see_average_grade:
             distribution = calculate_average_distribution(evaluation)
             if distribution is not None:
-                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
+                avg_grade = f"{distribution_to_grade(distribution):.1f}"
         writer.writerow(
             [
                 evaluation.full_name,
@@ -739,7 +739,7 @@ def semester_participation_export(_request, semester_id):
         UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
     )
 
-    filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_participation.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -968,7 +968,7 @@ def course_copy(request, semester_id, course_id):
             messages.warning(
                 request,
                 _("The accounts of the following contributors were reactivated:")
-                + " {accounts}".format(accounts=", ".join(user.full_name for user in inactive_users)),
+                + f" {', '.join(user.full_name for user in inactive_users)}",
             )
             inactive_users.update(is_active=True)
 
@@ -1757,8 +1757,8 @@ def questionnaire_new_version(request, questionnaire_id):
 
     # Check if we can use the old name with the current time stamp.
     timestamp = date.today()
-    new_name_de = "{} (until {})".format(old_questionnaire.name_de, str(timestamp))
-    new_name_en = "{} (until {})".format(old_questionnaire.name_en, str(timestamp))
+    new_name_de = f"{old_questionnaire.name_de} (until {timestamp})"
+    new_name_en = f"{old_questionnaire.name_en} (until {timestamp})"
 
     # If not, redirect back and suggest to edit the already created version.
     if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
