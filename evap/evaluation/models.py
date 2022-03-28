@@ -1528,7 +1528,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2 ** 31 - 1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
