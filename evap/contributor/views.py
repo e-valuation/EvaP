@@ -263,7 +263,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 
 def export_contributor_results(contributor):
-    filename = "Evaluation_{}.xls".format(contributor.full_name)
+    filename = f"Evaluation_{contributor.full_name}.xls"
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
     ResultsExporter().export(
         response,

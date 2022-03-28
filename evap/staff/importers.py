@@ -628,7 +628,7 @@ class EnrollmentImporter(ExcelImporter):
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
@@ -744,7 +744,7 @@ class UserImporter(ExcelImporter):
             return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise

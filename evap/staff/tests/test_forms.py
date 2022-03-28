@@ -322,7 +322,7 @@ class ContributionFormsetTests(TestCase):
         # assert same error message with and without questionnaire
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         data["contributions-1-questionnaires"] = questionnaire.pk
@@ -330,7 +330,7 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.is_valid())
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         # two contributors
@@ -718,14 +718,14 @@ class CourseCopyFormTests(TestCase):
         for field in Evaluation._meta.get_fields():
             assert field.name in (
                 CourseCopyForm.EVALUATION_COPIED_FIELDS | CourseCopyForm.EVALUATION_EXCLUDED_FIELDS
-            ), "evaluation field {} is not considered by CourseCopyForm".format(field.name)
+            ), f"evaluation field {field.name} is not considered by CourseCopyForm"
 
     @staticmethod
     def test_all_contribution_attributes_covered():
         for field in Contribution._meta.get_fields():
             assert field.name in (
                 CourseCopyForm.CONTRIBUTION_COPIED_FIELDS | CourseCopyForm.CONTRIBUTION_EXCLUDED_FIELDS
-            ), "contribution field {} is not considered by CourseCopyForm".format(field.name)
+            ), f"contribution field {field.name} is not considered by CourseCopyForm"
 
 
 class CourseFormTests(TestCase):

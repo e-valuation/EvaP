@@ -142,7 +142,7 @@ def get_single_result_rating_result(evaluation):
 
 
 def get_results_cache_key(evaluation):
-    return "evap.staff.results.tools.get_results-{:d}".format(evaluation.id)
+    return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 
 def cache_results(evaluation):

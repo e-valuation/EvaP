@@ -168,18 +168,16 @@ def contact(request):
     if message:
         mail = EmailMessage(
             subject=subject,
-            body="{}\n{}\n\n{}".format(title, request.user.email, message),
+            body=f"{title}\n{request.user.email}\n\n{message}",
             to=[settings.CONTACT_EMAIL],
             reply_to=[request.user.email],
         )
         try:
             mail.send()
-            logger.info("Sent contact email: \n{}\n".format(mail.message()))
+            logger.info("Sent contact email: \n%s\n", mail.message())
             return HttpResponse()
         except Exception:
-            logger.exception(
-                "An exception occurred when sending the following contact email:\n{}\n".format(mail.message())
-            )
+            logger.exception("An exception occurred when sending the following contact email:\n%s\n", mail.message())
             raise
 
     return HttpResponseBadRequest()

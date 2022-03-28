@@ -56,7 +56,7 @@ class GradeUploadTest(WebTest):
 
         final = "?final=true" if final_grades else ""
         response = self.app.post(
-            "/grades/semester/{}/course/{}/upload{}".format(course.semester.id, course.id, final),
+            f"/grades/semester/{course.semester.id}/course/{course.id}/upload{final}",
             params={"description_en": "Grades", "description_de": "Grades"},
             user=self.grade_publisher,
             content_type="multipart/form-data",
@@ -69,9 +69,7 @@ class GradeUploadTest(WebTest):
         self.assertIn("Successfully", response)
         self.assertEqual(course.final_grade_documents.count(), 1)
         self.assertEqual(len(mail.outbox), expected_number_of_emails)
-        self.app.get(
-            "/grades/download/{}".format(course.final_grade_documents.first().id), user=self.student, status=200
-        )
+        self.app.get(f"/grades/download/{course.final_grade_documents.first().id}", user=self.student, status=200)
 
         # tear down
         course.final_grade_documents.first().file.delete()

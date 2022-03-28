@@ -57,7 +57,6 @@ disable = [
     "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
     "duplicate-code",                 # Mostly imports and test setup.
-    "consider-using-f-string",        # TODO
 ]
 
 ##############################################

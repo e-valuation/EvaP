@@ -116,7 +116,7 @@ def reward_point_redemption_event_delete(request):
 def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
-    filename = _("RewardPoints") + "-%s-%s-%s.xls" % (event.date, event.name, get_language())
+    filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
     RewardsExporter().export(response, event.redemptions_by_user())

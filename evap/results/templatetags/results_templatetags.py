@@ -7,7 +7,7 @@ register = Library()
 
 @register.filter(name="gradecolor")
 def gradecolor(grade):
-    return "rgb({}, {}, {})".format(*get_grade_color(grade))
+    return "rgb({}, {}, {})".format(*get_grade_color(grade))  # pylint: disable=consider-using-f-string
 
 
 @register.filter(name="normalized_distribution")

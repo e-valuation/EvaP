@@ -346,7 +346,7 @@ class TestResultsViewContributionWarning(WebTest):
             contributor=contributor,
         )
         cls.likert_question = baker.make(Question, type=Question.LIKERT, questionnaire=questionnaire, order=2)
-        cls.url = "/results/semester/%s/evaluation/%s" % (cls.semester.id, cls.evaluation.id)
+        cls.url = f"/results/semester/{cls.semester.id}/evaluation/{cls.evaluation.id}"
 
     def test_many_answers_evaluation_no_warning(self):
         make_rating_answer_counters(self.likert_question, self.contribution, [0, 0, 10, 0, 0])
@@ -476,7 +476,7 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
             Evaluation, state=Evaluation.State.REVIEWED, course=baker.make(Course, semester=self.semester)
         )
         cache_results(evaluation)
-        url = "/results/semester/%s/evaluation/%s" % (self.semester.id, evaluation.id)
+        url = f"/results/semester/{self.semester.id}/evaluation/{evaluation.id}"
         self.app.get(url, user="student@institution.example.com", status=403)
 
     def test_preview_without_rating_answers(self):
@@ -667,7 +667,7 @@ class TestResultsSemesterEvaluationDetailViewPrivateEvaluation(WebTest):
             self.assertIn(private_evaluation.full_name, self.app.get(url, user=manager))
         self.app.get(url, user=student_external, status=403)  # external users can't see results semester view
 
-        url = "/results/semester/%s/evaluation/%s" % (semester.id, private_evaluation.id)
+        url = f"/results/semester/{semester.id}/evaluation/{private_evaluation.id}"
         self.app.get(url, user=non_participant, status=403)
         self.app.get(url, user=student, status=200)
         self.app.get(url, user=responsible, status=200)
@@ -930,10 +930,10 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cache_results(cls.evaluation)
 
     def test_contributor_list(self):
-        url = "/results/semester/{}/evaluation/{}?view=export".format(self.semester.id, self.evaluation.id)
+        url = f"/results/semester/{self.semester.id}/evaluation/{self.evaluation.id}?view=export"
         page = self.app.get(url, user="responsible@institution.example.com")
-        self.assertIn("<li>{}</li>".format(self.other_contributor_1.full_name), page)
-        self.assertIn("<li>{}</li>".format(self.other_contributor_2.full_name), page)
+        self.assertIn(f"<li>{self.other_contributor_1.full_name}</li>", page)
+        self.assertIn(f"<li>{self.other_contributor_2.full_name}</li>", page)
 
 
 class TestResultsTextanswerVisibilityForExportView(WebTest):
@@ -1033,7 +1033,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         with run_in_staff_mode(self):
             contributor_id = UserProfile.objects.get(email="responsible@institution.example.com").id
             page = self.app.get(
-                "/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor_id),
+                f"/results/semester/1/evaluation/1?view=export&contributor_id={contributor_id}",
                 user="manager@institution.example.com",
             )
 
@@ -1055,7 +1055,7 @@ class TestResultsTextanswerVisibilityForExportView(WebTest):
         contributor = UserProfile.objects.get(email="contributor@institution.example.com")
         contributor.groups.add(manager_group)
         page = self.app.get(
-            "/results/semester/1/evaluation/1?view=export&contributor_id={}".format(contributor.id),
+            f"/results/semester/1/evaluation/1?view=export&contributor_id={contributor.id}",
             user="contributor@institution.example.com",
         )
 
@@ -1116,7 +1116,7 @@ class TestArchivedResults(WebTest):
         self.assertIn(self.evaluation.full_name, self.app.get(url, user=self.reviewer))
         self.app.get(url, user=self.student_external, status=403)  # external users can't see results semester view
 
-        url = "/results/semester/%s/evaluation/%s" % (self.semester.id, self.evaluation.id)
+        url = f"/results/semester/{self.semester.id}/evaluation/{self.evaluation.id}"
         self.app.get(url, user=self.student, status=200)
         self.app.get(url, user=self.responsible, status=200)
         self.app.get(url, user=self.contributor, status=200)
@@ -1127,7 +1127,7 @@ class TestArchivedResults(WebTest):
     def test_archived_results(self):
         self.semester.archive_results()
 
-        url = "/results/semester/%s/evaluation/%s" % (self.semester.id, self.evaluation.id)
+        url = f"/results/semester/{self.semester.id}/evaluation/{self.evaluation.id}"
         self.app.get(url, user=self.student, status=403)
         self.app.get(url, user=self.responsible, status=200)
         self.app.get(url, user=self.contributor, status=200)

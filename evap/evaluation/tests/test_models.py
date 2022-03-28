@@ -515,7 +515,7 @@ class TestCourse(TestCase):
         user1 = baker.make(UserProfile, last_name="Doe")
         user2 = baker.make(UserProfile, last_name="Meyer")
         course = baker.make(Course, responsibles=[user1, user2])
-        self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
+        self.assertEqual(course.responsibles_names, f"{user1.full_name}, {user2.full_name}")
 
 
 class TestUserProfile(TestCase):
