@@ -19,9 +19,14 @@ class LoggingRequestMiddleware:
         LoggedModel.thread.request = request
         LoggedModel.thread.request_id = str(uuid.uuid4())
 
-        response = self.get_response(request)
-
-        del LoggedModel.thread.request
-        del LoggedModel.thread.request_id
+        try:
+            # django documentation says to just do this without the try, and that exceptions will be handled:
+            # https://docs.djangoproject.com/en/4.0/topics/http/middleware/#writing-your-own-middleware
+            # However, django-webtest sets DEBUG_PROPAGATE_EXCEPTIONS, and propagated exceptions caused our deletion to
+            # be skipped, leading to weird errors in the tests executed afterwards. See #1727.
+            response = self.get_response(request)
+        finally:
+            del LoggedModel.thread.request
+            del LoggedModel.thread.request_id
 
         return response
