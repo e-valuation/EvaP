@@ -53,6 +53,7 @@ from evap.staff.tests.utils import (
     helper_set_dynamic_choices_field_value,
     run_in_staff_mode,
 )
+from evap.staff.tools import user_edit_link
 from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
 
@@ -536,7 +537,7 @@ class TestUserImportView(WebTestStaffMode):
         """
         Tests whether warnings given from the importer are displayed
         """
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -547,8 +548,8 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
         )
 
         helper_delete_all_import_files(self.manager.id)
@@ -1028,7 +1029,7 @@ class TestSemesterImportView(WebTestStaffMode):
         """
         Tests whether warnings given from the importer are displayed
         """
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -1042,8 +1043,8 @@ class TestSemesterImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
         )
 
     def test_suspicious_operation(self):
@@ -2228,7 +2229,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         """
         Tests whether warnings given from the importer are displayed
         """
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -2239,8 +2240,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
         )
 
     def test_import_contributors_error_handling(self):
@@ -2262,7 +2263,7 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         """
         Tests whether warnings given from the importer are displayed
         """
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
 
@@ -2273,8 +2274,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing)<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
+            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
         )
 
     def test_suspicious_operation(self):

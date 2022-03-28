@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email, unordered_groupby
-from evap.staff.tools import ImportType, create_user_list_html_string_for_message
+from evap.staff.tools import ImportType, create_user_list_html_string_for_message, user_edit_link
 
 
 def sorted_messages(messages):
@@ -326,7 +326,12 @@ class ExcelImporter:
             msg = format_html(_("The existing user was overwritten with the following data:"))
         return (
             msg
-            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user), _("existing"))
+            + format_html(
+                "<br /> - {} ({}) [{}]",
+                ExcelImporter._create_user_string(user),
+                _("existing"),
+                user_edit_link(user.pk),
+            )
             + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user_data), _("new"))
         )
 
@@ -335,19 +340,26 @@ class ExcelImporter:
         user_string = ExcelImporter._create_user_string(user)
         if test_run:
             return format_html(
-                _("The following user is currently marked inactive and will be marked active upon importing: {}"),
+                _("The following user is currently marked inactive and will be marked active upon importing: {} [{}]"),
                 user_string,
+                user_edit_link(user.pk),
             )
 
         return format_html(
-            _("The following user was previously marked inactive and is now marked active upon importing: {}"),
+            _("The following user was previously marked inactive and is now marked active upon importing: {} [{}]"),
             user_string,
+            user_edit_link(user.pk),
         )
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
         warningstring = format_html(_("An existing user has the same first and last name as a new user:"))
         for user in users_with_same_names:
-            warningstring += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
+            warningstring += format_html(
+                "<br /> - {} ({}) [{}]",
+                self._create_user_string(user),
+                _("existing"),
+                user_edit_link(user.pk),
+            )
         warningstring += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("new"))
 
         self.warnings[ImporterWarning.DUPL].append(warningstring)

@@ -10,6 +10,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
+from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -370,3 +371,11 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def user_edit_link(user_id):
+    return format_html(
+        '<a href="{}" target=_blank>edit user <span class="fas fa-external-link-alt"></span></a>'.format(
+            reverse("staff:user_edit", kwargs={"user_id": user_id})
+        )
+    )

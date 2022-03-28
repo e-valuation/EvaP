@@ -10,7 +10,7 @@ from model_bakery import baker
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.staff.importers import EnrollmentImporter, ImporterError, ImporterWarning, PersonImporter, UserImporter
-from evap.staff.tools import ImportType
+from evap.staff.tools import ImportType, user_edit_link
 
 
 class TestUserImporter(TestCase):
@@ -71,7 +71,7 @@ class TestUserImporter(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
-        baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
+        user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
@@ -81,8 +81,8 @@ class TestUserImporter(TestCase):
             warnings_test[ImporterWarning.DUPL],
             [
                 "An existing user has the same first and last name as a new user:<br />"
-                " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)"
+                " -  Lucilia Manilium, luma@institution.example.com (existing) [{}]<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
             ],
         )
 
@@ -123,14 +123,14 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertEqual(
             warnings_test[ImporterWarning.INACTIVE],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                " None None, lucilia.manilium@institution.example.com [{}]".format(user_edit_link(user.pk)),
             ],
         )
 
@@ -139,7 +139,7 @@ class TestUserImporter(TestCase):
             warnings_no_test[ImporterWarning.INACTIVE],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                " None None, lucilia.manilium@institution.example.com [{}]".format(user_edit_link(user.pk))
             ],
         )
 
