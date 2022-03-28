@@ -50,7 +50,6 @@ from evap.results.views import update_template_cache_of_published_evaluations_in
 from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff import staff_mode
-
 from evap.staff.forms import (
     AtLeastOneFormSet,
     ContributionCopyForm,
@@ -80,10 +79,10 @@ from evap.staff.forms import (
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
+    UserEditSelectionForm,
     UserForm,
     UserImportForm,
     UserMergeSelectionForm,
-    UserEditSelectionForm,
 )
 from evap.staff.importers import EnrollmentImporter, PersonImporter, UserImporter, sorted_messages
 from evap.staff.tools import (
@@ -98,9 +97,6 @@ from evap.staff.tools import (
     merge_users,
     save_import_file,
 )
-
-
-
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
 from evap.student.views import get_valid_form_groups_or_render_vote_page
@@ -1901,10 +1897,11 @@ def user_index(request):
     form = UserEditSelectionForm(request.POST or None)
 
     if form.is_valid():
-        user = form.cleaned_data['user']
-        return redirect('staff:user_edit', user.id)
+        user = form.cleaned_data["user"]
+        return redirect("staff:user_edit", user.id)
 
     return render(request, "staff_user_index.html", dict(form=form))
+
 
 @manager_required
 def user_list(request):
