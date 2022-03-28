@@ -220,6 +220,6 @@ def order_by(iterable, attribute):
 
 @register.filter
 def value_at(dictionary, key):
-    if dictionary and key in dictionary:
+    if key in dictionary:
         return dictionary[key]
     return None

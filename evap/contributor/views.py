@@ -136,7 +136,14 @@ def evaluation_view(request, evaluation_id):
         for field in cform.fields.values():
             field.disabled = True
 
-    template_data = dict(form=form, formset=formset, evaluation=evaluation, editable=False)
+    template_data = dict(
+        form=form,
+        formset=formset,
+        evaluation=evaluation,
+        editable=False,
+        questionnaires_with_answers_per_contributor={},
+    )
+
     return render(request, "contributor_evaluation_form.html", template_data)
 
 
@@ -211,7 +218,12 @@ def evaluation_edit(request, evaluation_id):
 
     sort_formset(request, formset)
     template_data = dict(
-        form=evaluation_form, formset=formset, evaluation=evaluation, editable=True, preview_html=preview_html
+        form=evaluation_form,
+        formset=formset,
+        evaluation=evaluation,
+        editable=True,
+        preview_html=preview_html,
+        questionnaires_with_answers_per_contributor={},
     )
     return render(request, "contributor_evaluation_form.html", template_data)
 

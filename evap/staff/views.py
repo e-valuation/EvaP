@@ -1068,7 +1068,13 @@ def evaluation_create(request, semester_id, course_id=None):
         request,
         "staff_evaluation_form.html",
         dict(
-            semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""
+            semester=semester,
+            evaluation_form=evaluation_form,
+            formset=formset,
+            manager=True,
+            editable=True,
+            state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
@@ -1103,6 +1109,7 @@ def evaluation_copy(request, semester_id, evaluation_id):
             manager=True,
             editable=True,
             state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
