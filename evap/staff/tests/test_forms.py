@@ -590,12 +590,7 @@ class ContributionFormsetTests(TestCase):
 
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
-        semester = baker.make(Semester)
-        evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester),
-        )
-        baker.make(Questionnaire, questions=[baker.make(Question)])
+        evaluation = baker.make(Evaluation)
         general_question_1 = baker.make(Question, type=Question.LIKERT)
         general_question_2 = baker.make(Question, type=Question.LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
@@ -1029,12 +1024,7 @@ class EvaluationFormTests(TestCase):
 
     def test_answers_for_removed_questionnaires_deleted(self):
         # pylint: disable=too-many-locals
-        semester = baker.make(Semester)
-        evaluation = baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester),
-        )
-        baker.make(Questionnaire, questions=[baker.make(Question)])
+        evaluation = baker.make(Evaluation)
         general_question_1 = baker.make(Question, type=Question.LIKERT)
         general_question_2 = baker.make(Question, type=Question.LIKERT)
         general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
@@ -1068,9 +1058,9 @@ class EvaluationFormTests(TestCase):
             set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
         )
 
-        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=semester)
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=evaluation.course.semester)
         form_data["general_questionnaires"] = [general_questionnaire_1]  # remove one of the questionnaires
-        form = EvaluationForm(form_data, instance=evaluation, semester=semester)
+        form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         form.save()
 
         self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_3, ta_4})

@@ -1219,7 +1219,7 @@ def helper_evaluation_edit(request, semester, evaluation):
             Q(questions__textanswer__contribution=contribution)
             | Q(questions__ratinganswercounter__contribution=contribution)
         ).distinct()
-        if questionnaires.count() > 0:
+        if len(questionnaires) > 0:
             questionnaires_with_answers_per_contributor[contribution.contributor] = questionnaires
 
     if evaluation_form.errors or formset.errors:

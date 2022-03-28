@@ -453,12 +453,7 @@ class EvaluationForm(forms.ModelForm):
         removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
             selected_questionnaires
         )
-        TextAnswer.objects.filter(
-            contribution=evaluation.general_contribution, question__questionnaire__in=removed_questionnaires
-        ).delete()
-        RatingAnswerCounter.objects.filter(
-            contribution=evaluation.general_contribution, question__questionnaire__in=removed_questionnaires
-        ).delete()
+        evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
         evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         if hasattr(self.instance, "old_course"):
             if self.instance.old_course != evaluation.course:
@@ -633,13 +628,7 @@ class ContributionForm(forms.ModelForm):
         if self.instance.pk:
             selected_questionnaires = self.cleaned_data.get("questionnaires")
             removed_questionnaires = set(self.instance.questionnaires.all()) - set(selected_questionnaires)
-            TextAnswer.objects.filter(
-                contribution=self.instance, question__questionnaire__in=removed_questionnaires
-            ).delete()
-            RatingAnswerCounter.objects.filter(
-                contribution=self.instance, question__questionnaire__in=removed_questionnaires
-            ).delete()
-
+            self.instance.remove_answers_to_questionnaires(removed_questionnaires)
         return super().save(*args, **kwargs)
 
 
