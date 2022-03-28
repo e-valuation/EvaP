@@ -468,7 +468,7 @@ def semester_evaluation_operation(request, semester_id):
     except ValueError as err:
         raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state)) from err
 
-    if target_state not in EVALUATION_OPERATIONS.keys():
+    if target_state not in EVALUATION_OPERATIONS:
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == "GET" else request.POST).getlist("evaluation")

@@ -1916,10 +1916,9 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
         cls.contribution2 = baker.make(Contribution, evaluation=cls.evaluation2, contributor=baker.make(UserProfile))
 
-    @classmethod
-    def tearDown(cls):
+    def tearDown(self):
         # delete the uploaded file again so other tests can start with no file guaranteed
-        helper_delete_all_import_files(cls.manager.id)
+        helper_delete_all_import_files(self.manager.id)
 
     def test_import_valid_participants_file(self):
         page = self.app.get(self.url, user=self.manager)

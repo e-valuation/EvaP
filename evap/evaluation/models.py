@@ -1829,7 +1829,7 @@ class EmailTemplate(models.Model):
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
-            evaluations_with_date = dict()
+            evaluations_with_date = {}
             for evaluation in user_evaluations:
                 evaluations_with_date[evaluation] = (evaluation.vote_end_date - date.today()).days
             evaluations_with_date = sorted(evaluations_with_date.items(), key=lambda tup: tup[0].full_name)

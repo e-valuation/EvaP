@@ -15,5 +15,5 @@ def development_components(request):
 
 def development_rendered(request, filename):
     fixtures_directory = os.path.join(settings.STATICFILES_DIRS[0], "ts", "rendered")
-    with open(os.path.join(fixtures_directory, filename)) as fixture:
+    with open(os.path.join(fixtures_directory, filename), encoding="utf-8") as fixture:
         return HttpResponse(fixture)

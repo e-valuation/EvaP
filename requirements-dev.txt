@@ -2,8 +2,8 @@
 coverage[toml]
 codecov
 django-debug-toolbar>=1.6
-pylint==2.9.5
-pylint-django==2.4.4
+pylint==2.13.2
+pylint-django==2.5.3
 black==22.3.0
 isort==5.10.1
 openpyxl-stubs==0.1.21

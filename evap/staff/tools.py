@@ -222,7 +222,7 @@ def merge_users(main_user, other_user, preview=False):
     # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
     # pylint: disable=too-many-statements
 
-    merged_user = dict()
+    merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
     merged_user["title"] = main_user.title or other_user.title or ""
     merged_user["first_name"] = main_user.first_name or other_user.first_name or ""

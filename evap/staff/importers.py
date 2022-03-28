@@ -639,7 +639,7 @@ class EnrollmentImporter(ExcelImporter):
 class UserImporter(ExcelImporter):
     def __init__(self):
         super().__init__()
-        self._read_user_data = dict()
+        self._read_user_data = {}
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)

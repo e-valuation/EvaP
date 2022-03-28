@@ -154,7 +154,7 @@ def faq(request):
 
 @no_login_required
 def legal_notice(request):
-    return render(request, "legal_notice.html", dict())
+    return render(request, "legal_notice.html")
 
 
 @require_POST

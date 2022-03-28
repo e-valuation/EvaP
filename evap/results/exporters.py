@@ -106,7 +106,7 @@ class ResultsExporter(ExcelExporter):
     def filter_evaluations(semesters, evaluation_states, degrees, course_types, contributor, include_not_enough_voters):
         # pylint: disable=too-many-locals
         course_results_exist = False
-        evaluations_with_results = list()
+        evaluations_with_results = []
         used_questionnaires = set()
         evaluations_filter = Q(
             course__semester__in=semesters,
