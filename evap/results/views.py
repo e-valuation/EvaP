@@ -21,12 +21,9 @@ from evap.results.tools import (
     RatingResult,
     TextResult,
     annotate_distributions_and_grades,
-    calculate_average_distribution,
     can_textanswer_be_seen_by,
-    distribution_to_grade,
     get_evaluations_with_course_result_attributes,
     get_results,
-    get_single_result_rating_result,
 )
 
 
@@ -115,7 +112,7 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 
 def get_evaluations_with_prefetched_data(evaluations):
-    if isinstance(evaluations, QuerySet):
+    if isinstance(evaluations, QuerySet):  # type: ignore
         evaluations = evaluations.select_related("course__type").prefetch_related(
             "course__degrees",
             "course__semester",
@@ -337,15 +334,8 @@ def get_evaluations_of_course(course, request):
             course_evaluations += course.evaluations.filter(
                 state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
             )
-
+        annotate_distributions_and_grades(course_evaluations)
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
-
-        for course_evaluation in course_evaluations:
-            if course_evaluation.is_single_result:
-                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
-            else:
-                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
-                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
 
     return course_evaluations
 
@@ -439,9 +429,7 @@ def evaluation_text_answers_export(request, evaluation_id):
     results, contributor_id = extract_evaluation_answer_data(request, evaluation)
     contributor_name = UserProfile.objects.get(id=contributor_id).full_name if contributor_id is not None else None
 
-    filename = "Evaluation-Text-Answers-{}-{}-{}.xls".format(
-        evaluation.course.semester.short_name, evaluation.full_name, translation.get_language()
-    )
+    filename = f"Evaluation-Text-Answers-{evaluation.course.semester.short_name}-{evaluation.full_name}-{translation.get_language()}.xls"
 
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 

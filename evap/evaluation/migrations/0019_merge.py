@@ -7,6 +7,3 @@ class Migration(migrations.Migration):
         ('evaluation', '0018_unique_degrees'),
         ('evaluation', '0014_rename_lecturer'),
     ]
-
-    operations = [
-    ]

@@ -165,6 +165,10 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
+    final_grades = (
+        grade_document.type == GradeDocument.Type.FINAL_GRADES
+    )  # if parameter is not given, assume midterm grades
+
     if form.is_valid():
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
@@ -175,6 +179,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
         course=course,
         form=form,
         show_automated_publishing_info=False,
+        final_grades=final_grades,
     )
     return render(request, "grades_upload_form.html", template_data)
 

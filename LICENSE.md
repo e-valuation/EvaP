@@ -2,7 +2,7 @@
 
 The software is licensed under the MIT license. The source code includes other
 components in whole or in part; namely Bootstrap Datepicker, Font Awesome,
-jQuery, jQuery Formset, Moment, Popper, Select2, Sisyphus, Sortable.
+jQuery, jQuery Formset, Moment, Select2, Sisyphus, Sortable.
 These components are used under the MIT resp. SIL OFL licenses.
 
 The source repository may include logos, names or other trademarks of the
@@ -12,8 +12,8 @@ not touched by the software license.
 
 ```
 EvaP – Evaluation Platform
-Copyright (C) 2011-2021 by Michael Grünewald, Stefan Richter, Johannes Linke,
-and Johannes Wolf
+Copyright (C) 2011-2022 by Johannes Wolf, Johannes Linke, Michael Grünewald,
+Stefan Richter, and Richard Ebeling
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

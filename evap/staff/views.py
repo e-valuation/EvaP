@@ -3,8 +3,9 @@ import itertools
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any, Container, Dict
+from typing import Any, Container, Dict, Optional
 
+import openpyxl
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
@@ -21,8 +22,6 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
-from xlrd import open_workbook
-from xlutils.copy import copy as copy_workbook
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -56,6 +55,7 @@ from evap.staff.forms import (
     ContributionCopyFormSet,
     ContributionForm,
     ContributionFormSet,
+    CourseCopyForm,
     CourseForm,
     CourseTypeForm,
     CourseTypeMergeSelectionForm,
@@ -225,10 +225,10 @@ def semester_view(request, semester_id):
 
 
 class EvaluationOperation:
-    email_template_name = None
-    email_template_contributor_name = None
-    email_template_participant_name = None
-    confirmation_message = None
+    email_template_name: Optional[str] = None
+    email_template_contributor_name: Optional[str] = None
+    email_template_participant_name: Optional[str] = None
+    confirmation_message: Optional[str] = None
 
     @staticmethod
     def applicable_to(evaluation):
@@ -468,7 +468,7 @@ def semester_evaluation_operation(request, semester_id):
     except ValueError as err:
         raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state)) from err
 
-    if target_state not in EVALUATION_OPERATIONS.keys():
+    if target_state not in EVALUATION_OPERATIONS:
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == "GET" else request.POST).getlist("evaluation")
@@ -678,7 +678,7 @@ def semester_export(request, semester_id):
         for form in formset:
             selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
 
-        filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
+        filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
         ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
@@ -691,7 +691,7 @@ def semester_export(request, semester_id):
 def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_raw.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -714,7 +714,7 @@ def semester_raw_export(_request, semester_id):
         if evaluation.can_staff_see_average_grade:
             distribution = calculate_average_distribution(evaluation)
             if distribution is not None:
-                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
+                avg_grade = f"{distribution_to_grade(distribution):.1f}"
         writer.writerow(
             [
                 evaluation.full_name,
@@ -739,7 +739,7 @@ def semester_participation_export(_request, semester_id):
         UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
     )
 
-    filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_participation.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -948,6 +948,45 @@ def course_create(request, semester_id):
         return redirect("staff:semester_view", semester_id)
 
     return render(request, "staff_course_form.html", dict(semester=semester, course_form=course_form, editable=True))
+
+
+@manager_required
+def course_copy(request, semester_id, course_id):
+    semester = get_object_or_404(Semester, id=semester_id)
+    course = get_object_or_404(Course, id=course_id, semester=semester)
+    course_form = CourseCopyForm(request.POST or None, instance=course)
+
+    if course_form.is_valid():
+        copied_course = course_form.save()
+        messages.success(request, _("Successfully copied course."))
+
+        inactive_users = UserProfile.objects.filter(
+            Q(contributions__evaluation__course=copied_course, is_active=False)
+            | Q(courses_responsible_for=copied_course, is_active=False)
+        ).distinct()
+        if inactive_users:
+            messages.warning(
+                request,
+                _("The accounts of the following contributors were reactivated:")
+                + f" {', '.join(user.full_name for user in inactive_users)}",
+            )
+            inactive_users.update(is_active=True)
+
+        return redirect("staff:semester_view", copied_course.semester_id)
+
+    evaluations = sorted(course.evaluations.exclude(is_single_result=True), key=lambda cr: cr.full_name)
+    return render(
+        request,
+        "staff_course_copyform.html",
+        dict(
+            course=course,
+            evaluations=evaluations,
+            semester=semester,
+            course_form=course_form,
+            editable=True,
+            disable_breadcrumb_course=True,
+        ),
+    )
 
 
 @manager_required
@@ -1501,6 +1540,11 @@ def evaluation_textanswers_update_publish(request):
         answer.hide()
     elif action == "unreview":
         answer.unreview()
+    elif action == "textanswer_edit":
+        url = reverse(
+            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation_id, textanswer_id]
+        )
+        return HttpResponse(url)
     else:
         return HttpResponse(status=400)  # 400 Bad Request
     answer.save()
@@ -1515,7 +1559,7 @@ def evaluation_textanswers_update_publish(request):
     return HttpResponse()  # 200 OK
 
 
-@reviewer_required
+@manager_required
 def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
     semester = get_object_or_404(Semester, id=semester_id)
     if semester.results_are_archived:
@@ -1719,8 +1763,8 @@ def questionnaire_new_version(request, questionnaire_id):
 
     # Check if we can use the old name with the current time stamp.
     timestamp = date.today()
-    new_name_de = "{} (until {})".format(old_questionnaire.name_de, str(timestamp))
-    new_name_en = "{} (until {})".format(old_questionnaire.name_en, str(timestamp))
+    new_name_de = f"{old_questionnaire.name_de} (until {timestamp})"
+    new_name_en = f"{old_questionnaire.name_en} (until {timestamp})"
 
     # If not, redirect back and suggest to edit the already created version.
     if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
@@ -2135,10 +2179,11 @@ def template_edit(request, template_id):
     if template.name == EmailTemplate.STUDENT_REMINDER:
         available_variables += ["first_due_in_days", "due_evaluations"]
     elif template.name in [
-        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
-        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
         EmailTemplate.EDITOR_REVIEW_NOTICE,
         EmailTemplate.EDITOR_REVIEW_REMINDER,
+        EmailTemplate.PUBLISHING_NOTICE_CONTRIBUTOR,
+        EmailTemplate.PUBLISHING_NOTICE_PARTICIPANT,
+        EmailTemplate.TEXT_ANSWER_REVIEW_REMINDER,
     ]:
         available_variables += ["evaluations"]
     elif template.name == EmailTemplate.EVALUATION_STARTED:
@@ -2189,25 +2234,21 @@ def faq_section(request, section_id):
 
 
 @manager_required
-def download_sample_xls(_request, filename):
+def download_sample_file(_request, filename):
     email_placeholder = "institution.com"
 
-    if filename not in ["sample.xls", "sample_user.xls"]:
+    if filename not in ["sample.xlsx", "sample_user.xlsx"]:
         raise SuspiciousOperation("Invalid file name.")
 
-    read_book = open_workbook(settings.STATICFILES_DIRS[0] + "/" + filename, formatting_info=True)
-    write_book = copy_workbook(read_book)
-    for sheet_index in range(read_book.nsheets):
-        read_sheet = read_book.sheet_by_index(sheet_index)
-        write_sheet = write_book.get_sheet(sheet_index)
-        for row in range(read_sheet.nrows):
-            for col in range(read_sheet.ncols):
-                value = read_sheet.cell(row, col).value
-                if email_placeholder in value:
-                    write_sheet.write(row, col, value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0]))
+    book = openpyxl.load_workbook(filename=settings.STATICFILES_DIRS[0] + "/" + filename)
+    for sheet in book:
+        for row in sheet:
+            for cell in row:
+                if cell.value is not None:
+                    cell.value = cell.value.replace(email_placeholder, settings.INSTITUTION_EMAIL_DOMAINS[0])
 
-    response = FileResponse(filename, content_type="application/vnd.ms-excel")
-    write_book.save(response)
+    response = FileResponse(filename, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    book.save(response)
     return response
 
 

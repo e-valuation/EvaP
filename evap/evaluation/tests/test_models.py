@@ -269,7 +269,7 @@ class TestEvaluations(WebTest):
 
         self.assertFalse(evaluation.can_publish_text_results)
 
-        let_user_vote_for_evaluation(self.app, student2, evaluation)
+        let_user_vote_for_evaluation(student2, evaluation)
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.can_publish_text_results)
@@ -328,22 +328,10 @@ class TestEvaluations(WebTest):
             TextAnswer,
             question=question,
             contribution=evaluation.general_contribution,
-            answer="hidden",
-            state=TextAnswer.State.HIDDEN,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="published",
-            state=TextAnswer.State.PUBLISHED,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="private",
-            state=TextAnswer.State.PRIVATE,
+            answer=iter(["hidden", "published", "private"]),
+            state=iter([TextAnswer.State.HIDDEN, TextAnswer.State.PUBLISHED, TextAnswer.State.PRIVATE]),
+            _quantity=3,
+            _bulk_create=True,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
@@ -527,7 +515,7 @@ class TestCourse(TestCase):
         user1 = baker.make(UserProfile, last_name="Doe")
         user2 = baker.make(UserProfile, last_name="Meyer")
         course = baker.make(Course, responsibles=[user1, user2])
-        self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
+        self.assertEqual(course.responsibles_names, f"{user1.full_name}, {user2.full_name}")
 
 
 class TestUserProfile(TestCase):
@@ -626,6 +614,24 @@ class TestUserProfile(TestCase):
     def test_email_domain_replacement(self):
         user = baker.make(UserProfile, email="test@example.com")
         self.assertEqual(user.email, "test@institution.com")
+
+    def test_get_sorted_due_evaluations(self):
+        student = baker.make(UserProfile, email="student@example.com")
+        course = baker.make(Course)
+
+        evaluations = baker.make(
+            Evaluation,
+            course=course,
+            name_en=iter(["C", "B", "A"]),
+            name_de=iter(["C", "B", "A"]),
+            vote_end_date=iter([date.today(), date.today(), date.today() + timedelta(days=1)]),
+            state=Evaluation.State.IN_EVALUATION,
+            participants=[student],
+            _quantity=3,
+        )
+
+        sorted_evaluations = student.get_sorted_due_evaluations()
+        self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
 
 
 class ParticipationArchivingTests(TestCase):

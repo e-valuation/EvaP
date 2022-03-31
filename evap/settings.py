@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 Django settings for EvaP project.
 
@@ -57,6 +59,10 @@ REWARD_POINTS = [
 
 # days before end date to send reminder
 REMIND_X_DAYS_AHEAD_OF_END_DATE = [2, 0]
+
+# days of the week on which managers are reminded to handle urgent text answer reviews
+# where Monday is 0 and Sunday is 6
+TEXTANSWER_REVIEW_REMINDER_WEEKDAYS = [3]
 
 # email domains for the internal users of the hosting institution used to
 # figure out who is an internal user
@@ -386,13 +392,15 @@ try:
 except ImportError:
     pass
 
-TESTING = "test" in sys.argv
+TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.
     CACHES = {

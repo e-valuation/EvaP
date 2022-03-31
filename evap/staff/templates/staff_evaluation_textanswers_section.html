@@ -11,7 +11,8 @@
                 <table class="table table-striped{% if not forloop.last %} mb-4{% endif %}">
                     <thead>
                         <tr>
-                            <th style="width: 85%">{% trans 'Text answer' %}</th>
+                            <th style="width: 80%">{% trans 'Text answer' %}</th>
+                            <th style="width: 5%"></th>
                             <th style="width: 15%">{% trans 'Publish' %}</th>
                         </tr>
                     </thead>
@@ -19,10 +20,15 @@
                         {% for answer in result.answers %}
                             <tr id="{{ answer.id }}">
                                 <td class="text-answer">
-                                    <a class="textanswer-link" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
+                                    {{ answer.answer|linebreaksbr }}
                                     {% if answer.original_answer %}
                                         <br />
                                         <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_manager %}
+                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}"><span class="fas fa-pencil-alt"></a>
                                     {% endif %}
                                 </td>
                                 <td>

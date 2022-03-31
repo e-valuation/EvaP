@@ -35,20 +35,17 @@ class TestStudentIndexView(WebTestWith200Check):
     def test_num_queries_is_constant(self):
         semester1 = baker.make(Semester)
         semester2 = baker.make(Semester, participations_are_archived=True)
-        baker.make(
-            Evaluation,
-            course__semester=semester1,
-            state=Evaluation.State.PUBLISHED,
-            participants=[self.user],
-            _quantity=100,
-        )
-        baker.make(
-            Evaluation,
-            course__semester=semester2,
-            state=Evaluation.State.PUBLISHED,
-            participants=[self.user],
-            _quantity=100,
-        )
+
+        for semester in [semester1, semester2]:
+            evaluations = baker.make(
+                Evaluation,
+                course__semester=semester,
+                state=Evaluation.State.PUBLISHED,
+                _quantity=100,
+                _bulk_create=True,
+            )
+            participations = [Evaluation.participants.through(evaluation=e, userprofile=self.user) for e in evaluations]
+            Evaluation.participants.through.objects.bulk_create(participations)
 
         with self.assertNumQueries(FuzzyInt(0, 100)):
             self.app.get(self.url, user=self.user)
@@ -201,8 +198,7 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1.email, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_general_complete=False)
-        response = form.submit()
-        self.assertEqual(response.status_code, 200)
+        response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
 
         form = page.forms["student-vote-form"]
@@ -239,8 +235,7 @@ class TestVoteView(WebTest):
         page = self.app.get(self.url, user=self.voting_user1, status=200)
         form = page.forms["student-vote-form"]
         self.fill_form(form, fill_contributors_complete=False)
-        response = form.submit()
-        self.assertEqual(response.status_code, 200)
+        response = form.submit(status=200)
         self.assertIn("vote for all rating questions", response)
 
         form = page.forms["student-vote-form"]
@@ -386,8 +381,7 @@ class TestVoteView(WebTest):
         form = page.forms["student-vote-form"]
         self.fill_form(form)
         page = self.app.get(reverse("django-auth-logout"), user=self.voting_user1, status=302)
-        response = form.submit()
-        self.assertEqual(response.status_code, 302)
+        response = form.submit(status=302)
         self.assertNotIn(SUCCESS_MAGIC_STRING, response)
 
     def test_midterm_evaluation_warning(self):

@@ -21,6 +21,7 @@ urlpatterns = [
     path("semester/<int:semester_id>/grade_reminder", views.semester_grade_reminder, name="semester_grade_reminder"),
     path("semester/<int:semester_id>/course/create", views.course_create, name="course_create"),
     path("semester/<int:semester_id>/course/<int:course_id>/edit", views.course_edit, name="course_edit"),
+    path("semester/<int:semester_id>/course/<int:course_id>/copy", views.course_copy, name="course_copy"),
     path("semester/<int:semester_id>/evaluation/create", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/create/<int:course_id>", views.evaluation_create, name="evaluation_create"),
     path("semester/<int:semester_id>/evaluation/<int:evaluation_id>/edit", views.evaluation_edit, name="evaluation_edit"),
@@ -82,7 +83,7 @@ urlpatterns = [
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
-    path("download_sample_xls/<str:filename>", views.download_sample_xls, name="download_sample_xls"),
+    path("download_sample_file/<str:filename>", views.download_sample_file, name="download_sample_file"),
 
     path("export_contributor_results/<int:contributor_id>", views.export_contributor_results_view, name="export_contributor_results"),
 
