@@ -2187,16 +2187,16 @@ class TestEvaluationTextAnswerView(WebTest):
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        semester = baker.make(Semester, pk=1)
-        student1 = baker.make(UserProfile, email="student@institution.example.com")
+        cls.semester = baker.make(Semester, pk=1)
+        cls.student1 = baker.make(UserProfile, email="student@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
 
         cls.evaluation = baker.make(
             Evaluation,
             pk=1,
-            course__semester=semester,
-            participants=[student1, cls.student2],
-            voters=[student1],
+            course__semester=cls.semester,
+            participants=[cls.student1, cls.student2],
+            voters=[cls.student1],
             state=Evaluation.State.IN_EVALUATION,
         )
         top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
@@ -2216,9 +2216,9 @@ class TestEvaluationTextAnswerView(WebTest):
 
         cls.evaluation2 = baker.make(
             Evaluation,
-            course__semester=semester,
-            participants=[student1],
-            voters=[student1, cls.student2],
+            course__semester=cls.semester,
+            participants=[cls.student1],
+            voters=[cls.student1, cls.student2],
             vote_start_datetime=datetime.datetime.now() - datetime.timedelta(days=5),
             vote_end_date=datetime.date.today() - datetime.timedelta(days=4),
             can_publish_text_results=True,
@@ -2279,6 +2279,57 @@ class TestEvaluationTextAnswerView(WebTest):
             page = self.app.get(self.url, user=self.manager, status=200)
             # unfinished because still in EVALUATION_END_OFFSET_HOURS
             self.assertNotContains(page, self.evaluation2.full_name)
+
+    def test_suggested_evaluation_ordering(self):
+        evaluations = baker.make(
+            Evaluation,
+            course__semester=self.semester,
+            participants=[self.student1, self.student2],
+            voters=[self.student1, self.student2],
+            state=Evaluation.State.IN_EVALUATION,
+            vote_start_datetime=datetime.datetime.now() - datetime.timedelta(days=42),
+            vote_end_date=datetime.date.today() - datetime.timedelta(days=2),
+            can_publish_text_results=True,
+            _quantity=2,
+        )
+
+        for i, evaluation in enumerate(evaluations):
+            evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
+            question = baker.make(Question, type=Question.TEXT)
+            contribution = baker.make(
+                Contribution,
+                evaluation=evaluation,
+                contributor=baker.make(UserProfile),
+                questionnaires=[question.questionnaire],
+            )
+            baker.make(TextAnswer, contribution=contribution, question=question, answer=self.answer)
+            if i == 1:
+                baker.make(TextAnswer, contribution=contribution, question=question, answer=self.answer)
+
+        url = f"/staff/semester/{self.semester.pk}/evaluation/{self.evaluation2.pk}/textanswers"
+
+        with run_in_staff_mode(self):
+            # Since Evaluation 1 has an extra text answer, it should be first
+            page = self.app.get(url, user=self.manager)
+            self.assertTrue(
+                f'data-evaluation="{evaluations[1].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            )
+
+            # Since Evaluation 0 has an earlier end date, it should now be first
+            evaluations[0].vote_end_date = datetime.date.today() - datetime.timedelta(days=4)
+            evaluations[0].save()
+            page = self.app.get(url, user=self.manager)
+            self.assertTrue(
+                f'data-evaluation="{evaluations[0].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            )
+
+            # Since the grading process for Evaluation 1 is finished, it should be first
+            evaluations[1].wait_for_grade_upload_before_publishing = False
+            evaluations[1].save()
+            page = self.app.get(url, user=self.manager)
+            self.assertTrue(
+                f'data-evaluation="{evaluations[1].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            )
 
     def test_num_queries_is_constant(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
