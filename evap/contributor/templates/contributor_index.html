@@ -40,7 +40,7 @@
         </div>
         {% if user.is_delegate %}
             <div class="btn-switch btn-switch-light mb-auto ms-2 d-print-none">
-                <div class="btn-switch-label"><span class="fas fa-user-group"></span> {% trans 'Delegated evaluations' %}</div>
+                <div class="btn-switch-label"><span class="fas fa-people-arrows-left-right"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
                         {% trans 'Show' %}
@@ -109,17 +109,17 @@
                                     <td>
                                         <div class="evaluation-name">
                                             {% if evaluation.delegated_evaluation %}
-                                                <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                <span class="text-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are a delegate of a contributor who can edit the evaluation.' %}">
-                                                    <span class="fas fa-user-group"></span>
+                                                    <span class="fas fa-fw fa-people-arrows-left-right"></span>
                                                 </span>
                                             {% elif evaluation.contributes_to %}
-                                                <span class="badge bg-primary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are listed as a contributor for this evaluation.' %}">
-                                                    <span class="fas fa-chalkboard-user"></span>
+                                                    <span class="fas fa-person-chalkboard"></span>
                                                 </span>
                                             {% else %}
-                                                <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                <span class="text-secondary" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are not listed as a contributor for this evaluation.' %}">
                                                     <span class="fas fa-user-slash"></span>
                                                 </span>

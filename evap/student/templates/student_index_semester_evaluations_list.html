@@ -72,21 +72,21 @@
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                     {% endif %}>
-                                    <td class="ps-2 full-size">
+                                    <td class="ps-2 fs-5">
                                         {% if not evaluation.is_single_result %}
                                             {% if evaluation.voted_for %}
-                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="far fa-face-smile" aria-hidden="true"></span></span>
+                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
                                             {% elif evaluation.participates_in %}
                                                 {% if evaluation.state > evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="far fa-fw fa-face-frown" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
                                                 {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
                                                     <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
                                                 {% else %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-clock" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
                                                 {% endif %}
                                             {% else %}
                                                 <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You are not listed as a participant for this evaluation.' %}">
-                                                    <span class="far fa-fw fa-circle"></span>
+                                                    <span class="fas fa-fw fa-minus"></span>
                                                 </span>
                                             {% endif %}
                                         {% endif %}

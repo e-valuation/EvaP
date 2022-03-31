@@ -36,12 +36,12 @@
             {% if evaluation.state == evaluation.State.IN_EVALUATION %}
                 <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-play icon-gray" title="{% trans 'This evaluation is still running' %}"></span>
             {% elif evaluation.state == evaluation.State.EVALUATED %}
-                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-column icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
             {% elif evaluation.state == evaluation.State.REVIEWED %}
                 {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-column icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-red" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
                 {% else %}
-                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-column icon-yellow" title="{% trans 'Results not yet published' %}"></span>
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="fas fa-chart-simple icon-yellow" title="{% trans 'Results not yet published' %}"></span>
                 {% endif %}
             {% endif %}
         </span>

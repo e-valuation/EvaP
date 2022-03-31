@@ -229,22 +229,22 @@
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Evaluation not finished' %}">
-                                <span class="fas fa-chart-column icon-gray"></span>
+                                <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published although grading process is finished' %}">
-                                <span class="fas fa-chart-column icon-red"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published' %}">
-                                <span class="fas fa-chart-column icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results published' %}">
-                                <span class="fas fa-chart-column icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                             </button>
                         </div>
                     </div>
@@ -323,13 +323,13 @@
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Unpublished evaluations' %}">
-                                <span class="fas fa-chart-column icon-yellow"></span>
-                                <span class="fas fa-chart-column icon-red"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                                 {% trans 'Publish' %}
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Published evaluations' %}">
-                                <span class="fas fa-chart-column icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                                 {% trans 'Unpublish' %}
                             </button>
                         </div>
