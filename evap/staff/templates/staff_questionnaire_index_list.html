@@ -24,7 +24,7 @@
                     <tbody>
                     {% for questionnaire in questionnaires %}
                         <tr id="questionnaire-row-{{ questionnaire.id }}" class="sortable questionnaire" data-id="{{ questionnaire.id }}">
-                            <td class="movable"><span class="movable-icon fas fa-arrows-alt-v"></span></td>
+                            <td class="movable"><span class="movable-icon fas fa-up-down"></span></td>
                             <td>
                                 <strong class="questionnaire-name">{{ questionnaire.name }}</strong>
                                 <br />
@@ -47,7 +47,7 @@
                                 </div>
                             </td>
                             <td>
-                                <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% trans 'Edit' %}{% else %}{% trans 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil-alt"></span></a>
+                                <a href="{% url 'staff:questionnaire_edit' questionnaire.id %}" class="btn btn-sm {%if questionnaire.can_be_edited_by_manager %}btn-primary{% else %}btn-light{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="{%if questionnaire.can_be_edited_by_manager %}{% trans 'Edit' %}{% else %}{% trans 'Edit (questionnaire is already in use)' %}{% endif %}"><span class="fas fa-pencil"></span></a>
                                 <a href="{% url 'staff:questionnaire_new_version' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Hide and create new version' %}"><span class="far fa-clock"></span></a>
                                 <a href="{% url 'staff:questionnaire_copy' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Copy' %}"><span class="far fa-copy"></span></a>
                                 <a href="{% url 'staff:questionnaire_view' questionnaire.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview' %}"><span class="far fa-eye"></span></a>

@@ -10,7 +10,7 @@
 
     <div id="contributorInfobox" class="callout callout-info callout-closable">
         <div class="callout-header d-flex">
-            <span class="fas fa-info-circle callout-icon"></span>
+            <span class="fas fa-circle-info callout-icon"></span>
             <span>{% trans 'Information for contributors' %}</span>
             <button type="button" class="btn-close callout-closable-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -40,7 +40,7 @@
         </div>
         {% if user.is_delegate %}
             <div class="btn-switch btn-switch-light mb-auto ms-2 d-print-none">
-                <div class="btn-switch-label"><span class="fas fa-user-friends"></span> {% trans 'Delegated evaluations' %}</div>
+                <div class="btn-switch-label"><span class="fas fa-user-group"></span> {% trans 'Delegated evaluations' %}</div>
                 <div class="btn-switch btn-group">
                     <a href="{% url 'contributor:index' %}?show_delegated=true" role="button" class="btn btn-sm btn-light{% if show_delegated %} active{% endif %}">
                         {% trans 'Show' %}
@@ -90,7 +90,7 @@
                                     <td>
                                         {% if course.not_all_evaluations_are_published %}
                                             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Course result is not yet available.' %}">
-                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
+                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" %}
                                             </div>
                                         {% else %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}
@@ -111,12 +111,12 @@
                                             {% if evaluation.delegated_evaluation %}
                                                 <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are a delegate of a contributor who can edit the evaluation.' %}">
-                                                    <span class="fas fa-user-friends"></span>
+                                                    <span class="fas fa-user-group"></span>
                                                 </span>
                                             {% elif evaluation.contributes_to %}
                                                 <span class="badge bg-primary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You are listed as a contributor for this evaluation.' %}">
-                                                    <span class="fas fa-chalkboard-teacher"></span>
+                                                    <span class="fas fa-chalkboard-user"></span>
                                                 </span>
                                             {% else %}
                                                 <span class="badge bg-secondary-outline" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -171,21 +171,21 @@
                                                 {% if evaluation.state == evaluation.State.PREPARED %}
                                                     <a href="{% url 'contributor:evaluation_edit' evaluation.id %}" class="btn btn-primary btn-row-hover"
                                                         data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Edit or approve' %}">
-                                                        <span class="fas fa-pencil-alt"></span>
+                                                        <span class="fas fa-pencil"></span>
                                                     </a>
                                                     {% if not evaluation|has_nonresponsible_editor %}
                                                         <a href="#" class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                             data-bs-placement="top" title="{% trans 'Delegate preparation' %}"
                                                             onclick="delegateSelectionModalShow(`{{ evaluation.full_name }}`, `{% url 'contributor:evaluation_direct_delegation' evaluation.id %}`);return false;"
                                                         >
-                                                            <span class="fas fa-hand-point-right fa-flip-horizontal"></span>
+                                                            <span class="fas fa-hand-point-left"></span>
                                                         </a>
                                                     {% endif %}
                                                 {% elif evaluation.state == evaluation.State.EDITOR_APPROVED or evaluation.state == evaluation.State.APPROVED %}
                                                     <a href="{% url 'contributor:evaluation_view' evaluation.id %}" class="btn btn-sm btn-light"
                                                         data-bs-toggle="tooltip" data-bs-placement="top"
                                                         title="{% trans 'You already approved the evaluation, the edit form will be disabled.' %}">
-                                                        <span class="fas fa-pencil-alt"></span>
+                                                        <span class="fas fa-pencil"></span>
                                                     </a>
                                                 {% endif %}
                                             {% endif %}
@@ -197,7 +197,7 @@
                                             {% endif %}
                                         {% elif evaluation.state != evaluation.State.PUBLISHED and evaluation.is_single_result %}
                                             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'You will receive an email when the results are published.' %}">
-                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
+                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" weight_info=evaluation|weight_info %}
                                             </div>
                                         {% elif evaluation.state == evaluation.State.PUBLISHED %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}

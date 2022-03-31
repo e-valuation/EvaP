@@ -29,7 +29,7 @@
                 {% include 'bootstrap_form_errors.html' with errors=form.non_field_errors %}
                 <tr class="contribution select2tr{% if editable %} sortable{% endif %}">
                     <td class="movable">
-                        {% if editable %}<span class="movable-icon fas fa-arrows-alt-v"></span>{% endif %}
+                        {% if editable %}<span class="movable-icon fas fa-up-down"></span>{% endif %}
                     </td>
 
                     <td>
@@ -57,7 +57,7 @@
                         {% include 'textanswer_visibility_buttons.html' with form=form %}
                         <br /><br />
                         <span class="{% if form.label.errors %}error-label{% endif %}">{% trans 'Label' %}:
-                            <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-info-circle"
+                            <span data-bs-toggle="tooltip" data-bs-placement="right" class="fas fa-circle-info"
                                 title="{% blocktrans %}This text will be shown next to the contributor's name in the questionnaire.{% endblocktrans %}">
                             </span>
                         </span>

@@ -33,7 +33,7 @@
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                    <span class="fas fa-backspace"></span>
+                    <span class="fas fa-delete-left"></span>
                 </button>
             </div>
         </div>
@@ -57,7 +57,7 @@
                         <td>{% if user.email %}{{ user.email }}{% endif %}</td>
                         <td>{% include 'staff_user_badges.html' with user=user %}</td>
                         <td>
-                            <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
+                            <a href="{% url 'staff:user_edit' user.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil"></span></a>
                             {% if user.can_be_deleted_by_manager %}
                                 <button type="button" class="btn btn-danger btn-sm" onclick="deleteModalShow({{ user.id }}, '{{ user.full_name|escapejs }}');">
                                     <span class="fas fa-trash"></span

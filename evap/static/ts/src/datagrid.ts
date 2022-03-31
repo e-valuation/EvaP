@@ -331,7 +331,7 @@ export class QuestionnaireGrid extends TableGrid {
     public bindEvents() {
         super.bindEvents();
         new Sortable(this.container, {
-            handle: ".fa-arrows-alt-v",
+            handle: ".fa-up-down",
             draggable: ".sortable",
             scrollSensitivity: 70,
             onUpdate: event => {
