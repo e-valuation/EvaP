@@ -9,7 +9,7 @@
                 </span>
                 {% if semester.results_are_archived %}
                     <span class="archive-info">
-                        <span class="fas fa-archive"></span> {% trans 'The results of this semester have been archived.' %}
+                        <span class="fas fa-box-archive"></span> {% trans 'The results of this semester have been archived.' %}
                     </span>
                 {% endif %}
             </div>
@@ -55,7 +55,7 @@
                                         {% if semester.results_are_archived %}
                                         {% elif course.not_all_evaluations_are_published %}
                                             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'The total grade will be calculated once all evaluation results have been published.' %}">
-                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
+                                                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" %}
                                             </div>
                                         {% else %}
                                             {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}
@@ -72,21 +72,21 @@
                                     {% else %}
                                         class="{% if course.evaluation_count > 1 %}evaluation-row{% else %}heading-row{% endif %}"
                                     {% endif %}>
-                                    <td class="ps-2 full-size">
+                                    <td class="ps-2 fs-5">
                                         {% if not evaluation.is_single_result %}
                                             {% if evaluation.voted_for %}
-                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="far fa-fw fa-smile" aria-hidden="true"></span></span>
+                                                <span class="text text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You gave us your feedback in this evaluation. Thank you!' %}"><span class="fas fa-fw fa-check" aria-hidden="true"></span></span>
                                             {% elif evaluation.participates_in %}
                                                 {% if evaluation.state > evaluation.State.IN_EVALUATION %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="far fa-fw fa-frown" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You did not take part in this evaluation.' %}"><span class="fas fa-fw fa-xmark" aria-hidden="true"></span></span>
                                                 {% elif evaluation.state == evaluation.State.IN_EVALUATION %}
                                                     <span class="text text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You can take part in this evaluation.' %}"><span class="fas fa-fw fa-arrow-right" aria-hidden="true"></span></span>
                                                 {% else %}
-                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-clock" aria-hidden="true"></span></span>
+                                                    <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'This evaluation will start in the future.' %}"><span class="far fa-fw fa-hourglass" aria-hidden="true"></span></span>
                                                 {% endif %}
                                             {% else %}
                                                 <span class="text text-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'You are not listed as a participant for this evaluation.' %}">
-                                                    <span class="far fa-fw fa-circle"></span>
+                                                    <span class="fas fa-fw fa-minus"></span>
                                                 </span>
                                             {% endif %}
                                         {% endif %}
@@ -162,7 +162,7 @@
                                                 {% include 'evaluation_result_widget.html' with course_or_evaluation=evaluation %}
                                             {% elif not evaluation.participates_in or evaluation.voted_for and evaluation.State.IN_EVALUATION <= evaluation.state and evaluation.state <= evaluation.State.REVIEWED %}
                                                 <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% if evaluation|weight_info %}{% blocktrans with percentage=evaluation|weight_info %}This evaluation contributes {{ percentage }} to the final grade of the course.{% endblocktrans %} {% endif %}{% trans 'The results have not been published yet.' %}{% if evaluation.participates_in %} {% trans 'You will receive an email when the results are published.' %}{% endif %}">
-                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" weight_info=evaluation|weight_info %}
+                                                    {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" weight_info=evaluation|weight_info %}
                                                 </div>
                                             {% endif %}
                                         {% endif %}
