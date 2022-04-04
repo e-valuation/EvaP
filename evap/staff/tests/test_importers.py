@@ -325,13 +325,12 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
+        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
 
-        __, warnings_test, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, None, None, test_run=True
-        )
-        __, warnings_no_test, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        __, warnings_test, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
+        __, warnings_no_test, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
         self.assertCountEqual(
