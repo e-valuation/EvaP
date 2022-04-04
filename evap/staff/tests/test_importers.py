@@ -409,7 +409,7 @@ class TestEnrollmentImporter(TestCase):
         semester = baker.make(Semester)
         baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
         baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
-        import_args = [excel_content, semester, None, None]
+        import_args = [self.default_excel_content, semester, None, None]
 
         __, __, errors = EnrollmentImporter.process(*import_args, test_run=False)
 
@@ -443,9 +443,9 @@ class TestEnrollmentImporter(TestCase):
         import_args_withoutDates = [excel_content, self.semester, None, None]
         import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
         success_messages, __, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
-        self.assertIn("The import run will create 1 course/evaluation and 1 user:", success_messages[3])
+        self.assertIn("The import run will create 1 course/evaluation and 2 users:", success_messages[4])
         success_messages, __, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
-        self.assertIn("Successfully created 1 course/evaluation, no students", success_messages[2])
+        self.assertIn("Successfully created 1 course/evaluation, 1 student and 1 responsible", success_messages[3])
 
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
@@ -453,6 +453,9 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn("The import run will create 1 course/evaluation and no users.", success_messages)
         success_messages, __, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn("Successfully created 1 course/evaluation, no students and no responsibles", success_messages)
+
+        old_course_count = Course.objects.count()
+        old_dict = model_to_dict(existing_course)
 
         __, warnings, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
