@@ -1,5 +1,6 @@
 import os
 from datetime import date, datetime
+from email.mime import image
 from unittest.mock import patch
 
 from django.conf import settings
@@ -178,14 +179,14 @@ class TestUserImporter(TestCase):
         self.assertIn("lucilia.manilium@institution.example.com", success_messages[3])
         self.assertIn("bastius.quid@external.example.com", success_messages[3])
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
-        old_user_count = UserProfile.objects.count()
+
         self.assertIn("Successfully created 2 users:", success_messages[2])
         self.assertIn("lucilia.manilium@institution.example.com", success_messages[2])
         self.assertIn("bastius.quid@external.example.com", success_messages[2])
-        UserProfile.objects.get(email="lucilia.manilium@institution.example.com").delete()
-        self.assertEqual(UserProfile.objects.count(), old_user_count - 1)
 
+        UserProfile.objects.get(email="lucilia.manilium@institution.example.com").delete()
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=True)
+
         self.assertIn("The import run will create 1 user:", success_messages[3])
         self.assertIn("lucilia.manilium@institution.example.com", success_messages[3])
         __, success_messages, __, __ = UserImporter.process(self.valid_excel_content, test_run=False)
@@ -214,10 +215,10 @@ class TestEnrollmentImporter(TestCase):
 
     def test_valid_file_import(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
 
-        success_messages, warnings, errors = EnrollmentImporter.process(
-            excel_content, self.semester, None, None, test_run=True
-        )
+        success_messages, warnings, errors = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
         self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
@@ -226,14 +227,12 @@ class TestEnrollmentImporter(TestCase):
 
         old_user_count = UserProfile.objects.all().count()
 
-        success_messages, warnings, errors = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, warnings, errors = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn(
             "Successfully created 23 courses/evaluations, 6 students and 17 responsibles",
             "".join(success_messages),
         )
-        self.assertIn("Torquate Metrodorus (torquate.metrodorus@institution.example.com)", "".join(success_messages))
+        self.assertIn("Ferdi Itaque (789@institution.example.com)", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(warnings, {})
 
@@ -243,10 +242,10 @@ class TestEnrollmentImporter(TestCase):
 
     def test_degrees_are_merged(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_degree_merge_filedata)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
 
-        success_messages, warnings_test, errors = EnrollmentImporter.process(
-            excel_content, self.semester, None, None, test_run=True
-        )
+        success_messages, warnings_test, errors = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
         self.assertIn("The import run will create 1 course/evaluation and 3 users:", "".join(success_messages))
         self.assertEqual(errors, {})
         self.assertEqual(
@@ -258,9 +257,7 @@ class TestEnrollmentImporter(TestCase):
         )
         self.assertEqual(len(warnings_test), 1)
 
-        success_messages, warnings_no_test, errors = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, warnings_no_test, errors = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn(
             "Successfully created 1 course/evaluation, 2 students and 1 responsible", "".join(success_messages)
         )
@@ -275,10 +272,9 @@ class TestEnrollmentImporter(TestCase):
 
     def test_course_type_and_degrees_are_retrieved_with_import_names(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_import_names_filedata)
+        import_args = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
 
-        success_messages, warnings, errors = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, warnings, errors = EnrollmentImporter.process(*import_args, test_run=False)
         self.assertIn(
             "Successfully created 2 courses/evaluations, 4 students and 2 responsibles", "".join(success_messages)
         )
@@ -296,11 +292,11 @@ class TestEnrollmentImporter(TestCase):
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
 
-        __, warnings_test, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        __, warnings_no_test, __ = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        __, warnings_test, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
+        __, warnings_no_test, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
 
         self.assertEqual(warnings_test, warnings_no_test)
         self.assertCountEqual(
@@ -318,11 +314,12 @@ class TestEnrollmentImporter(TestCase):
     def test_random_file_error(self):
         with open(self.filename_random, "rb") as excel_file:
             excel_content = excel_file.read()
+        import_args = [excel_content, self.semester, None, None]
 
         original_user_count = UserProfile.objects.count()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        __, __, errors_test = EnrollmentImporter.process(*import_args, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(*import_args, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertEqual(
@@ -333,11 +330,12 @@ class TestEnrollmentImporter(TestCase):
 
     def test_invalid_file_error(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.invalid_enrollment_data_filedata)
+        import_args = [excel_content, self.semester, None, None]
 
         original_user_count = UserProfile.objects.count()
 
-        __, __, errors_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
-        __, __, errors_no_test = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=False)
+        __, __, errors_test = EnrollmentImporter.process(*import_args, test_run=True)
+        __, __, errors_no_test = EnrollmentImporter.process(*import_args, test_run=False)
 
         self.assertEqual(errors_test, errors_no_test)
         self.assertCountEqual(
@@ -378,8 +376,9 @@ class TestEnrollmentImporter(TestCase):
         semester = baker.make(Semester)
         baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
         baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
+        import_args = [excel_content, semester, None, None]
 
-        __, __, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+        __, __, errors = EnrollmentImporter.process(*import_args, test_run=False)
 
         self.assertCountEqual(
             errors[ImporterError.COURSE],
@@ -400,38 +399,36 @@ class TestEnrollmentImporter(TestCase):
         excel_content = excel_data.create_memory_excel_file(
             excel_data.test_enrollment_data_consecutive_and_trailing_spaces_filedata
         )
+        import_args = [excel_content, self.semester, None, None]
 
-        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, __, __ = EnrollmentImporter.process(*import_args, test_run=True)
         self.assertIn("The import run will create 1 course/evaluation and 3 users:", "".join(success_messages))
 
     def test_enrollment_success_messages(self):
         excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
-        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
+
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", success_messages[4])
-        success_messages, __, __ = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn(
             "Successfully created 23 courses/evaluations, 6 students and 17 responsibles", success_messages[3]
         )
 
         excel_content = excel_data.create_memory_excel_file(excel_data.one_new_course_and_user_filedata)
-        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        import_args_withoutDates = [excel_content, self.semester, None, None]
+        import_args_withDates = [excel_content, self.semester, self.vote_start_datetime, self.vote_end_date]
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
         self.assertIn("The import run will create 1 course/evaluation and 1 user:", success_messages[3])
-        success_messages, __, __ = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn("Successfully created 1 course/evaluation, no students", success_messages[2])
 
-        old_evaluation_count = Evaluation.objects.all().count()
         Evaluation.objects.get(course__name_de="newBauen").delete()
         Course.objects.get(name_de="newBauen").delete()
-        self.assertEqual(Evaluation.objects.all().count(), old_evaluation_count - 1)
-        success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withoutDates, test_run=True)
         self.assertIn("The import run will create 1 course/evaluation and no users.", success_messages)
-        success_messages, __, __ = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
+        success_messages, __, __ = EnrollmentImporter.process(*import_args_withDates, test_run=False)
         self.assertIn("Successfully created 1 course/evaluation, no students and no responsibles", success_messages)
 
 
