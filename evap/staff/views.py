@@ -1491,13 +1491,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         request.session["review-visited"] = visited
 
         sections = evaluation_sections + contributor_sections
-        # Evaluations where the grading process is finished should be shown first, need to be sorted in Python
-        template_data.update(
-            dict(
-                sections=sections,
-                next_evaluations=sorted(next_evaluations, key=lambda e: e.grading_process_is_finished, reverse=True),
-            )
-        )
+        template_data.update(dict(sections=sections, next_evaluations=next_evaluations))
         return render(request, "staff_evaluation_textanswers_quick.html", template_data)
 
     template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
