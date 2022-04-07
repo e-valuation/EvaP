@@ -2237,9 +2237,6 @@ class TestEvaluationTextAnswerView(WebTest):
             answer="test answer text",
         )
 
-        cls.num_questions = 100
-        baker.make(TextAnswer, question__questionnaire=questionnaire, _quantity=cls.num_questions, _bulk_create=True)
-
     def test_textanswers_showing_up(self):
         # in an evaluation with only one voter the view should not be available
         with run_in_staff_mode(self):
@@ -2282,8 +2279,16 @@ class TestEvaluationTextAnswerView(WebTest):
 
     def test_num_queries_is_constant(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
+
+        kwargs = {"_quantity": 100, "_bulk_create": True}
+        contributors = baker.make(UserProfile, **kwargs)
+        contributions = baker.make(Contribution, evaluation=self.evaluation, contributor=iter(contributors), **kwargs)
+        questionnaires = baker.make(Questionnaire, **kwargs)
+        questions = baker.make(Question, questionnaire=iter(questionnaires), type=Question.TEXT, **kwargs)
+        baker.make(TextAnswer, question=iter(questions), contribution=iter(contributions), **kwargs)
+
         with run_in_staff_mode(self):
-            with self.assertNumQueries(FuzzyInt(0, self.num_questions)):
+            with self.assertNumQueries(FuzzyInt(0, 100)):
                 self.app.get(self.url, user=self.manager)
 
     def test_published(self):
