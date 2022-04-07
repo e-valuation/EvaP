@@ -2293,18 +2293,9 @@ class TestEvaluationTextAnswerView(WebTest):
             _quantity=2,
         )
 
-        for i, evaluation in enumerate(evaluations):
-            evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire, type=Questionnaire.Type.TOP)])
-            question = baker.make(Question, type=Question.TEXT)
-            contribution = baker.make(
-                Contribution,
-                evaluation=evaluation,
-                contributor=baker.make(UserProfile),
-                questionnaires=[question.questionnaire],
-            )
-            baker.make(TextAnswer, contribution=contribution, question=question, answer=self.answer)
-            if i == 1:
-                baker.make(TextAnswer, contribution=contribution, question=question, answer=self.answer)
+        for evaluation, answer_count in zip(evaluations, [1, 2]):
+            contribution = baker.make(Contribution, evaluation=evaluation, _fill_optional=["contributor"])
+            baker.make(TextAnswer, contribution=contribution, question__type=Question.TEXT, _quantity=answer_count)
 
         url = f"/staff/semester/{self.semester.pk}/evaluation/{self.evaluation2.pk}/textanswers"
 
