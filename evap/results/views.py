@@ -61,33 +61,44 @@ def _delete_course_template_cache_impl(course):
 
 def warm_up_template_cache(evaluations):
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
-    current_language = translation.get_language()
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
+
+    current_language = translation.get_language()
+
+    results_index_course_template = get_template("results_index_course.html", using="CachedEngine")
+    results_index_evaluation_template = get_template("results_index_evaluation.html", using="CachedEngine")
+
     try:
         for course in courses_to_render:
             translation.activate("en")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             translation.activate("de")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
             assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
+
         for evaluation in evaluations:
             assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
             is_subentry = evaluation.course.evaluation_count > 1
+
             translation.activate("en")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             translation.activate("de")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]

@@ -1,10 +1,10 @@
 from collections import OrderedDict, defaultdict, namedtuple
 from math import ceil, modf
-from typing import Tuple, cast
+from typing import Dict, List, Tuple, cast
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Exists, OuterRef, Q, Sum
+from django.db.models import Exists, OuterRef, Sum, prefetch_related_objects
 
 from evap.evaluation.models import (
     CHOICES,
@@ -16,7 +16,6 @@ from evap.evaluation.models import (
     Questionnaire,
     RatingAnswerCounter,
     TextAnswer,
-    UserProfile,
 )
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
@@ -163,9 +162,33 @@ def get_results(evaluation):
     return result
 
 
-def _get_results_impl(evaluation):
+GET_RESULTS_PREFETCH_LOOKUPS = [
+    "contributions__textanswer_set",
+    "contributions__ratinganswercounter_set",
+    "contributions__contributor__delegates",
+    "contributions__questionnaires__questions",
+    "course__responsibles__delegates",
+]
+
+
+def _get_results_impl(evaluation: Evaluation):
+    prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
+
+    # pylint: disable=too-many-branches
+    shown_textanswer_states = [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+    textanswers_per_contribution_question: Dict[(int, int), List[TextAnswer]] = defaultdict(list)
+    for contribution in evaluation.contributions.all():
+        for answer in contribution.textanswer_set.all():
+            if answer.state in shown_textanswer_states:
+                textanswers_per_contribution_question[answer.contribution_id, answer.question_id].append(answer)
+
+    ratinganswercounters_per_contribution_question: Dict[(int, int), List[RatingAnswerCounter]] = defaultdict(list)
+    for contribution in evaluation.contributions.all():
+        for answer in contribution.ratinganswercounter_set.all():
+            ratinganswercounters_per_contribution_question[answer.contribution_id, answer.question_id].append(answer)
+
     contributor_contribution_results = []
-    for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+    for contribution in evaluation.contributions.all():
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
             results = []
@@ -175,19 +198,13 @@ def _get_results_impl(evaluation):
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = TextAnswer.objects.filter(
-                        contribution=contribution,
-                        question=question,
-                        state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED],
-                    )
+                    answers = textanswers_per_contribution_question[contribution.id, question.id]
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = RatingAnswerCounter.objects.filter(
-                            contribution=contribution, question=question
-                        )
+                        answer_counters = ratinganswercounters_per_contribution_question[contribution.id, question.id]
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
@@ -393,24 +410,21 @@ def get_grade_color(grade):
 
 def textanswers_visible_to(contribution):
     if contribution.is_general:
-        contributors = (
-            UserProfile.objects.filter(
-                Q(
-                    contributions__evaluation=contribution.evaluation,
-                    contributions__textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-                )
-                | Q(courses_responsible_for__in=[contribution.evaluation.course])
-            )
-            .distinct()
-            .order_by("last_name", "first_name")
-        )
+        contributors = {
+            other_contribution.contributor
+            for other_contribution in contribution.evaluation.contributions.all()
+            if other_contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+        }
+        contributors.update(contribution.evaluation.course.responsibles.all())
     else:
-        contributors = [contribution.contributor]
+        contributors = {contribution.contributor}
+
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
-    num_delegates = len(
-        set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors)
-    )
-    return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
+    delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}
+    num_delegates = len(delegates - contributors)
+
+    sorted_contributors = sorted(contributors, key=lambda user: (user.last_name, user.first_name))
+    return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
 def can_textanswer_be_seen_by(user, represented_users, textanswer, view):
