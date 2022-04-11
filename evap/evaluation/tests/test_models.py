@@ -852,23 +852,37 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(mail.outbox[0].alternatives[0][1], "text/html")
         self.assertIn("<p>Example html content</p>", mail.outbox[0].alternatives[0][0])
 
-    def test_copy_plain_content_on_empty_html_content(self):
-        template = EmailTemplate(
-            subject="Example", plain_content="Example plain content\nWith newline", html_content=""
-        )
-        template.send_to_user(self.user, {}, {}, False)
-        self.assertEqual(mail.outbox[0].body, "Example plain content\nWith newline")
-        self.assertIn("Example plain content<br />With newline", mail.outbox[0].alternatives[0][0])
+    def test_plain_content_escaped_and_copied_on_empty_html_content(self):
+        template = EmailTemplate(subject="Subject <>&", plain_content="A\nB <>& {{ some_var }}", html_content="")
+        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
 
-    def test_escape_special_characters_in_html_email(self):
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.alternatives[0][1], "text/html")
+        html_content = message.alternatives[0][0]
+
+        self.assertEqual("Subject <>&", message.subject)
+        self.assertEqual("A\nB <>& 0 < 1", message.body)
+        self.assertIn("A<br>B &lt;&gt;&amp; 0 &lt; 1\n", html_content)
+        self.assertNotIn("<>&", html_content)
+
+    def test_escaping_with_html_content(self):
         template = EmailTemplate(
-            subject="<h1>Special Email</h1>",
-            plain_content="Example plain content",
-            html_content="Special Content: {{special_content}}",
+            subject="Subject <>&",
+            plain_content="A\nB <>& {{ some_var }}",
+            html_content="Html content &amp;<br/> {{ some_var }}",
         )
-        template.send_to_user(self.user, {}, {"special_content": "0 < 1"}, False)
-        self.assertIn("&lt;h1&gt;Special Email&lt;/h1&gt;", mail.outbox[0].alternatives[0][0])
-        self.assertIn("Special Content: 0 &lt; 1", mail.outbox[0].alternatives[0][0])
+        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.alternatives[0][1], "text/html")
+        html_content = message.alternatives[0][0]
+
+        self.assertEqual("Subject <>&", message.subject)
+        self.assertEqual("A\nB <>& 0 < 1", message.body)
+        self.assertIn("Html content &amp;<br/> 0 &lt; 1", html_content)
+        self.assertNotIn("<>&", html_content)
 
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email="delegate-a@example.com")
