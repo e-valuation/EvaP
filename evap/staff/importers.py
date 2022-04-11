@@ -8,7 +8,7 @@ import openpyxl
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
@@ -506,12 +506,11 @@ class EnrollmentImporter(ExcelImporter):
                 self.errors[ImporterError.COURSE].append(
                     format_html(
                         _(
-                            "Course {} ({}) does already exist in this semester, but the courses can not be merged for the following reasons:{}."
-                        ).format(
-                            evaluation_data.name_en,
-                            evaluation_data.name_de,
-                            "".join(f"<br /> - {msg}" for msg in merge_hindrances),
-                        )
+                            "Course {name_en} ({name_de}) already exists in this semester, but the courses can not be merged for the following reasons:{reasons}"
+                        ),
+                        name_en=evaluation_data.name_en,
+                        name_de=evaluation_data.name_de,
+                        reasons=format_html_join("", "<br /> - {}", ([msg] for msg in merge_hindrances)),
                     )
                 )
             else:

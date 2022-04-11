@@ -401,7 +401,7 @@ class TestUserBulkUpdateView(WebTestStaffMode):
         self.assertIn(
             "1 will be updated, 1 will be deleted and 1 will be marked inactive. 1 new users will be created.", response
         )
-        self.assertIn("testupdate@institution.example.com > testupdate@internal.example.com", response)
+        self.assertIn("testupdate@institution.example.com &gt; testupdate@internal.example.com", response)
         self.assertIn(mock_remove.return_value[0], response)
         self.assertEqual(mock_remove.call_count, 2)
         calls = [[call[0][0].email, call[0][2]] for call in mock_remove.call_args_list]

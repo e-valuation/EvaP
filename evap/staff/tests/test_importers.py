@@ -474,7 +474,8 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the existing course does not have exactly one evaluation.",
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the existing course does not have exactly one evaluation",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
@@ -494,7 +495,8 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the evaluation of the existing course has a mismatching grading specification.",
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the evaluation of the existing course has a mismatching grading specification",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)

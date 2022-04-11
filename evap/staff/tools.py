@@ -163,7 +163,7 @@ def bulk_update_users(request, user_file_content, test_run):
                 _("Users to be updated are:{}"),
                 format_html_join(
                     "",
-                    "<br />{} {} ({} > {})",
+                    "<br />{} {} ({} &gt; {})",
                     ((user.first_name, user.last_name, user.email, email) for user, email in users_to_be_updated),
                 ),
             ),
