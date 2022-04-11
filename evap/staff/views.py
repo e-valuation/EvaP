@@ -1418,7 +1418,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
     raw_answers = (
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
-        .prefetch_related("contribution", "question__questionnaire", "question")
+        .select_related("question__questionnaire", "contribution__contributor")
         .order_by("contribution", "question__questionnaire", "question")
     )
     if filter_textanswers:
