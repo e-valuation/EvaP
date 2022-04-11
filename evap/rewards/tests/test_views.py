@@ -40,6 +40,7 @@ class TestEventDeleteView(WebTestStaffMode):
 
 
 class TestIndexView(WebTest):
+    csrf_checks = False
     url = reverse("rewards:index")
 
     @classmethod
@@ -77,6 +78,13 @@ class TestIndexView(WebTest):
         response = form.submit()
         self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
+
+    def test_invalid_post_parameters(self):
+        self.app.post(self.url, params={"points-asd": 2}, user=self.student, status=400)
+        self.app.post(self.url, params={"points-": 2}, user=self.student, status=400)
+        self.app.post(self.url, params={"points-1": ""}, user=self.student, status=400)
+        self.app.post(self.url, params={"points-1": "asd"}, user=self.student, status=400)
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 
 
 class TestEventsView(WebTestStaffModeWith200Check):

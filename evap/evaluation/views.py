@@ -188,7 +188,7 @@ def contact(request):
 def set_lang(request):
     if request.user.is_authenticated:
         user = request.user
-        user.language = request.POST["language"]
+        user.language = request.POST.get("language", "en")
         user.save()
 
     return set_language(request)

@@ -1,6 +1,8 @@
 import datetime
 import os
+from abc import ABC, abstractmethod
 from io import BytesIO
+from typing import Tuple, Type
 from unittest.mock import PropertyMock, patch
 
 import openpyxl
@@ -8,6 +10,7 @@ import xlrd
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.db.models import Model
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.urls import reverse
@@ -39,6 +42,7 @@ from evap.evaluation.tests.tools import (
     make_rating_answer_counters,
     render_pages,
 )
+from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
 from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, CourseCopyForm, EvaluationCopyForm
@@ -51,6 +55,36 @@ from evap.staff.tests.utils import (
 )
 from evap.staff.views import get_evaluations_with_prefetched_data
 from evap.student.models import TextAnswerWarning
+
+
+class DeleteViewTestMixin(ABC):
+    csrf_checks = False
+
+    # To be set by derived classes
+    model_cls: Type[Model]
+    url: str
+    permission_method_to_patch: Tuple[Type, str]
+
+    @classmethod
+    @abstractmethod
+    def get_post_params(cls):
+        pass
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.instance = baker.make(cls.model_cls)
+        cls.user = make_manager()
+        cls.post_params = cls.get_post_params()
+
+    def test_valid_deletion(self):
+        with patch.object(*self.permission_method_to_patch, True):
+            self.app.post(self.url, user=self.user, params=self.post_params)
+        self.assertFalse(self.model_cls.objects.filter(pk=self.instance.pk).exists())
+
+    def test_invalid_deletion(self):
+        with patch.object(*self.permission_method_to_patch, False):
+            self.app.post(self.url, user=self.user, params=self.post_params, status=400)
+        self.assertTrue(self.model_cls.objects.filter(pk=self.instance.pk).exists())
 
 
 class TestDownloadSampleFileView(WebTestStaffMode):
@@ -215,6 +249,16 @@ class TestUserEditView(WebTestStaffMode):
             "3 reward points for the active semester.",
             page,
         )
+
+
+class TestUserDeleteView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:user_delete")
+    model_cls = UserProfile
+    permission_method_to_patch = (UserProfile, "can_be_deleted_by_manager")
+
+    @classmethod
+    def get_post_params(cls):
+        return {"user_id": cls.instance.pk}
 
 
 class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
@@ -681,61 +725,27 @@ class TestSemesterEditView(WebTestStaffMode):
         self.assertEqual(self.semester.name_en, new_name_en)
 
 
-class TestSemesterDeleteView(WebTestStaffMode):
-    url = "/staff/semester/delete"
-    csrf_checks = False
+class TestSemesterDeleteView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:semester_delete")
+    model_cls = Semester
+    permission_method_to_patch = (Semester, "can_be_deleted_by_manager")
 
     @classmethod
-    def setUpTestData(cls):
-        cls.manager = make_manager()
+    def get_post_params(cls):
+        return {"semester_id": cls.instance.pk}
 
-    def test_failure(self):
-        semester = baker.make(Semester)
-        baker.make(
-            Evaluation,
-            course=baker.make(Course, semester=semester),
-            state=Evaluation.State.IN_EVALUATION,
-            voters=[baker.make(UserProfile)],
-        )
-        self.assertFalse(semester.can_be_deleted_by_manager)
-
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=400)
-        self.assertTrue(Semester.objects.filter(pk=semester.pk).exists())
-
-    def test_success_if_no_courses(self):
-        semester = baker.make(Semester)
-        self.assertTrue(semester.can_be_deleted_by_manager)
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
-        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
-
-    def test_success_if_archived(self):
-        semester = baker.make(Semester)
-        course = baker.make(Course, semester=semester)
-        evaluation = baker.make(Evaluation, course=course, state=Evaluation.State.PUBLISHED)
-        general_contribution = evaluation.general_contribution
+    def test_success_with_data(self):
+        evaluation = baker.make(Evaluation, course__semester=self.instance, state=Evaluation.State.PUBLISHED)
         responsible_contribution = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
-        textanswer = baker.make(TextAnswer, contribution=general_contribution, state="PU")
-        ratinganswercounter = baker.make(RatingAnswerCounter, contribution=responsible_contribution)
+        baker.make(RatingAnswerCounter, contribution=responsible_contribution)
+        baker.make(TextAnswer, contribution=evaluation.general_contribution, state=TextAnswer.State.PUBLISHED)
 
-        self.assertFalse(semester.can_be_deleted_by_manager)
+        self.instance.archive()
+        self.instance.delete_grade_documents()
+        self.instance.archive_results()
+        self.app.post(self.url, params=self.post_params, user=self.user)
 
-        semester.archive()
-        semester.delete_grade_documents()
-        semester.archive_results()
-
-        self.assertTrue(semester.can_be_deleted_by_manager)
-        self.app.post(self.url, params={"semester_id": semester.pk}, user=self.manager, status=302)
-        self.assertFalse(Semester.objects.filter(pk=semester.pk).exists())
-        self.assertFalse(Course.objects.filter(pk=course.pk).exists())
-        self.assertFalse(Evaluation.objects.filter(pk=evaluation.pk).exists())
-        self.assertFalse(Contribution.objects.filter(pk=general_contribution.pk).exists())
-        self.assertFalse(Contribution.objects.filter(pk=responsible_contribution.pk).exists())
-        self.assertFalse(TextAnswer.objects.filter(pk=textanswer.pk).exists())
-        self.assertFalse(RatingAnswerCounter.objects.filter(pk=ratinganswercounter.pk).exists())
-
-    def test_failure_if_active(self):
-        semester = baker.make(Semester, is_active=True)
-        self.app.post(self.url, user=self.manager, status=400, params={"semester_id": semester.id})
+        self.assertFalse(Semester.objects.filter(pk=self.instance.pk).exists())
 
 
 class TestSemesterAssignView(WebTestStaffMode):
@@ -852,6 +862,38 @@ class TestSendReminderView(WebTestStaffMode):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("uiae", mail.outbox[0].body)
+
+
+class TestSemesterArchiveParticipationsView(WebTestStaffMode):
+    csrf_checks = False
+    url = reverse("staff:semester_archive_participations")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.semester = baker.make(Semester)
+        cls.manager = make_manager()
+
+    @patch.object(Semester, "participations_can_be_archived", True)
+    @patch.object(Semester, "archive")
+    def test_valid_archivation(self, archive_mock):
+        self.app.post(self.url, user=self.manager, params={"semester_id": self.semester.pk})
+        archive_mock.assert_called_once()
+
+    @patch.object(Semester, "participations_can_be_archived", False)
+    @patch.object(Semester, "archive")
+    def test_invalid_archivation(self, archive_mock):
+        self.app.post(self.url, user=self.manager, params={"semester_id": self.semester.pk}, status=400)
+        archive_mock.assert_not_called()
+
+
+class TestSemesterDeleteGradeDocumentsView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:semester_delete_grade_documents")
+    model_cls = GradeDocument
+    permission_method_to_patch = (Semester, "grade_documents_can_be_deleted")
+
+    @classmethod
+    def get_post_params(cls):
+        return {"semester_id": cls.instance.course.semester.pk}
 
 
 class TestSemesterImportView(WebTestStaffMode):
@@ -1462,6 +1504,15 @@ class TestEvaluationOperationView(WebTestStaffMode):
         self.assertEqual(len(actual_emails), 1)
         self.assertEqual(actual_emails[0]["additional_cc_users"], set())
 
+    def test_invalid_target_states(self):
+        evaluation = baker.make(Evaluation, state=Evaluation.State.APPROVED, course=self.course)
+        base_url = f"{self.url}?evaluation={evaluation.pk}"
+
+        self.app.get(f"{base_url}&target_state=133742", user=self.manager, status=400)
+        self.app.get(f"{base_url}&target_state=asdf", user=self.manager, status=400)
+        self.app.get(f"{base_url}&target_state=", user=self.manager, status=400)
+        self.app.get(f"{base_url}&target_state={Evaluation.State.IN_EVALUATION}", user=self.manager, status=200)
+
 
 class TestCourseCreateView(WebTestStaffMode):
     url = "/staff/semester/1/course/create"
@@ -1711,6 +1762,16 @@ class TestCourseEditView(WebTestStaffMode):
         self.assertEqual(self.course.name_en, "A different name")
 
 
+class TestCourseDeleteView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:course_delete")
+    model_cls = Course
+    permission_method_to_patch = (Course, "can_be_deleted_by_manager")
+
+    @classmethod
+    def get_post_params(cls):
+        return {"course_id": cls.instance.pk}
+
+
 @override_settings(
     REWARD_POINTS=[
         (1 / 3, 1),
@@ -1859,6 +1920,41 @@ class TestEvaluationEditView(WebTestStaffMode):
             page,
         )
         self.assertNotIn("The removal as participant has granted the user &quot;d@institution.example.com&quot;", page)
+
+
+class TestEvaluationDeleteView(WebTestStaffMode):
+    csrf_checks = False
+    url = reverse("staff:evaluation_delete")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.evaluation = baker.make(Evaluation)
+        cls.manager = make_manager()
+        cls.post_params = {"evaluation_id": cls.evaluation.pk}
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    @patch("evap.staff.views.update_template_cache_of_published_evaluations_in_course")
+    def test_valid_deletion(self, update_template_cache_mock):
+        self.app.post(self.url, user=self.manager, params=self.post_params)
+
+        update_template_cache_mock.assert_called_once_with(self.evaluation.course)
+        self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", True)
+    def test_single_result_deletion(self):
+        self.evaluation.is_single_result = True
+        self.evaluation.save()
+        counters = baker.make(RatingAnswerCounter, contribution__evaluation=self.evaluation, _quantity=5)
+
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
+
+        self.assertFalse(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
+        self.assertFalse(RatingAnswerCounter.objects.filter(pk__in=[c.pk for c in counters]).exists())
+
+    @patch.object(Evaluation, "can_be_deleted_by_manager", False)
+    def test_invalid_deletion(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=400)
+        self.assertTrue(Evaluation.objects.filter(pk=self.evaluation.pk).exists())
 
 
 class TestSingleResultEditView(WebTestStaffModeWith200Check):
@@ -2568,26 +2664,117 @@ class TestQuestionnaireCopyView(WebTestStaffMode):
         self.assertEqual(questionnaire.questions.count(), 1)
 
 
-class TestQuestionnaireDeletionView(WebTestStaffMode):
-    url = "/staff/questionnaire/delete"
+class TestQuestionnaireDeleteView(DeleteViewTestMixin, WebTestStaffMode):
+    url = reverse("staff:questionnaire_delete")
+    model_cls = Questionnaire
+    permission_method_to_patch = (Questionnaire, "can_be_deleted_by_manager")
+
+    @classmethod
+    def get_post_params(cls):
+        return {"questionnaire_id": cls.instance.pk}
+
+
+class TestQuestionnaireUpdateIndicesView(WebTestStaffMode):
+    url = reverse("staff:questionnaire_update_indices")
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
+        cls.questionnaire1 = baker.make(Questionnaire, order=7)
+        cls.questionnaire2 = baker.make(Questionnaire, order=8)
         cls.manager = make_manager()
-        cls.q1 = baker.make(Questionnaire)
-        cls.q2 = baker.make(Questionnaire)
-        baker.make(Contribution, questionnaires=[cls.q1])
 
-    def test_questionnaire_deletion(self):
-        self.assertFalse(Questionnaire.objects.get(pk=self.q1.pk).can_be_deleted_by_manager)
-        self.assertTrue(Questionnaire.objects.get(pk=self.q2.pk).can_be_deleted_by_manager)
+        cls.post_params = {cls.questionnaire1.id: 0, cls.questionnaire2.id: 1}
 
-        self.app.post(self.url, params={"questionnaire_id": self.q1.pk}, user=self.manager, status=400)
-        self.app.post(self.url, params={"questionnaire_id": self.q2.pk}, user=self.manager, status=200)
+    def test_update_indices(self):
+        self.app.post(self.url, user=self.manager, params=self.post_params, status=200)
 
-        self.assertTrue(Questionnaire.objects.filter(pk=self.q1.pk).exists())
-        self.assertFalse(Questionnaire.objects.filter(pk=self.q2.pk).exists())
+        self.questionnaire1.refresh_from_db()
+        self.questionnaire2.refresh_from_db()
+        self.assertEqual(self.questionnaire1.order, 0)
+        self.assertEqual(self.questionnaire2.order, 1)
+
+    def test_invalid_parameters(self):
+        # invalid ids
+        params = {"133742": 0, self.questionnaire2.id: 1}
+        self.app.post(self.url, user=self.manager, params=params, status=404)
+        params = {"asd": 0, self.questionnaire2.id: 1}
+        self.app.post(self.url, user=self.manager, params=params, status=400)
+        params = {None: 0, self.questionnaire2.id: 1}
+        self.app.post(self.url, user=self.manager, params=params, status=400)
+
+        # invalid values
+        params = {self.questionnaire1.id: "asd", self.questionnaire2.id: 1}
+        self.app.post(self.url, user=self.manager, params=params, status=400)
+
+        # instance not modified
+        self.questionnaire1.refresh_from_db()
+        self.assertEqual(self.questionnaire1.order, 7)
+
+        # correct parameters
+        params = {self.questionnaire1.id: 0, self.questionnaire2.id: 1}
+        self.app.post(self.url, user=self.manager, params=params, status=200)
+
+
+class TestQuestionnaireVisibilityView(WebTestStaffMode):
+    url = reverse("staff:questionnaire_visibility")
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.MANAGERS)
+        cls.manager = make_manager()
+
+    def test_set_visibility(self):
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": Questionnaire.Visibility.EDITORS}
+        self.app.post(self.url, user=self.manager, params=post_params, status=200)
+
+        self.questionnaire.refresh_from_db()
+        self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.EDITORS)
+
+    def test_invalid_visibility(self):
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": ""}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "123"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+
+        post_params = {"questionnaire_id": self.questionnaire.id, "visibility": "asd"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+
+        self.questionnaire.refresh_from_db()
+        self.assertEqual(self.questionnaire.visibility, Questionnaire.Visibility.MANAGERS)
+
+
+class TestQuestionnaireSetLockedView(WebTestStaffMode):
+    url = reverse("staff:questionnaire_set_locked")
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.questionnaire = baker.make(Questionnaire, visibility=Questionnaire.Visibility.MANAGERS)
+        cls.manager = make_manager()
+
+    def test_set_is_locked(self):
+        self.questionnaire.is_locked = False
+        self.questionnaire.save()
+
+        post_params = {"questionnaire_id": self.questionnaire.id, "is_locked": "1"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=200)
+        self.questionnaire.refresh_from_db()
+        self.assertTrue(self.questionnaire.is_locked)
+
+        post_params = {"questionnaire_id": self.questionnaire.id, "is_locked": "0"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=200)
+        self.questionnaire.refresh_from_db()
+        self.assertFalse(self.questionnaire.is_locked)
+
+    def test_invalid_parameters(self):
+        post_params = {"questionnaire_id": self.questionnaire.id, "is_locked": ""}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
+
+        post_params = {"questionnaire_id": self.questionnaire.id, "is_locked": "asd"}
+        self.app.post(self.url, user=self.manager, params=post_params, status=400)
 
 
 class TestCourseTypeView(WebTestStaffMode):
@@ -2699,46 +2886,40 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
         cls.text_question = baker.make(Question, questionnaire=top_general_questionnaire, type=Question.TEXT)
         cls.evaluation.general_contribution.questionnaires.set([top_general_questionnaire])
 
-    def helper_check_follow(self, action):
-        with run_in_staff_mode(self):
-            textanswer = baker.make(TextAnswer)
-            self.app.post(
-                self.url,
-                params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
-                user=self.manager,
-                status=200,
-            )
-
-    def helper_check_state(self, old_state, expected_new_state, action, expect_errors=False):
+    def assert_transition(self, old_state, expected_new_state, action, status=200):
         with run_in_staff_mode(self):
             textanswer = baker.make(TextAnswer, state=old_state)
-            response = self.app.post(
-                self.url,
-                params={"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk},
-                user=self.manager,
-                expect_errors=expect_errors,
-            )
-            if expect_errors:
-                self.assertEqual(response.status_code, 403)
-            else:
-                self.assertEqual(response.status_code, 200)
+
+            params = {"id": textanswer.id, "action": action, "evaluation_id": self.evaluation.pk}
+            self.app.post(self.url, params=params, user=self.manager, status=status)
+
+            if status == 200:
                 textanswer.refresh_from_db()
                 self.assertEqual(textanswer.state, expected_new_state)
 
     def test_review_actions(self):
         # in an evaluation with only one voter reviewing should fail
-        self.helper_check_state(
-            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
-        )
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
 
         let_user_vote_for_evaluation(self.student2, self.evaluation)
 
         # now reviewing should work
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
-        self.helper_check_state(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
-        self.helper_check_follow("textanswer_edit")
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.HIDDEN, "hide")
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PRIVATE, "make_private")
+        self.assert_transition(TextAnswer.State.PUBLISHED, TextAnswer.State.NOT_REVIEWED, "unreview")
+
+        # textanswer_edit action should not change the state, but give a link to edit page
+        with patch("evap.staff.views.reverse") as reverse_mock:
+            self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.NOT_REVIEWED, "textanswer_edit")
+            reverse_mock.assert_called_once()
+            self.assertEqual(reverse_mock.call_args_list[0][0][0], "staff:evaluation_textanswer_edit")
+
+    def test_invalid_action(self):
+        let_user_vote_for_evaluation(self.student2, self.evaluation)
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "", status=400)
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "123", status=400)
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "dummy", status=400)
 
     def test_finishing_review_updates_results(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation, create_answers=True)
@@ -2766,31 +2947,30 @@ class TestEvaluationTextAnswersUpdatePublishView(WebTest):
 
     def test_published(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Evaluation.objects.filter(id=self.evaluation.id).update(state=Evaluation.State.PUBLISHED)
-        self.helper_check_state(
-            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
-        )
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
 
     def test_archived(self):
         let_user_vote_for_evaluation(self.student2, self.evaluation)
-        self.helper_check_state(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish")
         Semester.objects.filter(id=self.evaluation.course.semester.id).update(results_are_archived=True)
-        self.helper_check_state(
-            TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", expect_errors=True
-        )
+        self.assert_transition(TextAnswer.State.NOT_REVIEWED, TextAnswer.State.PUBLISHED, "publish", status=403)
 
 
 class TestEvaluationTextAnswersSkip(WebTestStaffMode):
     csrf_checks = False
+    url = reverse("staff:evaluation_textanswers_skip")
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = baker.make(UserProfile, _fill_optional=["email"], groups=[Group.objects.get(name="Reviewer")])
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, can_publish_text_results=True)
 
     def test_skip(self):
-        manager = make_manager()
-        evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, can_publish_text_results=True)
-
-        skip_url = "/staff/textanswers/skip"
-        response = self.app.post(skip_url, user=manager, status=200, params={"evaluation_id": evaluation.id})
-        self.assertEqual(response.client.session["review-skipped"], {evaluation.id})
+        params = {"evaluation_id": self.evaluation.pk}
+        response = self.app.post(self.url, user=self.user, status=200, params=params)
+        self.assertEqual(response.client.session["review-skipped"], {self.evaluation.id})
 
 
 class ParticipationArchivingTests(WebTestStaffMode):

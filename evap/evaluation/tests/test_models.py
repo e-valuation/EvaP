@@ -34,6 +34,38 @@ from evap.results.tools import cache_results, calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
+class TestSemester(WebTest):
+    def test_can_be_deleted_by_manager(self):
+        semester = baker.make(Semester)
+        self.assertTrue(semester.can_be_deleted_by_manager)
+
+        semester.is_active = True
+        self.assertFalse(semester.can_be_deleted_by_manager)
+        semester.is_active = False
+
+        voter = baker.make(UserProfile)
+        baker.make(Evaluation, course__semester=semester, state=Evaluation.State.PUBLISHED, voters=[voter])
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive()
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.delete_grade_documents()
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive_results()
+        self.assertTrue(semester.can_be_deleted_by_manager)
+
+
+class TestQuestionnaire(WebTest):
+    def test_can_be_deleted_by_manager(self):
+        questionnaire = baker.make(Questionnaire)
+        self.assertTrue(questionnaire.can_be_deleted_by_manager)
+
+        baker.make(Contribution, questionnaires=[questionnaire])
+        self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):

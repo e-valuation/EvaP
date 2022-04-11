@@ -545,6 +545,12 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         # Both evaluations should use this, plus one for the questionnaire
         self.assertTemplateUsed(response, "distribution_with_grade.html", count=3)
 
+    def test_invalid_contributor_id(self):
+        cache_results(self.evaluation)
+        self.app.get(self.url + "?contributor_id=", user=self.manager, status=400)
+        self.app.get(self.url + "?contributor_id=asd", user=self.manager, status=400)
+        self.app.get(self.url + "?contributor_id=1234", user=self.manager, status=404)
+
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
@@ -1176,3 +1182,11 @@ class TestTextAnswerExportView(WebTest):
         with run_in_staff_mode(self):
             self.app.get(self.url, user=manager, status=200)
             export_method.assert_called_once()
+
+    @patch("evap.results.exporters.TextAnswerExporter.export")
+    def test_invalid_contributor_id(self, export_method):
+        with run_in_staff_mode(self):
+            self.app.get(self.url + "?contributor_id=1234", user=self.reviewer, status=404)
+            self.app.get(self.url + "?contributor_id=", user=self.reviewer, status=400)
+            self.app.get(self.url + "?contributor_id=asd", user=self.reviewer, status=400)
+            export_method.assert_not_called()

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
@@ -386,18 +386,19 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
-    if request.user.is_reviewer:
-        view = request.GET.get("view", "public")  # if parameter is not given, show public view.
-    else:
-        view = request.GET.get("view", "full")  # if parameter is not given, show own view.
+    view = request.GET.get("view", "public" if request.user.is_reviewer else "full")
     if view not in ["public", "full", "export"]:
         view = "public"
 
     view_as_user = request.user
-    contributor_id = int(request.GET.get("contributor_id", request.user.id))
+    try:
+        contributor = get_object_or_404(UserProfile, pk=request.GET.get("contributor_id", request.user.id))
+    except ValueError as e:
+        raise BadRequest from e
+
     if view == "export" and request.user.is_staff:
-        view_as_user = UserProfile.objects.get(id=contributor_id)
-    contributor_id = contributor_id if contributor_id != request.user.id else None
+        view_as_user = contributor
+    contributor_id = contributor.pk if contributor != request.user else None
 
     represented_users = [view_as_user]
     if view != "export":
