@@ -548,8 +548,8 @@ class TestUserImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
+            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
 
         helper_delete_all_import_files(self.manager.id)
@@ -1043,8 +1043,8 @@ class TestSemesterImportView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
+            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
 
     def test_suspicious_operation(self):
@@ -2240,8 +2240,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
+            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
 
     def test_import_contributors_error_handling(self):
@@ -2274,8 +2274,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertContains(
             reply,
             "The existing user would be overwritten with the following data:<br />"
-            " -  None None, lucilia.manilium@institution.example.com (existing) [{}]<br />"
-            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
+            f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+            " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
 
     def test_suspicious_operation(self):

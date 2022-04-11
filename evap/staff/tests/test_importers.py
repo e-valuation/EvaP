@@ -81,8 +81,8 @@ class TestUserImporter(TestCase):
             warnings_test[ImporterWarning.DUPL],
             [
                 "An existing user has the same first and last name as a new user:<br />"
-                " -  Lucilia Manilium, luma@institution.example.com (existing) [{}]<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)".format(user_edit_link(user.pk)),
+                f" -  Lucilia Manilium, luma@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
             ],
         )
 
@@ -130,7 +130,7 @@ class TestUserImporter(TestCase):
             warnings_test[ImporterWarning.INACTIVE],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com [{}]".format(user_edit_link(user.pk)),
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
             ],
         )
 
@@ -139,7 +139,7 @@ class TestUserImporter(TestCase):
             warnings_no_test[ImporterWarning.INACTIVE],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com [{}]".format(user_edit_link(user.pk))
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
             ],
         )
 
