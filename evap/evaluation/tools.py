@@ -31,6 +31,28 @@ def is_m2m_prefetched(instance, attribute_name):
     return hasattr(instance, "_prefetched_objects_cache") and attribute_name in instance._prefetched_objects_cache
 
 
+# TODO: Test
+def discard_cached_related_objects(instance):
+    """
+    Discard all cached related objects (for ForeignKey and M2M Fields). Useful
+    if there were changes, but django's caching would still give us the old
+    values. Also useful for pickling objects without pickling the whole model
+    hierarchy (e.g. for storing instances in a cache)
+    """
+    # Extracted from django's refresh_from_db, which sadly doesn't offer this part alone (without hitting the DB).
+    for field in instance._meta.concrete_fields:
+        if field.is_relation and field.is_cached(instance):
+            field.delete_cached_value(instance)
+
+    for field in instance._meta.related_objects:
+        if field.is_cached(instance):
+            field.delete_cached_value(instance)
+
+    instance._prefetched_objects_cache = {}
+
+    return instance
+
+
 def is_external_email(email):
     return not any(email.endswith("@" + domain) for domain in settings.INSTITUTION_EMAIL_DOMAINS)
 

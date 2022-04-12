@@ -3,7 +3,6 @@ import threading
 from collections import defaultdict, namedtuple
 from datetime import date, datetime, time
 from enum import Enum
-from functools import partial
 from json import JSONEncoder
 
 from django.conf import settings
@@ -132,7 +131,7 @@ class LoggedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._logentry = None
-        self._m2m_changes = defaultdict(partial(defaultdict, list))  # partial so pickling works
+        self._m2m_changes = defaultdict(lambda: defaultdict(list))
 
     def _as_dict(self):
         """

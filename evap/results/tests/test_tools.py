@@ -530,7 +530,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def test_text_answer_visible_to_non_contributing_responsible(self):
         self.assertIn(
             self.responsible_without_contribution,
-            textanswers_visible_to(self.general_contribution_textanswer.contribution)[0],
+            textanswers_visible_to(self.general_contribution_textanswer.contribution).visible_by_contribution,
         )
 
     def test_contributors_and_delegate_count_in_textanswer_visibility_info(self):
@@ -555,7 +555,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
                         users_seeing_contribution[i][1].add(user)
 
         for i in range(len(textanswers)):
-            self.assertCountEqual(visible_to[i][0], users_seeing_contribution[i][0])
+            self.assertCountEqual(visible_to[i].visible_by_contribution, users_seeing_contribution[i][0])
 
         expected_delegate_counts = [
             2,  # delegate1, delegate2
@@ -567,4 +567,8 @@ class TestTextAnswerVisibilityInfo(TestCase):
         ]
 
         for i in range(len(textanswers)):
-            self.assertTrue(visible_to[i][1] == len(users_seeing_contribution[i][1]) == expected_delegate_counts[i])
+            self.assertTrue(
+                visible_to[i].visible_by_delegation_count
+                == len(users_seeing_contribution[i][1])
+                == expected_delegate_counts[i]
+            )

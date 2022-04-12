@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
         for counter, evaluation in enumerate(evaluations):
             progress_bar.update(counter + 1)
-            cache_results(evaluation)
+            cache_results(evaluation, refetch_related_objects=False)
 
         self.stdout.write("Prerendering result index page...\n")
 
