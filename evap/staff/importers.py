@@ -324,15 +324,14 @@ class ExcelImporter:
             msg = format_html(_("The existing user would be overwritten with the following data:"))
         else:
             msg = format_html(_("The existing user was overwritten with the following data:"))
-        return (
-            msg
-            + format_html(
-                "<br /> - {} ({}) [{}]",
-                ExcelImporter._create_user_string(user),
-                _("existing"),
-                user_edit_link(user.pk),
-            )
-            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user_data), _("new"))
+        return format_html(
+            "{}<br /> - {} ({}) [{}]<br /> - {} ({})",
+            msg,
+            ExcelImporter._create_user_string(user),
+            _("existing"),
+            user_edit_link(user.pk),
+            ExcelImporter._create_user_string(user_data),
+            _("new"),
         )
 
     @staticmethod
