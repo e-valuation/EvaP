@@ -219,7 +219,5 @@ def order_by(iterable, attribute):
 
 
 @register.filter
-def value_at(dictionary, key):
-    if key in dictionary:
-        return dictionary[key]
-    return None
+def get(dictionary, key):
+    return dictionary.get(key)

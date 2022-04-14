@@ -47,7 +47,7 @@
                         {% include 'bootstrap_form_errors.html' with errors=form.does_not_contribute.errors %}
                     </td>
                     <td>
-                        {% include 'questionnaires_widget.html' with field=form.questionnaires questionnaires_with_answers=questionnaires_with_answers_per_contributor|value_at:form.instance.contributor %}
+                        {% include 'questionnaires_widget.html' with field=form.questionnaires questionnaires_with_answers=questionnaires_with_answers_per_contributor|get:form.instance.contributor %}
                     </td>
                     <td>
                         {% trans 'Responsibility' %}:<br />
