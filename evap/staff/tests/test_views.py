@@ -2311,24 +2311,27 @@ class TestEvaluationTextAnswerView(WebTest):
         with run_in_staff_mode(self):
             # Since Evaluation 1 has an extra text answer, it should be first
             page = self.app.get(url, user=self.manager)
-            self.assertTrue(
-                f'data-evaluation="{evaluations[1].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            self.assertIn(
+                f'data-evaluation="{evaluations[1].pk}"',
+                str(page.html.select_one("span[data-next-evaluation-index]")),
             )
 
             # Since Evaluation 0 has an earlier end date, it should now be first
             evaluations[0].vote_end_date = datetime.date.today() - datetime.timedelta(days=4)
             evaluations[0].save()
             page = self.app.get(url, user=self.manager)
-            self.assertTrue(
-                f'data-evaluation="{evaluations[0].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            self.assertIn(
+                f'data-evaluation="{evaluations[0].pk}"',
+                str(page.html.select_one("span[data-next-evaluation-index]")),
             )
 
             # Since the grading process for Evaluation 1 is finished, it should be first
             evaluations[1].wait_for_grade_upload_before_publishing = False
             evaluations[1].save()
             page = self.app.get(url, user=self.manager)
-            self.assertTrue(
-                f'data-evaluation="{evaluations[1].pk}"' in str(page.html.select("span[data-next-evaluation-index]")[0])
+            self.assertIn(
+                f'data-evaluation="{evaluations[1].pk}"',
+                str(page.html.select_one("span[data-next-evaluation-index]")),
             )
 
     def test_num_queries_is_constant(self):
