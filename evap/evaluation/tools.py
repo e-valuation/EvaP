@@ -22,7 +22,6 @@ def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Ma
         raise SuspiciousOperation from e
 
 
-# TODO: Test
 def is_m2m_prefetched(instance, attribute_name):
     """
     Is the given M2M-attribute prefetched? Can be used to do ordering or counting
@@ -31,7 +30,6 @@ def is_m2m_prefetched(instance, attribute_name):
     return hasattr(instance, "_prefetched_objects_cache") and attribute_name in instance._prefetched_objects_cache
 
 
-# TODO: Test
 def discard_cached_related_objects(instance):
     """
     Discard all cached related objects (for ForeignKey and M2M Fields). Useful
