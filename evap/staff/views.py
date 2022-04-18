@@ -26,6 +26,7 @@ from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     CourseType,
@@ -1213,6 +1214,7 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         return redirect("staff:semester_view", semester.id)
 
+    assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
     contributor_questionnaire_pairs = [
         (answer.contribution.contributor, answer.question.questionnaire)
         for answer_cls in [TextAnswer, RatingAnswerCounter]

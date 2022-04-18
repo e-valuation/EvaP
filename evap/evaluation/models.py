@@ -1062,7 +1062,7 @@ class Contribution(LoggedModel):
         RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
-class Question(models.Model):
+class Question(models.Model):  # pylint: disable=no-init
     """A question including a type."""
 
     TEXT = 0
