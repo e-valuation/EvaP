@@ -102,6 +102,22 @@ class TestStaffFAQEditView(WebTestStaffModeWith200Check):
         baker.make(FaqQuestion, section=section)
 
 
+class TestUserIndexView(WebTestStaffMode):
+    url = "/staff/user/"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manager = make_manager()
+        cls.some_user = baker.make(UserProfile)
+
+    def test_redirect(self):
+        page = self.app.get(self.url, user=self.manager, status=200)
+        form = page.forms["user-edit-form"]
+        form["user"] = self.some_user.pk
+        response = form.submit(status=302)
+        self.assertEqual(response.location, "/staff/user/{}/edit".format(self.some_user.pk))
+
+
 class TestUserListView(WebTestStaffMode):
     url = "/staff/user/list"
 
