@@ -334,15 +334,17 @@ def find_unreviewed_evaluations(semester, excluded):
     if datetime.now().hour < settings.EVALUATION_END_OFFSET_HOURS:
         exclude_date -= timedelta(days=1)
 
-    return (
-        semester.evaluations.exclude(pk__in=excluded)
-        .exclude(state=Evaluation.State.PUBLISHED)
-        .exclude(vote_end_date__gte=exclude_date)
-        .exclude(can_publish_text_results=False)
-        .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
-        .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
-        .order_by("vote_end_date", "-num_unreviewed_textanswers")
-        .all()
+    # Evaluations where the grading process is finished should be shown first, need to be sorted in Python
+    return sorted(
+        (
+            semester.evaluations.exclude(pk__in=excluded)
+            .exclude(state=Evaluation.State.PUBLISHED)
+            .exclude(vote_end_date__gte=exclude_date)
+            .exclude(can_publish_text_results=False)
+            .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
+            .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
+        ),
+        key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),
     )
 
 
