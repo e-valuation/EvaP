@@ -433,16 +433,19 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def setUpTestData(cls):
         cls.delegate1 = baker.make(UserProfile, email="delegate1@institution.example.com")
         cls.delegate2 = baker.make(UserProfile, email="delegate2@institution.example.com")
+        cls.shared_delegate = baker.make(UserProfile, email="shared_delegate@institution.example.com")
         cls.contributor_own = baker.make(
-            UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1]
+            UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1, cls.shared_delegate]
         )
         cls.contributor_general = baker.make(
-            UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2]
+            UserProfile,
+            email="contributor_general@institution.example.com",
+            delegates=[cls.delegate2, cls.shared_delegate],
         )
         cls.responsible1 = baker.make(
             UserProfile,
             email="responsible1@institution.example.com",
-            delegates=[cls.delegate1, cls.contributor_general],
+            delegates=[cls.delegate1, cls.contributor_general, cls.shared_delegate],
         )
         cls.responsible2 = baker.make(UserProfile, email="responsible2@institution.example.com")
         cls.responsible_without_contribution = baker.make(
@@ -558,12 +561,12 @@ class TestTextAnswerVisibilityInfo(TestCase):
             self.assertCountEqual(visible_to[i].visible_by_contribution, users_seeing_contribution[i][0])
 
         expected_delegate_counts = [
-            2,  # delegate1, delegate2
-            2,  # delegate1, contributor_general
-            2,  # delegate1, contributor_general
+            3,  # delegate1, delegate2, shared_delegate
+            3,  # delegate1, contributor_general, shared_delegate
+            3,  # delegate1, contributor_general, shared_delegate
             0,
-            1,  # delegate1
-            1,  # delegate2
+            2,  # delegate1, shared_delegate
+            2,  # delegate2, shared_delegate
         ]
 
         for i in range(len(textanswers)):
