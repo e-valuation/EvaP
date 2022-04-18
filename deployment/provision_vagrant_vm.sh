@@ -71,12 +71,15 @@ a2dissite 000-default.conf
 # see https://github.com/e-valuation/EvaP/issues/626
 # and https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/modwsgi/#if-you-get-a-unicodeencodeerror
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
-systemctl reload apache2
+service apache2 reload
 
 cp /etc/skel/.bashrc /home/$USER/
 # auto cd into /$USER on login and activate venv
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
+
+# required for docker (no-op if already started)
+echo "sudo service postgresql start && sudo service redis-server start" >> /home/$USER/.bashrc
 
 # install requirements
 sudo -H -u $USER $ENV_FOLDER/bin/pip install -r $REPO_FOLDER/requirements-dev.txt
@@ -96,7 +99,7 @@ wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbos
 
 # setup evap
 cd "$MOUNTPOINT"
-git submodule update --init
+sudo -H -u $USER git submodule update --init
 sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
