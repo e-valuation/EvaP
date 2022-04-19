@@ -375,7 +375,7 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
 
 def user_edit_link(user_id):
     return format_html(
-        '<a href="{}" target=_blank><span class="fas fa-user-pen"> {}</span></a>',
+        '<a href="{}" target=_blank><span class="fas fa-user-pen"></span> {}</a>',
         reverse("staff:user_edit", kwargs={"user_id": user_id}),
         _("edit user"),
     )
