@@ -1,11 +1,25 @@
 import datetime
 from abc import ABC, abstractmethod
+from typing import Any, Mapping, Optional, Type, TypeVar
 from urllib.parse import quote
 
 import xlwt
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db.models import Model
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
+
+M = TypeVar("M", bound=Model)
+
+
+def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Mapping[str, Any], key: str) -> M:
+    try:
+        return get_object_or_404(model_cls, pk=dict_obj[key])
+    # ValidationError happens for UUID id fields when passing invalid arguments
+    except (KeyError, ValueError, ValidationError) as e:
+        raise SuspiciousOperation from e
 
 
 def is_prefetched(instance, attribute_name):
@@ -96,7 +110,7 @@ class ExcelExporter(ABC):
 
     # Derived classes can set this to
     # have a sheet added at initialization.
-    default_sheet_name = None
+    default_sheet_name: Optional[str] = None
 
     def __init__(self):
         self.workbook = xlwt.Workbook()

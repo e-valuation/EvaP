@@ -6,6 +6,7 @@ from model_bakery import baker
 
 from evap.contributor.forms import EvaluationForm as ContributorEvaluationForm
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     Degree,
@@ -13,7 +14,9 @@ from evap.evaluation.models import (
     Evaluation,
     Question,
     Questionnaire,
+    RatingAnswerCounter,
     Semester,
+    TextAnswer,
     UserProfile,
 )
 from evap.evaluation.tests.tools import (
@@ -26,6 +29,7 @@ from evap.staff.forms import (
     ContributionCopyForm,
     ContributionForm,
     ContributionFormSet,
+    CourseCopyForm,
     CourseForm,
     EvaluationCopyForm,
     EvaluationEmailForm,
@@ -318,7 +322,7 @@ class ContributionFormsetTests(TestCase):
         # assert same error message with and without questionnaire
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         data["contributions-1-questionnaires"] = questionnaire.pk
@@ -326,7 +330,7 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.is_valid())
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         # two contributors
@@ -554,6 +558,36 @@ class ContributionFormsetTests(TestCase):
         form = CourseForm(instance=course)
         self.assertIn(proxy_user, form.fields["responsibles"].queryset)
 
+    def test_prevent_contribution_deletion_with_answers(self):
+        """
+        When answers for a contribution already exist, it should not be possible to remove that contribution.
+        """
+        self.assertEqual(
+            set(Answer.__subclasses__()),
+            {RatingAnswerCounter, TextAnswer},
+            "This requires an update if a new answer type is added",
+        )
+        evaluation = baker.make(Evaluation)
+        contribution = baker.make(
+            Contribution,
+            evaluation=evaluation,
+            role=Contribution.Role.EDITOR,
+            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _fill_optional=["contributor"],
+        )
+
+        contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        )
+        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation})
+        self.assertTrue(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
+
+        baker.make(RatingAnswerCounter, contribution=contribution)
+
+        self.assertFalse(formset.forms[0].show_delete_button)
+        self.assertTrue(formset.forms[1].show_delete_button)
+
 
 class ContributionFormset775RegressionTests(TestCase):
     """
@@ -676,6 +710,22 @@ class ContributionFormset775RegressionTests(TestCase):
         )
         formset.save()
         self.assertEqual(Questionnaire.objects.filter(contributions=self.contribution2).count(), 2)
+
+
+class CourseCopyFormTests(TestCase):
+    @staticmethod
+    def test_all_evaluation_attributes_covered():
+        for field in Evaluation._meta.get_fields():
+            assert field.name in (
+                CourseCopyForm.EVALUATION_COPIED_FIELDS | CourseCopyForm.EVALUATION_EXCLUDED_FIELDS
+            ), f"evaluation field {field.name} is not considered by CourseCopyForm"
+
+    @staticmethod
+    def test_all_contribution_attributes_covered():
+        for field in Contribution._meta.get_fields():
+            assert field.name in (
+                CourseCopyForm.CONTRIBUTION_COPIED_FIELDS | CourseCopyForm.CONTRIBUTION_EXCLUDED_FIELDS
+            ), f"contribution field {field.name} is not considered by CourseCopyForm"
 
 
 class CourseFormTests(TestCase):
@@ -903,6 +953,29 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+    def test_inactive_participants_remain(self):
+        student = baker.make(UserProfile, is_active=False)
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(len(form["participants"]), 1)
+
+    def test_inactive_participants_not_in_queryset(self):
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 0)
+
+        baker.make(UserProfile, is_active=True)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
+
+        baker.make(UserProfile, is_active=False)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
 
 
 class EvaluationCopyFormTests(TestCase):

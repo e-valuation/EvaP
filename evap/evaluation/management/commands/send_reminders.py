@@ -12,10 +12,16 @@ logger = logging.getLogger(__name__)
 
 @log_exceptions
 class Command(BaseCommand):
-    help = "Sends email reminders X days before evaluation evaluation ends."
+    help = "Sends email reminders X days before evaluation ends and reminds managers to review text answers."
 
     def handle(self, *args, **options):
         logger.info("send_reminders called.")
+        self.send_student_reminders()
+        self.send_textanswer_reminders()
+        logger.info("send_reminders finished.")
+
+    @staticmethod
+    def send_student_reminders():
         check_dates = []
 
         # Collect end-dates of evaluations whose participants need to be reminded today.
@@ -37,5 +43,10 @@ class Command(BaseCommand):
             EmailTemplate.send_reminder_to_user(
                 recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations
             )
-        logger.info("send_reminders finished.")
-        logger.info("sent reminders to {} people.".format(len(recipients)))
+        logger.info("sent due evaluation reminders to %d people.", len(recipients))
+
+    @staticmethod
+    def send_textanswer_reminders():
+        if datetime.date.today().weekday() in settings.TEXTANSWER_REVIEW_REMINDER_WEEKDAYS:
+            EmailTemplate.send_textanswer_reminder()
+            logger.info("sent text answer review reminders.")

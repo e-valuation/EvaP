@@ -19,7 +19,12 @@ from evap.evaluation.models import (
     Semester,
     UserProfile,
 )
-from evap.evaluation.tools import FileResponse, get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import (
+    FileResponse,
+    get_object_from_dict_pk_entry_or_logged_40x,
+    get_parameter_from_url_or_session,
+    sort_formset,
+)
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
 from evap.staff.forms import ContributionFormSet
@@ -229,10 +234,8 @@ def evaluation_preview(request, evaluation_id):
 @require_POST
 @editor_or_delegate_required
 def evaluation_direct_delegation(request, evaluation_id):
-    delegate_user_id = request.POST.get("delegate_to")
-
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
-    delegate_user = get_object_or_404(UserProfile, id=delegate_user_id)
+    delegate_user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "delegate_to")
 
     contribution, created = Contribution.objects.update_or_create(
         evaluation=evaluation,
@@ -263,7 +266,7 @@ def evaluation_direct_delegation(request, evaluation_id):
 
 
 def export_contributor_results(contributor):
-    filename = "Evaluation_{}.xls".format(contributor.full_name)
+    filename = f"Evaluation_{contributor.full_name}.xls"
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
     ResultsExporter().export(
         response,

@@ -9,9 +9,12 @@ $(document).ready(() => {
             .css({top: "", height: ""});
     });
 
-    slider.on("click", "[data-action]", event => {
-        reviewAction($(event.target).data("action"));
-    });
+    for (const actionButton of slider[0].querySelectorAll("[data-action]")) {
+        actionButton.addEventListener("click", () => {
+            reviewAction(actionButton.dataset.action);
+        });
+    }
+
     slider.on("click", "[data-slide]", event => {
         let offset = $(event.target).data("slide") === "left" ? -1 : 1;
         slideTo(index + offset);
@@ -29,6 +32,7 @@ $(document).ready(() => {
             "k":            "[data-action=make_private]",
             "l":            "[data-action=hide]",
             "backspace":    "[data-action=unreview]",
+            "e":            "[data-action=textanswer_edit]",
             "enter":        `[data-url=next-evaluation][data-next-evaluation-index=${nextEvaluationIndex}]`,
             "m":            "[data-startover=unreviewed]",
             "n":            "[data-startover=all]",
@@ -164,6 +168,7 @@ $(document).ready(() => {
             type: "POST",
             url: "{% url 'staff:evaluation_textanswers_update_publish' %}",
             data: parameters,
+            success: function(data) { if(action == "textanswer_edit" && data) window.location = data; },
             error: function(){ window.alert("{% trans 'The server is not responding.' %}"); }
         });
 
@@ -175,7 +180,7 @@ $(document).ready(() => {
             updateButtonActive();
         }
 
-        if(action !== "unreview") {
+        if(!["unreview", "textanswer_edit"].includes(action)) {
             slideTo(index + 1);
             slider.find("[data-action=" + action + "]").focus();
         }

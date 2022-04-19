@@ -69,7 +69,7 @@
             <h5 class="card-title mb-lg-0">
                 {% trans 'Order' %}
                 <span class="reset-button float-end d-none d-lg-block" data-reset="order">
-                    <span class="fas fa-sort-amount-down"></span>
+                    <span class="fas fa-arrow-down-wide-short"></span>
                     {% trans 'Order by evaluation and semester' %}
                 </span>
             </h5>
@@ -84,14 +84,14 @@
                 <div class="me-2 btn-group icon-buttons" data-bs-toggle="buttons">
                     <input id="sort-order-asc" class="btn-check" type="radio" name="result-sort-order" value="asc" checked />
                     <label class="btn btn-outline-primary btn-lg" for="sort-order-asc">
-                        <span class="fas fa-sort-alpha-down"></span>
+                        <span class="fas fa-arrow-down-a-z"></span>
                     </label>
                     <input id="sort-order-desc" class="btn-check" type="radio" name="result-sort-order" value="desc" />
                     <label class="btn btn-outline-primary btn-lg" for="sort-order-desc">
-                        <span class="fas fa-sort-alpha-up-alt"></span>
+                        <span class="fas fa-arrow-up-z-a-alt"></span>
                     </label>
                 </div>
-                <select name="result-sort-column" class="form-control no-select2">
+                <select name="result-sort-column" class="form-select no-select2">
                     <option value="name-semester">{% trans 'Evaluation and semester' %}</option>
                     <option value="name">{% trans 'Evaluation' %}</option>
                     <option value="semester">{% trans 'Semester' %}</option>

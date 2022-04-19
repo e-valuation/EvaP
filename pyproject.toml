@@ -3,10 +3,11 @@ line-length = 120
 target-version = ['py37']
 include = 'evap.*\.pyi?$'
 extend-exclude = """\
-    evap/staff/fixtures/excel_files_test_data\\.py|\
     .*/urls\\.py|\
     .*/migrations/.*\
 """
+
+##############################################
 
 [tool.isort]
 profile = "black"
@@ -14,6 +15,8 @@ src_paths = ["evap"]
 line_length = 120
 skip_gitignore = true
 extend_skip_glob = ["**/migrations/*"]
+
+##############################################
 
 [tool.pylint.master]
 jobs = 0
@@ -53,12 +56,10 @@ disable = [
     "protected-access",               # for us that means "be careful", not "don't do it"
     "too-many-lines",                 # we don't currently think that splitting up views.py or test_views.py creates any value
     "too-many-arguments",             # we can't determine a good limit here. reviews should spot bad cases of this.
-
-    # it would be nice to have these enabled, but sadly pylint is currently buggy / unusable with these
-    "duplicate-code",                 # Can not be suppressed for the 4 false positives we have: https://github.com/PyCQA/pylint/issues/214
+    "duplicate-code",                 # Mostly imports and test setup.
 ]
 
-
+##############################################
 
 [tool.coverage.run]
 branch = true
@@ -67,3 +68,39 @@ source = ["evap"]
 
 [tool.coverage.report]
 omit = ["*/migrations/*", "*__init__.py"]
+
+##############################################
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+exclude = 'evap/.*/migrations/.*\.py$'
+
+[tool.django-stubs]
+django_settings_module = "evap.settings"
+
+[[tool.mypy.overrides]]
+module = [
+    "django_fsm.*",
+    "django_sendfile.*",
+    "django_webtest.*",
+    "debug_toolbar.*",
+    "mozilla_django_oidc.*",
+    "model_bakery.*",
+    "xlrd.*",
+    "xlwt.*",
+    "xlutils.*",
+
+    "evap.staff.fixtures.*",
+]
+ignore_missing_imports = true
+
+##############################################
+
+[tool.pytest.ini_options]
+# We don't officially use pytest, but last time we wanted to, this worked for us with pytest-django
+# pytest-xdist worked for parallelizing tests.
+DJANGO_SETTINGS_MODULE = "evap.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["evap"]
+norecursedirs=["locale", "logs", "static", "static_collected", "upload"]
+addopts = "--reuse-db"

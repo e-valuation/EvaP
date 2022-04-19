@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext_lazy as _
 
-from evap.evaluation.forms import UserModelChoiceField
+from evap.evaluation.forms import UserModelChoiceField, UserModelMultipleChoiceField
 from evap.evaluation.models import Course, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tools import vote_end_datetime
 from evap.staff.forms import ContributionForm
@@ -26,9 +26,13 @@ class EvaluationForm(forms.ModelForm):
             "name_en_field",
             "vote_start_datetime",
             "vote_end_date",
+            "participants",
             "general_questionnaires",
             "course",
         )
+        field_classes = {
+            "participants": UserModelMultipleChoiceField,
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,6 +48,11 @@ class EvaluationForm(forms.ModelForm):
 
         self.fields["vote_start_datetime"].localize = True
         self.fields["vote_end_date"].localize = True
+
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if self.instance.pk is not None:
+            queryset = (queryset | self.instance.participants.all()).distinct()
+        self.fields["participants"].queryset = queryset
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [

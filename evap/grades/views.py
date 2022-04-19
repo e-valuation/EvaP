@@ -13,6 +13,7 @@ from evap.evaluation.auth import (
     grade_publisher_required,
 )
 from evap.evaluation.models import Course, EmailTemplate, Evaluation, Semester
+from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x
 from evap.grades.forms import GradeDocumentForm
 from evap.grades.models import GradeDocument
 
@@ -131,8 +132,7 @@ def upload_grades(request, semester_id, course_id):
 @require_POST
 @grade_publisher_required
 def toggle_no_grades(request):
-    course_id = request.POST.get("course_id")
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
     if course.semester.grade_documents_are_deleted:
         raise PermissionDenied
 
@@ -165,6 +165,10 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
 
     form = GradeDocumentForm(request.POST or None, request.FILES or None, instance=grade_document)
 
+    final_grades = (
+        grade_document.type == GradeDocument.Type.FINAL_GRADES
+    )  # if parameter is not given, assume midterm grades
+
     if form.is_valid():
         form.save(modifying_user=request.user)
         messages.success(request, _("Successfully updated grades."))
@@ -175,6 +179,7 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
         course=course,
         form=form,
         show_automated_publishing_info=False,
+        final_grades=final_grades,
     )
     return render(request, "grades_upload_form.html", template_data)
 
@@ -182,8 +187,6 @@ def edit_grades(request, semester_id, course_id, grade_document_id):
 @require_POST
 @grade_publisher_required
 def delete_grades(request):
-    grade_document_id = request.POST.get("grade_document_id")
-    grade_document = get_object_or_404(GradeDocument, id=grade_document_id)
-
+    grade_document = get_object_from_dict_pk_entry_or_logged_40x(GradeDocument, request.POST, "grade_document_id")
     grade_document.delete()
     return HttpResponse()  # 200 OK

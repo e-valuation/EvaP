@@ -6,7 +6,16 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Question, Questionnaire, TextAnswer, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    TextAnswer,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import make_rating_answer_counters
 from evap.results.tools import (
     RatingResult,
@@ -197,14 +206,21 @@ class TestCalculateAverageDistribution(TestCase):
     def test_average_grade(self):
         question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=Question.GRADE)
 
-        make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 0, 0, 2, 0])
-        make_rating_answer_counters(question_grade2, self.contribution1, [1, 0, 0, 0, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
-        make_rating_answer_counters(self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2])
-        make_rating_answer_counters(self.question_bipolar_2, self.general_contribution, [0, 0, 4, 0, 0, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 0, 0, 2, 0], False),
+            *make_rating_answer_counters(question_grade2, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(
+                self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2], False
+            ),
+            *make_rating_answer_counters(
+                self.question_bipolar_2, self.general_contribution, [0, 0, 4, 0, 0, 0, 0], False
+            ),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -243,11 +259,14 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_without_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -274,12 +293,15 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_with_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 10, 0, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 10, 0, 0, 0], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -297,7 +319,7 @@ class TestCalculateAverageDistribution(TestCase):
 
     def test_get_single_result_rating_result(self):
         single_result_evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED, is_single_result=True)
-        questionnaire = Questionnaire.objects.get(name_en=Questionnaire.SINGLE_RESULT_QUESTIONNAIRE_NAME)
+        questionnaire = Questionnaire.single_result_questionnaire()
         contribution = baker.make(
             Contribution,
             contributor=baker.make(UserProfile),

@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Dict
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import models, transaction
 from django.db.models import Sum
 from django.dispatch import receiver
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -23,7 +25,7 @@ from evap.rewards.models import (
 
 @login_required
 @transaction.atomic
-def save_redemptions(request, redemptions):
+def save_redemptions(request, redemptions: Dict[int, int]):
     # lock these rows to prevent race conditions
     list(request.user.reward_point_grantings.select_for_update())
     list(request.user.reward_point_redemptions.select_for_update())
@@ -39,7 +41,7 @@ def save_redemptions(request, redemptions):
 
     for event_id in redemptions:
         if redemptions[event_id] > 0:
-            event = RewardPointRedemptionEvent.objects.get(id=event_id)
+            event = get_object_or_404(RewardPointRedemptionEvent, pk=event_id)
             if event.redeem_end_date < date.today():
                 raise RedemptionEventExpired(_("Sorry, the deadline for this event expired already."))
 

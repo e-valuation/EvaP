@@ -43,7 +43,7 @@
         {% if small_evaluation_size_warning and not preview %}
             <div class="card card-outline-warning mb-3">
                 <div class="card-header">
-                    <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
                     {% blocktrans %}Only a small number of people can take part in this evaluation. You should be aware that contributors might be able to guess who voted for a specific answer and who wrote a text answer. Results will only be published if two or more people participated in the evaluation.{% endblocktrans %}
@@ -89,14 +89,14 @@
                         <div class="card collapsible{% if not forloop.last %} mb-3{% endif %}">
                             <div class="card-header d-flex tab-row">
                                 <div class="me-auto">
-                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed{% endif %} bg-transparent" data-bs-toggle="collapse"
+                                    <button class="collapse-toggle{% if errors_exist and not contributor_has_errors %} collapsed tab-selectable{% endif %} bg-transparent" data-bs-toggle="collapse"
                                         data-bs-target="#vote-area-{{ contributor.id }}" aria-expanded="false" aria-controls="vote-area-{{ contributor.id }}" tabindex="-1" type="button">
                                         {{ contributor.full_name }}
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
                                 </div>
                                 <div>
-                                    <button type="button" class="btn btn-light btn-sm tab-selectable"
+                                    <button type="button" class="btn btn-light btn-sm{% if not preview %} tab-selectable{% endif %}"
                                         data-mark-no-answers-for="{{ contributor.id }}"
                                         {% if preview %}disabled{% endif %}
                                     >
@@ -127,7 +127,7 @@
         {% if small_evaluation_size_warning and not preview and evaluation.num_voters == 0 %}
             <div class="card card-outline-warning mb-3" id="bottom_text_results_publish_confirmation_card">
                 <div class="card-header">
-                    <span class="fas fa-exclamation-triangle"></span> {% trans 'Small number of participants' %}
+                    <span class="fas fa-triangle-exclamation"></span> {% trans 'Small number of participants' %}
                 </div>
                 <div class="card-body tab-row">
                     {% blocktrans %}You're the first person taking part in this evaluation. If you want your text answers to be shown to the contributors even if you remain the only person taking part, please check the box below. Otherwise your text answers will be deleted if no other person takes part in the evaluation.{% endblocktrans %}
@@ -150,11 +150,11 @@
                     {% else %}
                         <div class="pb-3 text-secondary">
                             <span id="last-saved"></span>
-                            <span class="fas fa-info-circle" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
+                            <span class="fas fa-circle-info" data-bs-toggle="tooltip" title="{% trans 'The evaluation can be continued later using the same device and the same browser. But you have to submit it to send it to the server and make it count. After submitting, you can not edit the evaluation anymore.' %}"></span>
                         </div>
                         <button id="vote-submit-btn" type="submit" class="btn btn-success tab-selectable">{% trans 'Submit questionnaire' %}</button>
                         <p id="submit-error-warning" style="display: none">
-                            <span class="fas fa-exclamation-triangle"></span>
+                            <span class="fas fa-triangle-exclamation"></span>
                             {% blocktrans %}The server can't be reached. Your answers have been stored in your browser and it's safe to leave the page. Please try again later to submit the questionnaire.{% endblocktrans %}
                         </p>
                     {% endif %}
@@ -275,16 +275,9 @@
                             sisyphus.manuallyReleaseData();
                             window.location.replace("{{ success_redirect_url }}");
                         } else {
-                            window.scrollTo({
-                                top: 0,
-                                behavior: "auto",
-                            });
-                            // Manually perform the page load: first replace content
-                            document.open();
-                            document.write(data);
-                            document.close();
-                            // then set URL (e.g. logout redirect)
-                            window.history.pushState('', '', xhr.responseURL);
+                            // resubmit without this handler to show the site with the form errors
+                            form.unbind("submit");
+                            form.submit();
                         }
                     },
                     error: function(data) {
@@ -317,7 +310,7 @@
                     sisyphus.saveAllData();
 
                     // hide questionnaire for contributor
-                    var voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
+                    const voteAreaCollapse = bootstrap.Collapse.getOrCreateInstance(voteArea);
                     voteAreaCollapse.hide();
                     collapseToggle.classList.add("tab-selectable");
 
@@ -334,11 +327,19 @@
                             button.disabled = false;
                         });
                     });
+
+                collapseToggle.addEventListener("click", () => {
+                    if (button.classList.contains("tab-selectable")) {
+                        collapseToggle.classList.remove("tab-selectable");
+                    }
+                });
             });
 
             // remove error highlighting when an answer was selected
             document.querySelectorAll(".vote-btn.choice-error").forEach(voteButton => {
                 voteButton.addEventListener("click", () => clearChoiceError(voteButton));
+                const actualInput = document.getElementById(voteButton.attributes["for"].value);
+                actualInput.addEventListener("click", () => clearChoiceError(voteButton));
             });
 
             document.querySelectorAll(".btn-textanswer").forEach(textanswerButton => {
@@ -376,143 +377,7 @@
                     sisyphus.saveAllData();
                 });
             }
-
-            function isInvisible(el) {
-                if (getComputedStyle(el).display === "none")
-                    return true;
-                return el.parentElement !== null && isInvisible(el.parentElement);
-            }
-
-            function selectByNumberKey(row, num) {
-                let index = 2 * num - 1;
-                if (num === 0) {
-                    // Select "No answer"
-                    index = row.children.length - 1;
-                }
-
-                if (!(0 <= index && index < row.children.length)) {
-                    return;
-                }
-
-                const nextElement = row.children[index];
-                nextElement.click();
-            }
-
-            const studentForm = document.getElementById("student-vote-form");
-            const selectable = studentForm.querySelectorAll(".tab-selectable");
-            const rows = Array.from(studentForm.getElementsByClassName("tab-row"));
-            const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü\.\*\+\-]$");
-            studentForm.addEventListener("keydown", e => {
-                const current = document.activeElement;
-                if (!current.matches("input, label, span, textarea, button")) {
-                    return;
-                }
-
-                if (current.tagName !== "TEXTAREA") {
-                    // We want to disable backspace, because users may think that
-                    // they can undo their selection, but they would be sent to the
-                    // student index (or where they came from otherwise).
-                    // Additionally, pressing Enter shouldn't submit the form.
-                    switch (e.key) {
-                        case "Enter":
-                            current.click(); // fallthrough
-                        case "Backspace":
-                            e.preventDefault();
-                            return;
-                    }
-                }
-
-                // Since the event could be caught on either the outer label or
-                // the nested text / input, the full row could be two steps up
-                const currentRow = current.closest(".tab-row");
-                if (currentRow === null) {
-                    return;
-                }
-
-                const insideSubmitRow = currentRow.closest(".card-submit-area") !== null;
-                if (!insideSubmitRow && current.tagName !== "TEXTAREA") {
-                    const num = parseInt(e.key);
-                    if (!isNaN(num)) {
-                        // Even if the number does not trigger a selection (for example pressing "9"),
-                        // nothing else should happen, because it would be very frustrating if only some numbers
-                        // would work as expected.
-                        e.preventDefault();
-                        selectByNumberKey(currentRow, num);
-                        return;
-                    }
-                }
-
-                if (e.key !== "Tab") {
-                    if (current.tagName !== "TEXTAREA" && letterRegex.test(e.key)) {
-                        const wholeRow = currentRow.closest("div.row");
-                        if (wholeRow === null)
-                            return;
-
-                        e.preventDefault();
-                        const textAnswerButton = wholeRow.querySelector("[data-bs-toggle=\"collapse\"]");
-                        const textField = wholeRow.querySelector("textarea.tab-selectable");
-                        if (textAnswerButton !== null && textField !== null) {
-                            if (isInvisible(textField))
-                                textAnswerButton.click();
-                            textField.focus({ preventScroll: true });
-                            textField.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                            });
-                            textField.value += e.key;
-                            textField.dispatchEvent(new Event("input"));
-                        }
-                    }
-                    return;
-                }
-
-                const curRowIndex = rows.indexOf(currentRow);
-                const direction = e.shiftKey ? -1 : 1;
-                let nextRowIndex = curRowIndex;
-                do {
-                    nextRowIndex += direction;
-
-                    if (nextRowIndex === -1) {
-                        // User wants to tab out in front of the form area
-                        // To correctly select the first element in front of the form,
-                        // select the first element tracked by this.
-                        // Just giving back control to the browser here doesn't work, because
-                        // it would navigate backwards through the controls of the current row.
-                        selectable[0].focus({ preventScroll: true });
-                        return;
-                    } else if (nextRowIndex === rows.length) {
-                        // User wants to tab out behind the form area
-                        selectable[selectable.length - 1].focus({ preventScroll: true });
-                        return;
-                    }
-                } while (isInvisible(rows[nextRowIndex]));
-                const nextRow = rows[nextRowIndex];
-
-                e.preventDefault();
-                let nextElement;
-                const alreadySelectedElement = nextRow.querySelector(".tab-selectable:checked");
-
-                if (alreadySelectedElement) {
-                    nextElement = alreadySelectedElement;
-                } else {
-                    const possibleTargets = nextRow.querySelectorAll(".tab-selectable");
-                    if (possibleTargets.length === 3) {
-                        // Yes-No / No-Yes question, should focus first element
-                        nextElement = possibleTargets[0];
-                    } else {
-                        // Everything else: The middle of all the answers excluding "no answer"
-                        // This also handles all the single possibility cases
-                        const index = Math.floor((possibleTargets.length - 1) / 2);
-                        nextElement = possibleTargets[index];
-                    }
-                }
-
-                nextElement.focus({ preventScroll: true });
-                nextElement.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                });
-            });
         </script>
+        <script type="module" src="{% static 'js/student-vote.js' %}"></script>
     {% endif %}
 {% endblock %}

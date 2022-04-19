@@ -27,7 +27,7 @@
                     {% for form in formset %}
                         <tr class="sortable">
                             <td class="movable">
-                                <span class="movable-icon fas fa-arrows-alt-v"></span>
+                                <span class="movable-icon fas fa-up-down"></span>
                             </td>
                             <td>
                                 {% for hidden in form.hidden_fields %}
@@ -38,7 +38,7 @@
                             <td>{% include 'bootstrap_form_field_widget.html' with field=form.title_en %}</td>
                             <td>
                                 {% if form.instance.id %}
-                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil-alt"></span></a>
+                                    <a href="{% url 'staff:faq_section' form.instance.id %}" class="btn btn-secondary btn-sm"><span class="fas fa-pencil"></span></a>
                                 {% endif %}
                                 {% include 'bootstrap_form_field_widget.html' with field=form.DELETE class="d-none" %}
                             </td>

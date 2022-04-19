@@ -1,6 +1,8 @@
 import io
 
-import xlwt
+import openpyxl
+
+# fmt: off
 
 duplicate_user_import_filedata = {
     'Users': [
@@ -120,6 +122,14 @@ test_enrollment_data_degree_merge_filedata = {
     ]
 }
 
+test_enrollment_data_error_merge_filedata = {
+    'MA Belegungen': [
+        ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
+        ['Grandmaster', 'Quid', 'Bastius', 'bastius.quid@external.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+        ['Beginner,Bachelor', 'Lorem', 'Ipsum', 'ipsum.lorem@institution.example.com', 'jaminar', 'probably not', 'Bauen', 'Build', '', 'Sed', 'Diam', '345@external.example.com'],
+    ],
+}
+
 test_enrollment_data_import_names_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
@@ -152,14 +162,17 @@ valid_user_courses_import_filedata = {
     ]
 }
 
+# fmt: on
+
 
 def create_memory_excel_file(data):
     memory_excel_file = io.BytesIO()
-    workbook = xlwt.Workbook()
+    workbook = openpyxl.Workbook()
     for sheet_name, sheet_data in data.items():
-        sheet = workbook.add_sheet(sheet_name)
-        for (row_num, row_data) in enumerate(sheet_data):
-            for (column_num, cell_data) in enumerate(row_data):
-                sheet.write(row_num, column_num, cell_data)
+        sheet = workbook.create_sheet(sheet_name)
+        for row_num, row_data in enumerate(sheet_data, 1):
+            for column_num, cell_data in enumerate(row_data, 1):
+                # openpyxl rows start at 1
+                sheet.cell(row=row_num, column=column_num).value = cell_data
     workbook.save(memory_excel_file)
     return memory_excel_file.getvalue()
