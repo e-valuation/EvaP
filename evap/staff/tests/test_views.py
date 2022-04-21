@@ -115,7 +115,7 @@ class TestUserIndexView(WebTestStaffMode):
         form = page.forms["user-edit-form"]
         form["user"] = self.some_user.pk
         response = form.submit(status=302)
-        self.assertEqual(response.location, "/staff/user/{}/edit".format(self.some_user.pk))
+        self.assertEqual(response.location, f"/staff/user/{self.some_user.pk}/edit")
 
 
 class TestUserListView(WebTestStaffMode):
