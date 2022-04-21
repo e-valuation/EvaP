@@ -1,7 +1,7 @@
 # EvaP - Evaluation Platform
 
-[![Build Status](https://github.com/e-valuation/EvaP/workflows/EvaP%20Test%20Suite/badge.svg?branch=master)](https://github.com/e-valuation/EvaP/actions?query=workflow%3A%22EvaP+Test+Suite%22)
-[![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=master)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=master)
+[![Build Status](https://github.com/e-valuation/EvaP/workflows/EvaP%20Test%20Suite/badge.svg?branch=main)](https://github.com/e-valuation/EvaP/actions?query=workflow%3A%22EvaP+Test+Suite%22)
+[![Requirements Status](https://requires.io/github/e-valuation/EvaP/requirements.svg?branch=main)](https://requires.io/github/e-valuation/EvaP/requirements/?branch=main)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/2cf538781fdc4680a7103bcf96417a9a)](https://www.codacy.com/gh/e-valuation/EvaP/dashboard)
 [![codecov](https://codecov.io/gh/e-valuation/EvaP/branch/master/graph/badge.svg)](https://codecov.io/gh/e-valuation/EvaP)
 
@@ -45,9 +45,18 @@ vagrant ssh
 That's it!
 
 
+### Docker
+We provide experimental support to run the development setup in a docker container using
+```bash
+vagrant up --provider docker
+vagrant provision
+vagrant ssh
+```
+
+
 ## Contributing
 
-We'd love to see contributions, feel free to fork! You should probably branch off ``master``, the branch ``release`` is used for stable revisions.
+We'd love to see contributions, feel free to fork! You should probably branch off ``main``, the branch ``release`` is used for stable revisions.
 
 Before committing, run the following commands:
 - `./manage.py test` (runs the test suite)

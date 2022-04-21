@@ -1,15 +1,19 @@
 import builtins
 from unittest.mock import patch
+from uuid import UUID
 
 from django.conf import settings
 from django.core import management
+from django.core.exceptions import SuspiciousOperation
+from django.http import Http404
 from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import translation
 from model_bakery import baker
 
-from evap.evaluation.models import UserProfile
+from evap.evaluation.models import Evaluation, TextAnswer, UserProfile
 from evap.evaluation.tests.tools import WebTest
+from evap.evaluation.tools import get_object_from_dict_pk_entry_or_logged_40x
 
 
 class TestLanguageSignalReceiver(WebTest):
@@ -74,3 +78,44 @@ class TestPythonVersion(TestCase):
     def test_breakpoint_available(self):
         """python >= 3.7"""
         self.assertTrue(hasattr(builtins, "breakpoint"))
+
+
+class TestHelperMethods(WebTest):
+    def test_get_object_from_dict_pk_entry_or_logged_40x_for_ints(self):
+        # Invalid PKs
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(Evaluation, {}, "pk")
+
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(Evaluation, {"pk": "Not a number"}, "pk")
+
+        # Valid id, but object doesn't exist
+        with self.assertRaises(Http404):
+            get_object_from_dict_pk_entry_or_logged_40x(Evaluation, {"pk": "1234"}, "pk")
+
+        # valid
+        evaluation = baker.make(Evaluation)
+        self.assertEqual(
+            get_object_from_dict_pk_entry_or_logged_40x(Evaluation, {"pk": str(evaluation.pk)}, "pk"), evaluation
+        )
+
+    def test_get_object_from_dict_pk_entry_or_logged_40x_for_uuids(self):
+        # invalid UUIDs
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {}, "pk")
+
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": "Not a number"}, "pk")
+
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": "1234"}, "pk")
+
+        with self.assertRaises(SuspiciousOperation):
+            get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": "{00-0}"}, "pk")
+
+        # Valid id, but object doesn't exist
+        with self.assertRaises(Http404):
+            get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": UUID(int=0)}, "pk")
+
+        answer = baker.make(TextAnswer)
+        self.assertEqual(get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, {"pk": str(answer.pk)}, "pk"), answer)

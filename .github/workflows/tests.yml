@@ -3,7 +3,7 @@ name: EvaP Test Suite
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -29,8 +29,6 @@ jobs:
         include:
           - name: Coverage
             command: coverage run manage.py test && codecov -X gcov
-          - name: Debug mode
-            command: python manage.py test --debug-mode
           - name: Reverse order
             command: python manage.py test --reverse
 
@@ -46,6 +44,24 @@ jobs:
       - name: Run tests
         run: ${{ matrix.command }}
 
+
+  mypy:
+    runs-on: ubuntu-18.04
+
+    container:
+      image: python:3.7
+
+    name: MyPy
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Run MyPy
+        run: mypy -p evap
 
   linter:
     runs-on: ubuntu-18.04
@@ -69,22 +85,29 @@ jobs:
   formatter:
     runs-on: ubuntu-18.04
 
-    container:
-      image: python:3.7
-
     name: Formatting
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Install dependencies
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install Python dependencies
         run: pip install -r requirements-dev.txt
+      - name: Setup Node
+        uses: actions/setup-node@v2
+      - name: Install Node dependencies
+        run: npm ci
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Check code formatting
         run: black --check evap
       - name: Check imports formatting
         run: isort . --check --diff
+      - run: ls -laR evap/static/ts
+      - name: Check TypeScript formatting
+        run: npx prettier --list-different --loglevel debug --config evap/static/ts/.prettierrc.json evap/static/ts/src
 
 
   backup-process:

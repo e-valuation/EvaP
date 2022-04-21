@@ -1,0 +1,44 @@
+{% extends 'staff_course_base.html' %}
+
+{% block content %}
+    {{ block.super }}
+    <h3>
+        {% trans 'Create copy of course' %}
+    </h3>
+    <form id="course-form" method="POST" class="form-horizontal multiselect-form select2form">
+        {% csrf_token %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+                {% include 'bootstrap_form.html' with form=course_form %}
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{% trans 'Evaluations that will be copied' %}</h5>
+                {% if course.evaluations.count > 0 %}
+                    <ul>
+                        {% for evaluation in evaluations %}
+                            <li>
+                                {{ evaluation.full_name }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <span class="fst-italic">{% trans 'There are no evaluations for this course.' %}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card card-submit-area card-submit-area-3 text-center mb-3">
+            <div class="card-body">
+                <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
+
+{% block additional_javascript %}
+    {% include 'bootstrap_datetimepicker.html' %}
+{% endblock %}

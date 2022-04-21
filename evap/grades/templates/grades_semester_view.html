@@ -13,7 +13,7 @@
             <div class="input-group">
                 <input type="search" name="search" class="form-control" placeholder="{% trans 'Search...' %}" />
                 <button class="btn btn-light text-secondary" type="button" data-reset="search" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                    <span class="fas fa-backspace"></span>
+                    <span class="fas fa-delete-left"></span>
                 </button>
             </div>
         </div>
@@ -58,7 +58,7 @@
                                         <span class="fas fa-file"></span> {{ num_final_grades }}
                                     {% elif course.gets_no_grade_documents %}
                                        <a href="#" onclick="confirmLateruploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');">
-                                            <span class="fas fa-times light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
+                                            <span class="fas fa-xmark light-link" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Grade documents for this course will not be uploaded. Click to change.' %}"></span>
                                         </a>
                                     {% endif %}
                                 </td>
@@ -66,7 +66,7 @@
                                     {% if not course.gets_no_grade_documents %}
                                         {% if num_final_grades == 0 %}
                                             <button type="button" {{ disable_if_archived }} onclick="confirmNouploadModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Confirm that final grades have been submitted but will not be uploaded.' %}">
-                                                <span class="fas fa-times"></span>
+                                                <span class="fas fa-xmark"></span>
                                             </button>
                                             <div class="btn-group" role="group" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Upload grade document' %}">
                                                 <button type="button" id="btnUpload{{ course.id }}" class="btn btn-sm btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -78,7 +78,7 @@
                                                 </div>
                                             </div>
                                         {% else %}
-                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil-alt"></span></a>
+                                            <a href="{% url 'grades:course_view' semester.id course.id %}" class="btn btn-sm btn-light {{ disable_if_archived }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Change grade document' %}"><span class="fas fa-pencil"></span></a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -124,11 +124,14 @@
 {% block additional_javascript %}
     <script type="module">
         import {TableGrid} from "{% static 'js/datagrid.js' %}";
-        new TableGrid({
-            storageKey: "grades-semester-{{ semester.id }}-data-grid",
-            table: document.querySelector(".grade-course-table"),
-            searchInput: document.querySelector("input[name=search]"),
-            resetSearch: document.querySelector("[data-reset=search]"),
-        }).init();
+        const table = document.querySelector(".grade-course-table");
+        if (table) {
+            new TableGrid({
+                storageKey: "grades-semester-{{ semester.id }}-data-grid",
+                table,
+                searchInput: document.querySelector("input[name=search]"),
+                resetSearch: document.querySelector("[data-reset=search]"),
+            }).init();
+        }
     </script>
 {% endblock %}

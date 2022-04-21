@@ -69,7 +69,7 @@
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
-                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></button>
+                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab" onclick="saveSelectedTab('courses');">
-                        <span class="fas fa-chalkboard-teacher"></span> {% trans 'Courses' %}
+                        <span class="fas fa-chalkboard-user"></span> {% trans 'Courses' %}
                     </a>
                 </li>
             </ul>
@@ -154,18 +154,20 @@
             <div class="tab-pane show active" id="evaluations" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
-                        <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
-                            {% trans 'Create evaluation' %}
-                        </a>
-                        <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
-                            {% trans 'Create single result' %}
-                        </a>
+                        {% if request.user.is_manager %}
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:evaluation_create' semester.id %}">
+                                {% trans 'Create evaluation' %}
+                            </a>
+                            <a class="btn btn-sm btn-dark ms-2" href="{% url 'staff:single_result_create' semester.id %}">
+                                {% trans 'Create single result' %}
+                            </a>
+                        {% endif %}
                     </div>
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
                             <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                                <span class="fas fa-backspace"></span>
+                                <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
@@ -227,29 +229,29 @@
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Evaluation not finished' %}">
-                                <span class="fas fa-chart-bar icon-gray"></span>
+                                <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published although grading process is finished' %}">
-                                <span class="fas fa-chart-bar icon-red"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published' %}">
-                                <span class="fas fa-chart-bar icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results published' %}">
-                                <span class="fas fa-chart-bar icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                             </button>
                         </div>
                     </div>
                 </div>
                 <form id="evaluation_operation_form" method="GET" action="{% url 'staff:semester_evaluation_operation' semester.id %}">
-                    <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
-                        {% if num_evaluations > 0 %}
+                    {% if num_evaluations > 0 %}
+                        <table id="evaluation-table" class="table table-striped table-narrow table-vertically-aligned">
                             <colgroup>
                                 <col style="width: 2.75em" />
                                 <col style="width: 1.25em" />
@@ -274,17 +276,21 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                        {% endif %}
-                        <tbody>
-                        {% for evaluation in evaluations %}
-                            <tr id="evaluation-row-{{ evaluation.id }}">
-                                {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
-                            </tr>
-                        {% empty %}
-                            <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i><td></tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            <tbody>
+                            {% for evaluation in evaluations %}
+                                <tr id="evaluation-row-{{ evaluation.id }}">
+                                    {% include 'staff_semester_view_evaluation.html' with semester=semester evaluation=evaluation info_only=False %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <table class="table table-striped table-narrow table-vertically-aligned">
+                            <tbody>
+                                <tr><td><i>{% trans 'There are no evaluations in this semester.' %}</i></td></tr>
+                            </tbody>
+                        </table>
+                    {% endif %}
 
                     {% if request.user.is_manager and not semester.participations_are_archived %}
                         <div class="my-2">
@@ -317,13 +323,13 @@
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Unpublished evaluations' %}">
-                                <span class="fas fa-chart-bar icon-yellow"></span>
-                                <span class="fas fa-chart-bar icon-red"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                                 {% trans 'Publish' %}
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Published evaluations' %}">
-                                <span class="fas fa-chart-bar icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                                 {% trans 'Unpublish' %}
                             </button>
                         </div>
@@ -333,21 +339,23 @@
             <div class="tab-pane" id="courses" role="tabpanel">
                 <div class="row align-items-center mb-3">
                     <div class="col-9">
-                        <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
-                            {% trans 'Create course' %}
-                        </a>
+                        {% if request.user.is_manager %}
+                            <a class="btn btn-sm btn-dark" href="{% url 'staff:course_create' semester.id %}">
+                                {% trans 'Create course' %}
+                            </a>
+                        {% endif %}
                     </div>
                     <div class="col-3">
                         <div class="input-group">
                             <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
                             <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                                <span class="fas fa-backspace"></span>
+                                <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
                 </div>
-                <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
-                    {% if courses %}
+                {% if courses %}
+                    <table id="course-table" class="table table-striped table-narrow table-vertically-aligned">
                         <colgroup>
                             <col />
                             <col style="width: 14em" />
@@ -362,51 +370,62 @@
                                 <th></th>
                             </tr>
                         </thead>
-                    {% endif %}
-                    <tbody>
-                        {% for course in courses %}
-                            <tr id="course-row-{{ course.id }}">
-                                <td data-col="name" data-order="{{ course.name|lower }}">
-                                    <div>
-                                        <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
-                                    </div>
-                                    {% include 'course_badges.html' %}
-                                </td>
-                                <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
-                                    <div class="fst-italic">
-                                        {{ course.responsibles_names }}
-                                    </div>
-                                </td>
-                                <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
-                                    {% if course.evaluations.count == 0 %}
-                                        <span class="badge bg-warning">{% trans 'No evaluations' %}</span>
-                                    {% else %}
-                                        {{ course.evaluations.count }}
-                                    {% endif %}
-                                </td>
-                                <td class="icon-buttons">
-                                    <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                        href="{% url 'staff:evaluation_create' semester.id course.id %}"
-                                        title="{% trans "Create evaluation for this course" %}">
-                                        <span class="fas fa-clipboard-check"></span>
-                                    </a>
-                                    <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
-                                        href="{% url 'staff:single_result_create' semester.id course.id %}"
-                                        title="{% trans "Create single result for this course" %}">
-                                        <span class="fas fa-poll"></span>
-                                    </a>
-                                    {% if course.can_be_deleted_by_manager %}
-                                        <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
-                                            <span class="fas fa-trash" aria-hidden="true"></span>
-                                        </button>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr><td><i>{% trans 'There are no courses in this semester.' %}</i><td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        <tbody>
+                            {% for course in courses %}
+                                <tr id="course-row-{{ course.id }}">
+                                    <td data-col="name" data-order="{{ course.name|lower }}">
+                                        <div>
+                                            <a href="{% url 'staff:course_edit' semester.id course.id %}">{{ course.name }}</a>
+                                        </div>
+                                        {% include 'course_badges.html' %}
+                                    </td>
+                                    <td data-col="responsible" data-order="{{ course.responsibles.first.last_name|lower }}">
+                                        <div class="fst-italic">
+                                            {{ course.responsibles_names }}
+                                        </div>
+                                    </td>
+                                    <td data-col="evaluation-count" data-order="{{ course.evaluations.count }}">
+                                        {% if course.evaluations.count == 0 %}
+                                            <span class="badge bg-warning">{% trans 'No evaluations' %}</span>
+                                        {% else %}
+                                            {{ course.evaluations.count }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="icon-buttons">
+                                        {% if request.user.is_manager %}
+                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                                href="{% url 'staff:evaluation_create' semester.id course.id %}"
+                                                title="{% trans 'Create evaluation for this course' %}">
+                                                <span class="fas fa-clipboard-check"></span>
+                                            </a>
+                                            <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
+                                                href="{% url 'staff:single_result_create' semester.id course.id %}"
+                                                title="{% trans 'Create single result for this course' %}">
+                                                <span class="fas fa-square-poll-vertical"></span>
+                                        </a>
+                                        <a class="btn btn-sm btn-dark" data-toggle="tooltip"
+                                            href="{% url 'staff:course_copy' semester.id course.id %}"
+                                            title="{% trans 'Copy course' %}">
+                                            <span class="fas fa-copy"></span>
+                                            </a>
+                                        {% endif %}
+                                        {% if course.can_be_deleted_by_manager %}
+                                            <button type="button" onclick="deleteCourseModalShow({{ course.id }}, '{{ course.name|escapejs }}');" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Delete' %}">
+                                                <span class="fas fa-trash" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <table class="table table-striped table-narrow table-vertically-aligned">
+                        <tbody>
+                            <tr><td><i>{% trans 'There are no courses in this semester.' %}</i></td></tr>
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -562,7 +581,6 @@
             $(this).find('.btn').toggleClass('btn-secondary');
         });
 
-
         var overviewCard = document.getElementById('overviewCard');
         var overviewCardCollapse = new bootstrap.Collapse(overviewCard, {
             toggle: localStorage['show_overview'] === 'true'
@@ -589,18 +607,24 @@
     </script>
     <script type="module">
         import {EvaluationGrid, TableGrid} from "{% static 'js/datagrid.js' %}";
-        new EvaluationGrid({
-            storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
-            table: document.querySelector("#evaluation-table"),
-            searchInput: document.querySelector("input[name=search-evaluation]"),
-            filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
-            resetSearch: document.querySelector("[data-reset=search-evaluation]"),
-        }).init();
-        new TableGrid({
-            storageKey: "course-semester-{{ semester.id }}-data-grid",
-            table: document.querySelector("#course-table"),
-            searchInput: document.querySelector("input[name=search-course]"),
-            resetSearch: document.querySelector("[data-reset=search-course]"),
-        }).init();
+        const evaluationTable = document.querySelector("#evaluation-table");
+        if (evaluationTable) {
+            new EvaluationGrid({
+                storageKey: "evaluation-semester-{{ semester.id }}-data-grid",
+                table: evaluationTable,
+                searchInput: document.querySelector("input[name=search-evaluation]"),
+                filterButtons: [...document.querySelectorAll("#evaluation-filter-buttons [data-filter]")],
+                resetSearch: document.querySelector("[data-reset=search-evaluation]"),
+            }).init();
+        }
+        const courseTable = document.querySelector("#course-table");
+        if (courseTable) {
+            new TableGrid({
+                storageKey: "course-semester-{{ semester.id }}-data-grid",
+                table: courseTable,
+                searchInput: document.querySelector("input[name=search-course]"),
+                resetSearch: document.querySelector("[data-reset=search-course]"),
+            }).init();
+        }
     </script>
 {% endblock %}

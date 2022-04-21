@@ -58,21 +58,21 @@
 
 {% if state < evaluation.State.REVIEWED %}
     <td class="icon" data-col="state-results" data-order="2" data-filter="evaluation_not_finished">
-        <span class="fas fa-chart-bar icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation not finished' %}"></span>
+        <span class="fas fa-chart-simple icon-gray" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Evaluation not finished' %}"></span>
     </td>
 {% elif state == evaluation.State.REVIEWED %}
     {% if evaluation.is_single_result or evaluation.grading_process_is_finished %}
         <td class="icon text-center" data-col="state-results" data-order="0" data-filter="results_not_published">
-            <span class="fas fa-chart-bar icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
+            <span class="fas fa-chart-simple icon-red" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published although grading process is finished' %}"></span>
         </td>
     {% else %}
         <td class="icon text-center" data-col="state-results" data-order="1" data-filter="results_not_yet_published">
-            <span class="fas fa-chart-bar icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published' %}"></span>
+            <span class="fas fa-chart-simple icon-yellow" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results not yet published' %}"></span>
         </td>
     {% endif %}
 {% elif state == evaluation.State.PUBLISHED %}
     <td class="icon" data-col="state-results" data-order="3" data-filter="results_published">
-        <span class="fas fa-chart-bar icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results published' %}"></span>
+        <span class="fas fa-chart-simple icon-green" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results published' %}"></span>
     </td>
 {% endif %}
 
@@ -81,7 +81,7 @@
     {% if not info_only and request.user.is_manager %}
         <a href="{% url 'staff:evaluation_edit' semester.id evaluation.id %}">{{ evaluation.full_name }}</a>
         <a class="small no-underline" href="{% url 'staff:course_edit' semester.id evaluation.course.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Edit course' %}">
-            <span class="fas fa-chalkboard-teacher"></span>
+            <span class="fas fa-chalkboard-user"></span>
         </a>
     {% else %}
         {{ evaluation.full_name }}
@@ -91,11 +91,11 @@
         {{ evaluation.course.responsibles_names }}
         {% if info_only or not request.user.is_manager or state >= evaluation.State.IN_EVALUATION %}
             <span class="small" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Number of contributors' %}">
-                ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)
+                ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </span>
         {% else %}
             <a class="small no-underline" href="{% url 'staff:evaluation_person_management' semester.id evaluation.id %}" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Manage contributors' %}">
-                ({{ evaluation.num_contributors }} <span class="fas fa-graduation-cap"></span>)
+                ({{ evaluation.num_contributors }} <span class="fas fa-person-chalkboard"></span>)
             </a>
         {% endif %}
     </div>
@@ -184,9 +184,9 @@
 {% endif %}
 <td class="icon-buttons">
     {% if not info_only %}
-        {% if not evaluation.is_single_result %}
+        {% if not evaluation.is_single_result and request.user.is_manager %}
             <a href="{% url 'staff:evaluation_copy' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" title="{% trans "Copy" %}">
-                <span class="far fa-copy"></span>
+                <span class="fas fa-copy"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager %}
@@ -200,11 +200,11 @@
             </a>
         {% elif state < evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Preview results' %}">
-                <span class="fas fa-chart-bar" aria-hidden="true"></span>
+                <span class="fas fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% elif state == evaluation.State.PUBLISHED and evaluation|can_results_page_be_seen_by:request.user %}
             <a href="{% url 'results:evaluation_detail' semester.id evaluation.id %}" class="btn btn-sm btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Results' %}">
-                <span class="fas fa-chart-bar" aria-hidden="true"></span>
+                <span class="fas fa-chart-simple" aria-hidden="true"></span>
             </a>
         {% endif %}
         {% if request.user.is_manager and evaluation.can_be_deleted_by_manager %}

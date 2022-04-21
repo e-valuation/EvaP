@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from django import forms
 from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.db import transaction
 from django.db.models import Max, Q
 from django.forms.models import BaseInlineFormSet
 from django.forms.widgets import CheckboxSelectMultiple
@@ -100,7 +101,11 @@ class ImportForm(forms.Form):
     vote_start_datetime = forms.DateTimeField(label=_("Start of evaluation"), localize=True, required=False)
     vote_end_date = forms.DateField(label=_("End of evaluation"), localize=True, required=False)
 
-    excel_file = forms.FileField(label=_("Excel file"), required=False)
+    excel_file = forms.FileField(
+        label=_("Excel file"),
+        required=False,
+        widget=forms.FileInput(attrs={"accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
+    )
 
 
 class UserImportForm(forms.Form):
@@ -147,8 +152,8 @@ class SemesterForm(forms.ModelForm):
         model = Semester
         fields = ("name_de", "name_en", "short_name_de", "short_name_en")
 
-    def save(self, *args, **kwargs):
-        semester = super().save(*args, **kwargs)
+    def save(self, commit=True):
+        semester = super().save(commit)
         if "short_name_en" in self.changed_data or "short_name_de" in self.changed_data:
             update_template_cache(semester.evaluations.filter(state__in=STATES_WITH_RESULT_TEMPLATE_CACHING))
         return semester
@@ -214,9 +219,7 @@ class CourseTypeMergeSelectionForm(forms.Form):
             raise ValidationError(_("You must select two different course types."))
 
 
-class CourseForm(forms.ModelForm):
-    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
-
+class CourseFormMixin:
     class Meta:
         model = Course
         fields = (
@@ -232,17 +235,11 @@ class CourseForm(forms.ModelForm):
             "responsibles": UserModelMultipleChoiceField,
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["responsibles"].queryset = UserProfile.objects.exclude(is_active=False)
-        if self.instance.pk:
-            self.fields["responsibles"].queryset |= UserProfile.objects.filter(
-                pk__in=[user.pk for user in self.instance.responsibles.all()]
-            )
-
-        if not self.instance.can_be_edited_by_manager:
-            disable_all_fields(self)
+    def _set_responsibles_queryset(self, existing_course=None):
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if existing_course:
+            queryset = (queryset | existing_course.responsibles.all()).distinct()
+        self.fields["responsibles"].queryset = queryset
 
     def validate_unique(self):
         super().validate_unique()
@@ -255,6 +252,98 @@ class CourseForm(forms.ModelForm):
                     # The order of the fields is probably determined by the unique_together constraints in the Course class.
                     name_field = e.params["unique_check"][1]
                     self.add_error(name_field, e)
+
+
+class CourseForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+    semester = forms.ModelChoiceField(Semester.objects.all(), disabled=True, required=False, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._set_responsibles_queryset(self.instance if self.instance.pk else None)
+        if not self.instance.can_be_edited_by_manager:
+            disable_all_fields(self)
+
+
+class CourseCopyForm(CourseFormMixin, forms.ModelForm):  # type: ignore
+    semester = forms.ModelChoiceField(Semester.objects.all())
+    vote_start_datetime = forms.DateTimeField(label=_("Start of evaluations"), localize=True)
+    vote_end_date = forms.DateField(label=_("Last day of evaluations"), localize=True)
+
+    field_order = ["semester"]
+
+    def __init__(self, data=None, *, instance: Course):
+        self.old_course = instance
+        opts = self._meta  # type: ignore
+        initial = forms.models.model_to_dict(instance, opts.fields, opts.exclude)  # type: ignore
+        super().__init__(data=data, initial=initial)
+        self._set_responsibles_queryset(instance)
+
+    # To ensure we don't forget about copying a relevant field, we explicitly list copied and ignored fields and test against that
+    EVALUATION_COPIED_FIELDS = {
+        "name_de",
+        "name_en",
+        "weight",
+        "is_single_result",
+        "is_rewarded",
+        "is_midterm_evaluation",
+        "allow_editors_to_edit",
+        "wait_for_grade_upload_before_publishing",
+    }
+
+    EVALUATION_EXCLUDED_FIELDS = {
+        "id",
+        "course",
+        "vote_start_datetime",
+        "vote_end_date",
+        "participants",
+        "contributions",
+        "state",
+        "can_publish_text_results",
+        "_participant_count",
+        "_voter_count",
+        "voters",
+    }
+
+    CONTRIBUTION_COPIED_FIELDS = {
+        "contributor",
+        "role",
+        "textanswer_visibility",
+        "label",
+        "order",
+    }
+
+    CONTRIBUTION_EXCLUDED_FIELDS = {
+        "id",
+        "evaluation",
+        "ratinganswercounter_set",
+        "textanswer_set",
+        "questionnaires",
+    }
+
+    @transaction.atomic()
+    def save(self, commit=True):
+        new_course: Course = super().save()
+        # we need to create copies of evaluations and their participation as well
+        for old_evaluation in self.old_course.evaluations.exclude(is_single_result=True):
+            new_evaluation = Evaluation(
+                **{field: getattr(old_evaluation, field) for field in self.EVALUATION_COPIED_FIELDS},
+                can_publish_text_results=False,
+                course=new_course,
+                vote_start_datetime=self.cleaned_data["vote_start_datetime"],
+                vote_end_date=self.cleaned_data["vote_end_date"],
+            )
+            new_evaluation.save()
+
+            new_evaluation.contributions.all().delete()  # delete default general contribution
+            for old_contribution in old_evaluation.contributions.all():
+                new_contribution = Contribution(
+                    **{field: getattr(old_contribution, field) for field in self.CONTRIBUTION_COPIED_FIELDS},
+                    evaluation=new_evaluation,
+                )
+                new_contribution.save()
+                new_contribution.questionnaires.set(old_contribution.questionnaires.all())
+
+        return new_course
 
 
 class EvaluationForm(forms.ModelForm):
@@ -297,7 +386,10 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
         )
 
-        self.fields["participants"].queryset = UserProfile.objects.exclude(is_active=False)
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if self.instance.pk is not None:
+            queryset = (queryset | self.instance.participants.all()).distinct()
+        self.fields["participants"].queryset = queryset
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -409,7 +501,7 @@ class SingleResultForm(forms.ModelForm):
 
         if self.instance.pk:
             for answer_counter in self.instance.ratinganswer_counters:
-                self.fields["answer_{}".format(answer_counter.answer)].initial = answer_counter.count
+                self.fields[f"answer_{answer_counter.answer}"].initial = answer_counter.count
             self.instance.old_course = self.instance.course
 
     def validate_unique(self):
@@ -517,6 +609,16 @@ class ContributionForm(forms.ModelForm):
         if not self.cleaned_data.get("does_not_contribute") and not self.cleaned_data.get("questionnaires"):
             self.add_error("does_not_contribute", _("Select either this option or at least one questionnaire!"))
 
+    @property
+    def show_delete_button(self):
+        if self.instance.pk is None:
+            return True  # not stored in the DB. Required so temporary instances in the formset can be deleted.
+
+        if not self.instance.ratinganswercounter_set.exists() and not self.instance.textanswer_set.exists():
+            return True
+
+        return False
+
 
 class ContributionCopyForm(ContributionForm):
     def __init__(self, data=None, instance=None, evaluation=None, **kwargs):
@@ -571,7 +673,6 @@ class EvaluationEmailForm(forms.Form):
 
 
 class RemindResponsibleForm(forms.Form):
-
     to = UserModelChoiceField(None, required=False, disabled=True, label=_("To"))
     cc = UserModelMultipleChoiceField(None, required=False, disabled=True, label=_("CC"))
     subject = forms.CharField(label=_("Subject"))
@@ -619,7 +720,7 @@ class QuestionnaireForm(forms.ModelForm):
             "is_locked",
         )
 
-    def save(self, *args, commit=True, force_highest_order=False, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 

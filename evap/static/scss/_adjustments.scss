@@ -140,11 +140,29 @@ $alert-colors: (
     white-space: normal;
 }
 
+.user-multi-select {
+    padding-right: 36px !important;
+
+    li {
+        width: 100%;
+    }
+}
+
+.select2-container:not(.select2-container--disabled) .user-multi-select.select2-selection--multiple .select2-selection__choice {
+    background-color: $lighter-gray;
+}
+
 .select2-container .select2-search--inline {
     &, > input {
         // When inputting long items, the input should not grow beyond the size of the selection
         max-width: 100%;
     }
+}
+
+.select2-container .select2-search--inline .select2-search__field {
+    // The font in inline selections should not be overwritten and the placeholder should not be cropped at the bottom
+    font-family: inherit;
+    height: 1.5rem;
 }
 
 

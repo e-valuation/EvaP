@@ -7,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.encoding import iri_to_uri
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.http import require_POST
@@ -75,7 +78,11 @@ def index(request):
             # clean up our test cookie
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
-            return redirect("evaluation:index")
+
+            # redirect to this view again so the staff mode middleware runs for the authenticated user.
+            redirect_to = request.GET.get("next", None)
+            query_string = urlencode({"next": redirect_to}) if redirect_to else ""
+            return redirect(reverse("evaluation:index") + "?" + query_string)
 
     # if not logged in by now, render form
     if not request.user.is_authenticated:
@@ -94,8 +101,9 @@ def index(request):
 
     # check for redirect variable
     redirect_to = request.GET.get("next", None)
-    if redirect_to is not None:
-        return redirect(redirect_to)
+    if redirect_to is not None and url_has_allowed_host_and_scheme(redirect_to, None):
+        # django asked us to use iri_to_uri: https://docs.djangoproject.com/en/3.0/releases/3.0/#id3
+        return redirect(iri_to_uri(redirect_to))
 
     return redirect_user_to_start_page(request.user)
 
@@ -147,7 +155,7 @@ def faq(request):
 
 @no_login_required
 def legal_notice(request):
-    return render(request, "legal_notice.html", dict())
+    return render(request, "legal_notice.html")
 
 
 @require_POST
@@ -161,18 +169,16 @@ def contact(request):
     if message:
         mail = EmailMessage(
             subject=subject,
-            body="{}\n{}\n\n{}".format(title, request.user.email, message),
+            body=f"{title}\n{request.user.email}\n\n{message}",
             to=[settings.CONTACT_EMAIL],
             reply_to=[request.user.email],
         )
         try:
             mail.send()
-            logger.info("Sent contact email: \n{}\n".format(mail.message()))
+            logger.info("Sent contact email: \n%s\n", mail.message())
             return HttpResponse()
         except Exception:
-            logger.exception(
-                "An exception occurred when sending the following contact email:\n{}\n".format(mail.message())
-            )
+            logger.exception("An exception occurred when sending the following contact email:\n%s\n", mail.message())
             raise
 
     return HttpResponseBadRequest()
@@ -183,7 +189,7 @@ def contact(request):
 def set_lang(request):
     if request.user.is_authenticated:
         user = request.user
-        user.language = request.POST["language"]
+        user.language = request.POST.get("language", "en")
         user.save()
 
     return set_language(request)
