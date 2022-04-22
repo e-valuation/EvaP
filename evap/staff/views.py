@@ -84,6 +84,7 @@ from evap.staff.forms import (
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
+    UserEditSelectionForm,
     UserForm,
     UserImportForm,
     UserMergeSelectionForm,
@@ -1944,6 +1945,17 @@ def text_answer_warnings_index(request):
 
 @manager_required
 def user_index(request):
+    form = UserEditSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        user = form.cleaned_data["user"]
+        return redirect("staff:user_edit", user.id)
+
+    return render(request, "staff_user_index.html", dict(form=form))
+
+
+@manager_required
+def user_list(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
@@ -1976,7 +1988,7 @@ def user_index(request):
         .order_by("last_name", "first_name", "email")
     )
 
-    return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
+    return render(request, "staff_user_list.html", dict(users=users, filter_users=filter_users))
 
 
 @manager_required
@@ -2083,6 +2095,7 @@ def user_delete(request):
     if not user.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
+    messages.success(request, _("Successfully deleted user."))
     return HttpResponse()  # 200 OK
 
 
