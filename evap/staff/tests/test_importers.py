@@ -590,7 +590,7 @@ class TestPersonImporter(TestCase):
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.assertIn("1 contributor would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
+        self.assertIn(str(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
@@ -598,7 +598,7 @@ class TestPersonImporter(TestCase):
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.assertIn("1 contributor added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
+        self.assertIn(str(self.contributor2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(
@@ -627,13 +627,13 @@ class TestPersonImporter(TestCase):
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.assertIn("1 participant would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
+        self.assertIn(str(self.participant2.email), "".join(success_messages))
 
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.assertIn("1 participant added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
+        self.assertIn(str(self.participant2.email), "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
         self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))
