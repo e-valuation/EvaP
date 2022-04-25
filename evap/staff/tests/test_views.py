@@ -441,7 +441,7 @@ class TestUserImportView(WebTestStaffMode):
 
         self.assertContains(
             page,
-            "The import run will create 2 users:<br />"
+            "The import run will create 2 users: <br />"
             "Lucilia Manilium (lucilia.manilium@institution.example.com)<br />"
             "Bastius Quid (bastius.quid@external.example.com)",
         )

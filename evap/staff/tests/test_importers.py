@@ -1,6 +1,5 @@
 import os
 from datetime import date, datetime
-from email.mime import image
 from unittest.mock import patch
 
 from django.conf import settings
@@ -57,7 +56,7 @@ class TestUserImporter(TestCase):
         user_list, success_messages, warnings, errors = UserImporter.process(self.valid_excel_content, test_run=False)
         self.assertIn("Successfully read sheet 'Users'.", success_messages)
         self.assertIn(
-            "Successfully created 2 users:<br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)",
+            "Successfully created 2 users: <br />Lucilia Manilium (lucilia.manilium@institution.example.com)<br />Bastius Quid (bastius.quid@external.example.com)",
             success_messages,
         )
         self.assertIn("Successfully read Excel file.", success_messages)
