@@ -104,6 +104,6 @@ sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progr
 echo "nvm use node" >> /home/$USER/.bashrc
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
-sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de_DE --locale en_US
+sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py loaddata test_data.json
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py refresh_results_cache
