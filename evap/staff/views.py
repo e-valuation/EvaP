@@ -26,6 +26,7 @@ from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     CourseType,
@@ -1068,7 +1069,13 @@ def evaluation_create(request, semester_id, course_id=None):
         request,
         "staff_evaluation_form.html",
         dict(
-            semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""
+            semester=semester,
+            evaluation_form=evaluation_form,
+            formset=formset,
+            manager=True,
+            editable=True,
+            state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
@@ -1103,6 +1110,7 @@ def evaluation_copy(request, semester_id, evaluation_id):
             manager=True,
             editable=True,
             state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
@@ -1206,6 +1214,19 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         return redirect("staff:semester_view", semester.id)
 
+    assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+    contributor_questionnaire_pairs = [
+        (answer.contribution.contributor, answer.question.questionnaire)
+        for answer_cls in [TextAnswer, RatingAnswerCounter]
+        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
+            "question__questionnaire", "contribution__contributor"
+        )
+    ]
+
+    questionnaires_with_answers_per_contributor = defaultdict(list)
+    for (contributor, questionnaire) in contributor_questionnaire_pairs:
+        questionnaires_with_answers_per_contributor[contributor].append(questionnaire)
+
     if evaluation_form.errors or formset.errors:
         messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
     sort_formset(request, formset)
@@ -1217,6 +1238,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         manager=True,
         state=evaluation.state,
         editable=editable,
+        questionnaires_with_answers_per_contributor=questionnaires_with_answers_per_contributor,
     )
     return render(request, "staff_evaluation_form.html", template_data)
 

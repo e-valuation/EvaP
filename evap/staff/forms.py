@@ -449,7 +449,12 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        evaluation.general_contribution.questionnaires.set(self.cleaned_data.get("general_questionnaires"))
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires")
+        removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
+            selected_questionnaires
+        )
+        evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
+        evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         if hasattr(self.instance, "old_course"):
             if self.instance.old_course != evaluation.course:
                 update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
@@ -618,6 +623,13 @@ class ContributionForm(forms.ModelForm):
             return True
 
         return False
+
+    def save(self, *args, **kwargs):
+        if self.instance.pk:
+            selected_questionnaires = self.cleaned_data.get("questionnaires")
+            removed_questionnaires = set(self.instance.questionnaires.all()) - set(selected_questionnaires)
+            self.instance.remove_answers_to_questionnaires(removed_questionnaires)
+        return super().save(*args, **kwargs)
 
 
 class ContributionCopyForm(ContributionForm):

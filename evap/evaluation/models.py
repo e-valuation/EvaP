@@ -1056,8 +1056,13 @@ class Contribution(LoggedModel):
             return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
         return str(_("General Contribution"))
 
+    def remove_answers_to_questionnaires(self, questionnaires):
+        assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
-class Question(models.Model):
+
+class Question(models.Model):  # pylint: disable=no-init
     """A question including a type."""
 
     TEXT = 0
