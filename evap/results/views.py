@@ -13,7 +13,7 @@ from django.utils import translation
 
 from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import FileResponse
+from evap.evaluation.tools import FileResponse, unordered_groupby
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -157,10 +157,7 @@ def index(request):
     # this dict is sorted by course.pk (important for the zip below)
     # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
     evaluations.sort(key=lambda evaluation: evaluation.course.pk)
-
-    courses_and_evaluations = defaultdict(list)
-    for evaluation in evaluations:
-        courses_and_evaluations[evaluation.course].append(evaluation)
+    courses_and_evaluations = unordered_groupby((evaluation.course, evaluation) for evaluation in evaluations)
 
     course_pks = [course.pk for course in courses_and_evaluations.keys()]
 

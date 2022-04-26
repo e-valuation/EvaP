@@ -1,6 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
-from typing import Any, Mapping, Optional, Type, TypeVar
+from collections import defaultdict
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -12,6 +13,22 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
 
 M = TypeVar("M", bound=Model)
+Key = TypeVar("Key")
+Value = TypeVar("Value")
+
+
+def unordered_groupby(key_value_pairs: Iterable[Tuple[Key, Value]]) -> Dict[Key, List[Value]]:
+    """
+    We need this in several places: Take list of (key, value) pairs and make
+    them into the aggregated all-values-of-every-unique-key dict. Note that
+    this slightly differs from itertools.groupby (and uniq), as we don't
+    require anything to be sorted and you get a dict as return value.
+    """
+    result = defaultdict(list)
+    for key, value in key_value_pairs:
+        result[key].append(value)
+
+    return dict(result)
 
 
 def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Mapping[str, Any], key: str) -> M:

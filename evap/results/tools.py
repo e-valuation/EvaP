@@ -19,7 +19,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import discard_cached_related_objects
+from evap.evaluation.tools import discard_cached_related_objects, unordered_groupby
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -195,23 +195,23 @@ GET_RESULTS_PREFETCH_LOOKUPS = [
 
 
 def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool = True):
-    # pylint: disable=too-many-branches, too-many-locals, invalid-name
     if refetch_related_objects:
         discard_cached_related_objects(evaluation)
 
     prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
 
-    shown_textanswer_states = [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
-    textanswers_per_contribution_question: Dict[Tuple[int, int], List[TextAnswer]] = defaultdict(list)
-    for contribution in evaluation.contributions.all():
-        for ta in contribution.textanswer_set.all():
-            if ta.state in shown_textanswer_states:
-                textanswers_per_contribution_question[ta.contribution_id, ta.question_id].append(ta)
+    tas_per_contribution_question: Dict[Tuple[int, int], List[TextAnswer]] = unordered_groupby(
+        ((textanswer.contribution_id, textanswer.question_id), textanswer)
+        for contribution in evaluation.contributions.all()
+        for textanswer in contribution.textanswer_set.all()
+        if textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+    )
 
-    ratinganswercounters_per_contribution_question: Dict[Tuple[int, int], List[RatingAnswerCounter]] = defaultdict(list)
-    for contribution in evaluation.contributions.all():
-        for rac in contribution.ratinganswercounter_set.all():
-            ratinganswercounters_per_contribution_question[rac.contribution_id, rac.question_id].append(rac)
+    racs_per_contribution_question: Dict[Tuple[int, int], List[RatingAnswerCounter]] = unordered_groupby(
+        ((counter.contribution_id, counter.question_id), counter)
+        for contribution in evaluation.contributions.all()
+        for counter in contribution.ratinganswercounter_set.all()
+    )
 
     contributor_contribution_results = []
     for contribution in evaluation.contributions.all():
@@ -224,13 +224,13 @@ def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool =
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = textanswers_per_contribution_question[contribution.id, question.id]
+                    answers = tas_per_contribution_question.get((contribution.id, question.id), [])
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = ratinganswercounters_per_contribution_question[contribution.id, question.id]
+                        answer_counters = racs_per_contribution_question.get((contribution.id, question.id), [])
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters, additional_text_result=text_result))

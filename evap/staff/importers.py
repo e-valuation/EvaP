@@ -13,7 +13,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
-from evap.evaluation.tools import clean_email
+from evap.evaluation.tools import clean_email, unordered_groupby
 from evap.staff.tools import ImportType, create_user_list_html_string_for_message
 
 
@@ -537,10 +537,8 @@ class EnrollmentImporter(ExcelImporter):
             )
 
     def check_enrollment_data_sanity(self):
-        enrollments_per_user = defaultdict(list)
-        for enrollment in self.enrollments:
-            index = enrollment[1].email
-            enrollments_per_user[index].append(enrollment)
+        enrollments_per_user = unordered_groupby((enrollment[1].email, enrollment) for enrollment in self.enrollments)
+
         for email, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[ImporterWarning.MANY].append(
