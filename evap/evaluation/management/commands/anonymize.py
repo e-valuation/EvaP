@@ -1,7 +1,6 @@
 import itertools
 import os
 import random
-from collections import defaultdict
 from datetime import date, timedelta
 from math import floor
 
@@ -23,6 +22,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+from evap.evaluation.tools import unordered_groupby
 
 
 class Command(BaseCommand):
@@ -233,9 +233,9 @@ class Command(BaseCommand):
             for contribution_counter, contribution in enumerate(contributions):
                 progress_bar.update(contribution_counter + 1)
 
-                counters_per_question = defaultdict(list)
-                for counter in contribution.ratinganswercounter_set.all():
-                    counters_per_question[counter.question].append(counter)
+                counters_per_question = unordered_groupby(
+                    (counter.question, counter) for counter in contribution.ratinganswercounter_set.all()
+                )
 
                 for question, counters in counters_per_question.items():
                     original_sum = sum(counter.count for counter in counters)

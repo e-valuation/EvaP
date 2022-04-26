@@ -13,7 +13,7 @@ from django.utils import translation
 
 from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import FileResponse
+from evap.evaluation.tools import FileResponse, unordered_groupby
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -61,33 +61,44 @@ def _delete_course_template_cache_impl(course):
 
 def warm_up_template_cache(evaluations):
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
-    current_language = translation.get_language()
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
+
+    current_language = translation.get_language()
+
+    results_index_course_template = get_template("results_index_course.html", using="CachedEngine")
+    results_index_evaluation_template = get_template("results_index_evaluation.html", using="CachedEngine")
+
     try:
         for course in courses_to_render:
             translation.activate("en")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             translation.activate("de")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
             assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
+
         for evaluation in evaluations:
             assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
             is_subentry = evaluation.course.evaluation_count > 1
+
             translation.activate("en")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             translation.activate("de")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]
@@ -146,10 +157,7 @@ def index(request):
     # this dict is sorted by course.pk (important for the zip below)
     # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
     evaluations.sort(key=lambda evaluation: evaluation.course.pk)
-
-    courses_and_evaluations = defaultdict(list)
-    for evaluation in evaluations:
-        courses_and_evaluations[evaluation.course].append(evaluation)
+    courses_and_evaluations = unordered_groupby((evaluation.course, evaluation) for evaluation in evaluations)
 
     course_pks = [course.pk for course in courses_and_evaluations.keys()]
 

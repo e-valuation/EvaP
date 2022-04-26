@@ -1,6 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
-from typing import Any, Mapping, Optional, Type, TypeVar
+from collections import defaultdict
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 from urllib.parse import quote
 
 import xlwt
@@ -12,6 +13,22 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import get_language
 
 M = TypeVar("M", bound=Model)
+Key = TypeVar("Key")
+Value = TypeVar("Value")
+
+
+def unordered_groupby(key_value_pairs: Iterable[Tuple[Key, Value]]) -> Dict[Key, List[Value]]:
+    """
+    We need this in several places: Take list of (key, value) pairs and make
+    them into the aggregated all-values-of-every-unique-key dict. Note that
+    this slightly differs from itertools.groupby (and uniq), as we don't
+    require anything to be sorted and you get a dict as return value.
+    """
+    result = defaultdict(list)
+    for key, value in key_value_pairs:
+        result[key].append(value)
+
+    return dict(result)
 
 
 def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Mapping[str, Any], key: str) -> M:
@@ -22,12 +39,33 @@ def get_object_from_dict_pk_entry_or_logged_40x(model_cls: Type[M], dict_obj: Ma
         raise SuspiciousOperation from e
 
 
-def is_prefetched(instance, attribute_name):
+def is_m2m_prefetched(instance, attribute_name):
     """
-    Is the given attribute prefetched? Can be used to do ordering or counting
+    Is the given M2M-attribute prefetched? Can be used to do ordering or counting
     in python and avoid additional database queries
     """
     return hasattr(instance, "_prefetched_objects_cache") and attribute_name in instance._prefetched_objects_cache
+
+
+def discard_cached_related_objects(instance):
+    """
+    Discard all cached related objects (for ForeignKey and M2M Fields). Useful
+    if there were changes, but django's caching would still give us the old
+    values. Also useful for pickling objects without pickling the whole model
+    hierarchy (e.g. for storing instances in a cache)
+    """
+    # Extracted from django's refresh_from_db, which sadly doesn't offer this part alone (without hitting the DB).
+    for field in instance._meta.concrete_fields:
+        if field.is_relation and field.is_cached(instance):
+            field.delete_cached_value(instance)
+
+    for field in instance._meta.related_objects:
+        if field.is_cached(instance):
+            field.delete_cached_value(instance)
+
+    instance._prefetched_objects_cache = {}
+
+    return instance
 
 
 def is_external_email(email):
