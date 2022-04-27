@@ -8,10 +8,10 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     container:
-      image: python:3.7
+      image: python:3.8
 
     services:
       postgres:
@@ -46,10 +46,10 @@ jobs:
 
 
   mypy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     container:
-      image: python:3.7
+      image: python:3.8
 
     name: MyPy
 
@@ -64,10 +64,10 @@ jobs:
         run: mypy -p evap
 
   linter:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     container:
-      image: python:3.7
+      image: python:3.8
 
     name: Linter
 
@@ -83,7 +83,7 @@ jobs:
 
 
   formatter:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     name: Formatting
 
@@ -92,7 +92,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.8
       - name: Install Python dependencies
         run: pip install -r requirements-dev.txt
       - name: Setup Node
@@ -111,10 +111,10 @@ jobs:
 
 
   backup-process:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     container:
-      image: python:3.7
+      image: python:3.8
 
     services:
       postgres:
@@ -157,7 +157,7 @@ jobs:
         run: echo "yy" | deployment/load_production_backup.sh backup.json
 
   compile_scss:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     name: Compile Scss
 
@@ -180,10 +180,10 @@ jobs:
 
 
   render_pages:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     container:
-      image: python:3.7
+      image: python:3.8
 
     name: Render Html pages
 
@@ -220,7 +220,7 @@ jobs:
 
 
   typescript:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     needs: [ compile_scss, render_pages ]
 

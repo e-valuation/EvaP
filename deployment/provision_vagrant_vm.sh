@@ -6,6 +6,7 @@ MOUNTPOINT="/evap"
 USER="evap"
 REPO_FOLDER="/opt/evap"
 ENV_FOLDER="/home/$USER/venv"
+EVAP_PYTHON=python3.8
 
 # force apt to not ask, just do defaults.
 export DEBIAN_FRONTEND=noninteractive
@@ -18,7 +19,7 @@ apt-get -q install -y sudo wget git bash-completion
 printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 
 # install python stuff
-apt-get -q install -y python3.7 python3.7-dev python3-venv python3.7-venv gettext
+apt-get -q install -y $EVAP_PYTHON $EVAP_PYTHON-dev $EVAP_PYTHON-venv gettext
 
 # setup postgres
 apt-get -q install -y postgresql
@@ -49,7 +50,7 @@ echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 # link the mounted evap folder from the home directory
 ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 
-sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
+sudo -H -u $USER $EVAP_PYTHON -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
 sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
 sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel
