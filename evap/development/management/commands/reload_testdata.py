@@ -28,13 +28,10 @@ class Command(BaseCommand):
         self.stdout.write('Executing "python manage.py loaddata test_data"')
         call_command("loaddata", "test_data")
 
-        self.stdout.write('Executing "python manage.py clear_cache"')
-        call_command("clear_cache")
+        self.stdout.write('Executing "python manage.py clear_cache --all -v=1"')
+        call_command("clear_cache", "--all", "-v=1")
 
         self.stdout.write('Executing "python manage.py refresh_results_cache"')
         call_command("refresh_results_cache")
-
-        self.stdout.write('Executing "python manage.py clear_cache --cache=sessions"')
-        call_command("clear_cache", "--cache=sessions")
 
         self.stdout.write("Done.")
