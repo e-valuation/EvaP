@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -115,6 +116,8 @@ class TestChangeLanguageView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
+
+        translation.activate("en")  # for following tests
 
 
 class TestProfileView(WebTest):

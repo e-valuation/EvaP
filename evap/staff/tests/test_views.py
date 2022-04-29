@@ -600,22 +600,22 @@ class TestSemesterView(WebTestStaffMode):
         )
 
     def test_view_list_sorting(self):
-        self.manager.language = "en"
+        self.manager.language = "de"
         self.manager.save()
         page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
         position_evaluation1 = page.find("Evaluation 1")
         position_evaluation2 = page.find("Evaluation 2")
-        self.assertGreater(position_evaluation1, position_evaluation2)
+        self.assertLess(position_evaluation1, position_evaluation2)
         self.app.reset()  # language is only loaded on login, so we're forcing a re-login here
 
         # Re-enter staff mode, since the session was just reset
         with run_in_staff_mode(self):
-            self.manager.language = "de"
+            self.manager.language = "en"
             self.manager.save()
             page = self.app.get(self.url, user=self.manager).body.decode("utf-8")
             position_evaluation1 = page.find("Evaluation 1")
             position_evaluation2 = page.find("Evaluation 2")
-            self.assertLess(position_evaluation1, position_evaluation2)
+            self.assertGreater(position_evaluation1, position_evaluation2)
 
     def test_access_to_semester_with_archived_results(self):
         reviewer = baker.make(
@@ -1046,6 +1046,7 @@ class TestSemesterImportView(WebTestStaffMode):
             f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
+        helper_delete_all_import_files(self.manager.id)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user=self.manager)
@@ -1089,6 +1090,7 @@ class TestSemesterImportView(WebTestStaffMode):
 
         self.assertContains(page, "This field is required.")
         self.assertContains(page, "Import previously uploaded file")
+        helper_delete_all_import_files(self.manager.id)
 
 
 class TestSemesterExportView(WebTestStaffMode):
@@ -2211,9 +2213,6 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         )
 
     def test_import_participants_error_handling(self):
-        """
-        Tests whether errors given from the importer are displayed
-        """
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["participant-import-form"]
@@ -2226,9 +2225,6 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotContains(reply, "Import previously uploaded file")
 
     def test_import_participants_warning_handling(self):
-        """
-        Tests whether warnings given from the importer are displayed
-        """
         user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
@@ -2243,11 +2239,10 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
             f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
+        self.assertContains(reply, "Import previously uploaded file")
+        helper_delete_all_import_files(self.manager.id)
 
     def test_import_contributors_error_handling(self):
-        """
-        Tests whether errors given from the importer are displayed
-        """
         page = self.app.get(self.url, user=self.manager)
 
         form = page.forms["contributor-import-form"]
@@ -2260,9 +2255,6 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
         self.assertNotContains(reply, "Import previously uploaded file")
 
     def test_import_contributors_warning_handling(self):
-        """
-        Tests whether warnings given from the importer are displayed
-        """
         user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com")
 
         page = self.app.get(self.url, user=self.manager)
@@ -2277,6 +2269,8 @@ class TestEvaluationImportPersonsView(WebTestStaffMode):
             f" -  None None, lucilia.manilium@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
             " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
         )
+        self.assertContains(reply, "Import previously uploaded file")
+        helper_delete_all_import_files(self.manager.id)
 
     def test_suspicious_operation(self):
         page = self.app.get(self.url, user=self.manager)

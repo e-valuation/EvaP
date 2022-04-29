@@ -170,7 +170,7 @@ class TestResultsView(WebTest):
 
     @patch("evap.evaluation.models.Evaluation.can_be_seen_by", new=(lambda self, user: True))
     def test_order(self):
-        student = baker.make(UserProfile, email="student@institution.example.com")
+        student = baker.make(UserProfile, email="student@institution.example.com", language="de")
 
         course = baker.make(Course)
         evaluation1 = baker.make(
@@ -189,12 +189,12 @@ class TestResultsView(WebTest):
         )
 
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
+        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
 
-        student.language = "de"
+        student.language = "en"
         student.save()
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
+        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(

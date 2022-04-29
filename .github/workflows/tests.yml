@@ -27,10 +27,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Coverage
+          - name: Test (coverage)
             command: coverage run manage.py test && codecov -X gcov
-          - name: Reverse order
-            command: python manage.py test --reverse
+          - name: Test (shuffled)
+            command: python manage.py test --shuffle
 
     name: ${{ matrix.name }}
 
