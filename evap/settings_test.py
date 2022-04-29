@@ -11,16 +11,16 @@ DATABASES = {
 }
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://redis:6379/0",
     },
     "results": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://redis:6379/1",
         "TIMEOUT": None,
     },
     "sessions": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://redis:6379/2",
     },
 }
