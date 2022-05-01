@@ -27,7 +27,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tests.tools import make_manager
+from evap.evaluation.tests.tools import make_manager, make_rating_answer_counters
 
 
 class TestAnonymizeCommand(TestCase):
@@ -109,16 +109,14 @@ class TestAnonymizeCommand(TestCase):
         self.addCleanup(self.input_patch.stop)
 
     def test_no_empty_rating_answer_counters_left(self):
+        counters = []
         for question in chain(self.contributor_questions, self.general_questions):
-            choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            for answer in choices:
-                baker.make(
-                    RatingAnswerCounter, question=question, contribution=self.contribution, count=1, answer=answer
-                )
+            counts = [1 for choice in CHOICES[question.type].values if choice != NO_ANSWER]
+            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         old_count = RatingAnswerCounter.objects.count()
 
-        random.seed(0)
         management.call_command("anonymize", stdout=StringIO())
 
         new_count = RatingAnswerCounter.objects.count()
@@ -133,15 +131,13 @@ class TestAnonymizeCommand(TestCase):
 
     def test_answer_count_unchanged(self):
         answers_per_question = defaultdict(int)
-        random.seed(0)
+
+        counters = []
         for question in chain(self.contributor_questions, self.general_questions):
-            choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-            for answer in choices:
-                count = random.randint(10, 100)  # nosec
-                baker.make(
-                    RatingAnswerCounter, question=question, contribution=self.contribution, count=count, answer=answer
-                )
-                answers_per_question[question] += count
+            counts = [random.randint(10, 100) for choice in CHOICES[question.type].values if choice != NO_ANSWER]
+            counters.extend(make_rating_answer_counters(question, self.contribution, counts, False))
+            answers_per_question[question] += sum(counts)
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         management.call_command("anonymize", stdout=StringIO())
 
@@ -157,17 +153,10 @@ class TestAnonymizeCommand(TestCase):
 
         answer_count_before = 0
         choices = [choice for choice in CHOICES[question.type].values if choice != NO_ANSWER]
-        random.seed(0)
-        for answer in choices:
-            count = random.randint(50, 100)  # nosec
-            baker.make(
-                RatingAnswerCounter,
-                question=question,
-                contribution=single_result.general_contribution,
-                count=count,
-                answer=answer,
-            )
-            answer_count_before += count
+
+        answer_counts = [random.randint(50, 100) for answer in choices]
+        answer_count_before = sum(answer_counts)
+        make_rating_answer_counters(question, single_result.general_contribution, answer_counts)
 
         management.call_command("anonymize", stdout=StringIO())
 
@@ -383,6 +372,14 @@ class TestFormatCommand(TestCase):
         )
 
 
+class TestTypecheckCommand(TestCase):
+    @patch("subprocess.run")
+    def test_mypy_called(self, mock_subprocess_run):
+        management.call_command("typecheck")
+        self.assertEqual(len(mock_subprocess_run.mock_calls), 1)
+        mock_subprocess_run.assert_has_calls([call(["mypy", "-p", "evap"], check=True)])
+
+
 class TestPrecommitCommand(TestCase):
     @patch("subprocess.run")
     @patch("evap.evaluation.management.commands.precommit.call_command")
@@ -391,6 +388,7 @@ class TestPrecommitCommand(TestCase):
 
         mock_subprocess_run.assert_called_with(["./manage.py", "test"], check=False)
 
-        self.assertEqual(mock_call_command.call_count, 2)
+        self.assertEqual(mock_call_command.call_count, 3)
+        mock_call_command.assert_any_call("typecheck")
         mock_call_command.assert_any_call("lint")
         mock_call_command.assert_any_call("format")

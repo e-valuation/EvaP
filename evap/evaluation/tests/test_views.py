@@ -1,6 +1,7 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.test import override_settings
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -8,6 +9,7 @@ from evap.evaluation.models import UserProfile
 from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_with_responsible_and_editor
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class TestIndexView(WebTest):
     url = "/"
 
@@ -18,9 +20,9 @@ class TestIndexView(WebTest):
         password_form = response.forms["email-login-form"]
         password_form["email"] = "password.user"
         password_form["password"] = "asd"  # nosec
-        self.assertEqual(password_form.submit().status_code, 200)
+        password_form.submit(status=200)
         password_form["password"] = "evap"  # nosec
-        self.assertEqual(password_form.submit().status_code, 302)
+        password_form.submit(status=302)
 
     def test_login_for_staff_users_correctly_redirects(self):
         """Regression test for #1523: Access denied on manager login"""

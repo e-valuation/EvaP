@@ -1,9 +1,11 @@
-from collections import OrderedDict, defaultdict, namedtuple
+from collections import OrderedDict, defaultdict
+from copy import copy
 from math import ceil, modf
+from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
 
 from django.conf import settings
 from django.core.cache import caches
-from django.db.models import Exists, OuterRef, Q, Sum
+from django.db.models import Exists, OuterRef, Sum, prefetch_related_objects
 
 from evap.evaluation.models import (
     CHOICES,
@@ -17,6 +19,7 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
+from evap.evaluation.tools import discard_cached_related_objects, unordered_groupby
 
 STATES_WITH_RESULTS_CACHING = {Evaluation.State.EVALUATED, Evaluation.State.REVIEWED, Evaluation.State.PUBLISHED}
 STATES_WITH_RESULT_TEMPLATE_CACHING = {Evaluation.State.PUBLISHED}
@@ -31,45 +34,16 @@ GRADE_COLORS = {
 }
 
 
-class EvaluationResult:
-    def __init__(self, contribution_results):
-        self.contribution_results = contribution_results
-
-    @property
-    def questionnaire_results(self):
-        return [
-            questionnaire_result
-            for contribution_result in self.contribution_results
-            for questionnaire_result in contribution_result.questionnaire_results
-        ]
-
-
-class ContributionResult:
-    def __init__(self, contributor, label, questionnaire_results):
-        self.contributor = contributor
-        self.label = label
-        self.questionnaire_results = questionnaire_results
-
-    @property
-    def has_answers(self):
-        for questionnaire_result in self.questionnaire_results:
-            for question_result in questionnaire_result.question_results:
-                question = question_result.question
-                if question.is_text_question or question.is_rating_question and question_result.has_answers:
-                    return True
-        return False
-
-
-class QuestionnaireResult:
-    def __init__(self, questionnaire, question_results):
-        self.questionnaire = questionnaire
-        self.question_results = question_results
+class TextAnswerVisibility:
+    def __init__(self, visible_by_contribution: Iterable[UserProfile], visible_by_delegation_count: int):
+        self.visible_by_contribution = [discard_cached_related_objects(copy(user)) for user in visible_by_contribution]
+        self.visible_by_delegation_count = visible_by_delegation_count
 
 
 class RatingResult:
     def __init__(self, question, answer_counters, additional_text_result=None):
         assert question.is_rating_question
-        self.question = question
+        self.question = discard_cached_related_objects(copy(question))
         self.additional_text_result = additional_text_result
 
         if answer_counters is not None:
@@ -85,49 +59,98 @@ class RatingResult:
         return CHOICES[self.question.type]
 
     @property
-    def count_sum(self):
+    def count_sum(self) -> Optional[int]:
         if not self.is_published:
             return None
         return sum(self.counts)
 
     @property
-    def minus_balance_count(self):
+    def minus_balance_count(self) -> float:
         assert self.question.is_bipolar_likert_question
         portion_left = sum(self.counts[:3]) + self.counts[3] / 2
         return (self.count_sum - portion_left) / 2
 
     @property
-    def approval_count(self):
+    def approval_count(self) -> Optional[int]:
         assert self.question.is_yes_no_question
         if not self.is_published:
             return None
         return self.counts[0] if self.question.is_positive_yes_no_question else self.counts[1]
 
     @property
-    def average(self):
+    def average(self) -> Optional[float]:
         if not self.has_answers:
             return None
-        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum
+        return sum(grade * count for count, grade in zip(self.counts, self.choices.grades)) / self.count_sum  # type: ignore
 
     @property
-    def has_answers(self):
+    def has_answers(self) -> bool:
         return self.is_published and any(count != 0 for count in self.counts)
 
     @property
-    def is_published(self):
+    def is_published(self) -> bool:
         return self.counts is not None
 
 
 class TextResult:
-    def __init__(self, question, answers, answers_visible_to=None):
+    def __init__(
+        self,
+        question: Question,
+        answers: Iterable[TextAnswer],
+        answers_visible_to: Optional[TextAnswerVisibility] = None,
+    ):
         assert question.can_have_textanswers
-        self.question = question
-        self.answers = answers
+        self.question = discard_cached_related_objects(copy(question))
+        self.answers = [discard_cached_related_objects(copy(answer)) for answer in answers]
         self.answers_visible_to = answers_visible_to
 
 
-HeadingResult = namedtuple("HeadingResult", ("question"))
-TextAnswerVisibility = namedtuple("TextAnswerVisibility", ("visible_by_contribution", "visible_by_delegation_count"))
+class HeadingResult:
+    def __init__(self, question: Question):
+        self.question = discard_cached_related_objects(copy(question))
+
+
+QuestionResult = Union[RatingResult, TextResult, HeadingResult]
+
+
+class QuestionnaireResult:
+    def __init__(self, questionnaire: Questionnaire, question_results: List[QuestionResult]):
+        self.questionnaire = discard_cached_related_objects(copy(questionnaire))
+        self.question_results = question_results
+
+
+class ContributionResult:
+    def __init__(
+        self, contributor: Optional[UserProfile], label: Optional[str], questionnaire_results: List[QuestionnaireResult]
+    ):
+        self.contributor = discard_cached_related_objects(copy(contributor)) if contributor is not None else None
+        self.label = label
+        self.questionnaire_results = questionnaire_results
+
+    @property
+    def has_answers(self) -> bool:
+        for questionnaire_result in self.questionnaire_results:
+            for question_result in questionnaire_result.question_results:
+                question = question_result.question
+                if question.is_text_question:
+                    return True
+                if question.is_rating_question:
+                    assert isinstance(question_result, RatingResult)
+                    return question_result.has_answers
+        return False
+
+
+class EvaluationResult:
+    def __init__(self, contribution_results: List[ContributionResult]):
+        self.contribution_results = contribution_results
+
+    @property
+    def questionnaire_results(self) -> List[QuestionnaireResult]:
+        return [
+            questionnaire_result
+            for contribution_result in self.contribution_results
+            for questionnaire_result in contribution_result.questionnaire_results
+        ]
 
 
 def get_single_result_rating_result(evaluation):
@@ -141,13 +164,13 @@ def get_single_result_rating_result(evaluation):
 
 
 def get_results_cache_key(evaluation):
-    return "evap.staff.results.tools.get_results-{:d}".format(evaluation.id)
+    return f"evap.staff.results.tools.get_results-{evaluation.id:d}"
 
 
-def cache_results(evaluation):
+def cache_results(evaluation, *, refetch_related_objects=True):
     assert evaluation.state in STATES_WITH_RESULTS_CACHING
     cache_key = get_results_cache_key(evaluation)
-    caches["results"].set(cache_key, _get_results_impl(evaluation))
+    caches["results"].set(cache_key, _get_results_impl(evaluation, refetch_related_objects=refetch_related_objects))
 
 
 def get_results(evaluation):
@@ -162,36 +185,59 @@ def get_results(evaluation):
     return result
 
 
-def _get_results_impl(evaluation):
+GET_RESULTS_PREFETCH_LOOKUPS = [
+    "contributions__textanswer_set",
+    "contributions__ratinganswercounter_set",
+    "contributions__contributor__delegates",
+    "contributions__questionnaires__questions",
+    "course__responsibles__delegates",
+]
+
+
+def _get_results_impl(evaluation: Evaluation, *, refetch_related_objects: bool = True):
+    if refetch_related_objects:
+        discard_cached_related_objects(evaluation)
+
+    prefetch_related_objects([evaluation], *GET_RESULTS_PREFETCH_LOOKUPS)
+
+    tas_per_contribution_question: Dict[Tuple[int, int], List[TextAnswer]] = unordered_groupby(
+        ((textanswer.contribution_id, textanswer.question_id), textanswer)
+        for contribution in evaluation.contributions.all()
+        for textanswer in contribution.textanswer_set.all()
+        if textanswer.state in [TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED]
+    )
+
+    racs_per_contribution_question: Dict[Tuple[int, int], List[RatingAnswerCounter]] = unordered_groupby(
+        ((counter.contribution_id, counter.question_id), counter)
+        for contribution in evaluation.contributions.all()
+        for counter in contribution.ratinganswercounter_set.all()
+    )
+
     contributor_contribution_results = []
-    for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+    for contribution in evaluation.contributions.all():
         questionnaire_results = []
         for questionnaire in contribution.questionnaires.all():
-            results = []
+            results: List[Union[HeadingResult, TextResult, RatingResult]] = []
             for question in questionnaire.questions.all():
                 if question.is_heading_question:
                     results.append(HeadingResult(question=question))
                     continue
                 text_result = None
                 if question.can_have_textanswers and evaluation.can_publish_text_results:
-                    answers = TextAnswer.objects.filter(
-                        contribution=contribution,
-                        question=question,
-                        state__in=[TextAnswer.State.PRIVATE, TextAnswer.State.PUBLISHED],
-                    )
+                    answers = tas_per_contribution_question.get((contribution.id, question.id), [])
                     text_result = TextResult(
                         question=question, answers=answers, answers_visible_to=textanswers_visible_to(contribution)
                     )
                 if question.is_rating_question:
                     if evaluation.can_publish_rating_results:
-                        answer_counters = RatingAnswerCounter.objects.filter(
-                            contribution=contribution, question=question
-                        )
+                        answer_counters = racs_per_contribution_question.get((contribution.id, question.id), [])
                     else:
                         answer_counters = None
                     results.append(RatingResult(question, answer_counters, additional_text_result=text_result))
                 elif question.is_text_question and evaluation.can_publish_text_results:
+                    assert text_result is not None
                     results.append(text_result)
+
             questionnaire_results.append(QuestionnaireResult(questionnaire, results))
         contributor_contribution_results.append(
             ContributionResult(contribution.contributor, contribution.label, questionnaire_results)
@@ -297,8 +343,8 @@ def get_evaluations_with_course_result_attributes(evaluations):
     )
 
     course_id_evaluation_weight_sum_pairs = (
-        Course.objects.filter(evaluations__in=evaluations)
-        .annotate(Sum("evaluations__weight"))
+        Course.objects.annotate(Sum("evaluations__weight"))
+        .filter(pk__in=Course.objects.filter(evaluations__in=evaluations))  # is needed, see #1691
         .values_list("id", "evaluations__weight__sum")
     )
 
@@ -375,7 +421,9 @@ def distribution_to_grade(distribution):
 
 
 def color_mix(color1, color2, fraction):
-    return tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    return cast(
+        Tuple[int, int, int], tuple(int(round(color1[i] * (1 - fraction) + color2[i] * fraction)) for i in range(3))
+    )
 
 
 def get_grade_color(grade):
@@ -390,24 +438,21 @@ def get_grade_color(grade):
 
 def textanswers_visible_to(contribution):
     if contribution.is_general:
-        contributors = (
-            UserProfile.objects.filter(
-                Q(
-                    contributions__evaluation=contribution.evaluation,
-                    contributions__textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-                )
-                | Q(courses_responsible_for__in=[contribution.evaluation.course])
-            )
-            .distinct()
-            .order_by("last_name", "first_name")
-        )
+        contributors = {
+            other_contribution.contributor
+            for other_contribution in contribution.evaluation.contributions.all()
+            if other_contribution.textanswer_visibility == Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS
+        }
+        contributors.update(contribution.evaluation.course.responsibles.all())
     else:
-        contributors = [contribution.contributor]
+        contributors = {contribution.contributor}
+
     non_proxy_contributors = [contributor for contributor in contributors if not contributor.is_proxy_user]
-    num_delegates = len(
-        set(UserProfile.objects.filter(represented_users__in=non_proxy_contributors).distinct()) - set(contributors)
-    )
-    return TextAnswerVisibility(visible_by_contribution=contributors, visible_by_delegation_count=num_delegates)
+    delegates = {delegate for contributor in non_proxy_contributors for delegate in contributor.delegates.all()}
+    num_delegates = len(delegates - contributors)
+
+    sorted_contributors = sorted(contributors, key=lambda user: (user.last_name, user.first_name))
+    return TextAnswerVisibility(visible_by_contribution=sorted_contributors, visible_by_delegation_count=num_delegates)
 
 
 def can_textanswer_be_seen_by(user, represented_users, textanswer, view):

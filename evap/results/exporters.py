@@ -1,6 +1,7 @@
 import warnings
 from collections import OrderedDict, defaultdict
 from itertools import chain, repeat
+from typing import Dict, Tuple
 
 import xlwt
 from django.db.models import Q
@@ -24,7 +25,7 @@ class ResultsExporter(ExcelExporter):
     STEP = 0.2  # we only have a limited number of custom colors
 
     # Filled in ResultsExporter.init_grade_styles
-    COLOR_MAPPINGS = {}
+    COLOR_MAPPINGS: Dict[int, Tuple[int, int, int]] = {}
 
     styles = {
         "evaluation": xlwt.easyxf(
@@ -105,7 +106,7 @@ class ResultsExporter(ExcelExporter):
     def filter_evaluations(semesters, evaluation_states, degrees, course_types, contributor, include_not_enough_voters):
         # pylint: disable=too-many-locals
         course_results_exist = False
-        evaluations_with_results = list()
+        evaluations_with_results = []
         used_questionnaires = set()
         evaluations_filter = Q(
             course__semester__in=semesters,
@@ -165,9 +166,9 @@ class ResultsExporter(ExcelExporter):
     ):
         export_name = "Evaluation"
         if contributor:
-            export_name += "\n{}".format(contributor.full_name)
+            export_name += f"\n{contributor.full_name}"
         elif len(semesters) == 1:
-            export_name += "\n{}".format(semesters[0].name)
+            export_name += f"\n{semesters[0].name}"
         degree_names = [degree.name for degree in Degree.objects.filter(pk__in=degrees)]
         course_type_names = [course_type.name for course_type in CourseType.objects.filter(pk__in=course_types)]
         self.write_cell(
@@ -177,9 +178,9 @@ class ResultsExporter(ExcelExporter):
         for evaluation, __ in evaluations_with_results:
             title = evaluation.full_name
             if len(semesters) > 1:
-                title += "\n{}".format(evaluation.course.semester.name)
+                title += f"\n{evaluation.course.semester.name}"
             responsible_names = [responsible.full_name for responsible in evaluation.course.responsibles.all()]
-            title += "\n{}".format(", ".join(responsible_names))
+            title += f"\n{', '.join(responsible_names)}"
             self.write_cell(title, "evaluation")
 
         self.next_row()
@@ -243,7 +244,7 @@ class ResultsExporter(ExcelExporter):
 
     def write_questionnaire(self, questionnaire, evaluations_with_results, contributor):
         if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
-            self.write_cell("{} ({})".format(questionnaire.name, contributor.full_name), "bold")
+            self.write_cell(f"{questionnaire.name} ({contributor.full_name})", "bold")
         else:
             self.write_cell(questionnaire.name, "bold")
 
@@ -277,7 +278,7 @@ class ResultsExporter(ExcelExporter):
                 avg = sum(values) / count_sum
                 if question.is_yes_no_question:
                     percent_approval = approval_count / count_sum if count_sum > 0 else 0
-                    self.write_cell("{:.0%}".format(percent_approval), self.grade_to_style(avg))
+                    self.write_cell(f"{percent_approval:.0%}", self.grade_to_style(avg))
                 else:
                     self.write_cell(avg, self.grade_to_style(avg))
             self.next_row()

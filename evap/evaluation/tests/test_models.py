@@ -34,6 +34,38 @@ from evap.results.tools import cache_results, calculate_average_distribution
 from evap.results.views import get_evaluation_result_template_fragment_cache_key
 
 
+class TestSemester(WebTest):
+    def test_can_be_deleted_by_manager(self):
+        semester = baker.make(Semester)
+        self.assertTrue(semester.can_be_deleted_by_manager)
+
+        semester.is_active = True
+        self.assertFalse(semester.can_be_deleted_by_manager)
+        semester.is_active = False
+
+        voter = baker.make(UserProfile)
+        baker.make(Evaluation, course__semester=semester, state=Evaluation.State.PUBLISHED, voters=[voter])
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive()
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.delete_grade_documents()
+        self.assertFalse(semester.can_be_deleted_by_manager)
+
+        semester.archive_results()
+        self.assertTrue(semester.can_be_deleted_by_manager)
+
+
+class TestQuestionnaire(WebTest):
+    def test_can_be_deleted_by_manager(self):
+        questionnaire = baker.make(Questionnaire)
+        self.assertTrue(questionnaire.can_be_deleted_by_manager)
+
+        baker.make(Contribution, questionnaires=[questionnaire])
+        self.assertFalse(questionnaire.can_be_deleted_by_manager)
+
+
 @override_settings(EVALUATION_END_OFFSET_HOURS=0)
 class TestEvaluations(WebTest):
     def test_approved_to_in_evaluation(self):
@@ -269,7 +301,7 @@ class TestEvaluations(WebTest):
 
         self.assertFalse(evaluation.can_publish_text_results)
 
-        let_user_vote_for_evaluation(self.app, student2, evaluation)
+        let_user_vote_for_evaluation(student2, evaluation)
         evaluation = Evaluation.objects.get(pk=evaluation.pk)
 
         self.assertTrue(evaluation.can_publish_text_results)
@@ -328,22 +360,10 @@ class TestEvaluations(WebTest):
             TextAnswer,
             question=question,
             contribution=evaluation.general_contribution,
-            answer="hidden",
-            state=TextAnswer.State.HIDDEN,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="published",
-            state=TextAnswer.State.PUBLISHED,
-        )
-        baker.make(
-            TextAnswer,
-            question=question,
-            contribution=evaluation.general_contribution,
-            answer="private",
-            state=TextAnswer.State.PRIVATE,
+            answer=iter(["hidden", "published", "private"]),
+            state=iter([TextAnswer.State.HIDDEN, TextAnswer.State.PUBLISHED, TextAnswer.State.PRIVATE]),
+            _quantity=3,
+            _bulk_create=True,
         )
 
         self.assertEqual(evaluation.textanswer_set.count(), 3)
@@ -527,7 +547,7 @@ class TestCourse(TestCase):
         user1 = baker.make(UserProfile, last_name="Doe")
         user2 = baker.make(UserProfile, last_name="Meyer")
         course = baker.make(Course, responsibles=[user1, user2])
-        self.assertEqual(course.responsibles_names, ("{}, {}").format(user1.full_name, user2.full_name))
+        self.assertEqual(course.responsibles_names, f"{user1.full_name}, {user2.full_name}")
 
 
 class TestUserProfile(TestCase):
@@ -630,35 +650,20 @@ class TestUserProfile(TestCase):
     def test_get_sorted_due_evaluations(self):
         student = baker.make(UserProfile, email="student@example.com")
         course = baker.make(Course)
-        evaluation1 = baker.make(
+
+        evaluations = baker.make(
             Evaluation,
             course=course,
-            name_en="C",
-            name_de="C",
-            vote_end_date=date.today(),
+            name_en=iter(["C", "B", "A"]),
+            name_de=iter(["C", "B", "A"]),
+            vote_end_date=iter([date.today(), date.today(), date.today() + timedelta(days=1)]),
             state=Evaluation.State.IN_EVALUATION,
             participants=[student],
+            _quantity=3,
         )
-        evaluation2 = baker.make(
-            Evaluation,
-            course=course,
-            name_en="B",
-            name_de="B",
-            vote_end_date=date.today(),
-            state=Evaluation.State.IN_EVALUATION,
-            participants=[student],
-        )
-        evaluation3 = baker.make(
-            Evaluation,
-            course=course,
-            name_en="A",
-            name_de="A",
-            vote_end_date=date.today() + timedelta(days=1),
-            state=Evaluation.State.IN_EVALUATION,
-            participants=[student],
-        )
+
         sorted_evaluations = student.get_sorted_due_evaluations()
-        self.assertEqual(sorted_evaluations, [(evaluation2, 0), (evaluation1, 0), (evaluation3, 1)])
+        self.assertEqual(sorted_evaluations, [(evaluations[1], 0), (evaluations[0], 0), (evaluations[2], 1)])
 
 
 class ParticipationArchivingTests(TestCase):
@@ -847,23 +852,37 @@ class TestEmailTemplate(TestCase):
         self.assertEqual(mail.outbox[0].alternatives[0][1], "text/html")
         self.assertIn("<p>Example html content</p>", mail.outbox[0].alternatives[0][0])
 
-    def test_copy_plain_content_on_empty_html_content(self):
-        template = EmailTemplate(
-            subject="Example", plain_content="Example plain content\nWith newline", html_content=""
-        )
-        template.send_to_user(self.user, {}, {}, False)
-        self.assertEqual(mail.outbox[0].body, "Example plain content\nWith newline")
-        self.assertIn("Example plain content<br />With newline", mail.outbox[0].alternatives[0][0])
+    def test_plain_content_escaped_and_copied_on_empty_html_content(self):
+        template = EmailTemplate(subject="Subject <>&", plain_content="A\nB <>& {{ some_var }}", html_content="")
+        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
 
-    def test_escape_special_characters_in_html_email(self):
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.alternatives[0][1], "text/html")
+        html_content = message.alternatives[0][0]
+
+        self.assertEqual("Subject <>&", message.subject)
+        self.assertEqual("A\nB <>& 0 < 1", message.body)
+        self.assertIn("A<br>B &lt;&gt;&amp; 0 &lt; 1\n", html_content)
+        self.assertNotIn("<>&", html_content)
+
+    def test_escaping_with_html_content(self):
         template = EmailTemplate(
-            subject="<h1>Special Email</h1>",
-            plain_content="Example plain content",
-            html_content="Special Content: {{special_content}}",
+            subject="Subject <>&",
+            plain_content="A\nB <>& {{ some_var }}",
+            html_content="Html content &amp;<br/> {{ some_var }}",
         )
-        template.send_to_user(self.user, {}, {"special_content": "0 < 1"}, False)
-        self.assertIn("&lt;h1&gt;Special Email&lt;/h1&gt;", mail.outbox[0].alternatives[0][0])
-        self.assertIn("Special Content: 0 &lt; 1", mail.outbox[0].alternatives[0][0])
+        template.send_to_user(self.user, {}, {"some_var": "0 < 1"}, False)
+
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.alternatives[0][1], "text/html")
+        html_content = message.alternatives[0][0]
+
+        self.assertEqual("Subject <>&", message.subject)
+        self.assertEqual("A\nB <>& 0 < 1", message.body)
+        self.assertIn("Html content &amp;<br/> 0 &lt; 1", html_content)
+        self.assertNotIn("<>&", html_content)
 
     def test_put_delegates_in_cc(self):
         delegate_a = baker.make(UserProfile, email="delegate-a@example.com")

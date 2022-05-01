@@ -24,8 +24,8 @@ def name_evaluations(apps, _schema_editor):
         else:
             for i in range(0, course.evaluations.count()):
                 evaluation = Evaluation.objects.get(pk=course.evaluations.all()[i].pk)
-                evaluation.name_de = "{} ({})".format(course.name_de, i)
-                evaluation.name_en = "{} ({})".format(course.name_en, i)
+                evaluation.name_de = f"{course.name_de} ({i})"
+                evaluation.name_en = f"{course.name_en} ({i})"
                 evaluation.save()
 
 

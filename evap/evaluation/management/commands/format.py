@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     args = ""
-    help = "Runs the code formatter"
+    help = "Runs code formatting"
     requires_migrations_checks = False
 
     def handle(self, *args, **options):

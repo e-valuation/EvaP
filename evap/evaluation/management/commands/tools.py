@@ -36,7 +36,7 @@ def log_exceptions(cls):
             try:
                 super().handle(args, options)
             except Exception:
-                logger.exception("Management command '{}' failed. Traceback follows: ".format(sys.argv[1]))
+                logger.exception("Management command '%s' failed. Traceback follows: ", sys.argv[1])
                 raise
 
     return NewClass

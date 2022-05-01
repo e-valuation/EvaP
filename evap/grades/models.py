@@ -11,7 +11,7 @@ from evap.evaluation.tools import translate
 
 
 def helper_upload_path(instance, filename):
-    return "grades/{}/{}".format(instance.course.id, filename)
+    return f"grades/{instance.course.id}/{filename}"
 
 
 class GradeDocument(models.Model):

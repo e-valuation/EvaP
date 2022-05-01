@@ -1,9 +1,11 @@
 import logging
 import secrets
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from enum import Enum, auto
+from numbers import Number
+from typing import Dict, List, NamedTuple, Tuple, Union
 
 from django.conf import settings
 from django.contrib import messages
@@ -17,11 +19,12 @@ from django.db.models import Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
-from django.template.base import TemplateSyntaxError
+from django.template.defaultfilters import linebreaksbr
+from django.template.exceptions import TemplateSyntaxError
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.html import escape
+from django.utils.safestring import SafeData
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
@@ -31,7 +34,7 @@ from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
     is_external_email,
-    is_prefetched,
+    is_m2m_prefetched,
     translate,
     vote_end_datetime,
 )
@@ -506,19 +509,19 @@ class Evaluation(LoggedModel):
     @property
     def full_name(self):
         if self.name:
-            return "{} – {}".format(self.course.name, self.name)
+            return f"{self.course.name} – {self.name}"
         return self.course.name
 
     @property
     def full_name_de(self):
         if self.name_de:
-            return "{} – {}".format(self.course.name_de, self.name_de)
+            return f"{self.course.name_de} – {self.name_de}"
         return self.course.name_de
 
     @property
     def full_name_en(self):
         if self.name_en:
-            return "{} – {}".format(self.course.name_en, self.name_en)
+            return f"{self.course.name_en} – {self.name_en}"
         return self.course.name_en
 
     @property
@@ -604,7 +607,7 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             return self._participant_count
 
-        if is_prefetched(self, "participants"):
+        if is_m2m_prefetched(self, "participants"):
             return len(self.participants.all())
 
         return self.participants.count()
@@ -925,9 +928,7 @@ class Evaluation(LoggedModel):
                     evaluation.save()
             except Exception:  # pylint: disable=broad-except
                 logger.exception(
-                    'An error occured when updating the state of evaluation "{}" (id {}).'.format(
-                        evaluation, evaluation.id
-                    )
+                    'An error occured when updating the state of evaluation "%s" (id %d).', evaluation, evaluation.id
                 )
 
         template = EmailTemplate.objects.get(name=EmailTemplate.EVALUATION_STARTED)
@@ -987,9 +988,12 @@ def evaluation_state_change(instance, source, **_kwargs):
 @receiver(post_transition, sender=Evaluation)
 def log_state_transition(instance, name, source, target, **_kwargs):
     logger.info(
-        'Evaluation "{}" (id {}) moved from state "{}" to state "{}", caused by transition "{}".'.format(
-            instance, instance.pk, source, target, name
-        )
+        'Evaluation "%s" (id %d) moved from state "%s" to state "%s", caused by transition "%s".',
+        instance,
+        instance.pk,
+        source,
+        target,
+        name,
     )
 
 
@@ -1052,8 +1056,13 @@ class Contribution(LoggedModel):
             return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
         return str(_("General Contribution"))
 
+    def remove_answers_to_questionnaires(self, questionnaires):
+        assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
-class Question(models.Model):
+
+class Question(models.Model):  # pylint: disable=no-init
     """A question including a type."""
 
     TEXT = 0
@@ -1119,7 +1128,7 @@ class Question(models.Model):
         if self.is_rating_question:
             return RatingAnswerCounter
 
-        raise Exception("Unknown answer type: %r" % self.type)
+        raise Exception(f"Unknown answer type: {self.type!r}")
 
     @property
     def is_likert_question(self):
@@ -1178,32 +1187,54 @@ class Question(models.Model):
         return self.is_text_question or self.is_rating_question and self.allows_additional_textanswers
 
 
-Choices = namedtuple("Choices", ("cssClass", "values", "colors", "grades", "names"))
-BipolarChoices = namedtuple("BipolarChoices", Choices._fields + ("plus_name", "minus_name"))
+# Let's deduplicate the fields here once mypy is smart enough to keep up with us :)
+Choices = NamedTuple(
+    "Choices",
+    [
+        ("css_class", str),
+        ("values", Tuple[Number]),
+        ("colors", Tuple[str]),
+        ("grades", Tuple[Number]),
+        ("names", List[str]),
+    ],
+)
+BipolarChoices = NamedTuple(
+    "BipolarChoices",
+    [
+        ("css_class", str),
+        ("values", Tuple[Number]),
+        ("colors", Tuple[str]),
+        ("grades", Tuple[Number]),
+        ("names", List[str]),
+        ("plus_name", str),
+        ("minus_name", str),
+    ],
+)
+
 
 NO_ANSWER = 6
 BASE_UNIPOLAR_CHOICES = {
-    "cssClass": "vote-type-unipolar",
+    "css_class": "vote-type-unipolar",
     "values": (1, 2, 3, 4, 5, NO_ANSWER),
     "colors": ("green", "lime", "yellow", "orange", "red", "gray"),
     "grades": (1, 2, 3, 4, 5),
 }
 
 BASE_BIPOLAR_CHOICES = {
-    "cssClass": "vote-type-bipolar",
+    "css_class": "vote-type-bipolar",
     "values": (-3, -2, -1, 0, 1, 2, 3, NO_ANSWER),
     "colors": ("red", "orange", "lime", "green", "lime", "orange", "red", "gray"),
     "grades": (5, 11 / 3, 7 / 3, 1, 7 / 3, 11 / 3, 5),
 }
 
 BASE_YES_NO_CHOICES = {
-    "cssClass": "vote-type-yes-no",
+    "css_class": "vote-type-yes-no",
     "values": (1, 5, NO_ANSWER),
     "colors": ("green", "red", "gray"),
     "grades": (1, 5),
 }
 
-CHOICES = {
+CHOICES: Dict[int, Union[Choices, BipolarChoices]] = {
     Question.LIKERT: Choices(
         names=[
             _("Strongly\nagree"),
@@ -1213,7 +1244,7 @@ CHOICES = {
             _("Strongly\ndisagree"),
             _("No answer"),
         ],
-        **BASE_UNIPOLAR_CHOICES,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     Question.GRADE: Choices(
         names=[
@@ -1224,7 +1255,7 @@ CHOICES = {
             "5",
             _("No answer"),
         ],
-        **BASE_UNIPOLAR_CHOICES,
+        **BASE_UNIPOLAR_CHOICES,  # type: ignore
     ),
     Question.EASY_DIFFICULT: BipolarChoices(
         minus_name=_("Easy"),
@@ -1239,7 +1270,7 @@ CHOICES = {
             _("Way too\ndifficult"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.FEW_MANY: BipolarChoices(
         minus_name=_("Few"),
@@ -1254,7 +1285,7 @@ CHOICES = {
             _("Way too\nmany"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.LITTLE_MUCH: BipolarChoices(
         minus_name=_("Little"),
@@ -1269,7 +1300,7 @@ CHOICES = {
             _("Way too\nmuch"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SMALL_LARGE: BipolarChoices(
         minus_name=_("Small"),
@@ -1284,7 +1315,7 @@ CHOICES = {
             _("Way too\nlarge"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SLOW_FAST: BipolarChoices(
         minus_name=_("Slow"),
@@ -1299,7 +1330,7 @@ CHOICES = {
             _("Way too\nfast"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.SHORT_LONG: BipolarChoices(
         minus_name=_("Short"),
@@ -1314,7 +1345,7 @@ CHOICES = {
             _("Way too\nlong"),
             _("No answer"),
         ],
-        **BASE_BIPOLAR_CHOICES,
+        **BASE_BIPOLAR_CHOICES,  # type: ignore
     ),
     Question.POSITIVE_YES_NO: Choices(
         names=[
@@ -1322,7 +1353,7 @@ CHOICES = {
             _("No"),
             _("No answer"),
         ],
-        **BASE_YES_NO_CHOICES,
+        **BASE_YES_NO_CHOICES,  # type: ignore
     ),
     Question.NEGATIVE_YES_NO: Choices(
         names=[
@@ -1330,7 +1361,7 @@ CHOICES = {
             _("Yes"),
             _("No answer"),
         ],
-        **BASE_YES_NO_CHOICES,
+        **BASE_YES_NO_CHOICES,  # type: ignore
     ),
 }
 
@@ -1504,7 +1535,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_proxy_user = models.BooleanField(default=False, verbose_name=_("Proxy user"))
 
     # key for url based login of this user
-    MAX_LOGIN_KEY = 2 ** 31 - 1
+    MAX_LOGIN_KEY = 2**31 - 1
 
     login_key = models.IntegerField(verbose_name=_("Login Key"), unique=True, blank=True, null=True)
     login_key_valid_until = models.DateField(verbose_name=_("Login Key Validity"), blank=True, null=True)
@@ -1517,7 +1548,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS: List[str] = []
 
     objects = UserProfileManager()
 
@@ -1794,7 +1825,14 @@ class EmailTemplate(models.Model):
 
     @staticmethod
     def render_string(text, dictionary, *, autoescape=True):
-        return Template(text).render(Context(dictionary, autoescape))
+        result = Template(text).render(Context(dictionary, autoescape))
+
+        # Template.render would return a SafeData instance. If we didn't escape, this should not be marked as safe.
+        if not autoescape:
+            result = result + ""
+            assert not isinstance(result, SafeData)
+
+        return result
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
@@ -1805,7 +1843,7 @@ class EmailTemplate(models.Model):
 
         for user, user_evaluations in user_evaluation_map.items():
             subject_params = {}
-            evaluations_with_date = dict()
+            evaluations_with_date = {}
             for evaluation in user_evaluations:
                 evaluations_with_date[evaluation] = (evaluation.vote_end_date - date.today()).days
             evaluations_with_date = sorted(evaluations_with_date.items(), key=lambda tup: tup[0].full_name)
@@ -1818,8 +1856,8 @@ class EmailTemplate(models.Model):
 
     def send_to_user(self, user, subject_params, body_params, use_cc, additional_cc_users=(), request=None):
         if not user.email:
-            warning_message = "{} has no email address defined. Could not send email.".format(
-                user.full_name_with_additional_info
+            warning_message = (
+                f"{user.full_name_with_additional_info} has no email address defined. Could not send email."
             )
             # If this method is triggered by a cronjob changing evaluation states, the request is None.
             # In this case warnings should be sent to the admins via email (configured in the settings for logger.error).
@@ -1855,26 +1893,23 @@ class EmailTemplate(models.Model):
 
         try:
             mail.send(False)
-            logger.info(('Sent email "{}" to {}.').format(mail.subject, user.full_name_with_additional_info))
+            logger.info('Sent email "%s" to %s.', mail.subject, user.full_name_with_additional_info)
             if send_separate_login_url:
                 self.send_login_url_to_user(user)
         except Exception:  # pylint: disable=broad-except
             logger.exception(
-                'An exception occurred when sending the following email to user "{}":\n{}\n'.format(
-                    user.full_name_with_additional_info, mail.message()
-                )
+                'An exception occurred when sending the following email to user "%s":\n%s\n',
+                user.full_name_with_additional_info,
+                mail.message(),
             )
 
     def construct_mail(self, to_email, cc_addresses, subject_params, body_params):
         subject = self.render_string(self.subject, subject_params, autoescape=False)
         plain_content = self.render_string(self.plain_content, body_params, autoescape=False)
 
-        rendered_content = self.render_string(
-            self.html_content if self.html_content else self.plain_content.replace("\n", "<br />"), body_params
-        )
-        wrapper_template_params = dict(
-            {"email_content": rendered_content, "email_subject": escape(subject)}, **body_params
-        )
+        html_content = self.html_content if self.html_content else linebreaksbr(self.plain_content)
+        rendered_content = self.render_string(html_content, body_params)
+        wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
         mail = EmailMultiAlternatives(
@@ -1904,7 +1939,7 @@ class EmailTemplate(models.Model):
         body_params = {"user": user}
 
         template.send_to_user(user, subject_params, body_params, use_cc=False)
-        logger.info(("Sent login url to {}.").format(user.email))
+        logger.info("Sent login url to %s.", user.email)
 
     @classmethod
     def send_contributor_publish_notifications(cls, evaluations, template=None):

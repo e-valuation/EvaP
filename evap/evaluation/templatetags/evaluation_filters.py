@@ -61,12 +61,12 @@ APPROVAL_STATES = {
     ),
     Evaluation.State.EDITOR_APPROVED: StateValues(
         1,
-        "far fa-check-square icon-yellow",
+        "far fa-square-check icon-yellow",
         Evaluation.State.EDITOR_APPROVED,
         _("Approved by editor, awaiting manager review"),
     ),
     Evaluation.State.APPROVED: StateValues(
-        3, "far fa-check-square icon-green", Evaluation.State.APPROVED, _("Approved by manager")
+        3, "far fa-square-check icon-green", Evaluation.State.APPROVED, _("Approved by manager")
     ),
 }
 
@@ -97,7 +97,7 @@ def ordering_index(evaluation):
 @register.filter
 def percentage(fraction, population):
     try:
-        return "{0:.0f}%".format(int(float(fraction) / float(population) * 100))
+        return f"{int(float(fraction) / float(population) * 100):.0f}%"
     except ValueError:
         return None
     except ZeroDivisionError:
@@ -107,7 +107,7 @@ def percentage(fraction, population):
 @register.filter
 def percentage_one_decimal(fraction, population):
     try:
-        return "{0:.1f}%".format((float(fraction) / float(population)) * 100)
+        return f"{float(fraction) / float(population) * 100:.1f}%"
     except ValueError:
         return None
     except ZeroDivisionError:
@@ -201,7 +201,7 @@ def message_class(level):
 def hours_and_minutes(time_left_for_evaluation):
     hours = time_left_for_evaluation.seconds // 3600
     minutes = (time_left_for_evaluation.seconds // 60) % 60
-    return "{:02}:{:02}".format(hours, minutes)
+    return f"{hours:02}:{minutes:02}"
 
 
 @register.filter
@@ -216,3 +216,8 @@ def has_nonresponsible_editor(evaluation):
 @register.filter
 def order_by(iterable, attribute):
     return sorted(iterable, key=lambda item: getattr(item, attribute))
+
+
+@register.filter
+def get(dictionary, key):
+    return dictionary.get(key)

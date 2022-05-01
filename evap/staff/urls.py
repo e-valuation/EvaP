@@ -69,6 +69,7 @@ urlpatterns = [
     path("user/create", views.user_create, name="user_create"),
     path("user/import", views.user_import, name="user_import"),
     path("user/<int:user_id>/edit", views.user_edit, name="user_edit"),
+    path("user/list", views.user_list, name="user_list"),
 
     path("user/delete", views.user_delete, name="user_delete"),
     path("user/bulk_update", views.user_bulk_update, name="user_bulk_update"),
@@ -83,7 +84,7 @@ urlpatterns = [
     path("faq/", views.faq_index, name="faq_index"),
     path("faq/<int:section_id>", views.faq_section, name="faq_section"),
 
-    path("download_sample_xls/<str:filename>", views.download_sample_xls, name="download_sample_xls"),
+    path("download_sample_file/<str:filename>", views.download_sample_file, name="download_sample_file"),
 
     path("export_contributor_results/<int:contributor_id>", views.export_contributor_results_view, name="export_contributor_results"),
 

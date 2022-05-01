@@ -16,6 +16,7 @@
                     <tr><td><kbd>K</kbd></td><td>{% trans 'Make answer private to the contributor' %}</td></tr>
                     <tr><td><kbd>L</kbd></td><td>{% trans 'Remove answer' %}</td></tr>
                     <tr><td><kbd>&#x232b;</kbd></td><td>{% trans 'Unreview answer' %}</td></tr>
+                    <tr><td><kbd>E</kbd></td><td>{% trans 'Edit answer' %}</td></tr>
                     <tr><td><kbd>&#x21b2;</kbd></td><td>{% trans 'Review next evaluation' %}</td></tr>
                     <tr><td><kbd>S</kbd></td><td>{% trans 'Skip evaluation' %}</td></tr>
                     <tr><td><kbd>N</kbd></td><td>{% trans 'Show all again' %}</td></tr>
@@ -38,7 +39,7 @@
         <div class="card-body slider-inner px-0">
             <div class="slider-side slider-side-left">
                 <span class="badge rounded-pill bg-primary" data-counter="reviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Reviewed text answers' %}"></span>
-                <span class="fas fa-angle-left" data-slide="left"></span>
+                <span class="py-2 fas fa-chevron-left" data-slide="left"></span>
                 <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-left" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
             <div class="slider-items">
@@ -52,12 +53,11 @@
                         </div>
                         {% for answer in result.answers %}
                             <div class="slider-item card-body" data-layer="2" data-id="{{ answer.id }}"{% if contributor %} data-contribution="yes"{% endif %}
-                                {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}
-                            >
-                            <a class="textanswer-link" href="{% url 'staff:evaluation_textanswer_edit' semester.id evaluation.id answer.id %}">{{ answer.answer|linebreaksbr }}</a>
-                            {% if answer.original_answer %}
-                                <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
-                            {% endif %}
+                                {% if answer.is_reviewed %}data-review="{% if answer.is_published %}publish{% elif answer.is_private %}make_private{% else %}hide{% endif %}"{% endif %}>
+                                {{ answer.answer|linebreaksbr }}
+                                {% if answer.original_answer %}
+                                    <span class="textanswer-original">({{ answer.original_answer|linebreaksbr }})</span>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     {% endfor %}
@@ -84,12 +84,18 @@
             </div>
             <div class="slider-side slider-side-right">
                 <span class="badge rounded-pill bg-primary" data-counter="reviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Reviewed text answers' %}"></span>
-                <span class="fas fa-angle-right" data-slide="right" title=""></span>
+                <span class="py-2 fas fa-chevron-right" data-slide="right" title=""></span>
                 <span class="badge rounded-pill bg-secondary" data-counter="unreviewed-right" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans 'Unreviewed text answers' %}"></span>
             </div>
         </div>
         <div class="card-footer d-flex">
-            <div class="lcr-left"></div>
+            <div class="lcr-left">
+                <div data-action-set="reviewing">
+                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
+                        {% trans 'unreview' %}
+                    </button>
+                </div>
+            </div>
             <div class="lcr-center" data-action-set="reviewing">
                 <button data-action="publish" class="btn btn-sm btn-outline-secondary">
                     {% trans 'yes' %}
@@ -121,11 +127,13 @@
                 </button>
             </div>
             <div class="lcr-right">
+                {% if user.is_manager %}
                 <div data-action-set="reviewing">
-                    <button data-action="unreview" class="btn btn-sm btn-outline-secondary">
-                        {% trans 'unreview' %}
+                    <button data-action="textanswer_edit" class="btn btn-sm btn-outline-secondary">
+                        <span class="fas fa-pencil">
                     </button>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

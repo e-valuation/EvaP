@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 Django settings for EvaP project.
 
@@ -235,23 +237,32 @@ MIDDLEWARE = [
     "evap.evaluation.middleware.LoggingRequestMiddleware",
 ]
 
+_TEMPLATE_OPTIONS = {
+    "context_processors": [
+        "django.contrib.auth.context_processors.auth",
+        "django.template.context_processors.debug",
+        "django.template.context_processors.i18n",
+        "django.template.context_processors.static",
+        "django.template.context_processors.request",
+        "django.contrib.messages.context_processors.messages",
+        "evap.context_processors.slogan",
+        "evap.context_processors.debug",
+    ],
+    "builtins": ["django.templatetags.i18n"],
+}
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.contrib.auth.context_processors.auth",
-                "django.template.context_processors.debug",
-                "django.template.context_processors.i18n",
-                "django.template.context_processors.static",
-                "django.template.context_processors.request",
-                "django.contrib.messages.context_processors.messages",
-                "evap.context_processors.slogan",
-                "evap.context_processors.debug",
-            ],
-            "builtins": ["django.templatetags.i18n"],
-        },
+        "OPTIONS": _TEMPLATE_OPTIONS,
+        "NAME": "MainEngine",
+    },
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "APP_DIRS": True,
+        "OPTIONS": dict(**_TEMPLATE_OPTIONS, debug=False),
+        "NAME": "CachedEngine",  # used for bulk-filling caches
     },
 ]
 
@@ -390,13 +401,15 @@ try:
 except ImportError:
     pass
 
-TESTING = "test" in sys.argv
+TESTING = "test" in sys.argv or "pytest" in sys.modules
 
 # speed up tests
 if TESTING:
     # do not use ManifestStaticFilesStorage as it requires running collectstatic beforehand
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
     logging.disable(logging.CRITICAL)  # disable logging, primarily to prevent console spam
+
     # use the database for caching. it's properly reset between tests in constrast to redis,
     # and does not change behaviour in contrast to disabling the cache entirely.
     CACHES = {

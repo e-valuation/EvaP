@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import caches
 from django.core.cache.utils import make_template_fragment_key
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.db.models import Count, QuerySet
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
@@ -13,7 +13,7 @@ from django.utils import translation
 
 from evap.evaluation.auth import internal_required
 from evap.evaluation.models import Course, CourseType, Degree, Evaluation, Semester, UserProfile
-from evap.evaluation.tools import FileResponse
+from evap.evaluation.tools import FileResponse, unordered_groupby
 from evap.results.exporters import TextAnswerExporter
 from evap.results.tools import (
     STATES_WITH_RESULT_TEMPLATE_CACHING,
@@ -21,12 +21,9 @@ from evap.results.tools import (
     RatingResult,
     TextResult,
     annotate_distributions_and_grades,
-    calculate_average_distribution,
     can_textanswer_be_seen_by,
-    distribution_to_grade,
     get_evaluations_with_course_result_attributes,
     get_results,
-    get_single_result_rating_result,
 )
 
 
@@ -64,33 +61,44 @@ def _delete_course_template_cache_impl(course):
 
 def warm_up_template_cache(evaluations):
     evaluations = get_evaluations_with_course_result_attributes(get_evaluations_with_prefetched_data(evaluations))
-    current_language = translation.get_language()
     courses_to_render = {evaluation.course for evaluation in evaluations if evaluation.course.evaluation_count > 1}
+
+    current_language = translation.get_language()
+
+    results_index_course_template = get_template("results_index_course.html", using="CachedEngine")
+    results_index_evaluation_template = get_template("results_index_evaluation.html", using="CachedEngine")
+
     try:
         for course in courses_to_render:
             translation.activate("en")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             translation.activate("de")
-            get_template("results_index_course.html").render(dict(course=course))
+            results_index_course_template.render(dict(course=course))
+
             assert get_course_result_template_fragment_cache_key(course.id, "en") in caches["results"]
             assert get_course_result_template_fragment_cache_key(course.id, "de") in caches["results"]
+
         for evaluation in evaluations:
             assert evaluation.state in STATES_WITH_RESULT_TEMPLATE_CACHING
             is_subentry = evaluation.course.evaluation_count > 1
+
             translation.activate("en")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             translation.activate("de")
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=True, is_subentry=is_subentry)
             )
-            get_template("results_index_evaluation.html").render(
+            results_index_evaluation_template.render(
                 dict(evaluation=evaluation, links_to_results_page=False, is_subentry=is_subentry)
             )
+
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", True) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "en", False) in caches["results"]
             assert get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", True) in caches["results"]
@@ -115,7 +123,7 @@ def update_template_cache_of_published_evaluations_in_course(course):
 
 
 def get_evaluations_with_prefetched_data(evaluations):
-    if isinstance(evaluations, QuerySet):
+    if isinstance(evaluations, QuerySet):  # type: ignore
         evaluations = evaluations.select_related("course__type").prefetch_related(
             "course__degrees",
             "course__semester",
@@ -149,10 +157,7 @@ def index(request):
     # this dict is sorted by course.pk (important for the zip below)
     # (this relies on python 3.7's guarantee that the insertion order of the dict is preserved)
     evaluations.sort(key=lambda evaluation: evaluation.course.pk)
-
-    courses_and_evaluations = defaultdict(list)
-    for evaluation in evaluations:
-        courses_and_evaluations[evaluation.course].append(evaluation)
+    courses_and_evaluations = unordered_groupby((evaluation.course, evaluation) for evaluation in evaluations)
 
     course_pks = [course.pk for course in courses_and_evaluations.keys()]
 
@@ -337,15 +342,8 @@ def get_evaluations_of_course(course, request):
             course_evaluations += course.evaluations.filter(
                 state__in=[Evaluation.State.IN_EVALUATION, Evaluation.State.EVALUATED, Evaluation.State.REVIEWED]
             )
-
+        annotate_distributions_and_grades(course_evaluations)
         course_evaluations = get_evaluations_with_course_result_attributes(course_evaluations)
-
-        for course_evaluation in course_evaluations:
-            if course_evaluation.is_single_result:
-                course_evaluation.single_result_rating_result = get_single_result_rating_result(course_evaluation)
-            else:
-                course_evaluation.distribution = calculate_average_distribution(course_evaluation)
-                course_evaluation.avg_grade = distribution_to_grade(course_evaluation.distribution)
 
     return course_evaluations
 
@@ -396,18 +394,19 @@ def evaluation_detail_parse_get_parameters(request, evaluation):
     if not evaluation.can_results_page_be_seen_by(request.user):
         raise PermissionDenied
 
-    if request.user.is_reviewer:
-        view = request.GET.get("view", "public")  # if parameter is not given, show public view.
-    else:
-        view = request.GET.get("view", "full")  # if parameter is not given, show own view.
+    view = request.GET.get("view", "public" if request.user.is_reviewer else "full")
     if view not in ["public", "full", "export"]:
         view = "public"
 
     view_as_user = request.user
-    contributor_id = int(request.GET.get("contributor_id", request.user.id))
+    try:
+        contributor = get_object_or_404(UserProfile, pk=request.GET.get("contributor_id", request.user.id))
+    except ValueError as e:
+        raise BadRequest from e
+
     if view == "export" and request.user.is_staff:
-        view_as_user = UserProfile.objects.get(id=contributor_id)
-    contributor_id = contributor_id if contributor_id != request.user.id else None
+        view_as_user = contributor
+    contributor_id = contributor.pk if contributor != request.user else None
 
     represented_users = [view_as_user]
     if view != "export":
@@ -439,9 +438,7 @@ def evaluation_text_answers_export(request, evaluation_id):
     results, contributor_id = extract_evaluation_answer_data(request, evaluation)
     contributor_name = UserProfile.objects.get(id=contributor_id).full_name if contributor_id is not None else None
 
-    filename = "Evaluation-Text-Answers-{}-{}-{}.xls".format(
-        evaluation.course.semester.short_name, evaluation.full_name, translation.get_language()
-    )
+    filename = f"Evaluation-Text-Answers-{evaluation.course.semester.short_name}-{evaluation.full_name}-{translation.get_language()}.xls"
 
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 

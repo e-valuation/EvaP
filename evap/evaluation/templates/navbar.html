@@ -22,7 +22,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'student:index' %}">{% trans 'Evaluate' %}</a></li>
                 {% endif %}
                 {% if user.is_responsible_or_contributor_or_delegate %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans 'Own evaluations' %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contributor:index' %}">{% trans 'Contributions' %}</a></li>
                 {% endif %}
                 {% if user|can_reward_points_be_used_by %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'rewards:index' %}">{% trans 'Rewards' %}</a></li>
@@ -51,16 +51,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'results:index' %}">{% trans 'Results' %}</a></li>
                 {% endif %}
                 {%  if user.is_manager %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans 'Users' %}</a>
-                        <div class="dropdown-menu" aria-labelledby="navbarUsersDropdownMenuLink">
-                            <a class="dropdown-item" href="{% url 'staff:user_index' %}">{% trans 'User list' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_create' %}">{% trans 'Create' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_import' %}">{% trans 'Import' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_merge_selection' %}">{% trans 'Merge' %}</a>
-                            <a class="dropdown-item" href="{% url 'staff:user_bulk_update' %}">{% trans 'Update' %}</a>
-                        </div>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'staff:user_index' %}">{% trans 'Users' %}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'staff:questionnaire_index' %}">{% trans 'Questionnaires' %}</a></li>
                 {% endif %}
                 {% if user.is_grade_publisher %}
@@ -128,7 +119,7 @@
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></span> {{ user.full_name }}</a>
-                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-tight" aria-labelledby="navbarUserDropdownMenuLink">
                         <a class="dropdown-item" href="{% url 'evaluation:profile_edit' %}">{% trans 'Profile' %}</a>
                         <a class="dropdown-item" href="{% url 'django-auth-logout' %}">{% trans 'Logout' %}</a>
                     </div>

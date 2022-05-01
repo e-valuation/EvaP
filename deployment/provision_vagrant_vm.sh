@@ -2,6 +2,7 @@
 
 set -x # print executed commands
 
+MOUNTPOINT="/evap"
 USER="evap"
 REPO_FOLDER="/opt/evap"
 ENV_FOLDER="/home/$USER/venv"
@@ -9,8 +10,14 @@ ENV_FOLDER="/home/$USER/venv"
 # force apt to not ask, just do defaults.
 export DEBIAN_FRONTEND=noninteractive
 
-# install python stuff
 apt-get -q update
+
+# system utilities that docker containers don't have
+apt-get -q install -y sudo wget git bash-completion
+# docker weirdly needs this -- see https://stackoverflow.com/questions/46247032/how-to-solve-invoke-rc-d-policy-rc-d-denied-execution-of-start-when-building
+printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+
+# install python stuff
 apt-get -q install -y python3.7 python3.7-dev python3-venv python3.7-venv gettext
 
 # setup postgres
@@ -21,12 +28,18 @@ sudo -u postgres createdb -O evap evap
 
 # setup redis
 apt-get -q install -y redis-server
+sed -i "s/^bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
+service redis-server restart
 
 # install apache
 apt-get -q install -y apache2 apache2-dev
 
+# With docker for mac, root will own the mount point (uid=0). chmod does not touch the host file system in these cases.
+OWNER=$(stat -c %U "$MOUNTPOINT/evap")
+if [ "$OWNER" == "root" ]; then chown -R 1042 "$MOUNTPOINT"; fi
+
 # make user, create home folder, set uid to the same set in the Vagrantfile (required for becoming the synced folder owner), set default shell to bash
-useradd -m -u 1042 -s /bin/bash evap
+useradd -m -u $(stat -c "%u" "$MOUNTPOINT/evap") -s /bin/bash evap
 # allow ssh login
 cp -r /home/vagrant/.ssh /home/$USER/.ssh
 chown -R $USER:$USER /home/$USER/.ssh
@@ -34,7 +47,7 @@ chown -R $USER:$USER /home/$USER/.ssh
 echo "$USER ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/evap
 
 # link the mounted evap folder from the home directory
-ln -s /evap $REPO_FOLDER
+ln -s "$MOUNTPOINT" "$REPO_FOLDER"
 
 sudo -H -u $USER python3.7 -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
@@ -58,12 +71,15 @@ a2dissite 000-default.conf
 # see https://github.com/e-valuation/EvaP/issues/626
 # and https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/modwsgi/#if-you-get-a-unicodeencodeerror
 sed -i s,\#.\ /etc/default/locale,.\ /etc/default/locale,g /etc/apache2/envvars
-systemctl reload apache2
+service apache2 reload
 
 cp /etc/skel/.bashrc /home/$USER/
 # auto cd into /$USER on login and activate venv
 echo "cd $REPO_FOLDER" >> /home/$USER/.bashrc
 echo "source $ENV_FOLDER/bin/activate" >> /home/$USER/.bashrc
+
+# required for docker (no-op if already started)
+echo "sudo service postgresql start && sudo service redis-server start" >> /home/$USER/.bashrc
 
 # install requirements
 sudo -H -u $USER $ENV_FOLDER/bin/pip install -r $REPO_FOLDER/requirements-dev.txt
@@ -82,12 +98,12 @@ apt-get -q install -y libasound2 libgconf-2-4 libgbm1 libgtk-3-0 libnss3 libx11-
 wget https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh --no-verbose --output-document - | sudo -H -u $USER bash
 
 # setup evap
-cd /$USER
-git submodule update --init
+cd "$MOUNTPOINT"
+sudo -H -u $USER git submodule update --init
 sudo -H -u $USER bash -c "source /home/$USER/.nvm/nvm.sh; nvm install --no-progress node; npm ci"
 echo "nvm use node" >> /home/$USER/.bashrc
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py migrate --noinput
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py collectstatic --noinput
-sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de_DE --locale en_US
+sudo -H -u $USER $ENV_FOLDER/bin/python manage.py compilemessages --locale de
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py loaddata test_data.json
 sudo -H -u $USER $ENV_FOLDER/bin/python manage.py refresh_results_cache
