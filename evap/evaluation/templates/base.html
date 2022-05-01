@@ -59,6 +59,7 @@
             {% endblock %}
         </div>
 
+        {% include 'notebook.html' %}
         {% include 'footer.html' %}
 
         <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
@@ -84,6 +85,12 @@
 
             };
             activateTooltips();
+
+            // activate offcanvases
+            var offcanvasElementList = [].slice.call(document.querySelectorAll('.offcanvas'))
+            var offcanvasList = offcanvasElementList.map(function (offcanvasEl) {
+              return new bootstrap.Offcanvas(offcanvasEl)
+            })
 
             // These are workarounds around incompatibilities of django, django-dynamic-formsets, and select2.
             // select2 can't handle already select2'd forms that were copies made by

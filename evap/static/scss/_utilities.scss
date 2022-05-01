@@ -67,3 +67,9 @@ a.no-underline:hover {
         $darker-gray 7em
     );
 }
+
+.fill-height {
+    box-sizing: border-box;
+    height: 100%;
+    resize: none;
+}

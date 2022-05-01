@@ -154,6 +154,17 @@ a:not([href]):not(.disabled) {
     min-width: 140px;
 }
 
+.button-notebook {
+    @include media-breakpoint-up(md) {
+        position: fixed;
+        left: -2px;
+        bottom: 60px;
+        z-index: $zindex-fixed;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+}
+
 .login-button {
     width: 100%;
     max-width: 16em;
@@ -265,4 +276,8 @@ a.collapse-toggle {
     &.collapsed {
         box-shadow: none;
     }
+}
+
+.btn-wide {
+    min-width: 250px;
 }
