@@ -417,7 +417,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) already exists with matching attributes except degrees. Course is not created, users are put into the evaluation of that course and the degrees are merged.",
+            "Course Shake (Schütteln) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added.",
             warnings[ImporterWarning.EXISTS],
         )
         expected_course_count = old_course_count + 22
