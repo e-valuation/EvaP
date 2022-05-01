@@ -7,7 +7,9 @@ on:
   pull_request:
 
 jobs:
-  tests:
+  test:
+    name: Test + Coverage
+
     runs-on: ubuntu-20.04
 
     container:
@@ -24,15 +26,36 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-    strategy:
-      matrix:
-        include:
-          - name: Test (coverage)
-            command: coverage run manage.py test && codecov -X gcov
-          - name: Test (shuffled)
-            command: python manage.py test --shuffle
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Add localsettings
+        run: cp evap/settings_test.py evap/localsettings.py
+      - name: Run tests
+        run: coverage run manage.py test
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
 
-    name: ${{ matrix.name }}
+  test_shuffled:
+    name: Test (shuffled order)
+
+    runs-on: ubuntu-20.04
+
+    container:
+      image: python:3.8
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evap
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check out repository code
@@ -42,8 +65,7 @@ jobs:
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Run tests
-        run: ${{ matrix.command }}
-
+        run: python manage.py test --shuffle
 
   mypy:
     runs-on: ubuntu-20.04
