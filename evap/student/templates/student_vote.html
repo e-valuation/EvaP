@@ -18,7 +18,8 @@
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">
             {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
-            <button id="btn-jump-unanswered-question" type="button" class="mt-1 btn btn-light btn-sm">{% blocktrans %}Jump to first unanswered question{% endblocktrans %}</button>
+            <button id="btn-jump-unanswered-question" type="button" class="mt-2 btn btn-light btn-sm float-end">{% blocktrans %}Jump to first unanswered question{% endblocktrans %}</button>
+            <div class="clearfix"></div>
         </div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
