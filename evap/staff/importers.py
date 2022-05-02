@@ -11,6 +11,7 @@ from django.db import transaction
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
+from django.utils.safestring import mark_safe
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email, unordered_groupby
@@ -321,9 +322,9 @@ class ExcelImporter:
     @staticmethod
     def _create_user_data_mismatch_warning(user, user_data, test_run):
         if test_run:
-            msg = format_html(_("The existing user would be overwritten with the following data:"))
+            msg = _("The existing user would be overwritten with the following data:")
         else:
-            msg = format_html(_("The existing user was overwritten with the following data:"))
+            msg = _("The existing user was overwritten with the following data:")
         return format_html(
             "{}<br /> - {} ({}) [{}]<br /> - {} ({})",
             msg,
@@ -351,7 +352,7 @@ class ExcelImporter:
         )
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
-        warningstring = format_html(_("An existing user has the same first and last name as a new user:"))
+        warningstring = mark_safe(_("An existing user has the same first and last name as a new user:"))
         for user in users_with_same_names:
             warningstring += format_html(
                 "<br /> - {} ({}) [{}]",
