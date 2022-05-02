@@ -581,7 +581,8 @@ class EnrollmentImporter(ExcelImporter):
 
     def create_success_messages(self, students_created, responsibles_created):
         if not students_created and not responsibles_created and not self.evaluations:
-            return _("Nothing changed")
+            self.success_messages.append(_("Nothing changed"))
+            return
 
         student_phrase = self.make_phrase(len(students_created), "student", "students")
         responsible_phrase = self.make_phrase(len(responsibles_created), "responsible", "responsibles")
@@ -592,11 +593,13 @@ class EnrollmentImporter(ExcelImporter):
         )
 
         if students_created or responsibles_created:
-            message += ":"
-            message += create_user_list_html_string_for_message(students_created)
-            message += create_user_list_html_string_for_message(responsibles_created)
+            message = format_html(
+                "{}: {} {}",
+                message,
+                create_user_list_html_string_for_message(students_created),
+                create_user_list_html_string_for_message(responsibles_created),
+            )
         self.success_messages.append(message)
-        return message
 
     def create_test_success_messages(self):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
@@ -612,7 +615,7 @@ class EnrollmentImporter(ExcelImporter):
         if not filtered_users:
             msg += "."
         else:
-            msg += format_html("{}: {}", msg, create_user_list_html_string_for_message(filtered_users))
+            msg = format_html("{}: {}", msg, create_user_list_html_string_for_message(filtered_users))
         self.success_messages.append(msg)
 
     @classmethod
@@ -710,11 +713,13 @@ class UserImporter(ExcelImporter):
             msg = _("No users were created.")
         else:
             msg = format_html(
-                _("Successfully created {object}: {list}"),
-                object=ngettext("{user_count} user", "{user_count} users", len(created_users)).format(
-                    user_count=len(created_users)
-                ),
-                list=create_user_list_html_string_for_message(created_users),
+                _("{}: {}"),
+                ngettext(
+                    "Successfully created {user_count} user",
+                    "Successfully created {user_count} users",
+                    len(created_users),
+                ).format(user_count=len(created_users)),
+                create_user_list_html_string_for_message(created_users),
             )
         self.success_messages.append(msg)
         return new_participants
