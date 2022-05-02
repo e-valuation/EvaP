@@ -208,14 +208,18 @@
                 const lastSavedLabel = $('#last-saved');
                 if (localStorage.getItem(lastSavedStorageKey) !== null) {
                     const lastSavedDate = new Date(localStorage.getItem(lastSavedStorageKey));
-                    const delta = Math.round((timeNow - lastSavedDate) / 1000)
-                    const languageCode = "{{ LANGUAGE_CODE }}"
-                    const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode)
+                    const delta = Math.round((timeNow - lastSavedDate) / 1000);
+                    const languageCode = "{{ LANGUAGE_CODE }}";
+                    const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode);
                     let timeStamp = "{% trans 'unknown' %}"
                     if (delta < 3) {
                         timeStamp = "{% trans 'just now' %}";
+                    } else if (delta < 10) {
+                        timeStamp = "{% trans 'less than 10 seconds ago' %}";
+                    } else if (delta < 30) {
+                        timeStamp = "{% trans 'less than 30 seconds ago' %}";
                     } else if (delta < 60) {
-                        timeStamp = relativeTimeFormat.format(-delta, 'seconds');
+                        timeStamp = "{% trans 'less than 1 minute ago' %}";
                     } else if (delta < 60 * 30) {
                         timeStamp = relativeTimeFormat.format(-Math.round(delta / 60), 'minutes');
                     } else if (delta < 60 * 60 * 12) {
