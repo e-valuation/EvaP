@@ -162,7 +162,6 @@ valid_user_courses_import_filedata = {
     ]
 }
 
-
 one_new_course_and_user_filedata = {
     'MA Belegungen': [
         ['Degree', 'Student last name', 'Student first name', 'Student email address', 'Course kind', 'Course is graded', 'Course name (de)', 'Course name (en)', 'Responsible title', 'Responsible last name', 'Responsible first name', 'Responsible email address'],
