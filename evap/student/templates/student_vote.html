@@ -211,7 +211,7 @@
                     const delta = Math.round((timeNow - lastSavedDate) / 1000);
                     const languageCode = "{{ LANGUAGE_CODE }}";
                     const relativeTimeFormat = new Intl.RelativeTimeFormat(languageCode);
-                    let timeStamp = "{% trans 'unknown' %}"
+                    let timeStamp;
                     if (delta < 3) {
                         timeStamp = "{% trans 'just now' %}";
                     } else if (delta < 10) {
@@ -246,7 +246,7 @@
             sisyphus.saveAllData();
 
             // Initialize lastSavedLabel and update it every second
-            updateLastSavedLabel()
+            updateLastSavedLabel();
             setInterval(updateLastSavedLabel, 1000);
 
             initTextAnswerWarnings(document.querySelectorAll("#student-vote-form textarea"), JSON.parse($("#text-answer-warnings").text()));
