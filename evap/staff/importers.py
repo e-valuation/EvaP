@@ -9,9 +9,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
-from django.utils.safestring import mark_safe
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
 from evap.evaluation.tools import clean_email, unordered_groupby
