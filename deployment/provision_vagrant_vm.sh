@@ -33,7 +33,7 @@ sed -i "s/^bind .*/bind 127.0.0.1/g" /etc/redis/redis.conf
 service redis-server restart
 
 # install apache
-apt-get -q install -y apache2 apache2-dev
+apt-get -q install -y apache2 apache2-dev libapache2-mod-wsgi-py3
 
 # With docker for mac, root will own the mount point (uid=0). chmod does not touch the host file system in these cases.
 OWNER=$(stat -c %U "$MOUNTPOINT/evap")
@@ -54,12 +54,9 @@ sudo -H -u $USER $EVAP_PYTHON -m venv $ENV_FOLDER
 # venv will use ensurepip to install a new version of pip. We need to update that version.
 sudo -H -u $USER $ENV_FOLDER/bin/python -m pip install -U pip
 sudo -H -u $USER $ENV_FOLDER/bin/pip install wheel
-sudo -H -u $USER $ENV_FOLDER/bin/pip install mod_wsgi
 
 # setup apache
 a2enmod headers
-cp $REPO_FOLDER/deployment/wsgi.template.conf /etc/apache2/mods-available/wsgi.load
-sed -i -e "s=\${ENV_FOLDER}=$ENV_FOLDER=" /etc/apache2/mods-available/wsgi.load # note this uses '=' as alternate delimiter
 a2enmod wsgi
 a2enmod rewrite
 cp $REPO_FOLDER/deployment/apache.maintenance-template.conf /etc/apache2/sites-available/evap-maintenance.conf
