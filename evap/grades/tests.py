@@ -7,6 +7,7 @@ from django_webtest import WebTest
 from model_bakery import baker
 
 from evap.evaluation.models import Contribution, Course, Evaluation, Questionnaire, Semester, UserProfile
+from evap.evaluation.tests.tools import WebTestWith200Check
 from evap.grades.models import GradeDocument
 
 
@@ -195,41 +196,36 @@ class GradeDocumentIndexTest(WebTest):
 
 
 class GradeSemesterViewTest(WebTest):
-    url = "/grades/semester/1"
-
     @classmethod
     def setUpTestData(cls):
         cls.grade_publisher = make_grade_publisher()
+        cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, state=Evaluation.State.PREPARED)
+        cls.url = f"/grades/semester/{cls.semester.pk}"
 
     def test_does_not_crash(self):
-        semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
-        course = baker.make(Course, semester=semester)
-        baker.make(Evaluation, course=course, state=Evaluation.State.PREPARED)
         page = self.app.get(self.url, user=self.grade_publisher, status=200)
-        self.assertIn(course.name, page)
+        self.assertIn(self.evaluation.course.name, page)
 
     def test_403_on_deleted(self):
-        baker.make(Semester, pk=1, grade_documents_are_deleted=True)
+        self.semester.grade_documents_are_deleted = True
+        self.semester.save()
         self.app.get(self.url, user=self.grade_publisher, status=403)
 
 
-class GradeCourseViewTest(WebTest):
-    url = "/grades/semester/1/course/1"
-
+class GradeCourseViewTest(WebTestWith200Check):
     @classmethod
     def setUpTestData(cls):
+        cls.semester = baker.make(Semester, grade_documents_are_deleted=False)
+        cls.evaluation = baker.make(Evaluation, course__semester=cls.semester, state=Evaluation.State.PREPARED)
         cls.grade_publisher = make_grade_publisher()
 
-    def test_does_not_crash(self):
-        semester = baker.make(Semester, pk=1, grade_documents_are_deleted=False)
-        baker.make(Evaluation, course=baker.make(Course, pk=1, semester=semester), state=Evaluation.State.PREPARED)
-        self.app.get(self.url, user=self.grade_publisher, status=200)
+        cls.test_users = [cls.grade_publisher]
+        cls.url = f"/grades/semester/{cls.semester.pk}/course/{cls.evaluation.course.pk}"
 
     def test_403_on_archived_semester(self):
-        archived_semester = baker.make(Semester, pk=1, grade_documents_are_deleted=True)
-        baker.make(
-            Evaluation, course=baker.make(Course, pk=1, semester=archived_semester), state=Evaluation.State.PREPARED
-        )
+        self.semester.grade_documents_are_deleted = True
+        self.semester.save()
         self.app.get(self.url, user=self.grade_publisher, status=403)
 
 

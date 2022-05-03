@@ -158,7 +158,7 @@ class ContributionFormsetWebTests(WebTest):
         when the user submits the form with errors.
         Regression test for #456.
         """
-        evaluation = baker.make(Evaluation, pk=1, state=Evaluation.State.PREPARED)
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
         user1 = baker.make(UserProfile, email="user1@institution.example.com")
         user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -195,10 +195,10 @@ class ContributionFormsetWebTests(WebTest):
 
         data["contributions-0-order"] = 1
         data["contributions-1-order"] = 2
-        response = str(self.app.post("/contributor/evaluation/1/edit", params=data, user=user1))
+        response = str(self.app.post(f"/contributor/evaluation/{evaluation.pk}/edit", params=data, user=user1))
         self.assertTrue(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
 
         data["contributions-0-order"] = 2
         data["contributions-1-order"] = 1
-        response = str(self.app.post("/contributor/evaluation/1/edit", params=data, user=user1))
+        response = str(self.app.post(f"/contributor/evaluation/{evaluation.pk}/edit", params=data, user=user1))
         self.assertFalse(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
