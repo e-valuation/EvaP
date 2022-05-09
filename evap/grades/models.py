@@ -59,9 +59,9 @@ def delete_file_pre_save(instance, **_kwargs):
     if not instance.pk:  # We do not want to trigger document creation
         return
     try:
-        oldFile = GradeDocument.objects.get(pk=instance.pk).file
+        old_file = GradeDocument.objects.get(pk=instance.pk).file
     except GradeDocument.DoesNotExist:
         return
-    newFile = instance.file
-    if not oldFile == newFile:
-        oldFile.delete(False)
+    new_file = instance.file
+    if not old_file == new_file:
+        old_file.delete(False)

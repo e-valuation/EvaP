@@ -866,17 +866,17 @@ class EvaluationFormTests(TestCase):
         form = EvaluationForm(form_data, instance=evaluation1, semester=evaluation1.course.semester)
         self.assertFalse(form.is_valid())
 
-    def helper_date_validation(self, EvaluationFormClass, start_date, end_date, expected_result):
+    def helper_date_validation(self, evaluation_form_cls, start_date, end_date, expected_result):
         evaluation = Evaluation.objects.get()
 
-        form_data = get_form_data_from_instance(EvaluationFormClass, evaluation)
+        form_data = get_form_data_from_instance(evaluation_form_cls, evaluation)
         form_data["vote_start_datetime"] = start_date
         form_data["vote_end_date"] = end_date
 
-        if EvaluationFormClass == EvaluationForm:
+        if evaluation_form_cls == EvaluationForm:
             form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
         else:
-            form = EvaluationFormClass(form_data, instance=evaluation)
+            form = evaluation_form_cls(form_data, instance=evaluation)
         self.assertEqual(form.is_valid(), expected_result)
 
     def test_contributor_evaluation_form_date_validation(self):
