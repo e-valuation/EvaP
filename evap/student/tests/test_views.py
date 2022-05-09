@@ -53,7 +53,7 @@ class TestStudentIndexView(WebTestWith200Check):
 
 @override_settings(INSTITUTION_EMAIL_DOMAINS=["example.com"])
 class TestVoteView(WebTest):
-    url = "/student/vote/1"
+    render_pages_url = "/student/vote/PK"
 
     @classmethod
     def setUpTestData(cls):
@@ -64,10 +64,10 @@ class TestVoteView(WebTest):
 
         cls.evaluation = baker.make(
             Evaluation,
-            pk=1,
             participants=[cls.voting_user1, cls.voting_user2, cls.contributor1],
             state=Evaluation.State.IN_EVALUATION,
         )
+        cls.url = f"/student/vote/{cls.evaluation.pk}"
 
         cls.top_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.TOP)
         cls.bottom_general_questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.BOTTOM)

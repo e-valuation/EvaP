@@ -30,7 +30,7 @@ async function queryParent(element: ElementHandle): Promise<ElementHandle> {
 }
 
 test("checking top confirm checkbox checks and hides bottom", pageHandler(
-    "student/vote/1/with_textanswer_publish_confirmation.html",
+    "student/vote/PK/with_textanswer_publish_confirmation.html",
     async page => {
         const elements = await query(page);
         await elements.top.click();
@@ -41,7 +41,7 @@ test("checking top confirm checkbox checks and hides bottom", pageHandler(
 ));
 
 test("checking bottom confirm checkbox check top but keeps bottom visible", pageHandler(
-    "student/vote/1/with_textanswer_publish_confirmation.html",
+    "student/vote/PK/with_textanswer_publish_confirmation.html",
     async page => {
         const elements = await query(page);
         await elements.bottom.click();
@@ -52,7 +52,7 @@ test("checking bottom confirm checkbox check top but keeps bottom visible", page
 ));
 
 test("resolving submit errors clears warning", pageHandler(
-    "student/vote/1/submit_errors.html",
+    "student/vote/PK/submit_errors.html",
     async page => {
         const checkbox = (await page.$(".choice-error + input[type=radio][value='3']"))!;
         await checkbox.click();
@@ -62,7 +62,7 @@ test("resolving submit errors clears warning", pageHandler(
 ));
 
 test("skip contributor", pageHandler(
-    "student/vote/1/normal.html",
+    "student/vote/PK/normal.html",
     async page => {
         const button = (await page.$("[data-mark-no-answers-for]"))!;
         const voteArea = (await queryClosest(button, ".card").then(card => card.$(".collapse")))!
@@ -78,7 +78,7 @@ test("skip contributor", pageHandler(
 ));
 
 test("skipping contributor clears warning", pageHandler(
-    "student/vote/1/submit_errors.html",
+    "student/vote/PK/submit_errors.html",
     async page => {
         const button = (await page.$("[data-mark-no-answers-for]"))!;
         const voteArea = (await queryClosest(button, ".card").then(card => card.$(".collapse")))!;
