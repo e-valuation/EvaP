@@ -22,6 +22,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext
 from django.views.decorators.http import require_POST
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
@@ -1552,7 +1553,7 @@ def evaluation_textanswers_update_publish(request):
     elif action == "textanswer_edit":
         url = reverse(
             "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation.pk, answer.pk]
-        )
+        ) + "?view=quick"
         return HttpResponse(url)
     else:
         raise SuspiciousOperation
@@ -1568,6 +1569,9 @@ def evaluation_textanswers_update_publish(request):
 
     return HttpResponse()  # 200 OK
 
+def next_helper(request):
+    redirect_to = request.GET.get("view", None)
+    return urlencode({"view": redirect_to}) if redirect_to is not None and url_has_allowed_host_and_scheme(redirect_to, None) else ""
 
 @manager_required
 def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_id):
@@ -1587,7 +1591,13 @@ def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_i
     if form.is_valid():
         form.save()
         # jump to edited answer
-        url = reverse("staff:evaluation_textanswers", args=[semester_id, evaluation_id]) + "#" + str(textanswer.id)
+        redirect = next_helper(request)
+
+        # add answer id if view is quick
+        if redirect.find("quick") != -1:
+            redirect += "#" + str(textanswer.id)
+
+        url = reverse("staff:evaluation_textanswers", args=[semester_id, evaluation_id]) + "?" + redirect
         return HttpResponseRedirect(url)
 
     template_data = dict(semester=semester, evaluation=evaluation, form=form, textanswer=textanswer)

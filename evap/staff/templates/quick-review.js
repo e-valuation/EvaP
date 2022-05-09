@@ -49,7 +49,14 @@ $(document).ready(() => {
         }
     });
 
-    startOver("unreviewed");
+
+    let params = new URLSearchParams(window.location.search);
+    let view_param = params.get("view");
+    // if nothing provided do unreviewed
+    if (view_param === "quick" && window.location.hash)
+        startOver(window.location.hash.substring(0));
+    else
+        startOver("unreviewed");
 
     function slideTo(requestedIndex) {
         requestedIndex = Math.min(Math.max(requestedIndex, 0), items.length);
@@ -151,8 +158,25 @@ $(document).ready(() => {
     function startOver(action) {
         let reviewed = slider.find("[data-layer=2][data-review]");
         let unreviewed = slider.find("[data-layer=2]:not([data-review])");
-        let index = action === "unreviewed" && unreviewed.length ? reviewed.length : 0;
         items = $.merge(reviewed, unreviewed);
+
+        if (action === "unreviewed" && unreviewed.length)
+            index = reviewed.length;
+
+        // search index for matching id
+        else if (action.search("#") != -1)
+        {
+            let id = action.substring(1)
+            for (let i = 0; i < items.length; i++)
+                if (items.eq(i).data("id") === id)
+                {
+                    index = i;
+                    break;
+                }
+        }
+        else
+            index = 0;
+
         slideTo(index);
         updateButtons();
     }

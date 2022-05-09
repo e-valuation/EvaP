@@ -15,7 +15,7 @@
         <div class="btn-switch btn-switch-light my-auto d-print-none">
             <div class="btn-switch-label">{% trans 'View' %}</div>
             <div class="btn-switch btn-group">
-                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
+                <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=quick#" role="button" class="btn btn-sm btn-light{% if view == 'quick' %} active{% endif %}">
                     {% trans 'Quick' %}
                 </a>
                 <a href="{% url 'staff:evaluation_textanswers' semester.id evaluation.id %}?view=full" role="button" class="btn btn-sm btn-light{% if view == 'full' %} active{% endif %}">
