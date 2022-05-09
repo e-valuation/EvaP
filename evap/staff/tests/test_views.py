@@ -44,7 +44,7 @@ from evap.evaluation.tests.tools import (
 from evap.grades.models import GradeDocument
 from evap.results.tools import TextResult, cache_results, get_results
 from evap.rewards.models import RewardPointGranting, SemesterActivation
-from evap.staff.forms import ContributionCopyForm, ContributionCopyFormSet, CourseCopyForm, EvaluationCopyForm
+from evap.staff.forms import ContributionCopyForm, ContributionCopyFormset, CourseCopyForm, EvaluationCopyForm
 from evap.staff.tests.utils import (
     WebTestStaffMode,
     WebTestStaffModeWith200Check,
@@ -1636,7 +1636,7 @@ class TestEvaluationCopyView(WebTestStaffMode):
     def test_copy_forms_are_used(self):
         response = self.app.get(self.url, user=self.manager, status=200)
         self.assertIsInstance(response.context["evaluation_form"], EvaluationCopyForm)
-        self.assertIsInstance(response.context["formset"], ContributionCopyFormSet)
+        self.assertIsInstance(response.context["formset"], ContributionCopyFormset)
         self.assertTrue(issubclass(response.context["formset"].form, ContributionCopyForm))
 
     def test_evaluation_copy(self):

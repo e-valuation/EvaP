@@ -5,6 +5,7 @@ Vagrant.require_version ">= 1.8.1"
 
 Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |v, override|
+    v.memory = 2048
     override.vm.box = "ubuntu/focal64"
     override.vm.box_version = "= 20220426.0.0 "
     override.vm.provision "shell", path: "deployment/provision_vagrant_vm.sh"
