@@ -5,6 +5,10 @@ function isInvisible(el: Element): boolean {
     return el.parentElement !== null && isInvisible(el.parentElement);
 }
 
+function hasTabbingTarget(element: HTMLElement): boolean {
+    return element.querySelector(".tab-selectable") !== null;
+}
+
 function selectByNumberKey(row: HTMLElement, num: number) {
     let index = 2 * num - 1;
     if (num === 0) {
@@ -135,10 +139,6 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
     e.preventDefault();
     fancyFocus(findCorrectInputInRow(rows[nextRowIndex]));
 });
-
-function hasTabbingTarget(element: HTMLElement): boolean {
-    return element.querySelector(".tab-selectable") === null;
-}
 
 function findCorrectInputInRow(row: HTMLElement) {
     const alreadySelectedElement: HTMLElement = row.querySelector(".tab-selectable:checked")!;
