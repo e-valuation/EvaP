@@ -130,11 +130,15 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
             selectables[selectables.length - 1].focus({ preventScroll: true });
             return;
         }
-    } while (isInvisible(rows[nextRowIndex]) || rows[nextRowIndex].querySelector(".tab-selectable") === null);
+    } while (isInvisible(rows[nextRowIndex]) || !hasTabbingTarget(rows[nextRowIndex]));
 
     e.preventDefault();
     fancyFocus(findCorrectInputInRow(rows[nextRowIndex]));
 });
+
+function hasTabbingTarget(element: HTMLElement): boolean {
+    return element.querySelector(".tab-selectable") === null;
+}
 
 function findCorrectInputInRow(row: HTMLElement) {
     const alreadySelectedElement: HTMLElement = row.querySelector(".tab-selectable:checked")!;
