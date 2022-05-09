@@ -45,6 +45,15 @@ vagrant ssh
 That's it!
 
 
+### Docker
+We provide experimental support to run the development setup in a docker container using
+```bash
+vagrant up --provider docker
+vagrant provision
+vagrant ssh
+```
+
+
 ## Contributing
 
 We'd love to see contributions, feel free to fork! You should probably branch off ``main``, the branch ``release`` is used for stable revisions.

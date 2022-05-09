@@ -588,6 +588,74 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
+    def test_answers_for_removed_questionnaires_deleted(self):
+        # pylint: disable=too-many-locals
+        evaluation = baker.make(Evaluation)
+        general_question_1 = baker.make(Question, type=Question.LIKERT)
+        general_question_2 = baker.make(Question, type=Question.LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
+        contributor_question = baker.make(Question, type=Question.LIKERT)
+        contributor_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.CONTRIBUTOR,
+            questions=[contributor_question],
+        )
+        contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_1.questionnaires.set([contributor_questionnaire])
+        contribution_2.questionnaires.set([contributor_questionnaire])
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        rac_1 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+        )
+        rac_2 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+        )
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
+        )
+
+        contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        )
+        data = to_querydict(
+            {
+                "contributions-TOTAL_FORMS": 2,
+                "contributions-INITIAL_FORMS": 2,
+                "contributions-MAX_NUM_FORMS": 2,
+                "contributions-0-id": contribution_1.pk,
+                "contributions-0-evaluation": evaluation.pk,
+                "contributions-0-does_not_contribute": "on",  # remove questionnaire for one contributor
+                "contributions-0-order": 0,
+                "contributions-0-role": Contribution.Role.EDITOR,
+                "contributions-0-textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                "contributions-0-contributor": contribution_1.contributor.pk,
+                "contributions-1-id": contribution_2.pk,
+                "contributions-1-evaluation": evaluation.pk,
+                "contributions-1-questionnaires": contributor_questionnaire.pk,
+                "contributions-1-order": 1,
+                "contributions-1-role": Contribution.Role.EDITOR,
+                "contributions-1-textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                "contributions-1-contributor": contribution_2.contributor.pk,
+            }
+        )
+        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset.save()
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_4}
+        )
+
 
 class ContributionFormset775RegressionTests(TestCase):
     """
@@ -953,6 +1021,52 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+    def test_answers_for_removed_questionnaires_deleted(self):
+        # pylint: disable=too-many-locals
+        evaluation = baker.make(Evaluation)
+        general_question_1 = baker.make(Question, type=Question.LIKERT)
+        general_question_2 = baker.make(Question, type=Question.LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
+        contributor_question = baker.make(Question, type=Question.LIKERT)
+        contributor_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.CONTRIBUTOR,
+            questions=[contributor_question],
+        )
+        contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_1.questionnaires.set([contributor_questionnaire])
+        contribution_2.questionnaires.set([contributor_questionnaire])
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        rac_1 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+        )
+        rac_2 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+        )
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
+        )
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=evaluation.course.semester)
+        form_data["general_questionnaires"] = [general_questionnaire_1]  # remove one of the questionnaires
+        form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
+        form.save()
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_3, rac_4}
+        )
 
     def test_inactive_participants_remain(self):
         student = baker.make(UserProfile, is_active=False)

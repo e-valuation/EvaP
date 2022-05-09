@@ -19,11 +19,12 @@ from django.db.models import Count, Manager, OuterRef, Q, Subquery
 from django.db.models.functions import Coalesce
 from django.dispatch import Signal, receiver
 from django.template import Context, Template
+from django.template.defaultfilters import linebreaksbr
 from django.template.exceptions import TemplateSyntaxError
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.html import escape
+from django.utils.safestring import SafeData
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMIntegerField, transition
 from django_fsm.signals import post_transition
@@ -33,7 +34,7 @@ from evap.evaluation.tools import (
     clean_email,
     date_to_datetime,
     is_external_email,
-    is_prefetched,
+    is_m2m_prefetched,
     translate,
     vote_end_datetime,
 )
@@ -606,7 +607,7 @@ class Evaluation(LoggedModel):
         if self._participant_count is not None:
             return self._participant_count
 
-        if is_prefetched(self, "participants"):
+        if is_m2m_prefetched(self, "participants"):
             return len(self.participants.all())
 
         return self.participants.count()
@@ -1054,6 +1055,11 @@ class Contribution(LoggedModel):
         if self.contributor:
             return _("Contribution by {full_name}").format(full_name=self.contributor.full_name)
         return str(_("General Contribution"))
+
+    def remove_answers_to_questionnaires(self, questionnaires):
+        assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+        TextAnswer.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
+        RatingAnswerCounter.objects.filter(contribution=self, question__questionnaire__in=questionnaires).delete()
 
 
 class Question(models.Model):
@@ -1819,7 +1825,14 @@ class EmailTemplate(models.Model):
 
     @staticmethod
     def render_string(text, dictionary, *, autoescape=True):
-        return Template(text).render(Context(dictionary, autoescape))
+        result = Template(text).render(Context(dictionary, autoescape))
+
+        # Template.render would return a SafeData instance. If we didn't escape, this should not be marked as safe.
+        if not autoescape:
+            result = result + ""
+            assert not isinstance(result, SafeData)
+
+        return result
 
     def send_to_users_in_evaluations(self, evaluations, recipient_groups, use_cc, request):
         user_evaluation_map = {}
@@ -1894,12 +1907,9 @@ class EmailTemplate(models.Model):
         subject = self.render_string(self.subject, subject_params, autoescape=False)
         plain_content = self.render_string(self.plain_content, body_params, autoescape=False)
 
-        rendered_content = self.render_string(
-            self.html_content if self.html_content else self.plain_content.replace("\n", "<br />"), body_params
-        )
-        wrapper_template_params = dict(
-            {"email_content": rendered_content, "email_subject": escape(subject)}, **body_params
-        )
+        html_content = self.html_content if self.html_content else linebreaksbr(self.plain_content)
+        rendered_content = self.render_string(html_content, body_params)
+        wrapper_template_params = {"email_content": rendered_content, "email_subject": subject, **body_params}
         wrapped_content = render_to_string("email_base.html", wrapper_template_params)
 
         mail = EmailMultiAlternatives(

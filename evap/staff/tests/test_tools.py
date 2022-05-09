@@ -7,7 +7,12 @@ from model_bakery import baker
 from evap.evaluation.models import Contribution, Course, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 from evap.rewards.models import RewardPointGranting, RewardPointRedemption
-from evap.staff.tools import delete_navbar_cache_for_users, merge_users, remove_user_from_represented_and_ccing_users
+from evap.staff.tools import (
+    delete_navbar_cache_for_users,
+    merge_users,
+    remove_user_from_represented_and_ccing_users,
+    user_edit_link,
+)
 
 
 class NavbarCacheTest(WebTest):
@@ -257,3 +262,9 @@ class RemoveUserFromRepresentedAndCCingUsersTest(TestCase):
         self.assertEqual([set(user1.delegates.all()), set(user1.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual([set(user2.delegates.all()), set(user2.cc_users.all())], [{delete_user}, {delete_user}])
         self.assertEqual(len(messages), 4)
+
+
+class UserEditLinkTest(TestCase):
+    def test_user_edit_link(self):
+        user = baker.make(UserProfile)
+        self.assertIn(f"/staff/user/{user.id}/edit", user_edit_link(user.id))

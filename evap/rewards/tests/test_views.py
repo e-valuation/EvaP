@@ -40,6 +40,7 @@ class TestEventDeleteView(WebTestStaffMode):
 
 
 class TestIndexView(WebTest):
+    csrf_checks = False
     url = reverse("rewards:index")
 
     @classmethod
@@ -47,14 +48,14 @@ class TestIndexView(WebTest):
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         baker.make(Evaluation, participants=[cls.student])
         baker.make(RewardPointGranting, user_profile=cls.student, value=5)
-        baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
-        baker.make(RewardPointRedemptionEvent, pk=2, redeem_end_date=date.today() + timedelta(days=1))
+        cls.event1 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
+        cls.event2 = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
 
     def test_redeem_all_points(self):
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
-        form.set("points-1", 2)
-        form.set("points-2", 3)
+        form.set(f"points-{self.event1.pk}", 2)
+        form.set(f"points-{self.event2.pk}", 3)
         response = form.submit()
         self.assertContains(response, "You successfully redeemed your points.")
         self.assertEqual(0, reward_points_of_user(self.student))
@@ -62,8 +63,8 @@ class TestIndexView(WebTest):
     def test_redeem_too_many_points(self):
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
-        form.set("points-1", 3)
-        form.set("points-2", 3)
+        form.set(f"points-{self.event1.pk}", 3)
+        form.set(f"points-{self.event2.pk}", 3)
         response = form.submit()
         self.assertContains(response, "have enough reward points.")
         self.assertEqual(5, reward_points_of_user(self.student))
@@ -72,11 +73,18 @@ class TestIndexView(WebTest):
         """Regression test for #846"""
         response = self.app.get(self.url, user=self.student)
         form = response.forms["reward-redemption-form"]
-        form.set("points-2", 1)
+        form.set(f"points-{self.event2.pk}", 1)
         RewardPointRedemptionEvent.objects.update(redeem_end_date=date.today() - timedelta(days=1))
         response = form.submit()
         self.assertContains(response, "event expired already.")
         self.assertEqual(5, reward_points_of_user(self.student))
+
+    def test_invalid_post_parameters(self):
+        self.app.post(self.url, params={"points-asd": 2}, user=self.student, status=400)
+        self.app.post(self.url, params={"points-": 2}, user=self.student, status=400)
+        self.app.post(self.url, params={f"points-{self.event1.pk}": ""}, user=self.student, status=400)
+        self.app.post(self.url, params={f"points-{self.event1.pk}": "asd"}, user=self.student, status=400)
+        self.assertFalse(RewardPointRedemption.objects.filter(user_profile=self.student).exists())
 
 
 class TestEventsView(WebTestStaffModeWith200Check):
@@ -113,12 +121,11 @@ class TestEventCreateView(WebTestStaffMode):
 
 
 class TestEventEditView(WebTestStaffMode):
-    url = reverse("rewards:reward_point_redemption_event_edit", args=[1])
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.event = baker.make(RewardPointRedemptionEvent, pk=1, name="old name")
+        cls.event = baker.make(RewardPointRedemptionEvent, name="old name")
+        cls.url = reverse("rewards:reward_point_redemption_event_edit", args=[cls.event.pk])
 
     def test_edit_redemption_event(self):
         """submits a newly created redemption event and checks that the event has been created"""
@@ -133,14 +140,12 @@ class TestEventEditView(WebTestStaffMode):
 
 
 class TestExportView(WebTestStaffModeWith200Check):
-    url = "/rewards/reward_point_redemption_event/1/export"
-
     @classmethod
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
-
-        event = baker.make(RewardPointRedemptionEvent, pk=1, redeem_end_date=date.today() + timedelta(days=1))
+        event = baker.make(RewardPointRedemptionEvent, redeem_end_date=date.today() + timedelta(days=1))
         baker.make(RewardPointRedemption, value=1, event=event)
+        cls.url = f"/rewards/reward_point_redemption_event/{event.pk}/export"
 
 
 @override_settings(
@@ -151,13 +156,12 @@ class TestExportView(WebTestStaffModeWith200Check):
     ]
 )
 class TestSemesterActivationView(WebTestStaffMode):
-    url = "/rewards/reward_semester_activation/1/"
     csrf_checks = False
 
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, pk=1)
+        cls.semester = baker.make(Semester)
         cls.student = baker.make(UserProfile, email="student@institution.example.com")
         course = baker.make(Course, semester=cls.semester)
         cls.evaluation = baker.make(
@@ -167,6 +171,8 @@ class TestSemesterActivationView(WebTestStaffMode):
             voters=[cls.student],
             course=course,
         )
+
+        cls.url = f"/rewards/reward_semester_activation/{cls.semester.pk}/"
 
     def test_activate(self):
         baker.make(SemesterActivation, semester=self.semester, is_active=False)

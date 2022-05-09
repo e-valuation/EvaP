@@ -10,7 +10,7 @@ from model_bakery import baker
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.staff.importers import EnrollmentImporter, ImporterError, ImporterWarning, PersonImporter, UserImporter
-from evap.staff.tools import ImportType
+from evap.staff.tools import ImportType, user_edit_link
 
 
 class TestUserImporter(TestCase):
@@ -75,7 +75,7 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), 2 + original_user_count)
 
     def test_duplicate_warning(self):
-        baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
+        user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
@@ -85,8 +85,8 @@ class TestUserImporter(TestCase):
             warnings_test[ImporterWarning.DUPL],
             [
                 "An existing user has the same first and last name as a new user:<br />"
-                " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)"
+                f" -  Lucilia Manilium, luma@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
             ],
         )
 
@@ -127,14 +127,14 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertEqual(
             warnings_test[ImporterWarning.INACTIVE],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
             ],
         )
 
@@ -143,7 +143,7 @@ class TestUserImporter(TestCase):
             warnings_no_test[ImporterWarning.INACTIVE],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
             ],
         )
 
@@ -476,7 +476,7 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) already exists with matching attributes except degrees. Course is not created, users are put into the evaluation of that course and the degrees are merged.",
+            "Course Shake (Schütteln) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added.",
             warnings[ImporterWarning.EXISTS],
         )
         expected_course_count = old_course_count + 22
@@ -533,7 +533,8 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the existing course does not have exactly one evaluation.",
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the existing course does not have exactly one evaluation",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)
@@ -553,7 +554,8 @@ class TestEnrollmentImporter(TestCase):
         )
 
         self.assertIn(
-            "Course Shake (Schütteln) does already exist in this semester, but the courses can not be merged for the following reasons:<br /> - the evaluation of the existing course has a mismatching grading specification.",
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the evaluation of the existing course has a mismatching grading specification",
             errors[ImporterError.COURSE],
         )
         self.assertEqual(Course.objects.count(), old_course_count)

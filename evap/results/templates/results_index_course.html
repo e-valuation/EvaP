@@ -27,7 +27,7 @@
     <div data-col="result" data-order="{{ course.avg_grade|default:7 }}">
         {% if course.not_all_evaluations_are_published %}
             <div class="d-flex" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Course result is not yet available.' %}">
-                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass-half" %}
+                {% include 'distribution_with_grade_disabled.html' with icon="fas fa-hourglass" %}
             </div>
         {% else %}
             {% include 'evaluation_result_widget.html' with course_or_evaluation=course %}

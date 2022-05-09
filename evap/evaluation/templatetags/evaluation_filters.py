@@ -61,12 +61,12 @@ APPROVAL_STATES = {
     ),
     Evaluation.State.EDITOR_APPROVED: StateValues(
         1,
-        "far fa-check-square icon-yellow",
+        "far fa-square-check icon-yellow",
         Evaluation.State.EDITOR_APPROVED,
         _("Approved by editor, awaiting manager review"),
     ),
     Evaluation.State.APPROVED: StateValues(
-        3, "far fa-check-square icon-green", Evaluation.State.APPROVED, _("Approved by manager")
+        3, "far fa-square-check icon-green", Evaluation.State.APPROVED, _("Approved by manager")
     ),
 }
 
@@ -216,3 +216,8 @@ def has_nonresponsible_editor(evaluation):
 @register.filter
 def order_by(iterable, attribute):
     return sorted(iterable, key=lambda item: getattr(item, attribute))
+
+
+@register.filter
+def get(dictionary, key):
+    return dictionary.get(key)

@@ -170,7 +170,7 @@ class TestResultsView(WebTest):
 
     @patch("evap.evaluation.models.Evaluation.can_be_seen_by", new=(lambda self, user: True))
     def test_order(self):
-        student = baker.make(UserProfile, email="student@institution.example.com")
+        student = baker.make(UserProfile, email="student@institution.example.com", language="de")
 
         course = baker.make(Course)
         evaluation1 = baker.make(
@@ -189,12 +189,12 @@ class TestResultsView(WebTest):
         )
 
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
+        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
 
-        student.language = "de"
+        student.language = "en"
         student.save()
         page = self.app.get(self.url, user=student).body.decode()
-        self.assertGreater(page.index(evaluation1.name_de), page.index(evaluation2.name_de))
+        self.assertLess(page.index(evaluation1.name_en), page.index(evaluation2.name_en))
 
     # using LocMemCache so the cache queries don't show up in the query count that's measured here
     @override_settings(
@@ -544,6 +544,12 @@ class TestResultsSemesterEvaluationDetailView(WebTestStaffMode):
         self.assertTemplateUsed(response, "evaluation_result_widget.html", count=2)
         # Both evaluations should use this, plus one for the questionnaire
         self.assertTemplateUsed(response, "distribution_with_grade.html", count=3)
+
+    def test_invalid_contributor_id(self):
+        cache_results(self.evaluation)
+        self.app.get(self.url + "?contributor_id=", user=self.manager, status=400)
+        self.app.get(self.url + "?contributor_id=asd", user=self.manager, status=400)
+        self.app.get(self.url + "?contributor_id=1234", user=self.manager, status=404)
 
 
 class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
@@ -1176,3 +1182,11 @@ class TestTextAnswerExportView(WebTest):
         with run_in_staff_mode(self):
             self.app.get(self.url, user=manager, status=200)
             export_method.assert_called_once()
+
+    @patch("evap.results.exporters.TextAnswerExporter.export")
+    def test_invalid_contributor_id(self, export_method):
+        with run_in_staff_mode(self):
+            self.app.get(self.url + "?contributor_id=1234", user=self.reviewer, status=404)
+            self.app.get(self.url + "?contributor_id=", user=self.reviewer, status=400)
+            self.app.get(self.url + "?contributor_id=asd", user=self.reviewer, status=400)
+            export_method.assert_not_called()

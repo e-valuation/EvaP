@@ -6,9 +6,9 @@ django-debug-toolbar>=1.6
 django-stubs
 django-webtest==1.9.10
 isort==5.10.1
-model-bakery==1.4.0
+model-bakery==1.5.0
 mypy
 openpyxl-stubs==0.1.21
 pylint-django==2.5.3
-pylint==2.13.2
+pylint==2.13.7
 xlrd == 2.0.1

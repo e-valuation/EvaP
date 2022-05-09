@@ -48,7 +48,7 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py scss --production
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py ts compile --fresh
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py collectstatic --noinput
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo ./deployment/disable_maintenance_mode.sh

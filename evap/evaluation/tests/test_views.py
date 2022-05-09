@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import override_settings
+from django.utils import translation
 from django_webtest import WebTest
 from model_bakery import baker
 
@@ -13,6 +14,7 @@ from evap.evaluation.tests.tools import WebTestWith200Check, create_evaluation_w
 class TestIndexView(WebTest):
     url = "/"
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_passworduser_login(self):
         """Tests whether a user can login with an incorrect and a correct password."""
         baker.make(UserProfile, email="password.user", password=make_password("evap"))
@@ -24,6 +26,7 @@ class TestIndexView(WebTest):
         password_form["password"] = "evap"  # nosec
         password_form.submit(status=302)
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_login_for_staff_users_correctly_redirects(self):
         """Regression test for #1523: Access denied on manager login"""
         internal_email = (
@@ -44,6 +47,7 @@ class TestIndexView(WebTest):
         self.assertRedirects(response, self.url, fetch_redirect_response=False)
         self.assertRedirects(response.follow(), "/results/")
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_login_view_respects_redirect_parameter(self):
         """Regression test for #1658: redirect after login"""
         internal_email = "manager@institution.example.com"
@@ -112,6 +116,8 @@ class TestChangeLanguageView(WebTest):
 
         user.refresh_from_db()
         self.assertEqual(user.language, "en")
+
+        translation.activate("en")  # for following tests
 
 
 class TestProfileView(WebTest):
