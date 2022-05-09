@@ -21,7 +21,7 @@
             {% blocktrans %}You cannot edit this evaluation because it has already been approved.{% endblocktrans %}
         {% endif %}
     </div>
-
+ModalButton
     <h3>
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
     </h3>
@@ -65,7 +65,7 @@
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
                     {% if not evaluation.allow_editors_to_edit %}
                         <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();" id="changeEvaluationRequestModalButton">
+                            <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();">
                                 {% trans 'Request changes' %}
                             </button>
                         </div>
@@ -86,7 +86,7 @@
                     <div class="d-flex">
                         <h5 class="card-title me-auto">{% trans 'Participants' %}</h5>
                         <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();" id="changeParticipantRequestModalButton">
+                            <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();">
                                 {% trans 'Request changes' %}
                             </button>
                         </div>
