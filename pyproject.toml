@@ -27,8 +27,8 @@ django-settings-module = "evap.settings"
 [tool.pylint.basic]
 # snake_case, or PascalCaseFormset, because django does it that way
 # see https://docs.djangoproject.com/en/4.0/topics/forms/formsets/
-variable-rgx = "(^[a-z0-9_]*)$|(^[A-Za-z]*Formset$)"
-argument-rgx = "(^[a-z0-9_]*)$|(^[A-Za-z]*Formset$)"
+variable-rgx = "(^[a-z0-9_]*$)|(^[A-Za-z]*Formset$)"
+argument-rgx = "(^[a-z0-9_]*$)|(^[A-Za-z]*Formset$)"
 
 good-names = [ "i", "j", "k", "ex", "Run", "_", "__", "e", "logger", "setUpTestData", "setUp", "tearDown"]
 
