@@ -1,6 +1,6 @@
 import django.contrib.auth.views
 from django.conf import settings
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 urlpatterns = [
     path("", include('evap.evaluation.urls')),
@@ -12,7 +12,7 @@ urlpatterns = [
     path("grades/", include('evap.grades.urls')),
 
     path("logout", django.contrib.auth.views.LogoutView.as_view(next_page="/"), name="django-auth-logout"),
-    re_path(r'^oidc/', include('mozilla_django_oidc.urls')),
+    path("oidc/", include('mozilla_django_oidc.urls')),
 ]
 
 if settings.DEBUG:

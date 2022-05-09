@@ -13,6 +13,7 @@ from evap.evaluation.models import Contribution, Evaluation, UserProfile
 from evap.evaluation.tests.tools import WebTest
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class LoginTests(WebTest):
     csrf_checks = False
 
@@ -26,25 +27,20 @@ class LoginTests(WebTest):
         baker.make(
             Contribution,
             evaluation=evaluation,
-            contributor=cls.external_user,
+            contributor=iter([cls.external_user, cls.inactive_external_user]),
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
-        )
-        baker.make(
-            Contribution,
-            evaluation=evaluation,
-            contributor=cls.inactive_external_user,
-            role=Contribution.Role.EDITOR,
-            textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+            _quantity=2,
+            _bulk_create=True,
         )
 
     @override_settings(PAGE_URL="https://example.com")
     def test_login_url_generation(self):
         generated_url = self.external_user.login_url
-        self.assertEqual(generated_url, "https://example.com/key/{}".format(self.external_user.login_key))
+        self.assertEqual(generated_url, f"https://example.com/key/{self.external_user.login_key}")
 
         reversed_url = reverse("evaluation:login_key_authentication", args=[self.external_user.login_key])
-        self.assertEqual(reversed_url, "/key/{}".format(self.external_user.login_key))
+        self.assertEqual(reversed_url, f"/key/{self.external_user.login_key}")
 
     def test_login_url_works(self):
         self.assertRedirects(self.app.get(reverse("contributor:index")), "/?next=/contributor/")
@@ -133,12 +129,13 @@ class LoginTests(WebTest):
         page = self.app.get(location)
         # A GET here should then redirect to the users real start page.
         # This should be a 403 since the user is external and has no course participation
-        page = page.follow(expect_errors=True)
+        page = page.follow(status=403)
 
         # user should see the Logout button then.
         self.assertIn("Logout", page.body.decode())
 
 
+@override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])
 class LoginTestsWithCSRF(WebTest):
     @classmethod
     def setUpTestData(cls):
@@ -149,6 +146,7 @@ class LoginTestsWithCSRF(WebTest):
         cls.staff_user.set_password(cls.staff_user_password)
         cls.staff_user.save()
 
+    @override_settings(ACTIVATE_OPEN_ID_LOGIN=False)
     def test_entering_staff_mode_after_logout_and_login(self):
         """
         Asserts that managers can enter the staff mode after logging out and logging in again.

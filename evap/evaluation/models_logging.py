@@ -179,7 +179,7 @@ class LoggedModel(models.Model):
             for field_name, related_objects in model_to_dict(self, m2m_field_names).items():
                 changes[field_name] = {FieldActionType.INSTANCE_DELETE: [obj.pk for obj in related_objects]}
         else:
-            raise ValueError("Unknown action type: '{}'".format(action_type))
+            raise ValueError(f"Unknown action type: '{action_type}'")
 
         return changes
 

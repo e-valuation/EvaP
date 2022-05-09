@@ -3,7 +3,7 @@ from django.test import TestCase
 from model_bakery import baker
 
 from evap.contributor.forms import EditorContributionForm, EvaluationForm
-from evap.evaluation.models import Contribution, Evaluation, Questionnaire, UserProfile
+from evap.evaluation.models import Contribution, Degree, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
 from evap.staff.forms import ContributionFormSet
 
@@ -20,6 +20,24 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation)
         self.assertTrue(all(form.fields[field].disabled for field in form.fields))
+
+    def test_edit_participants(self):
+        student = baker.make(UserProfile)
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(len(form["participants"].initial), 1)
+
+        form_data["participants"].remove(student.pk)
+        EvaluationForm(form_data, instance=evaluation).save()
+        self.assertEqual(evaluation.num_participants, 0)
+
+        form_data["participants"].append(student.pk)
+        EvaluationForm(form_data, instance=evaluation).save()
+        del evaluation.num_participants  # discard cached property
+        self.assertEqual(evaluation.num_participants, 1)
 
 
 class ContributionFormsetTests(TestCase):
@@ -140,7 +158,7 @@ class ContributionFormsetWebTests(WebTest):
         when the user submits the form with errors.
         Regression test for #456.
         """
-        evaluation = baker.make(Evaluation, pk=1, state=Evaluation.State.PREPARED)
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PREPARED)
         user1 = baker.make(UserProfile, email="user1@institution.example.com")
         user2 = baker.make(UserProfile, email="user2@institution.example.com")
         questionnaire = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
@@ -177,10 +195,10 @@ class ContributionFormsetWebTests(WebTest):
 
         data["contributions-0-order"] = 1
         data["contributions-1-order"] = 2
-        response = str(self.app.post("/contributor/evaluation/1/edit", params=data, user=user1))
+        response = str(self.app.post(f"/contributor/evaluation/{evaluation.pk}/edit", params=data, user=user1))
         self.assertTrue(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))
 
         data["contributions-0-order"] = 2
         data["contributions-1-order"] = 1
-        response = str(self.app.post("/contributor/evaluation/1/edit", params=data, user=user1))
+        response = str(self.app.post(f"/contributor/evaluation/{evaluation.pk}/edit", params=data, user=user1))
         self.assertFalse(response.index("id_contributions-1-id") > response.index("id_contributions-0-id"))

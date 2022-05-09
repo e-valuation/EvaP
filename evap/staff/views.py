@@ -14,7 +14,7 @@ from django.db.models import BooleanField, Case, Count, ExpressionWrapper, Integ
 from django.dispatch import receiver
 from django.forms import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import format_html
@@ -26,6 +26,7 @@ from django.views.decorators.http import require_POST
 from evap.contributor.views import export_contributor_results
 from evap.evaluation.auth import manager_required, reviewer_required, staff_permission_required
 from evap.evaluation.models import (
+    Answer,
     Contribution,
     Course,
     CourseType,
@@ -41,7 +42,12 @@ from evap.evaluation.models import (
     TextAnswer,
     UserProfile,
 )
-from evap.evaluation.tools import FileResponse, get_parameter_from_url_or_session, sort_formset
+from evap.evaluation.tools import (
+    FileResponse,
+    get_object_from_dict_pk_entry_or_logged_40x,
+    get_parameter_from_url_or_session,
+    sort_formset,
+)
 from evap.grades.models import GradeDocument
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import TextResult, calculate_average_distribution, distribution_to_grade
@@ -79,6 +85,7 @@ from evap.staff.forms import (
     TextAnswerForm,
     TextAnswerWarningForm,
     UserBulkUpdateForm,
+    UserEditSelectionForm,
     UserForm,
     UserImportForm,
     UserMergeSelectionForm,
@@ -462,13 +469,12 @@ def semester_evaluation_operation(request, semester_id):
     if semester.participations_are_archived:
         raise PermissionDenied
 
-    raw_target_state = request.GET.get("target_state")
     try:
-        target_state = int(raw_target_state)
-    except ValueError as err:
-        raise SuspiciousOperation("Unparseable target state: " + str(raw_target_state)) from err
+        target_state = int(request.GET["target_state"])
+    except (KeyError, ValueError, TypeError) as err:
+        raise SuspiciousOperation("Could not parse target_state") from err
 
-    if target_state not in EVALUATION_OPERATIONS.keys():
+    if target_state not in EVALUATION_OPERATIONS:
         raise SuspiciousOperation("Unknown target state: " + str(target_state))
 
     evaluation_ids = (request.GET if request.method == "GET" else request.POST).getlist("evaluation")
@@ -559,11 +565,9 @@ def semester_create(request):
 @manager_required
 @transaction.atomic
 def semester_make_active(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     Semester.objects.update(is_active=None)
-
     semester.is_active = True
     semester.save()
 
@@ -586,8 +590,7 @@ def semester_edit(request, semester_id):
 @require_POST
 @manager_required
 def semester_delete(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting semester not allowed")
@@ -678,7 +681,7 @@ def semester_export(request, semester_id):
         for form in formset:
             selection_list.append((form.cleaned_data["selected_degrees"], form.cleaned_data["selected_course_types"]))
 
-        filename = "Evaluation-{}-{}.xls".format(semester.name, get_language())
+        filename = f"Evaluation-{semester.name}-{get_language()}.xls"
         response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
         ResultsExporter().export(response, [semester], selection_list, include_not_enough_voters, include_unpublished)
@@ -691,7 +694,7 @@ def semester_export(request, semester_id):
 def semester_raw_export(_request, semester_id):
     semester = get_object_or_404(Semester, id=semester_id)
 
-    filename = "Evaluation-{}-{}_raw.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_raw.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -714,7 +717,7 @@ def semester_raw_export(_request, semester_id):
         if evaluation.can_staff_see_average_grade:
             distribution = calculate_average_distribution(evaluation)
             if distribution is not None:
-                avg_grade = "{:.1f}".format(distribution_to_grade(distribution))
+                avg_grade = f"{distribution_to_grade(distribution):.1f}"
         writer.writerow(
             [
                 evaluation.full_name,
@@ -739,7 +742,7 @@ def semester_participation_export(_request, semester_id):
         UserProfile.objects.filter(evaluations_participating_in__course__semester=semester).distinct().order_by("email")
     )
 
-    filename = "Evaluation-{}-{}_participation.csv".format(semester.name, get_language())
+    filename = f"Evaluation-{semester.name}-{get_language()}_participation.csv"
     response = FileResponse(filename, content_type="text/csv")
 
     writer = csv.writer(response, delimiter=";", lineterminator="\n")
@@ -888,8 +891,7 @@ def send_reminder(request, semester_id, responsible_id):
 @require_POST
 @manager_required
 def semester_archive_participations(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.participations_can_be_archived:
         raise SuspiciousOperation("Archiving participations for this semester is not allowed")
@@ -900,8 +902,7 @@ def semester_archive_participations(request):
 @require_POST
 @manager_required
 def semester_delete_grade_documents(request):
-    semester_id = request.POST.get("semester_id")
-    semester = get_object_or_404(Semester, id=semester_id)
+    semester = get_object_from_dict_pk_entry_or_logged_40x(Semester, request.POST, "semester_id")
 
     if not semester.grade_documents_can_be_deleted:
         raise SuspiciousOperation("Deleting grade documents for this semester is not allowed")
@@ -968,7 +969,7 @@ def course_copy(request, semester_id, course_id):
             messages.warning(
                 request,
                 _("The accounts of the following contributors were reactivated:")
-                + " {accounts}".format(accounts=", ".join(user.full_name for user in inactive_users)),
+                + f" {', '.join(user.full_name for user in inactive_users)}",
             )
             inactive_users.update(is_active=True)
 
@@ -1031,8 +1032,7 @@ def course_edit(request, semester_id, course_id):
 @require_POST
 @manager_required
 def course_delete(request):
-    course_id = request.POST.get("course_id")
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_from_dict_pk_entry_or_logged_40x(Course, request.POST, "course_id")
     if not course.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting course not allowed")
     course.delete()
@@ -1047,7 +1047,7 @@ def evaluation_create(request, semester_id, course_id=None):
 
     evaluation = Evaluation()
     if course_id:
-        evaluation.course = Course.objects.get(id=course_id)
+        evaluation.course = get_object_or_404(Course, id=course_id)
     InlineContributionFormset = inlineformset_factory(
         Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
     )
@@ -1069,7 +1069,13 @@ def evaluation_create(request, semester_id, course_id=None):
         request,
         "staff_evaluation_form.html",
         dict(
-            semester=semester, evaluation_form=evaluation_form, formset=formset, manager=True, editable=True, state=""
+            semester=semester,
+            evaluation_form=evaluation_form,
+            formset=formset,
+            manager=True,
+            editable=True,
+            state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
@@ -1104,6 +1110,7 @@ def evaluation_copy(request, semester_id, evaluation_id):
             manager=True,
             editable=True,
             state="",
+            questionnaires_with_answers_per_contributor={},
         ),
     )
 
@@ -1116,7 +1123,7 @@ def single_result_create(request, semester_id, course_id=None):
 
     evaluation = Evaluation()
     if course_id:
-        evaluation.course = Course.objects.get(id=course_id)
+        evaluation.course = get_object_or_404(Course, id=course_id)
 
     form = SingleResultForm(request.POST or None, instance=evaluation, semester=semester)
 
@@ -1207,6 +1214,19 @@ def helper_evaluation_edit(request, semester, evaluation):
 
         return redirect("staff:semester_view", semester.id)
 
+    assert set(Answer.__subclasses__()) == {TextAnswer, RatingAnswerCounter}
+    contributor_questionnaire_pairs = [
+        (answer.contribution.contributor, answer.question.questionnaire)
+        for answer_cls in [TextAnswer, RatingAnswerCounter]
+        for answer in answer_cls.objects.filter(contribution__evaluation=evaluation).select_related(
+            "question__questionnaire", "contribution__contributor"
+        )
+    ]
+
+    questionnaires_with_answers_per_contributor = defaultdict(list)
+    for (contributor, questionnaire) in contributor_questionnaire_pairs:
+        questionnaires_with_answers_per_contributor[contributor].append(questionnaire)
+
     if evaluation_form.errors or formset.errors:
         messages.error(request, _("The form was not saved. Please resolve the errors shown below."))
     sort_formset(request, formset)
@@ -1218,6 +1238,7 @@ def helper_evaluation_edit(request, semester, evaluation):
         manager=True,
         state=evaluation.state,
         editable=editable,
+        questionnaires_with_answers_per_contributor=questionnaires_with_answers_per_contributor,
     )
     return render(request, "staff_evaluation_form.html", template_data)
 
@@ -1244,8 +1265,7 @@ def helper_single_result_edit(request, semester, evaluation):
 @require_POST
 @manager_required
 def evaluation_delete(request):
-    evaluation_id = request.POST.get("evaluation_id")
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
 
     if not evaluation.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting evaluation not allowed")
@@ -1421,7 +1441,7 @@ def get_evaluation_and_contributor_textanswer_sections(evaluation, filter_textan
 
     raw_answers = (
         TextAnswer.objects.filter(contribution__evaluation=evaluation)
-        .prefetch_related("contribution", "question__questionnaire", "question")
+        .select_related("question__questionnaire", "contribution__contributor")
         .order_by("contribution", "question__questionnaire", "question")
     )
     if filter_textanswers:
@@ -1500,9 +1520,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
 
 @reviewer_required
 def evaluation_textanswers_skip(request):
-    evaluation_id = request.POST["evaluation_id"]
-    evaluation = get_object_or_404(Evaluation, id=evaluation_id)
-
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     visited = request.session.get("review-skipped", set())
     visited.add(evaluation.pk)
     request.session["review-skipped"] = visited
@@ -1512,19 +1530,16 @@ def evaluation_textanswers_skip(request):
 @require_POST
 @reviewer_required
 def evaluation_textanswers_update_publish(request):
-    textanswer_id = request.POST["id"]
-    action = request.POST["action"]
-    evaluation_id = request.POST["evaluation_id"]
+    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "id")
+    evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
+    action = request.POST.get("action", None)
 
-    evaluation = Evaluation.objects.get(pk=evaluation_id)
     if evaluation.state == Evaluation.State.PUBLISHED:
         raise PermissionDenied
     if evaluation.course.semester.results_are_archived:
         raise PermissionDenied
     if not evaluation.can_publish_text_results:
         raise PermissionDenied
-
-    answer = TextAnswer.objects.get(pk=textanswer_id)
 
     if action == "publish":
         answer.publish()
@@ -1536,11 +1551,12 @@ def evaluation_textanswers_update_publish(request):
         answer.unreview()
     elif action == "textanswer_edit":
         url = reverse(
-            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation_id, textanswer_id]
+            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation.pk, answer.pk]
         )
         return HttpResponse(url)
     else:
-        return HttpResponse(status=400)  # 400 Bad Request
+        raise SuspiciousOperation
+
     answer.save()
 
     if evaluation.state == Evaluation.State.EVALUATED and evaluation.is_fully_reviewed:
@@ -1757,8 +1773,8 @@ def questionnaire_new_version(request, questionnaire_id):
 
     # Check if we can use the old name with the current time stamp.
     timestamp = date.today()
-    new_name_de = "{} (until {})".format(old_questionnaire.name_de, str(timestamp))
-    new_name_en = "{} (until {})".format(old_questionnaire.name_en, str(timestamp))
+    new_name_de = f"{old_questionnaire.name_de} (until {timestamp})"
+    new_name_en = f"{old_questionnaire.name_en} (until {timestamp})"
 
     # If not, redirect back and suggest to edit the already created version.
     if Questionnaire.objects.filter(Q(name_de=new_name_de) | Q(name_en=new_name_en)):
@@ -1800,8 +1816,7 @@ def questionnaire_new_version(request, questionnaire_id):
 @require_POST
 @manager_required
 def questionnaire_delete(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
 
     if not questionnaire.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting questionnaire not allowed")
@@ -1812,22 +1827,34 @@ def questionnaire_delete(request):
 @require_POST
 @manager_required
 def questionnaire_update_indices(request):
-    updated_indices = request.POST
-    for questionnaire_id, new_order in updated_indices.items():
-        questionnaire = Questionnaire.objects.get(pk=questionnaire_id)
-        questionnaire.order = new_order
-        questionnaire.save()
+    try:
+        order_by_questionnaire = {int(key): int(value) for key, value in request.POST.items()}
+    except (TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
+    questionnaires = list(Questionnaire.objects.filter(pk__in=order_by_questionnaire.keys()))
+    if len(questionnaires) != len(order_by_questionnaire):
+        raise Http404("Questionnaire not found.")
+
+    for questionnaire in questionnaires:
+        questionnaire.order = order_by_questionnaire[questionnaire.pk]
+
+    Questionnaire.objects.bulk_update(questionnaires, ["order"])
     return HttpResponse()
 
 
 @require_POST
 @manager_required
 def questionnaire_visibility(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    visibility = int(request.POST.get("visibility"))
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        visibility = int(request.POST["visibility"])
+    except (KeyError, TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
     if visibility not in Questionnaire.Visibility.values:
         raise SuspiciousOperation("Invalid visibility choice")
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+
     questionnaire.visibility = visibility
     questionnaire.save()
     return HttpResponse()
@@ -1836,9 +1863,12 @@ def questionnaire_visibility(request):
 @require_POST
 @manager_required
 def questionnaire_set_locked(request):
-    questionnaire_id = request.POST.get("questionnaire_id")
-    is_locked = bool(int(request.POST.get("is_locked")))
-    questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+    questionnaire = get_object_from_dict_pk_entry_or_logged_40x(Questionnaire, request.POST, "questionnaire_id")
+    try:
+        is_locked = bool(int(request.POST["is_locked"]))
+    except (KeyError, TypeError, ValueError) as e:
+        raise SuspiciousOperation from e
+
     questionnaire.is_locked = is_locked
     questionnaire.save()
     return HttpResponse()
@@ -1937,6 +1967,17 @@ def text_answer_warnings_index(request):
 
 @manager_required
 def user_index(request):
+    form = UserEditSelectionForm(request.POST or None)
+
+    if form.is_valid():
+        user = form.cleaned_data["user"]
+        return redirect("staff:user_edit", user.id)
+
+    return render(request, "staff_user_index.html", dict(form=form))
+
+
+@manager_required
+def user_list(request):
     filter_users = get_parameter_from_url_or_session(request, "filter_users")
 
     users = UserProfile.objects.all()
@@ -1969,7 +2010,7 @@ def user_index(request):
         .order_by("last_name", "first_name", "email")
     )
 
-    return render(request, "staff_user_index.html", dict(users=users, filter_users=filter_users))
+    return render(request, "staff_user_list.html", dict(users=users, filter_users=filter_users))
 
 
 @manager_required
@@ -2071,12 +2112,12 @@ def user_edit(request, user_id):
 @require_POST
 @manager_required
 def user_delete(request):
-    user_id = request.POST.get("user_id")
-    user = get_object_or_404(UserProfile, id=user_id)
+    user = get_object_from_dict_pk_entry_or_logged_40x(UserProfile, request.POST, "user_id")
 
     if not user.can_be_deleted_by_manager:
         raise SuspiciousOperation("Deleting user not allowed")
     user.delete()
+    messages.success(request, _("Successfully deleted user."))
     return HttpResponse()  # 200 OK
 
 

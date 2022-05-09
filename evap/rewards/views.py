@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest, SuspiciousOperation
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import get_language
@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 
 from evap.evaluation.auth import manager_required, reward_user_required
 from evap.evaluation.models import Semester
-from evap.evaluation.tools import FileResponse
+from evap.evaluation.tools import FileResponse, get_object_from_dict_pk_entry_or_logged_40x
 from evap.rewards.exporters import RewardsExporter
 from evap.rewards.forms import RewardPointRedemptionEventForm
 from evap.rewards.models import (
@@ -30,10 +30,13 @@ from evap.staff.views import semester_view
 def index(request):
     if request.method == "POST":
         redemptions = {}
-        for key, value in request.POST.items():
-            if key.startswith("points-"):
-                event_id = int(key.rpartition("-")[2])
-                redemptions[event_id] = int(value)
+        try:
+            for key, value in request.POST.items():
+                if key.startswith("points-"):
+                    event_id = int(key.rpartition("-")[2])
+                    redemptions[event_id] = int(value)
+        except ValueError as e:
+            raise BadRequest from e
 
         try:
             save_redemptions(request, redemptions)
@@ -103,8 +106,7 @@ def reward_point_redemption_event_edit(request, event_id):
 @require_POST
 @manager_required
 def reward_point_redemption_event_delete(request):
-    event_id = request.POST.get("event_id")
-    event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
+    event = get_object_from_dict_pk_entry_or_logged_40x(RewardPointRedemptionEvent, request.POST, "event_id")
 
     if not event.can_delete:
         raise SuspiciousOperation("Deleting redemption event not allowed")
@@ -116,7 +118,7 @@ def reward_point_redemption_event_delete(request):
 def reward_point_redemption_event_export(request, event_id):
     event = get_object_or_404(RewardPointRedemptionEvent, id=event_id)
 
-    filename = _("RewardPoints") + "-%s-%s-%s.xls" % (event.date, event.name, get_language())
+    filename = _("RewardPoints") + f"-{event.date}-{event.name}-{get_language()}.xls"
     response = FileResponse(filename, content_type="application/vnd.ms-excel")
 
     RewardsExporter().export(response, event.redemptions_by_user())

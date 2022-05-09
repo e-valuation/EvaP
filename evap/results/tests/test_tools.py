@@ -6,7 +6,16 @@ from django.test import override_settings
 from django.test.testcases import TestCase
 from model_bakery import baker
 
-from evap.evaluation.models import Contribution, Course, Evaluation, Question, Questionnaire, TextAnswer, UserProfile
+from evap.evaluation.models import (
+    Contribution,
+    Course,
+    Evaluation,
+    Question,
+    Questionnaire,
+    RatingAnswerCounter,
+    TextAnswer,
+    UserProfile,
+)
 from evap.evaluation.tests.tools import make_rating_answer_counters
 from evap.results.tools import (
     RatingResult,
@@ -197,14 +206,21 @@ class TestCalculateAverageDistribution(TestCase):
     def test_average_grade(self):
         question_grade2 = baker.make(Question, questionnaire=self.questionnaire, type=Question.GRADE)
 
-        make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 0, 0, 2, 0])
-        make_rating_answer_counters(question_grade2, self.contribution1, [1, 0, 0, 0, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
-        make_rating_answer_counters(self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2])
-        make_rating_answer_counters(self.question_bipolar_2, self.general_contribution, [0, 0, 4, 0, 0, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [0, 1, 0, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 0, 0, 2, 0], False),
+            *make_rating_answer_counters(question_grade2, self.contribution1, [1, 0, 0, 0, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 4, 0, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(
+                self.question_bipolar, self.general_contribution, [0, 0, 0, 0, 0, 0, 2], False
+            ),
+            *make_rating_answer_counters(
+                self.question_bipolar_2, self.general_contribution, [0, 0, 4, 0, 0, 0, 0], False
+            ),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -243,11 +259,14 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_without_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -274,12 +293,15 @@ class TestCalculateAverageDistribution(TestCase):
         GENERAL_NON_GRADE_QUESTIONS_WEIGHT=5,
     )
     def test_distribution_with_general_grade_question(self):
-        make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0])
-        make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3])
-        make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5])
-        make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0])
-        make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 10, 0, 0, 0])
+        counters = [
+            *make_rating_answer_counters(self.question_grade, self.contribution1, [1, 0, 1, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.contribution2, [0, 1, 0, 1, 0], False),
+            *make_rating_answer_counters(self.question_likert, self.contribution1, [0, 0, 3, 0, 3], False),
+            *make_rating_answer_counters(self.question_likert, self.general_contribution, [0, 0, 0, 0, 5], False),
+            *make_rating_answer_counters(self.question_likert_2, self.general_contribution, [0, 0, 3, 0, 0], False),
+            *make_rating_answer_counters(self.question_grade, self.general_contribution, [0, 10, 0, 0, 0], False),
+        ]
+        RatingAnswerCounter.objects.bulk_create(counters)
 
         cache_results(self.evaluation)
 
@@ -411,16 +433,19 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def setUpTestData(cls):
         cls.delegate1 = baker.make(UserProfile, email="delegate1@institution.example.com")
         cls.delegate2 = baker.make(UserProfile, email="delegate2@institution.example.com")
+        cls.shared_delegate = baker.make(UserProfile, email="shared_delegate@institution.example.com")
         cls.contributor_own = baker.make(
-            UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1]
+            UserProfile, email="contributor_own@institution.example.com", delegates=[cls.delegate1, cls.shared_delegate]
         )
         cls.contributor_general = baker.make(
-            UserProfile, email="contributor_general@institution.example.com", delegates=[cls.delegate2]
+            UserProfile,
+            email="contributor_general@institution.example.com",
+            delegates=[cls.delegate2, cls.shared_delegate],
         )
         cls.responsible1 = baker.make(
             UserProfile,
             email="responsible1@institution.example.com",
-            delegates=[cls.delegate1, cls.contributor_general],
+            delegates=[cls.delegate1, cls.contributor_general, cls.shared_delegate],
         )
         cls.responsible2 = baker.make(UserProfile, email="responsible2@institution.example.com")
         cls.responsible_without_contribution = baker.make(
@@ -508,7 +533,7 @@ class TestTextAnswerVisibilityInfo(TestCase):
     def test_text_answer_visible_to_non_contributing_responsible(self):
         self.assertIn(
             self.responsible_without_contribution,
-            textanswers_visible_to(self.general_contribution_textanswer.contribution)[0],
+            textanswers_visible_to(self.general_contribution_textanswer.contribution).visible_by_contribution,
         )
 
     def test_contributors_and_delegate_count_in_textanswer_visibility_info(self):
@@ -533,16 +558,20 @@ class TestTextAnswerVisibilityInfo(TestCase):
                         users_seeing_contribution[i][1].add(user)
 
         for i in range(len(textanswers)):
-            self.assertCountEqual(visible_to[i][0], users_seeing_contribution[i][0])
+            self.assertCountEqual(visible_to[i].visible_by_contribution, users_seeing_contribution[i][0])
 
         expected_delegate_counts = [
-            2,  # delegate1, delegate2
-            2,  # delegate1, contributor_general
-            2,  # delegate1, contributor_general
+            3,  # delegate1, delegate2, shared_delegate
+            3,  # delegate1, contributor_general, shared_delegate
+            3,  # delegate1, contributor_general, shared_delegate
             0,
-            1,  # delegate1
-            1,  # delegate2
+            2,  # delegate1, shared_delegate
+            2,  # delegate2, shared_delegate
         ]
 
         for i in range(len(textanswers)):
-            self.assertTrue(visible_to[i][1] == len(users_seeing_contribution[i][1]) == expected_delegate_counts[i])
+            self.assertTrue(
+                visible_to[i].visible_by_delegation_count
+                == len(users_seeing_contribution[i][1])
+                == expected_delegate_counts[i]
+            )

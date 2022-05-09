@@ -2,19 +2,20 @@ from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from enum import Enum
 from io import BytesIO
-from typing import Dict, Set
+from typing import Dict, Optional, Set
 
 import openpyxl
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
-from evap.evaluation.tools import clean_email
-from evap.staff.tools import ImportType, create_user_list_html_string_for_message
+from evap.evaluation.tools import clean_email, unordered_groupby
+from evap.staff.tools import ImportType, create_user_list_html_string_for_message, user_edit_link
 
 
 def sorted_messages(messages):
@@ -71,7 +72,7 @@ class UserData(CommonEqualityMixin):
 
 
 @dataclass
-class EvaluationData:
+class EvaluationData:  # pylint: disable=too-many-instance-attributes
     """
     Holds information about an evaluation, retrieved from the Excel file.
     """
@@ -83,6 +84,7 @@ class EvaluationData:
     is_graded: bool
     responsible_email: str
     errors: Dict
+    existing_course: Optional[Course]
 
     def equals_except_for_degrees(self, other):
         return (
@@ -98,6 +100,10 @@ class EvaluationData:
         assert not self.errors
         # This is safe because the user's email address is checked before in the importer (see #953)
         responsible_dbobj = UserProfile.objects.get(email=self.responsible_email)
+        if self.existing_course:
+            self.existing_course.degrees.add(*self.degrees)
+            return
+
         course = Course(
             name_de=self.name_de,
             name_en=self.name_en,
@@ -120,6 +126,24 @@ class EvaluationData:
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
         )
+
+    def get_course_merge_hindrances(self, merge_candidate):
+        hindrances = set()
+        if merge_candidate.type != self.course_type:
+            hindrances.add(_("the course type does not match"))
+        if (
+            merge_candidate.responsibles.count() != 1
+            or merge_candidate.responsibles.first().email != self.responsible_email
+        ):
+            hindrances.add(_("the responsibles of the course do not match"))
+
+        evaluations = Evaluation.objects.filter(course=merge_candidate)
+        if len(evaluations) != 1:
+            hindrances.add(_("the existing course does not have exactly one evaluation"))
+        elif evaluations.first().wait_for_grade_upload_before_publishing != self.is_graded:
+            hindrances.add(_("the evaluation of the existing course has a mismatching grading specification"))
+
+        return hindrances
 
 
 class ImporterError(Enum):
@@ -152,10 +176,11 @@ class ImporterWarning(Enum):
     NAME = ("name", gettext_lazy("Name mismatches"), 1)
     INACTIVE = ("inactive", gettext_lazy("Inactive users"), 2)
     DUPL = ("duplicate", gettext_lazy("Possible duplicates"), 3)
-    IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 4)
+    EXISTS = ("existing", gettext_lazy("Existing courses"), 4)
+    IGNORED = ("ignored", gettext_lazy("Ignored duplicates"), 5)
 
-    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 5)
-    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 6)
+    DEGREE = ("degree", gettext_lazy("Degree mismatches"), 6)
+    MANY = ("too_many_enrollments", gettext_lazy("Unusually high number of enrollments"), 7)
 
 
 class EvaluationDataFactory:
@@ -183,6 +208,7 @@ class EvaluationDataFactory:
             is_graded=is_graded,
             responsible_email=responsible_email,
             errors=errors,
+            existing_course=None,
         )
 
     def get_degree_or_add_error(self, degree_name, errors):
@@ -296,13 +322,17 @@ class ExcelImporter:
     @staticmethod
     def _create_user_data_mismatch_warning(user, user_data, test_run):
         if test_run:
-            msg = format_html(_("The existing user would be overwritten with the following data:"))
+            msg = _("The existing user would be overwritten with the following data:")
         else:
-            msg = format_html(_("The existing user was overwritten with the following data:"))
-        return (
-            msg
-            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user), _("existing"))
-            + format_html("<br /> - {} ({})", ExcelImporter._create_user_string(user_data), _("new"))
+            msg = _("The existing user was overwritten with the following data:")
+        return format_html(
+            "{}<br /> - {} ({}) [{}]<br /> - {} ({})",
+            msg,
+            ExcelImporter._create_user_string(user),
+            _("existing"),
+            user_edit_link(user.pk),
+            ExcelImporter._create_user_string(user_data),
+            _("new"),
         )
 
     @staticmethod
@@ -310,19 +340,26 @@ class ExcelImporter:
         user_string = ExcelImporter._create_user_string(user)
         if test_run:
             return format_html(
-                _("The following user is currently marked inactive and will be marked active upon importing: {}"),
+                _("The following user is currently marked inactive and will be marked active upon importing: {} [{}]"),
                 user_string,
+                user_edit_link(user.pk),
             )
 
         return format_html(
-            _("The following user was previously marked inactive and is now marked active upon importing: {}"),
+            _("The following user was previously marked inactive and is now marked active upon importing: {} [{}]"),
             user_string,
+            user_edit_link(user.pk),
         )
 
     def _create_user_name_collision_warning(self, user_data, users_with_same_names):
-        warningstring = format_html(_("An existing user has the same first and last name as a new user:"))
+        warningstring = mark_safe(_("An existing user has the same first and last name as a new user:"))
         for user in users_with_same_names:
-            warningstring += format_html("<br /> - {} ({})", self._create_user_string(user), _("existing"))
+            warningstring += format_html(
+                "<br /> - {} ({}) [{}]",
+                self._create_user_string(user),
+                _("existing"),
+                user_edit_link(user.pk),
+            )
         warningstring += format_html("<br /> - {} ({})", self._create_user_string(user_data), _("new"))
 
         self.warnings[ImporterWarning.DUPL].append(warningstring)
@@ -438,14 +475,9 @@ class EnrollmentImporter(ExcelImporter):
         missing_degree_names = set()
         missing_course_type_names = set()
         for evaluation_data in self.evaluations.values():
-            if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
-                self.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(evaluation_data.name_en)
-                )
-            if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
-                self.errors[ImporterError.COURSE].append(
-                    _("Course {} does already exist in this semester.").format(evaluation_data.name_de)
-                )
+            found_merge_candidate = self.set_existing_course_to_merge_or_add_errors(semester, evaluation_data)
+            if not found_merge_candidate:
+                self.add_errors_for_course_name_collisions(semester, evaluation_data)
 
             assert evaluation_data.errors.keys() <= {"degrees", "course_type", "is_graded"}
 
@@ -476,11 +508,49 @@ class EnrollmentImporter(ExcelImporter):
                 ).format(course_type_name)
             )
 
+    def set_existing_course_to_merge_or_add_errors(self, semester, evaluation_data):
+        merge_candidate = Course.objects.filter(
+            semester=semester, name_de=evaluation_data.name_de, name_en=evaluation_data.name_en
+        ).first()
+        if merge_candidate:
+            merge_hindrances = evaluation_data.get_course_merge_hindrances(merge_candidate)
+            if merge_hindrances:
+                self.errors[ImporterError.COURSE].append(
+                    format_html(
+                        _(
+                            "Course {name_en} ({name_de}) already exists in this semester, but the courses can not be merged for the following reasons:{reasons}"
+                        ),
+                        name_en=evaluation_data.name_en,
+                        name_de=evaluation_data.name_de,
+                        reasons=format_html_join("", "<br /> - {}", ([msg] for msg in merge_hindrances)),
+                    )
+                )
+            else:
+                evaluation_data.existing_course = merge_candidate
+                self.warnings[ImporterWarning.EXISTS].append(
+                    _(
+                        "Course {name_en} ({name_de}) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added."
+                    ).format(name_en=evaluation_data.name_en, name_de=evaluation_data.name_de)
+                )
+        return merge_candidate is not None
+
+    def add_errors_for_course_name_collisions(self, semester, evaluation_data):
+        if Course.objects.filter(semester=semester, name_en=evaluation_data.name_en).exists():
+            self.errors[ImporterError.COURSE].append(
+                _("Course {} (EN) already exists in this semester with different german name.").format(
+                    evaluation_data.name_en
+                )
+            )
+        if Course.objects.filter(semester=semester, name_de=evaluation_data.name_de).exists():
+            self.errors[ImporterError.COURSE].append(
+                _("Course {} (DE) already exists in this semester with different english name.").format(
+                    evaluation_data.name_de
+                )
+            )
+
     def check_enrollment_data_sanity(self):
-        enrollments_per_user = defaultdict(list)
-        for enrollment in self.enrollments:
-            index = enrollment[1].email
-            enrollments_per_user[index].append(enrollment)
+        enrollments_per_user = unordered_groupby((enrollment[1].email, enrollment) for enrollment in self.enrollments)
+
         for email, enrollments in enrollments_per_user.items():
             if len(enrollments) > settings.IMPORTER_MAX_ENROLLMENTS:
                 self.warnings[ImporterWarning.MANY].append(
@@ -567,7 +637,7 @@ class EnrollmentImporter(ExcelImporter):
                 importer.write_enrollments_to_db(semester, vote_start_datetime, vote_end_date)
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
@@ -578,7 +648,7 @@ class EnrollmentImporter(ExcelImporter):
 class UserImporter(ExcelImporter):
     def __init__(self):
         super().__init__()
-        self._read_user_data = dict()
+        self._read_user_data = {}
 
     def read_one_user(self, data, sheet, row):
         user_data = UserData(title=data[0], first_name=data[1], last_name=data[2], email=data[3], is_responsible=False)
@@ -683,7 +753,7 @@ class UserImporter(ExcelImporter):
             return importer.save_users_to_db(), importer.success_messages, importer.warnings, importer.errors
 
         except Exception as e:  # pylint: disable=broad-except
-            importer.errors[ImporterError.GENERAL].append(_("Import finally aborted after exception: '%s'" % e))
+            importer.errors[ImporterError.GENERAL].append(_(f"Import finally aborted after exception: '{e}'"))
             if settings.DEBUG:
                 # re-raise error for further introspection if in debug mode
                 raise
