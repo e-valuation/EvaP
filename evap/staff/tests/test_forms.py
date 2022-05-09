@@ -322,7 +322,7 @@ class ContributionFormsetTests(TestCase):
         # assert same error message with and without questionnaire
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         data["contributions-1-questionnaires"] = questionnaire.pk
@@ -330,7 +330,7 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.is_valid())
         self.assertEqual(
             formset.non_form_errors(),
-            [("Duplicate contributor ({}) found. Each contributor should only be used once.").format(user1.full_name)],
+            [f"Duplicate contributor ({user1.full_name}) found. Each contributor should only be used once."],
         )
 
         # two contributors
@@ -588,6 +588,74 @@ class ContributionFormsetTests(TestCase):
         self.assertFalse(formset.forms[0].show_delete_button)
         self.assertTrue(formset.forms[1].show_delete_button)
 
+    def test_answers_for_removed_questionnaires_deleted(self):
+        # pylint: disable=too-many-locals
+        evaluation = baker.make(Evaluation)
+        general_question_1 = baker.make(Question, type=Question.LIKERT)
+        general_question_2 = baker.make(Question, type=Question.LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
+        contributor_question = baker.make(Question, type=Question.LIKERT)
+        contributor_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.CONTRIBUTOR,
+            questions=[contributor_question],
+        )
+        contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_1.questionnaires.set([contributor_questionnaire])
+        contribution_2.questionnaires.set([contributor_questionnaire])
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        rac_1 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+        )
+        rac_2 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+        )
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
+        )
+
+        contribution_formset = inlineformset_factory(
+            Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=0
+        )
+        data = to_querydict(
+            {
+                "contributions-TOTAL_FORMS": 2,
+                "contributions-INITIAL_FORMS": 2,
+                "contributions-MAX_NUM_FORMS": 2,
+                "contributions-0-id": contribution_1.pk,
+                "contributions-0-evaluation": evaluation.pk,
+                "contributions-0-does_not_contribute": "on",  # remove questionnaire for one contributor
+                "contributions-0-order": 0,
+                "contributions-0-role": Contribution.Role.EDITOR,
+                "contributions-0-textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                "contributions-0-contributor": contribution_1.contributor.pk,
+                "contributions-1-id": contribution_2.pk,
+                "contributions-1-evaluation": evaluation.pk,
+                "contributions-1-questionnaires": contributor_questionnaire.pk,
+                "contributions-1-order": 1,
+                "contributions-1-role": Contribution.Role.EDITOR,
+                "contributions-1-textanswer_visibility": Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
+                "contributions-1-contributor": contribution_2.contributor.pk,
+            }
+        )
+        formset = contribution_formset(instance=evaluation, form_kwargs={"evaluation": evaluation}, data=data)
+        formset.save()
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_4}
+        )
+
 
 class ContributionFormset775RegressionTests(TestCase):
     """
@@ -718,14 +786,14 @@ class CourseCopyFormTests(TestCase):
         for field in Evaluation._meta.get_fields():
             assert field.name in (
                 CourseCopyForm.EVALUATION_COPIED_FIELDS | CourseCopyForm.EVALUATION_EXCLUDED_FIELDS
-            ), "evaluation field {} is not considered by CourseCopyForm".format(field.name)
+            ), f"evaluation field {field.name} is not considered by CourseCopyForm"
 
     @staticmethod
     def test_all_contribution_attributes_covered():
         for field in Contribution._meta.get_fields():
             assert field.name in (
                 CourseCopyForm.CONTRIBUTION_COPIED_FIELDS | CourseCopyForm.CONTRIBUTION_EXCLUDED_FIELDS
-            ), "contribution field {} is not considered by CourseCopyForm".format(field.name)
+            ), f"contribution field {field.name} is not considered by CourseCopyForm"
 
 
 class CourseFormTests(TestCase):
@@ -953,6 +1021,75 @@ class EvaluationFormTests(TestCase):
 
         form = EvaluationForm(instance=evaluation, semester=evaluation.course.semester)
         self.assertIn(questionnaire, form.fields["general_questionnaires"].queryset)
+
+    def test_answers_for_removed_questionnaires_deleted(self):
+        # pylint: disable=too-many-locals
+        evaluation = baker.make(Evaluation)
+        general_question_1 = baker.make(Question, type=Question.LIKERT)
+        general_question_2 = baker.make(Question, type=Question.LIKERT)
+        general_questionnaire_1 = baker.make(Questionnaire, questions=[general_question_1])
+        general_questionnaire_2 = baker.make(Questionnaire, questions=[general_question_2])
+        evaluation.general_contribution.questionnaires.set([general_questionnaire_1, general_questionnaire_2])
+        contributor_question = baker.make(Question, type=Question.LIKERT)
+        contributor_questionnaire = baker.make(
+            Questionnaire,
+            type=Questionnaire.Type.CONTRIBUTOR,
+            questions=[contributor_question],
+        )
+        contribution_1 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_2 = baker.make(Contribution, evaluation=evaluation, contributor=baker.make(UserProfile))
+        contribution_1.questionnaires.set([contributor_questionnaire])
+        contribution_2.questionnaires.set([contributor_questionnaire])
+        ta_1 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_1)
+        ta_2 = baker.make(TextAnswer, contribution=evaluation.general_contribution, question=general_question_2)
+        ta_3 = baker.make(TextAnswer, contribution=contribution_1, question=contributor_question)
+        ta_4 = baker.make(TextAnswer, contribution=contribution_2, question=contributor_question)
+        rac_1 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_1
+        )
+        rac_2 = baker.make(
+            RatingAnswerCounter, contribution=evaluation.general_contribution, question=general_question_2
+        )
+        rac_3 = baker.make(RatingAnswerCounter, contribution=contribution_1, question=contributor_question)
+        rac_4 = baker.make(RatingAnswerCounter, contribution=contribution_2, question=contributor_question)
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_2, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_2, rac_3, rac_4}
+        )
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation, semester=evaluation.course.semester)
+        form_data["general_questionnaires"] = [general_questionnaire_1]  # remove one of the questionnaires
+        form = EvaluationForm(form_data, instance=evaluation, semester=evaluation.course.semester)
+        form.save()
+
+        self.assertEqual(set(TextAnswer.objects.filter(contribution__evaluation=evaluation)), {ta_1, ta_3, ta_4})
+        self.assertEqual(
+            set(RatingAnswerCounter.objects.filter(contribution__evaluation=evaluation)), {rac_1, rac_3, rac_4}
+        )
+
+    def test_inactive_participants_remain(self):
+        student = baker.make(UserProfile, is_active=False)
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)], participants=[student])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(len(form["participants"]), 1)
+
+    def test_inactive_participants_not_in_queryset(self):
+        evaluation = baker.make(Evaluation, course__degrees=[baker.make(Degree)])
+
+        form_data = get_form_data_from_instance(EvaluationForm, evaluation)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 0)
+
+        baker.make(UserProfile, is_active=True)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
+
+        baker.make(UserProfile, is_active=False)
+        form = EvaluationForm(form_data, instance=evaluation)
+        self.assertEqual(form.fields["participants"].queryset.count(), 1)
 
 
 class EvaluationCopyFormTests(TestCase):

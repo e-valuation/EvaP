@@ -3,13 +3,14 @@ from datetime import date, datetime
 from unittest.mock import patch
 
 from django.conf import settings
+from django.forms.models import model_to_dict
 from django.test import TestCase, override_settings
 from model_bakery import baker
 
 import evap.staff.fixtures.excel_files_test_data as excel_data
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, Semester, UserProfile
 from evap.staff.importers import EnrollmentImporter, ImporterError, ImporterWarning, PersonImporter, UserImporter
-from evap.staff.tools import ImportType
+from evap.staff.tools import ImportType, user_edit_link
 
 
 class TestUserImporter(TestCase):
@@ -42,8 +43,8 @@ class TestUserImporter(TestCase):
         list_test, __, warnings_test, errors_test = UserImporter.process(self.valid_excel_content, test_run=True)
         list_notest, __, warnings_notest, errors_notest = UserImporter.process(self.valid_excel_content, test_run=False)
 
-        notest_string_list = ["{} {}".format(user.full_name, user.email) for user in list_notest]
-        test_string_list = ["{} {}".format(user.full_name, user.email) for user in list_test]
+        notest_string_list = [f"{user.full_name} {user.email}" for user in list_notest]
+        test_string_list = [f"{user.full_name} {user.email}" for user in list_test]
 
         self.assertEqual(notest_string_list, test_string_list)
         self.assertEqual(warnings_test, warnings_notest)
@@ -70,7 +71,7 @@ class TestUserImporter(TestCase):
         self.assertTrue(UserProfile.objects.filter(email="bastius.quid@external.example.com").exists())
 
     def test_duplicate_warning(self):
-        baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
+        user = baker.make(UserProfile, first_name="Lucilia", last_name="Manilium", email="luma@institution.example.com")
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         __, __, warnings_no_test, __ = UserImporter.process(self.valid_excel_content, test_run=False)
@@ -80,8 +81,8 @@ class TestUserImporter(TestCase):
             warnings_test[ImporterWarning.DUPL],
             [
                 "An existing user has the same first and last name as a new user:<br />"
-                " -  Lucilia Manilium, luma@institution.example.com (existing)<br />"
-                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)"
+                f" -  Lucilia Manilium, luma@institution.example.com (existing) [{user_edit_link(user.pk)}]<br />"
+                " -  Lucilia Manilium, lucilia.manilium@institution.example.com (new)",
             ],
         )
 
@@ -122,14 +123,14 @@ class TestUserImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_import_makes_inactive_user_active(self):
-        baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
+        user = baker.make(UserProfile, email="lucilia.manilium@institution.example.com", is_active=False)
 
         __, __, warnings_test, __ = UserImporter.process(self.valid_excel_content, test_run=True)
         self.assertEqual(
             warnings_test[ImporterWarning.INACTIVE],
             [
                 "The following user is currently marked inactive and will be marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]",
             ],
         )
 
@@ -138,7 +139,7 @@ class TestUserImporter(TestCase):
             warnings_no_test[ImporterWarning.INACTIVE],
             [
                 "The following user was previously marked inactive and is now marked active upon importing: "
-                " None None, lucilia.manilium@institution.example.com"
+                f" None None, lucilia.manilium@institution.example.com [{user_edit_link(user.pk)}]"
             ],
         )
 
@@ -181,12 +182,32 @@ class TestEnrollmentImporter(TestCase):
         baker.make(CourseType, name_de="Vorlesung", import_names=["Vorlesung", "V"])
         Degree.objects.filter(name_de="Bachelor").update(import_names=["Bachelor", "B. Sc."])
         Degree.objects.filter(name_de="Master").update(import_names=["Master", "M. Sc."])
+        cls.default_excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
+
+    def create_existing_course(self):
+        existing_course = baker.make(
+            Course,
+            name_de="Schütteln",
+            name_en="Shake",
+            semester=self.semester,
+            type=CourseType.objects.get(name_de="Vorlesung"),
+            degrees=[Degree.objects.get(name_de="Bachelor")],
+            responsibles=[
+                baker.make(
+                    UserProfile,
+                    email="123@institution.example.com",
+                    title="Prof. Dr.",
+                    first_name="Christoph",
+                    last_name="Prorsus",
+                )
+            ],
+        )
+        existing_course_evaluation = baker.make(Evaluation, course=existing_course)
+        return existing_course, existing_course_evaluation
 
     def test_valid_file_import(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
-
         success_messages, warnings, errors = EnrollmentImporter.process(
-            excel_content, self.semester, None, None, test_run=True
+            self.default_excel_content, self.semester, None, None, test_run=True
         )
         self.assertIn("The import run will create 23 courses/evaluations and 23 users:", "".join(success_messages))
         # check for one random user instead of for all 23
@@ -197,7 +218,7 @@ class TestEnrollmentImporter(TestCase):
         old_user_count = UserProfile.objects.all().count()
 
         success_messages, warnings, errors = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
         self.assertIn(
             "Successfully created 23 courses/evaluations, 6 participants and 17 contributors:",
@@ -276,11 +297,12 @@ class TestEnrollmentImporter(TestCase):
 
     @override_settings(IMPORTER_MAX_ENROLLMENTS=1)
     def test_enrollment_importer_high_enrollment_warning(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
 
-        __, warnings_test, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
+        __, warnings_test, __ = EnrollmentImporter.process(
+            self.default_excel_content, self.semester, None, None, test_run=True
+        )
         __, warnings_no_test, __ = EnrollmentImporter.process(
-            excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
         self.assertEqual(warnings_test, warnings_no_test)
@@ -354,19 +376,17 @@ class TestEnrollmentImporter(TestCase):
         self.assertEqual(UserProfile.objects.count(), original_user_count)
 
     def test_duplicate_course_error(self):
-        excel_content = excel_data.create_memory_excel_file(excel_data.test_enrollment_data_filedata)
-
         semester = baker.make(Semester)
         baker.make(Course, name_de="Stehlen", name_en="Stehlen", semester=semester)
         baker.make(Course, name_de="Shine", name_en="Shine", semester=semester)
 
-        __, __, errors = EnrollmentImporter.process(excel_content, semester, None, None, test_run=False)
+        __, __, errors = EnrollmentImporter.process(self.default_excel_content, semester, None, None, test_run=False)
 
         self.assertCountEqual(
             errors[ImporterError.COURSE],
             {
-                "Course Stehlen does already exist in this semester.",
-                "Course Shine does already exist in this semester.",
+                "Course Shine (EN) already exists in this semester with different german name.",
+                "Course Stehlen (DE) already exists in this semester with different english name.",
             },
         )
 
@@ -384,6 +404,104 @@ class TestEnrollmentImporter(TestCase):
 
         success_messages, __, __ = EnrollmentImporter.process(excel_content, self.semester, None, None, test_run=True)
         self.assertIn("The import run will create 1 courses/evaluations and 3 users", "".join(success_messages))
+
+    def test_existing_course_is_not_recreated(self):
+        existing_course, existing_course_evaluation = self.create_existing_course()
+
+        old_course_count = Course.objects.count()
+        old_dict = model_to_dict(existing_course)
+        self.assertFalse(existing_course_evaluation.participants.exists())
+
+        __, warnings, __ = EnrollmentImporter.process(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertIn(
+            "Course Shake (Schütteln) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added.",
+            warnings[ImporterWarning.EXISTS],
+        )
+        expected_course_count = old_course_count + 22
+        self.assertEqual(Course.objects.count(), expected_course_count)
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
+        self.assertIn(
+            UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
+            existing_course_evaluation.participants.all(),
+        )
+
+    def test_existing_course_degree_is_added(self):
+        existing_course, __ = self.create_existing_course()
+
+        # The existing course exactly matches one course in the import data by default. To create a conflict, the degrees are changed
+        existing_course.degrees.set([Degree.objects.get(name_de="Master")])
+
+        EnrollmentImporter.process(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertSetEqual(
+            set(existing_course.degrees.all()), set(Degree.objects.filter(name_de__in=["Master", "Bachelor"]))
+        )
+
+    def test_existing_course_different_attributes(self):
+        existing_course, __ = self.create_existing_course()
+        existing_course.type = CourseType.objects.get(name_de="Seminar")
+        existing_course.responsibles.set([baker.make(UserProfile, email="responsible_person@institution.example.com")])
+        existing_course.save()
+
+        old_course_count = Course.objects.count()
+        old_dict = model_to_dict(existing_course)
+
+        __, __, errors = EnrollmentImporter.process(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertIn("the course type does not match", "".join(errors[ImporterError.COURSE]))
+        self.assertIn("the responsibles of the course do not match", "".join(errors[ImporterError.COURSE]))
+        self.assertEqual(Course.objects.count(), old_course_count)
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
+
+    def test_existing_course_equal_except_evaluations(self):
+        existing_course, __ = self.create_existing_course()
+        baker.make(Evaluation, course=existing_course, name_de="Zweite Evaluation", name_en="Second Evaluation")
+
+        old_course_count = Course.objects.count()
+        old_dict = model_to_dict(existing_course)
+
+        __, __, errors = EnrollmentImporter.process(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertIn(
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the existing course does not have exactly one evaluation",
+            errors[ImporterError.COURSE],
+        )
+        self.assertEqual(Course.objects.count(), old_course_count)
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
+
+    def test_existing_course_different_grading(self):
+        existing_course, existing_course_evaluation = self.create_existing_course()
+        existing_course_evaluation.wait_for_grade_upload_before_publishing = False
+        existing_course_evaluation.save()
+
+        old_course_count = Course.objects.count()
+        old_dict = model_to_dict(existing_course)
+
+        __, __, errors = EnrollmentImporter.process(
+            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
+        )
+
+        self.assertIn(
+            "Course Shake (Schütteln) already exists in this semester, but the courses can not be merged for the following reasons:"
+            + "<br /> - the evaluation of the existing course has a mismatching grading specification",
+            errors[ImporterError.COURSE],
+        )
+        self.assertEqual(Course.objects.count(), old_course_count)
+        existing_course.refresh_from_db()
+        self.assertEqual(old_dict, model_to_dict(existing_course))
 
 
 class TestPersonImporter(TestCase):
@@ -430,7 +548,7 @@ class TestPersonImporter(TestCase):
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.assertIn("1 contributors would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
+        self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 2)
 
@@ -438,7 +556,7 @@ class TestPersonImporter(TestCase):
             ImportType.CONTRIBUTOR, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.assertIn("1 contributors added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.contributor2.email), "".join(success_messages))
+        self.assertIn(f"{self.contributor2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.contributions.count(), 3)
         self.assertEqual(
@@ -471,13 +589,13 @@ class TestPersonImporter(TestCase):
             ImportType.PARTICIPANT, self.evaluation1, test_run=True, source_evaluation=self.evaluation2
         )
         self.assertIn("1 participants would be added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
+        self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         success_messages, __, __ = PersonImporter.process_source_evaluation(
             ImportType.PARTICIPANT, self.evaluation1, test_run=False, source_evaluation=self.evaluation2
         )
         self.assertIn("1 participants added to the evaluation", "".join(success_messages))
-        self.assertIn("{}".format(self.participant2.email), "".join(success_messages))
+        self.assertIn(f"{self.participant2.email}", "".join(success_messages))
 
         self.assertEqual(self.evaluation1.participants.count(), 2)
         self.assertEqual(set(self.evaluation1.participants.all()), set([self.participant1, self.participant2]))

@@ -386,7 +386,10 @@ class EvaluationForm(forms.ModelForm):
             Questionnaire.objects.general_questionnaires().filter(visible_questionnaires).distinct()
         )
 
-        self.fields["participants"].queryset = UserProfile.objects.exclude(is_active=False)
+        queryset = UserProfile.objects.exclude(is_active=False)
+        if self.instance.pk is not None:
+            queryset = (queryset | self.instance.participants.all()).distinct()
+        self.fields["participants"].queryset = queryset
 
         if self.instance.general_contribution:
             self.fields["general_questionnaires"].initial = [
@@ -446,7 +449,12 @@ class EvaluationForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         evaluation = super().save(*args, **kw)
-        evaluation.general_contribution.questionnaires.set(self.cleaned_data.get("general_questionnaires"))
+        selected_questionnaires = self.cleaned_data.get("general_questionnaires")
+        removed_questionnaires = set(self.instance.general_contribution.questionnaires.all()) - set(
+            selected_questionnaires
+        )
+        evaluation.general_contribution.remove_answers_to_questionnaires(removed_questionnaires)
+        evaluation.general_contribution.questionnaires.set(selected_questionnaires)
         if hasattr(self.instance, "old_course"):
             if self.instance.old_course != evaluation.course:
                 update_template_cache_of_published_evaluations_in_course(self.instance.old_course)
@@ -498,7 +506,7 @@ class SingleResultForm(forms.ModelForm):
 
         if self.instance.pk:
             for answer_counter in self.instance.ratinganswer_counters:
-                self.fields["answer_{}".format(answer_counter.answer)].initial = answer_counter.count
+                self.fields[f"answer_{answer_counter.answer}"].initial = answer_counter.count
             self.instance.old_course = self.instance.course
 
     def validate_unique(self):
@@ -616,6 +624,13 @@ class ContributionForm(forms.ModelForm):
 
         return False
 
+    def save(self, *args, **kwargs):
+        if self.instance.pk:
+            selected_questionnaires = self.cleaned_data.get("questionnaires")
+            removed_questionnaires = set(self.instance.questionnaires.all()) - set(selected_questionnaires)
+            self.instance.remove_answers_to_questionnaires(removed_questionnaires)
+        return super().save(*args, **kwargs)
+
 
 class ContributionCopyForm(ContributionForm):
     def __init__(self, data=None, instance=None, evaluation=None, **kwargs):
@@ -717,7 +732,7 @@ class QuestionnaireForm(forms.ModelForm):
             "is_locked",
         )
 
-    def save(self, *args, commit=True, force_highest_order=False, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, commit=True, force_highest_order=False, **kwargs):
         # get instance that has all the changes from the form applied, dont write to database
         questionnaire_instance = super().save(commit=False, *args, **kwargs)
 
@@ -1010,6 +1025,10 @@ class UserForm(forms.ModelForm):
 class UserMergeSelectionForm(forms.Form):
     main_user = UserModelChoiceField(UserProfile.objects.all())
     other_user = UserModelChoiceField(UserProfile.objects.all())
+
+
+class UserEditSelectionForm(forms.Form):
+    user = UserModelChoiceField(UserProfile.objects.all())
 
 
 class EmailTemplateForm(forms.ModelForm):

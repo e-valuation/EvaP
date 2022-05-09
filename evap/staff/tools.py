@@ -10,6 +10,7 @@ from django.core.cache.utils import make_template_fragment_key
 from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.db.models import Count
+from django.urls import reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 
@@ -163,7 +164,7 @@ def bulk_update_users(request, user_file_content, test_run):
                 _("Users to be updated are:{}"),
                 format_html_join(
                     "",
-                    "<br />{} {} ({} > {})",
+                    "<br />{} {} ({} &gt; {})",
                     ((user.first_name, user.last_name, user.email, email) for user, email in users_to_be_updated),
                 ),
             ),
@@ -222,7 +223,7 @@ def merge_users(main_user, other_user, preview=False):
     # This is much stuff to do. However, splitting it up into subtasks doesn't make much sense.
     # pylint: disable=too-many-statements
 
-    merged_user = dict()
+    merged_user = {}
     merged_user["is_active"] = main_user.is_active or other_user.is_active
     merged_user["title"] = main_user.title or other_user.title or ""
     merged_user["first_name"] = main_user.first_name or other_user.first_name or ""
@@ -334,15 +335,17 @@ def find_unreviewed_evaluations(semester, excluded):
     if datetime.now().hour < settings.EVALUATION_END_OFFSET_HOURS:
         exclude_date -= timedelta(days=1)
 
-    return (
-        semester.evaluations.exclude(pk__in=excluded)
-        .exclude(state=Evaluation.State.PUBLISHED)
-        .exclude(vote_end_date__gte=exclude_date)
-        .exclude(can_publish_text_results=False)
-        .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
-        .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
-        .order_by("vote_end_date", "-num_unreviewed_textanswers")
-        .all()
+    # Evaluations where the grading process is finished should be shown first, need to be sorted in Python
+    return sorted(
+        (
+            semester.evaluations.exclude(pk__in=excluded)
+            .exclude(state=Evaluation.State.PUBLISHED)
+            .exclude(vote_end_date__gte=exclude_date)
+            .exclude(can_publish_text_results=False)
+            .filter(contributions__textanswer_set__state=TextAnswer.State.NOT_REVIEWED)
+            .annotate(num_unreviewed_textanswers=Count("contributions__textanswer_set"))
+        ),
+        key=lambda e: (-e.grading_process_is_finished, e.vote_end_date, -e.num_unreviewed_textanswers),
     )
 
 
@@ -368,3 +371,11 @@ def remove_user_from_represented_and_ccing_users(user, ignored_users=None, test_
             cc_user.cc_users.remove(user)
             remove_messages.append(_("Removed {} from the CC users of {}.").format(user.full_name, cc_user.full_name))
     return remove_messages
+
+
+def user_edit_link(user_id):
+    return format_html(
+        '<a href="{}" target=_blank><span class="fas fa-user-pen"></span> {}</a>',
+        reverse("staff:user_edit", kwargs={"user_id": user_id}),
+        _("edit user"),
+    )

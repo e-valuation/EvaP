@@ -8,11 +8,11 @@ def populate_semester_short_names(apps, _schema_editor):
 
     for semester in Semester.objects.all():
         if semester.name_de.startswith("Sommersemester"):
-            semester.short_name_de = "SS {}".format(semester.name_de[-2:])
-            semester.short_name_en = "ST {}".format(semester.name_de[-2:])
+            semester.short_name_de = f"SS {semester.name_de[-2:]}"
+            semester.short_name_en = f"ST {semester.name_de[-2:]}"
         elif semester.name_de.startswith("Wintersemester"):
-            semester.short_name_de = "WS {}/{}".format(semester.name_de[-7:-5], semester.name_de[-2:])
-            semester.short_name_en = "WT {}/{}".format(semester.name_de[-7:-5], semester.name_de[-2:])
+            semester.short_name_de = f"WS {semester.name_de[-7:-5]}/{semester.name_de[-2:]}"
+            semester.short_name_en = f"WT {semester.name_de[-7:-5]}/{semester.name_de[-2:]}"
         else:
             semester.short_name_de = semester.name_de[-20:]
             semester.short_name_en = semester.name_en[-20:]

@@ -69,7 +69,7 @@
                         <div class="btn-switch-label">{% trans 'Reward points active' %}</div>
                         <div class="btn-switch btn-group icon-buttons">
                             <button type="button" onclick="activateRewardPointsModalShow({{ semester.id }}, '{{ semester.name|escapejs }}');" class="btn btn-sm btn-light{% if rewards_active %} active{% endif %}"><span class="fas fa-check" aria-hidden="true"></span></button>
-                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-times" aria-hidden="true"></span></button>
+                            <button type="button" onclick="deactivateRewardPoints()" class="btn btn-sm btn-light{% if not rewards_active %} active{% endif %}"><span class="fas fa-xmark" aria-hidden="true"></span></button>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="coursesTab" data-bs-toggle="pill" href="#courses" role="tab" onclick="saveSelectedTab('courses');">
-                        <span class="fas fa-chalkboard-teacher"></span> {% trans 'Courses' %}
+                        <span class="fas fa-chalkboard-user"></span> {% trans 'Courses' %}
                     </a>
                 </li>
             </ul>
@@ -167,7 +167,7 @@
                         <div class="input-group">
                             <input type="search" name="search-evaluation" class="form-control" placeholder="{% trans 'Search...' %}" />
                             <button class="btn btn-light text-secondary" type="button" data-reset="search-evaluation" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                                <span class="fas fa-backspace"></span>
+                                <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
@@ -229,22 +229,22 @@
                             <button type="button" class="btn btn-sm btn-light" data-filter="evaluation_not_finished"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Evaluation not finished' %}">
-                                <span class="fas fa-chart-bar icon-gray"></span>
+                                <span class="fas fa-chart-simple icon-gray"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published although grading process is finished' %}">
-                                <span class="fas fa-chart-bar icon-red"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_not_yet_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results not yet published' %}">
-                                <span class="fas fa-chart-bar icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
                             </button>
                             <button type="button" class="btn btn-sm btn-light" data-filter="results_published"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-container=".btn-switch"
                                 title="{% trans 'Results published' %}">
-                                <span class="fas fa-chart-bar icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                             </button>
                         </div>
                     </div>
@@ -323,13 +323,13 @@
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.PUBLISHED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Unpublished evaluations' %}">
-                                <span class="fas fa-chart-bar icon-yellow"></span>
-                                <span class="fas fa-chart-bar icon-red"></span>
+                                <span class="fas fa-chart-simple icon-yellow"></span>
+                                <span class="fas fa-chart-simple icon-red"></span>
                                 {% trans 'Publish' %}
                             </button>
                             <button name="target_state" value="{{ Evaluation.State.REVIEWED }}" type="submit" class="btn btn-sm btn-light"
                                 data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Published evaluations' %}">
-                                <span class="fas fa-chart-bar icon-green"></span>
+                                <span class="fas fa-chart-simple icon-green"></span>
                                 {% trans 'Unpublish' %}
                             </button>
                         </div>
@@ -349,7 +349,7 @@
                         <div class="input-group">
                             <input type="search" name="search-course" class="form-control" placeholder="{% trans 'Search...' %}" />
                             <button class="btn btn-light text-secondary" type="button" data-reset="search-course" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans 'Clear search filter' %}">
-                                <span class="fas fa-backspace"></span>
+                                <span class="fas fa-delete-left"></span>
                             </button>
                         </div>
                     </div>
@@ -401,7 +401,7 @@
                                             <a class="btn btn-sm btn-dark" data-bs-toggle="tooltip"
                                                 href="{% url 'staff:single_result_create' semester.id course.id %}"
                                                 title="{% trans 'Create single result for this course' %}">
-                                                <span class="fas fa-poll"></span>
+                                                <span class="fas fa-square-poll-vertical"></span>
                                         </a>
                                         <a class="btn btn-sm btn-dark" data-toggle="tooltip"
                                             href="{% url 'staff:course_copy' semester.id course.id %}"

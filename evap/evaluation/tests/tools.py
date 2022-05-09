@@ -1,7 +1,7 @@
 import functools
 import os
 from datetime import timedelta
-from typing import List, Union
+from typing import List, Optional, Sequence, Union
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -16,11 +16,12 @@ from evap.evaluation.models import (
     Course,
     Degree,
     Evaluation,
+    Question,
     Questionnaire,
     RatingAnswerCounter,
+    TextAnswer,
     UserProfile,
 )
-from evap.student.tools import answer_field_id
 
 
 def to_querydict(dictionary):
@@ -42,21 +43,44 @@ class FuzzyInt(int):
         return self.lowest <= other <= self.highest
 
     def __repr__(self):
-        return "[%d..%d]" % (self.lowest, self.highest)
+        return f"[{self.lowest}..{self.highest}]"
 
 
-def let_user_vote_for_evaluation(app, user, evaluation):
-    url = "/student/vote/{}".format(evaluation.id)
-    page = app.get(url, user=user, status=200)
-    form = page.forms["student-vote-form"]
-    for contribution in evaluation.contributions.all().prefetch_related("questionnaires", "questionnaires__questions"):
+def let_user_vote_for_evaluation(user, evaluation, create_answers=False):
+    evaluation.voters.add(user)
+    if evaluation.voters.count() >= 2:
+        evaluation.can_publish_text_results = True
+        evaluation.save()
+
+    if not create_answers:
+        return
+
+    new_textanswers = []
+    rac_by_contribution_question = {}
+    new_racs = []
+
+    for contribution in evaluation.contributions.all().prefetch_related(
+        "ratinganswercounter_set", "questionnaires", "questionnaires__questions"
+    ):
+        for rac in contribution.ratinganswercounter_set.all():
+            if rac.answer == 1:
+                rac_by_contribution_question[(contribution, rac.question)] = rac
+
         for questionnaire in contribution.questionnaires.all():
             for question in questionnaire.questions.all():
                 if question.is_text_question:
-                    form[answer_field_id(contribution, questionnaire, question)] = "Lorem ispum"
+                    new_textanswers.append(baker.prepare(TextAnswer, contribution=contribution, question=question))
                 elif question.is_rating_question:
-                    form[answer_field_id(contribution, questionnaire, question)] = 1
-    form.submit()
+                    if (contribution, question) not in rac_by_contribution_question:
+                        rac = baker.prepare(RatingAnswerCounter, contribution=contribution, question=question, answer=1)
+                        new_racs.append(rac)
+                        rac_by_contribution_question[(contribution, question)] = rac
+
+                    rac_by_contribution_question[(contribution, question)].count += 1
+
+    TextAnswer.objects.bulk_create(new_textanswers)
+    RatingAnswerCounter.objects.bulk_create(new_racs)
+    RatingAnswerCounter.objects.bulk_update(rac_by_contribution_question.values(), ["count"])
 
 
 def render_pages(test_item):
@@ -72,8 +96,9 @@ def render_pages(test_item):
 
         static_directory = settings.STATICFILES_DIRS[0]
 
+        url = getattr(self, "render_pages_url", self.url)
         # Remove the leading slash from the url to prevent that an absolute path is created
-        directory = os.path.join(static_directory, "ts", "rendered", self.url[1:])
+        directory = os.path.join(static_directory, "ts", "rendered", url[1:])
         os.makedirs(directory, exist_ok=True)
 
         for name, content in pages.items():
@@ -98,7 +123,7 @@ def get_form_data_from_instance(FormClass, instance, **kwargs):
     return {field.html_name: field.value() for field in form}
 
 
-def create_evaluation_with_responsible_and_editor(evaluation_id=None):
+def create_evaluation_with_responsible_and_editor():
     responsible = baker.make(UserProfile, email="responsible@institution.example.com")
     editor = baker.make(UserProfile, email="editor@institution.example.com")
 
@@ -110,9 +135,6 @@ def create_evaluation_with_responsible_and_editor(evaluation_id=None):
         vote_start_datetime=in_one_hour,
         vote_end_date=tomorrow,
     )
-
-    if evaluation_id:
-        evaluation_params["id"] = evaluation_id
 
     evaluation = baker.make(Evaluation, **evaluation_params)
     contribution = baker.make(
@@ -155,7 +177,12 @@ def make_editor(user, evaluation):
     )
 
 
-def make_rating_answer_counters(question, contribution, answer_counts=None):
+def make_rating_answer_counters(
+    question: Question,
+    contribution: Contribution,
+    answer_counts: Optional[Sequence[int]] = None,
+    store_in_db: bool = True,
+):
     """
     Create RatingAnswerCounters for a question for a contribution.
     Examples:
@@ -171,12 +198,16 @@ def make_rating_answer_counters(question, contribution, answer_counts=None):
 
     assert len(answer_counts) == expected_counts
 
-    return baker.make(
+    counters = baker.prepare(
         RatingAnswerCounter,
         question=question,
         contribution=contribution,
-        _bulk_create=True,
         _quantity=len(answer_counts),
         answer=iter(CHOICES[question.type].values),
         count=iter(answer_counts),
     )
+
+    if store_in_db:
+        RatingAnswerCounter.objects.bulk_create(counters)
+
+    return counters

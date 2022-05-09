@@ -21,7 +21,6 @@
             {% blocktrans %}You cannot edit this evaluation because it has already been approved.{% endblocktrans %}
         {% endif %}
     </div>
-ModalButton
     <h3>
         {{ evaluation.full_name }} ({{ evaluation.course.semester.name }})
     </h3>
@@ -63,7 +62,13 @@ ModalButton
             <div class="card-body">
                 <div class="d-flex">
                     <h5 class="card-title me-auto">{% trans 'Evaluation data' %}</h5>
-                    {% if not evaluation.allow_editors_to_edit %}
+                    {% if evaluation.allow_editors_to_edit %}
+                        <div>
+                            <button type="button" class="btn btn-sm btn-light mb-3" onclick="createAccountRequestModalShow();" id="createAccountRequestModalButtonInEvaluationForm">
+                                {% trans 'Request creation of new account' %}
+                            </button>
+                        </div>
+                    {% else %}
                         <div>
                             <button type="button" class="btn btn-sm btn-light" onclick="changeEvaluationRequestModalShow();">
                                 {% trans 'Request changes' %}
@@ -80,26 +85,6 @@ ModalButton
             </div>
         </div>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <fieldset>
-                    <div class="d-flex">
-                        <h5 class="card-title me-auto">{% trans 'Participants' %}</h5>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-light" onclick="changeParticipantRequestModalShow();">
-                                {% trans 'Request changes' %}
-                            </button>
-                        </div>
-                    </div>
-                    <p>{% trans 'These people will be invited for the evaluation. Please let us know if this data is not correct.' %}</p>
-                    <ul>
-                        {% for p in evaluation.participants.all|dictsort:'last_name' %}
-                            <li>{{ p.full_name }}</li>
-                        {% endfor %}
-                    </ul>
-                </fieldset>
-            </div>
-        </div>
         <div class="card card-submit-area card-submit-area-3 text-center mb-3">
             <div class="card-body">
                 {% if editable %}
@@ -147,11 +132,7 @@ ModalButton
         };
     </script>
 
-    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request participant changes for {{ evaluation_name }}{% endblocktrans %}
-    {% trans 'Please tell us what changes to the participants list we should make.' as teaser %}
-    {% include 'contact_modal.html' with modal_id='changeParticipantRequestModal' user=request.user title=title teaser=teaser %}
-
-    {% trans 'Request account creation' as title %}
+    {% blocktrans asvar title with evaluation_name=evaluation.full_name|safe %}Request account creation for {{ evaluation_name }}{% endblocktrans %}
     {% trans 'Please tell us which new account we should create. We need the name and email for all new accounts.' as teaser %}
     {% include 'contact_modal.html' with modal_id='createAccountRequestModal' user=request.user title=title teaser=teaser %}
 

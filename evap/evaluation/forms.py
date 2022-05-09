@@ -97,6 +97,8 @@ class UserModelChoiceField(forms.ModelChoiceField):
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    widget = forms.SelectMultiple(attrs={"data-selection-css-class": "user-multi-select"})
+
     def label_from_instance(self, obj):
         return obj.full_name_with_additional_info
 
@@ -118,4 +120,4 @@ class DelegatesForm(forms.ModelForm):
 
     def save(self, *args, **kw):
         super().save(*args, **kw)
-        logger.info('User "{}" edited the settings.'.format(self.instance.email))
+        logger.info('User "%s" edited the settings.', self.instance.email)

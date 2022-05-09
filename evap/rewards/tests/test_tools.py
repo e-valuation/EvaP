@@ -16,8 +16,6 @@ from evap.rewards.tools import reward_points_of_user
     ]
 )
 class TestGrantRewardPoints(WebTest):
-    csrf_checks = False
-
     @classmethod
     def setUpTestData(cls):
         cls.student = baker.make(UserProfile, email="student@institution.example.com")

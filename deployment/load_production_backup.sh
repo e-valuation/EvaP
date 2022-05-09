@@ -55,10 +55,8 @@ sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py migrate
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py flush "$CONDITIONAL_NOINPUT"
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py loaddata "$1"
 
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache
+sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --all -v=1
 sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py refresh_results_cache
-
-sudo -H -u "$USERNAME" "$ENVDIR/bin/python" manage.py clear_cache --cache=sessions
 
 [[ -z "$GITHUB_WORKFLOW" ]] && sudo service apache2 start
 

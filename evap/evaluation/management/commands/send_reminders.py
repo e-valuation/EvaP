@@ -43,7 +43,7 @@ class Command(BaseCommand):
             EmailTemplate.send_reminder_to_user(
                 recipient, first_due_in_days=first_due_in_days, due_evaluations=due_evaluations
             )
-        logger.info("sent due evaluation reminders to {} people.".format(len(recipients)))
+        logger.info("sent due evaluation reminders to %d people.", len(recipients))
 
     @staticmethod
     def send_textanswer_reminders():
