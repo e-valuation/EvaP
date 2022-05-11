@@ -1598,13 +1598,13 @@ def evaluation_textanswer_edit(request, semester_id, evaluation_id, textanswer_i
     if form.is_valid():
         form.save()
         # jump to edited answer
-        redirect = next_helper(request)
+        next_redirect = next_helper(request)
 
         # add answer id if view is quick
-        if redirect.find("quick") != -1:
-            redirect += "#" + str(textanswer.id)
+        if next_redirect.find("quick") != -1:
+            next_redirect += "#" + str(textanswer.id)
 
-        url = reverse("staff:evaluation_textanswers", args=[semester_id, evaluation_id]) + "?" + redirect
+        url = reverse("staff:evaluation_textanswers", args=[semester_id, evaluation_id]) + "?" + next_redirect
         return HttpResponseRedirect(url)
 
     template_data = dict(semester=semester, evaluation=evaluation, form=form, textanswer=textanswer)
