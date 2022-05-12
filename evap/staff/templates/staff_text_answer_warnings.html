@@ -11,7 +11,7 @@
 {% block content %}
     {{ block.super }}
 
-    <form id="text-answer-warnings-form" method="POST" class="form-horizontal select2form">
+    <form id="text-answer-warnings-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         {{ formset.management_form }}
 
@@ -36,7 +36,7 @@
                     </thead>
                     <tbody>
                         {% for form in formset %}
-                            <tr class="select2tr sortable">
+                            <tr class="tomselecttr sortable">
                                 <td class="movable">
                                     <span class="movable-icon fas fa-up-down"></span>
                                 </td>
@@ -109,22 +109,10 @@
             return triggerStrings || warningTextDe || warningTextEn;
         };
         const rowAdded = function(row) {
-            applySelect2(row.find("select"));
+            applyTomSelect(row.find("select").get(), tagTomSelectOptions);
         };
         makeFormSortable("text-answer-warnings-table", "form", rowChanged, rowAdded, "", true, true);
 
-        function applySelect2(element) {
-            element.select2({
-                language: "{{ LANGUAGE_CODE }}",
-                placeholder: "{% trans 'Add items...' %}",
-                tags: true,
-                // Disable search so that new items can be created instead of using an existing suggestion
-                matcher: () => null,
-                // Use a detached container to hide the dropdown
-                dropdownParent: $("<div>"),
-            });
-        }
-
-        applySelect2($("select").not('.form-template select'));
+        applyTomSelect(document.querySelectorAll("select:not(.form-template select)"), tagTomSelectOptions);
     </script>
 {% endblock %}

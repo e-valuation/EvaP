@@ -1,9 +1,9 @@
 .is-invalid {
-    .form-control {
+    .form-control, .ts-control {
         border-color: $evap-dark-red;
     }
 
-    .form-control:focus {
+    .form-control:focus, .ts-control:focus {
         box-shadow: 0 0 0 0.2rem rgba($evap-dark-red, 0.25);
     }
 }

@@ -2,7 +2,7 @@
 
 The software is licensed under the MIT license. The source code includes other
 components in whole or in part; namely Bootstrap Datepicker, Font Awesome,
-jQuery, jQuery Formset, Moment, Select2, Sisyphus, Sortable.
+jQuery, jQuery Formset, Moment, Tom Select, Sisyphus, Sortable.
 These components are used under the MIT resp. SIL OFL licenses.
 
 The source repository may include logos, names or other trademarks of the

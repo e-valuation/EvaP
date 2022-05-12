@@ -7,7 +7,7 @@
             {% trans 'Some fields are disabled as this questionnaire is already in use.' %}
         </div>
     {% endif %}
-    <form id="questionnaire-form" method="POST" class="form-horizontal select2form">
+    <form id="questionnaire-form" method="POST" class="form-horizontal tomselectform">
         {% csrf_token %}
         <fieldset>
             <div class="card mb-3">
@@ -38,7 +38,7 @@
                             {% for form_element in formset %}
                                 {% include 'bootstrap_form_errors.html' with errors=form_element.non_field_errors %}
 
-                                <tr class="select2tr sortable">
+                                <tr class="tomselecttr sortable">
                                     {% for hidden in form_element.hidden_fields %}
                                         {{ hidden }}
                                     {% endfor %}
@@ -88,20 +88,27 @@
             };
             rowAdded = function(row) {
                 row.find('a.btn-secondary').remove();
-                applySelect2(row.find("select"));
+                applyTomSelect(row.find("select").get());
+                registerSelectChangedHandlers();
             };
             makeFormSortable("question_table", "questions", rowChanged, rowAdded, "", true, true);
 
-            // enable or disable checkbox for additional text answers
-            $('.question-type select').on('select2:select', function (e) {
+            const selectChangedHandler = function(e) {
                 const checkbox = $($(this).closest("td.question-type")).find("input");
-                if (e.params.data.id == 0 || e.params.data.id == 5) {  // 0: Text question; 5: Heading
+                if (e.currentTarget.value == 0 || e.currentTarget.value == 5) {  // 0: Text question; 5: Heading
                     checkbox.prop("checked", false);
                     checkbox.prop("disabled", true);
                 } else {
                     checkbox.prop("disabled", false);
                 }
-            });
+            };
+
+            const registerSelectChangedHandlers = function() {
+                document.querySelectorAll(".question-type select").forEach(selectElement => {
+                    selectElement.addEventListener('change', selectChangedHandler);
+                });
+            };
+            registerSelectChangedHandlers();
         </script>
     {% endif %}
 {% endblock %}
