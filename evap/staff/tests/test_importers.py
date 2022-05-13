@@ -432,14 +432,12 @@ class TestEnrollmentImporter(TestCase):
     def test_existing_course_not_counted_in_created_courses_count(self):
         self.create_existing_course()
 
-        expected_course_count = Course.objects.count() + 22
-
         success_messages, __, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
         self.assertIn(
-            f"The import run will create {expected_course_count} courses/evaluations",
+            "Successfully created 22 courses/evaluations",
             "".join(success_messages),
         )
 
