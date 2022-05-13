@@ -95,18 +95,10 @@
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
                                 </div>
-                                <div>
-                                    <button type="button" class="btn btn-light btn-sm{% if not preview %} tab-selectable{% endif %}"
-                                        data-mark-no-answers-for="{{ contributor.id }}"
-                                        {% if preview %}disabled{% endif %}
-                                    >
-                                        {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
-                                    </button>
-                                </div>
                             </div>
                             <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
                                 <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to %}
+                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
                                 </div>
                             </div>
                         </div>

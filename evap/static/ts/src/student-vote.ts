@@ -5,6 +5,10 @@ function isInvisible(el: Element): boolean {
     return el.parentElement !== null && isInvisible(el.parentElement);
 }
 
+function hasTabbingTarget(element: HTMLElement): boolean {
+    return element.querySelector(".tab-selectable") !== null;
+}
+
 function selectByNumberKey(row: HTMLElement, num: number) {
     let index = 2 * num - 1;
     if (num === 0) {
@@ -25,7 +29,7 @@ const selectables: NodeListOf<HTMLElement> = studentForm.querySelectorAll(".tab-
 const rows = Array.from(studentForm.getElementsByClassName("tab-row")) as Array<HTMLElement>;
 const letterRegex = new RegExp("^[A-Za-zÄÖÜäöü.*+-]$");
 
-// Sometimes we just want the browser to do it's thing.
+// Sometimes we just want the browser to do its thing.
 let disableFocusHandler = false;
 
 selectables[0].addEventListener("focus", () => {
@@ -130,7 +134,7 @@ studentForm.addEventListener("keydown", (e: KeyboardEvent) => {
             selectables[selectables.length - 1].focus({ preventScroll: true });
             return;
         }
-    } while (isInvisible(rows[nextRowIndex]));
+    } while (isInvisible(rows[nextRowIndex]) || !hasTabbingTarget(rows[nextRowIndex]));
 
     e.preventDefault();
     fancyFocus(findCorrectInputInRow(rows[nextRowIndex]));
