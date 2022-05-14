@@ -91,7 +91,6 @@ module = [
     "model_bakery.*",
     "xlrd.*",
     "xlwt.*",
-    "xlutils.*",
 
     "evap.staff.fixtures.*",
 ]
