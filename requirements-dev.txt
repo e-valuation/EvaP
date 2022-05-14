@@ -1,6 +1,5 @@
 -r requirements.txt
 black==22.3.0
-codecov
 coverage[toml]
 django-debug-toolbar>=1.6
 django-stubs
