@@ -234,10 +234,10 @@ jobs:
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Render pages
         run: coverage run manage.py ts render_pages
+      - name: Upload coverage
         uses: codecov/codecov-action@v2
         with:
           flags: render-pages
-      - name: Upload coverage
       - name: Store rendered pages
         uses: actions/upload-artifact@v2
         with:
