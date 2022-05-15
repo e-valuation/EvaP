@@ -412,7 +412,7 @@ class TestEnrollmentImporter(TestCase):
         old_dict = model_to_dict(existing_course)
         self.assertFalse(existing_course_evaluation.participants.exists())
 
-        __, warnings, __ = EnrollmentImporter.process(
+        success_messages, warnings, __ = EnrollmentImporter.process(
             self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
         )
 
@@ -420,6 +420,11 @@ class TestEnrollmentImporter(TestCase):
             "Course Shake (Schütteln) already exists. Course will not be created, instead users are imported into the evaluation of the existing course and any additional degrees are added.",
             warnings[ImporterWarning.EXISTS],
         )
+        self.assertIn(
+            "Successfully created 22 courses/evaluations",
+            "".join(success_messages),
+        )
+
         expected_course_count = old_course_count + 22
         self.assertEqual(Course.objects.count(), expected_course_count)
         existing_course.refresh_from_db()
@@ -427,18 +432,6 @@ class TestEnrollmentImporter(TestCase):
         self.assertIn(
             UserProfile.objects.get(email="lucilia.manilium@institution.example.com"),
             existing_course_evaluation.participants.all(),
-        )
-
-    def test_existing_course_not_counted_in_created_courses_count(self):
-        self.create_existing_course()
-
-        success_messages, __, __ = EnrollmentImporter.process(
-            self.default_excel_content, self.semester, self.vote_start_datetime, self.vote_end_date, test_run=False
-        )
-
-        self.assertIn(
-            "Successfully created 22 courses/evaluations",
-            "".join(success_messages),
         )
 
     def test_existing_course_degree_is_added(self):
