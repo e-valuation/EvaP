@@ -17,9 +17,16 @@
     {{ block.super }}
     {% if errors_exist %}
         <div class="alert alert-danger" role="alert">
-            {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
-            <button id="btn-jump-unanswered-question" type="button" class="mt-2 btn btn-light btn-sm float-end">{% blocktrans %}Jump to first unanswered question{% endblocktrans %}</button>
-            <div class="clearfix"></div>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="p-2">
+                    {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                </div>
+                <div class="p-2">
+                    <button id="btn-jump-unanswered-question" type="button" class="btn btn-light btn-sm float-end"  title="{% trans 'Jump to the first unanswered question' %}">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
