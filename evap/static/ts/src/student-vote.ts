@@ -170,8 +170,10 @@ function fancyFocus(element: HTMLElement) {
 document.querySelector("#btn-jump-unanswered-question")?.addEventListener("click", scrollToFirstChoiceError);
 
 function scrollToFirstChoiceError() {
-    const firstError = document.querySelector(".row .choice-error");
-    if (firstError) {
-        fancyFocus(firstError as HTMLElement);
+    const firstErrorRow = document.querySelector(".row .choice-error");
+    const tabRow = firstErrorRow?.closest(".row")?.querySelector(".tab-row") as HTMLElement;
+    if (tabRow) {
+        const inputElement = findCorrectInputInRow(tabRow);
+        fancyFocus(inputElement);
     }
 }
