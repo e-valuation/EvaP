@@ -46,8 +46,8 @@ class MergeUsersTest(TestCase):
         cls.user1 = baker.make(UserProfile, email="test1@institution.example.com")
         cls.user2 = baker.make(UserProfile, email="test2@institution.example.com")
         cls.user3 = baker.make(UserProfile, email="test3@institution.example.com")
-        cls.group1 = baker.make(Group, pk=4)
-        cls.group2 = baker.make(Group, pk=5)
+        cls.group1 = Group.objects.get(name="Reviewer")
+        cls.group2 = Group.objects.get(name="Grade publisher")
         cls.main_user = baker.make(
             UserProfile,
             title="Dr.",
