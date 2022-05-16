@@ -556,20 +556,15 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
     @classmethod
     def setUpTestData(cls):
         make_manager()
-        cls.semester = baker.make(Semester, id=2)
         responsible = baker.make(UserProfile, email="responsible@institution.example.com")
         cls.student1 = baker.make(UserProfile, email="student1@institution.example.com")
         cls.student2 = baker.make(UserProfile, email="student2@example.com")
         students = baker.make(UserProfile, _bulk_create=True, _quantity=10)
         students.extend([cls.student1, cls.student2])
 
-        cls.evaluation = baker.make(
-            Evaluation,
-            id=22,
-            state=Evaluation.State.IN_EVALUATION,
-            course=baker.make(Course, semester=cls.semester),
-            participants=students,
-        )
+        cls.evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION, participants=students)
+        cls.url = f"/results/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}"
+
         questionnaire = baker.make(Questionnaire)
         cls.question_grade = baker.make(Question, questionnaire=questionnaire, type=Question.GRADE)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
@@ -579,7 +574,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
         )
 
     def helper_test_answer_visibility_one_voter(self, user_email, expect_page_not_visible=False):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user_email, expect_errors=expect_page_not_visible)
+        page = self.app.get(self.url, user=user_email, expect_errors=expect_page_not_visible)
         if expect_page_not_visible:
             self.assertEqual(page.status_code, 403)
         else:
@@ -592,7 +587,7 @@ class TestResultsSemesterEvaluationDetailViewFewVoters(WebTest):
             self.assertEqual(number_of_disabled_grade_badges, 5)
 
     def helper_test_answer_visibility_two_voters(self, user_email):
-        page = self.app.get("/results/semester/2/evaluation/22", user=user_email)
+        page = self.app.get(self.url, user=user_email)
         number_of_grade_badges = str(page).count("badge-grade")
         self.assertEqual(number_of_grade_badges, 5)  # 1 evaluation overview and 4 questions
         number_of_visible_grade_badges = str(page).count("background-color")
@@ -897,22 +892,19 @@ class TestResultsTextanswerVisibility(WebTest):
 class TestResultsOtherContributorsListOnExportView(WebTest):
     @classmethod
     def setUpTestData(cls):
-        cls.semester = baker.make(Semester, id=2)
-        responsible = baker.make(UserProfile, email="responsible@institution.example.com")
-        cls.evaluation = baker.make(
-            Evaluation,
-            state=Evaluation.State.PUBLISHED,
-            course=baker.make(Course, semester=cls.semester, responsibles=[responsible]),
-        )
+        cls.responsible = baker.make(UserProfile, email="responsible@institution.example.com")
+
+        evaluation = baker.make(Evaluation, state=Evaluation.State.PUBLISHED)
+        cls.url = f"/results/semester/{evaluation.course.semester.id}/evaluation/{evaluation.id}?view=export"
 
         questionnaire = baker.make(Questionnaire)
         baker.make(Question, questionnaire=questionnaire, type=Question.LIKERT)
-        cls.evaluation.general_contribution.questionnaires.set([questionnaire])
+        evaluation.general_contribution.questionnaires.set([questionnaire])
 
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
-            contributor=responsible,
+            evaluation=evaluation,
+            contributor=cls.responsible,
             questionnaires=[questionnaire],
             role=Contribution.Role.EDITOR,
             textanswer_visibility=Contribution.TextAnswerVisibility.GENERAL_TEXTANSWERS,
@@ -920,7 +912,7 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.other_contributor_1 = baker.make(UserProfile, email="other_contributor_1@institution.example.com")
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
+            evaluation=evaluation,
             contributor=cls.other_contributor_1,
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
@@ -928,16 +920,15 @@ class TestResultsOtherContributorsListOnExportView(WebTest):
         cls.other_contributor_2 = baker.make(UserProfile, email="other_contributor_2@institution.example.com")
         baker.make(
             Contribution,
-            evaluation=cls.evaluation,
+            evaluation=evaluation,
             contributor=cls.other_contributor_2,
             questionnaires=[questionnaire],
             textanswer_visibility=Contribution.TextAnswerVisibility.OWN_TEXTANSWERS,
         )
-        cache_results(cls.evaluation)
+        cache_results(evaluation)
 
     def test_contributor_list(self):
-        url = f"/results/semester/{self.semester.id}/evaluation/{self.evaluation.id}?view=export"
-        page = self.app.get(url, user="responsible@institution.example.com")
+        page = self.app.get(self.url, user=self.responsible)
         self.assertIn(f"<li>{self.other_contributor_1.full_name}</li>", page)
         self.assertIn(f"<li>{self.other_contributor_2.full_name}</li>", page)
 

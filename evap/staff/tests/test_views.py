@@ -286,15 +286,14 @@ class TestUserMergeSelectionView(WebTestStaffModeWith200Check):
 
 
 class TestUserMergeView(WebTestStaffModeWith200Check):
-    url = "/staff/user/3/merge/4"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.test_users = [cls.manager]
 
-        cls.main_user = baker.make(UserProfile, pk=3)
-        cls.other_user = baker.make(UserProfile, pk=4)
+        cls.main_user = baker.make(UserProfile)
+        cls.other_user = baker.make(UserProfile)
+        cls.url = f"/staff/user/{cls.main_user.pk}/merge/{cls.other_user.pk}"
 
     def test_shows_evaluations_participating_in(self):
         evaluation = baker.make(Evaluation, name_en="The journey of unit-testing", participants=[self.main_user])
@@ -2501,14 +2500,14 @@ class TestEvaluationTextAnswerEditView(WebTestStaffMode):
 
 
 class TestQuestionnaireNewVersionView(WebTestStaffMode):
-    url = "/staff/questionnaire/2/new_version"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.name_de_orig = "kurzer name"
         cls.name_en_orig = "short name"
-        questionnaire = baker.make(Questionnaire, id=2, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        questionnaire = baker.make(Questionnaire, name_de=cls.name_de_orig, name_en=cls.name_en_orig)
+        cls.url = f"/staff/questionnaire/{questionnaire.pk}/new_version"
+
         baker.make(Question, questionnaire=questionnaire)
 
     def test_changes_old_title(self):
@@ -2602,15 +2601,15 @@ class TestQuestionnaireIndexView(WebTestStaffMode):
 
 
 class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
-    url = "/staff/questionnaire/2/edit"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
         cls.test_users = [cls.manager]
 
         evaluation = baker.make(Evaluation, state=Evaluation.State.IN_EVALUATION)
-        cls.questionnaire = baker.make(Questionnaire, id=2)
+        cls.questionnaire = baker.make(Questionnaire)
+        cls.url = f"/staff/questionnaire/{cls.questionnaire.pk}/edit"
+
         baker.make(Contribution, questionnaires=[cls.questionnaire], evaluation=evaluation)
 
         baker.make(Question, questionnaire=cls.questionnaire)
@@ -2646,13 +2645,13 @@ class TestQuestionnaireEditView(WebTestStaffModeWith200Check):
 
 
 class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
-    url = "/staff/questionnaire/2"
-
     @classmethod
     def setUpTestData(cls):
         cls.test_users = [make_manager()]
 
-        questionnaire = baker.make(Questionnaire, id=2)
+        questionnaire = baker.make(Questionnaire)
+        cls.url = f"/staff/questionnaire/{questionnaire.pk}"
+
         baker.make(
             Question,
             questionnaire=questionnaire,
@@ -2663,12 +2662,12 @@ class TestQuestionnaireViewView(WebTestStaffModeWith200Check):
 
 
 class TestQuestionnaireCopyView(WebTestStaffMode):
-    url = "/staff/questionnaire/2/copy"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        questionnaire = baker.make(Questionnaire, id=2)
+        questionnaire = baker.make(Questionnaire)
+        cls.url = f"/staff/questionnaire/{questionnaire.pk}/copy"
+
         baker.make(Question, questionnaire=questionnaire)
 
     def test_not_changing_name_fails(self):
@@ -3121,12 +3120,12 @@ class TestDegreeView(WebTestStaffMode):
 
 
 class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
-    url = "/staff/semester/1/assign"
-
     @classmethod
     def setUpTestData(cls):
         cls.manager = make_manager()
-        cls.semester = baker.make(Semester, id=1)
+        semester = baker.make(Semester)
+        cls.url = f"/staff/semester/{semester.pk}/assign"
+
         cls.course_type_1 = baker.make(CourseType)
         cls.course_type_2 = baker.make(CourseType)
         cls.responsible = baker.make(UserProfile)
@@ -3135,11 +3134,11 @@ class TestSemesterQuestionnaireAssignment(WebTestStaffMode):
         cls.questionnaire_responsible = baker.make(Questionnaire, type=Questionnaire.Type.CONTRIBUTOR)
         cls.evaluation_1 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=cls.semester, type=cls.course_type_1, responsibles=[cls.responsible]),
+            course=baker.make(Course, semester=semester, type=cls.course_type_1, responsibles=[cls.responsible]),
         )
         cls.evaluation_2 = baker.make(
             Evaluation,
-            course=baker.make(Course, semester=cls.semester, type=cls.course_type_2, responsibles=[cls.responsible]),
+            course=baker.make(Course, semester=semester, type=cls.course_type_2, responsibles=[cls.responsible]),
         )
         baker.make(
             Contribution,
