@@ -167,7 +167,6 @@ function fancyFocus(element: HTMLElement) {
     });
 }
 
-// Scrolls to the first unanswered / marked as choice-error question when the button is clicked
 document.querySelector("#btn-jump-unanswered-question")?.addEventListener("click", scrollToFirstChoiceError);
 
 function scrollToFirstChoiceError() {
