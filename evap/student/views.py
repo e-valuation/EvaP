@@ -132,11 +132,10 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
             for questionnaire in questionnaires
         ]
 
-    if all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
-        assert not preview
+    if not preview and all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
         return form_groups, None
 
-    evaluation_form_group = form_groups.pop(evaluation.general_contribution)
+    evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
 
     contributor_form_groups = [
         (
