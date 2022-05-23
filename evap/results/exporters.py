@@ -244,9 +244,9 @@ class ResultsExporter(ExcelExporter):
 
     def write_questionnaire(self, questionnaire, evaluations_with_results, contributor):
         if contributor and questionnaire.type == Questionnaire.Type.CONTRIBUTOR:
-            self.write_cell(f"{questionnaire.name} ({contributor.full_name})", "bold")
+            self.write_cell(f"{questionnaire.public_name} ({contributor.full_name})", "bold")
         else:
-            self.write_cell(questionnaire.name, "bold")
+            self.write_cell(questionnaire.public_name, "bold")
 
         # first cell of row is printed above
         self.write_empty_row_with_styles(["border_left_right"] * len(evaluations_with_results))
