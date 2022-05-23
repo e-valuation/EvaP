@@ -119,6 +119,10 @@ def capitalize_first(string):
     return string[0].upper() + string[1:]
 
 
+def ilen(iterable):
+    return sum(1 for _ in iterable)
+
+
 class FileResponse(HttpResponse):
     def __init__(self, filename, content_type=None, **kwargs):
         super().__init__(content_type=content_type, **kwargs)
