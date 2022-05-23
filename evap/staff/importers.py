@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
-from evap.evaluation.tools import clean_email, unordered_groupby
+from evap.evaluation.tools import clean_email, ilen, unordered_groupby
 from evap.staff.tools import ImportType, create_user_list_html_string_for_message, user_edit_link
 
 
@@ -584,7 +584,7 @@ class EnrollmentImporter(ExcelImporter):
 
         msg = format_html(
             _("Successfully created {} courses/evaluations, {} participants and {} contributors:"),
-            len(self.new_evaluations),
+            self.created_evaluations_count,
             len(students_created),
             len(responsibles_created),
         )
@@ -597,19 +597,15 @@ class EnrollmentImporter(ExcelImporter):
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
         msg = format_html(
             _("The import run will create {} courses/evaluations and {} users:"),
-            len(self.new_evaluations),
+            self.created_evaluations_count,
             len(filtered_users),
         )
         msg += create_user_list_html_string_for_message(filtered_users)
         self.success_messages.append(msg)
 
     @property
-    def new_evaluations(self):
-        return {
-            id: evaluation_data
-            for id, evaluation_data in self.evaluations.items()
-            if not evaluation_data.existing_course
-        }
+    def created_evaluations_count(self):
+        return ilen(filter(lambda e: e.existing_course is None, self.evaluations.values()))
 
     @classmethod
     def process(cls, excel_content, semester, vote_start_datetime, vote_end_date, test_run):
