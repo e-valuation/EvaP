@@ -132,6 +132,7 @@ CACHES = {
 }
 
 CONTACT_EMAIL = "webmaster@localhost"
+ALLOW_ANONYMOUS_FEEDBACK_MESSAGES = True
 
 # Config for mail system
 DEFAULT_FROM_EMAIL = "webmaster@localhost"
@@ -235,6 +236,7 @@ _TEMPLATE_OPTIONS = {
         "django.contrib.messages.context_processors.messages",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
+        "evap.context_processors.allow_anonymous_feedback_messages"
     ],
     "builtins": ["django.templatetags.i18n"],
 }

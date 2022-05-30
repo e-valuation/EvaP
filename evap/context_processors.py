@@ -12,3 +12,7 @@ def slogan(request):
 
 def debug(request):
     return {"debug": settings.DEBUG}
+
+
+def allow_anonymous_feedback_messages(request):
+    return {"allow_anonymous_feedback_messages": settings.ALLOW_ANONYMOUS_FEEDBACK_MESSAGES}
