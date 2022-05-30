@@ -16,7 +16,16 @@
 {% block content %}
     {{ block.super }}
     {% if errors_exist %}
-        <div class="alert alert-danger" role="alert">{% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}</div>
+        <div class="alert alert-danger" role="alert">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="p-2">
+                    {% blocktrans %}Please make sure to vote for all rating questions. You can also click on "I can't give feedback" to skip the questions about a single person.{% endblocktrans %}
+                </div>
+                <button id="btn-jump-unanswered-question" type="button" class="btn btn-light float-end" data-bs-toggle="tooltip" data-bs-placement="left" title="{% trans 'Jump to the first unanswered question' %}">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
     {% endif %}
     {% if evaluation.is_midterm_evaluation %}
         <div class="callout callout-warning">{% trans 'The results of this evaluation will be published while the course is still running. This means that the contributors will receive this feedback before the final grades for the course have been published.' %}</div>
@@ -95,18 +104,10 @@
                                         {% if label %} &ndash; <span class="fst-italic">{{ label }}</span>{% endif %}
                                     </button>
                                 </div>
-                                <div>
-                                    <button type="button" class="btn btn-light btn-sm{% if not preview %} tab-selectable{% endif %}"
-                                        data-mark-no-answers-for="{{ contributor.id }}"
-                                        {% if preview %}disabled{% endif %}
-                                    >
-                                        {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
-                                    </button>
-                                </div>
                             </div>
                             <div class="collapse{% if not errors_exist or contributor_has_errors %} show{% endif %}" id="vote-area-{{ contributor.id }}">
                                 <div class="card-body">
-                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to %}
+                                    {% include 'student_vote_questionnaire_group.html' with questionnaire_group=form_group preview=preview textanswers_visible_to=textanswers_visible_to contributor=contributor%}
                                 </div>
                             </div>
                         </div>

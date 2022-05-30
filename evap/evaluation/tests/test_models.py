@@ -454,7 +454,6 @@ class TestEvaluations(WebTest):
             caches["results"].get(get_evaluation_result_template_fragment_cache_key(evaluation.id, "de", False))
         )
 
-    # pylint: disable=invalid-name
     def assert_textanswer_review_state(
         self,
         evaluation,

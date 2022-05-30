@@ -27,7 +27,7 @@ from evap.evaluation.tools import (
 )
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
-from evap.staff.forms import ContributionFormSet
+from evap.staff.forms import ContributionFormset
 from evap.student.views import get_valid_form_groups_or_render_vote_page
 
 
@@ -125,7 +125,7 @@ def evaluation_view(request, evaluation_id):
         raise PermissionDenied
 
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=0
+        Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=0
     )
 
     form = EvaluationForm(request.POST or None, instance=evaluation)
@@ -177,7 +177,7 @@ def evaluation_edit(request, evaluation_id):
     preview = post_operation == "preview"
 
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+        Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
     )
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation)
     formset = InlineContributionFormset(

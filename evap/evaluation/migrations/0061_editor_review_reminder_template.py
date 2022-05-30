@@ -16,7 +16,7 @@ def insert_emailtemplates(apps, _schema_editor):
 def remove_emailtemplates(apps, _schema_editor):
     EmailTemplate = apps.get_model("evaluation", "EmailTemplate")
 
-    for name, subject in emailtemplates:
+    for name, __ in emailtemplates:
         EmailTemplate.objects.filter(name=name).delete()
 
 

@@ -82,16 +82,16 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire_1.name)
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire_1.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], question_1.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(7)[0], questionnaire_2.name)
+        self.assertEqual(workbook.sheets()[0].row_values(7)[0], questionnaire_2.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(8)[0], question_2.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(10)[0], questionnaire_3.name)
+        self.assertEqual(workbook.sheets()[0].row_values(10)[0], questionnaire_3.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(11)[0], question_3.text)
 
-        self.assertEqual(workbook.sheets()[0].row_values(13)[0], questionnaire_4.name)
+        self.assertEqual(workbook.sheets()[0].row_values(13)[0], questionnaire_4.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(14)[0], question_4.text)
 
     def test_heading_question_filtering(self):
@@ -130,7 +130,7 @@ class TestExporters(TestCase):
         binary_content.seek(0)
         workbook = xlrd.open_workbook(file_contents=binary_content.read())
 
-        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.name)
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], questionnaire.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], heading_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(6)[0], likert_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(7)[0], "")
@@ -367,7 +367,7 @@ class TestExporters(TestCase):
         cache_results(evaluation)
 
         sheet = self.get_export_sheet(evaluation.course.semester, degree, [evaluation.course.type.id])
-        self.assertEqual(sheet.row_values(4)[0], used_questionnaire.name)
+        self.assertEqual(sheet.row_values(4)[0], used_questionnaire.public_name)
         self.assertEqual(sheet.row_values(5)[0], used_question.text)
         self.assertNotIn(unused_questionnaire.name, sheet.col_values(0))
         self.assertNotIn(unused_question.text, sheet.col_values(0))
@@ -530,12 +530,12 @@ class TestExporters(TestCase):
             workbook.sheets()[0].row_values(0)[2],
             f"{evaluation_2.full_name}\n{evaluation_2.course.semester.name}\n{other_contributor.full_name}",
         )
-        self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.name)
+        self.assertEqual(workbook.sheets()[0].row_values(4)[0], general_questionnaire.public_name)
         self.assertEqual(workbook.sheets()[0].row_values(5)[0], general_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(5)[2], 4.0)
         self.assertEqual(
             workbook.sheets()[0].row_values(7)[0],
-            f"{contributor_questionnaire.name} ({contributor.full_name})",
+            f"{contributor_questionnaire.public_name} ({contributor.full_name})",
         )
         self.assertEqual(workbook.sheets()[0].row_values(8)[0], contributor_question.text)
         self.assertEqual(workbook.sheets()[0].row_values(8)[2], 3.0)
