@@ -166,3 +166,13 @@ function fancyFocus(element: HTMLElement) {
         block: "center",
     });
 }
+
+document.querySelector("#btn-jump-unanswered-question")?.addEventListener("click", scrollToFirstChoiceError);
+
+function scrollToFirstChoiceError() {
+    const firstErrorRow = document.querySelector(".row .choice-error");
+    const tabRow = firstErrorRow?.closest(".row")?.querySelector(".tab-row") as HTMLElement;
+    if (tabRow) {
+        fancyFocus(findCorrectInputInRow(tabRow));
+    }
+}

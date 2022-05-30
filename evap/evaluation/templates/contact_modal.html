@@ -23,17 +23,7 @@
                     {{ teaser }}
                     <br /><br />
                     <div class="mb-3">
-                    <div class="d-flex">
-                        <label for="{{ modal_id }}SenderName" class="control-label me-auto">{% trans 'Sender' %}:</label>
-                        {% if modal_id == "feedbackModal" and allow_anonymous %}
-                            <div>
-                                <label>
-                                    {% trans 'Send anonymous' %}
-                                    <input type="checkbox" class="mb-3" id="{{ modal_id }}Anonymous" value="True">
-                                </label>
-                            </div>
-                        {% endif %}
-                        </div>
+                        <label for="{{ modal_id }}SenderName" class="control-label">{% trans 'Sender' %}:</label>
                         <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}" />
                     </div>
                     <div class="mb-3">
@@ -55,6 +45,8 @@
 </div>
 
 <script type="text/javascript">
+    var modalHandler = new SenderCheckbox("{{ modal_id }}");
+
     var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
     var successMessageModal_{{ modal_id }} = new bootstrap.Modal(document.getElementById('successMessageModal_{{ modal_id }}'));
 
@@ -99,9 +91,4 @@
             }
         });
     }
-    const sendAnonymous = document.getElementById("{{ modal_id }}Subject");
-    sendAnonymous.addEventListener("change", () => {
-        
-    }
-});
 </script>
