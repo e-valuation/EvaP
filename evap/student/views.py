@@ -116,7 +116,7 @@ def index(request):
     return render(request, "student_index.html", template_data)
 
 
-def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
+def get_vote_page_form_groups(request, evaluation, preview):
     contributions_to_vote_on = evaluation.contributions.all()
     # prevent a user from voting on themselves
     if not preview:
@@ -131,9 +131,12 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
             QuestionnaireVotingForm(request.POST or None, contribution=contribution, questionnaire=questionnaire)
             for questionnaire in questionnaires
         ]
+    return form_groups
 
-    if not preview and all(all(form.is_valid() for form in form_group) for form_group in form_groups.values()):
-        return form_groups, None
+def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
+    form_groups = get_vote_page_form_groups(request, evaluation, preview)
+
+    assert preview or not all(form.is_valid() for form_group in form_groups.values() for form in form_group)
 
     evaluation_form_group = form_groups.pop(evaluation.general_contribution, default=[])
 
@@ -174,7 +177,7 @@ def get_valid_form_groups_or_render_vote_page(request, evaluation, preview, for_
         general_contribution_textanswers_visible_to=textanswers_visible_to(evaluation.general_contribution),
         text_answer_warnings=TextAnswerWarning.objects.all(),
     )
-    return None, render(request, "student_vote.html", template_data)
+    return render(request, "student_vote.html", template_data)
 
 
 @participant_required
@@ -184,9 +187,9 @@ def vote(request, evaluation_id):
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied
 
-    form_groups, rendered_page = get_valid_form_groups_or_render_vote_page(request, evaluation, preview=False)
-    if rendered_page is not None:
-        return rendered_page
+    form_groups = get_vote_page_form_groups(request, evaluation, preview=False)
+    if not all(form.is_valid() for form_group in form_groups.values() for form in form_group):
+        return render_vote_page(request, evaluation, preview=False)
 
     # all forms are valid, begin vote operation
     with transaction.atomic():
