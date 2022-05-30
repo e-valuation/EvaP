@@ -2,7 +2,7 @@
 black==22.3.0
 coverage[toml]
 django-debug-toolbar>=1.6
-django-stubs
+django-stubs==1.10.1
 django-webtest==1.9.10
 isort==5.10.1
 model-bakery==1.5.0
