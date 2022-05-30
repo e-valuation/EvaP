@@ -23,15 +23,34 @@
                     {{ teaser }}
                     <br /><br />
                     <div class="mb-3">
-                        <label for="{{ modal_id }}SenderName" class="control-label">{% trans 'Sender' %}:</label>
-                        <input type="text" class="form-control mb-3" id="{{ modal_id }}SenderName" disabled value="{{ user.full_name }}" />
+                        <div class="d-flex">
+                        <label for="{{ modal_id }}SenderName" class="control-label mb-1">{% trans 'Sender' %}:</label>
+                        {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages%}
+                            <div class="btn-group w-50 m-lg-auto" role="group"
+                                 aria-label="Basic radio toggle button group">
+                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}SenderName"
+                                       autocomplete="off"
+                                       checked>
+                                <label class="btn btn-sm btn-outline-primary"
+                                       for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
+
+                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}AnonymName"
+                                       autocomplete="off">
+                                <label class="btn btn-sm btn-outline-primary"
+                                       for="{{ modal_id }}AnonymName">{% trans 'Anonymous' %}</label>
+                            </div>
+                        {% else %}
+                            <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled
+                               value="{{ user.full_name }}"/>
+                        {% endif %}
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label for="{{ modal_id }}Subject" class="control-label">{% trans 'Subject' %}:</label>
+                        <label for="{{ modal_id }}Subject" class="control-label mb-1">{% trans 'Subject' %}:</label>
                         <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}" />
                     </div>
                     <div class="mb-3">
-                        <label for="{{ modal_id }}MessageText" class="control-label">{% trans 'Message' %}:</label>
+                        <label for="{{ modal_id }}MessageText" class="control-label mb-1">{% trans 'Message' %}:</label>
                         <textarea autofocus class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
                     </div>
                 </div>
@@ -43,7 +62,7 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="/static/js/contact_modal.js"></script>
 <script type="text/javascript">
     var modalHandler = new SenderCheckbox("{{ modal_id }}");
 
