@@ -133,6 +133,7 @@ def get_vote_page_form_groups(request, evaluation, preview):
         ]
     return form_groups
 
+
 def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False):
     form_groups = get_vote_page_form_groups(request, evaluation, preview)
 
@@ -182,7 +183,7 @@ def render_vote_page(request, evaluation, preview, for_rendering_in_modal=False)
 
 @participant_required
 def vote(request, evaluation_id):
-    # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-branches
+    # pylint: disable=too-many-nested-blocks,too-many-branches
     evaluation = get_object_or_404(Evaluation, id=evaluation_id)
     if not evaluation.can_be_voted_for_by(request.user):
         raise PermissionDenied

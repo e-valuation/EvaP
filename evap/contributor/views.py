@@ -148,7 +148,6 @@ def evaluation_view(request, evaluation_id):
 
 
 def render_preview(request, formset, evaluation_form, evaluation):
-    # TODO: This vs evaluation_preview???
     # open transaction to not let any other requests see anything of what we're doing here
     try:
         with transaction.atomic():
