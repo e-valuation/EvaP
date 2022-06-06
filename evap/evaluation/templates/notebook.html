@@ -1,22 +1,20 @@
-<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNotebook" aria-labelledby="offcanvasNotebookLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNotebookLabel">
-            {% trans 'Notebook' %}
-            <span class="ps-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}You can put some private notes here that you want to have ready for future evaluations. This data will not be published. But in contrast to answers in evaluations, the content of this field will be saved within your account on the EvaP server and is thus not technically anonymous.{% endblocktrans %}"></span>
-        </h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body d-flex flex-column">
-        <div class="flex-grow-1">
-            <textarea class="form-control fill-height"></textarea>
+<div class="w-25 p-3" tabindex="-1" id="notebook" aria-labelledby="notebookLabel">
+    <div class="card sticky-top">
+        <div class="card-body">
+            <div class="offcanvas-header">
+                <h5 class="card-title">
+                    {% trans 'Notebook' %}
+                    <span class="ps-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}You can put some private notes here that you want to have ready for future evaluations. This data will not be published. But in contrast to answers in evaluations, the content of this field will be saved within your account on the EvaP server and is thus not technically anonymous.{% endblocktrans %}"></span>
+                </h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+          
+            <div class="body">
+                <textarea class="form-control" style="height: 65vh"></textarea>
+                <div class="mt-3 text-center">
+                    <button class="btn btn-primary btn-wide">{% trans 'Save' %}</button>
+                </div>
+            </div>
         </div>
-        <div class="mt-3 text-center">
-            <button class="btn btn-primary btn-wide">{% trans 'Save' %}</button>
-        </div>
-    </div>
+      </div>
 </div>
-
-
-<button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNotebook" aria-controls="offcanvasNotebook">
-    <span class="fas fa-pen-to-square"></span>
-</button>

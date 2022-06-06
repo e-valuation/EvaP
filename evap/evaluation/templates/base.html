@@ -26,41 +26,47 @@
         {% endblock %}
     </head>
     <body>
-        <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+        <div class="row">
+            <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
-        {% block modals %}
-            {% if user.is_authenticated %}
-                {% trans 'Feedback' as title %}
-                {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
-                {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
-            {% endif %}
-        {% endblock %}
-
-        <div class="sticky-top d-print-none">
-            {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
-                {% include_navbar user LANGUAGE_CODE %}
-            {% endcache %}
-
-            {% block breadcrumb_bar %}
+            {% block modals %}
+                {% if user.is_authenticated %}
+                    {% trans 'Feedback' as title %}
+                    {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                    {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
+                {% endif %}
             {% endblock %}
+
+            <div class="sticky-top d-print-none">
+                {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
+                    {% include_navbar user LANGUAGE_CODE %}
+                {% endcache %}
+
+                {% block breadcrumb_bar %}
+                {% endblock %}
+            </div>
         </div>
 
-        <img class="print-brand-image d-none d-print-block" src="{% static 'images/evap.png' %}" alt="{% trans 'Evaluation Platform' %}" />
+        <div class="row">
+            {% include 'notebook.html' %}
+            <div class="w-75 p-3" style="background-color: #eee;">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
 
-        <div class="container mb-4 pt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-
-            {% block content %}
-            {% endblock %}
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
 
-        {% include 'notebook.html' %}
-        {% include 'footer.html' %}
+        <button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook">
+            <span class="fas fa-pen-to-square"></span>
+        </button>
+
+            {% include 'footer.html' %}
 
         <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/select2.min.js' %}"></script>
