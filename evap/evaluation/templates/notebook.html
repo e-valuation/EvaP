@@ -1,4 +1,4 @@
-<div class="w-25 p-3" tabindex="-1" id="notebook" aria-labelledby="notebookLabel">
+<div class="w-25 p-3 collapse sticky-offset" tabindex="-1" id="notebook" aria-expanded="false" aria-labelledby="notebook">
     <div class="card sticky-top">
         <div class="card-body">
             <div class="offcanvas-header">
@@ -6,7 +6,7 @@
                     {% trans 'Notebook' %}
                     <span class="ps-2 fas fa-circle-info" data-bs-toggle="tooltip" data-bs-placement="right" title="{% blocktrans %}You can put some private notes here that you want to have ready for future evaluations. This data will not be published. But in contrast to answers in evaluations, the content of this field will be saved within your account on the EvaP server and is thus not technically anonymous.{% endblocktrans %}"></span>
                 </h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <button type="button" class="btn-close text-reset" type="button" data-bs-toggle="collapse" data-bs-target="#notebook,#notebookButton" aria-controls="collapseNotebook"></button>
             </div>
           
             <div class="body">
@@ -16,5 +16,5 @@
                 </div>
             </div>
         </div>
-      </div>
+    </div>
 </div>

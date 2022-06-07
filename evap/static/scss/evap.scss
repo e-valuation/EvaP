@@ -146,3 +146,7 @@ td.icon {
 @media print {
     @import "print";
 }
+
+.sticky-offset {
+    top: 9vh;
+}

@@ -26,30 +26,28 @@
         {% endblock %}
     </head>
     <body>
-        <div class="row">
-            <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 
-            {% block modals %}
-                {% if user.is_authenticated %}
-                    {% trans 'Feedback' as title %}
-                    {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
-                    {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
-                {% endif %}
+        {% block modals %}
+            {% if user.is_authenticated %}
+                {% trans 'Feedback' as title %}
+                {% trans 'You are welcome to submit feedback regarding the evaluation platform or specific evaluations. Please let us know how we can improve your experience on EvaP.' as teaser %}
+                {% include 'contact_modal.html' with modal_id='feedbackModal' user=request.user title=title teaser=teaser %}
+            {% endif %}
+        {% endblock %}
+
+        <div class="sticky-top d-print-none">
+            {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
+                {% include_navbar user LANGUAGE_CODE %}
+            {% endcache %}
+
+            {% block breadcrumb_bar %}
             {% endblock %}
-
-            <div class="sticky-top d-print-none">
-                {% cache 3600 navbar request.user.email LANGUAGE_CODE %}
-                    {% include_navbar user LANGUAGE_CODE %}
-                {% endcache %}
-
-                {% block breadcrumb_bar %}
-                {% endblock %}
-            </div>
         </div>
 
-        <div class="row">
+        <div class="container-fluid row">
             {% include 'notebook.html' %}
-            <div class="w-75 p-3" style="background-color: #eee;">
+            <div class="container w-75 p-3 mb-4" style="background-color: #eee;">
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
                         {{ message }}
@@ -62,9 +60,11 @@
             </div>
         </div>
 
-        <button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook" aria-controls="collapseNotebook">
-            <span class="fas fa-pen-to-square"></span>
-        </button>
+        <div class="collapse show" tabindex="-1" id="notebookButton">
+            <button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook,#notebookButton" aria-controls="collapseNotebook">
+                <span class="fas fa-pen-to-square"></span>
+            </button>
+        </div>
 
             {% include 'footer.html' %}
 
