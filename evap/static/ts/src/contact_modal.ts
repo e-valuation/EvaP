@@ -23,15 +23,15 @@ class ContactModalLogic {
         });
     }
 
-    public ModalShow() {
+    public ModalShow(): void {
         this.modal.show();
     }
 
-    public ModalAction(event: MouseEvent) {
+    public ModalAction(event: MouseEvent): void {
         this.actionButtonElement.disabled = true;
         event.preventDefault();
-        let message = this.messageTextElement.value;
-        let anonymous = (<HTMLInputElement>document.getElementById(this.modal_id + "AnonymName")).value;
+        const message = this.messageTextElement.value;
+        const anonymous = (<HTMLInputElement>document.getElementById(this.modal_id + "AnonymName")).value;
         if (message.trim() == "") {
             this.modal.hide();
             this.actionButtonElement.disabled = false;
@@ -39,9 +39,9 @@ class ContactModalLogic {
         }
 
         const res_promise = fetch("/contact", {
-            method: "POST",
-            headers: csrf.csrfheader,
             body: JSON.stringify({ message: message, title: this.title, anonymous: anonymous }),
+            headers: csrf.csrfheader,
+            method: "POST",
         });
 
         res_promise.then(res => {
