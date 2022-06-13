@@ -61,51 +61,5 @@
 </div>
 <script type="text/javascript" src="/static/js/contact_modal.js"></script>
 <script type="text/javascript">
-    var modalHandler = new SenderCheckbox("{{ modal_id }}");
-
-    var {{ modal_id }} = new bootstrap.Modal(document.getElementById('{{ modal_id }}'));
-    var successMessageModal_{{ modal_id }} = new bootstrap.Modal(document.getElementById('successMessageModal_{{ modal_id }}'));
-
-    function {{ modal_id }}Show() {
-        $('#{{ modal_id }}ActionButton').unbind().click(function(event){ {{ modal_id }}Action(event); });
-        {{ modal_id }}.show();
-    }
-    function {{ modal_id }}Action(event) {
-        var actionButton = $('#{{ modal_id }}ActionButton');
-        actionButton.prop('disabled', true);
-        event.preventDefault();
-
-        message = $('#{{ modal_id }}MessageText').val();
-        anonymous = $('#{{ modal_id }}AnonymName').val();
-
-        if (message.trim() == "") {
-            {{ modal_id }}.hide();
-            actionButton.prop('disabled', false);
-            return;
-        }
-
-        var originalText = actionButton.text();
-
-        $.ajax({
-            url : "/contact",
-            type : "POST",
-            data : { message: message, title: "{{ title|escapejs }}",  anonymous: anonymous},
-            success : function(json) {
-                {{ modal_id }}.hide();
-                successMessageModal_{{ modal_id }}.show();
-                $('#{{ modal_id }}MessageText').val("");
-                setTimeout(function(){
-                    successMessageModal_{{ modal_id }}.hide();
-                    actionButton.prop('disabled', false);
-                }, 3000);
-            },
-            error : function(json) {
-                actionButton.text('{% trans 'Sending failed, sorry!' %}');
-                setTimeout(function(){
-                    actionButton.text(originalText);
-                    actionButton.prop('disabled', false);
-                }, 4000);
-            }
-        });
-    }
+    var logic = new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}")
 </script>

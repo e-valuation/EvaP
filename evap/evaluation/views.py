@@ -163,7 +163,11 @@ def legal_notice(request):
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
-    email = settings.DEFAULT_FROM_EMAIL if request.POST.get("anonymous") == "on" else request.user.email or f"User {request.user.id}"
+    email = (
+        settings.DEFAULT_FROM_EMAIL
+        if request.POST.get("anonymous") == "on"
+        else request.user.email or f"User {request.user.id}"
+    )
     subject = f"[EvaP] Message from {email}"
 
     if message:
