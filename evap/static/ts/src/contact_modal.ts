@@ -2,12 +2,13 @@ declare const csrf: typeof import("./csrf-utils");
 declare const bootstrap: typeof import("bootstrap");
 
 class ContactModalLogic {
-    modal: bootstrap.Modal;
-    successMessageModal: bootstrap.Modal;
-    actionButtonElement: HTMLButtonElement;
-    messageTextElement: HTMLInputElement;
-    modal_id: string;
-    title: string;
+    private readonly modal: bootstrap.Modal;
+    private readonly successMessageModal: bootstrap.Modal;
+    private readonly actionButtonElement: HTMLButtonElement;
+    private readonly messageTextElement: HTMLInputElement;
+    private readonly modal_id: string;
+    private readonly title: string;
+
     constructor(modal_id: string, title: string) {
         this.modal_id = modal_id;
         this.title = title;
@@ -22,12 +23,11 @@ class ContactModalLogic {
         });
     }
 
-    ModalShow() {
+    public ModalShow() {
         this.modal.show();
     }
 
-    ModalAction(event: MouseEvent) {
-        let actionButton = $("#" + this.modal_id + "ActionButton");
+    public ModalAction(event: MouseEvent) {
         this.actionButtonElement.disabled = true;
         event.preventDefault();
         let message = this.messageTextElement.value;
