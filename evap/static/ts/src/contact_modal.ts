@@ -1,6 +1,5 @@
-declare const csrf: typeof import("./csrf-utils")
-declare const bootstrap: typeof import("bootstrap")
-
+declare const csrf: typeof import("./csrf-utils");
+declare const bootstrap: typeof import("bootstrap");
 
 class ContactModalLogic {
     modal: bootstrap.Modal;
