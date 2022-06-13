@@ -163,15 +163,15 @@ def legal_notice(request):
 def contact(request):
     message = request.POST.get("message")
     title = request.POST.get("title")
-    email = request.user.email or f"User {request.user.id}"
+    email = settings.DEFAULT_FROM_EMAIL if request.POST.get("anonymous") == "on" else request.user.email or f"User {request.user.id}"
     subject = f"[EvaP] Message from {email}"
 
     if message:
         mail = EmailMessage(
             subject=subject,
-            body=f"{title}\n{request.user.email}\n\n{message}",
+            body=f"{title}\n{email}\n\n{message}",
             to=[settings.CONTACT_EMAIL],
-            reply_to=[request.user.email],
+            reply_to=[email],
         )
         try:
             mail.send()
