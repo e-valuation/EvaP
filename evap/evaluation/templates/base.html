@@ -45,9 +45,9 @@
             {% endblock %}
         </div>
 
-        <div class="container-fluid row">
-            {% include 'notebook.html' %}
-            <div class="container w-75 p-3 mb-4" style="background-color: #eee;">
+        {% include 'notebook.html' %}
+        <div class="p-3 mb-4" id="evap-content">
+            <div class="container">
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags|message_class }} alert-dismissible">
                         {{ message }}
@@ -172,6 +172,17 @@
             function setSpinnerIcon(id) {
                 $("#" + id).empty().removeClass().addClass('fas fa-spinner fa-spin');
             };
+
+            // make evap go away for notebook
+            $('#notebook').on('show.bs.collapse', function () {
+                document.getElementById("evap-content").classList.add("notebook-margin");
+                document.getElementById("notebook").classList.add("notebook-container");
+            });
+
+            $('#notebook').on('hidden.bs.collapse', function () {
+                document.getElementById("evap-content").classList.remove("notebook-margin");
+                document.getElementById("notebook").classList.remove("notebook-container");
+            });
         </script>
 
         {% block additional_javascript %}{% endblock %}

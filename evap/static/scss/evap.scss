@@ -147,6 +147,38 @@ td.icon {
     @import "print";
 }
 
-.sticky-offset {
-    top: 9vh;
+@media screen and (orientation: landscape) {
+    .notebook-margin {
+        max-width: 75vw;
+        margin-left: 25vw;
+    }
+
+    .notebook-container {
+        width: 25vw;
+        padding-left: $spacer !important;
+        padding-bottom: $spacer !important;
+        padding-top: $spacer !important;
+    }
+
+    .notebook-textarea {
+        min-height: 65vh !important;
+    }
+}
+
+@media screen and (orientation: portrait) {
+    .notebook-margin {
+        max-width: 100vw;
+        margin-top: 50vh;
+    }
+
+    .notebook-container {
+        width: 100vw;
+        max-height: 40vh;
+        z-index: 42;
+        padding: $spacer !important;
+    }
+
+    .notebook-textarea {
+        min-height: 30vh !important;
+    }
 }
