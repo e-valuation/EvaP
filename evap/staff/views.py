@@ -105,7 +105,7 @@ from evap.staff.tools import (
 )
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
-from evap.student.views import get_valid_form_groups_or_render_vote_page
+from evap.student.views import render_vote_page
 
 
 @manager_required
@@ -1601,7 +1601,7 @@ def evaluation_preview(request, semester_id, evaluation_id):
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
-    return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
+    return render_vote_page(request, evaluation, preview=True)
 
 
 @manager_required
