@@ -28,7 +28,7 @@ from evap.evaluation.tools import (
 from evap.results.exporters import ResultsExporter
 from evap.results.tools import annotate_distributions_and_grades, get_evaluations_with_course_result_attributes
 from evap.staff.forms import ContributionFormset
-from evap.student.views import get_valid_form_groups_or_render_vote_page
+from evap.student.views import render_vote_page
 
 
 @responsible_or_contributor_or_delegate_required
@@ -155,9 +155,9 @@ def render_preview(request, formset, evaluation_form, evaluation):
             formset.save()
             request.POST = None  # this prevents errors rendered in the vote form
 
-            preview_response = get_valid_form_groups_or_render_vote_page(
+            preview_response = render_vote_page(
                 request, evaluation, preview=True, for_rendering_in_modal=True
-            )[1].content.decode()
+            ).content.decode()
             raise IntegrityError  # rollback transaction to discard the database writes
     except IntegrityError:
         pass
@@ -240,7 +240,7 @@ def evaluation_preview(request, evaluation_id):
     ):
         raise PermissionDenied
 
-    return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
+    return render_vote_page(request, evaluation, preview=True)
 
 
 @require_POST
