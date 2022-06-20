@@ -51,12 +51,13 @@ class ContactModalLogic {
             }
             this.modal.hide();
             this.successMessageModal.show();
-
             this.messageTextElement.value = "";
+
+            const timeout = 3000;
             setTimeout(() => {
                 this.successMessageModal.hide();
                 this.actionButtonElement.disabled = false;
-            }, 3000);
+            }, timeout);
         });
         res_promise.catch(_ => window.alert("Sending failed, sorry!"));
     }
