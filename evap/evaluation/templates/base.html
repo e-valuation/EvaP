@@ -60,13 +60,15 @@
             </div>
         </div>
 
-        <div class="collapse show" tabindex="-1" id="notebookButton">
-            <button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook,#notebookButton" aria-controls="collapseNotebook">
-                <span class="fas fa-pen-to-square"></span>
-            </button>
-        </div>
+        {% if user.is_authenticated %}
+            <div class="collapse show" tabindex="-1" id="notebookButton">
+                <button class="btn btn-outline-secondary button-notebook" type="button" data-bs-toggle="collapse" data-bs-target="#notebook,#notebookButton" aria-controls="collapseNotebook">
+                    <span class="fas fa-pen-to-square"></span>
+                </button>
+            </div>
+        {% endif %}
 
-            {% include 'footer.html' %}
+        {% include 'footer.html' %}
 
         <script type="text/javascript" src="{% static 'js/jquery-2.1.3.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/select2.min.js' %}"></script>

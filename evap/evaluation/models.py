@@ -1542,6 +1542,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
 
+    notes = models.TextField(verbose_name=_("notes"), blank=True, null=False, default="")
+
     class Meta:
         ordering = ["last_name", "first_name", "email"]
         verbose_name = _("user")

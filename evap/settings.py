@@ -235,6 +235,7 @@ _TEMPLATE_OPTIONS = {
         "django.contrib.messages.context_processors.messages",
         "evap.context_processors.slogan",
         "evap.context_processors.debug",
+        "evap.context_processors.notebook_content",
     ],
     "builtins": ["django.templatetags.i18n"],
 }

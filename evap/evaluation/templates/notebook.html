@@ -9,12 +9,13 @@
                 <button type="button" class="btn-close text-reset" type="button" data-bs-toggle="collapse" data-bs-target="#notebook,#notebookButton" aria-controls="collapseNotebook" id="notebookButtonClose"></button>
             </div>
           
-            <div class="body">
-                <textarea class="notebook-textarea form-control"></textarea>
+            <form method="POST" action="{% url 'evaluation:notebook' %}" class="body">
+                {% csrf_token %}
+                <textarea class="notebook-textarea form-control" id="id_notes" name="id_notes" style="resize: none;">{{notebook_content}}</textarea>
                 <div class="mt-3 text-center">
-                    <button class="btn btn-primary">{% trans 'Save' %}</button>
+                    <input class="btn btn-primary" type="submit" value="{% trans 'Save' %}">
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

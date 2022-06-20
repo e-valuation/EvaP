@@ -12,3 +12,9 @@ def slogan(request):
 
 def debug(request):
     return {"debug": settings.DEBUG}
+
+def notebook_content(request):
+    content = ""
+    if request.user.is_authenticated:
+        content = request.user.notes
+    return {"notebook_content": content}

@@ -7,6 +7,7 @@ from django.views.decorators.debug import sensitive_variables
 
 from evap.evaluation.models import UserProfile
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -121,3 +122,8 @@ class DelegatesForm(forms.ModelForm):
     def save(self, *args, **kw):
         super().save(*args, **kw)
         logger.info('User "%s" edited the settings.', self.instance.email)
+
+class NotebookForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ("notes",)
