@@ -5,6 +5,7 @@
         "@types/jquery": "^3.5.14",
         "@types/puppeteer": "^5.4.5",
         "@types/sortablejs": "^1.10.7",
+        "@types/bootstrap": "^5.1.12",
         "jest": "^27.5.1",
         "jest-environment-puppeteer": "^6.0.3",
         "prettier": "^2.6.1",
@@ -30,8 +31,5 @@
         "globalSetup": "jest-environment-puppeteer/setup",
         "globalTeardown": "jest-environment-puppeteer/teardown",
         "testEnvironment": "jest-environment-puppeteer"
-    },
-    "dependencies": {
-        "@types/bootstrap": "^5.1.12"
     }
 }
