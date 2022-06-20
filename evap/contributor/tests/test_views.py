@@ -122,6 +122,11 @@ class TestContributorEvaluationPreviewView(WebTestWith200Check):
         self.evaluation.save()
         self.app.get(self.url, user=self.responsible, status=403)
 
+    def test_without_questionnaires_assigned(self):
+        # regression test for #1747
+        self.evaluation.general_contribution.questionnaires.set([])
+        self.app.get(self.url, user=self.responsible, status=200)
+
 
 class TestContributorEvaluationEditView(WebTest):
     @classmethod

@@ -1980,11 +1980,17 @@ class TestSingleResultEditView(WebTestStaffModeWith200Check):
 class TestEvaluationPreviewView(WebTestStaffModeWith200Check):
     @classmethod
     def setUpTestData(cls):
-        evaluation = baker.make(Evaluation)
-        evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
+        cls.evaluation = baker.make(Evaluation)
+        cls.evaluation.general_contribution.questionnaires.set([baker.make(Questionnaire)])
 
-        cls.test_users = [make_manager()]
-        cls.url = f"/staff/semester/{evaluation.course.semester.pk}/evaluation/{evaluation.pk}/preview"
+        cls.manager = make_manager()
+        cls.test_users = [cls.manager]
+        cls.url = f"/staff/semester/{cls.evaluation.course.semester.pk}/evaluation/{cls.evaluation.pk}/preview"
+
+    def test_without_questionnaires_assigned(self):
+        # regression test for #1747
+        self.evaluation.general_contribution.questionnaires.set([])
+        self.app.get(self.url, user=self.manager, status=200)
 
 
 class TestEvaluationImportPersonsView(WebTestStaffMode):
