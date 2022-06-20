@@ -1,51 +1,50 @@
-declare const csrf: typeof import("./csrf-utils");
+import { sleep } from "./utils";
+
+declare const csrfUtils: typeof import("./csrf-utils");
 declare const bootstrap: typeof import("bootstrap");
+declare const utils: typeof import("src/utils");
+
+const timeout = 3000;
 
 class ContactModalLogic {
     private readonly modal: bootstrap.Modal;
     private readonly successMessageModal: bootstrap.Modal;
     private readonly actionButtonElement: HTMLButtonElement;
     private readonly messageTextElement: HTMLInputElement;
-    private readonly modal_id: string;
+    private readonly anonymousRadioElement: HTMLInputElement;
+    private readonly modalId: string;
     private readonly title: string;
 
-    constructor(modal_id: string, title: string) {
-        this.modal_id = modal_id;
+    constructor(modalId: string, title: string) {
+        this.modalId = modalId;
         this.title = title;
-        this.modal = new bootstrap.Modal(<HTMLElement>document.getElementById(modal_id));
-        this.successMessageModal = new bootstrap.Modal(
-            <HTMLElement>document.getElementById("successMessageModal_" + modal_id),
-        );
-        this.actionButtonElement = document.getElementById(this.modal_id + "ActionButton") as HTMLButtonElement;
-        this.messageTextElement = document.getElementById(this.modal_id + "MessageText") as HTMLInputElement;
-        this.actionButtonElement.addEventListener("click", event => {
-            this.ModalAction(event);
-        });
-    }
-
-    public ModalShow(): void {
-        this.modal.show();
-    }
-
-    public ModalAction(event: MouseEvent): void {
-        this.actionButtonElement.disabled = true;
-        event.preventDefault();
-        const message = this.messageTextElement.value;
-        const anonymous = (<HTMLInputElement>document.getElementById(this.modal_id + "AnonymName")).value;
-        if (message.trim() == "") {
-            this.modal.hide();
-            this.actionButtonElement.disabled = false;
-            return;
-        }
-
-        const res_promise = fetch("/contact", {
-            body: JSON.stringify({ message: message, title: this.title, anonymous: anonymous }),
-            headers: csrf.csrfheader,
-            method: "POST",
-        });
-
-        res_promise.then(res => {
-            if (!res.ok) {
+        this.modal = new bootstrap.Modal(utils.expectElementById(modalId));
+        this.successMessageModal = new bootstrap.Modal(utils.expectElementById("successMessageModal_" + modalId));
+        this.actionButtonElement = utils.expectElementById(modalId + "ActionButton");
+        this.messageTextElement = utils.expectElementById(modalId + "MessageText");
+        this.anonymousRadioElement = utils.expectElementById(modalId + "AnonymName");
+        this.actionButtonElement.addEventListener("click", async event => {
+            this.actionButtonElement.disabled = true;
+            event.preventDefault();
+            const message = this.messageTextElement.value;
+            if (message.trim() == "") {
+                this.modal.hide();
+                this.actionButtonElement.disabled = false;
+                return;
+            }
+            let response;
+            try {
+                response = await fetch("/contact", {
+                    body: JSON.stringify({
+                        message,
+                        title: this.title,
+                        anonymous: this.anonymousRadioElement.value,
+                    }),
+                    headers: csrfUtils.csrfHeader,
+                    method: "POST",
+                });
+                utils.assert(response.ok);
+            } catch (_) {
                 window.alert("Sending failed, sorry!");
                 return;
             }
@@ -53,12 +52,13 @@ class ContactModalLogic {
             this.successMessageModal.show();
             this.messageTextElement.value = "";
 
-            const timeout = 3000;
-            setTimeout(() => {
-                this.successMessageModal.hide();
-                this.actionButtonElement.disabled = false;
-            }, timeout);
+            await sleep(timeout);
+            this.successMessageModal.hide();
+            this.actionButtonElement.disabled = false;
         });
-        res_promise.catch(_ => window.alert("Sending failed, sorry!"));
+    }
+
+    public showModal(): void {
+        this.modal.show();
     }
 }
