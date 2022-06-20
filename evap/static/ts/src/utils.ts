@@ -4,7 +4,7 @@ export const selectOrError = <T extends Element>(elementId: string): T => {
     return elem;
 };
 
-export const assert = (condition: boolean, message: string = "Assertion Failed") => {
+export const assert = (condition: boolean, message = "Assertion Failed") => {
     if (!condition) throw new Error(message);
 };
 

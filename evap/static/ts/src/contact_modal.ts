@@ -1,6 +1,6 @@
-declare const csrfUtils: typeof import("csrf-utils");
+declare const csrfUtils: typeof import("./csrf-utils");
 declare const bootstrap: typeof import("bootstrap");
-declare const utils: typeof import("utils");
+declare const utils: typeof import("./utils");
 
 const timeout = 3000;
 
