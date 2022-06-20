@@ -1,10 +1,11 @@
-declare const csrfUtils: typeof import("./csrf-utils");
 declare const bootstrap: typeof import("bootstrap");
-declare const utils: typeof import("./utils");
 
-const timeout = 3000;
+import { selectOrError, sleep, assert } from "./utils.js";
+import { csrfHeader } from "./csrf-utils.js";
 
-class ContactModalLogic {
+const success_message_timeout = 3000;
+
+export class ContactModalLogic {
     private readonly modal: bootstrap.Modal;
     private readonly successMessageModal: bootstrap.Modal;
     private readonly actionButtonElement: HTMLButtonElement;
@@ -16,11 +17,11 @@ class ContactModalLogic {
     constructor(modalId: string, title: string) {
         this.modalId = modalId;
         this.title = title;
-        this.modal = new bootstrap.Modal(utils.selectOrError("#" + modalId));
-        this.successMessageModal = new bootstrap.Modal(utils.selectOrError("successMessageModal_" + modalId));
-        this.actionButtonElement = utils.selectOrError(modalId + "ActionButton");
-        this.messageTextElement = utils.selectOrError(modalId + "MessageText");
-        this.anonymousRadioElement = utils.selectOrError(modalId + "AnonymName");
+        this.modal = new bootstrap.Modal(selectOrError("#" + modalId));
+        this.successMessageModal = new bootstrap.Modal(selectOrError("#successMessageModal_" + modalId));
+        this.actionButtonElement = selectOrError("#" + modalId + "ActionButton");
+        this.messageTextElement = selectOrError("#" + modalId + "MessageText");
+        this.anonymousRadioElement = selectOrError("#" + modalId + "AnonymName");
         this.actionButtonElement.addEventListener("click", async event => {
             this.actionButtonElement.disabled = true;
             event.preventDefault();
@@ -30,18 +31,17 @@ class ContactModalLogic {
                 this.actionButtonElement.disabled = false;
                 return;
             }
-            let response;
             try {
-                response = await fetch("/contact", {
-                    body: JSON.stringify({
+                const response = await fetch("/contact", {
+                    body: new URLSearchParams({
                         anonymous: this.anonymousRadioElement.value,
                         message,
                         title: this.title,
                     }),
-                    headers: csrfUtils.csrfHeader,
+                    headers: csrfHeader,
                     method: "POST",
                 });
-                utils.assert(response.ok);
+                assert(response.ok);
             } catch (_) {
                 window.alert("Sending failed, sorry!");
                 return;
@@ -50,13 +50,12 @@ class ContactModalLogic {
             this.successMessageModal.show();
             this.messageTextElement.value = "";
 
-            await utils.sleep(timeout);
+            await sleep(success_message_timeout);
             this.successMessageModal.hide();
             this.actionButtonElement.disabled = false;
         });
-    }
-
-    public showModal(): void {
-        this.modal.show();
+        selectOrError("#" + modalId + "ShowButton").addEventListener("click", () => {
+            this.modal.show();
+        });
     }
 }

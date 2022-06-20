@@ -169,7 +169,6 @@ def contact(request):
         else request.user.email or f"User {request.user.id}"
     )
     subject = f"[EvaP] Message from {email}"
-
     if message:
         mail = EmailMessage(
             subject=subject,

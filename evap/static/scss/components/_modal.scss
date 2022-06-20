@@ -1,3 +1,10 @@
 .modal-xl {
     max-width: 1120px;
 }
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: max-content auto;
+    grid-row-gap: 0.75rem;
+    grid-column-gap: 0.25rem;
+}

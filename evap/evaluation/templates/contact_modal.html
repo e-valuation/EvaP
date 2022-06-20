@@ -1,4 +1,6 @@
-<div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
+{% load static %}
+<div class="modal fade" id="successMessageModal_{{ modal_id }}" tabindex="-1" role="dialog"
+     aria-labelledby="successMessageModalLabel_{{ modal_id }}" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,7 +13,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -21,14 +24,15 @@
             <form id="{{ modal_id }}Form">
                 <div class="modal-body">
                     {{ teaser }}
-                    <br /><br />
-                    <div class="mb-3">
-                        <div class="d-flex">
-                        <label for="{{ modal_id }}SenderName" class="control-label mb-1">{% trans 'Sender' %}:</label>
-                        {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages%}
-                            <div class="btn-group w-50 m-lg-auto" role="group"
+                    <br/><br/>
+                    <div class="mb-3 modal-grid">
+                        <label for="{{ modal_id }}SenderName"
+                               class="control-label my-auto">{% trans 'Sender' %}:</label>
+                        {% if modal_id == "feedbackModal" and allow_anonymous_feedback_messages %}
+                            <div class="btn-group w-75" role="group"
                                  aria-label="Basic radio toggle button group">
-                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}SenderName" checked>
+                                <input type="radio" class="btn-check" name="btnradio" id="{{ modal_id }}SenderName"
+                                       checked>
                                 <label class="btn btn-sm btn-outline-primary"
                                        for="{{ modal_id }}SenderName">{{ user.full_name }}</label>
 
@@ -37,30 +41,32 @@
                                        for="{{ modal_id }}AnonymName">{% trans 'Anonymous' %}</label>
                             </div>
                         {% else %}
-                            <input type="text" class="form-control" id="{{ modal_id }}SenderName" disabled
-                               value="{{ user.full_name }}"/>
+                            <input type="text" class="form-control" id="{{ modal_id }}SenderName"
+                                   disabled
+                                   value="{{ user.full_name }}"/>
                         {% endif %}
-                        </div>
+                        <label for="{{ modal_id }}Subject"
+                               class="control-label my-auto">{% trans 'Subject' %}:</label>
+                        <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled
+                               value="{{ title }}"/>
                     </div>
-                    <div class="mb-3">
-                        <label for="{{ modal_id }}Subject" class="control-label mb-1">{% trans 'Subject' %}:</label>
-                        <input type="text" class="form-control" id="{{ modal_id }}Subject" disabled value="{{ title }}" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="{{ modal_id }}MessageText" class="control-label mb-1">{% trans 'Message' %}:</label>
-                        <textarea autofocus class="form-control" id="{{ modal_id }}MessageText" style="resize:vertical;min-height:150px;"></textarea>
-                    </div>
+                    <textarea autofocus class="form-control" id="{{ modal_id }}MessageText"
+                              style="resize:vertical;min-height:150px;"></textarea>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
-                    <button type="submit" id="{{ modal_id }}ActionButton" class="btn btn-primary">{% trans 'Send Message' %}</button>
+                <div class="d-flex flex-wrap p-1 justify-content-end m-1">
+                    <button type="button" class="btn btn-light m-1"
+                            data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+                    <button type="submit" id="{{ modal_id }}ActionButton"
+                            class="btn btn-primary m-1">{% trans 'Send Message' %}</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/static/js/contact_modal.js"></script>
-<script type="text/javascript" src="/static/js/utils.js"></script>
-<script type="text/javascript">
-    var logic = new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}")
+<script type="module" src="/static/js/contact_modal.js"></script>
+<script type="module">
+    // TODO: This is meh. Can static be used?
+    import {ContactModalLogic} from "{% static 'js/contact_modal.js' %}";
+
+    new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}");
 </script>
