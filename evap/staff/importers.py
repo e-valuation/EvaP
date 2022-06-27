@@ -584,26 +584,28 @@ class EnrollmentImporter(ExcelImporter):
             self.create_success_messages(students_created, responsibles_created)
 
     @staticmethod
-    def make_phrase(count, singular, plural):
-        count_word = pgettext("count", "no") if count == 0 else str(count)
-        return f"{count_word} {ngettext(singular, plural, count)}"
+    def make_count_word(count):
+        return pgettext("count", "no") if count == 0 else str(count)
 
     def create_success_messages(self, students_created, responsibles_created):
         if not students_created and not responsibles_created and not self.evaluations:
             self.success_messages.append(_("Nothing changed"))
             return
 
-        student_phrase = self.make_phrase(len(students_created), "student", "students")
-        responsible_phrase = self.make_phrase(len(responsibles_created), "responsible", "responsibles")
-        evaluation_phrase = self.make_phrase(len(self.evaluations), "course/evaluation", "courses/evaluations")
+        student_count = len(students_created)
+        responsible_count = len(responsibles_created)
+        evaluation_count = len(self.evaluations)
 
-        message = _("Successfully created {evaluation_phrase}, {student_phrase} and {responsible_phrase}").format(
-            responsible_phrase=responsible_phrase, student_phrase=student_phrase, evaluation_phrase=evaluation_phrase
+        message = format_html(
+            _("Successfully created {}, {} and {}"),
+            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
+            ngettext("{count} student", "{count} students", student_count).format(count=self.make_count_word(student_count)),
+            ngettext("{count} responsible", "{count} responsibles", responsible_count).format(count=self.make_count_word(responsible_count)),
         )
 
         if students_created or responsibles_created:
             message = format_html(
-                "{}: {} {}",
+                "{}: {} <br> {}",
                 message,
                 create_user_list_html_string_for_message(students_created),
                 create_user_list_html_string_for_message(responsibles_created),
@@ -615,16 +617,20 @@ class EnrollmentImporter(ExcelImporter):
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
 
-        user_phrase = self.make_phrase(len(filtered_users), "user", "users")
-        evaluation_phrase = self.make_phrase(len(self.evaluations), "course/evaluation", "courses/evaluations")
+        user_count = len(filtered_users)
+        evaluation_count = len(self.evaluations)
 
-        msg = _("The import run will create {evaluation_phrase} and {user_phrase}").format(
-            evaluation_phrase=evaluation_phrase, user_phrase=user_phrase
-        )
         if not filtered_users:
-            msg += "."
+            msg = "."
         else:
-            msg = format_html("{}: {}", msg, create_user_list_html_string_for_message(filtered_users))
+            msg = format_html(": {}", create_user_list_html_string_for_message(filtered_users))
+
+        msg = format_html(_("The import run will create {} and {}{}"),
+            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
+            ngettext("{count} user", "{count} users", user_count).format(count=self.make_count_word(user_count)),
+            msg,
+        )
+
         self.success_messages.append(msg)
 
     @classmethod
@@ -722,7 +728,7 @@ class UserImporter(ExcelImporter):
             msg = _("No users were created.")
         else:
             msg = format_html(
-                _("{}: {}"),
+                "{}: {}",
                 ngettext(
                     "Successfully created {user_count} user",
                     "Successfully created {user_count} users",
@@ -751,9 +757,10 @@ class UserImporter(ExcelImporter):
             msg = _("The import run will create no users.")
         else:
             msg = format_html(
-                _("The import run will create {count} {object}: {list}"),
-                count=len(filtered_users),
-                object=ngettext("user", "users", len(filtered_users)),
+                "{object}: {list}",
+                object=ngettext(
+                    "The import run will create {count} user",
+                    "The import run will create {count} users", len(filtered_users)).format(count=len(filtered_users)),
                 list=create_user_list_html_string_for_message(filtered_users),
             )
         self.success_messages.append(msg)
@@ -813,8 +820,8 @@ class PersonImporter:
 
         if already_related:
             msg = format_html(
-                _("The following {object} already participant in evaluation {name}: {list}"),
-                object=ngettext("user is", "{user_count} are", len(already_related)).format(
+                "{object} {name}: {list}",
+                object=ngettext("The following user is already participating in evaluation", "The following {user_count} are already participating in evaluation", len(already_related)).format(
                     user_count=len(already_related)
                 ),
                 name=evaluation.full_name,
@@ -835,7 +842,7 @@ class PersonImporter:
             if test_run:
                 msg = format_html(
                     _("{object} would be added to the evaluation {name}: {list}"),
-                    object=ngettext("1 participant", "{user_count} participants", len(users_to_add)).format(
+                    object=ngettext("{user_count} participant", "{user_count} participants", len(users_to_add)).format(
                         user_count=len(users_to_add)
                     ),
                     name=evaluation.full_name,
@@ -843,8 +850,8 @@ class PersonImporter:
                 )
             else:
                 msg = format_html(
-                    _("{object} added to the evaluation {name}: {list}"),
-                    object=ngettext("1 participant", "{user_count} participants", len(users_to_add)).format(
+                    _("{object} {name}: {list}"),
+                    object=ngettext("{user_count} participant added to the evaluation", "{user_count} participants added to the evaluation", len(users_to_add)).format(
                         user_count=len(users_to_add)
                     ),
                     name=evaluation.full_name,
@@ -858,8 +865,8 @@ class PersonImporter:
         already_related = [contribution.contributor for contribution in already_related_contributions]
         if already_related:
             msg = format_html(
-                _("The following {object} already contributing to evaluation {name}: {list}"),
-                object=ngettext("user is", "{user_count} users are", len(already_related)).format(
+                "{object} {name}: {list}",
+                object=ngettext("The following user is already contributing to evaluation", "The following {user_count} users are already contributing to evaluation", len(already_related)).format(
                     user_count=len(already_related)
                 ),
                 name=evaluation.full_name,
@@ -884,10 +891,10 @@ class PersonImporter:
         else:
             if test_run:
                 msg = format_html(
-                    _("{object} would be added to the evaluation {name}: {list}"),
+                    _("{object} {name}: {list}"),
                     object=ngettext(
-                        "1 contributor",
-                        "{user_count} contributors",
+                        "{user_count} contributor would be added to the evaluation",
+                        "{user_count} contributors would be added to the evaluation",
                         len(users_to_add),
                     ).format(user_count=len(users_to_add)),
                     name=evaluation.full_name,
@@ -897,7 +904,7 @@ class PersonImporter:
                 msg = format_html(
                     _("{object} added to the evaluation {name}: {list}"),
                     object=ngettext(
-                        "1 contributor",
+                        "{user_count} contributor",
                         "{user_count} contributors",
                         len(users_to_add),
                     ).format(user_count=len(users_to_add)),
