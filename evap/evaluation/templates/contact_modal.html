@@ -65,7 +65,6 @@
 </div>
 <script type="module" src="/static/js/contact_modal.js"></script>
 <script type="module">
-    // TODO: This is meh. Can static be used?
     import {ContactModalLogic} from "{% static 'js/contact_modal.js' %}";
 
     new ContactModalLogic("{{ modal_id }}", "{{ title|escapejs }}");
