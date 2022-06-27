@@ -233,7 +233,11 @@ jobs:
       - name: Add localsettings
         run: cp evap/settings_test.py evap/localsettings.py
       - name: Render pages
-        run: coverage run manage.py ts render_pages && codecov -X gcov -F render-pages
+        run: coverage run manage.py ts render_pages
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          flags: render-pages
       - name: Store rendered pages
         uses: actions/upload-artifact@v2
         with:

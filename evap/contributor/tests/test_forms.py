@@ -5,7 +5,7 @@ from model_bakery import baker
 from evap.contributor.forms import EditorContributionForm, EvaluationForm
 from evap.evaluation.models import Contribution, Degree, Evaluation, Questionnaire, UserProfile
 from evap.evaluation.tests.tools import WebTest, get_form_data_from_instance
-from evap.staff.forms import ContributionFormSet
+from evap.staff.forms import ContributionFormset
 
 
 class EvaluationFormTests(TestCase):
@@ -63,7 +63,7 @@ class ContributionFormsetTests(TestCase):
         )
 
         InlineContributionFormset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+            Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
@@ -75,7 +75,7 @@ class ContributionFormsetTests(TestCase):
         contribution1.questionnaires.set([questionnaire_managers_only])
 
         InlineContributionFormset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+            Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
@@ -130,7 +130,7 @@ class ContributionFormsetTests(TestCase):
         contribution1 = baker.make(Contribution, evaluation=evaluation, contributor=non_proxy_user, questionnaires=[])
 
         InlineContributionFormset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+            Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 
@@ -141,7 +141,7 @@ class ContributionFormsetTests(TestCase):
         contribution1.save()
 
         InlineContributionFormset = inlineformset_factory(
-            Evaluation, Contribution, formset=ContributionFormSet, form=EditorContributionForm, extra=1
+            Evaluation, Contribution, formset=ContributionFormset, form=EditorContributionForm, extra=1
         )
         formset = InlineContributionFormset(instance=evaluation, form_kwargs={"evaluation": evaluation})
 

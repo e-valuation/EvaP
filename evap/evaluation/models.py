@@ -1992,15 +1992,7 @@ class EmailTemplate(models.Model):
             template.send_to_user(participant, {}, body_params, use_cc=True)
 
     @classmethod
-    def send_textanswer_reminder(cls):
+    def send_textanswer_reminder_to_user(cls, user: UserProfile, evaluations: List[Evaluation]):
+        body_params = {"user": user, "evaluations": evaluations}
         template = cls.objects.get(name=cls.TEXT_ANSWER_REVIEW_REMINDER)
-        evaluations = [
-            evaluation
-            for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
-            if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
-        ]
-        evaluations = sorted(evaluations, key=lambda evaluation: evaluation.full_name)
-        managers = Group.objects.get(name="Manager").user_set.all()
-        for manager in managers:
-            body_params = {"user": manager, "evaluations": evaluations}
-            template.send_to_user(manager, {}, body_params, use_cc=False)
+        template.send_to_user(user, {}, body_params, use_cc=False)

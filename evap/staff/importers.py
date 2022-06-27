@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, ngettext, pgettext
 
 from evap.evaluation.models import Contribution, Course, CourseType, Degree, Evaluation, UserProfile
-from evap.evaluation.tools import clean_email, unordered_groupby
+from evap.evaluation.tools import clean_email, ilen, unordered_groupby
 from evap.staff.tools import ImportType, create_user_list_html_string_for_message, user_edit_link
 
 
@@ -583,6 +583,7 @@ class EnrollmentImporter(ExcelImporter):
                 evaluation.participants.add(*participants)
             self.create_success_messages(students_created, responsibles_created)
 
+<<<<<<< HEAD
     @staticmethod
     def make_count_word(count):
         return pgettext("count", "no") if count == 0 else str(count)
@@ -601,6 +602,13 @@ class EnrollmentImporter(ExcelImporter):
             ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
             ngettext("{count} student", "{count} students", student_count).format(count=self.make_count_word(student_count)),
             ngettext("{count} responsible", "{count} responsibles", responsible_count).format(count=self.make_count_word(responsible_count)),
+=======
+        msg = format_html(
+            _("Successfully created {} courses/evaluations, {} participants and {} contributors:"),
+            self.created_evaluations_count,
+            len(students_created),
+            len(responsibles_created),
+>>>>>>> main
         )
 
         if students_created or responsibles_created:
@@ -616,6 +624,7 @@ class EnrollmentImporter(ExcelImporter):
         filtered_users = [user_data for user_data in self.users.values() if not user_data.user_already_exists()]
 
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
+<<<<<<< HEAD
 
         user_count = len(filtered_users)
         evaluation_count = len(self.evaluations)
@@ -629,9 +638,19 @@ class EnrollmentImporter(ExcelImporter):
             ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
             ngettext("{count} user", "{count} users", user_count).format(count=self.make_count_word(user_count)),
             msg,
+=======
+        msg = format_html(
+            _("The import run will create {} courses/evaluations and {} users:"),
+            self.created_evaluations_count,
+            len(filtered_users),
+>>>>>>> main
         )
 
         self.success_messages.append(msg)
+
+    @property
+    def created_evaluations_count(self):
+        return ilen(filter(lambda e: e.existing_course is None, self.evaluations.values()))
 
     @classmethod
     def process(cls, excel_content, semester, vote_start_datetime, vote_end_date, test_run):

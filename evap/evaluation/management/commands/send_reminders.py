@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
 from evap.evaluation.management.commands.tools import log_exceptions
@@ -48,5 +49,16 @@ class Command(BaseCommand):
     @staticmethod
     def send_textanswer_reminders():
         if datetime.date.today().weekday() in settings.TEXTANSWER_REVIEW_REMINDER_WEEKDAYS:
-            EmailTemplate.send_textanswer_reminder()
+            evaluations = [
+                evaluation
+                for evaluation in Evaluation.objects.filter(state=Evaluation.State.EVALUATED)
+                if evaluation.textanswer_review_state == Evaluation.TextAnswerReviewState.REVIEW_URGENT
+            ]
+            if not evaluations:
+                logger.info("no evaluations require a reminder about text answer review.")
+                return
+            evaluations = sorted(evaluations, key=lambda evaluation: evaluation.full_name)
+            for manager in Group.objects.get(name="Manager").user_set.all():
+                EmailTemplate.send_textanswer_reminder_to_user(manager, evaluations)
+
             logger.info("sent text answer review reminders.")

@@ -1,7 +1,21 @@
 {% load evaluation_filters %}
 
 {% for form in questionnaire_group %}
-    <h4{% if not forloop.first %} class="mt-3"{% endif %}>{{ form.questionnaire.public_name }}</h4>
+    <div class="d-flex">
+        <h4 class="{% if not forloop.first %} mt-3 {% elif contributor %} me-auto {% endif %}">{{ form.questionnaire.public_name }}</h4>
+        {% if forloop.first and contributor %}
+            <div class="tab-row">
+                <button
+                    type="button"
+                    class="btn btn-light btn-sm btn-sm-narrow {% if not preview %} tab-selectable{% endif %}"
+                    data-mark-no-answers-for="{{ contributor.id }}"
+                    {% if preview %}disabled{% endif %}
+                >
+                    {% blocktrans %}I can't give feedback about this contributor{% endblocktrans %}
+                </button>
+            </div>
+        {% endif%}
+    </div>
     {% if form.questionnaire.teaser %}
         <p>{{ form.questionnaire.teaser }}</p>
     {% endif %}

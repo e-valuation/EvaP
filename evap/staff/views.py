@@ -56,11 +56,11 @@ from evap.rewards.models import RewardPointGranting
 from evap.rewards.tools import can_reward_points_be_used_by, is_semester_activated
 from evap.staff import staff_mode
 from evap.staff.forms import (
-    AtLeastOneFormSet,
+    AtLeastOneFormset,
     ContributionCopyForm,
-    ContributionCopyFormSet,
+    ContributionCopyFormset,
     ContributionForm,
-    ContributionFormSet,
+    ContributionFormset,
     CourseCopyForm,
     CourseForm,
     CourseTypeForm,
@@ -75,7 +75,7 @@ from evap.staff.forms import (
     FaqQuestionForm,
     FaqSectionForm,
     ImportForm,
-    ModelWithImportNamesFormSet,
+    ModelWithImportNamesFormset,
     QuestionForm,
     QuestionnaireForm,
     QuestionnairesAssignForm,
@@ -105,7 +105,7 @@ from evap.staff.tools import (
 )
 from evap.student.forms import QuestionnaireVotingForm
 from evap.student.models import TextAnswerWarning
-from evap.student.views import get_valid_form_groups_or_render_vote_page
+from evap.student.views import render_vote_page
 
 
 @manager_required
@@ -1049,7 +1049,7 @@ def evaluation_create(request, semester_id, course_id=None):
     if course_id:
         evaluation.course = get_object_or_404(Course, id=course_id)
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1
+        Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1
     )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
@@ -1088,7 +1088,7 @@ def evaluation_copy(request, semester_id, evaluation_id):
     form = EvaluationCopyForm(request.POST or None, evaluation)
 
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionCopyFormSet, form=ContributionCopyForm, extra=1
+        Evaluation, Contribution, formset=ContributionCopyFormset, form=ContributionCopyForm, extra=1
     )
     formset = InlineContributionFormset(request.POST or None, instance=evaluation, new_instance=form.instance)
 
@@ -1171,7 +1171,7 @@ def helper_evaluation_edit(request, semester, evaluation):
 
     editable = evaluation.can_be_edited_by_manager
     InlineContributionFormset = inlineformset_factory(
-        Evaluation, Contribution, formset=ContributionFormSet, form=ContributionForm, extra=1 if editable else 0
+        Evaluation, Contribution, formset=ContributionFormset, form=ContributionForm, extra=1 if editable else 0
     )
 
     evaluation_form = EvaluationForm(request.POST or None, instance=evaluation, semester=semester)
@@ -1601,7 +1601,7 @@ def evaluation_preview(request, semester_id, evaluation_id):
         raise PermissionDenied
     evaluation = get_object_or_404(Evaluation, id=evaluation_id, course__semester=semester)
 
-    return get_valid_form_groups_or_render_vote_page(request, evaluation, preview=True)[1]
+    return render_vote_page(request, evaluation, preview=True)
 
 
 @manager_required
@@ -1646,7 +1646,7 @@ def questionnaire_view(request, questionnaire_id):
 def questionnaire_create(request):
     questionnaire = Questionnaire()
     InlineQuestionFormset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
     )
 
     form = QuestionnaireForm(request.POST or None, instance=questionnaire)
@@ -1684,7 +1684,7 @@ def make_questionnaire_edit_forms(request, questionnaire, editable):
     InlineQuestionFormset = inlineformset_factory(
         Questionnaire,
         Question,
-        formset=AtLeastOneFormSet,
+        formset=AtLeastOneFormset,
         form=QuestionForm,
         exclude=("questionnaire",),
         **formset_kwargs,
@@ -1735,7 +1735,7 @@ def get_identical_form_and_formset(questionnaire):
     specified in questionnaire_id. Used for copying and creating of new versions.
     """
     inline_question_formset = inlineformset_factory(
-        Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=("questionnaire",)
+        Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
     )
 
     form = QuestionnaireForm(instance=questionnaire)
@@ -1749,7 +1749,7 @@ def questionnaire_copy(request, questionnaire_id):
     if request.method == "POST":
         questionnaire = Questionnaire()
         InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=("questionnaire",)
+            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
@@ -1784,7 +1784,7 @@ def questionnaire_new_version(request, questionnaire_id):
     if request.method == "POST":
         questionnaire = Questionnaire()
         InlineQuestionFormset = inlineformset_factory(
-            Questionnaire, Question, formset=AtLeastOneFormSet, form=QuestionForm, extra=1, exclude=("questionnaire",)
+            Questionnaire, Question, formset=AtLeastOneFormset, form=QuestionForm, extra=1, exclude=("questionnaire",)
         )
 
         form = QuestionnaireForm(request.POST, instance=questionnaire)
@@ -1879,7 +1879,7 @@ def degree_index(request):
     degrees = Degree.objects.all()
 
     DegreeFormset = modelformset_factory(
-        Degree, form=DegreeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1
+        Degree, form=DegreeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
     )
     formset = DegreeFormset(request.POST or None, queryset=degrees)
 
@@ -1896,7 +1896,7 @@ def course_type_index(request):
     course_types = CourseType.objects.all()
 
     CourseTypeFormset = modelformset_factory(
-        CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormSet, can_delete=True, extra=1
+        CourseType, form=CourseTypeForm, formset=ModelWithImportNamesFormset, can_delete=True, extra=1
     )
     formset = CourseTypeFormset(request.POST or None, queryset=course_types)
 
@@ -1945,10 +1945,10 @@ def course_type_merge(request, main_type_id, other_type_id):
 def text_answer_warnings_index(request):
     text_answer_warnings = TextAnswerWarning.objects.all()
 
-    TextAnswerWarningFormSet = modelformset_factory(
+    TextAnswerWarningFormset = modelformset_factory(
         TextAnswerWarning, form=TextAnswerWarningForm, can_delete=True, extra=1
     )
-    formset = TextAnswerWarningFormSet(request.POST or None, queryset=text_answer_warnings)
+    formset = TextAnswerWarningFormset(request.POST or None, queryset=text_answer_warnings)
 
     if formset.is_valid():
         formset.save()
