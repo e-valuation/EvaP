@@ -588,19 +588,25 @@ class EnrollmentImporter(ExcelImporter):
         return pgettext("count", "no") if count == 0 else str(count)
 
     def create_success_messages(self, students_created, responsibles_created):
-        if not students_created and not responsibles_created and not self.evaluations:
+        student_count = len(students_created)
+        responsible_count = len(responsibles_created)
+        evaluation_count = self.created_evaluations_count
+
+        if not students_created and not responsibles_created and not evaluation_count:
             self.success_messages.append(_("Nothing changed"))
             return
 
-        student_count = len(students_created)
-        responsible_count = len(responsibles_created)
-        evaluation_count = len(self.evaluations)
-
         message = format_html(
             _("Successfully created {}, {} and {}"),
-            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
-            ngettext("{count} student", "{count} students", student_count).format(count=self.make_count_word(student_count)),
-            ngettext("{count} responsible", "{count} responsibles", responsible_count).format(count=self.make_count_word(responsible_count)),
+            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(
+                count=self.make_count_word(evaluation_count)
+            ),
+            ngettext("{count} student", "{count} students", student_count).format(
+                count=self.make_count_word(student_count)
+            ),
+            ngettext("{count} responsible", "{count} responsibles", responsible_count).format(
+                count=self.make_count_word(responsible_count)
+            ),
         )
 
         if students_created or responsibles_created:
@@ -618,15 +624,18 @@ class EnrollmentImporter(ExcelImporter):
         self.success_messages.append(_("The test run showed no errors. No data was imported yet."))
 
         user_count = len(filtered_users)
-        evaluation_count = len(self.evaluations)
+        evaluation_count = self.created_evaluations_count
 
         if not filtered_users:
             msg = "."
         else:
             msg = format_html(": {}", create_user_list_html_string_for_message(filtered_users))
 
-        msg = format_html(_("The import run will create {} and {}{}"),
-            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(count=self.make_count_word(evaluation_count)),
+        msg = format_html(
+            _("The import run will create {} and {}{}"),
+            ngettext("{count} course/evaluation", "{count} courses/evaluations", evaluation_count).format(
+                count=self.make_count_word(evaluation_count)
+            ),
             ngettext("{count} user", "{count} users", user_count).format(count=self.make_count_word(user_count)),
             msg,
         )
@@ -764,7 +773,9 @@ class UserImporter(ExcelImporter):
                 "{object}: {list}",
                 object=ngettext(
                     "The import run will create {count} user",
-                    "The import run will create {count} users", len(filtered_users)).format(count=len(filtered_users)),
+                    "The import run will create {count} users",
+                    len(filtered_users),
+                ).format(count=len(filtered_users)),
                 list=create_user_list_html_string_for_message(filtered_users),
             )
         self.success_messages.append(msg)
@@ -825,9 +836,11 @@ class PersonImporter:
         if already_related:
             msg = format_html(
                 "{object} {name}: {list}",
-                object=ngettext("The following user is already participating in evaluation", "The following {user_count} are already participating in evaluation", len(already_related)).format(
-                    user_count=len(already_related)
-                ),
+                object=ngettext(
+                    "The following user is already participating in evaluation",
+                    "The following {user_count} are already participating in evaluation",
+                    len(already_related),
+                ).format(user_count=len(already_related)),
                 name=evaluation.full_name,
                 list=create_user_list_html_string_for_message(already_related),
             )
@@ -855,9 +868,11 @@ class PersonImporter:
             else:
                 msg = format_html(
                     _("{object} {name}: {list}"),
-                    object=ngettext("{user_count} participant added to the evaluation", "{user_count} participants added to the evaluation", len(users_to_add)).format(
-                        user_count=len(users_to_add)
-                    ),
+                    object=ngettext(
+                        "{user_count} participant added to the evaluation",
+                        "{user_count} participants added to the evaluation",
+                        len(users_to_add),
+                    ).format(user_count=len(users_to_add)),
                     name=evaluation.full_name,
                     list=create_user_list_html_string_for_message(users_to_add),
                 )
@@ -870,9 +885,11 @@ class PersonImporter:
         if already_related:
             msg = format_html(
                 "{object} {name}: {list}",
-                object=ngettext("The following user is already contributing to evaluation", "The following {user_count} users are already contributing to evaluation", len(already_related)).format(
-                    user_count=len(already_related)
-                ),
+                object=ngettext(
+                    "The following user is already contributing to evaluation",
+                    "The following {user_count} users are already contributing to evaluation",
+                    len(already_related),
+                ).format(user_count=len(already_related)),
                 name=evaluation.full_name,
                 list=create_user_list_html_string_for_message(already_related),
             )
