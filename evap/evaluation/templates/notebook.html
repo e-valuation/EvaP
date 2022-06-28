@@ -11,7 +11,8 @@
           
             <form method="POST" action="{% url 'evaluation:notebook' %}" class="body">
                 {% csrf_token %}
-                <textarea class="notebook-textarea form-control" id="id_notes" name="id_notes" style="resize: none;">{{notebook_content}}</textarea>
+                <!-- <textarea class="notebook-textarea form-control" id="id_notes" name="{{ form.fields.notes.html_name }}" style="resize: none;">{{notebook_content}}</textarea> -->
+                {{ notebook_form.notes }}
                 <div class="mt-3 text-center">
                     <input class="btn btn-primary" type="submit" value="{% trans 'Save' %}">
                 </div>

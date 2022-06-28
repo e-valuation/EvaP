@@ -227,6 +227,7 @@ def profile_edit(request):
         ),
     )
 
+
 @login_required
 def notebook(request):
     if request.method == "POST":
@@ -236,5 +237,5 @@ def notebook(request):
         if form.is_valid():
             form.save()
             return HttpResponse(status=204)
-    
+
     return HttpResponseBadRequest()

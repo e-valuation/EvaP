@@ -2,6 +2,7 @@ import random
 
 from django.conf import settings
 from django.utils.translation import get_language
+from evap.evaluation.forms import NotebookForm
 
 
 def slogan(request):
@@ -13,8 +14,9 @@ def slogan(request):
 def debug(request):
     return {"debug": settings.DEBUG}
 
+
 def notebook_content(request):
-    content = ""
+    c={}
     if request.user.is_authenticated:
-        content = request.user.notes
-    return {"notebook_content": content}
+        c["notebook_form"] = NotebookForm(instance=request.user)
+    return c
