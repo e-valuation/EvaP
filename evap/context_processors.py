@@ -2,6 +2,7 @@ import random
 
 from django.conf import settings
 from django.utils.translation import get_language
+
 from evap.evaluation.forms import NotebookForm
 
 
@@ -16,7 +17,7 @@ def debug(request):
 
 
 def notebook_content(request):
-    c={}
+    c = {}
     if request.user.is_authenticated:
         c["notebook_form"] = NotebookForm(instance=request.user)
     return c

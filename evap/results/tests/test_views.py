@@ -9,9 +9,9 @@ from django.db import connection
 from django.test import override_settings
 from django.test.testcases import TestCase
 from django.test.utils import CaptureQueriesContext
+from django.views.decorators.csrf import csrf_exempt
 from django_webtest import WebTest
 from model_bakery import baker
-from django.views.decorators.csrf import csrf_exempt
 
 from evap.evaluation.models import (
     Contribution,

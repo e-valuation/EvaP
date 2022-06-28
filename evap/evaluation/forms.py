@@ -126,8 +126,8 @@ class DelegatesForm(forms.ModelForm):
 class NotebookForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['notes'].widget.attrs = {'class': 'notebook-textarea'}
-        
+        self.fields["notes"].widget.attrs = {"class": "notebook-textarea"}
+
     class Meta:
         model = UserProfile
         fields = ("notes",)
