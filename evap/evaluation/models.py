@@ -1413,6 +1413,7 @@ class TextAnswer(Answer):
     class State(models.TextChoices):
         HIDDEN = "HI", _("hidden")
         PUBLISHED = "PU", _("published")
+        # Reviewers decided that this answer should only be displayed to the contributor the question was about
         PRIVATE = "PR", _("private")
         NOT_REVIEWED = "NR", _("not reviewed")
 

@@ -44,6 +44,7 @@ from evap.evaluation.models import (
 )
 from evap.evaluation.tools import (
     AttachmentResponse,
+    HttpResponseNoContent,
     get_object_from_dict_pk_entry_or_logged_40x,
     get_parameter_from_url_or_session,
     sort_formset,
@@ -1511,7 +1512,7 @@ def evaluation_textanswers(request, semester_id, evaluation_id):
         request.session["review-visited"] = visited
 
         sections = evaluation_sections + contributor_sections
-        template_data.update(dict(sections=sections, next_evaluations=next_evaluations))
+        template_data.update(dict(sections=sections, evaluation=evaluation, next_evaluations=next_evaluations))
         return render(request, "staff_evaluation_textanswers_quick.html", template_data)
 
     template_data.update(dict(evaluation_sections=evaluation_sections, contributor_sections=contributor_sections))
@@ -1530,7 +1531,7 @@ def evaluation_textanswers_skip(request):
 @require_POST
 @reviewer_required
 def evaluation_textanswers_update_publish(request):
-    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "id")
+    answer = get_object_from_dict_pk_entry_or_logged_40x(TextAnswer, request.POST, "answer_id")
     evaluation = get_object_from_dict_pk_entry_or_logged_40x(Evaluation, request.POST, "evaluation_id")
     action = request.POST.get("action", None)
 
@@ -1545,18 +1546,14 @@ def evaluation_textanswers_update_publish(request):
         answer.publish()
     elif action == "make_private":
         answer.make_private()
-    elif action == "hide":
+    elif action == "delete":
         answer.hide()
     elif action == "unreview":
         answer.unreview()
     elif action == "textanswer_edit":
-        url = reverse(
-            "staff:evaluation_textanswer_edit", args=[evaluation.course.semester.id, evaluation.pk, answer.pk]
-        )
-        return HttpResponse(url)
+        return redirect("staff:evaluation_textanswer_edit", evaluation.course.semester.id, evaluation.pk, answer.pk)
     else:
         raise SuspiciousOperation
-
     answer.save()
 
     if evaluation.state == Evaluation.State.EVALUATED and evaluation.is_fully_reviewed:
@@ -1566,7 +1563,7 @@ def evaluation_textanswers_update_publish(request):
         evaluation.reopen_review()
         evaluation.save()
 
-    return HttpResponse()  # 200 OK
+    return HttpResponseNoContent()
 
 
 @manager_required
